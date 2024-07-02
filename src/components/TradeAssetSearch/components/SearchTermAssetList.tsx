@@ -1,6 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
+import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByName,
   selectWalletConnectedChainIds,
@@ -8,6 +9,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
 export type SearchTermAssetListProps = {
@@ -19,18 +21,19 @@ export type SearchTermAssetListProps = {
 }
 
 export const SearchTermAssetList = ({
-  isLoading,
+  isLoading: assetListLoading,
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
   onAssetClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
-  const groupIsLoading = useMemo(() => {
-    return [Boolean(isLoading)]
-  }, [isLoading])
-
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
+  const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
+    contractAddress: searchString,
+    chainIds,
+  })
 
   const assetsForChain = useMemo(() => {
     if (activeChainId === 'All') {
@@ -44,16 +47,51 @@ export const SearchTermAssetList = ({
     return assets.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
-  const searchTermAssets = useMemo(() => {
-    return filterAssetsBySearchTerm(searchString, assetsForChain)
-  }, [searchString, assetsForChain])
+  const customAssets: Asset[] = useMemo(
+    () =>
+      customTokens
+        .map(metaData => metaData.data)
+        .filter(isSome)
+        .map(metaData => {
+          const { name, symbol, decimals, logo } = metaData
+          // If we can't get all the information we need to create an Asset, don't allow the custom token
+          if (!name || !symbol || !decimals) return null
+          return {
+            chainId: metaData.chainId,
+            assetId: toAssetId({
+              chainId: metaData.chainId,
+              assetNamespace: ASSET_NAMESPACE.erc20, // FIXME: make this dynamic based on the ChainId
+              assetReference: metaData.contractAddress,
+            }),
+            name,
+            symbol,
+            precision: decimals,
+            icon: logo ?? '',
+            explorer: '', // FIXME
+            explorerTxLink: '', // FIXME
+            explorerAddressLink: '', // FIXME
+            color: '', // FIXME: hexColor,
+          }
+        })
+        .filter(isSome),
+    [customTokens],
+  )
 
-  const { groups, groupCounts } = useMemo(() => {
+  const searchTermAssets = useMemo(() => {
+    return [...customAssets, ...filterAssetsBySearchTerm(searchString, assetsForChain)]
+  }, [assetsForChain, customAssets, searchString])
+
+  const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {
-      groups: ['modals.assetSearch.searchResults'],
-      groupCounts: [searchTermAssets.length],
+      groups: ['modals.assetSearch.customAssets', 'modals.assetSearch.searchResults'],
+      groupCounts: [customAssets.length, searchTermAssets.length],
+      groupIsLoading: [isLoadingCustomTokens, assetListLoading],
     }
-  }, [searchTermAssets.length])
+  }, [assetListLoading, customAssets.length, isLoadingCustomTokens, searchTermAssets.length])
+
+  const onImportClick = useCallback(() => {
+    console.log('import click')
+  }, [])
 
   return (
     <GroupedAssetList
@@ -63,6 +101,7 @@ export const SearchTermAssetList = ({
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
       onAssetClick={onAssetClick}
+      onImportClick={onImportClick}
     />
   )
 }

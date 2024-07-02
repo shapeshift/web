@@ -109,6 +109,7 @@
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",
+    "searchNameOrAddress": "Search by name or address",
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",
@@ -941,7 +942,8 @@
     "assetSearch": {
       "myAssets": "My Assets",
       "popularAssets": "Popular Assets",
-      "searchResults": "Search Results"
+      "searchResults": "Search Results",
+      "customAssets": "Custom Assets"
     },
     "popup": {
       "body": "We've launched a secure window to complete your order.",

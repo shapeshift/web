@@ -1,4 +1,4 @@
-import { Button, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -8,11 +8,14 @@ import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FormDivider } from 'components/FormDivider'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
@@ -86,6 +89,14 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const amountCryptoBaseUnit = useMemo(
     () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
     [amountCryptoPrecision, stakingAsset?.precision],
+  )
+
+  const {
+    state: { wallet },
+  } = useWallet()
+  const isChainSupportedByWallet = useWalletSupportsChain(
+    fromAssetId(stakingAssetId).chainId,
+    wallet,
   )
 
   const percentage = useWatch<UnstakeInputValues, 'percentage'>({
@@ -285,6 +296,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     }
   }, [feeAsset?.symbol, translate, validateHasEnoughFeeBalance])
 
+  const chainNotSupportedByWalletCopy = useMemo(() => {
+    if (isChainSupportedByWallet) return
+    return translate('RFOX.chainNotSupported')
+  }, [isChainSupportedByWallet, translate])
+
   if (!stakingAsset) return null
 
   return (
@@ -388,21 +404,25 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             bg='background.surface.raised.accent'
             borderBottomRadius='xl'
           >
-            <Button
+            <ButtonWalletPredicate
+              isValidWallet={
+                !Boolean(
+                  !hasEnteredValue ||
+                    !isUnstakeFeesSuccess ||
+                    Boolean(errors.amountFieldInput) ||
+                    !cooldownPeriod,
+                )
+              }
               size='lg'
               mx={-2}
               onClick={handleWarning}
               colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
-              isDisabled={Boolean(
-                !hasEnteredValue ||
-                  !isUnstakeFeesSuccess ||
-                  Boolean(errors.amountFieldInput) ||
-                  !cooldownPeriod,
-              )}
               isLoading={isUnstakeFeesLoading}
             >
-              {errors.amountFieldInput?.message || translate('RFOX.unstake')}
-            </Button>
+              {errors.amountFieldInput?.message ||
+                chainNotSupportedByWalletCopy ||
+                translate('RFOX.unstake')}
+            </ButtonWalletPredicate>
           </CardFooter>
         </FormProvider>
       </WarningAcknowledgement>

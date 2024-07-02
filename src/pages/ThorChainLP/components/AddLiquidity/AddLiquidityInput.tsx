@@ -1555,30 +1555,31 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {maybeSymAfterRuneAlert}
 
           <ButtonWalletPredicate
-            isValidWallet={!isDemoWallet}
+            isValidWallet={
+              !Boolean(
+                disabledSymDepositAfterRune ||
+                  isTradingActive === false ||
+                  !isThorchainLpDepositEnabled ||
+                  !confirmedQuote ||
+                  isVotingPowerLoading ||
+                  !hasEnoughAssetBalance ||
+                  !hasEnoughRuneBalance ||
+                  isApprovalTxPending ||
+                  (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
+                  isSweepNeededError ||
+                  isEstimatedPoolAssetFeesDataError ||
+                  isEstimatedRuneFeesDataError ||
+                  bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                    .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                    .isZero() ||
+                  notEnoughFeeAssetError ||
+                  notEnoughRuneFeeError ||
+                  !walletSupportsOpportunity,
+              )
+            }
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
-            isDisabled={
-              disabledSymDepositAfterRune ||
-              isTradingActive === false ||
-              !isThorchainLpDepositEnabled ||
-              !confirmedQuote ||
-              isVotingPowerLoading ||
-              !hasEnoughAssetBalance ||
-              !hasEnoughRuneBalance ||
-              isApprovalTxPending ||
-              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
-              isSweepNeededError ||
-              isEstimatedPoolAssetFeesDataError ||
-              isEstimatedRuneFeesDataError ||
-              bnOrZero(actualAssetDepositAmountCryptoPrecision)
-                .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-                .isZero() ||
-              notEnoughFeeAssetError ||
-              notEnoughRuneFeeError ||
-              !walletSupportsOpportunity
-            }
             isLoading={
               (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
               isVotingPowerLoading ||

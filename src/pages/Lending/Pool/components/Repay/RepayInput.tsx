@@ -37,7 +37,6 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -111,7 +110,6 @@ export const RepayInput = ({
     selectFeeAssetById(state, repaymentAsset?.assetId ?? ''),
   )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
-  const isDemoWallet = useWallet().state.isDemoWallet
 
   const repaymentAccountNumberFilter = useMemo(
     () => ({ accountId: repaymentAccountId ?? '' }),
@@ -474,7 +472,6 @@ export const RepayInput = ({
   }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
-    if (isDemoWallet) return translate('common.unsupportedWallet')
     if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
     if (_isSmartContractAddress) return translate('trade.errors.smartContractWalletNotSupported')
     if (lendingQuoteCloseData && (!hasEnoughBalanceForTxPlusFees || !hasEnoughBalanceForTx))
@@ -517,7 +514,6 @@ export const RepayInput = ({
     lendingQuoteCloseError?.message,
     repaymentPercent,
     translate,
-    isDemoWallet,
   ])
 
   const quoteErrorTooltipTranslation = useMemo(() => {
@@ -733,7 +729,24 @@ export const RepayInput = ({
           isDisabled={!lendingQuoteCloseError}
         >
           <ButtonWalletPredicate
-            isValidWallet={!isDemoWallet}
+            isValidWallet={
+              !Boolean(
+                !isThorchainLendingRepayEnabled ||
+                  isApprovalTxPending ||
+                  isInboundAddressLoading ||
+                  isAllowanceDataLoading ||
+                  isLendingPositionDataLoading ||
+                  isLendingPositionDataError ||
+                  isLendingQuoteCloseLoading ||
+                  isLendingQuoteCloseRefetching ||
+                  isEstimatedFeesDataLoading ||
+                  isApprovalFeesDataLoading ||
+                  isLendingQuoteCloseError ||
+                  isEstimatedFeesDataError ||
+                  disableSmartContractRepayment ||
+                  quoteErrorTranslation,
+              )
+            }
             size='lg-multiline'
             colorScheme={
               isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation
@@ -753,22 +766,6 @@ export const RepayInput = ({
               isInboundAddressLoading ||
               isAllowanceDataLoading
             }
-            isDisabled={Boolean(
-              !isThorchainLendingRepayEnabled ||
-                isApprovalTxPending ||
-                isInboundAddressLoading ||
-                isAllowanceDataLoading ||
-                isLendingPositionDataLoading ||
-                isLendingPositionDataError ||
-                isLendingQuoteCloseLoading ||
-                isLendingQuoteCloseRefetching ||
-                isEstimatedFeesDataLoading ||
-                isApprovalFeesDataLoading ||
-                isLendingQuoteCloseError ||
-                isEstimatedFeesDataError ||
-                disableSmartContractRepayment ||
-                quoteErrorTranslation,
-            )}
           >
             {quoteErrorTranslation ? quoteErrorTranslation : confirmTranslation}
           </ButtonWalletPredicate>

@@ -15,21 +15,31 @@ export const ButtonWalletPredicate = ({
   ...restProps
 }: ButtonWalletPredicateProps) => {
   const translate = useTranslate()
-  const { dispatch } = useWallet()
+  const {
+    dispatch,
+    state: { isDemoWallet },
+  } = useWallet()
 
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
+  if (isDemoWallet)
+    return (
+      <Button {...restProps} onClick={handleConnect} isDisabled={false} colorScheme='blue'>
+        {translate('common.connectWallet')}
+      </Button>
+    )
+
   return (
     <>
-      {isValidWallet ? (
-        <Button {...restProps}>{children}</Button>
-      ) : (
-        <Button {...restProps} onClick={handleConnect} isDisabled={false}>
-          {translate('common.connectWallet')}
-        </Button>
-      )}
+      <Button
+        {...restProps}
+        isDisabled={!isValidWallet}
+        colorScheme={isValidWallet ? restProps.colorScheme : 'red'}
+      >
+        {children}
+      </Button>
     </>
   )
 }

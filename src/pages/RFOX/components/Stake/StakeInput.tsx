@@ -1,4 +1,4 @@
-import { Button, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
@@ -9,6 +9,7 @@ import { useHistory } from 'react-router'
 import { InfoAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FormDivider } from 'components/FormDivider'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -16,6 +17,8 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
@@ -75,6 +78,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
+  const {
+    state: { wallet },
+  } = useWallet()
+  const isChainSupportedByWallet = useWalletSupportsChain(
+    fromAssetId(selectedAssetId).chainId,
+    wallet,
+  )
 
   const methods = useForm<StakeInputValues>({
     defaultValues: defaultFormValues,
@@ -397,6 +407,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [assetUserCurrencyRate, setValue],
   )
 
+  const chainNotSupportedByWalletCopy = useMemo(() => {
+    if (isChainSupportedByWallet) return
+    return translate('RFOX.chainNotSupported')
+  }, [isChainSupportedByWallet, translate])
+
   if (!selectedAsset) return null
 
   return (
@@ -483,17 +498,20 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             bg='background.surface.raised.accent'
             borderBottomRadius='xl'
           >
-            <Button
+            <ButtonWalletPredicate
+              isValidWallet={
+                !Boolean(
+                  errors.amountFieldInput ||
+                    !runeAddress ||
+                    !isValidStakingAmount ||
+                    !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                    !cooldownPeriod ||
+                    !isChainSupportedByWallet,
+                )
+              }
               size='lg'
               mx={-2}
               onClick={handleWarning}
-              isDisabled={
-                Boolean(errors.amountFieldInput) ||
-                !runeAddress ||
-                !isValidStakingAmount ||
-                !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                !cooldownPeriod
-              }
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
               colorScheme={
                 Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
@@ -501,8 +519,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             >
               {errors.amountFieldInput?.message ||
                 errors.manualRuneAddress?.message ||
+                chainNotSupportedByWalletCopy ||
                 translate('RFOX.stake')}
-            </Button>
+            </ButtonWalletPredicate>
           </CardFooter>
         </FormProvider>
       </InfoAcknowledgement>

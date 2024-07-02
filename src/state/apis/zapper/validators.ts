@@ -47,7 +47,7 @@ export enum SupportedZapperNetwork {
   Base = 'base',
 }
 
-export enum SupportedZapperNetworkIncludeUnsupported {
+enum SupportedZapperNetworkIncludeUnsupported {
   // Supported
   Avalanche = 'avalanche',
   BinanceSmartChain = 'binance-smart-chain',
@@ -68,6 +68,7 @@ export enum SupportedZapperNetworkIncludeUnsupported {
   Evmos = 'evmos',
   Blast = 'blast',
   Degen = 'degen',
+  ZkSync = 'zksync',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {

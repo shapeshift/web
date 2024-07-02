@@ -37,7 +37,7 @@ export type SearchTermAssetListProps = {
 }
 
 export const SearchTermAssetList = ({
-  isLoading,
+  isLoading: assetListLoading,
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
@@ -47,9 +47,6 @@ export const SearchTermAssetList = ({
   const [isSearchingCustomTokens, setIsSearchingCustomTokens] = useState(false)
 
   const assets = useAppSelector(selectAssetsSortedByName)
-  const groupIsLoading = useMemo(() => {
-    return [Boolean(isLoading)]
-  }, [isLoading])
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -116,16 +113,16 @@ export const SearchTermAssetList = ({
   }, [activeChainId, isSearchingCustomTokens, searchString, walletConnectedChainIds])
 
   const searchTermAssets = useMemo(() => {
-    const baseAndCustomAssets = [...assetsForChain, ...customAssets].filter(isSome)
-    return filterAssetsBySearchTerm(searchString, baseAndCustomAssets)
+    return [...customAssets, ...filterAssetsBySearchTerm(searchString, assetsForChain)]
   }, [assetsForChain, customAssets, searchString])
 
-  const { groups, groupCounts } = useMemo(() => {
+  const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {
-      groups: ['modals.assetSearch.searchResults'],
-      groupCounts: [searchTermAssets.length],
+      groups: ['modals.assetSearch.customAssets', 'modals.assetSearch.searchResults'],
+      groupCounts: [customAssets.length, searchTermAssets.length],
+      groupIsLoading: [isSearchingCustomTokens, assetListLoading],
     }
-  }, [searchTermAssets.length])
+  }, [assetListLoading, customAssets.length, isSearchingCustomTokens, searchTermAssets.length])
 
   return (
     <GroupedAssetList

@@ -53,21 +53,20 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
           <Text translation='accounts.accounts' />
         </Heading>
       </Skeleton>
+      <Skeleton isLoaded={!isLoading}>
+        <Button
+          loadingText={translate('Add View-Only Account')}
+          leftIcon={addIcon}
+          colorScheme='blue'
+          onClick={openAddAccountModal}
+          size='sm'
+          data-test='add-account-button'
+        >
+          <Text translation='Add View-Only Account' />
+        </Button>
+      </Skeleton>
+      {/* TODO(gomes): revert me, dis just so this can look nice */}
       {!isAccountManagementEnabled && isMultiAccountWallet && (
-        <Skeleton isLoaded={!isLoading}>
-          <Button
-            loadingText={translate('accounts.addAccount')}
-            leftIcon={addIcon}
-            colorScheme='blue'
-            onClick={openAddAccountModal}
-            size='sm'
-            data-test='add-account-button'
-          >
-            <Text translation='accounts.addAccount' />
-          </Button>
-        </Skeleton>
-      )}
-      {isAccountManagementEnabled && isMultiAccountWallet && (
         <Skeleton isLoaded={!isLoading}>
           <Button
             loadingText={translate('accountManagement.menuTitle')}

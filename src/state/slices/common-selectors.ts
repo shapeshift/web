@@ -38,9 +38,12 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
   selectWalletEnabledAccountIds,
-  (walletId, walletById, enabledAccountIds): AccountId[] => {
+  (state: ReduxState) => state.portfolio.viewOnlyAccountMetadata.ids,
+  (walletId, walletById, enabledAccountIds, viewOnlyAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
-    return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
+    // Uniq merge wallet AccountIds and view-only ones
+    const mergedAccountIds = [...new Set([...walletAccountIds, ...viewOnlyAccountIds])]
+    return mergedAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
   },
 )
 

@@ -51,6 +51,10 @@ export const mockStore: ReduxState = {
       byId: {},
       ids: [],
     },
+    viewOnlyAccountMetadata: {
+      byId: {},
+      ids: [],
+    },
     accountMetadata: {
       byId: {},
       ids: [],

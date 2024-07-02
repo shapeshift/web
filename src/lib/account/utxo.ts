@@ -48,7 +48,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         if (!pubkey) continue
 
         const accountId = toAccountId({ chainId, account: pubkey })
-        acc[accountId] = { accountType, bip44Params }
+        acc[accountId] = { isViewOnly: false, accountType, bip44Params }
       }
     }
     return acc

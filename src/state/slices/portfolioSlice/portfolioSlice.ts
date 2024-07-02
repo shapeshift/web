@@ -104,6 +104,30 @@ export const portfolio = createSlice({
         walletId: string
       }>(),
     },
+    upsertViewOnlyAccountMetadata: {
+      reducer: (
+        draftState,
+        { payload }: { payload: { accountMetadataByAccountId: AccountMetadataById } },
+      ) => {
+        // WARNING: don't use the current state.connectedWallet.id here because it's updated async
+        // to this and results in account data corruption
+        const { accountMetadataByAccountId } = payload
+        draftState.viewOnlyAccountMetadata.byId = merge(
+          draftState.viewOnlyAccountMetadata.byId,
+          accountMetadataByAccountId,
+        )
+        draftState.viewOnlyAccountMetadata.ids = Object.keys(
+          draftState.viewOnlyAccountMetadata.byId,
+        )
+      },
+
+      // Use the `prepareAutoBatched` utility to automatically
+      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
+      prepare: prepareAutoBatched<{
+        accountMetadataByAccountId: AccountMetadataById
+      }>(),
+    },
+
     clearWalletMetadata: {
       reducer: (draftState, { payload }: { payload: WalletId }) => {
         const walletId = payload

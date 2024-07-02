@@ -64,6 +64,7 @@ export type AssetsById = Record<AssetId, Asset>
 export type AssetsByIdPartial = PartialRecord<AssetId, Asset>
 
 export type AccountMetadata = {
+  isViewOnly: boolean
   bip44Params: BIP44Params
   accountType?: UtxoAccountType
 }

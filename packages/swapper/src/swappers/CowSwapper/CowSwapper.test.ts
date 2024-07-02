@@ -78,14 +78,18 @@ vi.mock('state/slices/assetsSlice/selectors', async () => {
 
 const ASSETS = [ETH, WBTC, WETH, BTC, FOX_MAINNET, XDAI, ETH_ARBITRUM, USDC_ARBITRUM]
 
+const MOCK_COWSWAP_CONFIG = {
+  REACT_APP_COWSWAP_BASE_URL: 'https://api.cow.fi',
+} as SwapperConfig
+
 describe('CowSwapper', () => {
   describe('filterAssetIdsBySellable', () => {
     it('returns empty array when called with an empty array', async () => {
-      expect(await cowSwapper.filterAssetIdsBySellable([], {} as SwapperConfig)).toEqual([])
+      expect(await cowSwapper.filterAssetIdsBySellable([], MOCK_COWSWAP_CONFIG)).toEqual([])
     })
 
     it('returns array filtered out of non erc20 tokens', async () => {
-      expect(await cowSwapper.filterAssetIdsBySellable(ASSETS, {} as SwapperConfig)).toEqual([
+      expect(await cowSwapper.filterAssetIdsBySellable(ASSETS, MOCK_COWSWAP_CONFIG)).toEqual([
         WBTC.assetId,
         WETH.assetId,
         FOX_MAINNET.assetId,
@@ -96,7 +100,7 @@ describe('CowSwapper', () => {
     it('returns array filtered out of unsupported tokens', async () => {
       const assetIds = [FOX_MAINNET, FOX_GNOSIS, USDC_ARBITRUM, BTC]
 
-      expect(await cowSwapper.filterAssetIdsBySellable(assetIds, {} as SwapperConfig)).toEqual([
+      expect(await cowSwapper.filterAssetIdsBySellable(assetIds, MOCK_COWSWAP_CONFIG)).toEqual([
         FOX_MAINNET.assetId,
         FOX_GNOSIS.assetId,
         USDC_ARBITRUM.assetId,
@@ -110,7 +114,7 @@ describe('CowSwapper', () => {
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: [],
           sellAsset: WETH,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([])
     })
@@ -120,14 +124,14 @@ describe('CowSwapper', () => {
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: ASSETS,
           sellAsset: ETH,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: ASSETS,
           sellAsset: BTC,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([])
     })
@@ -137,21 +141,21 @@ describe('CowSwapper', () => {
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: ASSETS,
           sellAsset: WETH,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: ASSETS,
           sellAsset: WBTC,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([ETH.assetId, WETH.assetId, FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets: ASSETS,
           sellAsset: FOX_MAINNET,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([ETH.assetId, WBTC.assetId, WETH.assetId])
     })
@@ -162,14 +166,14 @@ describe('CowSwapper', () => {
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets,
           sellAsset: WETH,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([FOX_MAINNET.assetId])
       expect(
         await cowSwapper.filterBuyAssetsBySellAssetId({
           assets,
           sellAsset: FOX_MAINNET,
-          config: {} as SwapperConfig,
+          config: MOCK_COWSWAP_CONFIG,
         }),
       ).toEqual([])
     })

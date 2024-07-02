@@ -43,7 +43,6 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -151,10 +150,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
-  const {
-    state: { wallet, isDemoWallet },
-    dispatch: walletDispatch,
-  } = useWallet()
+  const wallet = useWallet().state.wallet
+  const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
@@ -1457,11 +1454,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return isUnsafeQuote ? setShouldShowWarningAcknowledgement(true) : handleSubmit()
   }, [handleSubmit, isUnsafeQuote])
 
-  const handleOnWalletNotConnectedClick = useCallback(() => {
-    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    handleBackClick()
-  }, [walletDispatch, handleBackClick])
-
   if (!poolAsset || !runeAsset) return null
 
   return (
@@ -1564,7 +1556,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           <ButtonWalletPredicate
             isValidWallet={!isDemoWallet}
-            onWalletNotConnectedClick={handleOnWalletNotConnectedClick}
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}

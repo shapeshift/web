@@ -41,6 +41,8 @@
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/errors" },
     { "path": "./packages/types" },
-    { "path": "./packages/unchained-client" }
+    { "path": "./packages/unchained-client" },
+    { "path": "./packages/swapper" },
+    { "path": "./packages/utils" },
   ]
 }

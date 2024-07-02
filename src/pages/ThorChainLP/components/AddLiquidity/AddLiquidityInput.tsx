@@ -1559,17 +1559,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
-            isLoading={
-              (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-              isVotingPowerLoading ||
-              isTradingActiveLoading ||
-              isSmartContractAccountAddressLoading ||
-              isAllowanceDataLoading ||
-              isApprovalTxPending ||
-              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
-              (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
-            }
-            onClick={handleDepositSubmit}
             isDisabled={Boolean(
               disabledSymDepositAfterRune ||
                 isTradingActive === false ||
@@ -1589,6 +1578,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 notEnoughFeeAssetError ||
                 notEnoughRuneFeeError,
             )}
+            isLoading={
+              (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
+              isVotingPowerLoading ||
+              isTradingActiveLoading ||
+              isSmartContractAccountAddressLoading ||
+              isAllowanceDataLoading ||
+              isApprovalTxPending ||
+              (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
+              (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
+            }
+            onClick={handleDepositSubmit}
           >
             {confirmCopy}
           </ButtonWalletPredicate>

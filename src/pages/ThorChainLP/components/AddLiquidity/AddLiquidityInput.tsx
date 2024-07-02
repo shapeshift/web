@@ -1216,7 +1216,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
 
       if (isDemoWallet) {
-        return translate('pools.unsupportedWalletExplainer')
+        return translate('pools.unsupportedDemoWalletExplainer')
       }
 
       if (!walletSupportsRune && !walletSupportsAsset)
@@ -1555,28 +1555,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {maybeSymAfterRuneAlert}
 
           <ButtonWalletPredicate
-            isValidWallet={
-              !Boolean(
-                disabledSymDepositAfterRune ||
-                  isTradingActive === false ||
-                  !isThorchainLpDepositEnabled ||
-                  !confirmedQuote ||
-                  isVotingPowerLoading ||
-                  !hasEnoughAssetBalance ||
-                  !hasEnoughRuneBalance ||
-                  isApprovalTxPending ||
-                  (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
-                  isSweepNeededError ||
-                  isEstimatedPoolAssetFeesDataError ||
-                  isEstimatedRuneFeesDataError ||
-                  bnOrZero(actualAssetDepositAmountCryptoPrecision)
-                    .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-                    .isZero() ||
-                  notEnoughFeeAssetError ||
-                  notEnoughRuneFeeError ||
-                  !walletSupportsOpportunity,
-              )
-            }
+            isValidWallet={Boolean(walletSupportsOpportunity)}
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
@@ -1591,6 +1570,25 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)
             }
             onClick={handleDepositSubmit}
+            isDisabled={Boolean(
+              disabledSymDepositAfterRune ||
+                isTradingActive === false ||
+                !isThorchainLpDepositEnabled ||
+                !confirmedQuote ||
+                isVotingPowerLoading ||
+                !hasEnoughAssetBalance ||
+                !hasEnoughRuneBalance ||
+                isApprovalTxPending ||
+                (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
+                isSweepNeededError ||
+                isEstimatedPoolAssetFeesDataError ||
+                isEstimatedRuneFeesDataError ||
+                bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                  .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                  .isZero() ||
+                notEnoughFeeAssetError ||
+                notEnoughRuneFeeError,
+            )}
           >
             {confirmCopy}
           </ButtonWalletPredicate>

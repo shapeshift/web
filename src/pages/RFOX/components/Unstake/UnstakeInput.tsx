@@ -405,14 +405,13 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={
-                !Boolean(
-                  !hasEnteredValue ||
-                    !isUnstakeFeesSuccess ||
-                    Boolean(errors.amountFieldInput) ||
-                    !cooldownPeriod,
-                )
-              }
+              isValidWallet={Boolean(isChainSupportedByWallet)}
+              isDisabled={Boolean(
+                !hasEnteredValue ||
+                  !isUnstakeFeesSuccess ||
+                  Boolean(errors.amountFieldInput) ||
+                  !cooldownPeriod,
+              )}
               size='lg'
               mx={-2}
               onClick={handleWarning}

@@ -35,7 +35,7 @@ export const ButtonWalletPredicate = ({
     <>
       <Button
         {...restProps}
-        isDisabled={!isValidWallet}
+        isDisabled={!isValidWallet || restProps.isDisabled}
         colorScheme={isValidWallet ? restProps.colorScheme : 'red'}
       >
         {children}

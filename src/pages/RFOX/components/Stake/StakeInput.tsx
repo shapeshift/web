@@ -499,16 +499,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={
-                !Boolean(
-                  errors.amountFieldInput ||
-                    !runeAddress ||
-                    !isValidStakingAmount ||
-                    !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                    !cooldownPeriod ||
-                    !isChainSupportedByWallet,
-                )
-              }
+              isValidWallet={Boolean(isChainSupportedByWallet)}
+              isDisabled={Boolean(
+                errors.amountFieldInput ||
+                  !runeAddress ||
+                  !isValidStakingAmount ||
+                  !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                  !cooldownPeriod,
+              )}
               size='lg'
               mx={-2}
               onClick={handleWarning}

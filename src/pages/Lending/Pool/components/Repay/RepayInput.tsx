@@ -729,24 +729,22 @@ export const RepayInput = ({
           isDisabled={!lendingQuoteCloseError}
         >
           <ButtonWalletPredicate
-            isValidWallet={
-              !Boolean(
-                !isThorchainLendingRepayEnabled ||
-                  isApprovalTxPending ||
-                  isInboundAddressLoading ||
-                  isAllowanceDataLoading ||
-                  isLendingPositionDataLoading ||
-                  isLendingPositionDataError ||
-                  isLendingQuoteCloseLoading ||
-                  isLendingQuoteCloseRefetching ||
-                  isEstimatedFeesDataLoading ||
-                  isApprovalFeesDataLoading ||
-                  isLendingQuoteCloseError ||
-                  isEstimatedFeesDataError ||
-                  disableSmartContractRepayment ||
-                  quoteErrorTranslation,
-              )
-            }
+            isValidWallet={!Boolean(disableSmartContractRepayment)}
+            isDisabled={Boolean(
+              !isThorchainLendingRepayEnabled ||
+                isApprovalTxPending ||
+                isInboundAddressLoading ||
+                isAllowanceDataLoading ||
+                isLendingPositionDataLoading ||
+                isLendingPositionDataError ||
+                isLendingQuoteCloseLoading ||
+                isLendingQuoteCloseRefetching ||
+                isEstimatedFeesDataLoading ||
+                isApprovalFeesDataLoading ||
+                isLendingQuoteCloseError ||
+                isEstimatedFeesDataError ||
+                quoteErrorTranslation,
+            )}
             size='lg-multiline'
             colorScheme={
               isLendingQuoteCloseError || isEstimatedFeesDataError || quoteErrorTranslation

@@ -32,6 +32,7 @@ import {
   selectAccountNumberParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectIsViewOnlyParamFromFilter,
 } from 'state/selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectAllEarnUserLpOpportunitiesByFilter } from 'state/slices/opportunitiesSlice/selectors/lpSelectors'
@@ -660,11 +661,13 @@ export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCach
   selectPortfolioAccountMetadata,
   selectAccountNumberParamFromFilter,
   selectChainIdParamFromFilter,
-  (accountBalances, accountMetadata, accountNumber, chainId): string => {
+  selectIsViewOnlyParamFromFilter,
+  (accountBalances, accountMetadata, accountNumber, chainId, isViewOnly): string => {
     if (!isValidAccountNumber(accountNumber)) throw new Error('invalid account number')
     return Object.entries(accountBalances)
       .reduce((acc, [accountId, accountBalanceByAssetId]) => {
         if (fromAccountId(accountId).chainId !== chainId) return acc
+        if (accountMetadata[accountId].isViewOnly !== isViewOnly) return acc
         if (accountNumber !== accountMetadata[accountId].bip44Params.accountNumber) return acc
         return acc.plus(
           Object.values(accountBalanceByAssetId).reduce(
@@ -712,6 +715,8 @@ export const selectPortfolioAccountsGroupedByNumberByChainId = createCachedSelec
     return Object.keys(accountBalances).reduce<PortfolioAccountsGroupedByNumber>(
       (acc, accountId) => {
         if (fromAccountId(accountId).chainId !== chainId) return acc
+        const isViewOnly = accountMetadata[accountId].isViewOnly
+        if (isViewOnly) return acc
         const { accountNumber } = accountMetadata[accountId].bip44Params
         if (!acc[accountNumber]) acc[accountNumber] = []
         acc[accountNumber].push(accountId)
@@ -719,6 +724,21 @@ export const selectPortfolioAccountsGroupedByNumberByChainId = createCachedSelec
       },
       {},
     )
+  },
+)((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
+
+export const selectChainIdViewOnlyAccounts = createCachedSelector(
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  selectPortfolioAccountMetadata,
+  selectChainIdParamFromFilter,
+  (accountBalances, accountMetadata, chainId): AccountId[] => {
+    return Object.keys(accountBalances).reduce<AccountId[]>((acc, accountId) => {
+      if (fromAccountId(accountId).chainId !== chainId) return acc
+      const isViewOnly = accountMetadata[accountId].isViewOnly
+      if (!isViewOnly) return acc
+      acc.push(accountId)
+      return acc
+    }, [])
   },
 )((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
 

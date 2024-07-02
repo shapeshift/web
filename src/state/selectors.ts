@@ -50,6 +50,7 @@ type ParamFilter = Partial<{
   feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
+  isViewOnly: boolean
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -84,3 +85,4 @@ export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+export const selectIsViewOnlyParamFromFilter = selectParamFromFilter('isViewOnly')

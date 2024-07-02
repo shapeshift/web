@@ -58,7 +58,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })
-    result[accountId] = { bip44Params }
+    result[accountId] = { isViewOnly: false, bip44Params }
   }
 
   return result

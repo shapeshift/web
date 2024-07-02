@@ -13,6 +13,7 @@ import {
   MenuItem,
   MenuList,
   Stack,
+  Tag,
   useDisclosure,
 } from '@chakra-ui/react'
 import { type AccountId, type ChainId, fromAccountId } from '@shapeshiftoss/caip'
@@ -37,9 +38,8 @@ import { useAppSelector } from 'state/store'
 
 import { AccountEntryRow } from './AccountEntryRow'
 
-type AccountNumberRowProps = {
-  accountNumber: number
-  accountIds: AccountId[]
+type ViewOnlyAccountRowProps = {
+  accountId: AccountId
   chainId: ChainId
 } & ButtonProps
 
@@ -103,10 +103,9 @@ const AccountBasedChainEntries: React.FC<AccountBasedChainEntriesProps> = ({ acc
   return result
 }
 
-const accountNumberRowButtonFontSizeProps = { base: 'sm', md: 'md' }
-export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
-  accountIds,
-  accountNumber,
+const viewOnlyButtonFontSizeProps = { base: 'sm', md: 'md' }
+export const ViewOnlyAccountRow: React.FC<ViewOnlyAccountRowProps> = ({
+  accountId,
   chainId,
   ...buttonProps
 }) => {
@@ -114,21 +113,17 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
   const translate = useTranslate()
   const assets = useSelector(selectAssets)
-  const accountId = useMemo(() => accountIds[0], [accountIds]) // all accountIds belong to the same chain
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
-  const filter = useMemo(
-    () => ({ accountNumber, chainId, isViewOnly: false }),
-    [accountNumber, chainId],
-  )
+  const filter = useMemo(() => ({ accountNumber: 1337, chainId, isViewOnly: true }), [chainId])
   const fiatBalance = useAppSelector(s =>
     selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
   )
   const feeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const color = feeAsset?.networkColor ?? feeAsset?.color ?? ''
-  const accountNumberRowLeftIcon = useMemo(
+  const leftIcon = useMemo(
     // space in string interpolation is not a bug - see Chakra UI Avatar docs
-    () => <Avatar bg={`${color}20`} color={color} size='sm' name={`# ${accountNumber}`} />,
-    [accountNumber, color],
+    () => <Avatar bg={`${color}20`} color={color} size='sm' name='View-Only' />,
+    [color],
   )
 
   /**
@@ -140,13 +135,14 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
    * so we aggregate by account, then assets belonging to that account
    */
   const accountEntries = useMemo(
+    // This won't work - we don't do account entries, this is a single address, but this is just a PoC confirming this works OoTB, just don't input BTC for testing
     () =>
       isUtxoAccount ? (
-        <UtxoAccountEntries chainId={chainId} accountIds={accountIds} />
+        <UtxoAccountEntries chainId={chainId} accountIds={[accountId]} />
       ) : (
-        <AccountBasedChainEntries accountId={accountIds[0]} />
+        <AccountBasedChainEntries accountId={accountId} />
       ),
-    [accountIds, chainId, isUtxoAccount],
+    [accountId, chainId, isUtxoAccount],
   )
 
   const title = useMemo(() => {
@@ -170,8 +166,8 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
           height='auto'
           iconSpacing={4}
           data-test='account-row-button'
-          fontSize={accountNumberRowButtonFontSizeProps}
-          leftIcon={accountNumberRowLeftIcon}
+          fontSize={viewOnlyButtonFontSizeProps}
+          leftIcon={leftIcon}
           {...buttonProps}
           onClick={onToggle}
         >
@@ -179,9 +175,9 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             <RawText color='var(--chakra-colors-chakra-body-text)' fontFamily={fontFamily}>
               {title}
             </RawText>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('accounts.accountNumber', { accountNumber })}
-            </RawText>
+            <Tag fontSize='sm' color='text.subtle'>
+              {translate('View Only')}
+            </Tag>
           </Stack>
           <Stack direction='row' alignItems='center' spacing={6} ml='auto'>
             <Amount.Fiat value={fiatBalance} />
@@ -197,10 +193,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
               icon={mdOutlineMoreVertIcon}
             />
             <MenuList>
-              <MenuGroup
-                title={translate('accounts.accountNumber', { accountNumber })}
-                color='text.subtle'
-              >
+              <MenuGroup title={translate('View Only')} color='text.subtle'>
                 <MenuItem
                   icon={riWindow2LineIcon}
                   onClick={buttonProps.onClick && buttonProps.onClick}

@@ -1,9 +1,7 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
   Box,
   Button,
+  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -14,29 +12,19 @@ import {
   Stack,
   useToast,
 } from '@chakra-ui/react'
-import { type ChainId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { type ChainId, toAccountId } from '@shapeshiftoss/caip'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import {
-  canAddMetaMaskAccount,
-  useIsSnapInstalled,
-} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { deriveAccountIdsAndMetadata } from 'lib/account/account'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
-import {
-  selectAssets,
-  selectMaybeNextAccountNumberByChainId,
-  selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { selectAssets, selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
+import { useAppDispatch } from 'state/store'
 
 const chainDropdownButtonProps = { width: 'full' }
 
@@ -55,33 +43,9 @@ export const AddAccountModal = () => {
   const firstChainId = useMemo(() => chainIds[0], [chainIds])
 
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(firstChainId)
-  const filter = useMemo(() => ({ chainId: selectedChainId }), [selectedChainId])
-  const [isAbleToAddAccount, nextAccountNumber] = useAppSelector(s =>
-    selectMaybeNextAccountNumberByChainId(s, filter),
-  )
+  const [inputAddress, setInputAddress] = useState<string>()
 
-  const isSnapInstalled = Boolean(useIsSnapInstalled())
-
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-  const unsupportedSnapChainIds = useMemo(() => {
-    if (!isMetaMaskMultichainWallet) return []
-    if (nextAccountNumber === null) return []
-
-    return chainIds.filter(
-      chainId =>
-        !canAddMetaMaskAccount({
-          accountNumber: nextAccountNumber,
-          chainId,
-          wallet,
-          isSnapInstalled,
-        }),
-    )
-  }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
-
-  const isUnsupportedSnapChain = useMemo(
-    () => unsupportedSnapChainIds.includes(selectedChainId ?? ''),
-    [selectedChainId, unsupportedSnapChainIds],
-  )
+  console.log({ inputAddress })
 
   const { close, isOpen } = useModal('addAccount')
 
@@ -97,54 +61,60 @@ export const AddAccountModal = () => {
   const handleAddAccount = useCallback(() => {
     if (!wallet) return
     if (!selectedChainId) return
-    if (!nextAccountNumber) return
-    ;(async () => {
-      const accountNumber = nextAccountNumber
-      const chainIds = [selectedChainId]
-      const accountMetadataByAccountId = await deriveAccountIdsAndMetadata({
-        accountNumber,
-        chainIds,
-        wallet,
-        isSnapInstalled,
-      })
 
-      const { getAccount } = portfolioApi.endpoints
-      const opts = { forceRefetch: true }
-      dispatch(
-        portfolio.actions.upsertAccountMetadata({
-          accountMetadataByAccountId,
-          walletId: walletDeviceId,
-        }),
-      )
-      const accountIds = Object.keys(accountMetadataByAccountId)
-      accountIds.forEach(accountId => {
-        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts))
-        dispatch(portfolio.actions.enableAccountId(accountId))
-      })
-      const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
-      const { name } = assets[assetId] ?? {}
-      toast({
-        position: 'top-right',
-        title: translate('accounts.newAccountAdded', { name }),
-        description: translate('accounts.youCanNowUse', { name, accountNumber }),
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      })
-      close()
-    })()
+    const adapter = getChainAdapterManager().get(selectedChainId)
+    const address = inputAddress
+    if (!address || !adapter) return
+    const bip44Params = adapter.getBIP44Params({ accountNumber: 1337 })
+    const accountId = toAccountId({ chainId: selectedChainId, account: address })
+    const accountMetadataByAccountId: AccountMetadataById = {
+      [accountId]: {
+        isViewOnly: true,
+        bip44Params,
+      },
+    }
+
+    dispatch(
+      portfolio.actions.upsertAccountMetadata({
+        accountMetadataByAccountId,
+        walletId: walletDeviceId,
+      }),
+    )
+
+    const accountIds = Object.keys(accountMetadataByAccountId)
+    const { getAccount } = portfolioApi.endpoints
+    const opts = { forceRefetch: true }
+    accountIds.forEach(accountId => {
+      dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, opts))
+      dispatch(portfolio.actions.enableAccountId(accountId))
+    })
+    const assetId = getChainAdapterManager().get(selectedChainId)!.getFeeAssetId()
+    const { name } = assets[assetId] ?? {}
+    toast({
+      position: 'top-right',
+      title: translate('accounts.newAccountAdded', { name }),
+      description: translate('accounts.youCanNowUse', { name, accountNumber: 0 }),
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    })
+    close()
   }, [
     assets,
     close,
     dispatch,
-    isSnapInstalled,
-    nextAccountNumber,
+    inputAddress,
     selectedChainId,
     toast,
     translate,
     wallet,
     walletDeviceId,
   ])
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setInputAddress(e.target.value),
+    [],
+  )
 
   if (!asset) return null
 
@@ -170,30 +140,12 @@ export const AddAccountModal = () => {
                 matchWidth
                 buttonProps={chainDropdownButtonProps}
               />
+              <Input onChange={handleInputChange} />
             </Box>
-            {!isAbleToAddAccount && (
-              <Alert size='sm'>
-                <AlertIcon as={FaInfoCircle} />
-                <AlertDescription>{translate('accounts.requiresPriorTxHistory')}</AlertDescription>
-              </Alert>
-            )}
-            {isUnsupportedSnapChain && (
-              <Alert size='sm'>
-                <AlertIcon as={FaInfoCircle} />
-                <AlertDescription>
-                  {translate('walletProvider.metaMaskSnap.multiAccountUnsupported')}
-                </AlertDescription>
-              </Alert>
-            )}
           </Stack>
         </ModalBody>
         <ModalFooter>
-          <Button
-            colorScheme='blue'
-            width='full'
-            isDisabled={!isAbleToAddAccount || isUnsupportedSnapChain}
-            onClick={handleAddAccount}
-          >
+          <Button colorScheme='blue' width='full' onClick={handleAddAccount}>
             {translate('accounts.addAccount')}
           </Button>
         </ModalFooter>

@@ -8,6 +8,7 @@ import { NestedList } from 'components/NestedList'
 import { RawText } from 'components/Text'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import {
+  selectChainIdViewOnlyAccounts,
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
   selectPortfolioTotalBalanceByChainIdIncludeStaking,
@@ -15,6 +16,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AccountNumberRow } from './AccountNumberRow'
+import { ViewOnlyAccountRow } from './ViewOnlyAccountRow'
 
 type ChainRowProps = {
   chainId: ChainId
@@ -37,6 +39,8 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),
   )
 
+  const chainIdViewOnlyAccounts = useAppSelector(s => selectChainIdViewOnlyAccounts(s, filter))
+
   const accountRows = useMemo(() => {
     return Object.entries(accountIdsByAccountNumber).map(([accountNumber, accountIds]) => (
       <AccountNumberRow
@@ -53,6 +57,22 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       />
     ))
   }, [accountIdsByAccountNumber, chainId, history])
+
+  const viewOnlyAccountsRows = useMemo(() => {
+    return chainIdViewOnlyAccounts.map(accountId => (
+      <ViewOnlyAccountRow
+        key={accountId}
+        accountId={accountId}
+        chainId={chainId}
+        onClick={
+          // accountIds is strictly length 1 per accountNumber for account-based chains
+          !isUtxoAccountId(accountId)
+            ? () => history.push(`/wallet/accounts/${accountId}`)
+            : undefined
+        }
+      />
+    ))
+  }, [chainId, chainIdViewOnlyAccounts, history])
 
   return asset ? (
     <ListItem
@@ -88,6 +108,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
       </Stack>
       <NestedList as={Collapse} in={isOpen}>
         {accountRows}
+        {viewOnlyAccountsRows}
       </NestedList>
     </ListItem>
   ) : null

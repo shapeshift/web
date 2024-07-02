@@ -942,7 +942,8 @@
     "assetSearch": {
       "myAssets": "My Assets",
       "popularAssets": "Popular Assets",
-      "searchResults": "Search Results"
+      "searchResults": "Search Results",
+      "customAssets": "Custom Assets"
     },
     "popup": {
       "body": "We've launched a secure window to complete your order.",

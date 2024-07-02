@@ -11480,7 +11480,7 @@ __metadata:
     react-swipeable-views-utils: ^0.14.0
     react-table: ^7.8.0
     react-virtualized-auto-sizer: ^1.0.5
-    react-virtuoso: ^4.7.1
+    react-virtuoso: ^4.7.11
     react-window: ^1.8.7
     readline-sync: ^1.4.10
     redux-persist: ^6.0.0
@@ -33140,13 +33140,13 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.7.1":
-  version: 4.7.1
-  resolution: "react-virtuoso@npm:4.7.1"
+"react-virtuoso@npm:^4.7.11":
+  version: 4.7.11
+  resolution: "react-virtuoso@npm:4.7.11"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: c864095bd875825c2ce25b69f165fe29ad7bea2d54c31b407b3b99347f6b68311a6928566369f45641cd2f5a6e8540fbafca87d808c0495c12196cb1665145d5
+  checksum: 3e9b56e8bd2ae88b04563ff3ce221c95db493741ff89667475e390a8abfb202a9b0692cbe9edd822316a27c902c835ce0e287b036df6644909317c7a6c1462fc
   languageName: node
   linkType: hard
 

@@ -5,11 +5,10 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeQuoteInput, SwapErrorRight, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { COWSWAP_BASE_URL } from '../constants'
 import type { CowSwapQuoteError, CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
@@ -29,6 +28,7 @@ import {
 
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
+  config: SwapperConfig,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -73,7 +73,7 @@ export async function getCowSwapTradeQuote(
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
   const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
+    `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
       buyToken,

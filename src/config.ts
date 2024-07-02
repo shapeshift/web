@@ -115,6 +115,9 @@ const validators = {
   REACT_APP_MIDGARD_URL: url({
     default: 'https://midgard.thorchain.info/v2',
   }),
+  REACT_APP_COWSWAP_BASE_URL: url({
+    default: 'https://api.cow.fi',
+  }),
   REACT_APP_ONRAMPER_WIDGET_URL: url(),
   REACT_APP_ONRAMPER_API_URL: url(),
   REACT_APP_ONRAMPER_API_KEY: str(),

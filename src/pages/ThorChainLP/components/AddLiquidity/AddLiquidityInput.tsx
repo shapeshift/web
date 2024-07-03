@@ -3,7 +3,6 @@ import {
   Alert,
   AlertDescription,
   AlertIcon,
-  Button,
   CardFooter,
   CardHeader,
   Center,
@@ -40,6 +39,7 @@ import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FeeModal } from 'components/FeeModal/FeeModal'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
@@ -1215,7 +1215,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       const runeAssetNetworkName =
         runeAsset.networkName ?? chainIdToChainDisplayName(runeAsset.chainId)
 
-      if ((!walletSupportsRune && !walletSupportsAsset) || isDemoWallet)
+      if (isDemoWallet) {
+        return translate('pools.unsupportedDemoWalletExplainer')
+      }
+
+      if (!walletSupportsRune && !walletSupportsAsset)
         return translate('pools.unsupportedNetworksExplainer', {
           network1: poolAssetNetworkName,
           network2: runeAssetNetworkName,
@@ -1550,30 +1554,30 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {maybeAlert}
           {maybeSymAfterRuneAlert}
 
-          <Button
+          <ButtonWalletPredicate
+            isValidWallet={Boolean(walletSupportsOpportunity)}
             mx={-2}
             size='lg'
             colorScheme={errorCopy ? 'red' : 'blue'}
-            isDisabled={
+            isDisabled={Boolean(
               disabledSymDepositAfterRune ||
-              isTradingActive === false ||
-              !isThorchainLpDepositEnabled ||
-              !confirmedQuote ||
-              isVotingPowerLoading ||
-              !hasEnoughAssetBalance ||
-              !hasEnoughRuneBalance ||
-              isApprovalTxPending ||
-              (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
-              isSweepNeededError ||
-              isEstimatedPoolAssetFeesDataError ||
-              isEstimatedRuneFeesDataError ||
-              bnOrZero(actualAssetDepositAmountCryptoPrecision)
-                .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
-                .isZero() ||
-              notEnoughFeeAssetError ||
-              notEnoughRuneFeeError ||
-              !walletSupportsOpportunity
-            }
+                isTradingActive === false ||
+                !isThorchainLpDepositEnabled ||
+                !confirmedQuote ||
+                isVotingPowerLoading ||
+                !hasEnoughAssetBalance ||
+                !hasEnoughRuneBalance ||
+                isApprovalTxPending ||
+                (isSweepNeededEnabled && isSweepNeeded === undefined && !isApprovalRequired) ||
+                isSweepNeededError ||
+                isEstimatedPoolAssetFeesDataError ||
+                isEstimatedRuneFeesDataError ||
+                bnOrZero(actualAssetDepositAmountCryptoPrecision)
+                  .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
+                  .isZero() ||
+                notEnoughFeeAssetError ||
+                notEnoughRuneFeeError,
+            )}
             isLoading={
               (poolAssetTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
               isVotingPowerLoading ||
@@ -1587,7 +1591,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             onClick={handleDepositSubmit}
           >
             {confirmCopy}
-          </Button>
+          </ButtonWalletPredicate>
         </CardFooter>
         <FeeModal
           isOpen={showFeeModal}

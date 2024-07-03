@@ -20,6 +20,9 @@ import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSw
 import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
 import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
 import { ONE_INCH_SUPPORTED_CHAIN_IDS } from './swappers/OneInchSwapper/utils/constants'
+import { portalsApi } from './swappers/PortalsSwapper/endpoints'
+import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
+import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/utils/constants'
 import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
 import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
 import type { SupportedChainIds } from './types'
@@ -72,6 +75,12 @@ export const swappers: Record<
     ...arbitrumBridgeSwapper,
     ...arbitrumBridgeApi,
     supportedChainIds: ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.Portals]: {
+    ...portalsSwapper,
+    ...portalsApi,
+    supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,

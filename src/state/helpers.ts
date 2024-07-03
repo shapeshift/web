@@ -11,6 +11,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
+    case SwapperName.Portals:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false

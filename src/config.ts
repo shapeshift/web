@@ -138,6 +138,7 @@ const validators = {
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
+  REACT_APP_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',

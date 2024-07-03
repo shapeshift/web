@@ -20,6 +20,7 @@ export enum SwapperName {
   LIFI = 'LI.FI',
   OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
+  Portals = 'Portals',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

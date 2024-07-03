@@ -245,17 +245,13 @@ export const Details = () => {
             >
               {fieldName === SendFormFields.FiatAmount ? (
                 <Amount.Crypto
-                  value={bnOrZero(amountCryptoPrecision).gt(0) ? amountCryptoPrecision : '0'}
+                  value={bnOrZero(amountCryptoPrecision).toString()}
                   symbol={asset.symbol}
                   prefix='≈'
                 />
               ) : (
                 <Flex>
-                  <Amount.Fiat
-                    value={bnOrZero(fiatAmount).gt(0) ? fiatAmount : '0'}
-                    mr={1}
-                    prefix='≈'
-                  />{' '}
+                  <Amount.Fiat value={bnOrZero(fiatAmount).toString()} mr={1} prefix='≈' />{' '}
                   {fiatSymbol}
                 </Flex>
               )}

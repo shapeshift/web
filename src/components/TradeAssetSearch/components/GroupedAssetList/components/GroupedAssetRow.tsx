@@ -1,6 +1,8 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -34,6 +36,7 @@ export const GroupedAssetRow = ({
   onImportClick,
 }: GroupedAssetRowProps) => {
   const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
+  const translate = useTranslate()
   const {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
@@ -48,67 +51,127 @@ export const GroupedAssetRow = ({
   )
   const userCurrencyBalance =
     useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
-  const handleClick = useCallback(
-    () => (isAssetInStore ? onAssetClick(asset) : onImportClick && onImportClick(asset)),
-    [asset, isAssetInStore, onAssetClick, onImportClick],
-  )
 
-  if (!asset) return null
+  const handleAssetClick = useCallback(() => {
+    onAssetClick(asset)
+  }, [asset, onAssetClick])
+
+  const handleImportClick = useCallback(() => {
+    if (onImportClick) {
+      onImportClick(asset)
+    }
+  }, [asset, onImportClick])
 
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
-  return (
-    <Button
-      variant='ghost'
-      onClick={handleClick}
-      justifyContent='space-between'
-      isDisabled={!isSupported}
-      height={16}
-      width='stretch'
-      mx={2}
-      _focus={focus}
-    >
-      <Flex gap={4} alignItems='center'>
-        <AssetIcon assetId={asset.assetId} size='sm' />
-        <Box textAlign='left'>
-          <Text
-            lineHeight='normal'
-            textOverflow='ellipsis'
-            whiteSpace='nowrap'
-            maxWidth='200px'
-            overflow='hidden'
-            fontWeight='semibold'
-            color='text.base'
-          >
-            {asset.name}
-          </Text>
-          <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
-            {hideAssetBalance ? (
-              <>
-                <Text color={color}>{asset.symbol}</Text>
-                {asset.id && <Text>{middleEllipsis(asset.id)}</Text>}
-              </>
-            ) : (
-              <Amount.Crypto
-                fontSize='sm'
-                fontWeight='medium'
-                value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
-                symbol={asset.symbol}
-              />
-            )}
-          </Flex>
-        </Box>
-      </Flex>
-      {(isConnected || isDemoWallet) && !hideAssetBalance && (
-        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
-          <Amount.Fiat
-            color='text.base'
-            fontWeight='semibold'
-            lineHeight='normal'
-            value={userCurrencyBalance}
-          />
+  const KnownAssetRow: JSX.Element | null = useMemo(() => {
+    if (!asset) return null
+    return (
+      <Button
+        variant='ghost'
+        onClick={handleAssetClick}
+        justifyContent='space-between'
+        isDisabled={!isSupported}
+        height={16}
+        width='stretch'
+        mx={2}
+        _focus={focus}
+      >
+        <Flex gap={4} alignItems='center'>
+          <AssetIcon assetId={asset.assetId} size='sm' />
+          <Box textAlign='left'>
+            <Text
+              lineHeight='normal'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              maxWidth='200px'
+              overflow='hidden'
+              fontWeight='semibold'
+              color='text.base'
+            >
+              {asset.name}
+            </Text>
+            <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
+              {hideAssetBalance ? (
+                <>
+                  <Text color={color}>{asset.symbol}</Text>
+                  {asset.id && <Text>{middleEllipsis(asset.id)}</Text>}
+                </>
+              ) : (
+                <Amount.Crypto
+                  fontSize='sm'
+                  fontWeight='medium'
+                  value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
+                  symbol={asset.symbol}
+                />
+              )}
+            </Flex>
+          </Box>
         </Flex>
-      )}
-    </Button>
-  )
+        {(isConnected || isDemoWallet) && !hideAssetBalance && (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+            <Amount.Fiat
+              color='text.base'
+              fontWeight='semibold'
+              lineHeight='normal'
+              value={userCurrencyBalance}
+            />
+          </Flex>
+        )}
+      </Button>
+    )
+  }, [
+    asset,
+    color,
+    cryptoPrecisionBalance,
+    handleAssetClick,
+    hideAssetBalance,
+    isConnected,
+    isDemoWallet,
+    isSupported,
+    userCurrencyBalance,
+  ])
+
+  const CustomAssetRow: JSX.Element | null = useMemo(() => {
+    if (!asset) return null
+    return (
+      <Button
+        variant='ghost'
+        justifyContent='space-between'
+        isDisabled={!isSupported}
+        height={16}
+        width='stretch'
+        mx={2}
+        _focus={focus}
+      >
+        <Flex gap={4} alignItems='center'>
+          <AssetIcon assetId={asset.assetId} size='sm' />
+          <Box textAlign='left'>
+            <Text
+              lineHeight='normal'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              maxWidth='200px'
+              overflow='hidden'
+              fontWeight='semibold'
+              color='text.base'
+            >
+              {asset.name}
+            </Text>
+            <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
+              <Text color={color}>{asset.symbol}</Text>
+              <Text>{middleEllipsis(fromAssetId(assetId).assetReference)}</Text>
+            </Flex>
+          </Box>
+        </Flex>
+        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+          <Button colorScheme='blue' onClick={handleImportClick}>
+            {translate('common.import')}
+          </Button>
+        </Flex>
+      </Button>
+    )
+  }, [asset, assetId, color, handleImportClick, isSupported, translate])
+
+  return isAssetInStore ? KnownAssetRow : CustomAssetRow
 }

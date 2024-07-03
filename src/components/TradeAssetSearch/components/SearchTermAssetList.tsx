@@ -77,17 +77,22 @@ export const SearchTermAssetList = ({
     [customTokens],
   )
 
+  // We only want to show custom assets that aren't already in the asset list
   const searchTermAssets = useMemo(() => {
-    return [...customAssets, ...filterAssetsBySearchTerm(searchString, assetsForChain)]
+    const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
+    const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
+    const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
+
+    return [...filteredAssets, ...uniqueCustomAssets]
   }, [assetsForChain, customAssets, searchString])
 
   const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {
-      groups: ['modals.assetSearch.customAssets', 'modals.assetSearch.searchResults'],
-      groupCounts: [customAssets.length, searchTermAssets.length],
-      groupIsLoading: [isLoadingCustomTokens, assetListLoading],
+      groups: ['modals.assetSearch.searchResults'],
+      groupCounts: [searchTermAssets.length],
+      groupIsLoading: [isLoadingCustomTokens || assetListLoading],
     }
-  }, [assetListLoading, customAssets.length, isLoadingCustomTokens, searchTermAssets.length])
+  }, [assetListLoading, isLoadingCustomTokens, searchTermAssets.length])
 
   const onImportClick = useCallback(() => {
     console.log('import click')

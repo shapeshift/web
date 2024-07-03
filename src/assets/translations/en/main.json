@@ -151,6 +151,7 @@
     "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
+    "import": "Import",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -942,8 +943,7 @@
     "assetSearch": {
       "myAssets": "My Assets",
       "popularAssets": "Popular Assets",
-      "searchResults": "Search Results",
-      "customAssets": "Custom Assets"
+      "searchResults": "Search Results"
     },
     "popup": {
       "body": "We've launched a secure window to complete your order.",

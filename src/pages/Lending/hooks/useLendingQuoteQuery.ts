@@ -2,6 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { MarketData } from '@shapeshiftoss/types'
 import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
@@ -20,7 +21,6 @@ import type {
   LendingDepositQuoteResponseSuccess,
   LendingQuoteOpen,
 } from 'lib/utils/thorchain/lending/types'
-import { assertAndProcessMemo } from 'lib/utils/thorchain/memo'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,

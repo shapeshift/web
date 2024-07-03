@@ -1,16 +1,49 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type {
+  ChainAdapter,
+  CosmosSdkChainAdapter,
+  CosmosSdkChainId,
+  EvmChainAdapter,
+  EvmChainId,
+  UtxoChainAdapter,
+  UtxoChainId,
+} from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  KnownChainIds,
   PartialRecord,
   UtxoAccountType,
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { ethers as ethersV5 } from 'ethers5'
+import type { Chain, PublicClient, Transport } from 'viem'
+
+import type { makeSwapperAxiosServiceMonadic } from './utils'
+
+// TODO: Rename all properties in this type to be camel case and not react specific
+export type SwapperConfig = {
+  REACT_APP_ONE_INCH_API_URL: string
+  REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
+  REACT_APP_THORCHAIN_NODE_URL: string
+  REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: boolean
+  REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
+  REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
+  REACT_APP_MIDGARD_URL: string
+  REACT_APP_UNCHAINED_BITCOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_DOGECOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_LITECOIN_HTTP_URL: string
+  REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL: string
+  REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL: string
+  REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
+  REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
+  REACT_APP_COWSWAP_BASE_URL: string
+}
 
 export enum SwapperName {
   Thorchain = 'THORChain',
@@ -84,6 +117,7 @@ export type QuoteFeeData = {
 export type BuyAssetBySellIdInput = {
   sellAsset: Asset
   assets: Asset[]
+  config: SwapperConfig
 }
 
 type CommonTradeInput = {
@@ -120,6 +154,24 @@ export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+
+export type EvmSwapperDeps = {
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
+}
+export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
+export type CosmosSdkSwapperDeps = {
+  assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
+}
+
+export type SwapperDeps = {
+  assetsById: AssetsByIdPartial
+  viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>>
+  config: SwapperConfig
+  assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
+} & EvmSwapperDeps &
+  UtxoSwapperDeps &
+  CosmosSdkSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -234,14 +286,20 @@ export type CommonGetUnsignedTransactionArgs = {
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
+  config: SwapperConfig
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
-export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs & EvmAccountMetadata
-export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs & UtxoAccountMetadata
+  EvmAccountMetadata & { supportsEIP1559: boolean } & EvmSwapperDeps
+export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
+  EvmAccountMetadata &
+  EvmSwapperDeps
+export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
+  UtxoAccountMetadata &
+  UtxoSwapperDeps
 export type GetUnsignedCosmosSdkTransactionArgs = CommonGetUnsignedTransactionArgs &
-  CosmosSdkAccountMetadata
+  CosmosSdkAccountMetadata &
+  CosmosSdkSwapperDeps
 
 // the client should never need to know anything about this payload, and since it varies from
 // swapper to swapper, the type is declared this way to prevent generics hell while ensuring the
@@ -267,7 +325,10 @@ export type CheckTradeStatusInput = {
   txHash: string
   chainId: ChainId
   stepIndex: SupportedTradeQuoteStepIndex
-}
+  config: SwapperConfig
+} & EvmSwapperDeps &
+  UtxoSwapperDeps &
+  CosmosSdkSwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
@@ -291,7 +352,7 @@ export type CowMessageToSign = {
 export type EvmMessageToSign = CowMessageToSign
 
 export type Swapper = {
-  filterAssetIdsBySellable: (assets: Asset[]) => Promise<AssetId[]>
+  filterAssetIdsBySellable: (assets: Asset[], config: SwapperConfig) => Promise<AssetId[]>
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput) => Promise<AssetId[]>
   executeTrade?: (executeTradeArgs: ExecuteTradeArgs) => Promise<string>
 
@@ -302,6 +363,7 @@ export type Swapper = {
   executeEvmMessage?: (
     txMetaToSign: EvmMessageToSign,
     callbacks: EvmMessageExecutionProps,
+    config: SwapperConfig,
   ) => Promise<string>
   executeUtxoTransaction?: (
     txToSign: BTCSignTx,
@@ -317,10 +379,7 @@ export type SwapperApi = {
   checkTradeStatus: (
     input: CheckTradeStatusInput,
   ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
-  getTradeQuote: (
-    input: GetTradeQuoteInput,
-    assetsById: AssetsByIdPartial,
-  ) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (
@@ -383,3 +442,10 @@ export type TradeExecutionEventMap = {
   [TradeExecutionEvent.Fail]: (args: StatusArgs) => void
   [TradeExecutionEvent.Error]: (args: unknown) => void
 }
+
+export type SupportedChainIds = {
+  buy: ChainId[]
+  sell: ChainId[]
+}
+
+export type MonadicSwapperAxiosService = ReturnType<typeof makeSwapperAxiosServiceMonadic>

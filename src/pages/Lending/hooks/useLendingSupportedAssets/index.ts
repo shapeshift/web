@@ -1,5 +1,10 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ThornodePoolResponse,
+  ThornodePoolStatuses,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { knownChainIds } from 'constants/chains'
@@ -10,11 +15,6 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  ThornodePoolResponse,
-  ThornodePoolStatuses,
-} from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome } from 'lib/utils'
 import {
   selectAccountIdsByChainId,

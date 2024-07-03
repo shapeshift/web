@@ -13,6 +13,7 @@ import {
   ltcAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -20,7 +21,6 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import { assetIdToPoolAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { isUtxoChainId } from 'lib/utils/utxo'

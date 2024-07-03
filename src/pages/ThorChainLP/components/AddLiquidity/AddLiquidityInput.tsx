@@ -21,6 +21,10 @@ import {
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import {
+  assetIdToPoolAssetId,
+  poolAssetIdToAssetId,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -57,10 +61,6 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import {
-  assetIdToPoolAssetId,
-  poolAssetIdToAssetId,
-} from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import {
   assertUnreachable,
   chainIdToChainDisplayName,

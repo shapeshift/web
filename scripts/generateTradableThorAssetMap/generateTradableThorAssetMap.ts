@@ -1,11 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import axios from 'axios'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 import path from 'path'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import type { AssetIdPair } from '.'
 import { getAssetIdPairFromPool } from '.'

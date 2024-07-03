@@ -4,12 +4,15 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { deserializeNftAssetReference, fromAssetId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import { PURGE } from 'redux-persist'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isRejected } from 'lib/utils'
+import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { portfolio as portfolioSlice } from 'state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio, WalletId } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import { initialState as initialPortfolioState } from 'state/slices/portfolioSlice/portfolioSliceCommon'
@@ -76,10 +79,11 @@ type PortfolioAndAssetsUpsertPayload = {
 
 const upsertPortfolioAndAssets = createAsyncThunk<void, PortfolioAndAssetsUpsertPayload>(
   'nft/upsertPortfolioAndAssets',
-  ({ nftsById }, { dispatch }) => {
+  ({ nftsById }, { dispatch, getState }) => {
+    const assetsById = selectAssets(getState() as ReduxState)
     const assetsToUpsert = Object.values(nftsById).reduce<UpsertAssetsPayload>(
       (acc, nft) => {
-        acc.byId[nft.assetId] = makeAsset({
+        acc.byId[nft.assetId] = makeAsset(assetsById, {
           assetId: nft.assetId,
           id: nft.id,
           symbol: nft.symbol ?? 'N/A',

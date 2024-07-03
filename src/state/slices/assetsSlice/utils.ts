@@ -16,9 +16,9 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 
 import type { UpsertAssetsPayload } from './assetsSlice'
-import { makeAsset } from './assetsSlice'
 
 export const chainIdFeeAssetReferenceMap = (
   chainNamespace: ChainNamespace,
@@ -127,7 +127,7 @@ export const makeNftAssetsFromTxs = (txs: Transaction[]): UpsertAssetsPayload =>
           return url
         })()
 
-        state.byId[transfer.assetId] = makeAsset({
+        state.byId[transfer.assetId] = makeAsset(state.byId, {
           assetId: transfer.assetId,
           id: transfer.id,
           symbol: transfer.token?.symbol ?? 'N/A',

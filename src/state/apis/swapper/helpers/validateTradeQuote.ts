@@ -1,17 +1,21 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, SwapSource, TradeQuote } from '@shapeshiftoss/swapper'
-import { SwapperName, TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  SwapperName,
+  TradeQuoteError as SwapperTradeQuoteError,
+} from '@shapeshiftoss/swapper'
+import {
+  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
+  THORCHAIN_LONGTAIL_SWAP_SOURCE,
+} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 import { isSmartContractAddress } from 'lib/address/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { ThorTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
@@ -27,10 +31,7 @@ import {
   selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
 } from 'state/slices/selectors'
-import {
-  getHopByIndex,
-  getTotalProtocolFeeByAssetForStep,
-} from 'state/slices/tradeQuoteSlice/helpers'
+import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
 
 import type { ErrorWithMeta } from '../types'
 import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'

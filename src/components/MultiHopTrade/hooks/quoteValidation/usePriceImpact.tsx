@@ -1,9 +1,12 @@
-import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  type SupportedTradeQuoteStepIndex,
+  type TradeQuote,
+} from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
-import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 import { useAppSelector } from 'state/store'
 
 export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {

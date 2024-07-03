@@ -1,6 +1,6 @@
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
-import type { ApiQuote } from 'state/apis/swapper'
+import type { ApiQuote } from 'state/apis/swapper/types'
 
 export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
 

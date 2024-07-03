@@ -2,6 +2,7 @@ import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -12,7 +13,7 @@ import { isSome } from 'lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import type { ReduxState } from 'state/reducer'
 import type { UpsertAssetsPayload } from 'state/slices/assetsSlice/assetsSlice'
-import { assets as assetsSlice, makeAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
@@ -405,7 +406,7 @@ export const zapper = createApi({
                       if (!rewardAssetId) return acc
                       if (assets[rewardAssetId]) return acc
 
-                      acc.byId[rewardAssetId] = makeAsset({
+                      acc.byId[rewardAssetId] = makeAsset(assets, {
                         assetId: rewardAssetId,
                         symbol: token.symbol,
                         // No dice here, there's no name property
@@ -426,7 +427,7 @@ export const zapper = createApi({
                     return {
                       byId: rewardAssetId
                         ? {
-                            [rewardAssetId]: makeAsset({
+                            [rewardAssetId]: makeAsset(assets, {
                               assetId: rewardAssetId,
                               symbol: asset.tokens[0].symbol ?? '',
                               name: asset.displayProps?.label ?? '',
@@ -539,7 +540,7 @@ export const zapper = createApi({
                     (acc, underlyingAssetId, i) => {
                       if (assets[underlyingAssetId]) return acc
 
-                      acc.byId[underlyingAssetId] = makeAsset({
+                      acc.byId[underlyingAssetId] = makeAsset(assets, {
                         assetId: underlyingAssetId,
                         symbol: asset.tokens[i].symbol,
                         // No dice here, there's no name property
@@ -558,7 +559,7 @@ export const zapper = createApi({
 
                   // Upsert underlyingAssetIds if they don't exist in store
                   if (asset.type === 'app-token' && !assets[underlyingAssetId]) {
-                    const underlyingAsset = makeAsset({
+                    const underlyingAsset = makeAsset(assets, {
                       assetId: underlyingAssetId,
                       symbol: asset.symbol ?? '',
                       name: asset.displayProps?.label ?? '',

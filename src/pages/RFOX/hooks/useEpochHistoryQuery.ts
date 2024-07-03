@@ -13,13 +13,7 @@ import {
 
 type EpochHistoryQueryKey = ['epochHistory']
 
-// TODO: Clean up by removing the Math.min after the first epoch starts.
-// This is a temporary hack to ensure we have an epoch to test with prior to rFOX launch,
-// and the correct one after launch (in case we don't action this todo it for any reason).
-// const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
-const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(
-  Math.min(dayjs().startOf('month').unix(), dayjs('2024-07-01T00:00:00Z').unix()),
-)
+const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
 
 // This looks weird but isn't - "now" isn't now, it's "now" when this module was first evaluated
 // This allows all calculations against now to be consistent, since our current monkey patch subtracts 2 epochs (60 days) from the same "now"

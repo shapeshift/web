@@ -157,7 +157,7 @@ export const ETH_ARBITRUM: Asset = {
   precision: 18,
   color: '#5C6BC0',
   networkColor: '#213147',
-  icon: '',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   networkIcon:
     'https://assets.coingecko.com/coins/images/16547/large/photo_2023-03-29_21.47.00.jpeg?1680097630',
   explorer: 'https://arbiscan.io',
@@ -200,7 +200,7 @@ export const OPTIMISM: Asset = {
   precision: 18,
   color: '#5C6BC0',
   networkColor: '#FC0424',
-  icon: '',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   networkIcon: 'https://assets.coingecko.com/coins/images/25244/thumb/Optimism.png?1660904599',
   explorer: 'https://optimistic.etherscan.io',
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',

@@ -73,7 +73,7 @@ const fetchPortalsTokens = async (): Promise<TokenInfo[]> => {
     const tokens = response.data.tokens
     // TODO(gomes): remove me before opening,
     console.log('Portals tokens fetched: ', tokens.length)
-    util.inspect(tokens, false, null, true)
+    console.log(util.inspect(tokens, false, null, true))
     return tokens
   } catch (error) {
     if (axios.isAxiosError(error)) {

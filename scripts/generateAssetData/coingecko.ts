@@ -137,7 +137,9 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         name: token.name,
         precision: token.decimals,
         color: colorMap[assetId] ?? '#FFFFFF',
-        icon: token.logoURI,
+        // The coingecko API returns thumbnails by default instead of large icons causing blurry images at some places
+        // I couldn't find any other option to get the large icon except using the coingecko PRO api, so we are replacing the thumb with large
+        icon: token.logoURI.replace('thumb', 'large'),
         symbol: token.symbol,
         explorer,
         explorerAddressLink,

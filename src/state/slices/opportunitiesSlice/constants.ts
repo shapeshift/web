@@ -100,13 +100,13 @@ export const STAKING_ID_DELIMITER = '*'
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
   [DefiProvider.ShapeShift]: {
     provider: DefiProvider.ShapeShift,
-    icon: 'https://assets.coingecko.com/coins/images/9988/standard/FOX.png?1696510025',
+    icon: 'https://coin-images.coingecko.com/coins/images/9988/large/FOX.png?1696510025',
     color: '#3761F9',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.EthFoxStaking]: {
     provider: DefiProvider.EthFoxStaking,
-    icon: 'https://assets.coingecko.com/coins/images/9988/standard/FOX.png?1696510025',
+    icon: 'https://coin-images.coingecko.com/coins/images/9988/large/FOX.png?1696510025',
     color: '#00CD98',
     url: 'https://app.shapeshift.com',
   },
@@ -118,13 +118,13 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
   },
   [DefiProvider.CosmosSdk]: {
     provider: DefiProvider.CosmosSdk,
-    icon: 'https://assets.coingecko.com/coins/images/1481/standard/cosmos_hub.png?1696502525',
+    icon: 'https://coin-images.coingecko.com/coins/images/1481/large/cosmos_hub.png?1696502525',
     color: '#C5B5F2',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.ThorchainSavers]: {
     provider: DefiProvider.ThorchainSavers,
-    icon: 'https://assets.coingecko.com/coins/images/6595/standard/Rune200x200.png?1696506946',
+    icon: 'https://coin-images.coingecko.com/coins/images/6595/large/Rune200x200.png?1696506946',
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },

@@ -105,7 +105,7 @@ export const getUniswapV2Pools = async () => {
         name,
         precision: Number(appTokenData.decimals),
         icons,
-        icon: 'https://assets.coingecko.com/coins/images/12504/standard/uni.jpg?1696512319',
+        icon: 'https://coin-images.coingecko.com/coins/images/12504/large/uni.jpg?1696512319',
       })
     })
     .filter(Boolean) as Asset[]

@@ -24,7 +24,7 @@ const assets: Asset[] = [
     name: 'Bitcoin',
     precision: 8,
     color: '#FFFFFF',
-    icon: 'https://assets.coingecko.com/coins/images/1/standard/bitcoin.png?1696501400',
+    icon: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1696501400',
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     explorerAddressLink: 'https://live.blockcypher.com/btc/address/',

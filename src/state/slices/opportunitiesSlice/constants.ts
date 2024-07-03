@@ -118,13 +118,13 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
   },
   [DefiProvider.CosmosSdk]: {
     provider: DefiProvider.CosmosSdk,
-    icon: 'https://assets.coincap.io/assets/icons/256/atom.png',
+    icon: 'https://assets.coingecko.com/coins/images/1481/standard/cosmos_hub.png?1696502525',
     color: '#C5B5F2',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.ThorchainSavers]: {
     provider: DefiProvider.ThorchainSavers,
-    icon: 'https://assets.coincap.io/assets/icons/rune@2x.png',
+    icon: 'https://assets.coingecko.com/coins/images/6595/standard/Rune200x200.png?1696506946',
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },

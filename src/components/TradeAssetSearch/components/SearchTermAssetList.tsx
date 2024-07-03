@@ -1,11 +1,13 @@
 import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByName,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
+import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
@@ -28,6 +30,7 @@ export const SearchTermAssetList = ({
   onAssetClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
+  const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
@@ -56,25 +59,22 @@ export const SearchTermAssetList = ({
           const { name, symbol, decimals, logo } = metaData
           // If we can't get all the information we need to create an Asset, don't allow the custom token
           if (!name || !symbol || !decimals) return null
-          return {
+          const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetId: toAssetId({
-              chainId: metaData.chainId,
-              assetNamespace: ASSET_NAMESPACE.erc20, // FIXME: make this dynamic based on the ChainId
-              assetReference: metaData.contractAddress,
-            }),
+            assetNamespace: ASSET_NAMESPACE.erc20, // FIXME: make this dynamic based on the ChainId
+            assetReference: metaData.contractAddress,
+          })
+          const minimalAsset: MinimalAsset = {
+            assetId,
             name,
             symbol,
             precision: decimals,
-            icon: logo ?? '',
-            explorer: '', // FIXME
-            explorerTxLink: '', // FIXME
-            explorerAddressLink: '', // FIXME
-            color: '', // FIXME: hexColor,
+            icon: logo ?? undefined,
           }
+          return makeAsset(assetsById, minimalAsset)
         })
         .filter(isSome),
-    [customTokens],
+    [assetsById, customTokens],
   )
 
   // We only want to show custom assets that aren't already in the asset list

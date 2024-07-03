@@ -21,10 +21,10 @@ import type {
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
-import { bn, calcFee, toAddressNList } from '../../utils'
+import { bnOrZero, toAddressNList } from '../../utils'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
-import { assertIsValidatorAddress, CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
+import { assertIsValidatorAddress, CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type {
   CosmosSdkMsgBeginRedelegate,
   CosmosSdkMsgDelegate,
@@ -36,8 +36,6 @@ import {
   type CosmosSdkMsgWithdrawDelegationReward,
   type ValidatorAction,
 } from '../types'
-
-export const MIN_FEE = '5000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet
@@ -53,6 +51,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     accountNumber: 0,
   }
 
+  private readonly api: unchained.cosmos.V1Api
+
   constructor(args: ChainAdapterArgs) {
     super({
       assetId: cosmosAssetId,
@@ -67,6 +67,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
+
+    this.api = args.providers.http
   }
 
   getDisplayName() {
@@ -283,19 +285,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     }
   }
 
-  // eslint-disable-next-line require-await
   async getFeeData(
     _: Partial<GetFeeDataInput<KnownChainIds.CosmosMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.CosmosMainnet>> {
-    const gasLimit = '1000000'
-    const scalars = { fast: bn(2), average: bn(1.5), slow: bn(1) }
+    const gasLimit = '2000000'
+    const fees = await this.api.fees()
+    const txFee = bnOrZero(fees[Denoms.uatom]).times(gasLimit).toFixed(0)
 
-    // We currently don't have a way to query validators to get dynamic fees, so they are hard coded.
-    // When we find a strategy to make this more dynamic, we can use 'sendMax' to define max amount.
     return {
-      fast: { txFee: calcFee(MIN_FEE, 'fast', scalars), chainSpecific: { gasLimit } },
-      average: { txFee: calcFee(MIN_FEE, 'average', scalars), chainSpecific: { gasLimit } },
-      slow: { txFee: calcFee(MIN_FEE, 'slow', scalars), chainSpecific: { gasLimit } },
+      fast: { txFee, chainSpecific: { gasLimit } },
+      average: { txFee, chainSpecific: { gasLimit } },
+      slow: { txFee, chainSpecific: { gasLimit } },
     }
   }
 

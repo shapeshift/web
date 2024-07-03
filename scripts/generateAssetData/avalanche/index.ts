@@ -21,7 +21,7 @@ type TokenInfo = {
   decimals: number
   symbol: string
   address: string
-  images: string[]
+  images: string[] | undefined
 }
 
 type GetTokensResponse = {
@@ -92,8 +92,8 @@ export const getPortalTokens = async (): Promise<Asset[]> => {
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: token.images[0] ?? '',
-      icons: token.images,
+      icon: token.images?.[0] ?? '',
+      icons: token.images ?? [],
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,

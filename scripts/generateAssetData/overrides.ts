@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 
 const fox: Partial<Asset> = {
   color: '#3761F9',
-  icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+  icon: 'https://assets.coingecko.com/coins/images/9988/standard/FOX.png?1696510025',
 }
 
 export const overrideAssets: Record<AssetId, Partial<Asset>> = {

@@ -174,7 +174,7 @@ const generateAssetData = async () => {
     name: 'FOX on Arbitrum One',
     precision: 18,
     color: '#3761F9',
-    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    icon: 'https://assets.coingecko.com/coins/images/9988/standard/FOX.png?1696510025',
     symbol: 'FOX',
     explorer: 'https://arbiscan.io',
     explorerAddressLink: 'https://arbiscan.io/address/',

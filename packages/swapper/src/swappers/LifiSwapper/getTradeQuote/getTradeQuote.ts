@@ -1,5 +1,5 @@
 import type { ChainKey, RoutesRequest } from '@lifi/sdk'
-import { LiFiError, LiFiErrorCode } from '@lifi/sdk'
+import { getRoutes, LiFiError, LiFiErrorCode } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import {
@@ -27,6 +27,7 @@ import {
   TradeQuoteError,
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { configureLiFi } from '../utils/configureLiFi'
 import { LIFI_INTEGRATOR_ID } from '../utils/constants'
 import { getIntermediaryTransactionOutputs } from '../utils/getIntermediaryTransactionOutputs/getIntermediaryTransactionOutputs'
 import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiEvmAssetAddress'

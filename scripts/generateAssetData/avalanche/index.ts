@@ -1,6 +1,7 @@
 import { avalancheChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
+import qs from 'qs'
 import util from 'util'
 
 import { avax } from '../baseAssets'
@@ -53,15 +54,17 @@ const fetchPortalsTokens = async (): Promise<TokenInfo[]> => {
   const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
 
-  const params = new URLSearchParams({
+  const params = {
     // Maximum supported limit, enough to get a viable diff, but low enough to not make this huge as a PoC
     limit: '250',
     // Only Avalanche for PoC, more to be added later
-    networks: 'avalanche',
-  })
+    networks: ['avalanche'],
+  }
 
   try {
     const response = await axios.get<GetTokensResponse>(url, {
+      // Encode query params with arrayFormat: 'repeat' because Portals api expects it
+      paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
       headers: {
         Authorization: `Bearer ${PORTALS_API_KEY}`,
       },
@@ -69,7 +72,7 @@ const fetchPortalsTokens = async (): Promise<TokenInfo[]> => {
     })
     const tokens = response.data.tokens
     // TODO(gomes): remove me before opening,
-    console.log('Portals tokens fetched!')
+    console.log('Portals tokens fetched: ', tokens.length)
     util.inspect(tokens, false, null, true)
     return tokens
   } catch (error) {

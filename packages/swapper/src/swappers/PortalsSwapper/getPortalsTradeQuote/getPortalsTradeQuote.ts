@@ -14,6 +14,7 @@ import {
   TradeQuoteError,
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../utils/constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 
@@ -49,6 +50,7 @@ export async function getPortalsTradeQuote(
         }),
       )
     }
+
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
       // TODO(gomes): why is this optional wtf
       sender: sendAddress!,
@@ -57,7 +59,7 @@ export async function getPortalsTradeQuote(
       outputToken: `${portalsNetwork}:${fromAssetId(buyAsset.assetId).assetReference}`,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
-      // TODO(gomes): partner, yep, portals supports it!
+      partner: getTreasuryAddressFromChainId(sellAsset.chainId),
     })
 
     const {

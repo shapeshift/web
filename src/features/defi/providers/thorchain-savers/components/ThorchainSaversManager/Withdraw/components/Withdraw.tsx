@@ -581,7 +581,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={!quoteLoading}>
-              <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+              <Amount.Crypto value={slippageCryptoAmountPrecision ?? '0'} symbol={asset.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

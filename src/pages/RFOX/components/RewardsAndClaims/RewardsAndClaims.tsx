@@ -83,7 +83,7 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
 
 type RewardsAndClaimsProps = {
   stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
+  stakingAssetAccountId: AccountId
 }
 
 export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
@@ -106,7 +106,7 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
           <TabPanel px={0} py={0}>
-            <Rewards headerComponent={TabHeader} />
+            <Rewards headerComponent={TabHeader} stakingAssetAccountId={stakingAssetAccountId} />
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Claims

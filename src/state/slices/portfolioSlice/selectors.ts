@@ -124,21 +124,33 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   },
 )
 
-export const selectHighestAccountNumberForChainId = createCachedSelector(
+/**
+ * Selects the first connected account in the wallet for the given chainId
+ */
+export const selectFirstConnectedAccountIdForChainId = createCachedSelector(
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
-  (portfolioAccountMetadata, filterChainId): number => {
-    if (!filterChainId) return 0
+  (portfolioAccountMetadata, filterChainId): AccountId | undefined => {
+    if (!filterChainId) return undefined
 
-    return Math.max(
-      0,
-      ...Object.entries(portfolioAccountMetadata)
-        .filter(([accountId]) => {
-          const { chainId } = fromAccountId(accountId)
-          return chainId === filterChainId
-        })
-        .map(([_accountId, accountMetadata]) => accountMetadata.bip44Params.accountNumber),
+    const filteredAccountMetadata = Object.entries(portfolioAccountMetadata).filter(
+      ([accountId]) => {
+        const { chainId } = fromAccountId(accountId)
+        return chainId === filterChainId
+      },
     )
+
+    if (filteredAccountMetadata.length === 0) return undefined
+
+    const sortedAccountMetadata = orderBy(
+      filteredAccountMetadata,
+      ([, accountMetadata]) => {
+        return accountMetadata.bip44Params.accountNumber
+      },
+      'asc',
+    )
+
+    return sortedAccountMetadata[0][0]
   },
 )((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
 

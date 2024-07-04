@@ -40,7 +40,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     getPortalTokens(),
   ])
 
-  const allAssets = uniqBy(portalsAssets.concat(assets).concat([avax]), 'assetId')
+  const allAssets = uniqBy(assets.concat(portalsAssets).concat([avax]), 'assetId')
 
   return allAssets.map(asset => ({
     ...asset,

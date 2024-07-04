@@ -3,6 +3,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import {
@@ -14,7 +15,7 @@ import {
   TradeQuoteError,
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../utils/constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 
@@ -47,6 +48,7 @@ export async function getPortalsTradeQuote(
 
   try {
     const portalsNetwork = chainIdToPortalsNetwork[input.chainId as KnownChainIds]
+
     if (!portalsNetwork) {
       return Err(
         makeSwapErrorRight({
@@ -57,12 +59,21 @@ export async function getPortalsTradeQuote(
       )
     }
 
+    const sellAssetAddress = isNativeEvmAsset(sellAsset.assetId)
+      ? zeroAddress
+      : fromAssetId(sellAsset.assetId).assetReference
+    const buyAssetAddress = isNativeEvmAsset(buyAsset.assetId)
+      ? zeroAddress
+      : fromAssetId(buyAsset.assetId).assetReference
+
+    const inputToken = `${portalsNetwork}:${sellAssetAddress}`
+    const outputToken = `${portalsNetwork}:${buyAssetAddress}`
+
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
       // TODO(gomes): why is this optional wtf
       sender: sendAddress!,
-      // TODO(gomes): handle native EVM assets
-      inputToken: `${portalsNetwork}:${fromAssetId(sellAsset.assetId).assetReference}`,
-      outputToken: `${portalsNetwork}:${fromAssetId(buyAsset.assetId).assetReference}`,
+      inputToken,
+      outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),

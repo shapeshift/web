@@ -1,7 +1,9 @@
 import { avalancheChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
+import uniqBy from 'lodash/uniqBy'
 import qs from 'qs'
+import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import { avax } from '../baseAssets'
 import * as coingecko from '../coingecko'
@@ -37,7 +39,10 @@ export const getAssets = async (): Promise<Asset[]> => {
     coingecko.getAssets(avalancheChainId),
     getPortalTokens(),
   ])
-  return [...assets, ...portalsAssets, avax].map(asset => ({
+
+  const allAssets = uniqBy(portalsAssets.concat(assets).concat([avax]), 'assetId')
+
+  return allAssets.map(asset => ({
     ...asset,
     icon:
       asset.icon ||
@@ -73,7 +78,12 @@ const fetchPortalsTokens = async (
       params,
     })
 
-    const newTokens = [...accTokens, ...pageResponse.data.tokens]
+    const pageTokens = pageResponse.data.tokens.filter(
+      // Filter out native assets as 0x0 tokens, or problems
+      ({ address }) => !isAddressEqual(getAddress(address), zeroAddress),
+    )
+
+    const newTokens = accTokens.concat(pageTokens)
 
     if (pageResponse.data.more) {
       // If there are more pages, recursively fetch the next page

@@ -33,6 +33,8 @@ describe('TransactionHistoryRow/utils', () => {
       precision: 18,
       color: '#222E51',
       icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png',
+      iconLarge:
+        'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png',
       symbol: 'FOX',
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',

@@ -26,6 +26,7 @@ export const getYearnVaults = async (): Promise<Asset[]> => {
     return {
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: vault.metadata.displayIcon,
+      iconLarge: vault.metadata.displayIcon,
       name: vault.name,
       precision: Number(vault.decimals),
       symbol: vault.symbol,
@@ -46,6 +47,7 @@ export const getZapperTokens = async (): Promise<Asset[]> => {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: token.icon ?? '',
+      iconLarge: token.icon ?? '',
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,
@@ -64,6 +66,7 @@ export const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: token.icon ?? '',
+      iconLarge: token.icon ?? '',
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,

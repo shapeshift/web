@@ -46,7 +46,7 @@ const headers = {
   authorization,
 }
 
-const assets = generatedAssetData as Record<AssetId, Asset>
+const assets = generatedAssetData as any
 
 export const getUniswapV2Pools = async () => {
   const evmNetworks = [chainIdToZapperNetwork(ethChainId)]

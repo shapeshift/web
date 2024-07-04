@@ -62,6 +62,7 @@ export const getIdleTokens = async (): Promise<Asset[]> => {
     assets.push({
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: displayIcon,
+      iconLarge: displayIcon,
       name: vault.poolName,
       precision: Number(18),
       symbol,

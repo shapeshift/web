@@ -80,7 +80,7 @@ const fetchPortalsTokens = async (
       return fetchPortalsTokens(page + 1, newTokens)
     } else {
       // No more pages, return all accumulated tokens
-      console.log(`Total Portals tokens fetched: ${newTokens.length}`)
+      console.log(`Total Portals tokens fetched for Avalanche: ${newTokens.length}`)
       return newTokens
     }
   } catch (error) {

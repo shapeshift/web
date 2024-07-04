@@ -2,7 +2,6 @@ import { avalancheChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import qs from 'qs'
-import util from 'util'
 
 import { avax } from '../baseAssets'
 import * as coingecko from '../coingecko'
@@ -49,7 +48,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   }))
 }
 
-const fetchPortalsTokens = async (): Promise<TokenInfo[]> => {
+const fetchPortalsTokens = async (
+  page: number = 0,
+  accTokens: TokenInfo[] = [],
+): Promise<TokenInfo[]> => {
   const url = 'https://api.portals.fi/v2/tokens'
   const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
@@ -59,28 +61,36 @@ const fetchPortalsTokens = async (): Promise<TokenInfo[]> => {
     limit: '250',
     // Only Avalanche for PoC, more to be added later
     networks: ['avalanche'],
+    page: page.toString(),
   }
 
   try {
-    const response = await axios.get<GetTokensResponse>(url, {
-      // Encode query params with arrayFormat: 'repeat' because Portals api expects it
+    const pageResponse = await axios.get<GetTokensResponse>(url, {
       paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
       headers: {
         Authorization: `Bearer ${PORTALS_API_KEY}`,
       },
       params,
     })
-    const tokens = response.data.tokens
-    // TODO(gomes): remove me before opening,
-    console.log('Portals tokens fetched: ', tokens.length)
-    console.log(util.inspect(tokens, false, null, true))
-    return tokens
+
+    const newTokens = [...accTokens, ...pageResponse.data.tokens]
+
+    if (pageResponse.data.more) {
+      // If there are more pages, recursively fetch the next page
+      return fetchPortalsTokens(page + 1, newTokens)
+    } else {
+      // No more pages, return all accumulated tokens
+      console.log(`Total Portals tokens fetched: ${newTokens.length}`)
+      return newTokens
+    }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(`Failed to fetch Portals tokens: ${error.message}`)
+    } else {
+      console.error(error)
     }
-    console.error(error)
-    return []
+
+    return accTokens
   }
 }
 export const getPortalTokens = async (): Promise<Asset[]> => {

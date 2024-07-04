@@ -8,6 +8,7 @@ type PortalsTradeOrderParams = {
   outputToken: string
   slippageTolerancePercentage?: number
   partner?: string
+  feePercentage?: number
   validate?: boolean
 }
 
@@ -51,6 +52,7 @@ export const fetchPortalsTradeOrder = async ({
   outputToken,
   slippageTolerancePercentage,
   partner,
+  feePercentage,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
   const baseUrl = 'https://api.portals.fi/v2/portal'
 
@@ -70,6 +72,10 @@ export const fetchPortalsTradeOrder = async ({
 
   if (partner) {
     params.append('partner', partner)
+  }
+
+  if (feePercentage) {
+    params.append('feePercentage', feePercentage.toString())
   }
 
   try {

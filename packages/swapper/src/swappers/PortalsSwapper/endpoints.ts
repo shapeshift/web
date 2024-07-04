@@ -16,7 +16,6 @@ export const portalsApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    debugger
     const tradeQuoteResult = await getPortalsTradeQuote(input as GetEvmTradeQuoteInput)
 
     return tradeQuoteResult.map(tradeQuote => {

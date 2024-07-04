@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -28,12 +28,18 @@ export async function getPortalsTradeQuote(
     // TODO(gomes): consume me
     // accountNumber,
     // receiveAddress,
-    // affiliateBps,
-    // potentialAffiliateBps,
+    affiliateBps,
+    potentialAffiliateBps,
     // chainId,
     // supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
+
+  // @ts-ignore
+  // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%
+  const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
+    .times(100)
+    .toNumber()
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -60,6 +66,7 @@ export async function getPortalsTradeQuote(
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
+      feePercentage: affiliateBpsPercentage,
     })
 
     const {
@@ -81,8 +88,8 @@ export async function getPortalsTradeQuote(
     const tradeQuote: TradeQuote = {
       id: orderId,
       receiveAddress: input.receiveAddress,
-      affiliateBps: input.affiliateBps,
-      potentialAffiliateBps: input.potentialAffiliateBps,
+      affiliateBps,
+      potentialAffiliateBps,
       rate,
       slippageTolerancePercentageDecimal: (slippageTolerancePercentage / 100).toString(),
       steps: [

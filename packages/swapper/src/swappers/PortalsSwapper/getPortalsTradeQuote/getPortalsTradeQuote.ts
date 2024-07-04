@@ -47,6 +47,8 @@ export async function getPortalsTradeQuote(
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals)
 
   try {
+    if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
+
     const portalsNetwork = chainIdToPortalsNetwork[input.chainId as KnownChainIds]
 
     if (!portalsNetwork) {
@@ -70,8 +72,7 @@ export async function getPortalsTradeQuote(
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      // TODO(gomes): why is this optional wtf
-      sender: sendAddress!,
+      sender: sendAddress,
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,

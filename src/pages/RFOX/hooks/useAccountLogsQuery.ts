@@ -17,8 +17,6 @@ type UseAccountLogsProps<SelectData> = {
 const client = viemClientByNetworkId[arbitrum.id]
 
 /**
- * Calculates the time the account has most recently had a non-zero staking balance to now, in seconds
- *
  * WARNING: This is a very expensive operation and should only be used behind react-query to cache the result.
  *
  * i.e DO NOT EXPORT THIS FUNCTION

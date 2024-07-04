@@ -100,13 +100,13 @@ export const STAKING_ID_DELIMITER = '*'
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
   [DefiProvider.ShapeShift]: {
     provider: DefiProvider.ShapeShift,
-    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/public/fox-token-logo.png',
     color: '#3761F9',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.EthFoxStaking]: {
     provider: DefiProvider.EthFoxStaking,
-    icon: 'https://assets.coincap.io/assets/icons/256/fox.png',
+    icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/public/fox-token-logo.png',
     color: '#00CD98',
     url: 'https://app.shapeshift.com',
   },

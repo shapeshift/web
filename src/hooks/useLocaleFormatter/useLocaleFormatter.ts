@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react'
-import { bn } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -208,7 +208,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
       suffix: ` ${symbol}`,
     }
 
-    return bn(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
+    return bnOrZero(num).decimalPlaces(maximumFractionDigits).toFormat(formatOptions)
   }
 
   /** Format a number as a fiat display value */

@@ -4,9 +4,10 @@ import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type AmountProps = {
-  value: number | string
+  value: number | string | undefined
   prefix?: string
   suffix?: string
   omitDecimalTrailingZeros?: boolean
@@ -37,7 +38,7 @@ export function Amount({
 }
 
 type CryptoAmountProps = {
-  value: string
+  value: string | undefined
   symbol: string
   maximumFractionDigits?: number
 } & AmountProps
@@ -65,7 +66,7 @@ const Crypto = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const crypto = toCrypto(value, symbol, {
+  const crypto = toCrypto(bnOrZero(value).toFixed(), symbol, {
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,
@@ -94,7 +95,7 @@ const Fiat = ({
     number: { toFiat },
   } = useLocaleFormatter({ fiatType })
 
-  const fiat = toFiat(value, {
+  const fiat = toFiat(bnOrZero(value).toFixed(), {
     fiatType,
     omitDecimalTrailingZeros,
     abbreviated,
@@ -114,7 +115,7 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   const {
     number: { toPercent },
   } = useLocaleFormatter()
-  const formattedNumber = toPercent(value, options)
+  const formattedNumber = toPercent(bnOrZero(value).toFixed(), options)
   const red = useColorModeValue('red.800', 'red.500')
   const green = useColorModeValue('green.500', 'green.200')
   const color = useMemo(() => {

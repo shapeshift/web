@@ -3,12 +3,14 @@ import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { isSome } from 'lib/utils'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetsSortedByName,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
+import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
@@ -31,6 +33,7 @@ export const SearchTermAssetList = ({
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
   const assetsById = useAppSelector(selectAssets)
+  const dispatch = useAppDispatch()
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
@@ -94,9 +97,25 @@ export const SearchTermAssetList = ({
     }
   }, [assetListLoading, isLoadingCustomTokens, searchTermAssets.length])
 
-  const onImportClick = useCallback(() => {
-    console.log('import click')
-  }, [])
+  const onImportClick = useCallback(
+    (asset: Asset, price: string) => {
+      console.log('import click', asset.assetId)
+
+      // Add asset to the store
+      dispatch(assetsSlice.actions.upsertAsset(asset))
+
+      // Add market data to the store
+      dispatch(
+        marketDataSlice.actions.setCryptoMarketData({
+          [asset.assetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
+        }),
+      )
+
+      // Once the custom asset is in the store, proceed as if it was a normal asset
+      onAssetClick(asset)
+    },
+    [dispatch, onAssetClick],
+  )
 
   return (
     <GroupedAssetList

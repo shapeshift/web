@@ -8,6 +8,7 @@ import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 type TokenMetadata = TokenMetadataResponse & {
   chainId: ChainId
   contractAddress: string
+  price: string
 }
 
 type UseGetCustomTokensQueryProps = {
@@ -30,7 +31,8 @@ export const useGetCustomTokensQuery = ({
     async (chainId: ChainId) => {
       const alchemy = getAlchemyInstanceByChainId(chainId)
       const tokenMetadataResponse = await alchemy.core.getTokenMetadata(contractAddress)
-      return { ...tokenMetadataResponse, chainId, contractAddress }
+      // TODO: get price from somewhere
+      return { ...tokenMetadataResponse, chainId, contractAddress, price: '0' }
     },
     [contractAddress],
   )

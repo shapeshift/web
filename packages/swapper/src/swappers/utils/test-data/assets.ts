@@ -244,7 +244,7 @@ export const RUNE: Asset = {
   symbol: 'RUNE',
   precision: 8,
   color: '#33FF99',
-  icon: 'https://coin-images.coingecko.com/coins/images/6595/large/Rune200x200.png?1696506946',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/thorchain/info/logo.png',
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',

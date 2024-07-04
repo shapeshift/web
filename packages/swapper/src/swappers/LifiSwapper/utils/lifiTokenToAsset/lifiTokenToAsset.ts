@@ -23,6 +23,7 @@ export const lifiTokenToAsset = (
     symbol: lifiToken.symbol,
     color: '#000000',
     icon: lifiToken.logoURI ?? '',
+    iconLarge: lifiToken.logoURI ?? '',
     explorer: '',
     explorerTxLink: '',
     explorerAddressLink: '',

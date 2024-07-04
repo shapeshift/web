@@ -32,6 +32,7 @@ export const makeAsset = (
 
   // currently, dynamic assets are LP pairs, and they have two icon urls and are rendered differently
   const icon = minimalAsset?.icon ?? ''
+  const iconLarge = minimalAsset?.icon ?? ''
 
   type ExplorerLinks = Pick<Asset, 'explorer' | 'explorerTxLink' | 'explorerAddressLink'>
 
@@ -44,5 +45,10 @@ export const makeAsset = (
     }
   })()
 
-  return Object.assign({}, minimalAsset, explorerLinks, { chainId, color, icon })
+  return Object.assign({}, minimalAsset, explorerLinks, {
+    chainId,
+    color,
+    icon,
+    iconLarge,
+  })
 }

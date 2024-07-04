@@ -65,6 +65,9 @@ export const getAssets = async (): Promise<Asset[]> => {
       icon: current.image
         ? `https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/${current.image}`
         : '',
+      iconLarge: current.image
+        ? `https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/${current.image}`
+        : '',
       explorer: atom.explorer,
       explorerAddressLink: atom.explorerAddressLink,
       explorerTxLink: atom.explorerTxLink,

@@ -26,6 +26,8 @@ const foxyToken: Asset = {
   precision: 18,
   color: '#CE3885',
   icon: 'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
+  iconLarge:
+    'https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/ethereum/icons/foxy-icon.png',
   symbol: 'FOXy',
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,

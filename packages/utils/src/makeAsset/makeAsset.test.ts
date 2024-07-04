@@ -14,6 +14,8 @@ const ETH: Asset = {
   precision: 18,
   color: '#FFFFFF',
   icon: 'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  iconLarge:
+    'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',

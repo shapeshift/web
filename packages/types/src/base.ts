@@ -52,6 +52,7 @@ export type Asset = {
   color: string
   networkColor?: string
   icon: string
+  iconLarge: string
   icons?: string[]
   networkIcon?: string
   explorer: string

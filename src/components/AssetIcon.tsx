@@ -47,7 +47,12 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
+  const iconSrcSet = rest.srcSet ?? `${asset?.icon}, ${asset?.iconLarge} 2x`
   const iconSrc = src ?? asset?.icon
+  const feesAssetSrc = feeAsset?.networkIcon ?? feeAsset?.icon
+  const feesAssetSrcSet = `${feeAsset?.networkIcon ?? feeAsset?.icon}, ${
+    feeAsset?.networkIcon ?? feeAsset?.iconLarge
+  } 2x`
 
   return (
     <Center>
@@ -61,12 +66,14 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
             transformOrigin='top left'
             icon={icon}
             fontSize='inherit'
-            src={feeAsset?.networkIcon ?? feeAsset?.icon}
+            src={feesAssetSrc}
+            srcSet={feesAssetSrcSet}
             size={size}
           />
         )}
         <Avatar
           src={iconSrc}
+          srcSet={iconSrcSet}
           icon={icon}
           border={0}
           size={size}

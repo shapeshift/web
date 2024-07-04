@@ -41,6 +41,7 @@ export async function getUniswapTokens(): Promise<Asset[]> {
       precision: token.decimals,
       color: colorMap[assetId] ?? '#FFFFFF',
       icon: token.logoURI,
+      iconLarge: token.logoURI,
       symbol: token.symbol,
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',

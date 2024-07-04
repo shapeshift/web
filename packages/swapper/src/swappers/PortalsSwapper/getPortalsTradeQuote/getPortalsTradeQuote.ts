@@ -69,7 +69,6 @@ export async function getPortalsTradeQuote(
     )
   }
 
-  // @ts-ignore
   // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%
   const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
     .times(100)

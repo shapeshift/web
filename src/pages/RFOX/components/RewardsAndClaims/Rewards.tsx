@@ -1,7 +1,7 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
-import { DAO_TREASURY_THORCHAIN } from 'constants/treasury'
+import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
 import { uniq } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'

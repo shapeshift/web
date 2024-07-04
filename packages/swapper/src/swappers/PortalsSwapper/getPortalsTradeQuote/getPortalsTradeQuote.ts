@@ -26,11 +26,10 @@ export async function getPortalsTradeQuote(
     sellAsset,
     buyAsset,
     sendAddress,
-    // TODO(gomes): consume me
-    // accountNumber,
-    // receiveAddress,
+    accountNumber,
     affiliateBps,
     potentialAffiliateBps,
+    // TODO(gomes): consume me
     // chainId,
     // supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -106,11 +105,11 @@ export async function getPortalsTradeQuote(
       slippageTolerancePercentageDecimal: (slippageTolerancePercentage / 100).toString(),
       steps: [
         {
+          accountNumber,
           allowanceContract,
           rate,
-          buyAsset: input.buyAsset,
-          sellAsset: input.sellAsset,
-          accountNumber: input.accountNumber,
+          buyAsset,
+          sellAsset,
           buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:

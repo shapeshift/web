@@ -33,7 +33,7 @@ export const FOX: Asset = {
   name: 'Fox',
   precision: 18,
   color: '#FFFFFF',
-  icon: 'https://coin-images.coingecko.com/coins/images/9988/large/FOX.png?1696510025',
+  icon: 'https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/ethereum/assets/0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d/logo.png',
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',

@@ -33,7 +33,7 @@ export const fetchPortalsTradeQuote = async ({
   outputToken,
   slippageTolerancePercentage,
 }: PortalQuoteParams): Promise<PortalQuoteResponse> => {
-  const baseUrl = 'https://api.portals.fi/v2/portal/estimate'
+  const url = 'https://api.portals.fi/v2/portal/estimate'
 
   const params = new URLSearchParams({
     inputToken,
@@ -50,7 +50,7 @@ export const fetchPortalsTradeQuote = async ({
   }
 
   try {
-    const response = await axios.get<PortalQuoteResponse>(baseUrl, { params })
+    const response = await axios.get<PortalQuoteResponse>(url, { params })
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -54,7 +54,7 @@ export const fetchPortalsTradeOrder = async ({
   partner,
   feePercentage,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
-  const baseUrl = 'https://api.portals.fi/v2/portal'
+  const url = 'https://api.portals.fi/v2/portal'
 
   const params = new URLSearchParams({
     sender,
@@ -79,7 +79,7 @@ export const fetchPortalsTradeOrder = async ({
   }
 
   try {
-    const response = await axios.get<PortalsTradeOrderResponse>(baseUrl, { params })
+    const response = await axios.get<PortalsTradeOrderResponse>(url, { params })
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {

@@ -3,6 +3,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { type AccountMetadata, HistoryTimeframe } from '@shapeshiftoss/types'
+import { TransferType } from '@shapeshiftoss/unchained-client'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -65,10 +66,13 @@ export const selectTxById = createCachedSelector(
 export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxIdsParam,
   selectTxs,
-  (txIds: TxId[], txs) =>
-    txIds
-      .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
-      .sort((a, b) => b.date - a.date),
+  (txIds: TxId[], txs) => {
+    return txIds
+      .map((txId: TxId) => {
+        return { txId, date: txs[txId].blockTime }
+      })
+      .sort((a, b) => b.date - a.date)
+  },
 )
 
 type TxHistoryPageFilter = {
@@ -106,9 +110,10 @@ export const selectTxIdsByFilter = createCachedSelector(
   (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter): TxId[] => {
     // filter by accountIdFilter, if it exists, otherwise data for all accountIds
 
-    const filtered = pickBy(data, (_, accountId) =>
-      accountIdFilter ? accountId === accountIdFilter : true,
-    )
+    const filtered = pickBy(data, (_, accountId) => {
+      if (accountIdFilter) return accountId === accountIdFilter
+      return true
+    })
     const flattened = values(filtered)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
@@ -122,6 +127,50 @@ export const selectTxIdsByFilter = createCachedSelector(
 )((_state: ReduxState, filter) =>
   filter
     ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
+        filter.assetId ?? 'assetId'
+      }`
+    : 'txIdsByFilter',
+)
+
+export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
+  selectTxIds,
+  selectTxs,
+  selectWalletTxsByAccountIdAssetId,
+  (_state, filter: { accountIds: AccountId[]; txSender: string }) => filter.accountIds,
+  (_state, filter: { accountIds: AccountId[]; txSender: string }) => filter.txSender,
+  selectAssetIdParamFromFilter,
+  (txIds, txs, data, accountIdsFilter, txSenderFilter, assetIdFilter): TxId[] => {
+    const filteredByAccountIds = pickBy(data, (_, accountId) => {
+      return accountIdsFilter.includes(accountId)
+    })
+
+    const filteredByAssetIdFlat = uniq(
+      values(filteredByAccountIds)
+        .flatMap(byAssetId =>
+          assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat(),
+        )
+        .filter(isSome),
+    )
+
+    const filteredByTxType = filteredByAssetIdFlat.filter(txId => {
+      // The logic here is only valid for single transfer transactions
+      return txs[txId].transfers[0].type === TransferType.Receive
+    })
+
+    const filteredBySender = txSenderFilter
+      ? filteredByTxType.filter(txId => {
+          // The logic here is only valid for single transfer transactions
+          return txs[txId].transfers[0].from[0] === txSenderFilter
+        })
+      : filteredByTxType
+
+    const sortedIds = filteredBySender.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+
+    return sortedIds
+  },
+)((_state: ReduxState, filter) =>
+  filter
+    ? `${filter.accountIds?.join(',') ?? 'accountIds'}-${filter.txSender ?? 'txSender'}-${
         filter.assetId ?? 'assetId'
       }`
     : 'txIdsByFilter',

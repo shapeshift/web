@@ -1,12 +1,16 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMemo } from 'react'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { DAO_TREASURY_THORCHAIN } from 'constants/treasury'
+import { uniq } from 'lodash'
+import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { useRuneAddressesQuery } from 'pages/RFOX/hooks/useRuneAddressesQuery'
-import { selectTxsByFilter } from 'state/slices/selectors'
+import { parseAbiStakingInfo } from 'pages/RFOX/hooks/helpers'
+import { useStakingInfoHistoryQuery } from 'pages/RFOX/hooks/useStakingInfoHistoryQuery'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import type { AbiStakingInfo } from 'pages/RFOX/types'
+import { selectReceivedTxsForAccountIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type RewardsContentProps = {
@@ -18,45 +22,84 @@ type RewardsProps = {
   headerComponent: JSX.Element
 }
 
-const coarselyFilteredTxsFilter = { txStatus: TxStatus.Confirmed, assetId: thorchainAssetId }
-
 const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
-  // Get a coarsely filtered list of txIds to filter further based on rFOX specific criteria
-  const coarselyFilteredTxs = useAppSelector(state =>
-    selectTxsByFilter(state, coarselyFilteredTxsFilter),
-  )
-
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],
   )
 
+  const select = useCallback((abiStakingInfo: AbiStakingInfo) => {
+    const { runeAddress } = parseAbiStakingInfo(abiStakingInfo)
+    return runeAddress
+  }, [])
+
   const {
-    data: runeAddresses,
-    isLoading,
-    isFetching,
-  } = useRuneAddressesQuery({ stakingAssetAccountAddress })
+    data: historicalRuneAddresses,
+    isLoading: isStakingInfoHistoryLoading,
+    isFetching: isStakingInfoHistoryFetching,
+  } = useStakingInfoHistoryQuery({ stakingAssetAccountAddress, select })
 
-  console.log({ runeAddresses })
+  const {
+    data: currentRuneAddress,
+    isLoading: isCurrentStakingInfoLoading,
+    isFetching: isCurrentStakingInfoFetching,
+  } = useStakingInfoQuery({ stakingAssetAccountAddress, select })
 
-  // TODO: Fetch any rune accounts not held in tx history
-  const txIds = useMemo(() => {
-    if (isLoading || isFetching || !runeAddresses) {
+  const uniqueHistoricalRuneAddresses = useMemo(() => {
+    if (!historicalRuneAddresses) {
       return []
     }
 
-    const finelyFilteredTxs = coarselyFilteredTxs.filter(tx => {
-      return runeAddresses.includes(tx.pubkey)
-    })
+    return uniq(historicalRuneAddresses.map(({ result }) => result))
+  }, [historicalRuneAddresses])
 
-    // TODO: Pagination, not slice
-    return finelyFilteredTxs.slice(0, Number(5)).map(tx => tx.txid)
-  }, [coarselyFilteredTxs, isFetching, isLoading, runeAddresses])
+  const runeAddresses = useMemo(() => {
+    if (!currentRuneAddress) {
+      return uniqueHistoricalRuneAddresses
+    }
+
+    return uniq([...uniqueHistoricalRuneAddresses, currentRuneAddress])
+  }, [uniqueHistoricalRuneAddresses, currentRuneAddress])
+
+  const thorchainAccountIds = useMemo(() => {
+    return runeAddresses.map(runeAddress =>
+      toAccountId({
+        chainId: thorchainChainId,
+        account: runeAddress as string,
+      }),
+    )
+  }, [runeAddresses])
+
+  const txIdsFilter = useMemo(() => {
+    return {
+      assetId: thorchainAssetId,
+      accountIds: thorchainAccountIds,
+      txSender: DAO_TREASURY_THORCHAIN,
+    }
+  }, [thorchainAccountIds])
+
+  // TODO: Fetch any rune accounts not held in tx history
+  const txIds = useAppSelector(state => selectReceivedTxsForAccountIdsByFilter(state, txIdsFilter))
+
+  const isLoading = useMemo(() => {
+    return (
+      isStakingInfoHistoryLoading ||
+      isCurrentStakingInfoLoading ||
+      isStakingInfoHistoryFetching ||
+      isCurrentStakingInfoFetching
+    )
+  }, [
+    isCurrentStakingInfoFetching,
+    isCurrentStakingInfoLoading,
+    isStakingInfoHistoryFetching,
+    isStakingInfoHistoryLoading,
+  ])
 
   if (!txIds.length) {
     return <Text color='text.subtle' translation='RFOX.noRewardsYet' />
   }
 
+  // TODO: show loading state if tx history is also loading
   return (
     <Box mx={-6}>
       <TransactionsGroupByDate txIds={txIds} isLoading={isLoading} />

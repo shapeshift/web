@@ -3,12 +3,14 @@ import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
-import type { Address, ReadContractReturnType } from 'viem'
+import type { Address } from 'viem'
 import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
 import { viemClientByNetworkId } from 'lib/viem-client'
+
+import type { AbiStakingInfo } from '../types'
 
 type StakingInfoQueryKey = ReadContractQueryKey<
   typeof foxStakingV1Abi,
@@ -16,14 +18,14 @@ type StakingInfoQueryKey = ReadContractQueryKey<
   readonly [Address],
   Config
 >
-type StakingInfo = ReadContractReturnType<typeof foxStakingV1Abi, 'stakingInfo', readonly [Address]>
-type UseStakingInfoQueryProps<SelectData = StakingInfo> = {
+
+type UseStakingInfoQueryProps<SelectData = AbiStakingInfo> = {
   stakingAssetAccountAddress: string | undefined
-  select?: (stakingInfo: StakingInfo) => SelectData
+  select?: (stakingInfo: AbiStakingInfo) => SelectData
 }
 const client = viemClientByNetworkId[arbitrum.id]
 
-export const useStakingInfoQuery = <SelectData = StakingInfo>({
+export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
   stakingAssetAccountAddress,
   select,
 }: UseStakingInfoQueryProps<SelectData>) => {

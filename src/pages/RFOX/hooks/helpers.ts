@@ -1,7 +1,7 @@
 import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
 import { bn } from 'lib/bignumber/bignumber'
 
-import type { PartialEpochMetadata } from '../types'
+import type { AbiStakingInfo, PartialEpochMetadata, StakingInfo } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -40,5 +40,17 @@ export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {
       return 222913582n
     default:
       throw new Error(`Invalid RFOX proxy contract address`)
+  }
+}
+
+export const parseAbiStakingInfo = (abiStakingInfo: AbiStakingInfo): StakingInfo => {
+  const [stakingBalance, unstakingBalance, earnedRewards, rewardPerTokenStored, runeAddress] =
+    abiStakingInfo
+  return {
+    stakingBalance,
+    unstakingBalance,
+    earnedRewards,
+    rewardPerTokenStored,
+    runeAddress,
   }
 }

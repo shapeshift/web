@@ -16,8 +16,9 @@ import {
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { chainIdToPortalsNetwork } from '../utils/constants'
+import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -34,6 +35,39 @@ export async function getPortalsTradeQuote(
     // supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
+
+  const sellAssetChainId = sellAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
+
+  if (!isSupportedChainId(sellAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (sellAssetChainId !== buyAssetChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
+        code: TradeQuoteError.CrossChainNotSupported,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
 
   // @ts-ignore
   // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%

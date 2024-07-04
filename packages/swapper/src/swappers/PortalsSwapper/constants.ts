@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { SupportedChainIds } from '../../../types'
+import type { SupportedChainIds } from '../../types'
 import { PortalsSupportedChainIds } from './types'
 
 export const PORTALS_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

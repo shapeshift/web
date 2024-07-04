@@ -98,7 +98,7 @@ export const SearchTermAssetList = ({
   }, [assetListLoading, isLoadingCustomTokens, searchTermAssets.length])
 
   const onImportClick = useCallback(
-    (asset: Asset, price: string) => {
+    (asset: Asset) => {
       console.log('import click', asset.assetId)
 
       // Add asset to the store
@@ -107,7 +107,7 @@ export const SearchTermAssetList = ({
       // Add market data to the store
       dispatch(
         marketDataSlice.actions.setCryptoMarketData({
-          [asset.assetId]: { price, marketCap: '0', volume: '0', changePercent24Hr: 0 },
+          [asset.assetId]: { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0 },
         }),
       )
 

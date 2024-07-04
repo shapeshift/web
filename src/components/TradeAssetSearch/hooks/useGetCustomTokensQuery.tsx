@@ -3,6 +3,7 @@ import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { useCallback, useMemo } from 'react'
 import { isAddress } from 'viem'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
 
 type TokenMetadata = TokenMetadataResponse & {
@@ -25,6 +26,8 @@ export const useGetCustomTokensQuery = ({
   contractAddress,
   chainIds,
 }: UseGetCustomTokensQueryProps): UseGetCustomTokenQueryReturn => {
+  const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
+
   const queryKey = useMemo(() => ['customTokens', contractAddress], [contractAddress])
 
   const getTokenMetadata = useCallback(
@@ -47,7 +50,7 @@ export const useGetCustomTokensQuery = ({
     queries: chainIds.map(chainId => ({
       queryKey: [queryKey, chainId],
       queryFn: () => queryFn(chainId),
-      enabled: true,
+      enabled: customTokenImportEnabled,
       staleTime: Infinity,
     })),
   })

@@ -174,7 +174,7 @@ const generateAssetData = async () => {
     name: 'FOX on Arbitrum One',
     precision: 18,
     color: '#3761F9',
-    icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/public/fox-token-logo.png',
+    icon: '/fox-token-logo.png',
     symbol: 'FOX',
     explorer: 'https://arbiscan.io',
     explorerAddressLink: 'https://arbiscan.io/address/',

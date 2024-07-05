@@ -100,13 +100,13 @@ export const STAKING_ID_DELIMITER = '*'
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
   [DefiProvider.ShapeShift]: {
     provider: DefiProvider.ShapeShift,
-    icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/public/fox-token-logo.png',
+    icon: '/fox-token-logo.png',
     color: '#3761F9',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.EthFoxStaking]: {
     provider: DefiProvider.EthFoxStaking,
-    icon: 'https://raw.githubusercontent.com/shapeshift/web/develop/public/fox-token-logo.png',
+    icon: '/fox-token-logo.png',
     color: '#00CD98',
     url: 'https://app.shapeshift.com',
   },
@@ -118,13 +118,13 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
   },
   [DefiProvider.CosmosSdk]: {
     provider: DefiProvider.CosmosSdk,
-    icon: 'https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png',
+    icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png',
     color: '#C5B5F2',
     url: 'https://app.shapeshift.com',
   },
   [DefiProvider.ThorchainSavers]: {
     provider: DefiProvider.ThorchainSavers,
-    icon: 'https://raw.githubusercontent.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/thorchain/info/logo.png',
+    icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/thorchain/info/logo.png',
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },

@@ -1,14 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Button,
-  Center,
-  Checkbox,
-  Flex,
-  Link,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react'
+import { Box, Center, Checkbox, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { type PropsWithChildren, useCallback, useMemo } from 'react'
@@ -84,15 +75,14 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     return (
       <Flex
         borderRadius={'xl'}
-        padding={'4px'}
+        padding={4}
         justifyContent='space-between'
         alignItems='center'
         height={16}
         width='stretch'
-        mx={2}
         background={backgroundColor}
       >
-        <Flex gap={4} alignItems='center' padding={'4px'}>
+        <Flex gap={4} alignItems='center' padding={4}>
           <AssetIcon assetId={asset.assetId} size='sm' />
           <Box textAlign='left'>
             <Text

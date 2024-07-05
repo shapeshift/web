@@ -12,7 +12,9 @@ export default function register(): Plugins {
       'cosmos:cosmoshub-4',
       {
         name: 'plugins.cosmos.navBar',
-        icon: <AssetIcon src='https://assets.coincap.io/assets/icons/atom@2x.png' />,
+        icon: (
+          <AssetIcon src='https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png' />
+        ),
         providers: {
           chainAdapters: [
             [

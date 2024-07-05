@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react'
+import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFiatNumberFractionDigits } from 'lib/getFiatNumberFractionDigits/getFiatNumberFractionDigits'
 import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selectors'
@@ -40,7 +41,7 @@ export type NumberFormatter = {
   deviceLocale: string
   number: {
     localeParts: LocaleParts
-    toCrypto: (number: NumberValue, symbol?: string, options?: NumberFormatOptions) => string
+    toCrypto: (number: BigNumber.Value, symbol?: string, options?: NumberFormatOptions) => string
     toFiat: (number: NumberValue, options?: NumberFormatOptions) => string
     toPercent: (number: NumberValue, options?: NumberFormatOptions) => string
     toString: (number: NumberValue, options?: NumberFormatOptions) => string
@@ -191,7 +192,7 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
 
   /** Format a number as a crypto display value */
   const numberToCrypto = (
-    num: NumberValue,
+    num: BigNumber.Value,
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {

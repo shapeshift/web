@@ -18,6 +18,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -44,7 +45,7 @@ type UseRfoxUnstakeReturn = {
   unstakeMutation: UseMutationResult<string | undefined, Error, void, unknown>
   isUnstakeTxPending: boolean
   isGetUnstakeFeesEnabled: boolean
-  userStakingBalanceOfQuery: UseQueryResult<string, Error>
+  userStakingBalanceOfQuery: UseQueryResult<string | undefined, Error>
   newContractBalanceOfQuery: UseQueryResult<string, Error>
   newShareOfPoolPercentage: string
 }
@@ -186,7 +187,7 @@ export const useRfoxUnstake = ({
 
   const userStakingBalanceOfQuery = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    select: ([stakingBalance]) => stakingBalance.toString(),
+    select: selectStakingBalance,
   })
   const { data: userStakingBalanceOfCryptoBaseUnit } = userStakingBalanceOfQuery
 

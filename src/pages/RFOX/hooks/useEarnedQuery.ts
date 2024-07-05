@@ -11,7 +11,7 @@ import { viemClientByNetworkId } from 'lib/viem-client'
 
 type EarnedQueryKey = ['readContract', string]
 
-type UseStakingInfoQueryProps = {
+type UseEarnedQueryProps = {
   stakingAssetAccountAddress: string | undefined
   blockNumber: bigint | undefined
 }
@@ -21,7 +21,7 @@ const client = viemClientByNetworkId[arbitrum.id]
 export const getEarnedQueryKey = ({
   stakingAssetAccountAddress,
   blockNumber,
-}: UseStakingInfoQueryProps): EarnedQueryKey => [
+}: UseEarnedQueryProps): EarnedQueryKey => [
   'readContract',
   serialize({
     address: RFOX_PROXY_CONTRACT_ADDRESS,
@@ -35,7 +35,7 @@ export const getEarnedQueryKey = ({
 export const getEarnedQueryFn = ({
   stakingAssetAccountAddress,
   blockNumber,
-}: UseStakingInfoQueryProps) =>
+}: UseEarnedQueryProps) =>
   stakingAssetAccountAddress
     ? async () =>
         await readContract(client, {
@@ -53,7 +53,7 @@ export const getEarnedQueryFn = ({
 export const useEarnedQuery = ({
   stakingAssetAccountAddress,
   blockNumber,
-}: UseStakingInfoQueryProps) => {
+}: UseEarnedQueryProps) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: EarnedQueryKey = useMemo(
     () =>
@@ -64,7 +64,7 @@ export const useEarnedQuery = ({
     [blockNumber, stakingAssetAccountAddress],
   )
 
-  const stakingInfoQueryFn = useMemo(
+  const queryFn = useMemo(
     () =>
       getEarnedQueryFn({
         stakingAssetAccountAddress,
@@ -73,10 +73,10 @@ export const useEarnedQuery = ({
     [blockNumber, stakingAssetAccountAddress],
   )
 
-  const stakingInfoQuery = useQuery({
+  const query = useQuery({
     queryKey,
-    queryFn: stakingInfoQueryFn,
+    queryFn,
   })
 
-  return stakingInfoQuery
+  return query
 }

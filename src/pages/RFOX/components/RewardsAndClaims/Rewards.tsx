@@ -2,14 +2,15 @@ import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
+import { getConfig } from 'config'
 import { uniq } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
 import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { parseAbiStakingInfo } from 'pages/RFOX/hooks/helpers'
+import { isSome } from 'lib/utils'
+import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useStakingInfoHistoryQuery } from 'pages/RFOX/hooks/useStakingInfoHistoryQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import type { AbiStakingInfo } from 'pages/RFOX/types'
 import { selectReceivedTxsForAccountIdsByFilter } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,29 +29,24 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     [stakingAssetAccountId],
   )
 
-  const select = useCallback((abiStakingInfo: AbiStakingInfo) => {
-    const { runeAddress } = parseAbiStakingInfo(abiStakingInfo)
-    return runeAddress
-  }, [])
-
   const {
     data: historicalRuneAddresses,
     isLoading: isStakingInfoHistoryLoading,
     isFetching: isStakingInfoHistoryFetching,
-  } = useStakingInfoHistoryQuery({ stakingAssetAccountAddress, select })
+  } = useStakingInfoHistoryQuery({ stakingAssetAccountAddress, select: selectRuneAddress })
 
   const {
     data: currentRuneAddress,
     isLoading: isCurrentStakingInfoLoading,
     isFetching: isCurrentStakingInfoFetching,
-  } = useStakingInfoQuery({ stakingAssetAccountAddress, select })
+  } = useStakingInfoQuery({ stakingAssetAccountAddress, select: selectRuneAddress })
 
   const uniqueHistoricalRuneAddresses = useMemo(() => {
     if (!historicalRuneAddresses) {
       return []
     }
 
-    return uniq(historicalRuneAddresses.map(({ result }) => result))
+    return uniq(historicalRuneAddresses.filter(isSome))
   }, [historicalRuneAddresses])
 
   const runeAddresses = useMemo(() => {
@@ -62,12 +58,24 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   }, [uniqueHistoricalRuneAddresses, currentRuneAddress])
 
   const thorchainAccountIds = useMemo(() => {
-    return runeAddresses.map(runeAddress =>
-      toAccountId({
-        chainId: thorchainChainId,
-        account: runeAddress as string,
-      }),
-    )
+    return runeAddresses
+      .map(maybeRuneAddress => {
+        const isRfoxMockRewardsTxHistoryEnabled =
+          getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY
+
+        if (!isRfoxMockRewardsTxHistoryEnabled) return maybeRuneAddress
+
+        // backfill with mock rune address if enabled
+        const mockRfoxRewardsRuneAddress = getConfig().REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS
+        return maybeRuneAddress || mockRfoxRewardsRuneAddress
+      })
+      .filter(isSome)
+      .map(runeAddress => {
+        return toAccountId({
+          chainId: thorchainChainId,
+          account: runeAddress as string,
+        })
+      })
   }, [runeAddresses])
 
   const txIdsFilter = useMemo(() => {
@@ -82,6 +90,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   const txIds = useAppSelector(state => selectReceivedTxsForAccountIdsByFilter(state, txIdsFilter))
 
   const isLoading = useMemo(() => {
+    // TODO: show loading state if tx history is also loading
     return (
       isStakingInfoHistoryLoading ||
       isCurrentStakingInfoLoading ||
@@ -95,11 +104,10 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     isStakingInfoHistoryLoading,
   ])
 
-  if (!txIds.length) {
+  if (!txIds.length && !isLoading) {
     return <Text color='text.subtle' translation='RFOX.noRewardsYet' />
   }
 
-  // TODO: show loading state if tx history is also loading
   return (
     <Box mx={-6}>
       <TransactionsGroupByDate txIds={txIds} isLoading={isLoading} />

@@ -8,7 +8,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFormFees } from 'plugins/cosmos/utils'
+import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -21,6 +21,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
@@ -85,9 +86,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       try {
         if (!walletState.wallet || !dispatch || !asset) return
 
-        const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
-        const estimatedGasCrypto = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        dispatch({ type: CosmosClaimActionType.SET_CLAIM, payload: { estimatedGasCrypto } })
+        const { txFee } = await getFeeData(asset)
+
+        dispatch({
+          type: CosmosClaimActionType.SET_CLAIM,
+          payload: { estimatedGasCryptoBaseUnit: txFee },
+        })
       } catch (error) {
         // TODO: handle client side errors
         console.error(error)
@@ -109,7 +113,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       return
     dispatch({ type: CosmosClaimActionType.SET_LOADING, payload: true })
 
-    const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
+    const { gasLimit, txFee } = await getFeeData(asset)
 
     try {
       const broadcastTxId = await handleStakingAction({
@@ -118,9 +122,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice).times(`1e+${asset.precision}`).toString(),
+          fee: txFee,
         },
-        value: bnOrZero(claimAmount).times(`1e+${asset.precision}`).toString(),
+        value: toBaseUnit(claimAmount, asset.precision),
         action: StakingAction.Claim,
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
@@ -153,7 +157,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     claimFiatAmount,
     contractAddress,
     dispatch,
-    feeMarketData.price,
     handleStakingAction,
     onNext,
     opportunity,
@@ -162,6 +165,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     userAddress,
     walletState.wallet,
   ])
+
+  const estimatedGasCryptoPrecision = useMemo(() => {
+    return bnOrZero(fromBaseUnit(state?.claim.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision))
+  }, [state?.claim.estimatedGasCryptoBaseUnit, feeAsset])
 
   if (!state || !dispatch || !asset) return null
 
@@ -199,7 +206,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Row.Value>
             <SkeletonText
               noOfLines={2}
-              isLoaded={bnOrZero(state.claim.estimatedGasCrypto).gt(0)}
+              isLoaded={estimatedGasCryptoPrecision.gt(0)}
               fontSize='md'
               display='flex'
               flexDir='column'
@@ -207,16 +214,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             >
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat
-                  value={bnOrZero(state.claim.estimatedGasCrypto)
-                    .div(`1e+${feeAsset.precision}`)
-                    .times(feeMarketData.price)
-                    .toFixed(2)}
+                  value={estimatedGasCryptoPrecision.times(feeMarketData.price).toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(state.claim.estimatedGasCrypto)
-                    .div(`1e+${feeAsset.precision}`)
-                    .toFixed(5)}
+                  value={estimatedGasCryptoPrecision.toFixed()}
                   symbol={feeAsset.symbol}
                 />
               </Stack>

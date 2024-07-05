@@ -10,7 +10,7 @@ import type {
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { StakingAction } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFormFees } from 'plugins/cosmos/utils'
+import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -23,6 +23,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -105,8 +106,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
   )
 
-  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-
   const { handleStakingAction } = useStakingAction()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
@@ -126,7 +125,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       return
     dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
 
-    const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
+    const { gasLimit, txFee } = await getFeeData(asset)
 
     try {
       const broadcastTxId = await handleStakingAction({
@@ -135,11 +134,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice)
-            .times(`1e+${asset?.precision}`)
-            .toString(),
+          fee: txFee,
         },
-        value: bnOrZero(state.deposit.cryptoAmount).times(`1e+${asset.precision}`).toFixed(0),
+        value: toBaseUnit(state.deposit.cryptoAmount, asset.precision),
         action: StakingAction.Stake,
       })
 
@@ -187,7 +184,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     dispatch,
     fiatAmount,
     handleStakingAction,
-    marketData.price,
     onNext,
     opportunityData,
     state?.deposit,
@@ -196,11 +192,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     walletState.wallet,
   ])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance).gte(
-    bnOrZero(state?.deposit.cryptoAmount).plus(
-      bnOrZero(state?.deposit.estimatedGasCrypto).div(`1e+${feeAsset.precision}`),
-    ),
-  )
+  const estimatedGasCryptoPrecision = useMemo(() => {
+    return bnOrZero(
+      fromBaseUnit(state?.deposit.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision),
+    )
+  }, [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset])
+
+  const hasEnoughBalanceForGas = useMemo(() => {
+    return bnOrZero(feeAssetBalance).gte(
+      bnOrZero(state?.deposit.cryptoAmount).plus(estimatedGasCryptoPrecision),
+    )
+  }, [state?.deposit.cryptoAmount, estimatedGasCryptoPrecision, feeAssetBalance])
+
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
       getMixPanel()?.track(MixPanelEvent.InsufficientFunds)
@@ -248,16 +251,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                value={estimatedGasCryptoPrecision.times(feeMarketData.price).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.deposit.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={estimatedGasCryptoPrecision.toFixed()}
                 symbol={feeAsset.symbol}
               />
             </Box>

@@ -7,7 +7,7 @@ export enum TxStatus {
 }
 
 type CosmosClaimValues = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
   txStatus: TxStatus
 }
 

@@ -59,9 +59,7 @@ type WithdrawProps = StepComponentProps & {
 const percentOptions = [0.25, 0.5, 0.75, 1]
 
 export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNext }) => {
-  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string | null>(
-    null,
-  )
+  const [slippageCryptoAmountPrecision, setSlippageCryptoAmountPrecision] = useState<string>()
   const [missingFunds, setMissingFunds] = useState<string | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
@@ -581,7 +579,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           <Row.Label>{translate('common.slippage')}</Row.Label>
           <Row.Value>
             <Skeleton isLoaded={!quoteLoading}>
-              <Amount.Crypto value={slippageCryptoAmountPrecision ?? '0'} symbol={asset.symbol} />
+              <Amount.Crypto value={slippageCryptoAmountPrecision} symbol={asset.symbol} />
             </Skeleton>
           </Row.Value>
         </Row>

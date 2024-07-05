@@ -244,15 +244,10 @@ export const Details = () => {
               _hover={formHelperTextHoverStyle}
             >
               {fieldName === SendFormFields.FiatAmount ? (
-                <Amount.Crypto
-                  value={bnOrZero(amountCryptoPrecision).toString()}
-                  symbol={asset.symbol}
-                  prefix='≈'
-                />
+                <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} prefix='≈' />
               ) : (
                 <Flex>
-                  <Amount.Fiat value={bnOrZero(fiatAmount).toString()} mr={1} prefix='≈' />{' '}
-                  {fiatSymbol}
+                  <Amount.Fiat value={fiatAmount} mr={1} prefix='≈' /> {fiatSymbol}
                 </Flex>
               )}
             </FormHelperText>

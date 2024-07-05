@@ -1,16 +1,14 @@
 import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { isSome } from 'lib/utils'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import {
   selectAssetsSortedByName,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
-import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
@@ -22,6 +20,7 @@ export type SearchTermAssetListProps = {
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
   onAssetClick: (asset: Asset) => void
+  onImportClick: (asset: Asset) => void
 }
 
 export const SearchTermAssetList = ({
@@ -30,10 +29,10 @@ export const SearchTermAssetList = ({
   searchString,
   allowWalletUnsupportedAssets,
   onAssetClick,
+  onImportClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
   const assetsById = useAppSelector(selectAssets)
-  const dispatch = useAppDispatch()
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
@@ -96,26 +95,6 @@ export const SearchTermAssetList = ({
       groupIsLoading: [isLoadingCustomTokens || assetListLoading],
     }
   }, [assetListLoading, isLoadingCustomTokens, searchTermAssets.length])
-
-  const onImportClick = useCallback(
-    (asset: Asset) => {
-      console.log('import click', asset.assetId)
-
-      // Add asset to the store
-      dispatch(assetsSlice.actions.upsertAsset(asset))
-
-      // Add market data to the store
-      dispatch(
-        marketDataSlice.actions.setCryptoMarketData({
-          [asset.assetId]: { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0 },
-        }),
-      )
-
-      // Once the custom asset is in the store, proceed as if it was a normal asset
-      onAssetClick(asset)
-    },
-    [dispatch, onAssetClick],
-  )
 
   return (
     <GroupedAssetList

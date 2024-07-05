@@ -551,7 +551,17 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
             </Alert>
           )}
           <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
-          <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
+          <WithLazyMount
+            shouldUse={!walletSupportsBuyAssetChain || Boolean(_isSmartContractSellAddress)}
+            component={ManualAddressEntry}
+            description={
+              _isSmartContractSellAddress
+                ? translate('trade.smartContractReceiveAddressDescription', {
+                    chainName: buyAssetFeeAsset?.networkName,
+                  })
+                : undefined
+            }
+          />
 
           <Button
             type='submit'
@@ -589,6 +599,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       quoteHasError,
       shouldDisablePreviewButton,
       quoteStatusTranslation,
+      _isSmartContractSellAddress,
+      buyAssetFeeAsset,
+      translate,
     ],
   )
 

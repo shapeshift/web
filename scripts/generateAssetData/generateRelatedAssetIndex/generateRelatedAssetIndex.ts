@@ -273,7 +273,9 @@ export const generateRelatedAssetIndex = async () => {
     '../../../src/lib/asset-service/service/relatedAssetIndex.json',
   )
 
-  const generatedAssetData: AssetsById = require(generatedAssetsPath)
+  const generatedAssetData: AssetsById = JSON.parse(
+    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
+  )
   const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
   const assetDataWithRelatedAssetKeys: AssetsById = { ...generatedAssetData }
 

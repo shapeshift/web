@@ -23,10 +23,11 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ManualAddressEntryProps = {
   description?: string
+  shouldForceManualAddressEntry?: boolean
 }
 
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
-  ({ description }: ManualAddressEntryProps): JSX.Element | null => {
+  ({ description, shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
     const dispatch = useAppDispatch()
 
     const {
@@ -50,12 +51,19 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       selectAccountIdsByAssetId(state, { assetId: buyAssetAssetId }),
     )
     const shouldShowManualReceiveAddressInput = useMemo(() => {
+      if (shouldForceManualAddressEntry) return true
       // Ledger "supports" all chains, but may not have them connected
       if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length && !activeQuote
       // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
       // but stop displaying it as soon as we have a quote
       return !walletSupportsBuyAssetChain && !activeQuote
-    }, [activeQuote, buyAssetAccountIds.length, wallet, walletSupportsBuyAssetChain])
+    }, [
+      activeQuote,
+      buyAssetAccountIds.length,
+      wallet,
+      walletSupportsBuyAssetChain,
+      shouldForceManualAddressEntry,
+    ])
 
     const useReceiveAddressArgs = useMemo(
       () => ({

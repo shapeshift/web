@@ -180,7 +180,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   return (
     <CustomAssetAcknowledgement
-      assetToImport={assetToImport}
+      asset={assetToImport}
       handleAssetClick={handleAssetClick}
       shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
       setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}

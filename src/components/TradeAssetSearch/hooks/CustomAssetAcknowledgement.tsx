@@ -11,7 +11,6 @@ import {
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isSupported } from 'dompurify'
 import { type PropsWithChildren, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -79,18 +78,21 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
   }, [dispatch, handleAssetClick, asset])
 
   const checkboxTextColor = useColorModeValue('gray.800', 'gray.50')
+  const backgroundColor = useColorModeValue('gray.100', 'darkNeutralAlpha.700')
   const CustomAssetRow: JSX.Element | null = useMemo(() => {
     if (!asset) return null
     return (
-      <Button
-        variant='ghost'
+      <Flex
+        borderRadius={'xl'}
+        padding={'4px'}
         justifyContent='space-between'
-        isDisabled={!isSupported}
+        alignItems='center'
         height={16}
         width='stretch'
         mx={2}
+        background={backgroundColor}
       >
-        <Flex gap={4} alignItems='center'>
+        <Flex gap={4} alignItems='center' padding={'4px'}>
           <AssetIcon assetId={asset.assetId} size='sm' />
           <Box textAlign='left'>
             <Text
@@ -110,7 +112,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
             </Flex>
           </Box>
         </Flex>
-        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end'>
+        <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' padding={'4px'}>
           <Link
             isExternal
             href={`${asset.explorerAddressLink}${fromAssetId(asset.assetId).assetReference}`}
@@ -119,9 +121,9 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
             {externalLinkIcon}
           </Link>
         </Flex>
-      </Button>
+      </Flex>
     )
-  }, [asset, color])
+  }, [asset, backgroundColor, color])
 
   const Content: JSX.Element = useMemo(
     () => (

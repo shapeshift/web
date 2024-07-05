@@ -263,13 +263,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               chainId: thorchainChainId,
               confirmations: 999,
               status: TxStatus.Confirmed,
-              txid: 'mock-123',
+              txid: 'mock-321',
               pubkey: runeAddress,
               transfers: [
                 {
                   from: [DAO_TREASURY_THORCHAIN],
                   to: [runeAddress],
-                  value: '123412341234',
+                  value: '43214321',
                   type: TransferType.Receive,
                   totalValue: '43214321',
                   assetId: thorchainAssetId,

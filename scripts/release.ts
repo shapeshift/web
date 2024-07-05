@@ -1,8 +1,8 @@
 // CLI dev tool, we need dat console
 /* eslint-disable no-console */
-import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
+import chalk from 'chalk'
 import { exec } from 'child_process'
-import inquirer from 'inquirer' // do not upgrade to v9, not compatible with ts-node
+import inquirer from 'inquirer' // do not upgrade to v9, as it does not support commonjs
 import pify from 'pify'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'

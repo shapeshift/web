@@ -33,7 +33,7 @@ const bscUrl =
   'https://gitlab.com/thorchain/thornode/-/raw/develop/common/tokenlist/bsctokens/bsc_mainnet_latest.json'
 
 const outputPath =
-  '../../src/lib/swapper/swappers/ThorchainSwapper/generated/generatedThorLongtailTokens.json'
+  '../../packages/swapper/src/swappers/ThorchainSwapper/generated/generatedThorLongtailTokens.json'
 
 const axiosConfig = {
   timeout: 10000,

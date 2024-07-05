@@ -1,12 +1,12 @@
 import { type AssetId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { sellSupportedChainIds } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
+import type { MidgardPoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { sellSupportedChainIds } from 'lib/swapper/swappers/ThorchainSwapper/constants'
-import type { MidgardPoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
-import { poolAssetIdToAssetId } from 'lib/swapper/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import type {
   MidgardInterval,

@@ -136,6 +136,10 @@ export const MobileConnect = () => {
           })
           dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+          dispatch({
+            type: WalletActions.SET_CONNECTOR_TYPE,
+            payload: KeyManager.Mobile,
+          })
 
           localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')

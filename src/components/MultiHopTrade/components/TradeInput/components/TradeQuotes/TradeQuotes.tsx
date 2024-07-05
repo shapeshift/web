@@ -3,8 +3,8 @@ import type { SwapperName } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import orderBy from 'lodash/orderBy'
 import { memo, useEffect, useMemo } from 'react'
-import type { ApiQuote } from 'state/apis/swapper'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import type { ApiQuote } from 'state/apis/swapper/types'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,

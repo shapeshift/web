@@ -1,18 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  ProtocolFee,
-  SupportedTradeQuoteStepIndex,
-  SwapperName,
-  TradeQuote,
-  TradeQuoteStep,
-} from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import type { ApiQuote } from 'state/apis/swapper'
+import type { ApiQuote } from 'state/apis/swapper/types'
 import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
@@ -149,17 +144,4 @@ export const getActiveQuoteMetaOrDefault = (
   const isSelectable = bestQuote?.quote !== undefined
   const defaultQuoteMeta = isSelectable ? bestQuoteMeta : undefined
   return activeQuoteMeta ?? defaultQuoteMeta
-}
-
-export const getHopByIndex = (
-  quote: TradeQuote | undefined,
-  index: SupportedTradeQuoteStepIndex,
-) => {
-  if (quote === undefined) return undefined
-  if (index > 1) {
-    throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
-  }
-  const hop = quote.steps[index]
-
-  return hop
 }

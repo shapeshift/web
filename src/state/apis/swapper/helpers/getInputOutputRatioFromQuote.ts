@@ -1,6 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper/src'
+import {
+  getHopByIndex,
+  type SupportedTradeQuoteStepIndex,
+  type SwapperName,
+  type TradeQuote,
+} from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -8,7 +12,6 @@ import { fromBaseUnit } from 'lib/math'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
-import { getHopByIndex } from 'state/slices/tradeQuoteSlice/helpers'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,

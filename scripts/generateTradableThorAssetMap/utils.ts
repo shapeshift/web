@@ -23,9 +23,9 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getAddress, isAddress } from 'viem'
-import type { ThornodePoolResponse } from 'lib/swapper/swappers/ThorchainSwapper/types'
 
 import type { AssetIdPair } from '.'
 

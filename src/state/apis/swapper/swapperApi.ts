@@ -1,22 +1,30 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import { reactQueries } from 'react-queries'
-import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
+import type { SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
-} from 'lib/swapper/swapper'
-import type { ThorEvmTradeQuote } from 'lib/swapper/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { TradeType } from 'lib/swapper/swappers/ThorchainSwapper/utils/longTailHelpers'
-import { getEnabledSwappers } from 'lib/swapper/utils'
+  SwapperName,
+} from '@shapeshiftoss/swapper'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
+import { getConfig } from 'config'
+import { reactQueries } from 'react-queries'
+import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
+import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { viemClientByChainId } from 'lib/viem-client'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
+import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets } from 'state/slices/assetsSlice/selectors'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -57,13 +65,24 @@ export const swapperApi = createApi({
           marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
         )
 
+        const swapperDeps: SwapperDeps = {
+          assetsById: selectAssets(state),
+          assertGetChainAdapter,
+          assertGetEvmChainAdapter,
+          assertGetUtxoChainAdapter,
+          assertGetCosmosSdkChainAdapter,
+          getEthersV5Provider,
+          viemClientByChainId,
+          config: getConfig(),
+        }
+
         const quoteResult = await getTradeQuotes(
           {
             ...tradeQuoteInput,
             affiliateBps,
           },
           swapperName,
-          selectAssets(state),
+          swapperDeps,
         )
 
         if (quoteResult === undefined) {
@@ -216,8 +235,13 @@ export const swapperApi = createApi({
         const enabledSwappers = getEnabledSwappers(featureFlags, false)
         const assets = selectAssets(state)
         const sellAsset = selectInputSellAsset(state)
+        const swapperConfig: SwapperConfig = getConfig()
 
-        const supportedSellAssetsSet = await getSupportedSellAssetIds(enabledSwappers, assets)
+        const supportedSellAssetsSet = await getSupportedSellAssetIds(
+          enabledSwappers,
+          assets,
+          swapperConfig,
+        )
         const supportedSellAssetIds = sortedAssetIds
           .filter(assetId => supportedSellAssetsSet.has(assetId))
           .filter(assetId => {
@@ -229,6 +253,7 @@ export const swapperApi = createApi({
           enabledSwappers,
           sellAsset,
           assets,
+          swapperConfig,
         )
 
         const supportedBuyAssetIds = sortedAssetIds.filter(assetId =>

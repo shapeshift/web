@@ -23,7 +23,9 @@ import {
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
@@ -47,7 +49,6 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from 'lib/swapper/swappers/ThorchainSwapper/constants'
 import { assertUnreachable } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
@@ -69,7 +70,6 @@ import {
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
-import { convertPercentageToBasisPoints } from 'state/slices/tradeQuoteSlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { RemoveLiquidityRoutePaths } from './types'

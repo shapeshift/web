@@ -1,6 +1,7 @@
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
 import { useCallback, useMemo } from 'react'
@@ -13,7 +14,6 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getFees,
   getFeesWithWallet,
 } from 'lib/utils/evm'
 import type { FoxEthStakingContractAddress } from 'state/slices/opportunitiesSlice/constants'

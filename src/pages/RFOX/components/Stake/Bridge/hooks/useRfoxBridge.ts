@@ -3,30 +3,35 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero, CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
+import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import { getConfig } from 'config'
 import { useEffect, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
 import { swapper } from 'react-queries/queries/swapper'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { fromBaseUnit } from 'lib/math'
-import { arbitrumBridgeApi } from 'lib/swapper/swappers/ArbitrumBridgeSwapper/endpoints'
-import {
-  type GetEvmTradeQuoteInputWithWallet,
-  getTradeQuoteWithWallet,
-} from 'lib/swapper/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { assertGetChainAdapter } from 'lib/utils'
+import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { viemClientByChainId } from 'lib/viem-client'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
@@ -153,6 +158,21 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     [tradeQuoteInput],
   )
 
+  const assetsById = useAppSelector(selectAssets)
+
+  const swapperDeps = useMemo(() => {
+    return {
+      assetsById,
+      assertGetChainAdapter,
+      assertGetEvmChainAdapter,
+      assertGetUtxoChainAdapter,
+      assertGetCosmosSdkChainAdapter,
+      getEthersV5Provider,
+      viemClientByChainId,
+      config: getConfig(),
+    }
+  }, [assetsById])
+
   const tradeQuoteInputWithWallet = useMemo(
     () => ({ ...tradeQuoteInput, wallet }),
     [tradeQuoteInput, wallet],
@@ -161,7 +181,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   const tradeQuoteQuery = useQuery({
     queryKey: tradeQuoteQueryKey,
     queryFn: isTradeQuoteQueryEnabled(tradeQuoteInputWithWallet)
-      ? () => getTradeQuoteWithWallet(tradeQuoteInputWithWallet)
+      ? () => getTradeQuoteWithWallet(tradeQuoteInputWithWallet, swapperDeps)
       : skipToken,
   })
 
@@ -209,6 +229,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         stepIndex: 0,
         supportsEIP1559,
         slippageTolerancePercentageDecimal: '0',
+        ...swapperDeps,
       })
 
       const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
@@ -246,6 +267,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
               chainId: sellAsset.chainId,
               quoteId: '',
               stepIndex: 0,
+              ...swapperDeps,
             })
         : skipToken,
     refetchInterval: 60_000,

@@ -216,9 +216,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const oppositeCurrency = useMemo(() => {
       return isFiat ? (
-        <Amount.Crypto value={cryptoAmount ?? ''} symbol={assetSymbol} prefix='≈' />
+        <Amount.Crypto value={cryptoAmount} symbol={assetSymbol} prefix='≈' />
       ) : (
-        <Amount.Fiat value={fiatAmount ?? ''} prefix='≈' />
+        <Amount.Fiat value={fiatAmount} prefix='≈' />
       )
     }, [assetSymbol, cryptoAmount, fiatAmount, isFiat])
 

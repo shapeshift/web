@@ -112,7 +112,7 @@ export const mockStore: ReduxState = {
       AccountManagementLedger: false,
       RFOX: false,
       RfoxRewardsTxHistory: false,
-      RfoxMockRewardsTxHistory: true,
+      RfoxMockRewardsTxHistory: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

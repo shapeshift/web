@@ -9,20 +9,18 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from 'components/ChainMenu'
 import { sortChainIdsByDisplayName } from 'lib/utils'
-import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { CustomAssetAcknowledgement } from './hooks/CustomAssetAcknowledgement'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
 const buttonProps = {
@@ -53,7 +51,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const dispatch = useAppDispatch()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -176,35 +173,17 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     })
   }, [handleAssetClick, isPopularAssetIdsLoading, quickAccessAssets])
 
-  const onImportClick = useCallback(() => {
-    if (!assetToImport) return
-
-    // Add asset to the store
-    dispatch(assetsSlice.actions.upsertAsset(assetToImport))
-
-    // Add market data to the store
-    dispatch(
-      marketDataSlice.actions.setCryptoMarketData({
-        [assetToImport.assetId]: { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0 },
-      }),
-    )
-
-    // Once the custom asset is in the store, proceed as if it was a normal asset
-    handleAssetClick(assetToImport)
-  }, [dispatch, handleAssetClick, assetToImport])
-
   const handleImportIntent = useCallback((asset: Asset) => {
     setAssetToImport(asset)
     setShouldShowWarningAcknowledgement(true)
   }, [])
 
   return (
-    <WarningAcknowledgement
-      message={translate('warningAcknowledgement.customToken')}
-      buttonTranslation='common.import'
-      onAcknowledge={onImportClick}
-      shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-      setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+    <CustomAssetAcknowledgement
+      assetToImport={assetToImport}
+      handleAssetClick={handleAssetClick}
+      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
     >
       <Stack
         gap={4}
@@ -255,6 +234,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
         />
       )}
-    </WarningAcknowledgement>
+    </CustomAssetAcknowledgement>
   )
 }

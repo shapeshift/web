@@ -4,6 +4,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
+import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
 
 export const RFOXHeader = () => {
@@ -16,6 +17,7 @@ export const RFOXHeader = () => {
 
   return (
     <PageHeader>
+      <SEO title={translate('RFOX.staking')} />
       <Display.Mobile>
         <PageHeader.Left>
           <PageBackButton onBack={handleBack} />

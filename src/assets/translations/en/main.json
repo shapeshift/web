@@ -2395,6 +2395,10 @@
     "lending": {
       "title": "Lending",
       "body": "Borrow against your assets."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Stake FOX earn RUNE."
     }
   },
   "RFOX": {

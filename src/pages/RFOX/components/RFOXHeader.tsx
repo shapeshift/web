@@ -6,8 +6,6 @@ import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { Text } from 'components/Text'
 
-const containerPaddingTop = { base: 0, md: 8 }
-
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const history = useHistory()

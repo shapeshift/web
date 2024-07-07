@@ -93,7 +93,7 @@ export const Widget: React.FC = () => {
     [stepIndex],
   )
   return (
-    <Card width='full' maxWidth='md'>
+    <Card width='full'>
       <Tabs variant='unstyled' index={stepIndex} isLazy>
         <TabPanels>
           <TabPanel px={0} py={0}>

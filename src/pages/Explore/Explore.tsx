@@ -6,6 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { PoolsIcon } from 'components/Icons/Pools'
+import { RFOXIcon } from 'components/Icons/RFOX'
 import { PageHeader } from 'components/Layout/Header/PageHeader'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -31,7 +32,7 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
         </Center>
         <Stack>
           <Text fontWeight='bold' translation={title} />
-          <Text color='whiteAlpha.500' translation={body} />
+          <Text color='whiteAlpha.700' translation={body} />
         </Stack>
       </CardBody>
     </Card>
@@ -41,6 +42,7 @@ const ExploreCard: React.FC<ExploreCardProps> = props => {
 const stakingIcon = <DefiIcon />
 const poolsIcon = <PoolsIcon />
 const lendingIcon = <RiExchangeFundsLine />
+const rfoxIcon = <RFOXIcon />
 
 const pageProps = { paddingTop: 4 }
 
@@ -60,6 +62,10 @@ export const Explore = memo(() => {
     history.push('/lending')
   }, [history])
 
+  const handleRFOXClick = useCallback(() => {
+    history.push('/rfox')
+  }, [history])
+
   return (
     <>
       <PageHeader>
@@ -75,10 +81,18 @@ export const Explore = memo(() => {
         flexDir='column'
         flex={1}
         width='full'
+        pb='calc(env(safe-area-inset-bottom) + 6rem)'
         hideBreadcrumbs
         pageProps={pageProps}
       >
         <SEO title={translate('navBar.explore')} />
+        <ExploreCard
+          title='explore.rfox.title'
+          body='explore.rfox.body'
+          icon={rfoxIcon}
+          bg='linear-gradient(303deg, #3761F9 29.13%, #0CC 105.38%);'
+          onClick={handleRFOXClick}
+        />
         <ExploreCard
           title='explore.staking.title'
           body='explore.staking.body'

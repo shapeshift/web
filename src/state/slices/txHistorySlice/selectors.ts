@@ -136,12 +136,12 @@ export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
   selectWalletTxsByAccountIdAssetId,
-  (_state, filter: { accountIds: AccountId[]; txSender: string }) => filter.accountIds,
-  (_state, filter: { accountIds: AccountId[]; txSender: string }) => filter.txSender,
+  (_state, filter: { accountIds: AccountId[]; txSender: string } | undefined) => filter?.accountIds,
+  (_state, filter: { accountIds: AccountId[]; txSender: string } | undefined) => filter?.txSender,
   selectAssetIdParamFromFilter,
   (txIds, txs, data, accountIdsFilter, txSenderFilter, assetIdFilter): TxId[] => {
     const filteredByAccountIds = pickBy(data, (_, accountId) => {
-      return accountIdsFilter.includes(accountId)
+      return accountIdsFilter?.includes(accountId)
     })
 
     const filteredByAssetIdFlat = uniq(

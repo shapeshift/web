@@ -13,8 +13,8 @@ import {
   StakingAction,
 } from 'plugins/cosmos/components/modals/Staking/StakingCommon'
 import { useStakingAction } from 'plugins/cosmos/hooks/useStakingAction/useStakingAction'
-import { getFormFees } from 'plugins/cosmos/utils'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { getFeeData } from 'plugins/cosmos/utils'
+import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -26,6 +26,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -49,8 +50,6 @@ type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 const helperTooltipIconProps = { color: 'currentColor' }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
-  const [gasLimit, setGasLimit] = useState<string | null>(null)
-  const [gasPrice, setGasPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -110,15 +109,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const { handleStakingAction } = useStakingAction()
 
-  useEffect(() => {
-    ;(async () => {
-      const { gasLimit, gasPrice } = await getFormFees(asset, feeMarketData.price)
-
-      setGasLimit(gasLimit)
-      setGasPrice(gasPrice)
-    })()
-  }, [asset, asset.precision, feeMarketData.price])
-
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId: accountId ?? '' }),
     [accountId, feeAsset?.assetId],
@@ -133,20 +123,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const handleConfirm = useCallback(async () => {
     if (
       state?.loading ||
-      !(
-        bip44Params &&
-        dispatch &&
-        gasLimit &&
-        gasPrice &&
-        state?.withdraw &&
-        walletState?.wallet &&
-        opportunityMetadata
-      )
+      !(bip44Params && dispatch && state?.withdraw && walletState?.wallet && opportunityMetadata)
     )
       return
 
     try {
       dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: true })
+
+      const { gasLimit, txFee } = await getFeeData(asset)
 
       const broadcastTxId = await handleStakingAction({
         asset,
@@ -154,11 +138,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         validator: contractAddress,
         chainSpecific: {
           gas: gasLimit,
-          fee: bnOrZero(gasPrice)
-            .times(`1e+${asset?.precision}`)
-            .toString(),
+          fee: txFee,
         },
-        value: bnOrZero(state.withdraw.cryptoAmount).times(`1e+${asset.precision}`).toFixed(0),
+        value: toBaseUnit(state.withdraw.cryptoAmount, asset.precision),
         action: StakingAction.Unstake,
       })
 
@@ -197,8 +179,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     contractAddress,
     dispatch,
     fiatAmount,
-    gasLimit,
-    gasPrice,
     handleStakingAction,
     onNext,
     opportunityMetadata,
@@ -206,9 +186,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     state?.withdraw,
     walletState?.wallet,
   ])
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
-    .minus(bnOrZero(state?.withdraw.estimatedGasCrypto).div(`1e+${feeAsset.precision}`))
-    .gte(0)
+
+  const estimatedGasCryptoPrecision = useMemo(() => {
+    return bnOrZero(
+      fromBaseUnit(state?.withdraw.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision),
+    )
+  }, [state?.withdraw.estimatedGasCryptoBaseUnit, feeAsset])
+
+  const hasEnoughBalanceForGas = useMemo(() => {
+    return bnOrZero(feeAssetBalance).gte(bnOrZero(estimatedGasCryptoPrecision))
+  }, [estimatedGasCryptoPrecision, feeAssetBalance])
 
   useEffect(() => {
     if (!hasEnoughBalanceForGas) {
@@ -272,16 +259,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .times(feeMarketData.price)
-                  .toFixed(2)}
+                value={estimatedGasCryptoPrecision.times(feeMarketData.price).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.withdraw.estimatedGasCrypto)
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={estimatedGasCryptoPrecision.toFixed()}
                 symbol={feeAsset.symbol}
               />
             </Box>

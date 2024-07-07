@@ -9,7 +9,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getFormFees } from 'plugins/cosmos/utils'
+import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -121,45 +121,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const handleContinue = useCallback(
     async (formValues: CosmosWithdrawValues) => {
+      if (!dispatch) return
       if (!state || !earnOpportunityData) return
 
-      const getWithdrawGasEstimate = async () => {
-        const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
-
-        try {
-          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        } catch (error) {
-          console.error(error)
-          const fundsError =
-            error instanceof Error && error.message.includes('Not enough funds in reserve')
-          toast({
-            position: 'top-right',
-            description: fundsError
-              ? translate('defi.notEnoughFundsInReserve')
-              : translate('common.somethingWentWrong'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-      }
-
-      if (!dispatch) return
       // set withdraw state for future use
-      dispatch({
-        type: CosmosWithdrawActionType.SET_WITHDRAW,
-        payload: formValues,
-      })
-      dispatch({
-        type: CosmosWithdrawActionType.SET_LOADING,
-        payload: true,
-      })
+      dispatch({ type: CosmosWithdrawActionType.SET_WITHDRAW, payload: formValues })
+      dispatch({ type: CosmosWithdrawActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCrypto = await getWithdrawGasEstimate()
+        const { txFee } = await getFeeData(asset)
 
-        if (!estimatedGasCrypto) return
         dispatch({
           type: CosmosWithdrawActionType.SET_WITHDRAW,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit: txFee },
         })
         onNext(DefiStep.Confirm)
         dispatch({
@@ -189,18 +162,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
         })
       }
     },
-    [
-      state,
-      dispatch,
-      asset,
-      marketData.price,
-      toast,
-      translate,
-      onNext,
-      earnOpportunityData,
-      assetId,
-      assets,
-    ],
+    [state, dispatch, asset, toast, translate, onNext, earnOpportunityData, assetId, assets],
   )
 
   const validateCryptoAmount = useCallback(

@@ -21,10 +21,9 @@ export const QuoteListRoute = ({
   const history = useHistory()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
 
-  const handleCloseCompactQuoteList = useCallback(
-    () => history.push({ pathname: TradeRoutePaths.Input }),
-    [history],
-  )
+  const handleCloseCompactQuoteList = useCallback(() => {
+    history.push({ pathname: TradeRoutePaths.Input })
+  }, [history])
 
   return (
     <TradeSlideTransition>

@@ -234,15 +234,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     setSellAsset(defaultSellAsset)
   }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
-  useEffect(() => {
-    // WARNING: do not remove.
-    // clear the confirmed quote on mount to prevent stale data affecting the selectors
-    dispatch(tradeQuoteSlice.actions.resetConfirmedQuote())
-    // clear the active quote index on mount to prevent stale data affecting the selectors
-    dispatch(tradeQuoteSlice.actions.resetActiveQuote())
-    dispatch(tradeInput.actions.setSlippagePreferencePercentage(undefined))
-  }, [dispatch])
-
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -780,7 +771,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               component={CollapsibleQuoteList}
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
               isLoading={isLoading}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              width={tradeInputRef.current?.offsetWidth ?? '0'}
               height={height ?? 'full'}
               ml={4}
             />

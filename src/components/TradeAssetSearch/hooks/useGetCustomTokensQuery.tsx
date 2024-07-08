@@ -40,8 +40,8 @@ export const useGetCustomTokensQuery = ({
     [contractAddress],
   )
 
-  const queryFn = useCallback(
-    (chainId: ChainId) =>
+  const getQueryFn = useCallback(
+    (chainId: ChainId) => () =>
       isAddress(contractAddress, { strict: false }) ? getTokenMetadata(chainId) : null,
     [contractAddress, getTokenMetadata],
   )
@@ -49,7 +49,7 @@ export const useGetCustomTokensQuery = ({
   const customTokensQuery = useQueries({
     queries: chainIds.map(chainId => ({
       queryKey: [queryKey, chainId],
-      queryFn: () => queryFn(chainId),
+      queryFn: getQueryFn(chainId),
       enabled: customTokenImportEnabled,
       staleTime: Infinity,
     })),

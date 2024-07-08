@@ -2374,7 +2374,7 @@
     "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
     "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution.",
-    "customToken": "Anyone can create tokens, including take ones, so caution is needed. Some tokens may not work with ShapeShift. By importing this token, you accept the risks. This token is not traded on major U.S. exchanges or frequently swapped on ShapeShift. Always research before trading."
+    "customToken": "Anyone can create tokens, including fake ones, so caution is needed. Some tokens may not work with ShapeShift. By importing this token, you accept the risks. This token is not traded on major U.S. exchanges or frequently swapped on ShapeShift. Always research before trading."
   },
   "streamingAcknowledgement": {
     "description": "This is a streaming swap, while you get a better price it can take up to %{estimatedTimeHuman} to complete."

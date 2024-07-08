@@ -1,5 +1,5 @@
 import { Center, Flex, useMediaQuery } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -12,7 +12,12 @@ type QuoteListRouteProps = {
   width: string | number
 }
 
-export const QuoteListRoute = ({ width, height }: QuoteListRouteProps) => {
+export const QuoteListRoute = ({
+  width: initialWidth,
+  height: initialHeight,
+}: QuoteListRouteProps) => {
+  const [width] = useState(initialWidth)
+  const [height] = useState(initialHeight)
   const history = useHistory()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
 

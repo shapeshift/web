@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "Dieser Handel wird durch Preisschwankungen (%{slippagePercentage}%) beeinflusst. Gehen Sie mit Vorsicht vor.",
     "unsafeTrade": "Dieser Handel kann unsicher sein oder unter der empfohlenen Mindestgröße liegen. Gehen Sie daher vorsichtig vor."
   },
-  "streamingAcknowledgement": {
-    "description": "Dies ist ein Streaming Swap. Sie erhalten zwar einen besseren Preis, aber die Fertigstellung kann bis zu %{estimatedTimeSeconds}s dauern."
-  },
   "watchlist": {
     "empty": {
       "title": "Beginnen Sie mit dem Aufbau Ihrer Beobachtungsliste",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "Hierhin werden die Belohnungen geschickt",
     "useWalletAddress": "Wallet Adresse verwenden",
     "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
-    "stakeWarning": "Wenn Sie Ihre FOX Token einsetzen, beachten Sie bitte, dass es eine Sperrfrist von %{cooldownPeriod} gibt. Das bedeutet, dass Sie, wenn Sie sich entscheiden Ihre Token nicht einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihr Geld einfordern können.",
-    "bridgeCta": "Sie haben %{assetSymbol} auf %{originNetwork} ausgewählt, aber Sie benötigen %{assetSymbol} auf %{destinationNetwork} zum Staken. Wir können Ihnen beim Bridge zu %{destinationNetwork} helfen. Möchten Sie, dass wir Sie durch den Prozess führen?",
-    "unstakeWarning": "Bevor Sie Ihren FOX beanspruchen können, gibt es eine Abkühlphase von %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
       "unstakeAmount": "Dies ist der Betrag an FOX, den Sie Unstaken werden",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Belohnungsadresse ändern …",
     "changeRewardAddressSuccess": "Sie haben Ihre THORChain-Belohnungsadresse erfolgreich geändert.",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
-    "unstakeSuccess": "Sobald die %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
     "newRewardAddress": "Neue Belohnungsadresse",
     "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Keine Ansprüche vorhanden",
     "errorFetchingClaims": "Beim Abrufen der Ansprüche ist ein Fehler aufgetreten",
     "noClaimsAvailableDescription": "Sie haben keine verfügbaren Ansprüche",
-    "unstakeNow": "Jetzt Unstaken",
     "bridgeAndConfirm": "Bridge & Bestätigen",
     "noSupportedChains": "Netzwerk wird nicht unterstützt",
     "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",

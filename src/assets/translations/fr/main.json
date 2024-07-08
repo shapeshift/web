@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "Cet échange est influencé par les mouvements de cours (%{slippagePercentage}%). Procédez avec prudence.",
     "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence."
   },
-  "streamingAcknowledgement": {
-    "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais il peut prendre jusqu'à %{estimatedTimeSeconds}s pour se terminer."
-  },
   "watchlist": {
     "empty": {
       "title": "Commencez à créer votre liste de suivi",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
-    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez qu'il y a une période de verrouillage de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
-    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à bridger vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans ce processus ?",
-    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, il y a une période de repos de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORChain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
-    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
     "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Aucune réclamation disponible",
     "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
-    "unstakeNow": "Démiser maintenant",
     "bridgeAndConfirm": "Bridger et confirmer",
     "noSupportedChains": "Chaîne non prise en charge",
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",

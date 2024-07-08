@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "На цю торгівлю впливає рух цін (%{slippagePercentage}%). Дійте з обережністю.",
     "unsafeTrade": "Ця торгівля може бути небезпечною або нижче рекомендованого мінімального розміру, дійте з обережністю."
   },
-  "streamingAcknowledgement": {
-    "description": "Це потоковий обмін, і хоча ви отримуєте кращу ціну, він може зайняти до %{estimatedTimeSeconds}s для завершення."
-  },
   "watchlist": {
     "empty": {
       "title": "Почніть формувати список спостереження",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "Саме сюди будуть надсилатися винагороди",
     "useWalletAddress": "Використовуйте адресу гаманця",
     "useCustomAddress": "Використовуйте власну адресу",
-    "stakeWarning": "Коли ви стейкаєте свої токени FOX, будь ласка, майте на увазі, що існує період блокування %{cooldownPeriod}. Це означає, що якщо ви вирішите зняти свої токени, вам потрібно буде почекати %{cooldownPeriod}, перш ніж ви зможете забрати свої кошти.",
-    "bridgeCta": "Ви вибрали %{assetSymbol} на %{originNetwork}, але вам потрібен %{assetSymbol} на %{destinationNetwork}, щоб застейкати. Ми можемо допомогти вам перейти до %{destinationNetwork}. Бажаєте, щоб ми провели вас через цей процес?",
-    "unstakeWarning": "Перед тим, як ви зможете забрати свій FOX, існує період блокування %{cooldownPeriod}. Після закінчення цього часу ви зможете забрати свою незастейкану суму.",
     "tooltips": {
       "stakeAmount": "Це сума FOX, яку ви поставите на кін",
       "unstakeAmount": "Це кількість FOX, яку ви знімете зі стейкінгу",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Зміна адреси отримання винагороди...",
     "changeRewardAddressSuccess": "Ви успішно змінили свою адресу винагороди THORchain.",
     "unstakePending": "Запит на зняття %{amount} %{symbol}",
-    "unstakeSuccess": "Після закінчення %{cooldownPeriod} ви зможете отримати свої %{amount} %{symbol}.",
     "currentRewardAddress": "Поточна адреса для отримання винагороди",
     "newRewardAddress": "Нова адреса для отримання винагороди",
     "rewardCycleExplainer": "Ця інформація буде оновлена для наступного циклу нагородження.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Немає коштів для клейму",
     "errorFetchingClaims": "Виникла помилка при клеймі",
     "noClaimsAvailableDescription": "Ви не маєте жодних наявних клеймів",
-    "unstakeNow": "Відстейкати зараз",
     "bridgeAndConfirm": "Перевести & Підтвердити",
     "noSupportedChains": "Мережа не підтримується",
     "noSupportedChainsDescription": "Додайте %{chainLabel} або підключіться до гаманця, який його підтримує.",

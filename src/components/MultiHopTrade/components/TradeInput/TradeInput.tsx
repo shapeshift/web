@@ -472,6 +472,10 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
         ]
     }, [activeQuote, buyAssetFeeAsset])
 
+  const shouldForceManualAddressEntry = useMemo(() => {
+    return Boolean(_isSmartContractSellAddress) && sellAsset?.chainId !== buyAsset.chainId
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
+
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
       <>
@@ -525,8 +529,22 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               <Text translation={nativeAssetBridgeWarning} />
             </Alert>
           )}
-          <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
-          <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
+          <WithLazyMount
+            shouldUse={Boolean(receiveAddress) && !shouldForceManualAddressEntry}
+            component={RecipientAddress}
+          />
+          <WithLazyMount
+            shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry}
+            shouldForceManualAddressEntry={shouldForceManualAddressEntry}
+            component={ManualAddressEntry}
+            description={
+              shouldForceManualAddressEntry
+                ? translate('trade.smartContractReceiveAddressDescription', {
+                    chainName: buyAssetFeeAsset?.networkName,
+                  })
+                : undefined
+            }
+          />
 
           <Button
             type='submit'
@@ -564,6 +582,9 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       quoteHasError,
       shouldDisablePreviewButton,
       quoteStatusTranslation,
+      buyAssetFeeAsset,
+      translate,
+      shouldForceManualAddressEntry,
     ],
   )
 

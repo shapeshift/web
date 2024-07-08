@@ -18,7 +18,7 @@ type UseGetCustomTokensQueryProps = {
 }
 
 type UseGetCustomTokenQueryReturn = {
-  data: UseQueryResult<TokenMetadata | undefined, Error>[]
+  data: UseQueryResult<TokenMetadata | null, Error>[]
   isLoading: boolean
 }
 
@@ -42,7 +42,7 @@ export const useGetCustomTokensQuery = ({
 
   const queryFn = useCallback(
     (chainId: ChainId) =>
-      isAddress(contractAddress, { strict: false }) ? getTokenMetadata(chainId) : undefined,
+      isAddress(contractAddress, { strict: false }) ? getTokenMetadata(chainId) : null,
     [contractAddress, getTokenMetadata],
   )
 

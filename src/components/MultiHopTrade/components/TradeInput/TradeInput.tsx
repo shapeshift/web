@@ -132,7 +132,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
   const height = useSharedHeight(tradeInputRef)
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
@@ -771,7 +771,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               component={CollapsibleQuoteList}
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
               isLoading={isLoading}
-              width={tradeInputRef.current?.offsetWidth ?? '0'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={height ?? 'full'}
               ml={4}
             />

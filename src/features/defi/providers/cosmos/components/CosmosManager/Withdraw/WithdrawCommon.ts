@@ -5,7 +5,7 @@ import type {
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type CosmosWithdrawValues = Omit<WithdrawValues, WithdrawField.Slippage> &

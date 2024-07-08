@@ -46,7 +46,7 @@ export const generateTradableThorAssetMap = async () => {
       await fs.promises.writeFile(
         path.join(
           __dirname,
-          '../../src/lib/swapper/swappers/ThorchainSwapper/generated/generatedTradableThorAssetMap.json',
+          '../../packages/swapper/src/swappers/ThorchainSwapper/generated/generatedTradableThorAssetMap.json',
         ),
         // beautify the file for github diff.
         JSON.stringify(assetsRecord, null, 2),

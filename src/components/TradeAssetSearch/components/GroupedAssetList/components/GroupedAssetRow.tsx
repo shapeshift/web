@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
@@ -36,6 +37,7 @@ export const GroupedAssetRow = ({
   onImportClick,
 }: GroupedAssetRowProps) => {
   const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
+  const backgroundColor = useColorModeValue('gray.50', 'background.button.secondary.base')
   const translate = useTranslate()
   const {
     state: { isConnected, isDemoWallet, wallet },
@@ -158,9 +160,22 @@ export const GroupedAssetRow = ({
             >
               {asset.name}
             </Text>
-            <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
+            <Flex
+              alignItems='center'
+              gap={2}
+              fontSize='sm'
+              fontWeight='medium'
+              color='text.subtle'
+              mt={2}
+            >
               <Text color={color}>{asset.symbol}</Text>
-              <Text>{middleEllipsis(fromAssetId(assetId).assetReference)}</Text>
+              <Flex background={backgroundColor} borderRadius={'lg'} pl={3}>
+                <InlineCopyButton value={fromAssetId(assetId).assetReference}>
+                  <Text color='text.base'>
+                    {middleEllipsis(fromAssetId(assetId).assetReference)}
+                  </Text>
+                </InlineCopyButton>
+              </Flex>
             </Flex>
           </Box>
         </Flex>
@@ -171,7 +186,7 @@ export const GroupedAssetRow = ({
         </Flex>
       </Button>
     )
-  }, [asset, assetId, color, handleImportClick, isSupported, translate])
+  }, [asset, assetId, backgroundColor, color, handleImportClick, isSupported, translate])
 
   return isAssetInStore ? KnownAssetRow : CustomAssetRow
 }

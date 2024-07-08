@@ -6,6 +6,7 @@ import { type PropsWithChildren, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { middleEllipsis } from 'lib/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
@@ -78,7 +79,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
         padding={4}
         justifyContent='space-between'
         alignItems='center'
-        height={16}
+        height={20}
         width='stretch'
         background={backgroundColor}
       >
@@ -96,9 +97,22 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
             >
               {asset.name}
             </Text>
-            <Flex alignItems='center' gap={2} fontSize='sm' fontWeight='medium' color='text.subtle'>
+            <Flex
+              alignItems='center'
+              gap={2}
+              fontSize='sm'
+              fontWeight='medium'
+              color='text.subtle'
+              mt={2}
+            >
               <Text color={color}>{asset.symbol}</Text>
-              <Text>{middleEllipsis(fromAssetId(asset.assetId).assetReference)}</Text>
+              <Flex background={backgroundColor} borderRadius={'lg'} pl={3}>
+                <InlineCopyButton value={fromAssetId(asset.assetId).assetReference}>
+                  <Text color='text.base'>
+                    {middleEllipsis(fromAssetId(asset.assetId).assetReference)}
+                  </Text>
+                </InlineCopyButton>
+              </Flex>
             </Flex>
           </Box>
         </Flex>

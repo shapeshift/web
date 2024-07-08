@@ -8,7 +8,7 @@ import type {
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { getFormFees } from 'plugins/cosmos/utils'
+import { getFeeData } from 'plugins/cosmos/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -122,33 +122,15 @@ export const Deposit: React.FC<DepositProps> = ({
     async (formValues: DepositValues) => {
       if (!(state && dispatch && opportunityMetadata)) return
 
-      const getStakingGasEstimate = async () => {
-        if (!assetReference) return
-
-        const { gasLimit, gasPrice } = await getFormFees(asset, marketData.price)
-
-        try {
-          return bnOrZero(gasPrice).times(gasLimit).toFixed(0)
-        } catch (error) {
-          console.error(error)
-          toast({
-            position: 'top-right',
-            description: translate('common.somethingWentWrongBody'),
-            title: translate('common.somethingWentWrong'),
-            status: 'error',
-          })
-        }
-      }
-
       // set deposit state for future use
       dispatch({ type: CosmosDepositActionType.SET_DEPOSIT, payload: formValues })
       dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: true })
       try {
-        const estimatedGasCrypto = await getStakingGasEstimate()
-        if (!estimatedGasCrypto) return
+        const { txFee } = await getFeeData(asset)
+
         dispatch({
           type: CosmosDepositActionType.SET_DEPOSIT,
-          payload: { estimatedGasCrypto },
+          payload: { estimatedGasCryptoBaseUnit: txFee },
         })
         onNext(DefiStep.Confirm)
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
@@ -172,19 +154,7 @@ export const Deposit: React.FC<DepositProps> = ({
         dispatch({ type: CosmosDepositActionType.SET_LOADING, payload: false })
       }
     },
-    [
-      asset,
-      assetId,
-      assetReference,
-      assets,
-      dispatch,
-      marketData.price,
-      onNext,
-      opportunityMetadata,
-      state,
-      toast,
-      translate,
-    ],
+    [asset, assetId, assets, dispatch, onNext, opportunityMetadata, state, toast, translate],
   )
 
   const handleCancel = history.goBack

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 // common CLI dev tool utils
-import chalk from 'chalk' // do not upgrade to v5, not compatible with ts-node
+import chalk from 'chalk'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'
 

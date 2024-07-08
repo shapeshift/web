@@ -13,7 +13,7 @@ export default function register(): Plugins {
       {
         name: 'plugins.cosmos.navBar',
         icon: (
-          <AssetIcon src='https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png' />
+          <AssetIcon src='https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/cosmos/info/logo.png' />
         ),
         providers: {
           chainAdapters: [

@@ -2,7 +2,7 @@ import type { DepositValues, Field as DepositField } from 'features/defi/compone
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 
 type EstimatedGas = {
-  estimatedGasCrypto?: string
+  estimatedGasCryptoBaseUnit?: string
 }
 
 type CosmosDepositValues = Omit<DepositValues, DepositField.Slippage> &

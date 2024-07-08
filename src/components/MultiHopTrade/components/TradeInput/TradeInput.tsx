@@ -127,12 +127,6 @@ type TradeInputProps = {
   isCompact?: boolean
 }
 
-// dummy component to allow us to lazily mount this beast of a hook
-const GetTradeQuotes = () => {
-  useGetTradeQuotes()
-  return <></>
-}
-
 export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
@@ -659,7 +653,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   return (
     <TradeSlideTransition>
-      <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <MessageOverlay show={isKeplr} title={overlayTitle}>
         <Flex
           width='full'

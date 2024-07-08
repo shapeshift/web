@@ -2,6 +2,7 @@ import { type ChainId } from '@shapeshiftoss/caip'
 import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { useCallback } from 'react'
+import { mergeQueryOutputs } from 'react-queries/helpers'
 import { isAddress } from 'viem'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
@@ -17,11 +18,6 @@ type UseGetCustomTokensQueryProps = {
   chainIds: ChainId[]
 }
 
-type UseGetCustomTokenQueryReturn = {
-  data: UseQueryResult<TokenMetadata | null, Error>[]
-  isLoading: boolean
-}
-
 type CustomTokenQueryKey = ['customTokens', string, ChainId]
 
 const getCustomTokenQueryKey = (contractAddress: string, chainId: ChainId): CustomTokenQueryKey => [
@@ -33,7 +29,7 @@ const getCustomTokenQueryKey = (contractAddress: string, chainId: ChainId): Cust
 export const useGetCustomTokensQuery = ({
   contractAddress,
   chainIds,
-}: UseGetCustomTokensQueryProps): UseGetCustomTokenQueryReturn => {
+}: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | null)[], Error[]> => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
   const getTokenMetadata = useCallback(
@@ -52,16 +48,15 @@ export const useGetCustomTokensQuery = ({
     [contractAddress, getTokenMetadata],
   )
 
-  const customTokensQuery = useQueries({
+  const customTokenQueries = useQueries({
     queries: chainIds.map(chainId => ({
       queryKey: getCustomTokenQueryKey(contractAddress, chainId),
       queryFn: getQueryFn(chainId),
       enabled: customTokenImportEnabled,
       staleTime: Infinity,
     })),
+    combine: queries => mergeQueryOutputs(queries, results => results),
   })
 
-  const isLoading = customTokensQuery.some(query => query.isLoading)
-
-  return { data: customTokensQuery, isLoading }
+  return customTokenQueries
 }

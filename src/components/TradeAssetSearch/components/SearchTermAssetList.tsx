@@ -55,27 +55,28 @@ export const SearchTermAssetList = ({
   const customAssets: Asset[] = useMemo(
     () =>
       customTokens
-        .map(metaData => metaData.data)
-        .filter(isSome)
-        .map(metaData => {
-          const { name, symbol, decimals, logo } = metaData
-          // If we can't get all the information we need to create an Asset, don't allow the custom token
-          if (!name || !symbol || !decimals) return null
-          const assetId = toAssetId({
-            chainId: metaData.chainId,
-            assetNamespace: ASSET_NAMESPACE.erc20, // Update me if we ever support other custom token chains like BSC
-            assetReference: metaData.contractAddress,
-          })
-          const minimalAsset: MinimalAsset = {
-            assetId,
-            name,
-            symbol,
-            precision: decimals,
-            icon: logo ?? undefined,
-          }
-          return makeAsset(assetsById, minimalAsset)
-        })
-        .filter(isSome),
+        ? customTokens
+            .filter(isSome)
+            .map(metaData => {
+              const { name, symbol, decimals, logo } = metaData
+              // If we can't get all the information we need to create an Asset, don't allow the custom token
+              if (!name || !symbol || !decimals) return null
+              const assetId = toAssetId({
+                chainId: metaData.chainId,
+                assetNamespace: ASSET_NAMESPACE.erc20, // Update me if we ever support other custom token chains like BSC
+                assetReference: metaData.contractAddress,
+              })
+              const minimalAsset: MinimalAsset = {
+                assetId,
+                name,
+                symbol,
+                precision: decimals,
+                icon: logo ?? undefined,
+              }
+              return makeAsset(assetsById, minimalAsset)
+            })
+            .filter(isSome)
+        : [],
     [assetsById, customTokens],
   )
 

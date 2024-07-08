@@ -24,7 +24,7 @@ export type SearchTermAssetListProps = {
 }
 
 export const SearchTermAssetList = ({
-  isLoading: assetListLoading,
+  isLoading: isAssetListLoading,
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
@@ -63,7 +63,7 @@ export const SearchTermAssetList = ({
           if (!name || !symbol || !decimals) return null
           const assetId = toAssetId({
             chainId: metaData.chainId,
-            assetNamespace: ASSET_NAMESPACE.erc20, // FIXME: make this dynamic based on the ChainId
+            assetNamespace: ASSET_NAMESPACE.erc20, // Update me if we ever support other custom token chains like BSC
             assetReference: metaData.contractAddress,
           })
           const minimalAsset: MinimalAsset = {
@@ -92,9 +92,9 @@ export const SearchTermAssetList = ({
     return {
       groups: ['modals.assetSearch.searchResults'],
       groupCounts: [searchTermAssets.length],
-      groupIsLoading: [isLoadingCustomTokens || assetListLoading],
+      groupIsLoading: [isLoadingCustomTokens || isAssetListLoading],
     }
-  }, [assetListLoading, isLoadingCustomTokens, searchTermAssets.length])
+  }, [isAssetListLoading, isLoadingCustomTokens, searchTermAssets.length])
 
   return (
     <GroupedAssetList

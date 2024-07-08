@@ -17,8 +17,10 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
+  selectAccountIdsParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectFromParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
@@ -136,8 +138,8 @@ export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
   selectWalletTxsByAccountIdAssetId,
-  (_state, filter: { accountIds: AccountId[]; from: string } | undefined) => filter?.accountIds,
-  (_state, filter: { accountIds: AccountId[]; from: string } | undefined) => filter?.from,
+  selectAccountIdsParamFromFilter,
+  selectFromParamFromFilter,
   selectAssetIdParamFromFilter,
   (txIds, txs, data, accountIdsFilter, fromFilter, assetIdFilter): TxId[] => {
     const filteredByAccountIds = pickBy(data, (_, accountId) => {

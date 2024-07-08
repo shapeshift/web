@@ -103,7 +103,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { QuoteList } from '../QuoteList/QuoteList'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
@@ -111,7 +110,7 @@ import { CountdownSpinner } from './components/TradeQuotes/components/CountdownS
 import { WithLazyMount } from './components/WithLazyMount'
 import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
-import { useSharedHeight } from './hooks/useSharedHieght'
+import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const formControlProps = {
@@ -124,6 +123,7 @@ const emptyPercentOptions: number[] = []
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD = 1_000 * 60 * 5
 
 type TradeInputProps = {
+  tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
 }
 
@@ -133,19 +133,18 @@ const GetTradeQuotes = () => {
   return <></>
 }
 
-export const TradeInput = ({ isCompact }: TradeInputProps) => {
+export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const { observedRef: tradeInputRef, height: tradeInputHeight } = useSharedHeight()
+  const height = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const [isCompactQuoteListOpen, setIsCompactQuoteListOpen] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
@@ -465,18 +464,10 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     isTradeQuoteApiQueryPending,
   ])
 
-  const handleCloseCompactQuoteList = useCallback(() => setIsCompactQuoteListOpen(false), [])
-
   const handleOpenCompactQuoteList = useCallback(() => {
     if (!isCompact && !isSmallerThanXl) return
-    setIsCompactQuoteListOpen(true)
-  }, [isCompact, isSmallerThanXl])
-
-  useEffect(() => {
-    if (isCompactQuoteListOpen && !isCompact && !isSmallerThanXl) {
-      setIsCompactQuoteListOpen(false)
-    }
-  }, [isCompact, isCompactQuoteListOpen, isSmallerThanXl])
+    history.push({ pathname: TradeRoutePaths.QuoteList })
+  }, [history, isCompact, isSmallerThanXl])
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
@@ -675,25 +666,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
           justifyContent='center'
           maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
         >
-          {(isCompact || isSmallerThanXl) && (
-            <Center width='inherit' display={!isCompactQuoteListOpen ? 'none' : undefined}>
-              <QuoteList
-                onBack={handleCloseCompactQuoteList}
-                isLoading={isLoading}
-                height={tradeInputHeight ?? '500px'}
-                width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              />
-            </Center>
-          )}
           <Center width='inherit'>
-            <Card
-              flex={1}
-              width='full'
-              maxWidth='500px'
-              ref={tradeInputRef}
-              visibility={isCompactQuoteListOpen ? 'hidden' : undefined}
-              position={isCompactQuoteListOpen ? 'absolute' : undefined}
-            >
+            <Card flex={1} width='full' maxWidth='500px' ref={tradeInputRef}>
               <ArbitrumBridgeAcknowledgement
                 onAcknowledge={handleFormSubmit}
                 shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
@@ -815,7 +789,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              height={tradeInputHeight ?? 'full'}
+              height={height ?? 'full'}
               ml={4}
             />
           </Center>

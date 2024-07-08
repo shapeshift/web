@@ -73,7 +73,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
       return (
         <AnimatePresence>
           {isStreaming && (
-            <SlideTransitionX>
+            <SlideTransitionX key={swapSource ?? swapperName}>
               <Center
                 className='quote-icon'
                 bg='background.surface.raised.base'

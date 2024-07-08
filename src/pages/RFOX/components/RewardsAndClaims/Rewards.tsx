@@ -82,7 +82,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     return {
       assetId: thorchainAssetId,
       accountIds: thorchainAccountIds,
-      txSender: DAO_TREASURY_THORCHAIN,
+      from: DAO_TREASURY_THORCHAIN,
     }
   }, [thorchainAccountIds])
 

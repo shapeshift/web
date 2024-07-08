@@ -136,10 +136,10 @@ export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
   selectWalletTxsByAccountIdAssetId,
-  (_state, filter: { accountIds: AccountId[]; txSender: string } | undefined) => filter?.accountIds,
-  (_state, filter: { accountIds: AccountId[]; txSender: string } | undefined) => filter?.txSender,
+  (_state, filter: { accountIds: AccountId[]; from: string } | undefined) => filter?.accountIds,
+  (_state, filter: { accountIds: AccountId[]; from: string } | undefined) => filter?.from,
   selectAssetIdParamFromFilter,
-  (txIds, txs, data, accountIdsFilter, txSenderFilter, assetIdFilter): TxId[] => {
+  (txIds, txs, data, accountIdsFilter, fromFilter, assetIdFilter): TxId[] => {
     const filteredByAccountIds = pickBy(data, (_, accountId) => {
       return accountIdsFilter?.includes(accountId)
     })
@@ -157,10 +157,10 @@ export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
       return txs[txId].transfers[0].type === TransferType.Receive
     })
 
-    const filteredBySender = txSenderFilter
+    const filteredBySender = fromFilter
       ? filteredByTxType.filter(txId => {
           // The logic here is only valid for single transfer transactions
-          return txs[txId].transfers[0].from[0] === txSenderFilter
+          return txs[txId].transfers[0].from[0] === fromFilter
         })
       : filteredByTxType
 
@@ -170,7 +170,7 @@ export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
   },
 )((_state: ReduxState, filter) =>
   filter
-    ? `${filter.accountIds?.join(',') ?? 'accountIds'}-${filter.txSender ?? 'txSender'}-${
+    ? `${filter.accountIds?.join(',') ?? 'accountIds'}-${filter.from ?? 'from'}-${
         filter.assetId ?? 'assetId'
       }`
     : 'txIdsByFilter',

@@ -22,11 +22,11 @@ export type StakingInfoQueryKey = [
   },
 ]
 
-type StakingInfoQueryFn = () => Promise<AbiStakingInfo | null>
+type StakingInfoQueryFn = () => Promise<AbiStakingInfo>
 
 type UseStakingInfoQueryProps<SelectData = AbiStakingInfo> = {
   stakingAssetAccountAddress: string | undefined
-  select?: (stakingInfo: AbiStakingInfo | null) => SelectData
+  select?: (stakingInfo: AbiStakingInfo) => SelectData
 }
 const client = viemClientByNetworkId[arbitrum.id]
 

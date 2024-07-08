@@ -4,14 +4,12 @@ import { memo, useEffect, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectHasUserEnteredAmount } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
-import { WithLazyMount } from './components/TradeInput/components/WithLazyMount'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
@@ -57,12 +55,6 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardPr
   )
 })
 
-// dummy component to allow us to lazily mount this beast of a hook
-const GetTradeQuotes = () => {
-  useGetTradeQuotes()
-  return <></>
-}
-
 type TradeRoutesProps = {
   isCompact?: boolean
 }
@@ -70,7 +62,7 @@ type TradeRoutesProps = {
 const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  useGetTradeQuotes()
 
   useEffect(() => {
     return () => {
@@ -86,7 +78,6 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
   return (
     <AnimatePresence mode='wait' initial={false}>
-      <WithLazyMount shouldUse={hasUserEnteredAmount} component={GetTradeQuotes} />
       <Switch location={location}>
         <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
           <TradeInput isCompact={isCompact} tradeInputRef={tradeInputRef} />

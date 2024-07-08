@@ -497,7 +497,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
         ]
     }, [activeQuote, buyAssetFeeAsset])
 
-  const isBridge = useMemo(() => sellAsset?.chainId !== buyAsset.chainId, [sellAsset, buyAsset])
+  const isSmartContractBridge = useMemo(() => {
+    return Boolean(_isSmartContractSellAddress) && sellAsset?.chainId !== buyAsset.chainId
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
 
   const ConfirmSummary: JSX.Element = useMemo(
     () => (
@@ -553,19 +555,15 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
             </Alert>
           )}
           <WithLazyMount
-            shouldUse={
-              Boolean(receiveAddress) && !(Boolean(_isSmartContractSellAddress) && isBridge)
-            }
+            shouldUse={Boolean(receiveAddress) && !isSmartContractBridge}
             component={RecipientAddress}
           />
           <WithLazyMount
-            shouldUse={
-              !walletSupportsBuyAssetChain || (Boolean(_isSmartContractSellAddress) && isBridge)
-            }
-            shouldForceManualAddressEntry={Boolean(_isSmartContractSellAddress) && isBridge}
+            shouldUse={!walletSupportsBuyAssetChain || isSmartContractBridge}
+            shouldForceManualAddressEntry={isSmartContractBridge}
             component={ManualAddressEntry}
             description={
-              _isSmartContractSellAddress && isBridge
+              isSmartContractBridge
                 ? translate('trade.smartContractReceiveAddressDescription', {
                     chainName: buyAssetFeeAsset?.networkName,
                   })
@@ -609,10 +607,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       quoteHasError,
       shouldDisablePreviewButton,
       quoteStatusTranslation,
-      _isSmartContractSellAddress,
       buyAssetFeeAsset,
       translate,
-      isBridge,
+      isSmartContractBridge,
     ],
   )
 

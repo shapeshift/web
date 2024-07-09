@@ -461,7 +461,7 @@ export const RepayInput = ({
   ])
 
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
+    useIsSmartContractAddress(userAddress, repaymentAsset?.chainId ?? '')
 
   const disableSmartContractRepayment = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm

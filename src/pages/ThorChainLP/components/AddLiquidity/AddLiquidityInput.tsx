@@ -242,7 +242,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   })
 
   const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
-    useIsSmartContractAddress(poolAssetAccountAddress ?? '')
+    useIsSmartContractAddress(poolAssetAccountAddress ?? '', poolAsset?.chainId ?? '')
 
   const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
 

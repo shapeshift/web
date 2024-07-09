@@ -17,7 +17,7 @@ import { ClaimStatus } from '../Claim/types'
 type ClaimsProps = {
   headerComponent: JSX.Element
   stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
+  stakingAssetAccountId: AccountId
 }
 
 export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId }: ClaimsProps) => {
@@ -27,7 +27,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],
   )
 

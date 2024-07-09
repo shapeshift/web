@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "この取引は価格変動の影響を受けます (%{slippagePercentage}%)。注意して進めてください。",
     "unsafeTrade": "この取引は安全ではないか、推奨される最小サイズを下回っている可能性がありますので、注意して進めてください。"
   },
-  "streamingAcknowledgement": {
-    "description": "これはストリーミング スワップです。価格は安くなりますが、完了するまでに最大 %{estimatedTimeSeconds} 秒かかる場合があります。"
-  },
   "watchlist": {
     "empty": {
       "title": "ウォッチリストの作成を開始する",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "報酬はこちらに送られます",
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
-    "stakeWarning": "FOX トークンをステークする場合、%{cooldownPeriod} のロックアップ期間があることにご注意ください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
-    "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。%{destinationNetwork} へのブリッジをお手伝いします。手順のガイドが必要ですか?",
-    "unstakeWarning": "FOX を請求できるようになる前に、%{cooldownPeriod} のクールダウン期間があります。その時間が経過すると、ステークされていない分の金額を請求できるようになります。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
       "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
     "changeRewardAddressSuccess": "THORChain 報酬アドレスの変更に成功しました。",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
-    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "請求できません",
     "errorFetchingClaims": "クレームの取得中にエラーが発生しました",
     "noClaimsAvailableDescription": "利用可能な請求はありません",
-    "unstakeNow": "今すぐステーク解除",
     "bridgeAndConfirm": "ブリッジ＆確認",
     "noSupportedChains": "チェーンはサポートされていません",
     "noSupportedChainsDescription": "%{chainLabel} を追加するか、それをサポートするウォレットに接続します。",

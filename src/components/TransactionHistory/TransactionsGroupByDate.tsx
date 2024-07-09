@@ -1,4 +1,4 @@
-import { Stack, StackDivider } from '@chakra-ui/react'
+import { Skeleton, Stack, StackDivider } from '@chakra-ui/react'
 import dayjs from 'dayjs'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,6 +12,7 @@ import { useAppSelector } from 'state/store'
 type TransactionsGroupByDateProps = {
   txIds: TxId[]
   useCompactMode?: boolean
+  isLoading?: boolean
 }
 
 type TransactionGroup = {
@@ -21,8 +22,8 @@ type TransactionGroup = {
 
 const divider = <StackDivider borderColor='border.base' />
 
-export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = memo(
-  ({ txIds, useCompactMode = false }) => {
+const TransactionsGroupByDateLoaded = memo(
+  ({ txIds, useCompactMode = false }: Omit<TransactionsGroupByDateProps, 'isLoading'>) => {
     const { setNode, entry } = useResizeObserver()
     const translate = useTranslate()
     const locale = useAppSelector(selectSelectedLocale)
@@ -84,3 +85,22 @@ export const TransactionsGroupByDate: React.FC<TransactionsGroupByDateProps> = m
     )
   },
 )
+
+const TransactionsGroupByDateLoading = () => {
+  return (
+    <Stack px={2} spacing={2}>
+      {new Array(2).fill(null).map((_, i) => (
+        <Skeleton key={i} height={16} />
+      ))}
+    </Stack>
+  )
+}
+
+export const TransactionsGroupByDate = ({
+  isLoading,
+  txIds,
+  useCompactMode,
+}: TransactionsGroupByDateProps) => {
+  if (isLoading) return <TransactionsGroupByDateLoading />
+  return <TransactionsGroupByDateLoaded txIds={txIds} useCompactMode={useCompactMode} />
+}

@@ -905,6 +905,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
+    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}.",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
@@ -2401,6 +2402,10 @@
     "lending": {
       "title": "Lending",
       "body": "Borrow against your assets."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Stake FOX earn RUNE."
     }
   },
   "RFOX": {
@@ -2462,6 +2467,7 @@
     "claimPending": "Requesting withdraw",
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
+    "noRewardsYet": "No rewards yet",
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",

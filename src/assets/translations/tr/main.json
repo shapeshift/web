@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "Bu takas fiyat hareketinden (%{slippagePercentage}%) etkileniyor. Dikkatle ilerle.",
     "unsafeTrade": "Bu takas güvensiz olabilir veya önerilen minimum boyutun altında olabilir, dikkatli ilerleyin."
   },
-  "streamingAcknowledgement": {
-    "description": "Bu bir yayın takasıdır; daha iyi bir fiyata sahip olsanız da, tamamlanması %{estimatedTimeSeconds}s kadar sürebilir."
-  },
   "watchlist": {
     "empty": {
       "title": "İzleme listenizi oluşturmaya başlayın",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "Ödüllerin gönderileceği yer burasıdır",
     "useWalletAddress": "Cüzdan adresini kullan",
     "useCustomAddress": "Özel adres kullan",
-    "stakeWarning": "FOX tokenlarınızı stake ettiğinizde lütfen %{cooldownPeriod} kilitlenme süresi olduğunu unutmayın. Bu, tokenlarınızı geri almaya karar verirseniz, paranızı talep etmeden önce %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
-    "bridgeCta": "%{originNetwork} üzerinde %{assetSymbol}'ı seçtiniz, ancak stake etmek için %{destinationNetwork} üzerinde %{assetSymbol}'a ihtiyacınız olacak. %{destinationNetwork} ile köprü oluşturmanıza yardımcı olabiliriz. Süreç boyunca size rehberlik etmemizi ister misiniz?",
-    "unstakeWarning": "FOX'unuzu alabilmeniz için %{cooldownPeriod} bekleme süresi vardır. Bu süre geçtikten sonra, stake edilmemiş tutarınızı talep edebileceksiniz.",
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
     "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
-    "unstakeSuccess": "%{cooldownPeriod} süresi dolduğunda, %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",
     "newRewardAddress": "Yeni Ödül Adresi",
     "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Talep edilebilir yok",
     "errorFetchingClaims": "Hak talepleri alınırken bir hata oluştu",
     "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
-    "unstakeNow": "Stake Kaldır",
     "bridgeAndConfirm": "Köprüle ve Onayla",
     "noSupportedChains": "Zincir desteklenmiyor",
     "noSupportedChainsDescription": "%{chainLabel} ekleyin veya onu destekleyen bir cüzdana bağlanın.",

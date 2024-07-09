@@ -18,6 +18,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
@@ -148,7 +149,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    select: ([stakingBalance]) => stakingBalance.toString(),
+    select: selectStakingBalance,
   })
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {

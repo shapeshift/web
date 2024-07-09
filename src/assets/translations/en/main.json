@@ -2461,6 +2461,7 @@
     "claimPending": "Requesting withdraw",
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
+    "noRewardsYet": "No rewards yet",
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",

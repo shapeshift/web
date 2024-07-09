@@ -124,24 +124,6 @@ export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   },
 )
 
-export const selectHighestAccountNumberForChainId = createCachedSelector(
-  selectPortfolioAccountMetadata,
-  selectChainIdParamFromFilter,
-  (portfolioAccountMetadata, filterChainId): number => {
-    if (!filterChainId) return 0
-
-    return Math.max(
-      0,
-      ...Object.entries(portfolioAccountMetadata)
-        .filter(([accountId]) => {
-          const { chainId } = fromAccountId(accountId)
-          return chainId === filterChainId
-        })
-        .map(([_accountId, accountMetadata]) => accountMetadata.bip44Params.accountNumber),
-    )
-  },
-)((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
-
 export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,

@@ -22,6 +22,7 @@ export const RFOX: React.FC = () => {
   const rFOXHeader = useMemo(() => <RFOXHeader />, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
   // TODO(gomes): make this programmatic when we implement multi-account
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
@@ -34,10 +35,12 @@ export const RFOX: React.FC = () => {
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
           <Overview stakingAssetId={stakingAssetId} stakingAssetAccountId={stakingAssetAccountId} />
-          <RewardsAndClaims
-            stakingAssetId={stakingAssetId}
-            stakingAssetAccountId={stakingAssetAccountId}
-          />
+          {stakingAssetAccountId && (
+            <RewardsAndClaims
+              stakingAssetId={stakingAssetId}
+              stakingAssetAccountId={stakingAssetAccountId}
+            />
+          )}
           <Faq />
         </Stack>
         <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>

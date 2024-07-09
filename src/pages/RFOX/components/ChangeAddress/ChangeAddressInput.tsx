@@ -21,6 +21,7 @@ import {
   type GetFeesWithWalletArgs,
   isGetFeesWithWalletArgs,
 } from 'lib/utils/evm'
+import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
@@ -107,14 +108,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    // Destructuring the result as a verbose way get the rune address
-    select: ([
-      _stakingBalance,
-      _unstakingBalance,
-      _earnedRewards,
-      _rewardPerTokenStored,
-      runeAddress,
-    ]) => runeAddress || undefined,
+    select: selectRuneAddress,
   })
 
   const callData = useMemo(() => {

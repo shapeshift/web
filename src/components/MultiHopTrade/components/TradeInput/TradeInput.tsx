@@ -1,22 +1,8 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import {
-  Card,
-  CardHeader,
-  Center,
-  CircularProgress,
-  CircularProgressLabel,
-  Divider,
-  Flex,
-  IconButton,
-  Stack,
-  useMediaQuery,
-} from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { Card, CardHeader, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { type Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -26,41 +12,26 @@ import {
   StreamingAcknowledgement,
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
-import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
-import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { positiveOrZero } from 'lib/bignumber/bignumber'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeplrHDWallet, isToken } from 'lib/utils'
+import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import {
-  selectHasUserEnteredAmount,
-  selectHighestMarketCapFeeAsset,
-  selectInputBuyAsset,
-  selectInputSellAsset,
-  selectWalletConnectedChainIds,
-} from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
+import { selectHasUserEnteredAmount, selectInputSellAsset } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
-  selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
   selectIsTradeQuoteRequestAborted,
@@ -74,19 +45,13 @@ import { useAccountIds } from '../../hooks/useAccountIds'
 import { FakeTabHeader } from '../FakeTabHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
-import { SellAssetInput } from './components/SellAssetInput'
+import { TradeInputBody } from './components/TradeInputBody'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
 import { WithLazyMount } from './components/WithLazyMount'
 import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const formControlProps = {
-  borderRadius: 0,
-  background: 'transparent',
-  borderWidth: 0,
-}
-const arrowDownIcon = <ArrowDownIcon />
-const emptyPercentOptions: number[] = []
+
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD = 1_000 * 60 * 5
 
 type TradeInputProps = {
@@ -113,53 +78,15 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const buyAssetSearch = useModal('buyTradeAssetSearch')
-  const sellAssetSearch = useModal('sellTradeAssetSearch')
-  const buyAsset = useAppSelector(selectInputBuyAsset)
+
   const sellAsset = useAppSelector(selectInputSellAsset)
-
-  const percentOptions = useMemo(() => {
-    if (!sellAsset?.assetId) return []
-    if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
-
-    return [1]
-  }, [sellAsset.assetId])
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
-
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-
-  const setBuyAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
-    [dispatch],
-  )
-  const setSellAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset)),
-    [dispatch],
-  )
-  const handleSwitchAssets = useCallback(
-    () => dispatch(tradeInput.actions.switchAssets()),
-    [dispatch],
-  )
-
-  const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
-
-  // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
-  useEffect(() => {
-    if (!defaultSellAsset) return
-
-    if (walletConnectedChainIds.includes(sellAsset.chainId)) return
-
-    setSellAsset(defaultSellAsset)
-  }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
+  const activeQuote = useAppSelector(selectActiveQuote)
 
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
@@ -217,20 +144,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
     [translate],
   )
-
-  const handleSellAssetClick = useCallback(() => {
-    sellAssetSearch.open({
-      onAssetClick: setSellAsset,
-      title: 'trade.tradeFrom',
-    })
-  }, [sellAssetSearch, setSellAsset])
-
-  const handleBuyAssetClick = useCallback(() => {
-    buyAssetSearch.open({
-      onAssetClick: setBuyAsset,
-      title: 'trade.tradeTo',
-    })
-  }, [buyAssetSearch, setBuyAsset])
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -291,8 +204,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
 
-  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
-
   const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
     if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
 
@@ -322,35 +233,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
     handleFormSubmit()
   }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
-
-  const sellTradeAssetSelect = useMemo(
-    () => (
-      <TradeAssetSelect
-        assetId={sellAsset.assetId}
-        onAssetClick={handleSellAssetClick}
-        onAssetChange={setSellAsset}
-        onlyConnectedChains={true}
-      />
-    ),
-    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
-  )
-
-  const buyTradeAssetSelect = useMemo(
-    () => (
-      <TradeAssetSelect
-        assetId={buyAsset.assetId}
-        onAssetClick={handleBuyAssetClick}
-        onAssetChange={setBuyAsset}
-        onlyConnectedChains={false}
-      />
-    ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
-  )
-
-  // disable switching assets if the buy asset isn't supported
-  const shouldDisableSwitchAssets = useMemo(() => {
-    return !walletSupportsBuyAssetChain
-  }, [walletSupportsBuyAssetChain])
 
   const warningAcknowledgementMessage = (() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
@@ -417,76 +299,14 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                           </Flex>
                         </Flex>
                       </CardHeader>
-                      <Stack spacing={0}>
-                        <SellAssetInput
-                          accountId={initialSellAssetAccountId}
-                          asset={sellAsset}
-                          label={translate('trade.payWith')}
-                          onAccountIdChange={setSellAssetAccountId}
-                          labelPostFix={sellTradeAssetSelect}
-                          percentOptions={percentOptions}
-                        />
-                        <Flex alignItems='center' justifyContent='center' my={-2}>
-                          <Divider />
-                          <CircularProgress
-                            color='blue.500'
-                            thickness='4px'
-                            size='34px'
-                            trackColor='transparent'
-                            isIndeterminate={isLoading}
-                            borderRadius='full'
-                          >
-                            <CircularProgressLabel
-                              fontSize='md'
-                              display='flex'
-                              alignItems='center'
-                              justifyContent='center'
-                            >
-                              <IconButton
-                                onClick={handleSwitchAssets}
-                                isRound
-                                size='sm'
-                                position='relative'
-                                variant='outline'
-                                borderColor='border.base'
-                                zIndex={1}
-                                aria-label={translate('lending.switchAssets')}
-                                icon={arrowDownIcon}
-                                isDisabled={shouldDisableSwitchAssets}
-                              />
-                            </CircularProgressLabel>
-                          </CircularProgress>
-
-                          <Divider />
-                        </Flex>
-                        <TradeAssetInput
-                          // Disable account selection when user set a manual receive address
-                          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
-                          isReadOnly={true}
-                          accountId={initialBuyAssetAccountId}
-                          assetId={buyAsset.assetId}
-                          assetSymbol={buyAsset.symbol}
-                          assetIcon={buyAsset.icon}
-                          cryptoAmount={
-                            hasUserEnteredAmount
-                              ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                              : '0'
-                          }
-                          fiatAmount={
-                            hasUserEnteredAmount
-                              ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-                              : '0'
-                          }
-                          percentOptions={emptyPercentOptions}
-                          showInputSkeleton={isLoading}
-                          showFiatSkeleton={isLoading}
-                          label={translate('trade.youGet')}
-                          onAccountIdChange={setBuyAssetAccountId}
-                          formControlProps={formControlProps}
-                          labelPostFix={buyTradeAssetSelect}
-                          priceImpactPercentage={priceImpactPercentage?.toString()}
-                        />
-                      </Stack>
+                      <TradeInputBody
+                        isLoading={isLoading}
+                        manualReceiveAddress={manualReceiveAddress}
+                        initialSellAssetAccountId={initialSellAssetAccountId}
+                        initialBuyAssetAccountId={initialBuyAssetAccountId}
+                        setSellAssetAccountId={setSellAssetAccountId}
+                        setBuyAssetAccountId={setBuyAssetAccountId}
+                      />
                       <ConfirmSummary
                         isCompact={isCompact}
                         isLoading={isLoading}

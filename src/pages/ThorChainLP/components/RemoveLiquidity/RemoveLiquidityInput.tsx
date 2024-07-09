@@ -61,7 +61,7 @@ import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery
 import { usePool } from 'pages/ThorChainLP/queries/hooks/usePool'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { fromOpportunityId } from 'pages/ThorChainLP/utils'
+import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -72,6 +72,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { LpType } from '../LpType'
 import { RemoveLiquidityRoutePaths } from './types'
 
 const INITIAL_REMOVAL_PERCENTAGE = 50
@@ -123,10 +124,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [sliderValue, setSliderValue] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
+  const [activeOpportunityId, setActiveOpportunityId] = useState<string>(opportunityId)
 
   const { assetId, type: opportunityType } = useMemo(
-    () => fromOpportunityId(opportunityId),
-    [opportunityId],
+    () => fromOpportunityId(activeOpportunityId),
+    [activeOpportunityId],
   )
 
   // Virtual as in, these are the amounts if removing symetrically. But a user may remove asymetrically, so these are not the *actual* amounts
@@ -189,6 +191,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       [thorchainChainId]: runeAccountId ?? '',
     }
   }, [accountId, poolAsset, runeAccountId])
+
+  console.log(runeAccountId, 'runeAccountId rerender')
 
   const actualAssetWithdrawAmountCryptoPrecision = useMemo(() => {
     switch (opportunityType) {
@@ -292,9 +296,16 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
+    console.log(userLpData, 'userLpData')
+    if (opportunityId && !activeOpportunityId) setActiveOpportunityId(opportunityId)
     if (!userLpData) return
 
-    const _position = userLpData.find(data => data.opportunityId === opportunityId)
+    const _position = userLpData.find(data =>
+      activeOpportunityId
+        ? data.opportunityId === activeOpportunityId
+        : data.opportunityId === opportunityId,
+    )
+    console.log(_position, '_position')
     if (!_position) return
 
     if (_position?.status.incomplete) {
@@ -305,15 +316,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     setPosition(_position)
 
     const runeAddress = _position?.runeAddress
+    console.log(runeAddress, 'runeAddress')
     if (!runeAddress) return
 
     const _runeAccountId = toAccountId({
       chainId: thorchainChainId,
       account: runeAddress,
     })
+    console.log(_runeAccountId, '_runeAccountId')
 
     setRuneAccountId(_runeAccountId)
-  }, [opportunityId, userLpData])
+  }, [opportunityId, userLpData, activeOpportunityId])
 
   const handleBackClick = useCallback(() => {
     browserHistory.push('/pools')
@@ -623,7 +636,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       runeWithdrawAmountFiatUserCurrency: actualRuneWithdrawAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
-      opportunityId,
+      opportunityId: activeOpportunityId,
       runeGasFeeFiatUserCurrency: runeGasFeeFiatUserCurrency.toFixed(2),
       poolAssetGasFeeFiatUserCurrency: poolAssetGasFeeFiatUserCurrency.toFixed(2),
       totalGasFeeFiatUserCurrency: totalGasFeeFiatUserCurrency.toFixed(2),
@@ -652,6 +665,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     totalGasFeeFiatUserCurrency,
     currentAccountIdByChainId,
     poolAssetAccountAddress,
+    activeOpportunityId,
   ])
 
   const isDeposit = useMemo(() => isLpConfirmedDepositQuote(confirmedQuote), [confirmedQuote])
@@ -933,6 +947,18 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     }
   }, [handleSubmit, isBelowMinimumWithdrawAmount])
 
+  const handleAsymSideChange = useCallback(
+    (asymSide: string | null) => {
+      if (!asymSide) return
+      if (!poolAsset) return
+
+      setActiveOpportunityId(
+        toOpportunityId({ assetId: poolAsset.assetId, type: asymSide as AsymSide | 'sym' }),
+      )
+    },
+    [poolAsset],
+  )
+
   if (!poolAsset || !poolAssetFeeAsset || !runeAsset) return null
 
   return (
@@ -949,6 +975,11 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             <FormLabel mb={0} px={6} fontSize='sm'>
               {translate('pools.removeAmounts')}
             </FormLabel>
+            <LpType
+              assetId={poolAsset.assetId}
+              opportunityId={activeOpportunityId}
+              onAsymSideChange={handleAsymSideChange}
+            />
             <Stack px={6} py={4} spacing={4}>
               <Amount.Percent value={sliderValue / 100} fontSize='2xl' />
               <Slider

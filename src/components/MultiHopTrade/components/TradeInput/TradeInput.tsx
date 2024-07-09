@@ -11,7 +11,6 @@ import {
   CircularProgressLabel,
   Divider,
   Flex,
-  Heading,
   IconButton,
   Stack,
   useMediaQuery,
@@ -102,6 +101,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { FakeTabHeader } from '../FakeTabHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { RecipientAddress } from './components/RecipientAddress'
 import { SellAssetInput } from './components/SellAssetInput'
@@ -662,6 +662,10 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     return message
   })()
 
+  const handleClickClaims = useCallback(() => {
+    // TODO: Implement claims
+  }, [])
+
   return (
     <TradeSlideTransition>
       <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -696,9 +700,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                     <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
                       <CardHeader px={6}>
                         <Flex alignItems='center' justifyContent='space-between'>
-                          <Heading as='h5' fontSize='md'>
-                            {translate('navBar.trade')}
-                          </Heading>
+                          <FakeTabHeader onClickClaims={handleClickClaims} />
                           <Flex gap={2} alignItems='center'>
                             {activeQuote && (isCompact || isSmallerThanXl) && (
                               <CountdownSpinner

@@ -45,7 +45,7 @@ type UseRfoxUnstakeReturn = {
   unstakeMutation: UseMutationResult<string | undefined, Error, void, unknown>
   isUnstakeTxPending: boolean
   isGetUnstakeFeesEnabled: boolean
-  userStakingBalanceOfQuery: UseQueryResult<string | undefined, Error>
+  userStakingBalanceOfQuery: UseQueryResult<string, Error>
   newContractBalanceOfQuery: UseQueryResult<string, Error>
   newShareOfPoolPercentage: string
 }

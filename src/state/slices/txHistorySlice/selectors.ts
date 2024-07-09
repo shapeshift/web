@@ -68,13 +68,10 @@ export const selectTxById = createCachedSelector(
 export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxIdsParam,
   selectTxs,
-  (txIds: TxId[], txs) => {
-    return txIds
-      .map((txId: TxId) => {
-        return { txId, date: txs[txId].blockTime }
-      })
-      .sort((a, b) => b.date - a.date)
-  },
+  (txIds: TxId[], txs) =>
+    txIds
+      .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
+      .sort((a, b) => b.date - a.date),
 )
 
 type TxHistoryPageFilter = {

@@ -175,6 +175,8 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
   REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY: bool({ default: false }),
+  REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY: bool({ default: true }),
+  REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS: str(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

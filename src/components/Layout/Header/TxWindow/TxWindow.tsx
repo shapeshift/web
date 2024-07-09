@@ -10,8 +10,6 @@ import {
   Flex,
   IconButton,
   Select,
-  Skeleton,
-  Stack,
   Tab,
   TabList,
   TabPanel,
@@ -56,16 +54,12 @@ export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => 
     return txIds.slice(0, Number(limit))
   }, [limit, txIds])
 
-  if (isAnyTxHistoryApiQueryPending && !limitTxIds.length)
-    return (
-      <Stack px={2} spacing={2}>
-        {new Array(2).fill(null).map((_, i) => (
-          <Skeleton key={i} height={16} />
-        ))}
-      </Stack>
-    )
+  const isLoading = useMemo(
+    () => isAnyTxHistoryApiQueryPending && !limitTxIds.length,
+    [isAnyTxHistoryApiQueryPending, limitTxIds.length],
+  )
 
-  if (limitTxIds.length === 0) {
+  if (!isLoading && limitTxIds.length === 0) {
     const translatedStatus = translate(`transactionRow.${txStatus.toLowerCase()}`)
     return (
       <RawText px={6} color='text.subtle'>
@@ -73,7 +67,7 @@ export const TxsByStatus: React.FC<TxsByStatusProps> = ({ txStatus, limit }) => 
       </RawText>
     )
   }
-  return <TransactionsGroupByDate txIds={limitTxIds} useCompactMode />
+  return <TransactionsGroupByDate txIds={limitTxIds} useCompactMode isLoading={isLoading} />
 }
 
 export const TxWindow = memo(() => {

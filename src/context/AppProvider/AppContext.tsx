@@ -1,12 +1,16 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
+import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
+import dayjs from 'dayjs'
 import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -40,7 +44,7 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
@@ -226,6 +230,56 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ;(async () => {
       if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
+
+      if (getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY) {
+        const runeAddress = getConfig().REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS
+        const accountId = toAccountId({ chainId: thorchainChainId, account: runeAddress })
+        const mockRfoxRewardTxs = {
+          [accountId]: [
+            {
+              address: runeAddress,
+              blockHeight: 123456789,
+              blockTime: dayjs('2024-06-01T00:00:00Z').unix(),
+              chainId: thorchainChainId,
+              confirmations: 999,
+              status: TxStatus.Confirmed,
+              txid: 'mock-123',
+              pubkey: runeAddress,
+              transfers: [
+                {
+                  from: [DAO_TREASURY_THORCHAIN],
+                  to: [runeAddress],
+                  value: '123412341234',
+                  type: TransferType.Receive,
+                  totalValue: '123412341234',
+                  assetId: thorchainAssetId,
+                },
+              ],
+            },
+            {
+              address: runeAddress,
+              blockHeight: 113456789,
+              blockTime: dayjs('2024-05-01T00:00:00Z').unix(),
+              chainId: thorchainChainId,
+              confirmations: 999,
+              status: TxStatus.Confirmed,
+              txid: 'mock-321',
+              pubkey: runeAddress,
+              transfers: [
+                {
+                  from: [DAO_TREASURY_THORCHAIN],
+                  to: [runeAddress],
+                  value: '43214321',
+                  type: TransferType.Receive,
+                  totalValue: '43214321',
+                  assetId: thorchainAssetId,
+                },
+              ],
+            },
+          ],
+        }
+        await dispatch(txHistory.actions.upsertTxsByAccountId(mockRfoxRewardTxs))
+      }
 
       const { getAllTxHistory } = txHistoryApi.endpoints
 

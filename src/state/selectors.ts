@@ -32,6 +32,8 @@ type ParamFilter = Partial<{
   contractAddress: string
   assetId: AssetId
   accountId: AccountId
+  accountIds: AccountId[]
+  from: string
   validatorId: ValidatorId
   accountNumber: number
   chainId: ChainId
@@ -65,6 +67,8 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
   )
 
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
+export const selectAccountIdsParamFromFilter = selectParamFromFilter('accountIds')
+export const selectFromParamFromFilter = selectParamFromFilter('from')
 export const selectAccountNumberParamFromFilter = selectParamFromFilter('accountNumber')
 export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')

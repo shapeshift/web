@@ -1,10 +1,10 @@
-import type { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import dayjs from 'dayjs'
-import type { GetBlockReturnType, GetFilterLogsReturnType } from 'viem'
+import type { GetBlockReturnType } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { describe, expect, it, vi } from 'vitest'
 import { viemClientByNetworkId } from 'lib/viem-client'
 
+import type { RFOXAccountLog } from '../types'
 import { getTimeInPoolSeconds } from './useTimeInPoolQuery'
 
 vi.mock('lib/viem-client', () => {
@@ -19,7 +19,7 @@ vi.mock('lib/viem-client', () => {
 
 describe('getTimeInPoolSeconds', () => {
   it('returns 0n if there are no logs', async () => {
-    const logs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'> = []
+    const logs: RFOXAccountLog[] = []
     const result = await getTimeInPoolSeconds(logs)
     expect(result).toBe(0n)
   })
@@ -36,7 +36,7 @@ describe('getTimeInPoolSeconds', () => {
         args: { amount: 2000000000000000000n },
         blockNumber: 150n,
       },
-    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
+    ] as RFOXAccountLog[]
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>
@@ -48,7 +48,7 @@ describe('getTimeInPoolSeconds', () => {
   })
 
   it('calculates time correctly when Stake, balance goes to zero after Unstake, then Stake again', async () => {
-    const logs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'> = [
+    const logs: RFOXAccountLog[] = [
       {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
@@ -64,7 +64,7 @@ describe('getTimeInPoolSeconds', () => {
         args: { amount: 1000000000000000000n },
         blockNumber: 200n,
       },
-    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
+    ] as RFOXAccountLog[]
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>
@@ -76,7 +76,7 @@ describe('getTimeInPoolSeconds', () => {
   })
 
   it('calculates time correctly when balance reaches zero', async () => {
-    const logs: GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'> = [
+    const logs: RFOXAccountLog[] = [
       {
         eventName: 'Stake',
         args: { amount: 1000000000000000000n },
@@ -87,7 +87,7 @@ describe('getTimeInPoolSeconds', () => {
         args: { amount: 1000000000000000000n },
         blockNumber: 150n,
       },
-    ] as GetFilterLogsReturnType<typeof foxStakingV1Abi, 'Stake' | 'Unstake'>
+    ] as RFOXAccountLog[]
 
     vi.mocked(viemClientByNetworkId[arbitrum.id].getBlock).mockImplementationOnce(() => {
       return { timestamp: 1625097600 } as unknown as Promise<GetBlockReturnType>

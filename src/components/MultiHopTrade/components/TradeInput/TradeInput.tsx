@@ -1,10 +1,6 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
 import {
-  Alert,
-  AlertIcon,
-  Button,
   Card,
-  CardFooter,
   CardHeader,
   Center,
   CircularProgress,
@@ -15,22 +11,12 @@ import {
   Stack,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import {
-  DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  SwapperName,
-  swappers,
-} from '@shapeshiftoss/swapper'
-import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { type Asset } from '@shapeshiftoss/types'
-import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -42,20 +28,15 @@ import {
 } from 'components/Acknowledgement/Acknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
-import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
-import { ManualAddressEntry } from 'components/MultiHopTrade/components/TradeInput/components/ManualAddressEntry'
-import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/components/ReceiveSummary'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -68,33 +49,22 @@ import { isKeplrHDWallet, isToken } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
-  selectFeeAssetById,
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
-  selectManualReceiveAddressIsEditing,
-  selectManualReceiveAddressIsValid,
-  selectManualReceiveAddressIsValidating,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
-  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
-  selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
-  selectTotalNetworkFeeUserCurrencyPrecision,
-  selectTotalProtocolFeeByAsset,
-  selectTradeQuoteRequestErrors,
-  selectTradeQuoteResponseErrors,
-  selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -103,12 +73,10 @@ import { breakpoints } from 'theme/theme'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { FakeTabHeader } from '../FakeTabHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
-import { RecipientAddress } from './components/RecipientAddress'
+import { ConfirmSummary } from './components/ConfirmSummary'
 import { SellAssetInput } from './components/SellAssetInput'
 import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
 import { WithLazyMount } from './components/WithLazyMount'
-import { getQuoteErrorTranslation } from './getQuoteErrorTranslation'
-import { getQuoteRequestErrorTranslation } from './getQuoteRequestErrorTranslation'
 import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
@@ -149,9 +117,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const sellAssetSearch = useModal('sellTradeAssetSearch')
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
-  const buyAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetById(state, buyAsset?.assetId ?? ''),
-  )
+
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
     if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
@@ -162,52 +128,13 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
 
   const tradeQuoteStep = useAppSelector(selectFirstHop)
-  const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
-  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
-  const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
-  const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
-  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
-  const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
-  const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-
-  const quoteStatusTranslation = useMemo(() => {
-    const quoteRequestError = quoteRequestErrors[0]
-    const quoteResponseError = quoteResponseErrors[0]
-    const tradeQuoteError = activeQuoteErrors?.[0]
-    switch (true) {
-      case !isAnyTradeQuoteLoaded:
-      case !hasUserEnteredAmount:
-        return 'trade.previewTrade'
-      case !!quoteRequestError:
-        return getQuoteRequestErrorTranslation(quoteRequestError)
-      case !!quoteResponseError:
-        return getQuoteRequestErrorTranslation(quoteResponseError)
-      case !!tradeQuoteError:
-        return getQuoteErrorTranslation(tradeQuoteError!)
-      case !isConnected || isDemoWallet:
-        // We got a happy path quote, but we may still be in the context of the demo wallet
-        return 'common.connectWallet'
-      default:
-        return 'trade.previewTrade'
-    }
-  }, [
-    quoteRequestErrors,
-    quoteResponseErrors,
-    activeQuoteErrors,
-    isAnyTradeQuoteLoaded,
-    hasUserEnteredAmount,
-    isConnected,
-    isDemoWallet,
-  ])
 
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
@@ -235,7 +162,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
 
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const rate = activeQuote?.rate
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
 
@@ -256,12 +182,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     setBuyAssetAccountId,
   } = useAccountIds()
 
-  const userAddress = useMemo(() => {
-    if (!initialSellAssetAccountId) return ''
-
-    return fromAccountId(initialSellAssetAccountId).account
-  }, [initialSellAssetAccountId])
-
   const useReceiveAddressArgs = useMemo(
     () => ({
       fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
@@ -270,36 +190,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   )
 
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
-
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
-
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '')
-
-  const disableSmartContractSwap = useMemo(() => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (activeSwapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress !== false) return true
-    if (
-      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
-        tradeQuoteStep?.source!,
-      ) &&
-      _isSmartContractReceiveAddress !== false
-    )
-      return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [
-    _isSmartContractReceiveAddress,
-    _isSmartContractSellAddress,
-    activeSwapperName,
-    tradeQuoteStep?.source,
-  ])
 
   const isRefetching = useMemo(
     () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
@@ -310,8 +200,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     () =>
       (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
-      isSellAddressByteCodeLoading ||
-      isReceiveAddressByteCodeLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -320,8 +208,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       isAnyTradeQuoteLoaded,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
-      isSellAddressByteCodeLoading,
-      isReceiveAddressByteCodeLoading,
       isVotingPowerLoading,
     ],
   )
@@ -345,10 +231,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       title: 'trade.tradeTo',
     })
   }, [buyAssetSearch, setBuyAsset])
-
-  const buyAmountBeforeFeesCryptoPrecision = useAppSelector(
-    selectBuyAmountBeforeFeesCryptoPrecision,
-  )
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -409,184 +291,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
 
-  const quoteHasError = useMemo(() => {
-    if (!isAnyTradeQuoteLoaded) return false
-    return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
-
-  const shouldDisablePreviewButton = useMemo(() => {
-    return (
-      // don't allow executing a quote with errors
-      quoteHasError ||
-      // don't execute trades while address is validating
-      manualReceiveAddressIsValidating ||
-      manualReceiveAddressIsEditing ||
-      manualReceiveAddressIsValid === false ||
-      // don't execute trades while in loading state
-      isLoading ||
-      // don't execute trades for smart contract addresses where they aren't supported
-      disableSmartContractSwap ||
-      // don't allow non-existent quotes to be executed
-      !activeSwapperName ||
-      !activeQuote ||
-      !hasUserEnteredAmount ||
-      // don't allow users to execute trades while the quote is being updated
-      isTradeQuoteApiQueryPending[activeSwapperName] ||
-      // don't allow users to proceed until a swapper has been selected
-      !activeSwapperName
-    )
-  }, [
-    quoteHasError,
-    manualReceiveAddressIsValidating,
-    manualReceiveAddressIsEditing,
-    manualReceiveAddressIsValid,
-    isLoading,
-    disableSmartContractSwap,
-    activeSwapperName,
-    activeQuote,
-    hasUserEnteredAmount,
-    isTradeQuoteApiQueryPending,
-  ])
-
-  const handleOpenCompactQuoteList = useCallback(() => {
-    if (!isCompact && !isSmallerThanXl) return
-    history.push({ pathname: TradeRoutePaths.QuoteList })
-  }, [history, isCompact, isSmallerThanXl])
-
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
-
-  const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
-    useMemo(() => {
-      if (!buyAssetFeeAsset) return
-      // TODO(gomes): Bring me in for all bridges?
-      const isArbitrumBridgeDeposit =
-        (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
-
-      if (isArbitrumBridgeDeposit)
-        return [
-          'bridge.nativeAssetWarning',
-          {
-            destinationSymbol: buyAssetFeeAsset.symbol,
-            destinationChainName: buyAssetFeeAsset.networkName,
-          },
-        ]
-    }, [activeQuote, buyAssetFeeAsset])
-
-  const shouldForceManualAddressEntry = useMemo(() => {
-    return Boolean(_isSmartContractSellAddress) && sellAsset?.chainId !== buyAsset.chainId
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
-
-  const ConfirmSummary: JSX.Element = useMemo(
-    () => (
-      <>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={0}
-          py={0}
-        >
-          {hasUserEnteredAmount && (
-            <RateGasRow
-              sellSymbol={sellAsset.symbol}
-              buySymbol={buyAsset.symbol}
-              gasFee={totalNetworkFeeFiatPrecision ?? 'unknown'}
-              rate={rate}
-              isLoading={isLoading}
-              swapperName={activeSwapperName}
-              swapSource={tradeQuoteStep?.source}
-              onRateClick={handleOpenCompactQuoteList}
-              allowSelectQuote={Boolean(isSmallerThanXl || isCompact)}
-            >
-              <ReceiveSummary
-                isLoading={isLoading}
-                symbol={buyAsset.symbol}
-                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-                amountBeforeFeesCryptoPrecision={buyAmountBeforeFeesCryptoPrecision}
-                protocolFees={totalProtocolFees}
-                slippageDecimalPercentage={slippageDecimal}
-                swapperName={activeSwapperName ?? ''}
-                defaultIsOpen={true}
-                swapSource={tradeQuoteStep?.source}
-                priceImpact={priceImpactPercentage}
-              />
-            </RateGasRow>
-          )}
-        </CardFooter>
-        <CardFooter
-          borderTopWidth={1}
-          borderColor='border.subtle'
-          flexDir='column'
-          gap={4}
-          px={6}
-          bg='background.surface.raised.accent'
-          borderBottomRadius='xl'
-        >
-          {nativeAssetBridgeWarning && (
-            <Alert status='info' borderRadius='lg'>
-              <AlertIcon />
-              <Text translation={nativeAssetBridgeWarning} />
-            </Alert>
-          )}
-          <WithLazyMount
-            shouldUse={Boolean(receiveAddress) && !shouldForceManualAddressEntry}
-            component={RecipientAddress}
-          />
-          <WithLazyMount
-            shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry}
-            shouldForceManualAddressEntry={shouldForceManualAddressEntry}
-            component={ManualAddressEntry}
-            description={
-              shouldForceManualAddressEntry
-                ? translate('trade.smartContractReceiveAddressDescription', {
-                    chainName: buyAssetFeeAsset?.networkName,
-                  })
-                : undefined
-            }
-          />
-
-          <Button
-            type='submit'
-            colorScheme={quoteHasError ? 'red' : 'blue'}
-            size='lg-multiline'
-            data-test='trade-form-preview-button'
-            isDisabled={shouldDisablePreviewButton}
-            mx={-2}
-          >
-            <Text translation={quoteStatusTranslation} />
-          </Button>
-        </CardFooter>
-      </>
-    ),
-    [
-      hasUserEnteredAmount,
-      sellAsset.symbol,
-      buyAsset.symbol,
-      totalNetworkFeeFiatPrecision,
-      rate,
-      isLoading,
-      activeSwapperName,
-      tradeQuoteStep?.source,
-      handleOpenCompactQuoteList,
-      isSmallerThanXl,
-      isCompact,
-      buyAmountAfterFeesCryptoPrecision,
-      buyAmountBeforeFeesCryptoPrecision,
-      totalProtocolFees,
-      slippageDecimal,
-      priceImpactPercentage,
-      nativeAssetBridgeWarning,
-      receiveAddress,
-      walletSupportsBuyAssetChain,
-      quoteHasError,
-      shouldDisablePreviewButton,
-      quoteStatusTranslation,
-      buyAssetFeeAsset,
-      translate,
-      shouldForceManualAddressEntry,
-    ],
-  )
 
   const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
     if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
@@ -782,7 +487,12 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                           priceImpactPercentage={priceImpactPercentage?.toString()}
                         />
                       </Stack>
-                      {ConfirmSummary}
+                      <ConfirmSummary
+                        isCompact={isCompact}
+                        isLoading={isLoading}
+                        initialSellAssetAccountId={initialSellAssetAccountId}
+                        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+                      />
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>

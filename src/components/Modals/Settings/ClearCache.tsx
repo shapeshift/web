@@ -17,6 +17,7 @@ import { useHistory } from 'react-router-dom'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { reloadWebview } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 import { selectWalletAccountIds } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -58,10 +59,13 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
   const requestedAccountIds = useAppSelector(selectWalletAccountIds)
   const translate = useTranslate()
   const history = useHistory()
+  const { disconnect } = useWallet()
   const { goBack } = history
 
   const handleClearCacheClick = useCallback(async () => {
     try {
+      // First disconnect the wallet so the mobile users won't be asked for a password
+      disconnect()
       // clear store
       await persistor.purge()
       // send them back to the connect wallet route in case the bug was something to do with the current page
@@ -70,7 +74,7 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}
-  }, [appHistory])
+  }, [appHistory, disconnect])
 
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())

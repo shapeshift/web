@@ -273,10 +273,10 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
   const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, sellAsset.chainId)
+    useIsSmartContractAddress(userAddress)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
+    useIsSmartContractAddress(receiveAddress ?? '')
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation

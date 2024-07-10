@@ -10,6 +10,7 @@ import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
+import { ClaimStatus } from 'components/ClaimRow/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
@@ -21,7 +22,7 @@ import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from './ClaimRow'
 import type { RfoxClaimQuote } from './types'
-import { ClaimRoutePaths, type ClaimRouteProps, ClaimStatus } from './types'
+import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
@@ -132,7 +133,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.NotYetAvailable
       return (
         <ClaimRow
           stakingAssetId={stakingAssetId}

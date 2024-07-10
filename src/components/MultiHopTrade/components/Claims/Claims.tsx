@@ -5,7 +5,7 @@ import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 
-import { FakeTabHeader } from '../FakeTabHeader'
+import { TradeInputHeader } from '../TradeInput/components/TradeInputHeader'
 
 export const Claims = (props: CardProps) => {
   const history = useHistory()
@@ -19,7 +19,7 @@ export const Claims = (props: CardProps) => {
         <Center width='inherit'>
           <Card {...props}>
             <CardHeader px={6}>
-              <FakeTabHeader onClickTrade={handleClickTrade} />
+              <TradeInputHeader onClickTrade={handleClickTrade} />
             </CardHeader>
           </Card>
         </Center>

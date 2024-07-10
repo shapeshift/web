@@ -1,6 +1,5 @@
-import { Card, CardHeader, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -13,11 +12,10 @@ import {
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
-import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -27,11 +25,9 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { selectHasUserEnteredAmount, selectInputSellAsset } from 'state/slices/selectors'
 import {
   selectActiveQuote,
-  selectActiveSwapperName,
   selectFirstHop,
   selectIsAnyTradeQuoteLoaded,
   selectIsTradeQuoteRequestAborted,
@@ -42,17 +38,16 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { FakeTabHeader } from '../FakeTabHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeInputBody } from './components/TradeInputBody'
-import { CountdownSpinner } from './components/TradeQuotes/components/CountdownSpinner'
+import { TradeInputHeader } from './components/TradeInputHeader'
 import { WithLazyMount } from './components/WithLazyMount'
 import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
-const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD = 1_000 * 60 * 5
+const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 
 type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
@@ -71,6 +66,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const [selectedTab, setSelectedTab] = useState<TradeInputTab>(TradeInputTab.Trade)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
@@ -82,20 +78,14 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+
   const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const activeQuote = useAppSelector(selectActiveQuote)
 
-  const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-
-  const pollingInterval = useMemo(() => {
-    if (!activeSwapperName) return DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-    return swappers[activeSwapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-  }, [activeSwapperName])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -117,11 +107,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   )
 
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-
-  const isRefetching = useMemo(
-    () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
-    [activeSwapperName, isTradeQuoteApiQueryPending],
-  )
 
   const isLoading = useMemo(
     () =>
@@ -204,10 +189,10 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
 
-  const isEstimatedExecutionTimeOverTreshold = useMemo(() => {
+  const isEstimatedExecutionTimeOverThreshold = useMemo(() => {
     if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
 
-    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_TRESHOLD)
+    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
       return true
 
     return false
@@ -217,22 +202,22 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
-    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
       return setShouldShowStreamingAcknowledgement(true)
     if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
-  }, [activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
+  }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
 
   const handleTradeQuoteConfirm = useCallback(() => {
     if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
-    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverTreshold)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
       return setShouldShowStreamingAcknowledgement(true)
     if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
 
     handleFormSubmit()
-  }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverTreshold, handleFormSubmit])
+  }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
 
   const warningAcknowledgementMessage = (() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
@@ -248,10 +233,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     })
     return message
   })()
-
-  const handleClickClaims = useCallback(() => {
-    // TODO: Implement claims
-  }, [])
 
   return (
     <TradeSlideTransition>
@@ -285,34 +266,30 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                     setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
                   >
                     <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                      <CardHeader px={6}>
-                        <Flex alignItems='center' justifyContent='space-between'>
-                          <FakeTabHeader onClickClaims={handleClickClaims} />
-                          <Flex gap={2} alignItems='center'>
-                            {activeQuote && (isCompact || isSmallerThanXl) && (
-                              <CountdownSpinner
-                                isLoading={isLoading || isRefetching}
-                                initialTimeMs={pollingInterval}
-                              />
-                            )}
-                            <SlippagePopover />
-                          </Flex>
-                        </Flex>
-                      </CardHeader>
-                      <TradeInputBody
+                      <TradeInputHeader
+                        initialTab={selectedTab}
+                        onChangeTab={setSelectedTab}
                         isLoading={isLoading}
-                        manualReceiveAddress={manualReceiveAddress}
-                        initialSellAssetAccountId={initialSellAssetAccountId}
-                        initialBuyAssetAccountId={initialBuyAssetAccountId}
-                        setSellAssetAccountId={setSellAssetAccountId}
-                        setBuyAssetAccountId={setBuyAssetAccountId}
-                      />
-                      <ConfirmSummary
                         isCompact={isCompact}
-                        isLoading={isLoading}
-                        initialSellAssetAccountId={initialSellAssetAccountId}
-                        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
                       />
+                      {selectedTab === TradeInputTab.Trade && (
+                        <>
+                          <TradeInputBody
+                            isLoading={isLoading}
+                            manualReceiveAddress={manualReceiveAddress}
+                            initialSellAssetAccountId={initialSellAssetAccountId}
+                            initialBuyAssetAccountId={initialBuyAssetAccountId}
+                            setSellAssetAccountId={setSellAssetAccountId}
+                            setBuyAssetAccountId={setBuyAssetAccountId}
+                          />
+                          <ConfirmSummary
+                            isCompact={isCompact}
+                            isLoading={isLoading}
+                            initialSellAssetAccountId={initialSellAssetAccountId}
+                            receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+                          />
+                        </>
+                      )}
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>

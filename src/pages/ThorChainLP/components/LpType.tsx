@@ -1,9 +1,10 @@
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
+import { Box, Flex, HStack, Tooltip, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
+import { useTranslate } from 'react-polyglot'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
@@ -88,12 +89,9 @@ type DepositTypeProps = {
   side?: AsymSide | 'sym'
 }
 
-export const LpType = ({
-  assetId,
-  opportunityId,
-  side = 'sym',
-  onAsymSideChange,
-}: DepositTypeProps) => {
+export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: DepositTypeProps) => {
+  const translate = useTranslate()
+
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
       switch (value) {
@@ -110,7 +108,8 @@ export const LpType = ({
     [assetId],
   )
 
-  const defaultSide = opportunityId ? fromOpportunityId(opportunityId).type : side
+  const opportunityType = opportunityId ? fromOpportunityId(opportunityId).type : side
+  const defaultSide = opportunityType ?? side
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
@@ -128,21 +127,31 @@ export const LpType = ({
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
 
+      const isDisabled = !!side && opportunityType !== 'sym' && option.value === 'sym'
+
       return (
-        <TypeRadio key={`type-${index}`} {...radio}>
-          <PoolIcon assetIds={optionAssetIds} size='xs' />
-          <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
-            <TypeLabel assetIds={optionAssetIds} />
-            {optionAssetIds.length === 1 && (
-              <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
-                <BiSolidBoltCircle />
-              </Box>
-            )}
-          </Flex>
+        <TypeRadio {...radio} isDisabled={isDisabled}>
+          <Tooltip
+            key={`type-${index}`}
+            isDisabled={!isDisabled}
+            label={translate('pools.symWithdrawOnAsymPositionAlert')}
+          >
+            <Box>
+              <PoolIcon assetIds={optionAssetIds} size='xs' />
+              <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
+                <TypeLabel assetIds={optionAssetIds} />
+                {optionAssetIds.length === 1 && (
+                  <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
+                    <BiSolidBoltCircle />
+                  </Box>
+                )}
+              </Flex>
+            </Box>
+          </Tooltip>
         </TypeRadio>
       )
     })
-  }, [getRadioProps, makeAssetIdsOption])
+  }, [getRadioProps, makeAssetIdsOption, side, opportunityType, translate])
 
   const group = getRootProps()
   return (

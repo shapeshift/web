@@ -967,6 +967,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             </FormLabel>
             <LpType
               assetId={poolAsset.assetId}
+              opportunityId={opportunityId}
               side={fromOpportunityId(opportunityId).type}
               onAsymSideChange={handleAsymSideChange}
             />

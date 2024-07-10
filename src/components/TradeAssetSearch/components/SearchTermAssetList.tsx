@@ -1,4 +1,4 @@
-import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
@@ -39,10 +39,10 @@ export const SearchTermAssetList = ({
     () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
     [activeChainId, walletConnectedChainIds],
   )
-  const evmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
+  const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds: evmChainIds,
+    chainIds: walletSupportedEvmChainIds,
   })
 
   const assetsForChain = useMemo(() => {
@@ -68,7 +68,8 @@ export const SearchTermAssetList = ({
               if (!name || !symbol || !decimals) return null
               const assetId = toAssetId({
                 chainId: metaData.chainId,
-                assetNamespace: ASSET_NAMESPACE.erc20, // Update me if we ever support other custom token chains like BSC
+                assetNamespace:
+                  metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
                 assetReference: metaData.contractAddress,
               })
               const minimalAsset: MinimalAsset = {

@@ -1,4 +1,5 @@
 import { ASSET_NAMESPACE, type ChainId, toAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
@@ -34,10 +35,14 @@ export const SearchTermAssetList = ({
   const assets = useAppSelector(selectAssetsSortedByName)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-  const chainIds = activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]
+  const chainIds = useMemo(
+    () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
+    [activeChainId, walletConnectedChainIds],
+  )
+  const evmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds,
+    chainIds: evmChainIds,
   })
 
   const assetsForChain = useMemo(() => {
@@ -86,7 +91,7 @@ export const SearchTermAssetList = ({
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
 
-    return [...filteredAssets, ...uniqueCustomAssets]
+    return filteredAssets.concat(uniqueCustomAssets)
   }, [assetsForChain, customAssets, searchString])
 
   const { groups, groupCounts, groupIsLoading } = useMemo(() => {

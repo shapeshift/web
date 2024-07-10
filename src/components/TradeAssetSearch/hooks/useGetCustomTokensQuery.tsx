@@ -1,7 +1,7 @@
 import { type ChainId } from '@shapeshiftoss/caip'
 import { useQueries, type UseQueryResult } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
 import { isAddress } from 'viem'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -42,19 +42,25 @@ export const useGetCustomTokensQuery = ({
     [contractAddress],
   )
 
+  const isValidEvmAddress = useMemo(
+    () => isAddress(contractAddress, { strict: false }),
+    [contractAddress],
+  )
+
   const getQueryFn = useCallback(
-    (chainId: ChainId) => () =>
-      isAddress(contractAddress, { strict: false }) ? getTokenMetadata(chainId) : null,
-    [contractAddress, getTokenMetadata],
+    (chainId: ChainId) => () => getTokenMetadata(chainId),
+    [getTokenMetadata],
   )
 
   const customTokenQueries = useQueries({
-    queries: chainIds.map(chainId => ({
-      queryKey: getCustomTokenQueryKey(contractAddress, chainId),
-      queryFn: getQueryFn(chainId),
-      enabled: customTokenImportEnabled,
-      staleTime: Infinity,
-    })),
+    queries: isValidEvmAddress
+      ? chainIds.map(chainId => ({
+          queryKey: getCustomTokenQueryKey(contractAddress, chainId),
+          queryFn: getQueryFn(chainId),
+          enabled: customTokenImportEnabled,
+          staleTime: Infinity,
+        }))
+      : [],
     combine: queries => mergeQueryOutputs(queries, results => results),
   })
 

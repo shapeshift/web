@@ -35,7 +35,9 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
 const ethersProviders: Map<ChainId, JsonRpcProvider> = new Map()
 const ethersV5Providers: Map<ChainId, ethersV5.providers.StaticJsonRpcProvider> = new Map()
 
-export const getEthersProvider = (chainId: EvmChainId): JsonRpcProvider => {
+export const getEthersProvider = (
+  chainId: EvmChainId = KnownChainIds.EthereumMainnet,
+): JsonRpcProvider => {
   if (!ethersProviders.has(chainId)) {
     const provider = new JsonRpcProvider(rpcUrlByChainId(chainId), undefined, {
       staticNetwork: true,

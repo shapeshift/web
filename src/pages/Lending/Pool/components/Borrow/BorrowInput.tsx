@@ -358,7 +358,7 @@ export const BorrowInput = ({
   }, [collateralAccountId])
 
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, borrowAsset?.chainId ?? '')
+    useIsSmartContractAddress(userAddress)
 
   const disableSmartContractDeposit = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm

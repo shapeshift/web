@@ -37,7 +37,7 @@ import { calculateAPRFromToken0 } from './utils'
 
 let _blockNumber: number | null = null
 const getBlockNumber = async () => {
-  const ethersProvider = getEthersProvider(KnownChainIds.EthereumMainnet)
+  const ethersProvider = getEthersProvider()
   if (_blockNumber) return _blockNumber
   const blockNumber = await ethersProvider.getBlockNumber()
   _blockNumber = blockNumber

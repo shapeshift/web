@@ -1,8 +1,8 @@
-import { Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -38,6 +38,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { Claims } from './components/Claims/Claims'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeInputBody } from './components/TradeInputBody'
@@ -59,7 +60,8 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const height = useSharedHeight(tradeInputRef)
+  const bodyRef = useRef<HTMLDivElement | null>(null)
+  const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
@@ -273,7 +275,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                         isCompact={isCompact}
                       />
                       {selectedTab === TradeInputTab.Trade && (
-                        <>
+                        <Box ref={bodyRef}>
                           <TradeInputBody
                             isLoading={isLoading}
                             manualReceiveAddress={manualReceiveAddress}
@@ -288,8 +290,9 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                             initialSellAssetAccountId={initialSellAssetAccountId}
                             receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
                           />
-                        </>
+                        </Box>
                       )}
+                      {selectedTab === TradeInputTab.Claim && <Claims />}
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>
@@ -302,7 +305,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              height={height ?? 'full'}
+              height={totalHeight ?? 'full'}
               ml={4}
             />
           </Center>

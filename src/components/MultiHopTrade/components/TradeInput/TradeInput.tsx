@@ -289,8 +289,11 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, sellAsset.chainId)
+  const {
+    data: _isSmartContractSellAddress,
+    isLoading: isSellAddressByteCodeLoading,
+    isFetching: isSellAddressByteCodeFetching,
+  } = useIsSmartContractAddress(userAddress, sellAsset.chainId)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
@@ -300,7 +303,12 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     if (activeSwapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress !== false) return true
+    if (
+      _isSmartContractSellAddress ||
+      isSellAddressByteCodeLoading ||
+      isSellAddressByteCodeFetching
+    )
+      return true
     if (
       [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
         tradeQuoteStep?.source!,
@@ -316,6 +324,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     _isSmartContractSellAddress,
     activeSwapperName,
     tradeQuoteStep?.source,
+    isSellAddressByteCodeLoading,
+    isSellAddressByteCodeFetching,
   ])
 
   const isRefetching = useMemo(
@@ -448,9 +458,7 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       !activeQuote ||
       !hasUserEnteredAmount ||
       // don't allow users to execute trades while the quote is being updated
-      isTradeQuoteApiQueryPending[activeSwapperName] ||
-      // don't allow users to proceed until a swapper has been selected
-      !activeSwapperName
+      isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
     quoteHasError,

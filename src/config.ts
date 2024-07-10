@@ -94,6 +94,7 @@ const validators = {
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW: bool({ default: false }),
+  REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT: bool({ default: false }),
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),

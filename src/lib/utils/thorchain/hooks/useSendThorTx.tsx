@@ -168,29 +168,10 @@ export const useSendThorTx = ({
   ])
 
   const estimateFeesArgs = useMemo(() => {
-    console.log({
-      accountId: !accountId,
-      asset,
-      assetId,
-      feeAsset,
-      memo,
-      transactionType,
-      wallet,
-    })
     if (!accountId || !asset || !assetId || !feeAsset || !memo || !transactionType || !wallet)
       return
 
     const { account } = fromAccountId(accountId)
-
-    console.log({
-      accountId: !accountId,
-      asset,
-      assetId,
-      feeAsset,
-      memo,
-      transactionType,
-      wallet,
-    })
 
     switch (transactionType) {
       case 'MsgDeposit': {

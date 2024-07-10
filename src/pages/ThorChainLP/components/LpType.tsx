@@ -85,9 +85,15 @@ type DepositTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
   opportunityId?: string
+  side?: AsymSide | 'sym'
 }
 
-export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositTypeProps) => {
+export const LpType = ({
+  assetId,
+  opportunityId,
+  side = 'sym',
+  onAsymSideChange,
+}: DepositTypeProps) => {
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
       switch (value) {
@@ -104,9 +110,11 @@ export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositType
     [assetId],
   )
 
+  const defaultSide = opportunityId ? fromOpportunityId(opportunityId).type : side
+
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: opportunityId ? fromOpportunityId(opportunityId).type : 'sym',
+    defaultValue: defaultSide,
     onChange: onAsymSideChange,
   })
 

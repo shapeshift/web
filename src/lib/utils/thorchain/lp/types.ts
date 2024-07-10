@@ -1,6 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { BN } from 'lib/bignumber/bignumber'
+import type { OpportunityType } from 'pages/ThorChainLP/utils'
 
 export type ThornodeLiquidityProvider = {
   asset: string
@@ -222,6 +223,7 @@ export type LpConfirmedWithdrawalQuote = {
   shareOfPoolDecimalPercent: string
   slippageFiatUserCurrency: string
   opportunityId: string
+  withdrawSide: OpportunityType
   currentAccountIdByChainId: Record<ChainId, AccountId>
   feeBps: string
   assetAddress: string | undefined

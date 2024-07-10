@@ -103,7 +103,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   )
 
   const runeAccountId = currentAccountIdByChainId[thorchainChainId]
-  console.log(currentAccountIdByChainId)
   const runeAccountFilter = useMemo(() => ({ accountId: runeAccountId }), [runeAccountId])
   const runeAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, runeAccountFilter),
@@ -169,18 +168,16 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     const pairedAddress = pairAssetAddress ?? ''
 
-    const unilateralDestinationAssetId = (() => {
+    const asymDestinationAssetId = (() => {
       if (isRuneTx && opportunityType !== 'sym') return thorchainAssetId
       if (!isRuneTx && opportunityType !== 'sym') return assetId
     })()
 
-    // assetIdToPoolAssetIdMap[]
-
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}${
-          unilateralDestinationAssetId
-            ? `:${assetIdToPoolAssetId({ assetId: unilateralDestinationAssetId })}`
+          asymDestinationAssetId
+            ? `:${assetIdToPoolAssetId({ assetId: asymDestinationAssetId })}`
             : ''
         }`
   }, [
@@ -192,8 +189,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     isRuneTx,
     assetId,
   ])
-
-  console.log(runeAccountId, 'runeAccountId')
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
@@ -303,13 +298,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     swapperName: SwapperName.Thorchain,
   })
 
-  console.log({
-    estimatedFeesData,
-    feeAsset,
-    txId,
-    isSubmitting,
-  })
-
   useEffect(() => {
     if (!estimatedFeesData || !feeAsset) return
     if (txId || isSubmitting) return
@@ -415,13 +403,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   }, [status])
 
   if (!asset || !feeAsset) return null
-
-  console.log({
-    isInboundAddressLoading,
-    isTradingActiveLoading,
-    txFeeCryptoPrecision: !Boolean(txFeeCryptoPrecision),
-    isSubmitting,
-  })
 
   return (
     <Card>

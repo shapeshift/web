@@ -450,16 +450,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [missingBalanceForGasCryptoPrecision, feeAsset.symbol],
   )
 
-  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, chainId)
+  const {
+    data: _isSmartContractAddress,
+    isLoading: isAddressByteCodeLoading,
+    isFetching: isAddressByteCodeFetching,
+  } = useIsSmartContractAddress(userAddress, chainId)
 
   const disableSmartContractWithdraw = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
+    if (_isSmartContractAddress || isAddressByteCodeLoading || isAddressByteCodeFetching)
+      return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress])
+  }, [_isSmartContractAddress, isAddressByteCodeFetching, isAddressByteCodeLoading])
 
   const preFooter = useMemo(() => {
     if (!_isSmartContractAddress) return null
@@ -499,7 +503,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         !canWithdraw ||
         isTradingActive === false
       }
-      loading={quoteLoading || state.loading || !userAddress || isAddressByteCodeLoading}
+      loading={
+        quoteLoading ||
+        state.loading ||
+        !userAddress ||
+        isAddressByteCodeLoading ||
+        isAddressByteCodeFetching
+      }
       loadingText={translate('common.confirm')}
       onConfirm={handleConfirm}
     >

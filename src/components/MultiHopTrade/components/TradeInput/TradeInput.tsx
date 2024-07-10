@@ -295,8 +295,11 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     isFetching: isSellAddressByteCodeFetching,
   } = useIsSmartContractAddress(userAddress, sellAsset.chainId)
 
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
+  const {
+    data: _isSmartContractReceiveAddress,
+    isLoading: isReceiveAddressByteCodeLoading,
+    isFetching: isReceiveAddressByteCodeFetching,
+  } = useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
@@ -313,7 +316,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
         tradeQuoteStep?.source!,
       ) &&
-      _isSmartContractReceiveAddress !== false
+      (_isSmartContractReceiveAddress ||
+        isReceiveAddressByteCodeLoading ||
+        isReceiveAddressByteCodeFetching)
     )
       return true
 
@@ -326,6 +331,8 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
     tradeQuoteStep?.source,
     isSellAddressByteCodeLoading,
     isSellAddressByteCodeFetching,
+    isReceiveAddressByteCodeLoading,
+    isReceiveAddressByteCodeFetching,
   ])
 
   const isRefetching = useMemo(
@@ -338,7 +345,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       isSellAddressByteCodeLoading ||
+      isSellAddressByteCodeFetching ||
       isReceiveAddressByteCodeLoading ||
+      isReceiveAddressByteCodeFetching ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -348,7 +357,9 @@ export const TradeInput = ({ isCompact }: TradeInputProps) => {
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isSellAddressByteCodeLoading,
+      isSellAddressByteCodeFetching,
       isReceiveAddressByteCodeLoading,
+      isReceiveAddressByteCodeFetching,
       isVotingPowerLoading,
     ],
   )

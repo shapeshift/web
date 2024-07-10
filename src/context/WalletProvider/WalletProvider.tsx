@@ -976,11 +976,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     })
   }, [])
 
-  useEffect(() => {
-    alert('is loading')
-
-    load()
-  }, [load, state.keyring])
+  useEffect(() => load(), [load, state.keyring])
 
   useKeyringEventHandler(state)
   useNativeEventHandler(state, dispatch)

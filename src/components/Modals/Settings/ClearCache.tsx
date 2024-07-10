@@ -64,8 +64,10 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
 
   const handleClearCacheClick = useCallback(async () => {
     try {
-      // First disconnect the wallet so the mobile users won't be asked for a password
-      disconnect()
+      // First disconnect the wallet so the mobile users won't be asked for a password because of the WalletProvider effects
+      if (isMobileApp) {
+        disconnect()
+      }
       // clear store
       await persistor.purge()
       // send them back to the connect wallet route in case the bug was something to do with the current page

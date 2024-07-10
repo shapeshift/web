@@ -1,7 +1,18 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Box, Center, Checkbox, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Center,
+  Checkbox,
+  Flex,
+  Link,
+  type ResponsiveValue,
+  Text,
+  useBreakpointValue,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type * as CSS from 'csstype'
 import { type PropsWithChildren, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -71,17 +82,24 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
 
   const checkboxTextColor = useColorModeValue('gray.800', 'gray.50')
   const backgroundColor = useColorModeValue('gray.100', 'darkNeutralAlpha.700')
+  const flexDirection: ResponsiveValue<CSS.Property.FlexDirection> | undefined = useBreakpointValue(
+    {
+      base: 'column',
+      sm: 'row',
+    },
+  )
+
   const CustomAssetRow: JSX.Element | null = useMemo(() => {
     if (!asset) return null
     return (
       <Flex
         borderRadius={'xl'}
-        padding={4}
+        px={4}
         justifyContent='space-between'
         alignItems='center'
-        height={20}
-        width='stretch'
+        width='100%'
         background={backgroundColor}
+        flexDirection={flexDirection}
       >
         <Flex gap={4} alignItems='center' padding={4}>
           <AssetIcon assetId={asset.assetId} size='sm' />
@@ -127,7 +145,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
         </Flex>
       </Flex>
     )
-  }, [asset, backgroundColor, color])
+  }, [asset, backgroundColor, color, flexDirection])
 
   const Content: JSX.Element = useMemo(
     () => (

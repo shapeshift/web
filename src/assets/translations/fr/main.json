@@ -2412,7 +2412,7 @@
     "rewards": "Récompenses",
     "claims": "Réclamations",
     "chainNotSupportedByWallet": "Chaîne non prise en charge par le porte-monnaie",
-    "changeAddress": "Adr. de change",
+    "changeAddress": "Changer d'adresse",
     "sameAddressNotAllowed": "Même adresse non autorisée",
     "stakingDetails": "Détails de mise",
     "stakeAmount": "Montant à miser",

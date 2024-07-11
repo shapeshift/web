@@ -6,8 +6,8 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
-import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { Row } from 'components/Row/Row'
+import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { markdownLinkToHTML } from 'lib/utils'
@@ -125,7 +125,7 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
           <Divider />
           <Flex gap={4} flexDir='column' px={8} py={6}>
             <Text translation='nft.description' fontWeight='medium' />
-            <ParsedHtml color='text.subtle' innerHtml={markdownLinkToHTML(description)} />
+            <SanitizedHtml color='text.subtle' dirtyHtml={markdownLinkToHTML(description)} />
           </Flex>
         </>
       )}

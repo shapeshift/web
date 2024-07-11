@@ -2,7 +2,6 @@ import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
-import { getConfig } from 'config'
 import { uniq } from 'lodash'
 import { useMemo } from 'react'
 import { Text } from 'components/Text'
@@ -58,24 +57,12 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   }, [uniqueHistoricalRuneAddresses, currentRuneAddress])
 
   const thorchainAccountIds = useMemo(() => {
-    return runeAddresses
-      .map(maybeRuneAddress => {
-        const isRfoxMockRewardsTxHistoryEnabled =
-          getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY
-
-        if (!isRfoxMockRewardsTxHistoryEnabled) return maybeRuneAddress
-
-        // backfill with mock rune address if enabled
-        const mockRfoxRewardsRuneAddress = getConfig().REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS
-        return maybeRuneAddress || mockRfoxRewardsRuneAddress
+    return runeAddresses.filter(isSome).map(runeAddress => {
+      return toAccountId({
+        chainId: thorchainChainId,
+        account: runeAddress as string,
       })
-      .filter(isSome)
-      .map(runeAddress => {
-        return toAccountId({
-          chainId: thorchainChainId,
-          account: runeAddress as string,
-        })
-      })
+    })
   }, [runeAddresses])
 
   const txIdsFilter = useMemo(() => {

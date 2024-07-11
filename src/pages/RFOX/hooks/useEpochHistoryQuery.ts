@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -14,10 +13,7 @@ import {
 
 type EpochHistoryQueryKey = ['epochHistory']
 
-// TEMP: This is a temporary hack to allow us to mock the rewards tx history for RFOX
-const RFOX_FIRST_EPOCH_START_TIMESTAMP = getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY
-  ? BigInt(dayjs('2024-07-01T00:00:00Z').subtract(3, 'months').startOf('month').unix())
-  : BigInt(dayjs('2024-07-01T00:00:00Z').unix())
+const RFOX_FIRST_EPOCH_START_TIMESTAMP = BigInt(dayjs('2024-07-01T00:00:00Z').unix())
 
 // This looks weird but isn't - "now" isn't now, it's "now" when this module was first evaluated
 // This allows all calculations against now to be consistent, since our current monkey patch subtracts 2 epochs (60 days) from the same "now"

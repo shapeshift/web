@@ -61,7 +61,6 @@ export type FeatureFlags = {
   RFOX: boolean
   RfoxRewardsTxHistory: boolean
   CustomTokenImport: boolean
-  RfoxMockRewardsTxHistory: boolean
   ArbitrumBridgeClaims: boolean
 }
 
@@ -149,7 +148,6 @@ const initialState: Preferences = {
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
     RfoxRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY,
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
-    RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
   },
   selectedLocale: simpleLocale(),

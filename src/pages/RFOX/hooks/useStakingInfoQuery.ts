@@ -1,5 +1,4 @@
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
@@ -57,18 +56,6 @@ export const getReadStakingInfoQueryFn = (
       functionName: 'stakingInfo',
       args: [getAddress(stakingAssetAccountAddress)],
       blockNumber,
-    }).catch(e => {
-      const isRfoxMockRewardsTxHistoryEnabled =
-        getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY
-
-      // Reverts are expected in the case the contract didnt exist at the blockNumber requested
-      // In the case of testing, return the would-be default solidty response for us to backfill with mock data
-      if (isRfoxMockRewardsTxHistoryEnabled) {
-        return [0n, 0n, 0n, 0n, ''] as AbiStakingInfo
-      }
-
-      // Otherwise, something is wrong so throw the error
-      throw e
     })
 }
 

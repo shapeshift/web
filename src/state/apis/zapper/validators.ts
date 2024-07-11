@@ -69,6 +69,7 @@ enum SupportedZapperNetworkIncludeUnsupported {
   Blast = 'blast',
   Degen = 'degen',
   ZkSync = 'zksync',
+  Solana = 'solana',
 }
 
 export const ZAPPER_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedZapperNetwork, ChainId> = {

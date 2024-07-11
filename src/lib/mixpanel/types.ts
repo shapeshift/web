@@ -60,6 +60,7 @@ export enum MixPanelEvent {
   LpIncompleteDepositConfirm = 'LP Incomplete Deposit Confirm',
   LpIncompleteWithdrawPreview = 'LP Incomplete Withdraw Preview',
   LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
+  CustomAssetAdded = 'Custom Asset Added',
 }
 
 export type TrackOpportunityProps = {

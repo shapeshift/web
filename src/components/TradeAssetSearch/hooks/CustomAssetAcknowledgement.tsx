@@ -19,6 +19,8 @@ import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgeme
 import { AssetIcon } from 'components/AssetIcon'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { middleEllipsis } from 'lib/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -65,6 +67,10 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
 
   const onImportClick = useCallback(() => {
     if (!asset) return
+
+    getMixPanel()?.track(MixPanelEvent.CustomAssetAdded, {
+      asset,
+    })
 
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))

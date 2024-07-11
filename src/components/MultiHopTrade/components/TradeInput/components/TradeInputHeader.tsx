@@ -3,6 +3,7 @@ import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshifto
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -62,6 +63,8 @@ export const TradeInputHeader = ({
   const translate = useTranslate()
   const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
 
+  const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
+
   const handleClickTrade = useCallback(() => {
     setSelectedTab(TradeInputTab.Trade)
     onChangeTab(TradeInputTab.Trade)
@@ -98,15 +101,17 @@ export const TradeInputHeader = ({
           >
             {translate('navBar.trade')}
           </Heading>
-          <Heading
-            as='h5'
-            fontSize='md'
-            color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
-            onClick={handleClickClaim}
-            cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
-          >
-            {translate('bridge.claims')}
-          </Heading>
+          {enableBridgeClaims && (
+            <Heading
+              as='h5'
+              fontSize='md'
+              color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
+              onClick={handleClickClaim}
+              cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+            >
+              {translate('bridge.claims')}
+            </Heading>
+          )}
         </Flex>
         <Flex gap={2} alignItems='center' height={6}>
           {rightComponent}

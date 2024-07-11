@@ -7,6 +7,7 @@ import { reactQueries } from 'react-queries'
 import { selectAllowanceCryptoBaseUnit } from 'react-queries/hooks/selectors'
 import type { GetAllowanceErr } from 'react-queries/types'
 import { usdtAssetId } from 'components/Modals/FiatRamps/config'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { selectRelatedAssetIdsInclusive } from 'state/slices/related-assets-selectors'
 import { useAppSelector } from 'state/store'
@@ -19,6 +20,7 @@ export const useIsApprovalNeeded = (
   const usdtAssetIds = useAppSelector(state =>
     selectRelatedAssetIdsInclusive(state, relatedAssetIdsFilter),
   )
+  const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
   const selectIsApprovalNeeded = useCallback(
     (data: Result<string, GetAllowanceErr>) => {
       if (tradeQuoteStep === undefined) return undefined
@@ -32,10 +34,16 @@ export const useIsApprovalNeeded = (
           : false
 
       const isAllowanceResetNeeded = (() => {
-        if (!usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId))
-          return false
-        if (bnOrZero(allowanceCryptoBaseUnit).isZero()) return false
-        return isApprovalNeeded
+        switch (true) {
+          case !isUsdtApprovalResetEnabled:
+            return false
+          case !usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId):
+            return false
+          case bnOrZero(allowanceCryptoBaseUnit).isZero():
+            return false
+          default:
+            return isApprovalNeeded
+        }
       })()
 
       return {
@@ -43,7 +51,7 @@ export const useIsApprovalNeeded = (
         isAllowanceResetNeeded,
       }
     },
-    [tradeQuoteStep, usdtAssetIds],
+    [tradeQuoteStep, usdtAssetIds, isUsdtApprovalResetEnabled],
   )
 
   const queryParams = useMemo(() => {

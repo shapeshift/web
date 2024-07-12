@@ -15,6 +15,7 @@ import {
 import { DialogTitle } from 'components/Modal/components/DialogTitle'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { WalletList } from 'pages/ConnectWallet/components/WalletList'
@@ -33,6 +34,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
   const translate = useTranslate()
   const settings = useModal('settings')
   const feedbackSupport = useModal('feedbackSupport')
+  const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const { dispatch, create, importWallet } = useWallet()
   const handleClickSettings = useCallback(() => {
     settings.open({})
@@ -88,7 +90,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
         </Stack>
       </DialogBody>
       <DialogFooter borderTopWidth={1} borderColor='border.base' pt={4} flexDir='column'>
-        <WalletConnectToDappsHeaderButton />
+        {isWalletConnectToDappsV2Enabled && <WalletConnectToDappsHeaderButton />}
         <MainNavLink
           size='sm'
           onClick={handleClickSettings}

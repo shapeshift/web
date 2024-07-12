@@ -1,5 +1,6 @@
 import { AddIcon, ArrowDownIcon, ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
+import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
@@ -87,6 +88,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
         </Stack>
       </DialogBody>
       <DialogFooter borderTopWidth={1} borderColor='border.base' pt={4} flexDir='column'>
+        <WalletConnectToDappsHeaderButton />
         <MainNavLink
           size='sm'
           onClick={handleClickSettings}

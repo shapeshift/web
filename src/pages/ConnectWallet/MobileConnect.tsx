@@ -26,13 +26,11 @@ import { SlideTransitionY } from 'components/SlideTransitionY'
 import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
-import { getWallet, listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { WalletCard } from './components/WalletCard'
+import { WalletList } from './components/WalletList'
 
 const containerStyles = { touchAction: 'none' }
 
@@ -67,8 +65,7 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { create, importWallet, dispatch, getAdapter } = useWallet()
-  const localWallet = useLocalWallet()
+  const { create, importWallet, dispatch } = useWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -106,53 +103,6 @@ export const MobileConnect = () => {
       })()
     }
   }, [wallets])
-
-  const handleWalletSelect = useCallback(
-    async (item: RevocableWallet) => {
-      const adapter = await getAdapter(KeyManager.Mobile)
-      const deviceId = item?.id
-      if (adapter && deviceId) {
-        const { name, icon } = MobileConfig
-        try {
-          const revoker = await getWallet(deviceId)
-          if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
-          if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
-
-          const wallet = await adapter.pairDevice(revoker.id)
-          await wallet?.loadDevice({ mnemonic: revoker.mnemonic })
-          if (!(await wallet?.isInitialized())) {
-            await wallet?.initialize()
-          }
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet,
-              name,
-              icon,
-              deviceId,
-              meta: { label: item.label },
-              connectedType: KeyManager.Mobile,
-            },
-          })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-          dispatch({
-            type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: KeyManager.Mobile,
-          })
-
-          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
-          localWallet.setLocalNativeWalletName(item?.label ?? 'label')
-        } catch (e) {
-          console.log(e)
-          setError('walletProvider.shapeShift.load.error.pair')
-        }
-      } else {
-        setError('walletProvider.shapeShift.load.error.pair')
-      }
-    },
-    [dispatch, getAdapter, localWallet],
-  )
 
   const handleToggleWallets = useCallback(() => {
     setHideWallets(!hideWallets) // allow users with saved wallets to toggle between saved and create/import
@@ -215,14 +165,7 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
           </Stack>
           <Stack>
-            {wallets.map(wallet => (
-              <WalletCard
-                id={wallet.id}
-                key={wallet.id}
-                wallet={wallet}
-                onClick={handleWalletSelect}
-              />
-            ))}
+            <WalletList />
             <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>
@@ -238,16 +181,7 @@ export const MobileConnect = () => {
         </BodyStack>
       </motion.div>
     )
-  }, [
-    error,
-    handleCreate,
-    handleImport,
-    handleToggleWallets,
-    handleWalletSelect,
-    hideWallets,
-    translate,
-    wallets,
-  ])
+  }, [error, handleCreate, handleImport, handleToggleWallets, hideWallets, translate, wallets])
 
   return (
     <Flex

@@ -207,7 +207,7 @@ export const LpType = ({
       icon: <CircleCrossIcon />,
       tooltipText: translate('pools.newPositionTooltip'),
     }
-    const notPossible = {
+    const notSupported = {
       text: translate('pools.notSupported'),
       icon: <CircleXIcon />,
       props: { color: 'text.error' },
@@ -232,7 +232,7 @@ export const LpType = ({
     })()
 
     const symInformations: PositionInformations = (() => {
-      if (hasAsymRunePosition) return notPossible
+      if (hasAsymRunePosition) return notSupported
       if (hasAsymAssetPosition) {
         return hasSymPosition ? displayAmounts('sym') : newPosition
       }

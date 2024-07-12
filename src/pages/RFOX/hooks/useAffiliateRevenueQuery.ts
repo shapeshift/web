@@ -29,9 +29,7 @@ export const getAffiliateRevenueQueryFn =
     const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
 
     // The timestamps are in seconds, but the API expects milliseconds
-    const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp * 1000n}&end=${
-      endTimestamp * 1000n
-    }`
+    const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
     const {
       data: { address, amount },
     } = await axios.get<{ address: string; amount: string }>(url)

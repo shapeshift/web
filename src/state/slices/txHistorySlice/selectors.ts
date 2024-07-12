@@ -70,6 +70,7 @@ export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxs,
   (txIds: TxId[], txs) =>
     txIds
+      .filter((txId: TxId) => txs[txId] !== undefined)
       .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
       .sort((a, b) => b.date - a.date),
 )

@@ -5,3 +5,7 @@ export const setRuneAddressEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Set
 export const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Unstake' })
 export const withdrawEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Withdraw' })
+
+export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
+
+export const CURRENT_EPOCH_IPFS_HASH = 'QmXaNZPS21azEYpHyjvuhQiomuy9o4LAbXafSHZfEw2myE'

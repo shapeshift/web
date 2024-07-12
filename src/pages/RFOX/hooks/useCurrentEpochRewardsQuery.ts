@@ -1,12 +1,14 @@
 import type { UseQueryResult } from '@tanstack/react-query'
-import { skipToken, useQueries } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
+import { getAddress } from 'viem'
 
-import type { PartialEpochMetadata } from '../types'
+import type { Epoch, PartialEpoch, RewardDistribution } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
-import { useCurrentEpochMetadataQuery } from './useCurrentEpochMetadataQuery'
+import { fetchCurrentEpoch, getCurrentEpochQueryKey } from './useCurrentEpochQuery'
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
+import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -18,65 +20,75 @@ type UseCurrentEpochRewardsQueryProps = {
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
 }: UseCurrentEpochRewardsQueryProps) => {
-  const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
-
   const combine = useCallback(
-    (_queries: [UseQueryResult<bigint, Error>, UseQueryResult<bigint, Error>]) => {
-      const combineResults = (_results: (bigint | PartialEpochMetadata)[]) => {
-        const results = _results as [bigint, bigint, PartialEpochMetadata]
-        const currentEpochMetadata = currentEpochMetadataQuery.data
-        const [previousEpochEarned, currentEpochEarned] = results
+    (
+      queries: [
+        UseQueryResult<Epoch[], Error>,
+        UseQueryResult<bigint, Error>,
+        UseQueryResult<PartialEpoch, Error>,
+      ],
+    ) => {
+      const combineResults = (_results: (Epoch[] | bigint | PartialEpoch | undefined)[]) => {
+        if (!stakingAssetAccountAddress) return 0n
 
-        const epochEarningsForAccount = currentEpochEarned - previousEpochEarned
+        const checksummedStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
 
-        const epochRewardRuneBaseUnit = currentEpochMetadata
-          ? calcEpochRewardForAccountRuneBaseUnit(epochEarningsForAccount, currentEpochMetadata)
-          : 0n
-
-        return epochRewardRuneBaseUnit
-      }
-
-      // this is ugly because of concat with a tuple, but having currentEpochMetadataQuery allows us to leverage its loading state as part of the combined queries too
-      const queries = (
-        _queries as unknown as [
-          UseQueryResult<bigint, Error>,
-          UseQueryResult<bigint, Error>,
-          UseQueryResult<PartialEpochMetadata, Error>,
+        const results = _results as [
+          Epoch[] | undefined,
+          bigint | undefined,
+          PartialEpoch | undefined,
         ]
-      ).concat([currentEpochMetadataQuery])
+        const [epochHistory, currentEpochRewardUnits, currentEpochMetadata] = results
+        if (
+          currentEpochMetadata === undefined ||
+          epochHistory === undefined ||
+          currentEpochRewardUnits === undefined
+        ) {
+          return
+        }
+
+        const previousEpoch: RewardDistribution | undefined =
+          epochHistory?.[epochHistory.length - 1].distributionsByStakingAddress[
+            checksummedStakingAssetAccountAddress
+          ]
+
+        const previousEpochRewardUnits = BigInt(previousEpoch?.rewardUnits ?? '0')
+        const epochRewardUnitsForAccount = currentEpochRewardUnits - previousEpochRewardUnits
+
+        return calcEpochRewardForAccountRuneBaseUnit(
+          epochRewardUnitsForAccount,
+          currentEpochMetadata,
+        )
+      }
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [currentEpochMetadataQuery],
+    [stakingAssetAccountAddress],
   )
 
   const combinedQueries = useQueries({
     queries: [
       {
-        queryKey: getEarnedQueryKey({
-          stakingAssetAccountAddress,
-          blockNumber: currentEpochMetadataQuery.data
-            ? currentEpochMetadataQuery.data.startBlockNumber - 1n
-            : undefined,
-        }),
-        queryFn: currentEpochMetadataQuery.data
-          ? getEarnedQueryFn({
-              stakingAssetAccountAddress,
-              blockNumber: currentEpochMetadataQuery.data.startBlockNumber - 1n,
-            })
-          : skipToken,
+        queryKey: getEpochHistoryQueryKey(),
+        queryFn: fetchEpochHistory,
         staleTime: 60 * 1000, // 1 minute in milliseconds
+        enabled: !!stakingAssetAccountAddress,
       },
       {
         queryKey: getEarnedQueryKey({
           stakingAssetAccountAddress,
-          blockNumber: undefined,
         }),
         queryFn: getEarnedQueryFn({
           stakingAssetAccountAddress,
-          blockNumber: undefined,
         }),
         staleTime: 60 * 1000, // 1 minute in milliseconds
+        enabled: !!stakingAssetAccountAddress,
+      },
+      {
+        queryKey: getCurrentEpochQueryKey(),
+        queryFn: fetchCurrentEpoch,
+        staleTime: 60 * 1000, // 1 minute in milliseconds
+        enabled: !!stakingAssetAccountAddress,
       },
     ],
     combine,

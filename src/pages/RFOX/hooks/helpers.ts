@@ -1,7 +1,7 @@
-import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { RFOX_WAD } from 'contracts/constants'
 import { bn } from 'lib/bignumber/bignumber'
 
-import type { AbiStakingInfo, PartialEpochMetadata, StakingInfo } from '../types'
+import type { AbiStakingInfo, PartialEpoch, StakingInfo } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -11,25 +11,30 @@ import type { AbiStakingInfo, PartialEpochMetadata, StakingInfo } from '../types
  * accounting on-chain.
  */
 export const calcEpochRewardForAccountRuneBaseUnit = (
-  epochEarningsForAccount: bigint,
-  epochMetadata: PartialEpochMetadata,
+  epochRewardUnitsForAccount: bigint,
+  epoch: PartialEpoch,
 ) => {
-  const secondsInEpoch: bigint = epochMetadata.endTimestamp - epochMetadata.startTimestamp + 1n
-
-  const totalEpochReward = (RFOX_REWARD_RATE / RFOX_WAD) * secondsInEpoch
-  const epochEarningsForAccountAdjustedForWAD = epochEarningsForAccount / RFOX_WAD
+  const epochEarningsForAccountAdjustedForWAD = epochRewardUnitsForAccount / RFOX_WAD
+  const distributionAmountRuneBaseUnit = scaleDistributionAmount(epoch)
   const epochRewardRuneBaseUnit = bn(epochEarningsForAccountAdjustedForWAD.toString())
-    .div(totalEpochReward.toString())
-    .times(epochMetadata.distributionAmountRuneBaseUnit.toString())
+    .div(epoch.totalRewardUnits.toString())
+    .times(distributionAmountRuneBaseUnit.toString())
     .toFixed(0)
+
+  console.log({
+    epoch,
+    epochEarningsForAccountAdjustedForWAD,
+    distributionAmountRuneBaseUnit: distributionAmountRuneBaseUnit.toString(),
+    totalRewardUnits: epoch.totalRewardUnits,
+    epochRewardRuneBaseUnit,
+  })
 
   return BigInt(epochRewardRuneBaseUnit)
 }
 
-export const scaleDistributionAmount = (affiliateRevenueRuneBaseUnit: bigint) => {
-  // We distribute 25% of the affiliate revenue to the stakers, so divide by 4
-  // https://snapshot.org/#/shapeshiftdao.eth/proposal/0x0bb84bdf838fb90da922ce62293336bf7c0c67a9a1d6fe451ffaa29284722f9f
-  return affiliateRevenueRuneBaseUnit / 4n
+export const scaleDistributionAmount = (epoch: PartialEpoch) => {
+  const affiliateRevenueRuneBaseUnit = bn(epoch.totalRevenue)
+  return affiliateRevenueRuneBaseUnit.times(epoch.distributionRate)
 }
 
 export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {

@@ -13,14 +13,12 @@ type EarnedQueryKey = ['readContract', string]
 
 type UseEarnedQueryProps = {
   stakingAssetAccountAddress: string | undefined
-  blockNumber: bigint | undefined
 }
 
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const getEarnedQueryKey = ({
   stakingAssetAccountAddress,
-  blockNumber,
 }: UseEarnedQueryProps): EarnedQueryKey => [
   'readContract',
   serialize({
@@ -28,14 +26,10 @@ export const getEarnedQueryKey = ({
     functionName: 'earned',
     args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
     chainId: arbitrum.id,
-    blockNumber,
   }),
 ]
 
-export const getEarnedQueryFn = ({
-  stakingAssetAccountAddress,
-  blockNumber,
-}: UseEarnedQueryProps) =>
+export const getEarnedQueryFn = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) =>
   stakingAssetAccountAddress
     ? async () =>
         await readContract(client, {
@@ -43,34 +37,29 @@ export const getEarnedQueryFn = ({
           address: RFOX_PROXY_CONTRACT_ADDRESS,
           functionName: 'earned',
           args: [getAddress(stakingAssetAccountAddress)],
-          blockNumber,
+          blockNumber: undefined, // use the latest block - archive node not allowed
         }).catch((error: unknown) => {
           console.error(error)
           return 0n
         })
     : skipToken
 
-export const useEarnedQuery = ({
-  stakingAssetAccountAddress,
-  blockNumber,
-}: UseEarnedQueryProps) => {
+export const useEarnedQuery = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: EarnedQueryKey = useMemo(
     () =>
       getEarnedQueryKey({
         stakingAssetAccountAddress,
-        blockNumber,
       }),
-    [blockNumber, stakingAssetAccountAddress],
+    [stakingAssetAccountAddress],
   )
 
   const queryFn = useMemo(
     () =>
       getEarnedQueryFn({
         stakingAssetAccountAddress,
-        blockNumber,
       }),
-    [blockNumber, stakingAssetAccountAddress],
+    [stakingAssetAccountAddress],
   )
 
   const query = useQuery({

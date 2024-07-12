@@ -268,8 +268,6 @@ export const LpType = ({
         (!!side && opportunityType !== 'sym' && option.value === 'sym') ||
         (hasAsymRunePosition && option.value === 'sym')
 
-      console.log(currentSideInformations, isDeposit && !currentSideInformations.tooltipText)
-
       return (
         <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
           <Tooltip

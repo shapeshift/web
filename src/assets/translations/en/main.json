@@ -2339,7 +2339,9 @@
     "removeAmounts": "Remove Amount(s)",
     "stagedTooltip": "Staged pools are new pools accepting liquidity, but will not accrue any earnings until Available",
     "newPosition": "New position",
-    "notPossible": "Not possible",
+    "newPositionTooltip": "This will create a new LP position instead of adding to the existing one.",
+    "notSupported": "Not possible",
+    "notSupportedTooltip": "Due to your existing Asymmetric Rune position, depositing into this pool with both assets isn't possible. Please withdraw your current position if you wish to create a new LP with both assets.",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

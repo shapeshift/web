@@ -117,6 +117,7 @@ type PositionInformations = {
   text: string | JSX.Element
   icon?: JSX.Element
   props?: TextProps
+  tooltipText?: string
 } | null
 
 export const LpType = ({
@@ -176,7 +177,7 @@ export const LpType = ({
   }, [])
 
   const informationsByPosition = useMemo(() => {
-    const displayAmountsText = (position: AsymSide | 'sym') => ({
+    const displayAmounts = (position: AsymSide | 'sym') => ({
       text: amountsByPosition?.[position] ? (
         <>
           <Amount.Crypto
@@ -201,36 +202,41 @@ export const LpType = ({
       },
     })
 
-    const newPosition = { text: translate('pools.newPosition'), icon: <CircleCrossIcon /> }
+    const newPosition = {
+      text: translate('pools.newPosition'),
+      icon: <CircleCrossIcon />,
+      tooltipText: translate('pools.newPositionTooltip'),
+    }
     const notPossible = {
-      text: translate('pools.notPossible'),
+      text: translate('pools.notSupported'),
       icon: <CircleXIcon />,
       props: { color: 'text.error' },
+      tooltipText: translate('pools.notSupportedTooltip'),
     }
 
     const runeInformations: PositionInformations = (() => {
+      if (hasSymPosition) return displayAmounts('sym')
       if (hasAsymAssetPosition) {
-        return hasAsymRunePosition ? displayAmountsText(AsymSide.Rune) : newPosition
+        return hasAsymRunePosition ? displayAmounts(AsymSide.Rune) : newPosition
       }
-      if (hasAsymRunePosition) return displayAmountsText(AsymSide.Rune)
-      if (hasSymPosition) return displayAmountsText('sym')
+      if (hasAsymRunePosition) return displayAmounts(AsymSide.Rune)
 
       return newPosition
     })()
 
     const assetInformations: PositionInformations = (() => {
       if (hasAsymRunePosition || hasSymPosition) {
-        return hasAsymAssetPosition ? displayAmountsText(AsymSide.Asset) : newPosition
+        return hasAsymAssetPosition ? displayAmounts(AsymSide.Asset) : newPosition
       }
-      return hasAsymAssetPosition ? displayAmountsText(AsymSide.Asset) : newPosition
+      return hasAsymAssetPosition ? displayAmounts(AsymSide.Asset) : newPosition
     })()
 
     const symInformations: PositionInformations = (() => {
       if (hasAsymRunePosition) return notPossible
       if (hasAsymAssetPosition) {
-        return hasSymPosition ? displayAmountsText('sym') : newPosition
+        return hasSymPosition ? displayAmounts('sym') : newPosition
       }
-      if (hasSymPosition) return displayAmountsText('sym')
+      if (hasSymPosition) return displayAmounts('sym')
 
       return newPosition
     })()
@@ -256,19 +262,26 @@ export const LpType = ({
     return options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
+      const currentSideInformations = informationsByPosition?.[option.value as AsymSide | 'sym']
 
       const isDisabled =
         (!!side && opportunityType !== 'sym' && option.value === 'sym') ||
         (hasAsymRunePosition && option.value === 'sym')
 
-      const currentSideInformations = informationsByPosition?.[option.value as AsymSide | 'sym']
+      console.log(currentSideInformations, isDeposit && !currentSideInformations.tooltipText)
 
       return (
-        <TypeRadio {...radio} isDisabled={isDisabled}>
+        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
           <Tooltip
-            key={`type-${index}`}
-            isDisabled={!isDisabled || isDeposit}
-            label={translate('pools.symWithdrawOnAsymPositionAlert')}
+            isDisabled={
+              (!isDisabled && !currentSideInformations.tooltipText) ||
+              (isDeposit && !currentSideInformations.tooltipText)
+            }
+            label={translate(
+              isDeposit && currentSideInformations.tooltipText
+                ? currentSideInformations.tooltipText
+                : 'pools.symWithdrawOnAsymPositionAlert',
+            )}
           >
             <Box>
               <PoolIcon assetIds={optionAssetIds} size='xs' />
@@ -280,16 +293,18 @@ export const LpType = ({
                   </Box>
                 )}
               </Flex>
-              <Text
-                color='text.subtle'
-                fontSize='xs'
-                sx={subtitleStyle}
-                mt={6}
-                {...currentSideInformations?.props}
-              >
-                {currentSideInformations ? currentSideInformations.text : null}{' '}
-                {currentSideInformations ? currentSideInformations.icon : null}
-              </Text>
+              {isDeposit ? (
+                <Text
+                  color='text.subtle'
+                  fontSize='xs'
+                  sx={subtitleStyle}
+                  mt={6}
+                  {...currentSideInformations?.props}
+                >
+                  {currentSideInformations ? currentSideInformations.text : null}{' '}
+                  {currentSideInformations ? currentSideInformations.icon : null}
+                </Text>
+              ) : null}
             </Box>
           </Tooltip>
         </TypeRadio>

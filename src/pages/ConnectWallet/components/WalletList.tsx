@@ -17,7 +17,8 @@ export type WalletInfo = {
 }
 
 export const WalletList = () => {
-  const { dispatch, getAdapter } = useWallet()
+  const { dispatch, getAdapter, state } = useWallet()
+  const { walletInfo } = state
   const localWallet = useLocalWallet()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -103,11 +104,17 @@ export const WalletList = () => {
     return (
       <Stack>
         {wallets.map(wallet => (
-          <WalletCard id={wallet.id} key={wallet.id} wallet={wallet} onClick={handleWalletSelect} />
+          <WalletCard
+            id={wallet.id}
+            key={wallet.id}
+            wallet={wallet}
+            onClick={handleWalletSelect}
+            isActive={walletInfo?.deviceId === wallet.id}
+          />
         ))}
       </Stack>
     )
-  }, [error, handleWalletSelect, wallets])
+  }, [error, handleWalletSelect, walletInfo?.deviceId, wallets])
 
   return isLoading ? <Spinner /> : <>{content}</>
 }

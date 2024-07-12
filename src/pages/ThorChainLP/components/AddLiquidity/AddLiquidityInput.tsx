@@ -1230,17 +1230,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [poolAsset, runeAsset, translate, opportunityType])
 
-  const maybeSymAfterRuneAlert = useMemo(() => {
-    if (!disabledSymDepositAfterRune) return null
-
-    return (
-      <Alert status='warning' borderRadius='lg'>
-        <AlertIcon />
-        <Text translation={'pools.symAfterRuneAlert'} />
-      </Alert>
-    )
-  }, [disabledSymDepositAfterRune])
-
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
     if (walletSupportsOpportunity) return null
     if (!poolAsset || !runeAsset) return null
@@ -1593,7 +1582,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {incompleteAlert}
           {maybeOpportunityNotSupportedExplainer}
           {maybeAlert}
-          {maybeSymAfterRuneAlert}
 
           <ButtonWalletPredicate
             isValidWallet={Boolean(walletSupportsOpportunity)}

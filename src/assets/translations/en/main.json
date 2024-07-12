@@ -2338,6 +2338,8 @@
     "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
     "stagedTooltip": "Staged pools are new pools accepting liquidity, but will not accrue any earnings until Available",
+    "newPosition": "New position",
+    "notPossible": "Not possible",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

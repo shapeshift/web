@@ -1,14 +1,26 @@
-import type { RadioProps } from '@chakra-ui/react'
-import { Box, Flex, HStack, Tooltip, useRadio, useRadioGroup } from '@chakra-ui/react'
+import type { RadioProps, TextProps } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  HStack,
+  Skeleton,
+  Text,
+  Tooltip,
+  useRadio,
+  useRadioGroup,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { BiSolidBoltCircle } from 'react-icons/bi'
+import { BiSolidBoltCircle, BiSolidPlusCircle, BiSolidXCircle } from 'react-icons/bi'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { fromOpportunityId } from '../utils'
 import { PoolIcon } from './PoolIcon'
@@ -48,7 +60,7 @@ const TypeRadio: React.FC<RadioProps> = props => {
   const input = getInputProps()
   const checkbox = getRadioProps()
   return (
-    <Box flex={1} cursor='pointer' as='label'>
+    <Box width='33.33%' flex={1} cursor='pointer' as='label'>
       <input {...input} />
       <Box
         bg='background.surface.raised.base'
@@ -82,15 +94,47 @@ const options = [
   },
 ]
 
+type PositionAmounts = {
+  underlyingAssetAmountCryptoPrecision: string
+  underlyingRuneAmountCryptoPrecision: string
+}
+
+export type AmountsByPosition = Record<AsymSide | 'sym', PositionAmounts>
+
 type DepositTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
   opportunityId?: string
   side?: AsymSide | 'sym'
+  isDeposit?: boolean
+  hasAsymRunePosition?: boolean
+  hasAsymAssetPosition?: boolean
+  hasSymPosition?: boolean
+  amountsByPosition?: AmountsByPosition
 }
 
-export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: DepositTypeProps) => {
+type PositionInformations = {
+  text: string | JSX.Element
+  icon?: JSX.Element
+  props?: TextProps
+} | null
+
+export const LpType = ({
+  assetId,
+  opportunityId,
+  side,
+  onAsymSideChange,
+  isDeposit,
+  hasAsymAssetPosition,
+  hasAsymRunePosition,
+  hasSymPosition,
+  amountsByPosition,
+}: DepositTypeProps) => {
   const translate = useTranslate()
+  const CircleCrossIcon = useCallback(() => <Box as={BiSolidPlusCircle} w='14px' h='14px' />, [])
+  const CircleXIcon = useCallback(() => <Box as={BiSolidXCircle} w='14px' h='14px' />, [])
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
@@ -109,7 +153,7 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
   )
 
   const opportunityType = opportunityId ? fromOpportunityId(opportunityId).type : side
-  const defaultSide = opportunityType ?? side
+  const defaultSide = opportunityType ?? hasAsymRunePosition ? AsymSide.Rune : side
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
@@ -122,18 +166,108 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
     setValue(fromOpportunityId(opportunityId).type)
   }, [opportunityId, setValue])
 
+  const subtitleStyle = useMemo(() => {
+    return {
+      '& svg': {
+        display: 'inline-block',
+        verticalAlign: 'middle',
+      },
+    }
+  }, [])
+
+  const informationsByPosition = useMemo(() => {
+    const displayAmountsText = (position: AsymSide | 'sym') => ({
+      text: amountsByPosition?.[position] ? (
+        <>
+          <Amount.Crypto
+            value={amountsByPosition?.[position].underlyingAssetAmountCryptoPrecision}
+            symbol={asset?.symbol ?? ''}
+            maximumFractionDigits={6}
+          />
+          <Amount.Crypto
+            value={amountsByPosition?.[position].underlyingRuneAmountCryptoPrecision}
+            symbol={thorchainAsset?.symbol ?? ''}
+            maximumFractionDigits={6}
+          />
+        </>
+      ) : (
+        <>
+          <Skeleton mb={1} height='14px' width='100%' />
+          <Skeleton height='14px' width='100%' />
+        </>
+      ),
+      props: {
+        mt: !amountsByPosition?.[position] ? 2 : 1,
+      },
+    })
+
+    const newPosition = { text: translate('pools.newPosition'), icon: <CircleCrossIcon /> }
+    const notPossible = {
+      text: translate('pools.notPossible'),
+      icon: <CircleXIcon />,
+      props: { color: 'text.error' },
+    }
+
+    const runeInformations: PositionInformations = (() => {
+      if (hasAsymAssetPosition) {
+        return hasAsymRunePosition ? displayAmountsText(AsymSide.Rune) : newPosition
+      }
+      if (hasAsymRunePosition) return displayAmountsText(AsymSide.Rune)
+      if (hasSymPosition) return displayAmountsText('sym')
+
+      return newPosition
+    })()
+
+    const assetInformations: PositionInformations = (() => {
+      if (hasAsymRunePosition || hasSymPosition) {
+        return hasAsymAssetPosition ? displayAmountsText(AsymSide.Asset) : newPosition
+      }
+      return hasAsymAssetPosition ? displayAmountsText(AsymSide.Asset) : newPosition
+    })()
+
+    const symInformations: PositionInformations = (() => {
+      if (hasAsymRunePosition) return notPossible
+      if (hasAsymAssetPosition) {
+        return hasSymPosition ? displayAmountsText('sym') : newPosition
+      }
+      if (hasSymPosition) return displayAmountsText('sym')
+
+      return newPosition
+    })()
+
+    return {
+      [AsymSide.Rune]: runeInformations,
+      [AsymSide.Asset]: assetInformations,
+      sym: symInformations,
+    }
+  }, [
+    CircleCrossIcon,
+    CircleXIcon,
+    hasAsymAssetPosition,
+    hasSymPosition,
+    hasAsymRunePosition,
+    asset,
+    thorchainAsset,
+    translate,
+    amountsByPosition,
+  ])
+
   const radioOptions = useMemo(() => {
     return options.map((option, index) => {
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
 
-      const isDisabled = !!side && opportunityType !== 'sym' && option.value === 'sym'
+      const isDisabled =
+        (!!side && opportunityType !== 'sym' && option.value === 'sym') ||
+        (hasAsymRunePosition && option.value === 'sym')
+
+      const currentSideInformations = informationsByPosition?.[option.value as AsymSide | 'sym']
 
       return (
         <TypeRadio {...radio} isDisabled={isDisabled}>
           <Tooltip
             key={`type-${index}`}
-            isDisabled={!isDisabled}
+            isDisabled={!isDisabled || isDeposit}
             label={translate('pools.symWithdrawOnAsymPositionAlert')}
           >
             <Box>
@@ -146,12 +280,32 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
                   </Box>
                 )}
               </Flex>
+              <Text
+                color='text.subtle'
+                fontSize='xs'
+                sx={subtitleStyle}
+                mt={6}
+                {...currentSideInformations?.props}
+              >
+                {currentSideInformations ? currentSideInformations.text : null}{' '}
+                {currentSideInformations ? currentSideInformations.icon : null}
+              </Text>
             </Box>
           </Tooltip>
         </TypeRadio>
       )
     })
-  }, [getRadioProps, makeAssetIdsOption, side, opportunityType, translate])
+  }, [
+    getRadioProps,
+    makeAssetIdsOption,
+    side,
+    opportunityType,
+    hasAsymRunePosition,
+    translate,
+    isDeposit,
+    subtitleStyle,
+    informationsByPosition,
+  ])
 
   const group = getRootProps()
   return (

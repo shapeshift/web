@@ -11,7 +11,7 @@ type UseGetCustomTokenPricesQueryProps = {
 
 type UseGetCustomTokenPricesQueryReturn = {
   assetId: AssetId
-  priceUsd: string
+  priceUsd: string | undefined
 }[]
 
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
@@ -19,7 +19,7 @@ const ZERION_API_KEY = '' // Don't commit me
 
 const axiosInstance = axios.create()
 
-const getTokenPrice = async (assetId: AssetId) => {
+export const getTokenPrice = async (assetId: AssetId): Promise<string | undefined> => {
   const basicAuth = 'Basic ' + Buffer.from(ZERION_API_KEY + ':').toString('base64')
 
   const options = {
@@ -35,10 +35,13 @@ const getTokenPrice = async (assetId: AssetId) => {
   const payload = { ...options, url }
   const { data: res } = await axiosInstance.request(payload)
 
-  return { assetId, priceUsd: res.data.attributes.market_data.priceUsd }
+  return res.data.attributes.market_data.priceUsd
 }
 
-const getQueryFn = (assetId: AssetId) => () => getTokenPrice(assetId)
+const getQueryFn = (assetId: AssetId) => async () => {
+  const priceUsd = await getTokenPrice(assetId)
+  return { priceUsd, assetId }
+}
 const getQueryKey = (assetId: AssetId) => ['customTokenPrices', assetId]
 
 export const useGetCustomTokenPricesQuery = ({

@@ -1,3 +1,4 @@
+import type { Asset } from '@shapeshiftoss/types'
 import { isNull, isUndefined } from 'lodash'
 
 export * from './makeAsset/makeAsset'
@@ -15,3 +16,5 @@ export * from './timeout'
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
+
+export const isCustomAsset = (asset: Asset): boolean => !!asset.isCustomAsset

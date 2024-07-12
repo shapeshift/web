@@ -26,6 +26,8 @@ import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
 
+import { getTokenPrice } from './useGetCustomTokenPriceQuery'
+
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
 
 type CustomAssetAcknowledgementProps = {
@@ -65,7 +67,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
 
   const [hasAcknowledged, toggleHasAcknowledged] = useToggle(false)
 
-  const onImportClick = useCallback(() => {
+  const onImportClick = useCallback(async () => {
     if (!asset) return
 
     getMixPanel()?.track(MixPanelEvent.CustomAssetAdded, {
@@ -75,10 +77,17 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
 
+    const usdPrice = await getTokenPrice(asset.assetId)
+
     // Add market data to the store
     dispatch(
       marketDataSlice.actions.setCryptoMarketData({
-        [asset.assetId]: { price: '0', marketCap: '0', volume: '0', changePercent24Hr: 0 },
+        [asset.assetId]: {
+          price: usdPrice ? usdPrice : '0',
+          marketCap: '0',
+          volume: '0',
+          changePercent24Hr: 0,
+        },
       }),
     )
 

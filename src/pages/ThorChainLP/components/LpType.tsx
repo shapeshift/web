@@ -130,9 +130,8 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
       const isDisabled = !!side && opportunityType !== 'sym' && option.value === 'sym'
 
       return (
-        <TypeRadio {...radio} isDisabled={isDisabled}>
+        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
           <Tooltip
-            key={`type-${index}`}
             isDisabled={!isDisabled}
             label={translate('pools.symWithdrawOnAsymPositionAlert')}
           >

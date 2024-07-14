@@ -69,7 +69,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.NotYetAvailable
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
       return (
         <ClaimRow
           stakingAssetId={stakingAssetId}

@@ -6,6 +6,7 @@ import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
 
 export const Claims = () => {
+  // TODO: Replace with actual implementation
   const tooltipText = 'tooltip text'
   const actionText = 'Bridge via Arbitrum'
   const statusText = 'status text'
@@ -36,7 +37,7 @@ export const Claims = () => {
           asset={stakingAsset}
           actionText={actionText}
           statusText={statusText}
-          status={ClaimStatus.NotYetAvailable}
+          status={ClaimStatus.Pending}
         />
         <ClaimRow
           amountCryptoPrecision={'43.1234'}
@@ -46,7 +47,7 @@ export const Claims = () => {
           asset={stakingAsset}
           actionText={actionText}
           statusText={statusText}
-          status={ClaimStatus.NotYetAvailable}
+          status={ClaimStatus.Pending}
         />
       </Box>
     </CardBody>

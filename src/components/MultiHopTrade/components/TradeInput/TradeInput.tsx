@@ -302,7 +302,12 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
             <WithLazyMount
               shouldUse={!isCompact && !isSmallerThanXl}
               component={CollapsibleQuoteList}
-              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+              isOpen={
+                selectedTab === TradeInputTab.Trade &&
+                !isCompact &&
+                !isSmallerThanXl &&
+                hasUserEnteredAmount
+              }
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={totalHeight ?? 'full'}

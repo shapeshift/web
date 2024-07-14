@@ -73,7 +73,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman
 
-    if (status === ClaimStatus.NotYetAvailable)
+    if (status === ClaimStatus.Pending)
       return translate('RFOX.tooltips.unstakePendingCooldown', { cooldownPeriodHuman })
     return translate('RFOX.tooltips.cooldownComplete', { cooldownPeriodHuman })
   }, [cooldownPeriodHuman, isLargerThanMd, status, translate])

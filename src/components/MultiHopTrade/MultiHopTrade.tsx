@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -9,14 +9,17 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
+import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
+import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from './types'
 
-const MultiHopEntries = [
+const TradeRouteEntries = [
   TradeRoutePaths.Input,
   TradeRoutePaths.Confirm,
   TradeRoutePaths.VerifyAddresses,
+  TradeRoutePaths.QuoteList,
 ]
 
 export type TradeCardProps = {
@@ -27,6 +30,12 @@ export type TradeCardProps = {
 type MatchParams = {
   chainId?: string
   assetSubId?: string
+}
+
+// dummy component to allow us to mount or unmount the `useGetTradeQuotes` hook conditionally
+const GetTradeQuotes = () => {
+  useGetTradeQuotes()
+  return <></>
 }
 
 export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardProps) => {
@@ -45,18 +54,18 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardPr
 
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={MultiHopEntries} initialIndex={0}>
-        <MultiHopRoutes isCompact={isCompact} />
+      <MemoryRouter initialEntries={TradeRouteEntries} initialIndex={0}>
+        <TradeRoutes isCompact={isCompact} />
       </MemoryRouter>
     </FormProvider>
   )
 })
 
-type MultiHopRoutesProps = {
+type TradeRoutesProps = {
   isCompact?: boolean
 }
 
-const MultiHopRoutes = memo(({ isCompact }: MultiHopRoutesProps) => {
+const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -70,19 +79,40 @@ const MultiHopRoutes = memo(({ isCompact }: MultiHopRoutesProps) => {
     }
   }, [dispatch])
 
+  const tradeInputRef = useRef<HTMLDivElement | null>(null)
+
+  const shouldUseTradeQuotes = useMemo(() => {
+    // We only want to fetch quotes when the user is on the trade input or quote list route
+    return [TradeRoutePaths.Input, TradeRoutePaths.QuoteList].includes(
+      location.pathname as TradeRoutePaths,
+    )
+  }, [location.pathname])
+
   return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
-        <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-          <TradeInput isCompact={isCompact} />
-        </Route>
-        <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
-          <MultiHopTradeConfirm />
-        </Route>
-        <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
-          <VerifyAddresses />
-        </Route>
-      </Switch>
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode='wait' initial={false}>
+        <Switch location={location}>
+          <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
+            <TradeInput isCompact={isCompact} tradeInputRef={tradeInputRef} />
+          </Route>
+          <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
+            <MultiHopTradeConfirm />
+          </Route>
+          <Route key={TradeRoutePaths.VerifyAddresses} path={TradeRoutePaths.VerifyAddresses}>
+            <VerifyAddresses />
+          </Route>
+          <Route key={TradeRoutePaths.QuoteList} path={TradeRoutePaths.QuoteList}>
+            <QuoteListRoute
+              height={tradeInputRef.current?.offsetHeight ?? '500px'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+            />
+          </Route>
+        </Switch>
+      </AnimatePresence>
+      {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
+      {/* corrupted from state being mutated during trade execution. */}
+      {/* TODO: move the hook into a react-query or similar and pass a flag  */}
+      {shouldUseTradeQuotes ? <GetTradeQuotes /> : null}
+    </>
   )
 })

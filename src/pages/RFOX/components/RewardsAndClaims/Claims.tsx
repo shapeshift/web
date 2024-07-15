@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import noop from 'lodash/noop'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
@@ -12,12 +13,11 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from '../Claim/ClaimRow'
-import { ClaimStatus } from '../Claim/types'
 
 type ClaimsProps = {
   headerComponent: JSX.Element
   stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
+  stakingAssetAccountId: AccountId
 }
 
 export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId }: ClaimsProps) => {
@@ -27,7 +27,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const stakingAssetAccountAddress = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    () => fromAccountId(stakingAssetAccountId).account,
     [stakingAssetAccountId],
   )
 
@@ -69,7 +69,7 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
       const isAvailable = currentTimestampMs >= unstakingTimestampMs
       const cooldownDeltaMs = unstakingTimestampMs - currentTimestampMs
       const cooldownPeriodHuman = dayjs(Date.now() + cooldownDeltaMs).fromNow()
-      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.CoolingDown
+      const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
       return (
         <ClaimRow
           stakingAssetId={stakingAssetId}

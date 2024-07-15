@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "Esta operación se ve afectada por el movimiento de precios (%{slippagePercentage}%). Proceda con precaución.",
     "unsafeTrade": "Esta operación puede ser insegura o estar por debajo del tamaño mínimo recomendado; proceda con precaución."
   },
-  "streamingAcknowledgement": {
-    "description": "Este es un intercambio Streaming, obtienes mejor precio, pero puede tardar hasta %{estimatedTimeSeconds}s en completar."
-  },
   "watchlist": {
     "empty": {
       "title": "Comience a crear su lista de seguimiento",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "Aquí se enviarán recompensas.",
     "useWalletAddress": "Usar dirección de billetera",
     "useCustomAddress": "Usar dirección personalizada",
-    "stakeWarning": "Cuando Stakes tus tokens FOX, ten en cuenta que hay período de bloqueo de %{cooldownPeriod}. Significa que si decide dejar de Stake sus tokens, deberá esperar %{cooldownPeriod} antes de poder reclamar sus fondos.",
-    "bridgeCta": "Seleccionó %{assetSymbol} en %{originNetwork}, pero necesitará %{assetSymbol} en %{destinationNetwork} para staking. Podemos ayudar a conectar con %{destinationNetwork}. ¿Quieres que te guiemos en el proceso?",
-    "unstakeWarning": "Antes de poder reclamar tus FOX, hay período de enfriamiento %{cooldownPeriod}. Una vez transcurrido ese tiempo, podrás reclamar el monto unstaked.",
     "tooltips": {
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
       "unstakeAmount": "Cantidad de FOX a Unstake",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Cambiando dirección de recompensa...",
     "changeRewardAddressSuccess": "Ha cambiado con éxito su dirección de recompensas THORChain.",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
-    "unstakeSuccess": "Una vez transcurrido el %{cooldownPeriod}, podrás reclamar tu %{amount} %{symbol}",
     "currentRewardAddress": "Dirección de Recompensa Actual",
     "newRewardAddress": "Nueva Dirección de Recompensa",
     "rewardCycleExplainer": "Esto se actualizará para el próximo ciclo de recompensas.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "No hay reclamaciones disponibles",
     "errorFetchingClaims": "Se produjo error al recuperar sus reclamos.",
     "noClaimsAvailableDescription": "No tienes ningún reclamo disponible",
-    "unstakeNow": "Retirar de Staking Ahora",
     "bridgeAndConfirm": "Bridge y Confirmar",
     "noSupportedChains": "Cadena no compatible",
     "noSupportedChainsDescription": "Agregue %{chainLabel} o conecte billetera que la admita.",

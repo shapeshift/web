@@ -62,7 +62,7 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         minWidth={minWidthProp}
         maxWidth={maxWidthProp}
       >
-        <ModalCloseButton position='absolute' color='text.subtle' />
+        <ModalCloseButton zIndex='1' position='absolute' color='text.subtle' />
         <ConnectContent initialUri={initialUri} handleConnect={handleConnectV2} />
       </ModalContent>
     </Modal>

@@ -1,7 +1,7 @@
 import { Button, Flex, Link, Text } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
+import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
 import { markdownLinkToHTML } from 'lib/utils'
 import type { NftCollectionType } from 'state/apis/nft/types'
 
@@ -38,7 +38,7 @@ export const NftCollection: React.FC<NftCollectionProps> = ({
   return (
     <Flex gap={4} flexDir='column' px={8} py={6}>
       <Text fontWeight='medium'>{translate('nft.aboutCollection', { collectionName })}</Text>
-      <ParsedHtml color='text.subtle' innerHtml={markdownLinkToHTML(description ?? '')} />
+      <SanitizedHtml color='text.subtle' dirtyHtml={markdownLinkToHTML(description)} />
       {socialLinkPills}
     </Flex>
   )

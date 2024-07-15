@@ -17,8 +17,3 @@ export type RfoxClaimQuote = {
   stakingAmountCryptoBaseUnit: string
   index: number
 }
-
-export enum ClaimStatus {
-  Available = 'Available',
-  CoolingDown = 'Cooling down',
-}

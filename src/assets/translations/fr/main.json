@@ -76,7 +76,6 @@
     "transactionFailedBody": "Échec de la transaction",
     "submitFeedback": "Envoyer un commentaire",
     "send": "Envoyer",
-    "sendAmountAsset": "Envoyer %{amount} %{asset}",
     "receive": "Recevoir",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
@@ -106,6 +105,7 @@
     "switchNetwork": "Changer de réseau",
     "selectNetwork": "Sélectionnez un réseau",
     "unsupportedNetwork": "Réseau non pris en charge",
+    "unsupportedWallet": "Porte-monnaie non pris en charge",
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",
     "searchAsset": "Rechercher un actif",
@@ -163,7 +163,8 @@
       "sortedDesc": "Trié par ordre décroissant",
       "expandRow": "Développer la ligne"
     },
-    "featureDisabled": "Cette fonctionnalité est temporairement désactivée."
+    "featureDisabled": "Cette fonctionnalité est temporairement désactivée.",
+    "yes": "Oui"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +642,15 @@
     "for": "pour",
     "emptyMessage": "Vos transactions %{status} apparaîtront ici.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Retrait initié",
+        "outboundTransferDeposit": "Dépôt initié",
+        "withdrawEth": "Retrait initié",
+        "submitRetryable": "Dépôt reçu",
+        "createRetryableTicket": "Dépôt initié",
+        "finalizeInboundTransfer": "Retrait reçu",
+        "depositEth": "Dépôt initié"
+      },
       "rfox": {
         "stake": "Miser",
         "withdraw": "Retirer",
@@ -734,6 +744,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Assurez-vous d'avoir des %{destinationSymbol} sur votre compte %{destinationChainName}, vous en aurez besoin pour les transactions",
     "confirm": "Confirmer le transfert",
     "selectChain": "Sélectionner la chaîne",
     "selectAsset": "Sélectionner l'actif",
@@ -748,7 +759,12 @@
     "route": "Route",
     "waitTimeLabel": "Temps d'attente approx.",
     "waitTimeValue": "~5-10 minutes",
-    "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille."
+    "noSupportedAssets": "Aucun actif pris en charge dans le portefeuille.",
+    "arbitrum": {
+      "waitWarning": "Le pont natif d'Arbitrum est plus sécurisé mais peut prendre jusqu'à une semaine pour la réclamation de fonds.",
+      "waitCta": "Je comprends qu'il faudra ~7 jours avant de pouvoir réclamer des fonds sur Ethereum.",
+      "claimCta": "Je comprends qu'après avoir réclamé mes fonds, je devrai envoyer une autre transaction moyennant des frais"
+    }
   },
   "trade": {
     "trade": "Échanger",
@@ -1427,7 +1443,9 @@
         "connectFailure": "Impossible de connecter le porte-monnaie Ledger",
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie Ledger",
         "appNotOpen": "%{app} n'est pas ouvert sur le Ledger",
-        "appNotOpenDescription": "Veuillez ouvrir l'app %{app} sur votre appareil et réessayer."
+        "appNotOpenDescription": "Veuillez ouvrir l'app %{app} sur votre appareil et réessayer.",
+        "noDeviceConnected": "Aucun appareil Ledger connecté",
+        "multipleDevicesConnected": "Plusieurs appareils Ledger connectés. Veuillez déconnecter tous les appareils sauf un."
       },
       "connect": {
         "header": "Appairer Ledger",
@@ -2295,6 +2313,7 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
+    "unsupportedDemoWalletExplainer": "Le porte-monnaie de démo n'est pas pris en charge, veuillez vous connecter à un porte-monnaie pour utiliser cette fonctionnalité.",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "shareOfPool": "Part du pool",
@@ -2355,7 +2374,7 @@
     "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence."
   },
   "streamingAcknowledgement": {
-    "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais il peut prendre jusqu'à %{estimatedTimeSeconds}s pour se terminer."
+    "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais cela peut prendre jusqu'à %{estimatedTimeHuman} pour se terminer."
   },
   "watchlist": {
     "empty": {
@@ -2376,6 +2395,10 @@
     "lending": {
       "title": "Prêts",
       "body": "Empruntez grâce à vos actifs."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Misez des FOX, gagnez des RUNE."
     }
   },
   "RFOX": {
@@ -2388,7 +2411,8 @@
     "claim": "Réclamer",
     "rewards": "Récompenses",
     "claims": "Réclamations",
-    "changeAddress": "Adr. de change",
+    "chainNotSupportedByWallet": "Chaîne non prise en charge par le porte-monnaie",
+    "changeAddress": "Changer d'adresse",
     "sameAddressNotAllowed": "Même adresse non autorisée",
     "stakingDetails": "Détails de mise",
     "stakeAmount": "Montant à miser",
@@ -2405,9 +2429,9 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
-    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez qu'il y a une période de verrouillage de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
-    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à bridger vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans ce processus ?",
-    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, il y a une période de repos de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
+    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
+    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
+    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
@@ -2422,7 +2446,7 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORChain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
-    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
+    "unstakeSuccess": "Après %{cooldownPeriod}, vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
     "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
@@ -2439,13 +2463,13 @@
     "noClaimsAvailable": "Aucune réclamation disponible",
     "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
-    "unstakeNow": "Démiser maintenant",
+    "unstakeNow": "Démiser pour réclamer les FOX",
     "bridgeAndConfirm": "Bridger et confirmer",
     "noSupportedChains": "Chaîne non prise en charge",
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
     "confirmAndBridge": "Confirmer et bridger",
-    "myRewardBalance": "Mon solde de récompense",
-    "myRewardBalanceHelper": "Mon solde de récompense",
+    "myStakedBalance": "Mon solde misé",
+    "myStakedBalanceHelper": "Mon solde misé",
     "pendingRewardsBalance": "Solde des récompenses en attente",
     "pendingRewardsBalanceHelper": "Solde des récompenses en attente",
     "lifetimeRewards": "Récompenses cumulées",

@@ -34,7 +34,7 @@ export const mergeQueryOutputs = <QueryOutputType, QueryErrorType, MergedOutputT
     return 'success'
   })()
 
-  if (isLoading || isPending || isError) {
+  if (isLoading || isPending) {
     return {
       data: undefined,
       error,

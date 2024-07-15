@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-export const useSharedHeight = () => {
+export const useSharedHeight = (observedRef: React.MutableRefObject<HTMLDivElement | null>) => {
   const [height, setHeight] = useState(0)
-  const observedRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(entries => {
@@ -22,9 +21,7 @@ export const useSharedHeight = () => {
         resizeObserver.unobserve(currentRef)
       }
     }
-  }, [])
+  }, [observedRef])
 
-  const result = useMemo(() => ({ observedRef, height }), [height])
-
-  return result
+  return height
 }

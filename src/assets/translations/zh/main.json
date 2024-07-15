@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "此交易受价格变动影响 (%{slippagePercentage}%)。请谨慎操作。",
     "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。"
   },
-  "streamingAcknowledgement": {
-    "description": "这是一个流式交换，虽然你可以获得更优惠的价格，但最多可能需要 %{estimatedTimeSeconds} 秒才能完成。"
-  },
   "watchlist": {
     "empty": {
       "title": "开始建立您的关注列表",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "奖励将发送至此处",
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
-    "stakeWarning": "当你质押 FOX 代币时，请注意有一个 %{cooldownPeriod} 锁定期。这意味着如果你决定取消质押你的代币，则需要等待 %{cooldownPeriod} 才能领取你的资金。",
-    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能进行质押。我们可以帮助你连接到 %{destinationNetwork}。你希望我们指导您完成整个过程吗？",
-    "unstakeWarning": "在你领取 FOX 之前，有一个 %{cooldownPeriod} 的冷却期。这段时间过后，你将能够领取未质押的金额。",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
       "unstakeAmount": "这是你将要赎回的 FOX 数量",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "更改奖励地址...",
     "changeRewardAddressSuccess": "你已成功更改你的 THORChain 奖励地址。",
     "unstakePending": "请求提取 %{amount} %{symbol}",
-    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将更新下一个奖励周期。",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "沒有可认领",
     "errorFetchingClaims": "获取声明时出错",
     "noClaimsAvailableDescription": "您没有任何可认领",
-    "unstakeNow": "立即取消质押",
     "bridgeAndConfirm": "桥接与确认",
     "noSupportedChains": "链不被支持",
     "noSupportedChainsDescription": "添加 %{chainLabel} 或连接到支持它的钱包。",

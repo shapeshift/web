@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "Esta negociação é impactada pelo movimento de preços (%{slippagePercentage}%). Prossiga com cuidado.",
     "unsafeTrade": "Esta negociação pode ser insegura ou estar abaixo do tamanho mínimo recomendado, proceda com cautela."
   },
-  "streamingAcknowledgement": {
-    "description": "Este é uma streaming swap. Embora você obtenha um preço melhor, pode levar até %{estimatedTimeSeconds}s para ser concluído."
-  },
   "watchlist": {
     "empty": {
       "title": "Comece a construir sua watchlist",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "É aqui que as recompensas serão enviadas",
     "useWalletAddress": "Usar endereço de carteira",
     "useCustomAddress": "Usar endereço personalizado",
-    "stakeWarning": "Ao realizar o stake dos seus tokens FOX, esteja ciente de que há um período de bloqueio de %{cooldownPeriod}. Isso significa que se você decidir retirar seus tokens, precisará esperar %{cooldownPeriod} antes de poder reivindicar seus fundos.",
-    "bridgeCta": "Você selecionou %{assetSymbol} em %{originNetwork}, mas precisará de %{assetSymbol} em %{destinationNetwork} para fazer stake. Podemos ajudá-lo a conectar sua conexão com %{destinationNetwork}. Gostaria que o orientássemos durante o processo?",
-    "unstakeWarning": "Antes de você poder reivindicar seus FOX, há um período de espera de %{cooldownPeriod}. Após esse tempo, você poderá reivindicar o valor que não está em stake.",
     "tooltips": {
       "stakeAmount": "Esta é a quantidade de FOX que você fará stake",
       "unstakeAmount": "Esta é a quantidade de FOX que você não fará stake",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Alterando endereço de recompensa...",
     "changeRewardAddressSuccess": "Você alterou com sucesso seu endereço de recompensa da THORChain.",
     "unstakePending": "Solicitando saque de %{amount} %{symbol}",
-    "unstakeSuccess": "Assim que %{cooldownPeriod} tiver decorrido, você poderá resgatar seu %{amount} %{symbol}",
     "currentRewardAddress": "Endereço de recompensa atual",
     "newRewardAddress": "Novo endereço de recompensa",
     "rewardCycleExplainer": "Isso será atualizado para o próximo ciclo de recompensa.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Nenhuma resgate disponível",
     "errorFetchingClaims": "Ocorreu um erro ao buscar resgates",
     "noClaimsAvailableDescription": "Você não tem nenhum resgate disponível",
-    "unstakeNow": "Unstake agora",
     "bridgeAndConfirm": "Confirme & Faça a ponte",
     "noSupportedChains": "Rede não suportada",
     "noSupportedChainsDescription": "Adicione %{chainLabel} ou conecte-se a uma carteira que suporte isso.",

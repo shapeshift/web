@@ -28,8 +28,6 @@ export const fetchEpochHistory = async (): Promise<Epoch[]> => {
     queryFn: fetchCurrentEpochMetadata,
   })
 
-  console.log(currentEpochMetadata)
-
   const orderedEpochIpfsHashes = orderBy(
     Object.entries(currentEpochMetadata.ipfsHashByEpoch).map(([epochNumber, ipfsHash]) => ({
       epochNumber,
@@ -42,8 +40,6 @@ export const fetchEpochHistory = async (): Promise<Epoch[]> => {
   const responses = await Promise.all(
     orderedEpochIpfsHashes.map(hash => axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)),
   )
-
-  console.log(responses.map(({ data }) => data))
 
   return responses.map(({ data }) => data)
 }

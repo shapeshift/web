@@ -31,7 +31,7 @@ export const useCurrentEpochRewardsQuery = ({
       const combineResults = (_results: (Epoch[] | bigint | PartialEpoch | undefined)[]) => {
         if (!stakingAssetAccountAddress) return 0n
 
-        const checksummedStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
+        const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
 
         const results = _results as [
           Epoch[] | undefined,
@@ -49,7 +49,7 @@ export const useCurrentEpochRewardsQuery = ({
 
         const previousEpoch: RewardDistribution | undefined =
           epochHistory?.[epochHistory.length - 1].distributionsByStakingAddress[
-            checksummedStakingAssetAccountAddress
+            checksumStakingAssetAccountAddress
           ]
 
         const previousEpochRewardUnits = BigInt(previousEpoch?.rewardUnits ?? '0')

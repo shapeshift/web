@@ -20,7 +20,6 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     return [fromAccountId(stakingAssetAccountId).account]
   }, [stakingAssetAccountId])
 
-  // TODO: Fetch any rune accounts not held in tx history
   const {
     data: maybeTxIds,
     isLoading: isRewardTxIdsLoading,
@@ -28,7 +27,6 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   } = useRewardTxIds({ stakingAssetAccountAddresses })
 
   const isLoading = useMemo(() => {
-    // TODO: show loading state if tx history is also loading
     return isRewardTxIdsLoading || isRewardTxIdsFetching
   }, [isRewardTxIdsFetching, isRewardTxIdsLoading])
 

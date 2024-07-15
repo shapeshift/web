@@ -21,14 +21,6 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
     .times(distributionAmountRuneBaseUnit.toString())
     .toFixed(0)
 
-  console.log({
-    epoch,
-    epochEarningsForAccountAdjustedForWAD,
-    distributionAmountRuneBaseUnit: distributionAmountRuneBaseUnit.toString(),
-    totalRewardUnits: epoch.totalRewardUnits,
-    epochRewardRuneBaseUnit,
-  })
-
   return BigInt(epochRewardRuneBaseUnit)
 }
 

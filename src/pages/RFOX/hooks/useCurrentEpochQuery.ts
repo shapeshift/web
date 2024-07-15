@@ -46,10 +46,6 @@ export const fetchCurrentEpoch = async (): Promise<PartialEpoch> => {
   const secondsInCurrentEpoch = dayjs().unix() - currentEpochMetadata.epochStartTimestamp / 1000
   const totalRewardUnits = (RFOX_REWARD_RATE / RFOX_WAD) * BigInt(secondsInCurrentEpoch)
 
-  console.log({
-    affiliateRevenueRuneBaseUnit,
-  })
-
   return {
     number: currentEpochMetadata.epoch,
     startTimestamp: currentEpochMetadata.epochStartTimestamp,

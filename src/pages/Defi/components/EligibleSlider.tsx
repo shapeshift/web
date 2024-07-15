@@ -19,7 +19,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     // opportunities with 1% APY or more
     const filteredEligibleOpportunities = eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
-      .sort((a, b) => bn(b.apy).toNumber() - bn(a.apy).toNumber())
+      .sort((a, b) => bn(b.apy ?? '0').toNumber() - bn(a.apy ?? '0').toNumber())
       .slice(0, 5)
 
     const foxFarmingV9 = eligibleOpportunities.find(

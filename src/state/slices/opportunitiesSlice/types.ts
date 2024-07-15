@@ -20,6 +20,7 @@ export enum DefiType {
 
 export enum DefiProvider {
   ShapeShift = 'ShapeShift',
+  rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
@@ -40,11 +41,11 @@ export type AssetIdsTuple =
   | readonly []
 
 export type OpportunityMetadataBase = {
-  apy: string
+  apy?: string
   assetId: AssetId
   id: OpportunityId
   provider: string
-  tvl: string
+  tvl?: string
   type: DefiType
   // An optional user-facing `type` equivalent to allow us to display the opportunity type in the UI
   // our `type` property is an implementation detail that somehow ended up being user-facing, and might go away
@@ -184,8 +185,8 @@ type EarnDefiTypeBase = {
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy: number | string
-  tvl: string
+  apy?: number | string
+  tvl?: string
   underlyingAssetId: AssetId
   assetId: AssetId
   id: OpportunityId

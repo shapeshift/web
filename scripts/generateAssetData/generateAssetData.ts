@@ -180,6 +180,7 @@ const generateAssetData = async () => {
     explorerAddressLink: 'https://arbiscan.io/address/',
     explorerTxLink: 'https://arbiscan.io/tx/',
   }
+
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
   await fs.promises.writeFile(

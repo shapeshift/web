@@ -199,7 +199,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
     return (
       <FoxFarmingEmpty
         assets={underlyingAssets}
-        apy={opportunityData.apy.toString() ?? ''}
+        apy={opportunityData.apy?.toString() ?? ''}
         opportunityName={opportunityData.name ?? ''}
         onClick={handleFoxFarmingEmptyClick}
       />

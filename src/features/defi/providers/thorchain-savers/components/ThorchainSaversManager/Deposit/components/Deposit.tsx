@@ -764,7 +764,7 @@ export const Deposit: React.FC<DepositProps> = ({
         expectedAmountOutThorBaseUnit,
         amountCryptoBaseUnit,
         asset,
-        apy: opportunityData?.apy,
+        apy: opportunityData?.apy ?? '0',
       })
       setDaysToBreakEven(daysToBreakEven)
     })

@@ -404,6 +404,10 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
             return { contractAddress: fromAccountId(opportunity.id).account }
           }
 
+          if (opportunity.provider === DefiProvider.rFOX && opportunity.id) {
+            return { contractAddress: fromAccountId(opportunity.id).account }
+          }
+
           if (isFoxEthStakingAssetId(opportunity.assetId))
             return {
               contractAddress: fromAssetId(opportunity.assetId).assetReference,

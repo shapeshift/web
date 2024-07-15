@@ -146,7 +146,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         ? makeDaysToBreakEven({
             amountCryptoBaseUnit,
             asset,
-            apy: opportunity.apy,
+            apy: opportunity.apy ?? '0',
             expectedAmountOutThorBaseUnit,
           })
         : undefined

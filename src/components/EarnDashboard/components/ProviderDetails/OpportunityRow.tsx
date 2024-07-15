@@ -100,7 +100,9 @@ export const OpportunityRow: React.FC<
   const handleOverviewClick = useCallback(() => handleClick(DefiAction.Overview), [handleClick])
 
   const subTextJoined = useMemo(() => {
-    const aprElement = <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+    const aprElement = apy ? (
+      <Amount.Percent value={bnOrZero(apy).toString()} suffix='APY' autoColor />
+    ) : null
     const expiredElement = (
       <Stat fontWeight='medium'>
         <Tag colorScheme='yellow'>

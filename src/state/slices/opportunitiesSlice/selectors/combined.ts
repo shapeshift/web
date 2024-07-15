@@ -192,14 +192,14 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
           // No active staking for the current AssetId, show the highest APY
           if (!isActiveAssetId) {
-            acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy).toFixed()
+            acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy ?? '0').toFixed()
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
               BigNumber.max(amountFiat, 0),
             )
             projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
               projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy))
+            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy ?? '1'))
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
@@ -396,6 +396,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     const initial = {
       [DefiProvider.ShapeShift]: makeEmptyPayload(DefiProvider.ShapeShift),
       [DefiProvider.EthFoxStaking]: makeEmptyPayload(DefiProvider.EthFoxStaking),
+      [DefiProvider.rFOX]: makeEmptyPayload(DefiProvider.rFOX),
       [DefiProvider.UniV2]: makeEmptyPayload(DefiProvider.UniV2),
       [DefiProvider.CosmosSdk]: makeEmptyPayload(DefiProvider.CosmosSdk),
       [DefiProvider.ThorchainSavers]: makeEmptyPayload(DefiProvider.ThorchainSavers),
@@ -452,14 +453,14 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
           (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         // No active staking for the current provider, show the highest APY
         if (!isActiveProvider) {
-          acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy).toFixed()
+          acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy ?? '0').toFixed()
         } else if (isActiveOpportunityByFilter) {
           totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
             BigNumber.max(cur.fiatAmount, 0),
           )
           projectedAnnualizedYieldByProvider[provider] = bnOrZero(
             projectedAnnualizedYieldByProvider[provider],
-          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
+          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy ?? '1'))
         }
 
         if (cur.type === DefiType.LiquidityPool) {

@@ -16,6 +16,7 @@ import {
   foxyStakingOpportunitiesUserDataResolver,
   foxyStakingOpportunityIdsResolver,
 } from './resolvers/foxy'
+import { rFOXStakingMetadataResolver, rFOXStakingOpportunityIdsResolver } from './resolvers/rFOX'
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -38,6 +39,9 @@ import { DefiProvider, DefiType } from './types'
 export const DefiProviderToMetadataResolverByDeFiType: DefiProviderToMetadataResolver = {
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingMetadataResolver,
+  },
+  [`${DefiProvider.rFOX}`]: {
+    [`${DefiType.Staking}`]: rFOXStakingMetadataResolver,
   },
 }
 
@@ -77,6 +81,9 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOppor
     },
     [`${DefiProvider.EthFoxStaking}`]: {
       [`${DefiType.Staking}`]: ethFoxStakingOpportunityIdsResolver,
+    },
+    [`${DefiProvider.rFOX}`]: {
+      [`${DefiType.Staking}`]: rFOXStakingOpportunityIdsResolver,
     },
     [`${DefiProvider.ThorchainSavers}`]: {
       [`${DefiType.Staking}`]: thorchainSaversOpportunityIdsResolver,
@@ -174,7 +181,12 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.PolygonMainnet]: [],
   [KnownChainIds.GnosisMainnet]: [],
   [KnownChainIds.ThorchainMainnet]: [],
-  [KnownChainIds.ArbitrumMainnet]: [],
+  [KnownChainIds.ArbitrumMainnet]: [
+    {
+      defiProvider: DefiProvider.rFOX,
+      defiType: DefiType.Staking,
+    },
+  ],
   [KnownChainIds.ArbitrumNovaMainnet]: [],
   [KnownChainIds.BaseMainnet]: [],
 }

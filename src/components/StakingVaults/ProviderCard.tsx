@@ -1,5 +1,6 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
+  Box,
   Card,
   CardBody,
   CardHeader,
@@ -121,14 +122,21 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
         fontWeight='bold'
       >
         <Flex width='full' gap={flexGap} alignItems='center' justifyContent='space-between'>
-          <SkeletonCircle isLoaded={isLoaded}>
-            <LazyLoadAvatar src={icon} size='sm' />
-          </SkeletonCircle>
-          <RawText textTransform='capitalize'>{provider}</RawText>
-          <Amount.Fiat fontSize='lg' value={netProviderFiatAmount} display={displayMdBlock} />
-          <Tag colorScheme='green' ml='auto'>
-            <Amount.Percent value={apy} suffix='Net APY' />
-          </Tag>
+          <Flex gap={flexGap} alignItems='center' justifyContent='space-between'>
+            <SkeletonCircle isLoaded={isLoaded}>
+              <LazyLoadAvatar src={icon} size='sm' />
+            </SkeletonCircle>
+            <RawText textTransform='capitalize'>{provider}</RawText>
+            <Amount.Fiat fontSize='lg' value={netProviderFiatAmount} display={displayMdBlock} />
+          </Flex>
+          {apy !== '0' ? (
+            <Tag colorScheme='green' ml='auto'>
+              <Amount.Percent value={apy} suffix='Net APY' />
+            </Tag>
+          ) : (
+            // We want an empty box to keep the layout consistent
+            <Box></Box>
+          )}
         </Flex>
 
         <Amount.Fiat

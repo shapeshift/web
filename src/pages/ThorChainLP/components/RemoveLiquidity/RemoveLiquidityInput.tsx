@@ -36,8 +36,8 @@ import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
-import { AssetInput } from 'components/DeFi/components/AssetInput'
 import { SlippagePopover } from 'components/MultiHopTrade/components/SlippagePopover'
+import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
@@ -73,6 +73,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { LpType } from '../LpType'
+import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import { RemoveLiquidityRoutePaths } from './types'
 
 const INITIAL_REMOVAL_PERCENTAGE = 50
@@ -762,13 +763,17 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             .toFixed()
 
           return (
-            <AssetInput
+            <TradeAssetInput
               key={asset.assetId}
               accountId={accountId}
               cryptoAmount={cryptoAmount}
               onChange={handleRemoveLiquidityInputChange}
-              revalidateOnValueChange={false}
+              isAccountSelectionDisabled={true}
               fiatAmount={fiatAmount}
+              // @TODO: support multiaccount if we really want to
+              // eslint-disable-next-line
+              onAccountIdChange={() => {}}
+              rightComponent={ReadOnlyAsset}
               showFiatAmount
               assetId={asset.assetId}
               assetIcon={asset.icon}

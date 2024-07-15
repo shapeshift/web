@@ -156,3 +156,10 @@ export const selectUserCurrencyRateByAssetId = createCachedSelector(
       .toString()
   },
 )((_state: ReduxState, assetId?: AssetId): AssetId => assetId ?? 'assetId')
+
+export const selectHasMarketDataPrice = createSelector(
+  selectMarketDataByFilter,
+  (marketData): boolean => {
+    return !!marketData.price && marketData.price !== '0'
+  },
+)

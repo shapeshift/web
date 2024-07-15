@@ -77,19 +77,30 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
 
-    const usdPrice = await getTokenPrice(asset.assetId)
+    const emptyMarketData = {
+      price: '0',
+      marketCap: '0',
+      volume: '0',
+      changePercent24Hr: 0,
+    }
 
-    // Add market data to the store
-    dispatch(
-      marketDataSlice.actions.setCryptoMarketData({
-        [asset.assetId]: {
-          price: usdPrice ? usdPrice : '0',
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-        },
-      }),
-    )
+    try {
+      const usdPrice = await getTokenPrice(asset.assetId)
+
+      // Add market data to the store
+      dispatch(
+        marketDataSlice.actions.setCryptoMarketData({
+          [asset.assetId]: {
+            ...emptyMarketData,
+            // TODO: We need to fix the types here, the properties should be undefined, not 0, when unavailable.
+            price: usdPrice ? usdPrice : '0',
+          },
+        }),
+      )
+    } catch (error) {
+      // Else add an empty market data object to the store so it shows up in the asset search
+      dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: emptyMarketData }))
+    }
 
     // Once the custom asset is in the store, proceed as if it was a normal asset
     handleAssetClick(asset)

@@ -28,7 +28,12 @@ import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOpt
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectHasMarketDataPrice,
+  selectIsCustomAsset,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
@@ -170,6 +175,18 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const assetMarketDataUserCurrency = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
     )
+    const isCustomAsset = useAppSelector(state => selectIsCustomAsset(state, assetId))
+    const marketDataFilter = useMemo(
+      () => ({
+        assetId,
+      }),
+      [assetId],
+    )
+    const hasMarketDataPrice = useAppSelector(state =>
+      selectHasMarketDataPrice(state, marketDataFilter),
+    )
+
+    const isCustomAssetWithoutMarketData = isCustomAsset && !hasMarketDataPrice
 
     // Local controller in case consumers don't have a form context, which is the case for all current consumers currently except RFOX
     const _methods = useForm<TradeAmountInputFormValues>({
@@ -348,19 +365,22 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               />
             </Skeleton>
             {RightComponent && <RightComponent assetId={assetId} />}
-            {layout === 'inline' && showFiatAmount && !hideAmounts && (
-              <Button
-                onClick={toggleIsFiat}
-                size='sm'
-                disabled={showFiatSkeleton}
-                fontWeight='medium'
-                variant='link'
-                color='text.subtle'
-                mb={1}
-              >
-                <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
-              </Button>
-            )}
+            {layout === 'inline' &&
+              showFiatAmount &&
+              !isCustomAssetWithoutMarketData &&
+              !hideAmounts && (
+                <Button
+                  onClick={toggleIsFiat}
+                  size='sm'
+                  disabled={showFiatSkeleton}
+                  fontWeight='medium'
+                  variant='link'
+                  color='text.subtle'
+                  mb={1}
+                >
+                  <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
+                </Button>
+              )}
           </Flex>
         </Stack>
         {layout === 'stacked' && (
@@ -374,7 +394,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             alignItems='center'
             display={hideAmounts ? 'none' : 'flex'}
           >
-            {showFiatAmount && (
+            {showFiatAmount && !isCustomAssetWithoutMarketData && (
               <Flex alignItems='center' gap={2}>
                 <Button
                   onClick={toggleIsFiat}

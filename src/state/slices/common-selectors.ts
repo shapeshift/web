@@ -13,7 +13,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssets } from './assetsSlice/selectors'
+import { selectAssetById, selectAssets } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
@@ -227,5 +227,14 @@ export const selectHighestMarketCapFeeAsset = createSelector(
     )
 
     return sortedFeeAssets[0]
+  },
+)
+
+export const selectIsCustomAsset = createSelector(
+  selectAssetById,
+  (_state: ReduxState, assetId: AssetId) => assetId,
+  (asset, _assetId): boolean => {
+    if (!asset) return false
+    return !!asset.isCustomAsset
   },
 )

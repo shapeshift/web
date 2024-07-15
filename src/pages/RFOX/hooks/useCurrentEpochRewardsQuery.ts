@@ -48,7 +48,7 @@ export const useCurrentEpochRewardsQuery = ({
         }
 
         const previousEpoch: RewardDistribution | undefined =
-          epochHistory?.[epochHistory.length - 1].distributionsByStakingAddress[
+          epochHistory?.[epochHistory.length - 1]?.distributionsByStakingAddress[
             checksumStakingAssetAccountAddress
           ]
 

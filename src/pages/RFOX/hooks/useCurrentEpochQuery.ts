@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
+import { RFOX_PROXY_CONTRACT_ADDRESS, RFOX_REWARD_RATE, RFOX_WAD } from 'contracts/constants'
 import dayjs from 'dayjs'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
-import type { PartialEpoch } from '../types'
+import type { Epoch, PartialEpoch } from '../types'
+import { getRfoxContractCreationBlockNumber } from './helpers'
 import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAffiliateRevenueQuery'
 import {
   fetchCurrentEpochMetadata,
@@ -38,7 +39,7 @@ export const fetchCurrentEpoch = async (): Promise<PartialEpoch> => {
     }),
   ])
 
-  const lastHistoricalEpoch = historicalEpochs[historicalEpochs.length - 1]
+  const lastHistoricalEpoch: Epoch | undefined = historicalEpochs[historicalEpochs.length - 1]
 
   // Calculate the total reward units for the current epoch so far. Note this is not the total
   // reward units for the epoch because the epoch is still ongoing and the affiliate revenue is
@@ -50,7 +51,10 @@ export const fetchCurrentEpoch = async (): Promise<PartialEpoch> => {
     number: currentEpochMetadata.epoch,
     startTimestamp: currentEpochMetadata.epochStartTimestamp,
     endTimestamp: currentEpochMetadata.epochEndTimestamp,
-    startBlock: lastHistoricalEpoch.endBlock + 1,
+    // If this is the first epoch there will be no historical epochs, so we use the contract creation block number as the start block
+    startBlock: lastHistoricalEpoch
+      ? lastHistoricalEpoch.endBlock + 1
+      : Number(getRfoxContractCreationBlockNumber(RFOX_PROXY_CONTRACT_ADDRESS)),
     endBlock: undefined,
     totalRevenue: affiliateRevenueRuneBaseUnit.toString(),
     totalRewardUnits: totalRewardUnits.toString(),

@@ -30,8 +30,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
-  selectHasMarketDataPrice,
-  selectIsCustomAsset,
+  selectIsCustomAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -175,18 +174,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const assetMarketDataUserCurrency = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
     )
-    const isCustomAsset = useAppSelector(state => selectIsCustomAsset(state, assetId))
-    const marketDataFilter = useMemo(
-      () => ({
-        assetId,
-      }),
-      [assetId],
+    const isCustomAssetWithoutMarketData = useAppSelector(state =>
+      selectIsCustomAssetWithoutMarketData(state, assetId),
     )
-    const hasMarketDataPrice = useAppSelector(state =>
-      selectHasMarketDataPrice(state, marketDataFilter),
-    )
-
-    const isCustomAssetWithoutMarketData = isCustomAsset && !hasMarketDataPrice
 
     // Local controller in case consumers don't have a form context, which is the case for all current consumers currently except RFOX
     const _methods = useForm<TradeAmountInputFormValues>({

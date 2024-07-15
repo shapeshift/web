@@ -22,6 +22,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectIsCustomAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectUserSlippagePercentageDecimal,
@@ -125,6 +126,15 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [buyAssetMarketData.price, totalReceiveAmountCryptoPrecision],
     )
 
+    const isSellAssetCustomAssetWithoutMarketData = useAppSelector(state =>
+      selectIsCustomAssetWithoutMarketData(state, sellAsset.assetId),
+    )
+    const isBuyAssetCustomAssetWithoutMarketData = useAppSelector(state =>
+      selectIsCustomAssetWithoutMarketData(state, buyAsset.assetId),
+    )
+    const isTradingCustomAssetWithoutMarketData =
+      isSellAssetCustomAssetWithoutMarketData || isBuyAssetCustomAssetWithoutMarketData
+
     const handleQuoteSelection = useCallback(() => {
       if (!isActive) {
         dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
@@ -162,10 +172,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const hasAmountWithPositiveReceive =
       isAmountEntered &&
-      !hasNegativeRatio &&
+      (!hasNegativeRatio || isTradingCustomAssetWithoutMarketData) &&
       bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
-    const tag: JSX.Element = useMemo(() => {
+    const tag: JSX.Element | null = useMemo(() => {
       const error = errors?.[0]
       const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
@@ -192,18 +202,16 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
             </Tag>
           )
         default:
-          return (
+          return quoteOverallDifferenceDecimalPercentage !== undefined ? (
             <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
               <Tag size='sm'>
-                {quoteOverallDifferenceDecimalPercentage !== undefined && (
-                  <Amount.Percent
-                    value={quoteOverallDifferenceDecimalPercentage ?? 0}
-                    autoColor={false}
-                  />
-                )}
+                <Amount.Percent
+                  value={quoteOverallDifferenceDecimalPercentage ?? 0}
+                  autoColor={false}
+                />
               </Tag>
             </Tooltip>
-          )
+          ) : null
       }
     }, [
       errors,

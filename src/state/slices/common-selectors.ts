@@ -15,7 +15,11 @@ import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'st
 
 import { selectAssetById, selectAssets } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
-import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
+import {
+  selectHasMarketDataPrice,
+  selectMarketDataUsd,
+  selectMarketDataUserCurrency,
+} from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
@@ -237,4 +241,11 @@ export const selectIsCustomAsset = createSelector(
     if (!asset) return false
     return !!asset.isCustomAsset
   },
+)
+
+// This is a specific case we want to check for, where we have a custom asset but no market data
+export const selectIsCustomAssetWithoutMarketData = createSelector(
+  selectHasMarketDataPrice,
+  selectIsCustomAsset,
+  (hasMarketDataPrice, isCustomAsset): boolean => !hasMarketDataPrice && isCustomAsset,
 )

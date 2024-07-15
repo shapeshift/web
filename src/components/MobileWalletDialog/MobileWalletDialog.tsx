@@ -1,7 +1,7 @@
 import { AddIcon, ArrowDownIcon, ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
 import { Dialog } from 'components/Modal/components/Dialog'
@@ -18,7 +18,7 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { WalletList } from 'pages/ConnectWallet/components/WalletList'
+import { MobileWalletList } from 'pages/ConnectWallet/components/WalletList'
 
 const addIcon = <AddIcon />
 const importIcon = <ArrowDownIcon />
@@ -57,11 +57,34 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
     importWallet(KeyManager.Mobile)
   }, [dispatch, importWallet, onClose])
+
+  const mobileWalletFooter = useMemo(() => {
+    return (
+      <Stack py={4} spacing={0}>
+        <MainNavLink
+          color='text.link'
+          leftIcon={addIcon}
+          size='sm'
+          onClick={handleCreate}
+          label={translate('connectWalletPage.createANewWallet')}
+        />
+        <MainNavLink
+          color='text.link'
+          colorScheme='blue'
+          leftIcon={importIcon}
+          size='sm'
+          onClick={handleImport}
+          label={translate('connectWalletPage.importExisting')}
+        />
+      </Stack>
+    )
+  }, [handleCreate, handleImport, translate])
+
   return (
     <Dialog isOpen={isOpen} onClose={onClose}>
       <DialogHeader>
         <DialogHeaderMiddle>
-          <DialogTitle>Saved Wallets</DialogTitle>
+          <DialogTitle>{translate('walletProvider.shapeShift.load.header')}</DialogTitle>
         </DialogHeaderMiddle>
         <DialogHeaderRight>
           <Button variant='ghost' colorScheme='blue'>
@@ -70,24 +93,7 @@ export const MobileWalletDialog: React.FC<MobileWalletDialogProps> = ({ isOpen, 
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
-        <WalletList />
-        <Stack py={4} spacing={0}>
-          <MainNavLink
-            color='text.link'
-            leftIcon={addIcon}
-            size='sm'
-            onClick={handleCreate}
-            label={translate('connectWalletPage.createANewWallet')}
-          />
-          <MainNavLink
-            color='text.link'
-            colorScheme='blue'
-            leftIcon={importIcon}
-            size='sm'
-            onClick={handleImport}
-            label={translate('connectWalletPage.importExisting')}
-          />
-        </Stack>
+        <MobileWalletList footerComponent={mobileWalletFooter} />
       </DialogBody>
       <DialogFooter borderTopWidth={1} borderColor='border.base' pt={4} flexDir='column'>
         {isWalletConnectToDappsV2Enabled && <WalletConnectToDappsHeaderButton />}

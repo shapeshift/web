@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, Spinner, Stack } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -16,7 +16,11 @@ export type WalletInfo = {
   createdAt?: number
 }
 
-export const WalletList = () => {
+type MobileWalletDialogProps = {
+  footerComponent?: JSX.Element
+}
+
+export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({ footerComponent }) => {
   const { dispatch, getAdapter, state } = useWallet()
   const { walletInfo } = state
   const localWallet = useLocalWallet()
@@ -116,5 +120,14 @@ export const WalletList = () => {
     )
   }, [error, handleWalletSelect, walletInfo?.deviceId, wallets])
 
-  return isLoading ? <Spinner /> : <>{content}</>
+  return isLoading ? (
+    <Center py={6}>
+      <Spinner />
+    </Center>
+  ) : (
+    <Stack>
+      {content}
+      {footerComponent}
+    </Stack>
+  )
 }

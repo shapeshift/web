@@ -118,14 +118,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [quote],
     )
 
-    const totalReceiveAmountFiatPrecision = useMemo(
-      () =>
-        bn(totalReceiveAmountCryptoPrecision)
-          .times(buyAssetMarketData.price ?? 0)
-          .toString(),
-      [buyAssetMarketData.price, totalReceiveAmountCryptoPrecision],
-    )
-
     const isSellAssetCustomAssetWithoutMarketData = useAppSelector(state =>
       selectIsCustomAssetWithoutMarketData(state, sellAsset.assetId),
     )
@@ -134,6 +126,20 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     )
     const isTradingCustomAssetWithoutMarketData =
       isSellAssetCustomAssetWithoutMarketData || isBuyAssetCustomAssetWithoutMarketData
+
+    const totalReceiveAmountFiatPrecision = useMemo(
+      () =>
+        isTradingCustomAssetWithoutMarketData
+          ? undefined
+          : bn(totalReceiveAmountCryptoPrecision)
+              .times(buyAssetMarketData.price ?? 0)
+              .toString(),
+      [
+        buyAssetMarketData.price,
+        isTradingCustomAssetWithoutMarketData,
+        totalReceiveAmountCryptoPrecision,
+      ],
+    )
 
     const handleQuoteSelection = useCallback(() => {
       if (!isActive) {

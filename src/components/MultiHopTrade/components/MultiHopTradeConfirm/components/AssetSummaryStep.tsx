@@ -45,16 +45,9 @@ export const AssetSummaryStep = ({
   )
 
   const amountFiatFormatted = useMemo(() => {
-    if (isCustomAssetWithoutMarketData) return 'Unknown fiat amount'
     const sellAssetRateUserCurrency = marketDataUserCurrency[asset.assetId]?.price ?? '0'
     return toFiat(bn(sellAmountCryptoPrecision).times(sellAssetRateUserCurrency).toString())
-  }, [
-    isCustomAssetWithoutMarketData,
-    marketDataUserCurrency,
-    asset.assetId,
-    toFiat,
-    sellAmountCryptoPrecision,
-  ])
+  }, [marketDataUserCurrency, asset.assetId, toFiat, sellAmountCryptoPrecision])
 
   const chainName = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
@@ -68,7 +61,11 @@ export const AssetSummaryStep = ({
   return (
     <StepperStep
       title={amountCryptoFormatted}
-      description={translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })}
+      description={
+        isCustomAssetWithoutMarketData
+          ? undefined
+          : translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })
+      }
       stepIndicator={assetIcon}
       isLastStep={isLastStep}
     />

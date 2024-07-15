@@ -3,6 +3,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
+import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByName,
@@ -40,9 +41,14 @@ export const SearchTermAssetList = ({
     [activeChainId, walletConnectedChainIds],
   )
   const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
+  const alchemySupportedChainIds = useMemo(
+    () =>
+      walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),
+    [walletSupportedEvmChainIds],
+  )
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds: walletSupportedEvmChainIds,
+    chainIds: alchemySupportedChainIds,
   })
 
   const assetsForChain = useMemo(() => {

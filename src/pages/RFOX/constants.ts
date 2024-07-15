@@ -8,4 +8,4 @@ export const withdrawEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Withdraw'
 
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'QmXaNZPS21azEYpHyjvuhQiomuy9o4LAbXafSHZfEw2myE'
+export const CURRENT_EPOCH_IPFS_HASH = 'QmaPiFbJSVoUVb2TJdZ2NkwExJPMD172LGGjAvDuKrJayK'

@@ -1,10 +1,20 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
+import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
+import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { useRewardTxIds } from 'pages/RFOX/hooks/useRewardTxIds'
+import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { getTxLink } from 'lib/getTxLink'
+import { useLifetimeRewardDistributionsQuery } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import type { RewardDistribution } from 'pages/RFOX/types'
+import { selectAssetById } from 'state/slices/selectors'
+import type { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
+
+import { RewardTransactionList } from './RewardTransactionList'
 
 type RewardsContentProps = {
   stakingAssetAccountId: AccountId
@@ -16,24 +26,82 @@ type RewardsProps = {
 }
 
 const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
+  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const stakingAssetAccountAddresses = useMemo(() => {
     return [fromAccountId(stakingAssetAccountId).account]
   }, [stakingAssetAccountId])
 
   const {
-    data: maybeTxIds,
-    isLoading: isRewardTxIdsLoading,
-    isFetching: isRewardTxIdsFetching,
-  } = useRewardTxIds({ stakingAssetAccountAddresses })
+    data: maybeRewardDistributions,
+    isLoading: isRewardDistributionsLoading,
+    isFetching: isRewardDistributionsFetching,
+  } = useLifetimeRewardDistributionsQuery({ stakingAssetAccountAddresses })
 
   const isLoading = useMemo(() => {
-    return isRewardTxIdsLoading || isRewardTxIdsFetching
-  }, [isRewardTxIdsFetching, isRewardTxIdsLoading])
+    return isRewardDistributionsLoading || isRewardDistributionsFetching
+  }, [isRewardDistributionsFetching, isRewardDistributionsLoading])
 
-  // referential stability when coalescing txIds
+  const rewardDistributionsByTxId = useMemo(() => {
+    if (!maybeRewardDistributions) return {}
+    return maybeRewardDistributions.reduce<Record<string, RewardDistribution>>(
+      (acc, rewardDistribution) => {
+        acc[rewardDistribution.txId] = rewardDistribution
+        return acc
+      },
+      {},
+    )
+  }, [maybeRewardDistributions])
+
   const txIds = useMemo(() => {
-    return maybeTxIds ?? []
-  }, [maybeTxIds])
+    return Object.keys(rewardDistributionsByTxId)
+  }, [rewardDistributionsByTxId])
+
+  const getTxDetails = useCallback(
+    (txId: TxId): TxDetails | undefined => {
+      if (!rune) return
+
+      const { rewardAddress, amount } = rewardDistributionsByTxId[txId]
+
+      const txTransfer: TxTransfer = {
+        from: [DAO_TREASURY_THORCHAIN],
+        to: [rewardAddress],
+        value: amount,
+        assetId: thorchainAssetId,
+        type: TransferType.Receive,
+      }
+
+      const tx: Tx = {
+        pubkey: rewardAddress,
+        status: TxStatus.Confirmed,
+        chainId: thorchainChainId,
+        blockHeight: 0,
+        blockTime: 0,
+        confirmations: 0,
+        txid: txId,
+        transfers: [txTransfer],
+      }
+
+      const txLink = getTxLink({
+        name: Dex.Thor,
+        defaultExplorerBaseUrl: '',
+        txId,
+      })
+
+      return {
+        tx,
+        fee: undefined,
+        transfers: [
+          {
+            ...txTransfer,
+            asset: rune,
+          },
+        ],
+        type: TransferType.Receive,
+        txLink,
+      }
+    },
+    [rewardDistributionsByTxId, rune],
+  )
 
   if (!txIds.length && !isLoading) {
     return <Text color='text.subtle' translation='RFOX.noRewardsYet' />
@@ -41,7 +109,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
 
   return (
     <Box mx={-6}>
-      <TransactionsGroupByDate txIds={txIds} isLoading={isLoading} />
+      <RewardTransactionList txIds={txIds} isLoading={isLoading} getTxDetails={getTxDetails} />
     </Box>
   )
 }

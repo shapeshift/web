@@ -38,7 +38,7 @@ type TransactionGenericRowProps = {
   txDetails: TxDetails
   blockTime: number
   txLink: string
-  toggleOpen: () => void
+  toggleOpen?: () => void
   parentWidth: number
 }
 

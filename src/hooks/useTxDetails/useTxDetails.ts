@@ -1,23 +1,16 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
-import type { Asset, AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { getTxLink } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
-import { defaultMarketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import {
-  selectAssets,
-  selectFeeAssetByChainId,
-  selectMarketDataUserCurrency,
-  selectTxById,
-} from 'state/slices/selectors'
+import { selectAssets, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-export type Transfer = TxTransfer & { asset: Asset; marketData: MarketData }
-export type Fee = unchained.Fee & { asset: Asset; marketData: MarketData }
+export type Transfer = TxTransfer & { asset: Asset }
+export type Fee = unchained.Fee & { asset: Asset }
 
 export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'common'
 
@@ -87,11 +80,7 @@ export const getTxType = (tx: Tx, transfers: Transfer[]): TxType => {
   return 'common'
 }
 
-export const getTransfers = (
-  tx: Tx,
-  assets: AssetsByIdPartial,
-  marketData: Record<AssetId, MarketData | undefined>,
-): Transfer[] => {
+export const getTransfers = (tx: Tx, assets: AssetsByIdPartial): Transfer[] => {
   return tx.transfers.reduce<Transfer[]>((prev, transfer) => {
     const asset = assets[transfer.assetId]
 
@@ -103,10 +92,9 @@ export const getTransfers = (
           symbol: asset.symbol || transfer.token?.symbol || '',
           name: asset.name || transfer.token?.name || '',
         },
-        marketData: marketData[transfer.assetId] ?? defaultMarketData,
       })
     } else {
-      prev.push({ ...transfer, asset: defaultAsset, marketData: defaultMarketData })
+      prev.push({ ...transfer, asset: defaultAsset })
     }
 
     return prev
@@ -116,29 +104,30 @@ export const getTransfers = (
 export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
-  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
 
-  const transfers = useMemo(
-    () => getTransfers(tx, assets, marketDataUserCurrency),
-    [tx, assets, marketDataUserCurrency],
-  )
+  const transfers = useMemo(() => {
+    if (!tx) return []
+    return getTransfers(tx, assets)
+  }, [tx, assets])
 
   const fee = useMemo(() => {
-    if (!tx.fee) return
+    if (!tx?.fee) return
     return {
       ...tx.fee,
       asset: assets[tx.fee.assetId] ?? defaultAsset,
-      marketData: marketDataUserCurrency[tx.fee.assetId] ?? defaultMarketData,
     }
-  }, [tx.fee, assets, marketDataUserCurrency])
+  }, [tx?.fee, assets])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx?.chainId ?? ''))
 
   const txLink = getTxLink({
-    name: tx.trade?.dexName,
+    name: tx?.trade?.dexName,
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-    txId: tx.txid,
+    txId,
   })
+
+  // This should never happen, but if it does we should not continue
+  if (!tx) throw Error('Transaction not found')
 
   return {
     tx,

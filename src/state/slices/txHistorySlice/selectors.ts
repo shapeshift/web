@@ -59,7 +59,7 @@ const selectTxIdsParam = createDeepEqualOutputSelector(
 export const selectTxById = createCachedSelector(
   selectTxs,
   selectTxIdParam,
-  (txsById, txId) => txsById[txId],
+  (txsById, txId): Tx | undefined => txsById[txId],
 )({
   keySelector: (_txsById, txId: TxId | undefined): TxId => txId ?? 'undefined',
   selectorCreator: createDeepEqualOutputSelector,

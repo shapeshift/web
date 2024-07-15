@@ -18,11 +18,11 @@ export type TransactionRowProps = {
   showDateAndGuide?: boolean
   compactMode: boolean
   isOpen: boolean
-  toggleOpen: () => void
+  toggleOpen?: () => void
   parentWidth: number
 }
 
-type TxRowProps = {
+export type TxRowProps = {
   txId: string
   activeAsset?: Asset
   showDateAndGuide?: boolean
@@ -30,9 +30,10 @@ type TxRowProps = {
   parentWidth: number
   initOpen?: boolean
   disableCollapse?: boolean
-} & BoxProps
+  boxProps?: BoxProps
+}
 
-const TransactionType = ({
+export const TransactionType = ({
   txDetails,
   showDateAndGuide,
   useCompactMode,
@@ -41,17 +42,17 @@ const TransactionType = ({
   toggleOpen,
 }: {
   txDetails: TxDetails
-  showDateAndGuide: boolean
-  useCompactMode: boolean
+  showDateAndGuide?: boolean
+  useCompactMode?: boolean
   isOpen: boolean
   parentWidth: number
-  toggleOpen: () => void
+  toggleOpen?: () => void
 }): JSX.Element => {
   const props: TransactionRowProps = useMemo(
     () => ({
       txDetails,
-      showDateAndGuide,
-      compactMode: useCompactMode,
+      showDateAndGuide: showDateAndGuide ?? false,
+      compactMode: useCompactMode ?? false,
       toggleOpen,
       isOpen,
       parentWidth,
@@ -71,16 +72,18 @@ const TransactionType = ({
   }
 }
 
-export const TransactionRow = forwardRef<TxRowProps, 'div'>(
+type TransactionRowFromTxDetailsProps = Omit<TxRowProps, 'txId'> & { txDetails: TxDetails }
+
+export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetailsProps, 'div'>(
   (
     {
-      txId,
-      showDateAndGuide = false,
-      useCompactMode = false,
+      boxProps,
+      txDetails,
+      showDateAndGuide,
+      useCompactMode,
       parentWidth,
       initOpen = false,
       disableCollapse = false,
-      ...rest
     },
     ref,
   ) => {
@@ -89,10 +92,13 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
       () => (disableCollapse ? null : setIsOpen(!isOpen)),
       [disableCollapse, isOpen],
     )
-    const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-    const txDetails = useTxDetails(txId)
 
-    const backgroundProps = useMemo(() => ({ bg: 'background.surface.hover' }), [])
+    const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+
+    const backgroundProps = useMemo(
+      () => ({ bg: !disableCollapse ? 'background.surface.hover' : undefined }),
+      [disableCollapse],
+    )
 
     return (
       <Box
@@ -100,11 +106,12 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
         rounded='lg'
         _hover={backgroundProps}
         _selected={backgroundProps}
+        cursor={!disableCollapse ? 'pointer' : undefined}
         bg={isOpen ? 'background.surface.hover' : 'transparent'}
         borderColor={isOpen ? borderColor : 'transparent'}
         borderWidth={1}
         ref={ref}
-        {...rest}
+        {...boxProps}
       >
         <TransactionType
           txDetails={txDetails}
@@ -118,3 +125,8 @@ export const TransactionRow = forwardRef<TxRowProps, 'div'>(
     )
   },
 )
+
+export const TransactionRow = forwardRef<TxRowProps, 'div'>((props, ref) => {
+  const txDetails = useTxDetails(props.txId)
+  return <TransactionRowFromTxDetails ref={ref} {...props} txDetails={txDetails} />
+})

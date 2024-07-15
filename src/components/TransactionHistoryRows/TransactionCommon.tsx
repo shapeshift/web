@@ -26,6 +26,22 @@ export const TransactionCommon = ({
     [txDetails.transfers],
   )
 
+  const minerFeeProps = useMemo(() => {
+    if (!txDetails.fee) return
+    return {
+      value: txDetails.fee.value ?? '0',
+      precision: txDetails.fee.asset.precision ?? 0,
+      symbol: txDetails.fee.asset.symbol ?? '',
+    }
+  }, [txDetails.fee])
+
+  const dateProps = useMemo(() => {
+    if (!txDetails.tx.blockTime) return
+    return {
+      blockTime: txDetails.tx.blockTime,
+    }
+  }, [txDetails.tx.blockTime])
+
   return (
     <>
       <TransactionGenericRow
@@ -51,16 +67,16 @@ export const TransactionCommon = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          <Row title='minerFee'>
-            <Amount
-              value={txDetails.fee?.value ?? '0'}
-              precision={txDetails.fee?.asset.precision ?? 0}
-              symbol={txDetails.fee?.asset.symbol ?? ''}
-            />
-          </Row>
-          <Row title='date'>
-            <TransactionDate blockTime={txDetails.tx.blockTime} />
-          </Row>
+          {minerFeeProps !== undefined && (
+            <Row title='minerFee'>
+              <Amount {...minerFeeProps} />
+            </Row>
+          )}
+          {dateProps !== undefined && (
+            <Row title='date'>
+              <TransactionDate blockTime={txDetails.tx.blockTime} />
+            </Row>
+          )}
         </TxGrid>
       </TransactionDetailsContainer>
     </>

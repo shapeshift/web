@@ -333,20 +333,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [feeAsset.symbol],
   )
 
-  const {
-    data: _isSmartContractAddress,
-    isLoading: isAddressByteCodeLoading,
-    isFetching: isAddressByteCodeFetching,
-  } = useIsSmartContractAddress(fromAddress ?? '', chainId)
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(fromAddress ?? '', chainId)
 
   const disableSmartContractDeposit = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress || isAddressByteCodeLoading || isAddressByteCodeFetching)
-      return true
+    if (_isSmartContractAddress) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, isAddressByteCodeLoading, isAddressByteCodeFetching])
+  }, [_isSmartContractAddress])
 
   const preFooter = useMemo(() => {
     if (!_isSmartContractAddress) return null
@@ -377,11 +373,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         !hasEnoughBalanceForGas ||
         !fromAddress ||
         disableSmartContractDeposit ||
-        isTradingActive === false
+        isTradingActive === false ||
+        isAddressByteCodeLoading
       }
-      loading={
-        state.loading || !fromAddress || isAddressByteCodeLoading || isAddressByteCodeFetching
-      }
+      loading={state.loading || !fromAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
     >

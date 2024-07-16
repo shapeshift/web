@@ -460,20 +460,16 @@ export const RepayInput = ({
     feeAssetBalanceCryptoBaseUnit,
   ])
 
-  const {
-    data: _isSmartContractAddress,
-    isLoading: isAddressByteCodeLoading,
-    isFetching: isAddressByteCodeFetching,
-  } = useIsSmartContractAddress(userAddress, repaymentAsset?.chainId ?? '')
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress, repaymentAsset?.chainId ?? '')
 
   const disableSmartContractRepayment = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress || isAddressByteCodeLoading || isAddressByteCodeFetching)
-      return true
+    if (_isSmartContractAddress) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, isAddressByteCodeFetching, isAddressByteCodeLoading])
+  }, [_isSmartContractAddress])
 
   const quoteErrorTranslation = useMemo(() => {
     if (!isThorchainLendingRepayEnabled) return translate('lending.errors.repaymentsDisabled')
@@ -747,6 +743,7 @@ export const RepayInput = ({
                 isApprovalFeesDataLoading ||
                 isLendingQuoteCloseError ||
                 isEstimatedFeesDataError ||
+                isAddressByteCodeLoading ||
                 quoteErrorTranslation,
             )}
             size='lg-multiline'
@@ -765,7 +762,6 @@ export const RepayInput = ({
               isEstimatedFeesDataLoading ||
               isApprovalFeesDataLoading ||
               isAddressByteCodeLoading ||
-              isAddressByteCodeFetching ||
               isInboundAddressLoading ||
               isAllowanceDataLoading
             }

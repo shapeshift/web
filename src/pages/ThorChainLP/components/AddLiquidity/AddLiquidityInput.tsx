@@ -241,11 +241,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     getPosition: getThorchainLpPosition,
   })
 
-  const {
-    data: isSmartContractAccountAddress,
-    isLoading: isSmartContractAccountAddressLoading,
-    isFetching: isSmartContractAccountAddressFetching,
-  } = useIsSmartContractAddress(poolAssetAccountAddress ?? '', poolAsset?.chainId ?? '')
+  const { data: isSmartContractAccountAddress, isLoading: isSmartContractAccountAddressLoading } =
+    useIsSmartContractAddress(poolAssetAccountAddress ?? '', poolAsset?.chainId ?? '')
 
   const accountIdsByAssetId = useAppSelector(selectPortfolioAccountIdsByAssetId)
 
@@ -1577,7 +1574,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 isEstimatedRuneFeesDataError ||
                 isSmartContractAccountAddress ||
                 isSmartContractAccountAddressLoading ||
-                isSmartContractAccountAddressFetching ||
                 bnOrZero(actualAssetDepositAmountCryptoPrecision)
                   .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
                   .isZero() ||
@@ -1589,7 +1585,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isVotingPowerLoading ||
               isTradingActiveLoading ||
               isSmartContractAccountAddressLoading ||
-              isSmartContractAccountAddressFetching ||
               isAllowanceDataLoading ||
               isApprovalTxPending ||
               (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||

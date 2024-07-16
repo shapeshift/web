@@ -106,36 +106,23 @@ export const ConfirmSummary = ({
     return fromAccountId(initialSellAssetAccountId).account
   }, [initialSellAssetAccountId])
 
-  const {
-    data: _isSmartContractSellAddress,
-    isLoading: isSellAddressByteCodeLoading,
-    isFetching: isSellAddressByteCodeFetching,
-  } = useIsSmartContractAddress(userAddress, sellAsset.chainId)
+  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress, sellAsset.chainId)
 
-  const {
-    data: _isSmartContractReceiveAddress,
-    isLoading: isReceiveAddressByteCodeLoading,
-    isFetching: isReceiveAddressByteCodeFetching,
-  } = useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
+  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
+    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (
-      _isSmartContractSellAddress ||
-      isSellAddressByteCodeLoading ||
-      isSellAddressByteCodeFetching
-    )
-      return true
+    if (_isSmartContractSellAddress) return true
     if (
       [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
         tradeQuoteStep?.source!,
       ) &&
-      (_isSmartContractReceiveAddress ||
-        isReceiveAddressByteCodeLoading ||
-        isReceiveAddressByteCodeFetching)
+      _isSmartContractReceiveAddress
     )
       return true
 
@@ -146,10 +133,6 @@ export const ConfirmSummary = ({
     _isSmartContractSellAddress,
     activeSwapperName,
     tradeQuoteStep?.source,
-    isSellAddressByteCodeLoading,
-    isSellAddressByteCodeFetching,
-    isReceiveAddressByteCodeLoading,
-    isReceiveAddressByteCodeFetching,
   ])
 
   const quoteHasError = useMemo(() => {
@@ -158,20 +141,8 @@ export const ConfirmSummary = ({
   }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
 
   const isLoading = useMemo(() => {
-    return (
-      isParentLoading ||
-      isSellAddressByteCodeLoading ||
-      isSellAddressByteCodeFetching ||
-      isReceiveAddressByteCodeLoading ||
-      isReceiveAddressByteCodeFetching
-    )
-  }, [
-    isParentLoading,
-    isReceiveAddressByteCodeLoading,
-    isSellAddressByteCodeLoading,
-    isReceiveAddressByteCodeFetching,
-    isSellAddressByteCodeFetching,
-  ])
+    return isParentLoading || isSellAddressByteCodeLoading || isReceiveAddressByteCodeLoading
+  }, [isParentLoading, isReceiveAddressByteCodeLoading, isSellAddressByteCodeLoading])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -186,13 +157,12 @@ export const ConfirmSummary = ({
       // don't execute trades for smart contract addresses where they aren't supported
       disableSmartContractSwap ||
       // don't allow non-existent quotes to be executed
-      !activeSwapperName ||
       !activeQuote ||
       !hasUserEnteredAmount ||
-      // don't allow users to execute trades while the quote is being updated
-      isTradeQuoteApiQueryPending[activeSwapperName] ||
       // don't allow users to proceed until a swapper has been selected
-      !activeSwapperName
+      !activeSwapperName ||
+      // don't allow users to execute trades while the quote is being updated
+      isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
     quoteHasError,

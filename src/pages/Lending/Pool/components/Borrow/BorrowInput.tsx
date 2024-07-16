@@ -357,20 +357,16 @@ export const BorrowInput = ({
     return fromAccountId(collateralAccountId).account
   }, [collateralAccountId])
 
-  const {
-    data: _isSmartContractAddress,
-    isLoading: isAddressByteCodeLoading,
-    isFetching: isAddressByteCodeFetching,
-  } = useIsSmartContractAddress(userAddress, borrowAsset?.chainId ?? '')
+  const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress, borrowAsset?.chainId ?? '')
 
   const disableSmartContractDeposit = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress || isAddressByteCodeLoading || isAddressByteCodeFetching)
-      return true
+    if (_isSmartContractAddress) return true
 
     // All checks passed - this is an EOA address
     return false
-  }, [_isSmartContractAddress, isAddressByteCodeLoading, isAddressByteCodeFetching])
+  }, [_isSmartContractAddress])
 
   const mixpanel = getMixPanel()
   const onSubmit = useCallback(() => {
@@ -663,8 +659,7 @@ export const BorrowInput = ({
                 isEstimatedSweepFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
                 isSweepNeededLoading ||
-                isAddressByteCodeLoading ||
-                isAddressByteCodeFetching
+                isAddressByteCodeLoading
               }
               isDisabled={Boolean(
                 isHardCapReached ||
@@ -676,6 +671,7 @@ export const BorrowInput = ({
                   quoteErrorTranslation ||
                   isEstimatedFeesDataError ||
                   isEstimatedFeesDataLoading ||
+                  isAddressByteCodeLoading ||
                   disableSmartContractDeposit,
               )}
             >

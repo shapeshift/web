@@ -8,8 +8,8 @@ import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTy
 
 import { ClaimStatus } from './types'
 
-const hoverProps = { bg: 'gray.700' }
-const disabledProps = { opacity: 1 }
+const hoverProps = { bg: 'gray.700', cursor: 'default' }
+const disabledProps = { opacity: 1, cursor: 'default' }
 
 export type ClaimRowProps = {
   actionText: string | undefined

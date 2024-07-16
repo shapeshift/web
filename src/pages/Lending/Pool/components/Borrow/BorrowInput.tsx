@@ -658,6 +658,7 @@ export const BorrowInput = ({
                 isEstimatedFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
+                isAddressByteCodeLoading ||
                 isSweepNeededLoading
               }
               isDisabled={Boolean(
@@ -670,7 +671,6 @@ export const BorrowInput = ({
                   quoteErrorTranslation ||
                   isEstimatedFeesDataError ||
                   isEstimatedFeesDataLoading ||
-                  isAddressByteCodeLoading ||
                   disableSmartContractDeposit,
               )}
             >

@@ -13,12 +13,15 @@ type EarnedQueryKey = ['readContract', string]
 
 type UseEarnedQueryProps = {
   stakingAssetAccountAddress: string | undefined
+  // TODO: remove once `totalRewardUnits` are present in `RewardDistribution` data
+  blockNumber?: bigint
 }
 
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const getEarnedQueryKey = ({
   stakingAssetAccountAddress,
+  blockNumber,
 }: UseEarnedQueryProps): EarnedQueryKey => [
   'readContract',
   serialize({
@@ -26,10 +29,14 @@ export const getEarnedQueryKey = ({
     functionName: 'earned',
     args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
     chainId: arbitrum.id,
+    blockNumber,
   }),
 ]
 
-export const getEarnedQueryFn = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) =>
+export const getEarnedQueryFn = ({
+  stakingAssetAccountAddress,
+  blockNumber,
+}: UseEarnedQueryProps) =>
   stakingAssetAccountAddress
     ? async () =>
         await readContract(client, {
@@ -37,34 +44,42 @@ export const getEarnedQueryFn = ({ stakingAssetAccountAddress }: UseEarnedQueryP
           address: RFOX_PROXY_CONTRACT_ADDRESS,
           functionName: 'earned',
           args: [getAddress(stakingAssetAccountAddress)],
-          blockNumber: undefined, // use the latest block - archive node not allowed
+          // TODO: remove once `totalRewardUnits` are present in `RewardDistribution` data
+          blockNumber,
+          // blockNumber: undefined, // use the latest block - archive node not allowed
         }).catch((error: unknown) => {
           console.error(error)
           return 0n
         })
     : skipToken
 
-export const useEarnedQuery = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) => {
+export const useEarnedQuery = ({
+  stakingAssetAccountAddress,
+  blockNumber,
+}: UseEarnedQueryProps) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
   const queryKey: EarnedQueryKey = useMemo(
     () =>
       getEarnedQueryKey({
         stakingAssetAccountAddress,
+        blockNumber,
       }),
-    [stakingAssetAccountAddress],
+    [blockNumber, stakingAssetAccountAddress],
   )
 
   const queryFn = useMemo(
     () =>
       getEarnedQueryFn({
         stakingAssetAccountAddress,
+        blockNumber,
       }),
-    [stakingAssetAccountAddress],
+    [blockNumber, stakingAssetAccountAddress],
   )
 
   const query = useQuery({
     queryKey,
     queryFn,
+    enabled: stakingAssetAccountAddress !== undefined,
   })
 
   return query

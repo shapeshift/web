@@ -1575,6 +1575,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 isSweepNeededError ||
                 isEstimatedPoolAssetFeesDataError ||
                 isEstimatedRuneFeesDataError ||
+                isSmartContractAccountAddress ||
+                isSmartContractAccountAddressLoading ||
+                isSmartContractAccountAddressFetching ||
                 bnOrZero(actualAssetDepositAmountCryptoPrecision)
                   .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
                   .isZero() ||

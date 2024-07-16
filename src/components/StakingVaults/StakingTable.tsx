@@ -7,7 +7,7 @@ import { ReactTable } from 'components/ReactTable/ReactTable'
 import { RawText } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { DefiType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { store } from 'state/store'
 
@@ -94,9 +94,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag size={tagSize} colorScheme='green'>
-              <Amount.Percent value={value ?? ''} />
-            </Tag>
+            {row.original.provider !== DefiProvider.rFOX ? (
+              <Tag size={tagSize} colorScheme='green'>
+                <Amount.Percent value={value ?? ''} />
+              </Tag>
+            ) : (
+              <RawText>-</RawText>
+            )}
           </Skeleton>
         ),
         sortType: (a: RowProps, b: RowProps): number =>
@@ -108,7 +112,11 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Amount.Fiat value={value} />
+            {row.original.provider !== DefiProvider.rFOX ? (
+              <Amount.Fiat value={value} />
+            ) : (
+              <RawText>-</RawText>
+            )}
           </Skeleton>
         ),
       },

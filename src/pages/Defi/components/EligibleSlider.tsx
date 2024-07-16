@@ -3,6 +3,7 @@ import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from 'contracts/constants'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -27,6 +28,10 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
         eligibleOpportunity.contractAddress === ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
     )
 
+    const rfoxOpportunity = eligibleOpportunities.find(
+      eligibleOpportunity => eligibleOpportunity.provider === DefiProvider.rFOX,
+    )
+
     if (!foxFarmingV9) {
       return filteredEligibleOpportunities.map(opportunity => (
         <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
@@ -37,7 +42,13 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
       [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
       'contractAddress',
-    ).slice(0, 5)
+    ).slice(0, rfoxOpportunity ? 4 : 5)
+
+    if (rfoxOpportunity) {
+      return [rfoxOpportunity, ...filteredEligibleOpportunitiesWithFoxFarmingV9].map(
+        opportunity => <FeaturedCard key={`${opportunity.id}`} {...opportunity} />,
+      )
+    }
 
     return filteredEligibleOpportunitiesWithFoxFarmingV9.map(opportunity => (
       <FeaturedCard key={`${opportunity.id}`} {...opportunity} />

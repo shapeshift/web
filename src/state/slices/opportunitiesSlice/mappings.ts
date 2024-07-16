@@ -16,7 +16,11 @@ import {
   foxyStakingOpportunitiesUserDataResolver,
   foxyStakingOpportunityIdsResolver,
 } from './resolvers/foxy'
-import { rFOXStakingMetadataResolver, rFOXStakingOpportunityIdsResolver } from './resolvers/rFOX'
+import {
+  rFOXStakingMetadataResolver,
+  rFOXStakingOpportunityIdsResolver,
+  rFOXStakingUserDataResolver,
+} from './resolvers/rFOX'
 import {
   thorchainSaversOpportunityIdsResolver,
   thorchainSaversStakingOpportunitiesMetadataResolver,
@@ -102,6 +106,9 @@ export const DefiProviderToUserDataResolverByDeFiType: DefiProviderToOpportunity
   },
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: ethFoxStakingUserDataResolver,
+  },
+  [`${DefiProvider.rFOX}`]: {
+    [`${DefiType.Staking}`]: rFOXStakingUserDataResolver,
   },
 }
 

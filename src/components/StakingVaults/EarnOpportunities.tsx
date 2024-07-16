@@ -9,7 +9,7 @@ import { Text } from 'components/Text'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, type EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAggregatedEarnUserLpOpportunities,
@@ -80,6 +80,10 @@ export const EarnOpportunities = ({ assetId, accountId }: EarnOpportunitiesProps
       if (!isConnected) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
+      }
+
+      if (provider === DefiProvider.rFOX) {
+        return history.push('/rfox')
       }
 
       history.push({

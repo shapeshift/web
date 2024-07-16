@@ -1573,7 +1573,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 isEstimatedPoolAssetFeesDataError ||
                 isEstimatedRuneFeesDataError ||
                 isSmartContractAccountAddress ||
-                isSmartContractAccountAddressLoading ||
                 bnOrZero(actualAssetDepositAmountCryptoPrecision)
                   .plus(bnOrZero(actualRuneDepositAmountCryptoPrecision))
                   .isZero() ||

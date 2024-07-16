@@ -496,7 +496,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         !hasEnoughBalanceForGas ||
         !userAddress ||
         disableSmartContractWithdraw ||
-        isAddressByteCodeLoading ||
         !canWithdraw ||
         isTradingActive === false
       }

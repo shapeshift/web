@@ -658,8 +658,7 @@ export const BorrowInput = ({
                 isEstimatedFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
                 isEstimatedSweepFeesDataLoading ||
-                isSweepNeededLoading ||
-                isAddressByteCodeLoading
+                isSweepNeededLoading
               }
               isDisabled={Boolean(
                 isHardCapReached ||

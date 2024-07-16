@@ -373,8 +373,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         !hasEnoughBalanceForGas ||
         !fromAddress ||
         disableSmartContractDeposit ||
-        isTradingActive === false ||
-        isAddressByteCodeLoading
+        isTradingActive === false
       }
       loading={state.loading || !fromAddress || isAddressByteCodeLoading}
       loadingText={translate('common.confirm')}

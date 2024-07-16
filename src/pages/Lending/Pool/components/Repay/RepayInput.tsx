@@ -743,7 +743,6 @@ export const RepayInput = ({
                 isApprovalFeesDataLoading ||
                 isLendingQuoteCloseError ||
                 isEstimatedFeesDataError ||
-                isAddressByteCodeLoading ||
                 quoteErrorTranslation,
             )}
             size='lg-multiline'

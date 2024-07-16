@@ -260,8 +260,12 @@ export const ConfirmSummary = ({
     }, [activeQuote, buyAssetFeeAsset])
 
   const shouldForceManualAddressEntry = useMemo(() => {
-    return Boolean(_isSmartContractSellAddress) && sellAsset?.chainId !== buyAsset.chainId
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
+    return (
+      !disableSmartContractSwap &&
+      Boolean(_isSmartContractSellAddress) &&
+      sellAsset?.chainId !== buyAsset.chainId
+    )
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset, disableSmartContractSwap])
 
   return (
     <>

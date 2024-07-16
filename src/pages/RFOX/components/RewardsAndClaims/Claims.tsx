@@ -2,9 +2,7 @@ import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import noop from 'lodash/noop'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
@@ -21,7 +19,6 @@ type ClaimsProps = {
 }
 
 export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId }: ClaimsProps) => {
-  const translate = useTranslate()
   const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -79,10 +76,6 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={index}
-          actionDescription={translate('RFOX.unstakeFrom', {
-            assetSymbol: stakingAsset.symbol,
-          })}
-          onClaimButtonClick={noop}
         />
       )
     })
@@ -95,7 +88,6 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
     setConfirmedQuote,
     stakingAsset,
     stakingAssetId,
-    translate,
     unstakingRequestResponse,
   ])
 

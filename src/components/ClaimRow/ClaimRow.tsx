@@ -17,8 +17,8 @@ export type ClaimRowProps = {
   asset: Asset
   status: ClaimStatus
   statusText: string
-  tooltipText: string
-  onClaimClick: () => void
+  tooltipText?: string
+  onClaimClick?: () => void
 }
 
 export const ClaimRow = ({
@@ -41,7 +41,7 @@ export const ClaimRow = ({
         width='100%'
         variant='unstyled'
         as={Button}
-        isDisabled={status !== ClaimStatus.Available}
+        isDisabled={onClaimClick === undefined || status !== ClaimStatus.Available}
         onClick={onClaimClick}
         _hover={hoverProps}
         _disabled={disabledProps}

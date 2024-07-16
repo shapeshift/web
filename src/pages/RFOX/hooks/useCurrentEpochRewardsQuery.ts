@@ -2,11 +2,12 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'
+import { getAddress } from 'viem'
 
-import type { Epoch, PartialEpoch } from '../types'
+import type { Epoch, PartialEpoch, RewardDistribution } from '../types'
 import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
 import { fetchCurrentEpoch, getCurrentEpochQueryKey } from './useCurrentEpochQuery'
-import { getEarnedQueryFn, getEarnedQueryKey, useEarnedQuery } from './useEarnedQuery'
+import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 type UseCurrentEpochRewardsQueryProps = {
@@ -19,12 +20,6 @@ type UseCurrentEpochRewardsQueryProps = {
 export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountAddress,
 }: UseCurrentEpochRewardsQueryProps) => {
-  // TODO: remove once `totalRewardUnits` are present in `RewardDistribution` data
-  const { data: previousEpochRewardUnits } = useEarnedQuery({
-    stakingAssetAccountAddress,
-    blockNumber: 227313374n, // TEMP: 💀 hardcoded top Jun-30-2024 01:59:59 PM +UTC because this block is cached by the node
-  })
-
   const combine = useCallback(
     (
       queries: [
@@ -50,24 +45,16 @@ export const useCurrentEpochRewardsQuery = ({
           return
         }
 
-        /*
-          TODO: uncomment once `totalRewardUnits` are present in `RewardDistribution` data
-          const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
-          const previousEpoch: RewardDistribution | undefined =
-            epochHistory?.[epochHistory.length - 1]?.distributionsByStakingAddress[
-              checksumStakingAssetAccountAddress
-            ]
+        const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
+        const previousEpoch: RewardDistribution | undefined =
+          epochHistory?.[epochHistory.length - 1]?.distributionsByStakingAddress[
+            checksumStakingAssetAccountAddress
+          ]
 
-          const previousEpochRewardUnits = BigInt(previousEpoch?.totalRewardUnits ?? '0')
-        */
+        const previousEpochRewardUnits = BigInt(previousEpoch?.totalRewardUnits ?? '0')
+
         const epochRewardUnitsForAccount =
           currentEpochRewardUnits - (previousEpochRewardUnits ?? 0n)
-
-        console.log({
-          currentEpochRewardUnits,
-          previousEpochRewardUnits,
-          epochRewardUnitsForAccount,
-        })
 
         return calcEpochRewardForAccountRuneBaseUnit(
           epochRewardUnitsForAccount,
@@ -77,7 +64,7 @@ export const useCurrentEpochRewardsQuery = ({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [previousEpochRewardUnits, stakingAssetAccountAddress],
+    [stakingAssetAccountAddress],
   )
 
   const combinedQueries = useQueries({

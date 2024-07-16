@@ -28,8 +28,10 @@ export type CurrentEpochMetadata = {
 export type RewardDistribution = {
   /** The amount (RUNE) distributed to the reward address */
   amount: string
-  /** The RFOX staking reward units used to calculate the reward distribution */
+  /** The rFOX staking reward units earned for the current epoch */
   rewardUnits: string
+  /** The total rFOX staking reward units earned across all epochs */
+  totalRewardUnits: string
   /** The transaction ID (THORChain) for the reward distribution, empty string if not yet distributed */
   txId: string
   /** The address used for the reward distribution */

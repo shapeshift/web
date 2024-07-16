@@ -13,13 +13,13 @@ export function isLpConfirmedDepositQuote(
 }
 
 export function isLpConfirmedWithdrawalQuote(
-  quote: Record<string, unknown>,
+  quote?: Record<string, unknown>,
 ): quote is LpConfirmedWithdrawalQuote {
-  return (
+  return Boolean(
     quote &&
-    quote.assetWithdrawAmountCryptoPrecision !== undefined &&
-    quote.assetWithdrawAmountFiatUserCurrency !== undefined &&
-    quote.runeWithdrawAmountCryptoPrecision !== undefined &&
-    quote.runeWithdrawAmountFiatUserCurrency !== undefined
+      quote.assetWithdrawAmountCryptoPrecision !== undefined &&
+      quote.assetWithdrawAmountFiatUserCurrency !== undefined &&
+      quote.runeWithdrawAmountCryptoPrecision !== undefined &&
+      quote.runeWithdrawAmountFiatUserCurrency !== undefined,
   )
 }

@@ -37,7 +37,7 @@ import {
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { fromOpportunityId } from '../utils'
+import { fromQuote } from '../utils'
 import { PoolIcon } from './PoolIcon'
 
 type ReusableLpConfirmProps = {
@@ -66,11 +66,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { opportunityId } = confirmedQuote
-  const { assetId, type: _opportunityType } = fromOpportunityId(opportunityId)
-  const opportunityType = isLpConfirmedWithdrawalQuote(confirmedQuote)
-    ? confirmedQuote.withdrawSide
-    : _opportunityType
+  const { assetId, type: opportunityType } = fromQuote(confirmedQuote)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))

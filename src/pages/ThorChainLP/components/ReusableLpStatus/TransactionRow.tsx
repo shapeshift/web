@@ -168,17 +168,22 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
     const pairedAddress = pairAssetAddress ?? ''
 
-    const asymDestinationAssetId = (() => {
-      if (isRuneTx && opportunityType !== 'sym') return thorchainAssetId
-      if (!isRuneTx && opportunityType !== 'sym') return assetId
+    const asymDestinationPoolAssetId = (() => {
+      let poolAssetId: AssetId | undefined
+
+      if (isRuneTx && opportunityType !== 'sym')
+        poolAssetId = assetIdToPoolAssetId({ assetId: thorchainAssetId })
+      if (!isRuneTx && opportunityType !== 'sym') poolAssetId = assetIdToPoolAssetId({ assetId })
+
+      if (poolAssetId) {
+        return poolAssetId
+      }
     })()
 
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}${
-          asymDestinationAssetId
-            ? `:${assetIdToPoolAssetId({ assetId: asymDestinationAssetId })}`
-            : ''
+          asymDestinationPoolAssetId ? `:${asymDestinationPoolAssetId}` : ''
         }`
   }, [
     isDeposit,

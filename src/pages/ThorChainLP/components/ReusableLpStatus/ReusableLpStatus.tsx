@@ -32,11 +32,8 @@ import type {
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
-import {
-  isLpConfirmedDepositQuote,
-  isLpConfirmedWithdrawalQuote,
-} from 'lib/utils/thorchain/lp/utils'
-import { fromOpportunityId } from 'pages/ThorChainLP/utils'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
+import { fromQuote } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,11 +60,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const hasTrackedStatus = useRef(false)
   const [txStatus, setTxStatus] = useState<TxStatus>()
 
-  const { opportunityId } = confirmedQuote
-  const { assetId: poolAssetId, type: _opportunityType } = fromOpportunityId(opportunityId)
-  const opportunityType = isLpConfirmedWithdrawalQuote(confirmedQuote)
-    ? confirmedQuote.withdrawSide
-    : _opportunityType
+  const { assetId: poolAssetId, type: opportunityType } = fromQuote(confirmedQuote)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))

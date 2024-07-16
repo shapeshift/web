@@ -939,15 +939,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     }
   }, [handleSubmit, isBelowMinimumWithdrawAmount])
 
-  const handleAsymSideChange = useCallback(
-    (asymSide: string | null) => {
-      if (!asymSide) return
-      if (!poolAsset) return
-
-      setOpportunityType(asymSide as AsymSide | 'sym')
-    },
-    [poolAsset],
-  )
+  const handleAsymSideChange = useCallback((asymSide: string | null) => {
+    setOpportunityType(asymSide as AsymSide | 'sym')
+  }, [])
 
   if (!poolAsset || !poolAssetFeeAsset || !runeAsset) return null
 

@@ -169,7 +169,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     const pairedAddress = pairAssetAddress ?? ''
 
     const asymDestinationPoolAssetId = (() => {
-      let poolAssetId: AssetId | undefined
+      let poolAssetId: string | undefined
 
       if (isRuneTx && opportunityType !== 'sym')
         poolAssetId = assetIdToPoolAssetId({ assetId: thorchainAssetId })

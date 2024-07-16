@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { RawText } from 'components/Text'
@@ -8,8 +9,7 @@ import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTy
 
 import { ClaimStatus } from './types'
 
-const hoverProps = { bg: 'gray.700' }
-const disabledProps = { opacity: 1 }
+const disabledProps = { opacity: 1, cursor: 'default' }
 
 export type ClaimRowProps = {
   actionText: string | undefined
@@ -17,8 +17,8 @@ export type ClaimRowProps = {
   asset: Asset
   status: ClaimStatus
   statusText: string
-  tooltipText: string
-  onClaimClick: () => void
+  tooltipText?: string
+  onClaimClick?: () => void
 }
 
 export const ClaimRow = ({
@@ -30,6 +30,14 @@ export const ClaimRow = ({
   tooltipText,
   onClaimClick,
 }: ClaimRowProps) => {
+  const isDisabled = useMemo(
+    () => onClaimClick === undefined || status !== ClaimStatus.Available,
+    [onClaimClick, status],
+  )
+  const hoverProps = useMemo(
+    () => ({ bg: 'gray.700', cursor: isDisabled ? 'default' : undefined }),
+    [isDisabled],
+  )
   return (
     <Tooltip label={tooltipText}>
       <Flex
@@ -41,7 +49,7 @@ export const ClaimRow = ({
         width='100%'
         variant='unstyled'
         as={Button}
-        isDisabled={status !== ClaimStatus.Available}
+        isDisabled={isDisabled}
         onClick={onClaimClick}
         _hover={hoverProps}
         _disabled={disabledProps}

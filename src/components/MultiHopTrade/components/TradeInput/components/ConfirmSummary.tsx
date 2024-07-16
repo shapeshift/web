@@ -107,22 +107,22 @@ export const ConfirmSummary = ({
   }, [initialSellAssetAccountId])
 
   const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress)
+    useIsSmartContractAddress(userAddress, sellAsset.chainId)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '')
+    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
   const disableSmartContractSwap = useMemo(() => {
     // Swappers other than THORChain shouldn't be affected by this limitation
     if (activeSwapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress !== false) return true
+    if (_isSmartContractSellAddress) return true
     if (
       [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
         tradeQuoteStep?.source!,
       ) &&
-      _isSmartContractReceiveAddress !== false
+      _isSmartContractReceiveAddress
     )
       return true
 
@@ -157,13 +157,12 @@ export const ConfirmSummary = ({
       // don't execute trades for smart contract addresses where they aren't supported
       disableSmartContractSwap ||
       // don't allow non-existent quotes to be executed
-      !activeSwapperName ||
       !activeQuote ||
       !hasUserEnteredAmount ||
-      // don't allow users to execute trades while the quote is being updated
-      isTradeQuoteApiQueryPending[activeSwapperName] ||
       // don't allow users to proceed until a swapper has been selected
-      !activeSwapperName
+      !activeSwapperName ||
+      // don't allow users to execute trades while the quote is being updated
+      isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
     quoteHasError,
@@ -231,8 +230,12 @@ export const ConfirmSummary = ({
     }, [activeQuote, buyAssetFeeAsset])
 
   const shouldForceManualAddressEntry = useMemo(() => {
-    return Boolean(_isSmartContractSellAddress) && sellAsset?.chainId !== buyAsset.chainId
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
+    return (
+      !disableSmartContractSwap &&
+      Boolean(_isSmartContractSellAddress) &&
+      sellAsset?.chainId !== buyAsset.chainId
+    )
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset, disableSmartContractSwap])
 
   return (
     <>

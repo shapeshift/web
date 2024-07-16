@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { type AssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { type FC, useCallback, useMemo } from 'react'
+import { type FC, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ClaimRow as ReusableClaimRow } from 'components/ClaimRow/ClaimRow'
 import { ClaimStatus } from 'components/ClaimRow/types'
@@ -19,18 +19,8 @@ type ClaimRowProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void
   cooldownPeriodHuman: string
   index: number
-} & (
-  | {
-      onClaimButtonClick: () => void
-      onClaimClick?: never
-      actionDescription: string
-    }
-  | {
-      onClaimButtonClick?: never
-      onClaimClick: () => void
-      actionDescription?: never
-    }
-)
+  onClaimClick?: () => void
+}
 
 export const ClaimRow: FC<ClaimRowProps> = ({
   stakingAssetId,
@@ -39,9 +29,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   setConfirmedQuote,
   cooldownPeriodHuman,
   index,
-  onClaimButtonClick,
   onClaimClick,
-  actionDescription,
 }) => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -58,16 +46,18 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
-  const handleClaimClick = useCallback(() => {
-    if (!stakingAssetAccountId) return
-    const claimQuote: RfoxClaimQuote = {
-      stakingAssetAccountId,
-      stakingAssetId: foxOnArbitrumOneAssetId,
-      stakingAmountCryptoBaseUnit,
-      index,
+  const handleClaimClick = useMemo(() => {
+    if (!stakingAssetAccountId || onClaimClick === undefined) return
+    return () => {
+      const claimQuote: RfoxClaimQuote = {
+        stakingAssetAccountId,
+        stakingAssetId: foxOnArbitrumOneAssetId,
+        stakingAmountCryptoBaseUnit,
+        index,
+      }
+      setConfirmedQuote(claimQuote)
+      onClaimClick()
     }
-    setConfirmedQuote(claimQuote)
-    onClaimClick?.()
   }, [index, onClaimClick, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
 
   const statusText = useMemo(() => {
@@ -81,24 +71,14 @@ export const ClaimRow: FC<ClaimRowProps> = ({
   const actionText = useMemo(() => {
     if (!stakingAssetSymbol) return
 
-    return translate(onClaimButtonClick ? actionDescription : 'RFOX.claim', { stakingAssetSymbol })
-  }, [stakingAssetSymbol, translate, onClaimButtonClick, actionDescription])
-
-  const tooltipText = useMemo(() => {
-    return translate(
-      status === ClaimStatus.Available
-        ? 'RFOX.tooltips.cooldownComplete'
-        : 'RFOX.tooltips.unstakePendingCooldown',
-      { cooldownPeriodHuman },
-    )
-  }, [cooldownPeriodHuman, status, translate])
+    return translate('RFOX.claim', { stakingAssetSymbol })
+  }, [stakingAssetSymbol, translate])
 
   if (!stakingAsset) return null
 
   return (
     <ReusableClaimRow
       amountCryptoPrecision={amountCryptoPrecision}
-      tooltipText={tooltipText}
       onClaimClick={handleClaimClick}
       asset={stakingAsset}
       actionText={actionText}

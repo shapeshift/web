@@ -2,7 +2,7 @@ import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshif
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
@@ -13,6 +13,7 @@ import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { filterAssetsBySearchTerm } from '../helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { useFetchAndUpsertCustomTokenMarketData } from '../hooks/useFetchAndUpsertCustomTokenMarketData'
 import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 import { GroupedAssetList } from './GroupedAssetList/GroupedAssetList'
 
@@ -36,6 +37,7 @@ export const SearchTermAssetList = ({
   const assets = useAppSelector(selectAssetsSortedByName)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const fetchAndUpsertCustomTokenMarketData = useFetchAndUpsertCustomTokenMarketData()
   const chainIds = useMemo(
     () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
     [activeChainId, walletConnectedChainIds],
@@ -62,6 +64,14 @@ export const SearchTermAssetList = ({
 
     return assets.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+
+  const handleAssetClick = useCallback(
+    (asset: Asset) => {
+      onAssetClick(asset)
+      fetchAndUpsertCustomTokenMarketData(asset.assetId)
+    },
+    [fetchAndUpsertCustomTokenMarketData, onAssetClick],
+  )
 
   const customAssets: Asset[] = useMemo(
     () =>
@@ -116,7 +126,7 @@ export const SearchTermAssetList = ({
       groupCounts={groupCounts}
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
-      onAssetClick={onAssetClick}
+      onAssetClick={handleAssetClick}
       onImportClick={onImportClick}
     />
   )

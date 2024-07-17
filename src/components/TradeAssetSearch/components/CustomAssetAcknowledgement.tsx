@@ -26,7 +26,7 @@ import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
 
-import { getTokenMarketData } from './useGetCustomTokenPriceQuery'
+import { getTokenMarketData } from '../hooks/useGetCustomTokenPriceQuery'
 
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
 
@@ -91,7 +91,6 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
         dispatch(
           marketDataSlice.actions.setCryptoMarketData({
             [asset.assetId]: {
-              ...emptyMarketData,
               price: usdMarketData.price.toString(),
               marketCap: usdMarketData.market_cap.toString(),
               volume: '0', // Not available on Zerion

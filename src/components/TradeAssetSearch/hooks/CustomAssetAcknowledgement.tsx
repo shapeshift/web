@@ -99,15 +99,14 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
             },
           }),
         )
-        return
       }
     } catch (error) {
       // Else add an empty market data object to the store so it shows up in the asset search
       dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: emptyMarketData }))
+    } finally {
+      // Once the custom asset is in the store, proceed as if it was a normal asset
+      handleAssetClick(asset)
     }
-
-    // Once the custom asset is in the store, proceed as if it was a normal asset
-    handleAssetClick(asset)
   }, [dispatch, handleAssetClick, asset])
 
   const checkboxTextColor = useColorModeValue('gray.800', 'gray.50')

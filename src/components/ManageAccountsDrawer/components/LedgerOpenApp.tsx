@@ -1,15 +1,10 @@
-import { Button, Center, Flex, Spinner } from '@chakra-ui/react'
+import { Button } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useWaitForLedgerApp } from 'components/LedgerOpenApp/hooks/useWaitForLedgerApp'
-import { RawText, Text } from 'components/Text'
-import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { LedgerOpenApp as LedgerOpenAppBody } from 'components/LedgerOpenApp/LedgerOpenApp'
 
-import { AssetOnLedger } from './AssetOnLedger'
 import { DrawerContentWrapper } from './DrawerContent'
 
 export type LedgerOpenAppProps = {
@@ -20,42 +15,12 @@ export type LedgerOpenAppProps = {
 
 export const LedgerOpenApp = ({ chainId, onClose, onNext }: LedgerOpenAppProps) => {
   const translate = useTranslate()
-  const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
 
   useWaitForLedgerApp({ chainId, onReady: onNext })
 
-  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const appName = useMemo(() => {
-    if (isEvmChainId(chainId)) return ethAsset?.networkName
-    return asset?.networkName
-  }, [asset?.networkName, chainId, ethAsset?.networkName])
-  const renderedAsset = useMemo(() => {
-    if (isEvmChainId(chainId)) return ethAsset
-    return asset
-  }, [asset, chainId, ethAsset])
-
   const body = useMemo(() => {
-    if (!renderedAsset) return null
-    return (
-      <Center>
-        <Flex direction='column' justifyContent='center'>
-          <AssetOnLedger assetId={renderedAsset.assetId} size={'xl'} />
-          <RawText fontSize={'xl'} fontWeight={'bold'} mt={10} mb={3}>
-            {translate('accountManagement.ledgerOpenApp.title', {
-              appName,
-            })}
-          </RawText>
-          <Text
-            translation={'accountManagement.ledgerOpenApp.description'}
-            color={'whiteAlpha.600'}
-          />
-          <Center>
-            <Spinner mt={10} speed='0.65s' size={'xxl'} thickness='8px' />
-          </Center>
-        </Flex>
-      </Center>
-    )
-  }, [appName, renderedAsset, translate])
+    return <LedgerOpenAppBody chainId={chainId} onReady={onNext} />
+  }, [chainId, onNext])
 
   return (
     <DrawerContentWrapper

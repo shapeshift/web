@@ -1,4 +1,15 @@
-import { Box, Button, Card, Divider, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Divider,
+  Icon,
+  Link,
+  Switch,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -179,7 +190,7 @@ const ApprovalStepPending = ({
 
   const content = useMemo(() => {
     // only render the approval button when the component is active and we don't yet have a tx hash
-    if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation || !isActive) return
+    if (!isActive) return
 
     return (
       <Card p='2' width='full'>
@@ -200,11 +211,16 @@ const ApprovalStepPending = ({
                 width='full'
                 size='sm'
                 colorScheme='blue'
-                disabled={isAllowanceResetLoading || !canAttemptAllowanceReset}
+                isDisabled={isAllowanceResetLoading || !canAttemptAllowanceReset}
                 isLoading={isAllowanceResetLoading}
                 onClick={handleSignAllowanceReset}
               >
-                {translate('common.reset')}
+                {approvalResetTxState === TransactionExecutionState.Pending && (
+                  <CircularProgress isIndeterminate size={2} mr={2} />
+                )}
+                {approvalResetTxState === TransactionExecutionState.Complete
+                  ? translate('common.success')
+                  : translate('common.reset')}
               </Button>
               <Divider />
             </>
@@ -246,12 +262,18 @@ const ApprovalStepPending = ({
             isLoading={isAllowanceApprovalLoading}
             onClick={handleSignAllowanceApproval}
           >
-            {translate('common.approve')}
+            {approvalTxState === TransactionExecutionState.Pending && (
+              <CircularProgress isIndeterminate size={2} mr={2} />
+            )}
+            {approvalTxState === TransactionExecutionState.Complete
+              ? translate('common.success')
+              : translate('common.approve')}
           </Button>
         </VStack>
       </Card>
     )
   }, [
+    approvalResetTxState,
     approvalTxState,
     canAttemptAllowanceReset,
     canAttemptApproval,

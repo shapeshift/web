@@ -10,7 +10,7 @@ import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import type { AllowanceType } from './helpers'
+import { AllowanceType } from './helpers'
 import { useIsApprovalNeeded } from './useIsApprovalNeeded'
 
 // handles allowance approval tx execution, fees, and state orchestration
@@ -50,8 +50,15 @@ export const useAllowanceApproval = (
   const executeAllowanceApproval = useCallback(async () => {
     if (isLoading || !isApprovalNeededData?.isApprovalNeeded) return
 
+    const isReset = allowanceType === AllowanceType.Reset
+
     stopPollingBuildApprovalTx()
-    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
+    dispatch(
+      tradeQuoteSlice.actions.setApprovalTxPending({
+        hopIndex,
+        isReset,
+      }),
+    )
 
     try {
       if (!buildCustomTxInput) {
@@ -74,17 +81,18 @@ export const useAllowanceApproval = (
         hash: txHash as Hash,
       })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset }))
     } catch (e) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset }))
       showErrorToast(e)
     }
   }, [
+    allowanceType,
     buildCustomTxInput,
     chainId,
     dispatch,
     hopIndex,
-    isApprovalNeededData,
+    isApprovalNeededData?.isApprovalNeeded,
     isLoading,
     showErrorToast,
     stopPollingBuildApprovalTx,

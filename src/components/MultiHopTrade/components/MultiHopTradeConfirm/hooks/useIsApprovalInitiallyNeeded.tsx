@@ -21,31 +21,30 @@ const useIsApprovalInitiallyNeededForHop = (
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
   const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
 
-  const {
-    isLoading,
-    isFetching,
-    data: isApprovalNeededData,
-  } = useIsApprovalNeeded(tradeQuoteStep, sellAssetAccountId)
+  const { isLoading, data: isApprovalNeededData } = useIsApprovalNeeded(
+    tradeQuoteStep,
+    sellAssetAccountId,
+  )
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
 
-    if (!isLoading && !isFetching && isApprovalNeededData?.isApprovalNeeded !== undefined) {
+    if (!isLoading && isApprovalNeededData?.isApprovalNeeded !== undefined) {
       setIsApprovalInitiallyNeeded(isApprovalNeededData?.isApprovalNeeded)
     }
-  }, [isApprovalInitiallyNeeded, isApprovalNeededData, isFetching, isLoading])
+  }, [isApprovalInitiallyNeeded, isApprovalNeededData, isLoading])
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isAllowanceResetNeeded !== undefined) return
 
-    if (!isLoading && !isFetching && isApprovalNeededData?.isAllowanceResetNeeded !== undefined) {
+    if (!isLoading && isApprovalNeededData?.isAllowanceResetNeeded !== undefined) {
       setIsAllowanceResetNeeded(isApprovalNeededData?.isAllowanceResetNeeded)
     }
-  }, [isAllowanceResetNeeded, isApprovalNeededData, isFetching, isLoading])
+  }, [isAllowanceResetNeeded, isApprovalNeededData, isLoading])
 
   // Reset the approval requirements if the trade quote ID changes
   useEffect(() => {
@@ -55,11 +54,11 @@ const useIsApprovalInitiallyNeededForHop = (
 
   const result = useMemo(
     () => ({
-      isLoading: isLoading || isFetching,
+      isLoading,
       isApprovalInitiallyNeeded,
       isAllowanceResetNeeded,
     }),
-    [isLoading, isFetching, isApprovalInitiallyNeeded, isAllowanceResetNeeded],
+    [isLoading, isApprovalInitiallyNeeded, isAllowanceResetNeeded],
   )
 
   return result

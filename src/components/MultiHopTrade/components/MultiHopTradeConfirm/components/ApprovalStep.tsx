@@ -114,6 +114,8 @@ const ApprovalStepPending = ({
       return
     }
 
+    // todo: ledger things
+
     await executeAllowanceApproval()
   }, [canAttemptApproval, executeAllowanceApproval])
 

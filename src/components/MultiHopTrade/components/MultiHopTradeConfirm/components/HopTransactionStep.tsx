@@ -59,6 +59,8 @@ export const HopTransactionStep = ({
       return
     }
 
+    // todo: ledger things
+
     await executeTrade()
   }, [executeTrade, swapTxState])
 

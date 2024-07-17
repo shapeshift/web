@@ -766,7 +766,10 @@
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
-    }
+    },
+    "claims": "Claims",
+    "availableClaims": "Available",
+    "pendingClaims": "Pending"
   },
   "trade": {
     "trade": "Trade",
@@ -905,7 +908,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
-    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}.",
+    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",

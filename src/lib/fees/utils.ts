@@ -1,3 +1,4 @@
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
@@ -5,14 +6,14 @@ export const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 export const findClosestFoxDiscountDelayBlockNumber = async (
   delayHours: number,
 ): Promise<number> => {
-  const latestBlock = await getEthersProvider().getBlock('latest')
+  const latestBlock = await getEthersProvider(KnownChainIds.EthereumMainnet).getBlock('latest')
   if (!latestBlock) throw new Error('Could not get latest block')
 
   // No-op - if delay is zero, we don't need to perform any logic to find the closest FOX discounts delay block number
   // Since the block we're interested in is the current one
   if (delayHours === 0) return latestBlock.number
 
-  const historicalBlock = await getEthersProvider().getBlock(
+  const historicalBlock = await getEthersProvider(KnownChainIds.EthereumMainnet).getBlock(
     latestBlock.number - AVERAGE_BLOCK_TIME_BLOCKS,
   )
   if (!historicalBlock)
@@ -27,7 +28,7 @@ export const findClosestFoxDiscountDelayBlockNumber = async (
 
   let blockNumber = latestBlock.number - targetBlocksToMove
   while (true) {
-    const block = await getEthersProvider().getBlock(blockNumber)
+    const block = await getEthersProvider(KnownChainIds.EthereumMainnet).getBlock(blockNumber)
     if (!block) throw new Error(`Could not get block ${blockNumber}`)
 
     const timeDifference = targetTimestamp - block.timestamp

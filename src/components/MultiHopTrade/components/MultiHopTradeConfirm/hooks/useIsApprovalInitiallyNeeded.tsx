@@ -26,6 +26,13 @@ const useIsApprovalInitiallyNeededForHop = (
     sellAssetAccountId,
   )
 
+  // Reset the approval requirements if the trade quote ID changes
+  // IMPORTANT: This must be evaluated before the other useEffects to ensure that the initial approval requirements are reset
+  useEffect(() => {
+    setIsApprovalInitiallyNeeded(undefined)
+    setIsAllowanceResetNeeded(undefined)
+  }, [tradeQuoteId])
+
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
@@ -45,12 +52,6 @@ const useIsApprovalInitiallyNeededForHop = (
       setIsAllowanceResetNeeded(isApprovalNeededData?.isAllowanceResetNeeded)
     }
   }, [isAllowanceResetNeeded, isApprovalNeededData, isLoading])
-
-  // Reset the approval requirements if the trade quote ID changes
-  useEffect(() => {
-    setIsApprovalInitiallyNeeded(undefined)
-    setIsAllowanceResetNeeded(undefined)
-  }, [tradeQuoteId])
 
   const result = useMemo(
     () => ({

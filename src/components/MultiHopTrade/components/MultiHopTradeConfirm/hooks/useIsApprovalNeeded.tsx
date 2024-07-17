@@ -35,14 +35,16 @@ export const useIsApprovalNeeded = (
 
       const isAllowanceResetNeeded = (() => {
         switch (true) {
-          case !isUsdtApprovalResetEnabled:
+          case !isApprovalNeeded:
             return false
-          case !usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId):
+          case !isUsdtApprovalResetEnabled:
             return false
           case bnOrZero(allowanceCryptoBaseUnit).isZero():
             return false
+          case !usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId):
+            return false
           default:
-            return isApprovalNeeded
+            return true
         }
       })()
 
@@ -62,7 +64,6 @@ export const useIsApprovalNeeded = (
         sellAssetAccountId ? fromAccountId(sellAssetAccountId)?.account : undefined,
       ),
       refetchInterval: 15_000,
-      enabled: Boolean(true),
       select: selectIsApprovalNeeded,
     }
   }, [
@@ -72,16 +73,7 @@ export const useIsApprovalNeeded = (
     tradeQuoteStep?.sellAsset.assetId,
   ])
 
-  const { data, isLoading: isApprovalNeededLoading } = useQuery(queryParams)
+  const query = useQuery(queryParams)
 
-  const result = useMemo(
-    () => ({
-      isLoading: data === undefined || tradeQuoteStep === undefined || isApprovalNeededLoading,
-      isApprovalNeeded: data?.isApprovalNeeded,
-      isAllowanceResetNeeded: data?.isAllowanceResetNeeded,
-    }),
-    [data, isApprovalNeededLoading, tradeQuoteStep],
-  )
-
-  return result
+  return query
 }

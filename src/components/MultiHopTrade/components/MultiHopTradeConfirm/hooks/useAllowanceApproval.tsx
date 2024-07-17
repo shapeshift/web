@@ -31,7 +31,7 @@ export const useAllowanceApproval = (
     isLoading,
   } = useApprovalTx(tradeQuoteStep, hopIndex, allowanceType)
 
-  const { isLoading: isApprovalNeededLoading, isApprovalNeeded } = useIsApprovalNeeded(
+  const { isLoading: isApprovalNeededLoading, data: isApprovalNeededData } = useIsApprovalNeeded(
     tradeQuoteStep,
     sellAssetAccountId,
   )
@@ -40,15 +40,15 @@ export const useAllowanceApproval = (
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    if (!isApprovalNeededLoading && !isApprovalNeeded) {
+    if (!isApprovalNeededLoading && !isApprovalNeededData?.isApprovalNeeded) {
       dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex }))
     }
-  }, [dispatch, hopIndex, isApprovalNeeded, isApprovalNeededLoading])
+  }, [dispatch, hopIndex, isApprovalNeededData, isApprovalNeededLoading])
 
   const chainId = tradeQuoteStep.sellAsset.chainId
 
   const executeAllowanceApproval = useCallback(async () => {
-    if (isLoading || !isApprovalNeeded) return
+    if (isLoading || !isApprovalNeededData?.isApprovalNeeded) return
 
     stopPollingBuildApprovalTx()
     dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
@@ -84,7 +84,7 @@ export const useAllowanceApproval = (
     chainId,
     dispatch,
     hopIndex,
-    isApprovalNeeded,
+    isApprovalNeededData,
     isLoading,
     showErrorToast,
     stopPollingBuildApprovalTx,

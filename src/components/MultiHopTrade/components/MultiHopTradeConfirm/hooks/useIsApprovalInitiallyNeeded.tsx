@@ -3,6 +3,7 @@ import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
+  selectActiveQuote,
   selectFirstHop,
   selectIsActiveQuoteMultiHop,
   selectSecondHop,
@@ -13,6 +14,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useIsApprovalNeeded } from './useIsApprovalNeeded'
 
 const useIsApprovalInitiallyNeededForHop = (
+  tradeQuoteId: string | undefined,
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) => {
@@ -21,8 +23,8 @@ const useIsApprovalInitiallyNeededForHop = (
 
   const {
     isLoading,
-    isApprovalNeeded,
-    isAllowanceResetNeeded: _isAllowanceResetNeeded,
+    isFetching,
+    data: isApprovalNeededData,
   } = useIsApprovalNeeded(tradeQuoteStep, sellAssetAccountId)
 
   useEffect(() => {
@@ -30,28 +32,34 @@ const useIsApprovalInitiallyNeededForHop = (
     // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
 
-    if (!isLoading && isApprovalNeeded !== undefined) {
-      setIsApprovalInitiallyNeeded(isApprovalNeeded)
+    if (!isLoading && !isFetching && isApprovalNeededData?.isApprovalNeeded !== undefined) {
+      setIsApprovalInitiallyNeeded(isApprovalNeededData?.isApprovalNeeded)
     }
-  }, [isApprovalInitiallyNeeded, isApprovalNeeded, isLoading])
+  }, [isApprovalInitiallyNeeded, isApprovalNeededData, isFetching, isLoading])
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isAllowanceResetNeeded !== undefined) return
 
-    if (!isLoading && _isAllowanceResetNeeded !== undefined) {
-      setIsAllowanceResetNeeded(_isAllowanceResetNeeded)
+    if (!isLoading && !isFetching && isApprovalNeededData?.isAllowanceResetNeeded !== undefined) {
+      setIsAllowanceResetNeeded(isApprovalNeededData?.isAllowanceResetNeeded)
     }
-  }, [isAllowanceResetNeeded, _isAllowanceResetNeeded, isLoading])
+  }, [isAllowanceResetNeeded, isApprovalNeededData, isFetching, isLoading])
+
+  // Reset the approval requirements if the trade quote ID changes
+  useEffect(() => {
+    setIsApprovalInitiallyNeeded(undefined)
+    setIsAllowanceResetNeeded(undefined)
+  }, [tradeQuoteId])
 
   const result = useMemo(
     () => ({
-      isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
+      isLoading: isLoading || isFetching,
       isApprovalInitiallyNeeded,
       isAllowanceResetNeeded,
     }),
-    [isApprovalInitiallyNeeded, isAllowanceResetNeeded, isLoading],
+    [isLoading, isFetching, isApprovalInitiallyNeeded, isAllowanceResetNeeded],
   )
 
   return result
@@ -59,6 +67,7 @@ const useIsApprovalInitiallyNeededForHop = (
 
 export const useIsApprovalInitiallyNeeded = () => {
   const dispatch = useAppDispatch()
+  const activeQuote = useAppSelector(selectActiveQuote)
   const firstHop = useAppSelector(selectFirstHop)
   const secondHop = useAppSelector(selectSecondHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
@@ -69,13 +78,13 @@ export const useIsApprovalInitiallyNeeded = () => {
     isLoading: isFirstHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
     isAllowanceResetNeeded: isAllowanceResetNeededForFirstHop,
-  } = useIsApprovalInitiallyNeededForHop(firstHop, firstHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, firstHop, firstHopSellAssetAccountId)
 
   const {
     isLoading: isSecondHopLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
     isAllowanceResetNeeded: isAllowanceResetNeededForSecondHop,
-  } = useIsApprovalInitiallyNeededForHop(secondHop, secondHopSellAssetAccountId)
+  } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, secondHop, secondHopSellAssetAccountId)
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return

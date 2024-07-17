@@ -46,10 +46,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
     isPending: isCurrentEpochRewardsCryptoBaseUnitPending,
     isPaused: isCurrentEpochRewardsCryptoBaseUnitPaused,
     isLoading: isCurrentEpochRewardsCryptoBaseUnitLoading,
-    error,
   } = useCurrentEpochRewardsQuery({ stakingAssetAccountAddress })
-
-  console.log(error)
 
   return (
     <Box>

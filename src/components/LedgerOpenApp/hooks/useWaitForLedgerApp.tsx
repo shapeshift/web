@@ -1,26 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  arbitrumNovaChainId,
-  avalancheChainId,
-  baseChainId,
-  bchChainId,
-  binanceChainId,
-  bscChainId,
-  btcChainId,
-  cosmosChainId,
-  dogeChainId,
-  ethChainId,
-  gnosisChainId,
-  ltcChainId,
-  optimismChainId,
-  polygonChainId,
-  thorchainChainId,
-} from '@shapeshiftoss/caip'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { assertUnreachable } from 'lib/utils'
 
 type LedgerOpenAppProps = {
   chainId: ChainId
@@ -30,44 +14,43 @@ type LedgerOpenAppProps = {
 type Slip44Key = keyof typeof slip44Table
 
 const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
-  switch (chainId) {
+  const knownChainId = chainId as KnownChainIds
+  switch (knownChainId) {
     // UTXO chains
-    case btcChainId:
+    case KnownChainIds.BitcoinMainnet:
       return 'Bitcoin'
-    case dogeChainId:
+    case KnownChainIds.DogecoinMainnet:
       return 'Dogecoin'
-    case bchChainId:
+    case KnownChainIds.BitcoinCashMainnet:
       return 'BitcoinCash'
-    case ltcChainId:
+    case KnownChainIds.LitecoinMainnet:
       return 'Litecoin'
     // EVM chains
-    case ethChainId:
+    case KnownChainIds.EthereumMainnet:
       return 'Ethereum'
-    case avalancheChainId:
+    case KnownChainIds.AvalancheMainnet:
       return 'Avalanche'
-    case optimismChainId:
+    case KnownChainIds.OptimismMainnet:
       return 'Optimism'
-    case bscChainId:
+    case KnownChainIds.BnbSmartChainMainnet:
       return 'BnbSmartChain'
-    case polygonChainId:
+    case KnownChainIds.PolygonMainnet:
       return 'Polygon'
-    case gnosisChainId:
+    case KnownChainIds.GnosisMainnet:
       return 'Gnosis'
-    case arbitrumChainId:
+    case KnownChainIds.ArbitrumMainnet:
       return 'Arbitrum'
-    case arbitrumNovaChainId:
+    case KnownChainIds.ArbitrumNovaMainnet:
       return 'ArbitrumNova'
-    case baseChainId:
+    case KnownChainIds.BaseMainnet:
       return 'Base'
     // Cosmos chains
-    case thorchainChainId:
+    case KnownChainIds.ThorchainMainnet:
       return 'Rune'
-    case cosmosChainId:
+    case KnownChainIds.CosmosMainnet:
       return 'Atom'
-    case binanceChainId:
-      return 'Binance'
     default:
-      return undefined
+      assertUnreachable(knownChainId)
   }
 }
 

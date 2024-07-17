@@ -26,7 +26,7 @@ import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
 
-import { getTokenPrice } from './useGetCustomTokenPriceQuery'
+import { getTokenMarketData } from './useGetCustomTokenPriceQuery'
 
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
 
@@ -85,18 +85,22 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     }
 
     try {
-      const usdPrice = await getTokenPrice(asset.assetId)
-
-      // Add market data to the store
-      dispatch(
-        marketDataSlice.actions.setCryptoMarketData({
-          [asset.assetId]: {
-            ...emptyMarketData,
-            // TODO: We need to fix the types here, the properties should be undefined, not 0, when unavailable.
-            price: usdPrice ? usdPrice : '0',
-          },
-        }),
-      )
+      const usdMarketData = await getTokenMarketData(asset.assetId)
+      if (usdMarketData) {
+        // Add market data to the store
+        dispatch(
+          marketDataSlice.actions.setCryptoMarketData({
+            [asset.assetId]: {
+              ...emptyMarketData,
+              price: usdMarketData.price.toString(),
+              marketCap: usdMarketData.market_cap.toString(),
+              volume: '0', // Not available on Zerion
+              changePercent24Hr: usdMarketData.changes.percent_1d,
+            },
+          }),
+        )
+        return
+      }
     } catch (error) {
       // Else add an empty market data object to the store so it shows up in the asset search
       dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: emptyMarketData }))

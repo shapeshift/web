@@ -11,36 +11,46 @@ type UseGetCustomTokenPricesQueryProps = {
 
 type UseGetCustomTokenPricesQueryReturn = {
   assetId: AssetId
-  priceUsd: string | undefined
+  marketData: ZerionMarketData | undefined
 }[]
 
-const ZERION_BASE_URL = 'https://api.zerion.io/v1'
-const ZERION_API_KEY = '' // Don't commit me
+const ZERION_BASE_URL = ' https://zerion.shapeshift.com/'
 
 const axiosInstance = axios.create()
 
-export const getTokenPrice = async (assetId: AssetId): Promise<string | undefined> => {
-  const basicAuth = 'Basic ' + Buffer.from(ZERION_API_KEY + ':').toString('base64')
+type ZerionMarketData = {
+  price: number
+  total_supply: number
+  circulating_supply: number
+  fully_diluted_valuation: number
+  market_cap: number
+  changes: {
+    percent_1d: number
+    percent_30d: number
+    percent_90d: number
+    pecent_365d: number
+  }
+}
 
+export const getTokenMarketData = async (
+  assetId: AssetId,
+): Promise<ZerionMarketData | undefined> => {
   const options = {
     method: 'GET' as const,
     baseURL: ZERION_BASE_URL,
-    headers: {
-      Authorization: basicAuth,
-    },
   }
 
   const { assetReference } = fromAssetId(assetId)
-  const url = `/fungibles/${assetReference}/price`
+  const url = `/fungibles/${assetReference}`
   const payload = { ...options, url }
   const { data: res } = await axiosInstance.request(payload)
 
-  return res.data.attributes.market_data.priceUsd
+  return res.data.attributes.market_data
 }
 
 const getQueryFn = (assetId: AssetId) => async () => {
-  const priceUsd = await getTokenPrice(assetId)
-  return { priceUsd, assetId }
+  const marketData = await getTokenMarketData(assetId)
+  return { marketData, assetId }
 }
 const getQueryKey = (assetId: AssetId) => ['customTokenPrices', assetId]
 
@@ -52,7 +62,7 @@ export const useGetCustomTokenPricesQuery = ({
 > => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
-  const customTokenPrices = useQueries({
+  const customTokensMarketData = useQueries({
     queries: assetIds.map(assetId => {
       const { chainId } = fromAssetId(assetId)
       const enabled = customTokenImportEnabled && isEvmChainId(chainId)
@@ -66,5 +76,5 @@ export const useGetCustomTokenPricesQuery = ({
     combine: queries => mergeQueryOutputs(queries, results => results),
   })
 
-  return customTokenPrices
+  return customTokensMarketData
 }

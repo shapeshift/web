@@ -33,20 +33,10 @@ export const useIsApprovalNeeded = (
             )
           : false
 
-      const isAllowanceResetNeeded = (() => {
-        switch (true) {
-          case !isApprovalNeeded:
-            return false
-          case !isUsdtApprovalResetEnabled:
-            return false
-          case bnOrZero(allowanceCryptoBaseUnit).isZero():
-            return false
-          case !usdtAssetIds.some(usdtAssetId => usdtAssetId === tradeQuoteStep?.sellAsset.assetId):
-            return false
-          default:
-            return true
-        }
-      })()
+      const hasAllowance = bnOrZero(allowanceCryptoBaseUnit).gt(0)
+      const isUsdt = usdtAssetIds.some(assetId => assetId === tradeQuoteStep?.sellAsset.assetId)
+      const isAllowanceResetNeeded =
+        isUsdtApprovalResetEnabled && hasAllowance && isApprovalNeeded && isUsdt
 
       return {
         isApprovalNeeded,

@@ -1,5 +1,6 @@
 import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
-import { SwapperName, type TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -76,10 +77,9 @@ const ApprovalStepPending = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const isLifiStep = useMemo(
-    () => tradeQuoteStep.source.startsWith(SwapperName.LIFI),
-    [tradeQuoteStep.source],
-  )
+  const isLifiStep = useMemo(() => {
+    return tradeQuoteStep.source.startsWith(SwapperName.LIFI)
+  }, [tradeQuoteStep.source])
 
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)

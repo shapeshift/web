@@ -77,7 +77,7 @@ const ApprovalStepPending = ({
   } = useLocaleFormatter()
 
   const isLifiStep = useMemo(
-    () => tradeQuoteStep.source.includes(SwapperName.LIFI),
+    () => tradeQuoteStep.source.startsWith(SwapperName.LIFI),
     [tradeQuoteStep.source],
   )
 

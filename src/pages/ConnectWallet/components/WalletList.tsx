@@ -1,5 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useHistory } from 'react-router'
+import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
@@ -18,12 +20,17 @@ export type WalletInfo = {
 
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
+  isEditing?: boolean
 }
 
-export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({ footerComponent }) => {
+export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
+  footerComponent,
+  isEditing,
+}) => {
   const { dispatch, getAdapter, state } = useWallet()
   const { walletInfo } = state
   const localWallet = useLocalWallet()
+  const history = useHistory()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -96,6 +103,20 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({ footerComp
     [dispatch, getAdapter, localWallet],
   )
 
+  const handleRename = useCallback(
+    (wallet: RevocableWallet) => {
+      history.push(MobileWalletDialogRoutes.RENAME, { vault: wallet })
+    },
+    [history],
+  )
+
+  const handleDelete = useCallback(
+    (wallet: RevocableWallet) => {
+      history.push(MobileWalletDialogRoutes.DELETE, { vault: wallet })
+    },
+    [history],
+  )
+
   const content = useMemo(() => {
     if (error) {
       return (
@@ -114,11 +135,22 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({ footerComp
             wallet={wallet}
             onClick={handleWalletSelect}
             isActive={walletInfo?.deviceId === wallet.id}
+            isEditing={isEditing}
+            onRename={handleRename}
+            onDelete={handleDelete}
           />
         ))}
       </Stack>
     )
-  }, [error, handleWalletSelect, walletInfo?.deviceId, wallets])
+  }, [
+    error,
+    handleDelete,
+    handleRename,
+    handleWalletSelect,
+    isEditing,
+    walletInfo?.deviceId,
+    wallets,
+  ])
 
   return isLoading ? (
     <Center py={6}>

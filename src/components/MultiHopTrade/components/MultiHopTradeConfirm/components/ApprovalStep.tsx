@@ -16,6 +16,8 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { store, useAppSelector } from 'state/store'
 
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
+import type { LedgerOpenAppAcknowledgementRef } from './LedgerOpenAppAcknowledgement'
+import { LedgerOpenAppAcknowledgement, useLedgerOpenApp } from './LedgerOpenAppAcknowledgement'
 import { ApprovalStatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
 
@@ -83,6 +85,9 @@ const ApprovalStepPending = ({
 
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
+  const { content: openLedgerAppContent, checkLedgerApp } = useLedgerOpenApp({
+    chainId: tradeQuoteStep.sellAsset.chainId,
+  })
 
   const {
     state,
@@ -114,9 +119,12 @@ const ApprovalStepPending = ({
       return
     }
 
-    // todo: ledger things
+    await checkLedgerApp()
 
-    await executeAllowanceApproval()
+    console.log('submitting allowance approval...')
+
+    // TODO: uncomment me
+    // await executeAllowanceApproval()
   }, [canAttemptApproval, executeAllowanceApproval])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
@@ -181,6 +189,7 @@ const ApprovalStepPending = ({
               />
             </Row.Value>
           </Row>
+          {openLedgerAppContent}
           <Button
             width='full'
             size='sm'
@@ -202,6 +211,7 @@ const ApprovalStepPending = ({
     isAllowanceApprovalLoading,
     isExactAllowance,
     isLifiStep,
+    openLedgerAppContent,
     toggleIsExactAllowance,
     translate,
   ])

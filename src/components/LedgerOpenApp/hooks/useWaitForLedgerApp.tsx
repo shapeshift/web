@@ -8,7 +8,7 @@ import { assertUnreachable } from 'lib/utils'
 
 type LedgerOpenAppProps = {
   chainId: ChainId
-  onReady: () => void
+  onReady: (() => void) | undefined
 }
 
 type Slip44Key = keyof typeof slip44Table
@@ -72,6 +72,9 @@ export const useWaitForLedgerApp = ({ chainId, onReady }: LedgerOpenAppProps) =>
   }, [chainId, wallet])
 
   useEffect(() => {
+    // Don't start polling until the onReady callback is set
+    if (!onReady) return
+
     // Poll the Ledger every second to see if the correct app is open
     const intervalId = setInterval(async () => {
       const isValidApp = await checkIsCorrectAppOpen()

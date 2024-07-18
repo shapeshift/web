@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
@@ -11,7 +12,7 @@ export const useFetchAndUpsertCustomTokenMarketData = () => {
   const dispatch = useDispatch()
 
   const fetchAndUpsertCustomTokenMarketData = useCallback(
-    async (assetId: string) => {
+    async (assetId: AssetId) => {
       const isCustomAsset = selectIsCustomAsset(store.getState(), assetId)
       if (!isCustomAsset) return
 

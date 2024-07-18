@@ -14,7 +14,7 @@ type UseGetCustomTokenPricesQueryReturn = {
   marketData: ZerionMarketData | undefined
 }[]
 
-const ZERION_BASE_URL = ' https://zerion.shapeshift.com/'
+const ZERION_BASE_URL = 'https://zerion.shapeshift.com/'
 
 const axiosInstance = axios.create()
 

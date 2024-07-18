@@ -47,7 +47,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
 
   const isCustomAsset = useAppSelector(state => selectIsCustomAsset(state, assetId))
 
-  const MaybeCustomAssetWarning: JSX.Element | null = useMemo(
+  const maybeCustomAssetWarning: JSX.Element | null = useMemo(
     () =>
       isCustomAsset ? (
         <Box p={8}>
@@ -70,7 +70,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
     <Main headerComponent={assetHeader} py={contentPaddingY} isSubPage>
       <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
         <Stack spacing={4} flex='1 1 0%' width='full'>
-          {MaybeCustomAssetWarning}
+          {maybeCustomAssetWarning}
           <AssetChart accountId={accountId} assetId={assetId} isLoaded={true} />
           <MaybeChartUnavailable assetIds={assetIds} />
           <Equity assetId={assetId} accountId={accountId} />

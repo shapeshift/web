@@ -234,14 +234,10 @@ export const selectHighestMarketCapFeeAsset = createSelector(
   },
 )
 
-export const selectIsCustomAsset = createSelector(
-  selectAssetById,
-  (_state: ReduxState, assetId: AssetId) => assetId,
-  (asset, _assetId): boolean => {
-    if (!asset) return false
-    return !!asset.isCustomAsset
-  },
-)
+export const selectIsCustomAsset = createSelector(selectAssetById, (asset): boolean => {
+  if (!asset) return false
+  return !!asset.isCustomAsset
+})
 
 // This is a specific case we want to check for, where we have a custom asset but no market data
 export const selectIsCustomAssetWithoutMarketData = createSelector(

@@ -1826,11 +1826,10 @@
       "description": "Selecione as contas que você gostaria de importar na lista abaixo.",
       "import": "Importar",
       "loadMoreDisabled": "Esta carteira não suporta múltiplas contas para esta rede."
-    },
-    "ledgerOpenApp": {
-      "title": "Abra o aplicativo %{appName}",
-      "description": "Para conectar esta rede, você precisará abrir o aplicativo Ledger no seu dispositivo."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Abra o aplicativo %{appName}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

@@ -1850,11 +1850,11 @@
       "description": "Select the accounts you would like to import from the list below.",
       "import": "Import",
       "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
-    },
-    "ledgerOpenApp": {
-      "title": "Open the %{appName} App",
-      "description": "To connect this chain, you will need to open the Ledger app on your device."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Open the %{appName} App",
+    "description": "To continue, you will need to open the %{appName} app on your Ledger device."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

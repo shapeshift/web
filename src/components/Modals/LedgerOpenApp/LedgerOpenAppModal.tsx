@@ -12,7 +12,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { RawText, Text } from 'components/Text'
+import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 
 import { AssetOnLedger } from './components/AssetOnLedger'
@@ -42,7 +42,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
           <VStack spacing={2} width='full'>
             {appAsset ? <AssetOnLedger assetId={appAsset.assetId} size='lg' /> : null}
             <RawText as='h3' fontWeight='semibold'>
-              {translate('accountManagement.ledgerOpenApp.title', {
+              {translate('ledgerOpenApp.title', {
                 appName,
               })}
             </RawText>
@@ -50,10 +50,11 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
         </ModalHeader>
         <ModalBody>
           <VStack spacing={2}>
-            <Text
-              translation={'accountManagement.ledgerOpenApp.description'}
-              color={'whiteAlpha.600'}
-            />
+            <RawText color='whiteAlpha.600'>
+              {translate('ledgerOpenApp.description', {
+                appName,
+              })}
+            </RawText>
             <Spinner size='lg' />
           </VStack>
         </ModalBody>

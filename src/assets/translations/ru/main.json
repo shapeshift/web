@@ -1826,11 +1826,10 @@
       "description": "Выберите счета, которые вы хотите импортировать, из списка ниже.",
       "import": "Импорт",
       "loadMoreDisabled": "Этот кошелек не поддерживает несколько аккаунтов для этой цепочки."
-    },
-    "ledgerOpenApp": {
-      "title": "Открыть %{appName} апликацию",
-      "description": "Чтобы подключить эту цепочку, необходимо открыть приложение Ledger на своем устройстве."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Открыть %{appName} апликацию"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

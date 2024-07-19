@@ -1,59 +1,66 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { type evm, type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { type ETHWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import { getApproveContractData } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getApproveContractData, getFeesWithWallet } from 'lib/utils/evm'
+import { approve } from 'lib/utils/evm/approve'
 
-export const getApprovalTxData = async ({
+export const getApprovalNetworkFeeCryptoBaseUnit = async ({
   tradeQuoteStep,
-  adapter,
   wallet,
   isExactAllowance,
-  from,
-  supportsEIP1559,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
-  adapter: EvmChainAdapter
-  wallet: ETHWallet
+  wallet: HDWallet
   isExactAllowance: boolean
-  from: string
-  supportsEIP1559: boolean
-}): Promise<{ buildCustomTxInput: evm.BuildCustomTxInput; networkFeeCryptoBaseUnit: string }> => {
+}): Promise<string> => {
+  const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
+
   const approvalAmountCryptoBaseUnit = isExactAllowance
     ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
     : MAX_ALLOWANCE
 
-  const { assetReference } = fromAssetId(tradeQuoteStep.sellAsset.assetId)
-
-  const value = '0'
+  const { assetReference: to } = fromAssetId(tradeQuoteStep.sellAsset.assetId)
 
   const data = getApproveContractData({
     approvalAmountCryptoBaseUnit,
     spender: tradeQuoteStep.allowanceContract,
-    to: assetReference,
+    to,
     chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
-  const { networkFeeCryptoBaseUnit, ...fees } = await getFees({
+  const { networkFeeCryptoBaseUnit } = await getFeesWithWallet({
+    accountNumber: tradeQuoteStep.accountNumber,
     adapter,
-    to: assetReference,
-    value,
     data,
-    from,
-    supportsEIP1559,
+    to,
+    value: '0',
+    wallet,
   })
 
-  return {
-    networkFeeCryptoBaseUnit,
-    buildCustomTxInput: {
-      accountNumber: tradeQuoteStep.accountNumber,
-      data,
-      to: assetReference,
-      value,
-      wallet,
-      ...fees,
-    },
-  }
+  return networkFeeCryptoBaseUnit
+}
+
+export const approveTrade = async ({
+  tradeQuoteStep,
+  wallet,
+  isExactAllowance,
+}: {
+  tradeQuoteStep: TradeQuote['steps'][number]
+  wallet: HDWallet
+  isExactAllowance: boolean
+}): Promise<string> => {
+  const amountCryptoBaseUnit = isExactAllowance
+    ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    : MAX_ALLOWANCE
+
+  const txHash = await approve({
+    assetId: tradeQuoteStep.sellAsset.assetId,
+    accountNumber: tradeQuoteStep.accountNumber,
+    amountCryptoBaseUnit,
+    spender: tradeQuoteStep.allowanceContract,
+    wallet,
+  })
+
+  return txHash
 }

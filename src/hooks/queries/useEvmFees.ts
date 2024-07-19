@@ -5,77 +5,54 @@ import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectEvmFees } from 'react-queries/selectors'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  assertGetEvmChainAdapter,
-  getFeesWithWallet,
-  type GetFeesWithWalletArgs,
-  isGetFeesWithWalletArgs,
-} from 'lib/utils/evm'
+import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getFeesWithWallet, isGetFeesWithWalletArgs } from 'lib/utils/evm'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type UseEvmFeesProps = Omit<
-  GetFeesWithWalletArgs,
-  'wallet' | 'adapter' | 'accountNumber' | 'data' | 'to'
-> & {
+type UseEvmFeesProps = {
   accountNumber: number | undefined
-  data: string | undefined
-  to: string | undefined
   chainId: ChainId | undefined
+  data: string | undefined
   enabled?: boolean
-  staleTime?: number
   refetchInterval: number | false | undefined
-  refetchIntervalInBackground: boolean
+  refetchIntervalInBackground?: boolean
+  staleTime?: number
+  to: string | undefined
+  value: string
 }
 
-export const useEvmFees = (props: UseEvmFeesProps) => {
+export const useEvmFees = ({
+  accountNumber,
+  chainId,
+  data,
+  refetchInterval,
+  refetchIntervalInBackground,
+  to,
+  value,
+  enabled = true,
+  staleTime,
+}: UseEvmFeesProps) => {
   const wallet = useWallet().state.wallet
 
-  const { enabled, staleTime, refetchInterval, refetchIntervalInBackground, input } = useMemo(
-    () => {
-      const {
-        enabled = true,
-        staleTime,
-        refetchInterval,
-        refetchIntervalInBackground,
-        ...input
-      } = props
+  const adapter = useMemo(() => {
+    return chainId && isEvmChainId(chainId) ? assertGetEvmChainAdapter(chainId) : undefined
+  }, [chainId])
 
-      return {
-        enabled,
-        staleTime,
-        refetchInterval,
-        refetchIntervalInBackground,
-        input,
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    Object.values(props),
-  )
-
-  const adapter = useMemo(
-    () =>
-      input.chainId && isEvmChainId(input.chainId)
-        ? assertGetEvmChainAdapter(input.chainId)
-        : undefined,
-    [input.chainId],
-  )
-
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, input.chainId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))
   const feeAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
-  const getFeesWithWalletInput = useMemo(
-    () => ({ ...input, adapter, wallet }),
-    [adapter, input, wallet],
-  )
+  const getFeesWithWalletInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
+    return { accountNumber, adapter, data, to, value, wallet }
+  }, [accountNumber, adapter, data, to, value, wallet])
 
   const query = useQuery({
-    queryKey: reactQueries.common.evmFees(input).queryKey,
+    queryKey: reactQueries.common.evmFees({ chainId, value, accountNumber, data, to }).queryKey,
     queryFn:
       isGetFeesWithWalletArgs(getFeesWithWalletInput) && enabled
         ? () => getFeesWithWallet(getFeesWithWalletInput)

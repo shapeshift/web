@@ -95,7 +95,7 @@ const ApprovalStepPending = ({
   )
 
   const {
-    executeAllowanceApproval,
+    approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
   } = useAllowanceApproval(tradeQuoteStep, hopIndex, isExactAllowance)
@@ -114,8 +114,8 @@ const ApprovalStepPending = ({
       return
     }
 
-    await executeAllowanceApproval()
-  }, [canAttemptApproval, executeAllowanceApproval])
+    await approveMutation.mutateAsync()
+  }, [canAttemptApproval, approveMutation])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =

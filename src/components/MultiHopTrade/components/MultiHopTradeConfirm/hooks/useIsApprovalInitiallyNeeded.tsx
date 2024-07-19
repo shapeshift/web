@@ -1,6 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
+import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectFirstHop,
@@ -10,35 +12,35 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { useIsApprovalNeeded } from './useIsApprovalNeeded'
-
 const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) => {
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
-  const { isLoading, isApprovalNeeded } = useIsApprovalNeeded(tradeQuoteStep, sellAssetAccountId)
+  const { allowanceQueryResult, isApprovalRequired } = useIsApprovalRequired({
+    amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    assetId: tradeQuoteStep?.sellAsset.assetId,
+    from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+    spender: tradeQuoteStep?.allowanceContract,
+  })
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
     // stop polling on first result
-    if (!isLoading && isApprovalNeeded !== undefined) {
-      setIsApprovalInitiallyNeeded(isApprovalNeeded)
-    }
-  }, [isApprovalInitiallyNeeded, isApprovalNeeded, isLoading])
+    if (allowanceQueryResult.isLoading || isApprovalRequired === undefined) return
 
-  const result = useMemo(
-    () => ({
-      isLoading: isApprovalInitiallyNeeded === undefined || isLoading,
+    setIsApprovalInitiallyNeeded(isApprovalRequired)
+  }, [allowanceQueryResult.isLoading, isApprovalInitiallyNeeded, isApprovalRequired])
+
+  return useMemo(() => {
+    return {
+      isLoading: isApprovalInitiallyNeeded === undefined,
       isApprovalInitiallyNeeded,
-    }),
-    [isApprovalInitiallyNeeded, isLoading],
-  )
-
-  return result
+    }
+  }, [isApprovalInitiallyNeeded])
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
@@ -77,7 +79,7 @@ export const useIsApprovalInitiallyNeeded = () => {
   ])
 
   const result = useMemo(
-    () => ({ isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }),
+    () => ({ isLoading: isFirstHopLoading || (Boolean(isMultiHopTrade) && isSecondHopLoading) }),
     [isFirstHopLoading, isMultiHopTrade, isSecondHopLoading],
   )
 

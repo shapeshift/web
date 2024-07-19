@@ -12,6 +12,7 @@ type UseAllowanceArgs = {
 export const useAllowance = ({ assetId, spender, from }: UseAllowanceArgs) => {
   const query = useQuery({
     ...reactQueries.common.allowanceCryptoBaseUnit(assetId, spender, from),
+    refetchOnMount: 'always',
     refetchInterval: 15_000,
     enabled: Boolean(assetId && spender && from),
     select: selectAllowanceCryptoBaseUnit,

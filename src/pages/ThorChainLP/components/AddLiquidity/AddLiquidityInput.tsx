@@ -577,7 +577,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     ...reactQueries.mutations.approve({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
-      from: poolAssetAccountAddress,
       amountCryptoBaseUnit: toBaseUnit(
         actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,

@@ -231,7 +231,7 @@ export const VerifyAddresses = () => {
   }, [checkLedgerAppOpen, handleVerify, buyAsset.chainId])
 
   const handleSellVerify = useCallback(async () => {
-    // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
+    // Only proceed to verify the sell address if the promise is resolved, i.e the user has opened
     // the Ledger app without cancelling
     await checkLedgerAppOpen(sellAsset.chainId)
       .then(() => handleVerify('sell'))

@@ -68,6 +68,9 @@ export const ManageAccountsDrawer = ({
   const handleSelectChainId = useCallback(
     async (chainId: ChainId) => {
       setSelectedChainId(chainId)
+
+      // Only proceed to next step if the promise is resolved, i.e the user has opened the Ledger
+      // app without cancelling
       await checkLedgerAppOpen(chainId)
         .then(() => handleNext())
         .catch(console.error)

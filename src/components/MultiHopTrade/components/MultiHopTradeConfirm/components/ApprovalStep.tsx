@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { fromBaseUnit } from 'lib/math'
@@ -18,7 +19,6 @@ import { store, useAppSelector } from 'state/store'
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
 import { ApprovalStatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
-import { useLedgerOpenApp } from './useLedgerOpenApp'
 
 export type ApprovalStepProps = {
   tradeQuoteStep: TradeQuoteStep

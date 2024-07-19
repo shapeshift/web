@@ -11,6 +11,7 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
@@ -24,7 +25,6 @@ import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
 import { StreamingSwap } from './StreamingSwap'
-import { useLedgerOpenApp } from './useLedgerOpenApp'
 
 export type HopTransactionStepProps = {
   swapperName: SwapperName

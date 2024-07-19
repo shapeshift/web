@@ -1,9 +1,54 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
-import { getSlip44KeyFromChainId } from 'components/LedgerOpenApp/hooks/useWaitForLedgerApp'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+
+type Slip44Key = keyof typeof slip44Table
+
+export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
+  const knownChainId = chainId as KnownChainIds
+  switch (knownChainId) {
+    // UTXO chains
+    case KnownChainIds.BitcoinMainnet:
+      return 'Bitcoin'
+    case KnownChainIds.DogecoinMainnet:
+      return 'Dogecoin'
+    case KnownChainIds.BitcoinCashMainnet:
+      return 'BitcoinCash'
+    case KnownChainIds.LitecoinMainnet:
+      return 'Litecoin'
+    // EVM chains
+    case KnownChainIds.EthereumMainnet:
+      return 'Ethereum'
+    case KnownChainIds.AvalancheMainnet:
+      return 'Avalanche'
+    case KnownChainIds.OptimismMainnet:
+      return 'Optimism'
+    case KnownChainIds.BnbSmartChainMainnet:
+      return 'BnbSmartChain'
+    case KnownChainIds.PolygonMainnet:
+      return 'Polygon'
+    case KnownChainIds.GnosisMainnet:
+      return 'Gnosis'
+    case KnownChainIds.ArbitrumMainnet:
+      return 'Arbitrum'
+    case KnownChainIds.ArbitrumNovaMainnet:
+      return 'ArbitrumNova'
+    case KnownChainIds.BaseMainnet:
+      return 'Base'
+    // Cosmos chains
+    case KnownChainIds.ThorchainMainnet:
+      return 'Rune'
+    case KnownChainIds.CosmosMainnet:
+      return 'Atom'
+    default:
+      assertUnreachable(knownChainId)
+  }
+}
 
 /**
  * This hook provides a function that can be used to check if the Ledger app is open for the given chainId.
@@ -37,6 +82,12 @@ export const useLedgerOpenApp = () => {
   const checkLedgerApp = useCallback(
     (chainId: ChainId) => {
       return new Promise<void>(async (resolve, reject) => {
+        // If the user is not using a Ledger, resolve the promise immediately
+        if (wallet && !isLedger(wallet)) {
+          resolve()
+          return
+        }
+
         // If the ledger app is already open, resolve the promise immediately
         const isValidApp = await checkIsCorrectAppOpen(chainId)
         if (isValidApp) {
@@ -64,7 +115,7 @@ export const useLedgerOpenApp = () => {
         }, 1000)
       })
     },
-    [checkIsCorrectAppOpen, closeModal, openModal],
+    [checkIsCorrectAppOpen, closeModal, openModal, wallet],
   )
 
   return checkLedgerApp

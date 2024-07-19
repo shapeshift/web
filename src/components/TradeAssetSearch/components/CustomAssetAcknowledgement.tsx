@@ -23,7 +23,10 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { middleEllipsis } from 'lib/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketData as marketDataSlice } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  defaultMarketData,
+  marketData as marketDataSlice,
+} from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
 
 import { getTokenMarketData } from '../hooks/useGetCustomTokenPriceQuery'
@@ -77,13 +80,6 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
 
-    const emptyMarketData = {
-      price: '0',
-      marketCap: '0',
-      volume: '0',
-      changePercent24Hr: 0,
-    }
-
     try {
       const usdMarketData = await getTokenMarketData(asset.assetId)
       if (usdMarketData) {
@@ -93,7 +89,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
             [asset.assetId]: {
               price: usdMarketData.price.toString(),
               marketCap: usdMarketData.market_cap.toString(),
-              volume: '0', // Not available on Zerion
+              volume: '0', // Not available from Zerion
               changePercent24Hr: usdMarketData.changes.percent_1d,
             },
           }),
@@ -101,7 +97,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
       }
     } catch (error) {
       // Else add an empty market data object to the store so it shows up in the asset search
-      dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: emptyMarketData }))
+      dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: defaultMarketData }))
     } finally {
       // Once the custom asset is in the store, proceed as if it was a normal asset
       handleAssetClick(asset)

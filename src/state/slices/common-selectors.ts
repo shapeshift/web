@@ -244,6 +244,6 @@ export const selectIsCustomAssetWithoutMarketData = createSelector(
   selectMarketDataByAssetIdUserCurrency,
   selectIsCustomAsset,
   (marketData, isCustomAsset): boolean => {
-    return !marketData.price && isCustomAsset
+    return (!marketData || marketData.price === '0') && isCustomAsset
   },
 )

@@ -1,4 +1,3 @@
-import type { Asset } from '@shapeshiftoss/types'
 import { isNull, isUndefined } from 'lodash'
 
 export * from './makeAsset/makeAsset'

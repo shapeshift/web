@@ -12,10 +12,11 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { AssetOnLedger } from 'components/LedgerOpenApp/components/AssetOnLedger'
-import { useLedgerAppDetails } from 'components/LedgerOpenApp/hooks/useLedgerAppDetails'
 import { RawText, Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+
+import { AssetOnLedger } from './components/AssetOnLedger'
+import { useLedgerAppDetails } from './hooks/useLedgerAppDetails'
 
 export type OpenLedgerAppModalProps = {
   chainId: ChainId

@@ -172,6 +172,14 @@ const ManageAccountsModal = makeSuspenseful(
   ),
 )
 
+const OpenLedgerAppModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/OpenLedgerApp/OpenLedgerAppModal').then(({ OpenLedgerAppModal }) => ({
+      default: OpenLedgerAppModal,
+    })),
+  ),
+)
+
 const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -193,6 +201,7 @@ const MODALS: Modals = {
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
   manageAccounts: ManageAccountsModal,
+  openLedgerApp: OpenLedgerAppModal,
 } as const
 
 export const createModalProvider = () => {

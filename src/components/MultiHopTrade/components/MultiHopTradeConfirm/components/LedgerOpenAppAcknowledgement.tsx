@@ -1,58 +1,64 @@
-import { HStack, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
-import { AssetOnLedger } from 'components/LedgerOpenApp/components/AssetOnLedger'
-import { useLedgerAppDetails } from 'components/LedgerOpenApp/hooks/useLedgerAppDetails'
-import { useWaitForLedgerApp } from 'components/LedgerOpenApp/hooks/useWaitForLedgerApp'
-import { RawText, Text } from 'components/Text'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { useCallback } from 'react'
+import { getSlip44KeyFromChainId } from 'components/LedgerOpenApp/hooks/useWaitForLedgerApp'
+import { useModal } from 'hooks/useModal/useModal'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
-type LedgerOpenAppAcknowledgementProps = {
-  chainId: ChainId
-}
+export const useLedgerOpenApp = () => {
+  const { close: closeModal, open: openModal } = useModal('openLedgerApp')
 
-export const useLedgerOpenApp = ({ chainId }: LedgerOpenAppAcknowledgementProps) => {
-  const translate = useTranslate()
-  const [shouldShowAcknowledgement, setShouldShowAcknowledgement] = useState(false)
-  const [onReady, setOnReady] = useState<() => void>()
+  const wallet = useWallet().state.wallet
 
-  useWaitForLedgerApp({ chainId, onReady })
-  const { appName, appAsset } = useLedgerAppDetails(chainId)
+  const checkIsCorrectAppOpen = useCallback(
+    async (chainId: ChainId) => {
+      const slip44Key = getSlip44KeyFromChainId(chainId)
 
-  const checkLedgerApp = useCallback(() => {
-    return new Promise<void>(resolve => {
-      // If the ledger app is already open, resolve the promise immediately
-      // Set a callback to resolve the promise when the Ledger app is open
-      setOnReady(() => {
-        return () => {
-          setShouldShowAcknowledgement(false)
+      const ledgerWallet = wallet && isLedger(wallet) ? wallet : undefined
+      if (!ledgerWallet || !slip44Key) return false
+      try {
+        await ledgerWallet.validateCurrentApp(slip44Key)
+        return true
+      } catch (error) {
+        console.error(error)
+        return false
+      }
+    },
+    [wallet],
+  )
+
+  const checkLedgerApp = useCallback(
+    (chainId: ChainId) => {
+      return new Promise<void>(async (resolve, reject) => {
+        // If the ledger app is already open, resolve the promise immediately
+        const isValidApp = await checkIsCorrectAppOpen(chainId)
+        if (isValidApp) {
           resolve()
+          return
         }
+
+        // Set a callback to reject the promise when the user cancels the request
+        const onCancel = () => {
+          closeModal()
+          reject()
+        }
+
+        // Display the request to open the Ledger app
+        openModal({ chainId, onCancel })
+
+        // Poll the Ledger every second to see if the correct app is open
+        const intervalId = setInterval(async () => {
+          const isValidApp = await checkIsCorrectAppOpen(chainId)
+          if (isValidApp) {
+            closeModal()
+            clearInterval(intervalId)
+            resolve()
+          }
+        }, 1000)
       })
+    },
+    [checkIsCorrectAppOpen, closeModal, openModal],
+  )
 
-      // Display the request to open the Ledger app
-      setShouldShowAcknowledgement(true)
-    })
-  }, [])
-
-  const content = useMemo(() => {
-    if (!shouldShowAcknowledgement || !appAsset) {
-      return null
-    }
-    return (
-      <HStack>
-        <AssetOnLedger assetId={appAsset.assetId} size='md' />
-        <VStack alignItems='left'>
-          <RawText fontSize='md' fontWeight='bold' mt={10} mb={3}>
-            {translate('accountManagement.ledgerOpenApp.title', {
-              appName,
-            })}
-          </RawText>
-          <Text translation='accountManagement.ledgerOpenApp.description' color='whiteAlpha.600' />
-        </VStack>
-      </HStack>
-    )
-  }, [appAsset, appName, shouldShowAcknowledgement, translate])
-
-  return { content, checkLedgerApp }
+  return checkLedgerApp
 }

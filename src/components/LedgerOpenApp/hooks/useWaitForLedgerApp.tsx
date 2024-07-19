@@ -13,7 +13,7 @@ type LedgerOpenAppProps = {
 
 type Slip44Key = keyof typeof slip44Table
 
-const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
+export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined => {
   const knownChainId = chainId as KnownChainIds
   switch (knownChainId) {
     // UTXO chains
@@ -86,4 +86,27 @@ export const useWaitForLedgerApp = ({ chainId, onReady }: LedgerOpenAppProps) =>
 
     return () => clearInterval(intervalId) // Clean up on component unmount
   }, [checkIsCorrectAppOpen, onReady])
+}
+
+export const useCheckLedgerApp = () => {
+  const wallet = useWallet().state.wallet
+
+  const checkIsCorrectAppOpen = useCallback(
+    async (chainId: ChainId) => {
+      const slip44Key = getSlip44KeyFromChainId(chainId)
+
+      const ledgerWallet = wallet && isLedger(wallet) ? wallet : undefined
+      if (!ledgerWallet || !slip44Key) return false
+      try {
+        await ledgerWallet.validateCurrentApp(slip44Key)
+        return true
+      } catch (error) {
+        console.error(error)
+        return false
+      }
+    },
+    [wallet],
+  )
+
+  return checkIsCorrectAppOpen
 }

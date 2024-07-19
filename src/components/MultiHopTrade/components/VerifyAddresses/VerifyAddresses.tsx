@@ -37,7 +37,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useLedgerOpenApp } from '../MultiHopTradeConfirm/components/LedgerOpenAppAcknowledgement'
+import { useLedgerOpenApp } from '../MultiHopTradeConfirm/components/useLedgerOpenApp'
 import { WithBackButton } from '../WithBackButton'
 
 export const VerifyAddresses = () => {
@@ -223,14 +223,16 @@ export const VerifyAddresses = () => {
   const checkLedgerAppOpen = useLedgerOpenApp()
 
   const handleBuyVerify = useCallback(async () => {
-    // Only proceed to verify the buy address if the promise is resolved (the user has opened the Ledger app without cancelling)
+    // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
+    // the Ledger app without cancelling
     await checkLedgerAppOpen(buyAsset.chainId)
       .then(() => handleVerify('buy'))
       .catch(console.error)
   }, [checkLedgerAppOpen, handleVerify, buyAsset.chainId])
 
   const handleSellVerify = useCallback(async () => {
-    // Only proceed to verify the buy address if the promise is resolved (the user has opened the Ledger app without cancelling)
+    // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
+    // the Ledger app without cancelling
     await checkLedgerAppOpen(sellAsset.chainId)
       .then(() => handleVerify('sell'))
       .catch(console.error)

@@ -16,10 +16,9 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { store, useAppSelector } from 'state/store'
 
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
-import type { LedgerOpenAppAcknowledgementRef } from './LedgerOpenAppAcknowledgement'
-import { LedgerOpenAppAcknowledgement, useLedgerOpenApp } from './LedgerOpenAppAcknowledgement'
 import { ApprovalStatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
+import { useLedgerOpenApp } from './useLedgerOpenApp'
 
 export type ApprovalStepProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -85,9 +84,8 @@ const ApprovalStepPending = ({
 
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
-  const { content: openLedgerAppContent, checkLedgerApp } = useLedgerOpenApp({
-    chainId: tradeQuoteStep.sellAsset.chainId,
-  })
+
+  const checkLedgerAppOpen = useLedgerOpenApp()
 
   const {
     state,
@@ -119,13 +117,17 @@ const ApprovalStepPending = ({
       return
     }
 
-    await checkLedgerApp()
-
-    console.log('submitting allowance approval...')
-
-    // TODO: uncomment me
-    // await executeAllowanceApproval()
-  }, [canAttemptApproval, executeAllowanceApproval])
+    // Only proceed to execute the approval if the promise is resolved, i.e the user has opened the
+    // Ledger app without cancelling
+    await checkLedgerAppOpen(tradeQuoteStep.sellAsset.chainId)
+      .then(() => executeAllowanceApproval())
+      .catch(console.error)
+  }, [
+    canAttemptApproval,
+    checkLedgerAppOpen,
+    executeAllowanceApproval,
+    tradeQuoteStep.sellAsset.chainId,
+  ])
 
   const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
   const approvalNetworkFeeCryptoFormatted =
@@ -189,7 +191,6 @@ const ApprovalStepPending = ({
               />
             </Row.Value>
           </Row>
-          {openLedgerAppContent}
           <Button
             width='full'
             size='sm'
@@ -211,7 +212,6 @@ const ApprovalStepPending = ({
     isAllowanceApprovalLoading,
     isExactAllowance,
     isLifiStep,
-    openLedgerAppContent,
     toggleIsExactAllowance,
     translate,
   ])

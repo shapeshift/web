@@ -5,6 +5,13 @@ import { getSlip44KeyFromChainId } from 'components/LedgerOpenApp/hooks/useWaitF
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
+/**
+ * This hook provides a function that can be used to check if the Ledger app is open for the given chainId.
+ *
+ * If the app is not open, it will display a modal to prompt the user to open the app.
+ *
+ * The function will resolve when the app is open, or reject if the user cancels the request.
+ */
 export const useLedgerOpenApp = () => {
   const { close: closeModal, open: openModal } = useModal('openLedgerApp')
 

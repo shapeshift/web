@@ -24,6 +24,7 @@ import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
 import { StreamingSwap } from './StreamingSwap'
+import { useLedgerOpenApp } from './useLedgerOpenApp'
 
 export type HopTransactionStepProps = {
   swapperName: SwapperName
@@ -45,6 +46,8 @@ export const HopTransactionStep = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
 
+  const checkLedgerAppOpen = useLedgerOpenApp()
+
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
@@ -59,10 +62,12 @@ export const HopTransactionStep = ({
       return
     }
 
-    // todo: ledger things
-
-    await executeTrade()
-  }, [executeTrade, swapTxState])
+    // Only proceed to execute the trade if the promise is resolved, i.e the user has opened the
+    // Ledger app without cancelling
+    await checkLedgerAppOpen(tradeQuoteStep.sellAsset.chainId)
+      .then(() => executeTrade())
+      .catch(console.error)
+  }, [checkLedgerAppOpen, executeTrade, swapTxState, tradeQuoteStep.sellAsset.chainId])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,

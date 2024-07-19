@@ -172,10 +172,10 @@ const ManageAccountsModal = makeSuspenseful(
   ),
 )
 
-const OpenLedgerAppModal = makeSuspenseful(
+const LedgerOpenAppModal = makeSuspenseful(
   lazy(() =>
-    import('components/Modals/OpenLedgerApp/OpenLedgerAppModal').then(({ OpenLedgerAppModal }) => ({
-      default: OpenLedgerAppModal,
+    import('components/Modals/LedgerOpenApp/LedgerOpenAppModal').then(({ LedgerOpenAppModal }) => ({
+      default: LedgerOpenAppModal,
     })),
   ),
 )
@@ -201,7 +201,7 @@ const MODALS: Modals = {
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
   manageAccounts: ManageAccountsModal,
-  openLedgerApp: OpenLedgerAppModal,
+  ledgerOpenApp: LedgerOpenAppModal,
 } as const
 
 export const createModalProvider = () => {

@@ -18,13 +18,13 @@ import { useModal } from 'hooks/useModal/useModal'
 import { AssetOnLedger } from './components/AssetOnLedger'
 import { useLedgerAppDetails } from './hooks/useLedgerAppDetails'
 
-export type OpenLedgerAppModalProps = {
+export type LedgerOpenAppModalProps = {
   chainId: ChainId
   onCancel: () => void
 }
 
-export const OpenLedgerAppModal = ({ chainId, onCancel }: OpenLedgerAppModalProps) => {
-  const { close: closeModal, isOpen } = useModal('openLedgerApp')
+export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProps) => {
+  const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
   const translate = useTranslate()
 
   const { appName, appAsset } = useLedgerAppDetails(chainId)

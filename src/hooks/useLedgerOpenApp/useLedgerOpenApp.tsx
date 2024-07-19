@@ -58,7 +58,7 @@ export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined
  * The function will resolve when the app is open, or reject if the user cancels the request.
  */
 export const useLedgerOpenApp = () => {
-  const { close: closeModal, open: openModal } = useModal('openLedgerApp')
+  const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
 
   const wallet = useWallet().state.wallet
 

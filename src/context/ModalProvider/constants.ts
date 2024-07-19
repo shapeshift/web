@@ -24,5 +24,5 @@ export const MODAL_KEYS: (keyof Modals)[] = [
   'feedbackSupport',
   'snaps',
   'manageAccounts',
-  'openLedgerApp',
+  'ledgerOpenApp',
 ]

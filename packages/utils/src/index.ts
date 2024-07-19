@@ -16,5 +16,3 @@ export * from './timeout'
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
-
-export const isCustomAsset = (asset: Asset): boolean => !!asset.isCustomAsset

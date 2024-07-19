@@ -32,19 +32,20 @@ type ZerionMarketData = {
   }
 }
 
+type ZerionFungibles = {
+  data: {
+    attributes: {
+      market_data: ZerionMarketData
+    }
+  }
+}
+
 export const getTokenMarketData = async (
   assetId: AssetId,
 ): Promise<ZerionMarketData | undefined> => {
-  const options = {
-    method: 'GET' as const,
-    baseURL: ZERION_BASE_URL,
-  }
-
   const { assetReference } = fromAssetId(assetId)
-  const url = `/fungibles/${assetReference}`
-  const payload = { ...options, url }
-  const { data: res } = await axiosInstance.request(payload)
-
+  const url = `${ZERION_BASE_URL}/fungibles/${assetReference}`
+  const { data: res } = await axios.get<ZerionFungibles>(url)
   return res.data.attributes.market_data
 }
 

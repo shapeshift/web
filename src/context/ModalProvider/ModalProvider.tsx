@@ -200,8 +200,9 @@ const MODALS: Modals = {
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
-  manageAccounts: ManageAccountsModal,
+  // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened
   ledgerOpenApp: LedgerOpenAppModal,
+  manageAccounts: ManageAccountsModal,
 } as const
 
 export const createModalProvider = () => {

@@ -95,15 +95,6 @@ export const useLedgerOpenApp = () => {
           return
         }
 
-        // Set a callback to reject the promise when the user cancels the request
-        const onCancel = () => {
-          closeModal()
-          reject()
-        }
-
-        // Display the request to open the Ledger app
-        openModal({ chainId, onCancel })
-
         // Poll the Ledger every second to see if the correct app is open
         const intervalId = setInterval(async () => {
           const isValidApp = await checkIsCorrectAppOpen(chainId)
@@ -113,6 +104,16 @@ export const useLedgerOpenApp = () => {
             resolve()
           }
         }, 1000)
+
+        // Set a callback to reject the promise when the user cancels the request
+        const onCancel = () => {
+          closeModal()
+          clearInterval(intervalId)
+          reject()
+        }
+
+        // Display the request to open the Ledger app
+        openModal({ chainId, onCancel })
       })
     },
     [checkIsCorrectAppOpen, closeModal, openModal, wallet],

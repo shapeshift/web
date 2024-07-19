@@ -32,13 +32,11 @@ export const ManageAccountsDrawer = ({
     onClose()
   }, [onClose])
 
-  const handleNext = useCallback(async () => {
-    if (!wallet || !selectedChainId) return
+  const handleNext = useCallback(() => {
+    if (!wallet) return
     switch (step) {
       case 'selectChain':
-        await checkLedgerAppOpen(selectedChainId)
-          .then(() => setStep('importAccounts'))
-          .catch(console.error)
+        setStep('importAccounts')
         break
       case 'importAccounts':
         handleClose()
@@ -46,7 +44,7 @@ export const ManageAccountsDrawer = ({
       default:
         assertUnreachable(step)
     }
-  }, [wallet, step, checkLedgerAppOpen, selectedChainId, handleClose])
+  }, [wallet, step, handleClose])
 
   // Set the selected chainId from parent if required
   useEffect(() => {
@@ -68,11 +66,13 @@ export const ManageAccountsDrawer = ({
   }, [parentSelectedChainId])
 
   const handleSelectChainId = useCallback(
-    (chainId: ChainId) => {
+    async (chainId: ChainId) => {
       setSelectedChainId(chainId)
-      handleNext()
+      await checkLedgerAppOpen(chainId)
+        .then(() => handleNext())
+        .catch(console.error)
     },
-    [handleNext],
+    [checkLedgerAppOpen, handleNext],
   )
 
   const drawerContent = useMemo(() => {

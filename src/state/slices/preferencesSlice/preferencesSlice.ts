@@ -29,8 +29,6 @@ export type FeatureFlags = {
   SaversVaultsWithdraw: boolean
   DefiDashboard: boolean
   Cowswap: boolean
-  CowswapGnosis: boolean
-  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -119,8 +117,6 @@ const initialState: Preferences = {
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
-    CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,

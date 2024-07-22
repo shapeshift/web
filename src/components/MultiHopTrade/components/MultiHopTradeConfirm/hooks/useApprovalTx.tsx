@@ -29,6 +29,8 @@ export const useApprovalTx = (
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   useEffect(() => {
+    setIsLoading(true)
+
     poll({
       fn: async () => {
         const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)

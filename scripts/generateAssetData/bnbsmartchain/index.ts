@@ -5,17 +5,12 @@ import uniqBy from 'lodash/uniqBy'
 import { bnbsmartchain } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
-// import { getPortalTokens } from '../utils/portals'
+import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
-  // TODO(gomes): git-lfs and re-enable me?
-  const portalsAssets = [] as Asset[]
-  const [
-    assets,
-    // portalsAssets
-  ] = await Promise.all([
+  const [assets, portalsAssets] = await Promise.all([
     coingecko.getAssets(bscChainId),
-    // getPortalTokens(bnbsmartchain),
+    getPortalTokens(bnbsmartchain),
   ])
 
   const allAssets = uniqBy(assets.concat(portalsAssets).concat([bnbsmartchain]), 'assetId')

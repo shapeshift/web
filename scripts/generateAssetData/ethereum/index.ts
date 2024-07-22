@@ -10,7 +10,7 @@ import * as coingecko from '../coingecko'
 import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-// import { getPortalTokens } from '../utils/portals'
+import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 
@@ -32,19 +32,11 @@ const foxyToken: Asset = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  // TODO(gomes): git-lfs and re-enable me?
-  const portalsAssets = [] as Asset[]
-
-  const [
-    ethTokens,
-    uniV2PoolTokens,
-    idleTokens,
-    // portalsAssets
-  ] = await Promise.all([
+  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = await Promise.all([
     coingecko.getAssets(ethChainId),
     getUniswapV2Pools(),
     getIdleTokens(),
-    // getPortalTokens(ethereum),
+    getPortalTokens(ethereum),
   ])
 
   const ethAssets = [...idleTokens, foxyToken, ...ethTokens, ...uniV2PoolTokens, ...portalsAssets]

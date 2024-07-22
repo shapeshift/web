@@ -334,11 +334,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const { data: _isSmartContractAddress, isLoading: isAddressByteCodeLoading } =
-    useIsSmartContractAddress(fromAddress ?? '')
+    useIsSmartContractAddress(fromAddress ?? '', chainId)
 
   const disableSmartContractDeposit = useMemo(() => {
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractAddress !== false) return true
+    if (_isSmartContractAddress) return true
 
     // All checks passed - this is an EOA address
     return false

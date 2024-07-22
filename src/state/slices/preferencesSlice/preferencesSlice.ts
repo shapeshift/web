@@ -60,7 +60,9 @@ export type FeatureFlags = {
   AccountManagementLedger: boolean
   RFOX: boolean
   RfoxRewardsTxHistory: boolean
+  CustomTokenImport: boolean
   RfoxMockRewardsTxHistory: boolean
+  ArbitrumBridgeClaims: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -146,7 +148,9 @@ const initialState: Preferences = {
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
     RfoxRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY,
+    CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
+    ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

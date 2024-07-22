@@ -82,14 +82,14 @@ const options = [
   },
 ]
 
-type DepositTypeProps = {
+type LpTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
-  opportunityId?: string
-  side?: AsymSide | 'sym'
+  opportunityId: string
+  isWithdraw?: boolean
 }
 
-export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: DepositTypeProps) => {
+export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }: LpTypeProps) => {
   const translate = useTranslate()
 
   const makeAssetIdsOption = useCallback(
@@ -108,12 +108,11 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
     [assetId],
   )
 
-  const opportunityType = opportunityId ? fromOpportunityId(opportunityId).type : side
-  const defaultSide = opportunityType ?? side
+  const opportunityType = fromOpportunityId(opportunityId).type
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: defaultSide,
+    defaultValue: opportunityType,
     onChange: onAsymSideChange,
   })
 
@@ -127,7 +126,8 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
 
-      const isDisabled = !!side && opportunityType !== 'sym' && option.value === 'sym'
+      // Dual sided withdraw is only available on sym deposits
+      const isDisabled = isWithdraw && opportunityType !== 'sym' && option.value === 'sym'
 
       return (
         <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
@@ -150,7 +150,7 @@ export const LpType = ({ assetId, opportunityId, side, onAsymSideChange }: Depos
         </TypeRadio>
       )
     })
-  }, [getRadioProps, makeAssetIdsOption, side, opportunityType, translate])
+  }, [getRadioProps, makeAssetIdsOption, opportunityType, translate, isWithdraw])
 
   const group = getRootProps()
   return (

@@ -66,7 +66,9 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { assetId, type: opportunityType } = fromQuote(confirmedQuote)
+  const { assetId, depositType, withdrawType } = fromQuote(confirmedQuote)
+
+  const opportunityType = depositType ?? withdrawType
 
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))

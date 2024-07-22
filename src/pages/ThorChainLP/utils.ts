@@ -5,7 +5,7 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
-import { isLpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/utils'
+import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
 
 export type OpportunityType = AsymSide | 'sym'
 
@@ -13,6 +13,17 @@ export type Opportunity = {
   assetId: AssetId
   type: OpportunityType
 }
+
+export type WithdrawOpportunityIntent = Omit<Opportunity, 'type'> & {
+  depositType: undefined
+  withdrawType: OpportunityType
+}
+export type DepositOpportunityIntent = Omit<Opportunity, 'type'> & {
+  depositType: OpportunityType
+  withdrawType: undefined
+}
+
+export type LpOpportunityIntent = DepositOpportunityIntent | WithdrawOpportunityIntent
 
 export const fromOpportunityId = (opportunityId: string): Opportunity => {
   const [assetId, type] = opportunityId.split('*')
@@ -38,15 +49,21 @@ export const toOpportunityId = ({ assetId, type }: Opportunity) => {
   return `${assetId}*${type}`
 }
 
-export const fromQuote = (
-  quote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote,
-): Opportunity => {
+export const fromQuote = <T extends LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote>(
+  quote: T,
+): LpOpportunityIntent => {
   const { assetId, type } = fromOpportunityId(quote.opportunityId)
-
-  const opportunityType = isLpConfirmedWithdrawalQuote(quote) ? quote.withdrawSide : type
+  if (isLpConfirmedDepositQuote(quote)) {
+    return {
+      assetId,
+      depositType: type,
+      withdrawType: undefined,
+    }
+  }
 
   return {
-    assetId: assetId as AssetId,
-    type: opportunityType as OpportunityType,
+    assetId,
+    withdrawType: quote.withdrawSide,
+    depositType: undefined,
   }
 }

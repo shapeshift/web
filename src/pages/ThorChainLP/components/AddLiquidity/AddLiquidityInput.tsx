@@ -1473,7 +1473,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             <FormLabel mb={0} px={6} fontSize='sm'>
               {translate('pools.depositAmounts')}
             </FormLabel>
-            {!opportunityId && (
+            {!opportunityId && activeOpportunityId && (
               <LpType
                 assetId={poolAsset.assetId}
                 opportunityId={activeOpportunityId}

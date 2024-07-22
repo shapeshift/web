@@ -60,12 +60,12 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const hasTrackedStatus = useRef(false)
   const [txStatus, setTxStatus] = useState<TxStatus>()
 
-  const { assetId: poolAssetId, type: opportunityType } = fromQuote(confirmedQuote)
+  const { assetId: poolAssetId, withdrawType, depositType } = fromQuote(confirmedQuote)
+
+  const opportunityType = depositType ?? withdrawType
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
-
-  const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
 
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
@@ -84,7 +84,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-    if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
+    if (opportunityType === 'sym' && depositType) return [baseAsset, poolAsset]
 
     switch (opportunityType) {
       case 'sym':
@@ -95,7 +95,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       default:
         assertUnreachable(opportunityType)
     }
-  }, [poolAsset, baseAsset, opportunityType, isDeposit])
+  }, [poolAsset, baseAsset, opportunityType, depositType])
 
   const handleStatusUpdate = useCallback(
     (status: TxStatus) => {
@@ -123,16 +123,16 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const hasTrackedStatusValue = hasTrackedStatus.current
     if (isComplete && !hasTrackedStatusValue)
       mixpanel?.track(
-        isDeposit ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
+        depositType ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
         confirmedQuote,
       )
 
     if (isFailed && !hasTrackedStatusValue)
       mixpanel?.track(
-        isDeposit ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
+        depositType ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
         confirmedQuote,
       )
-  }, [confirmedQuote, isComplete, isDeposit, isFailed, mixpanel])
+  }, [confirmedQuote, isComplete, depositType, isFailed, mixpanel])
 
   const hStackDivider = useMemo(() => {
     if (opportunityType) return <></>

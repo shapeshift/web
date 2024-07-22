@@ -67,6 +67,7 @@ import {
   selectAccountIdsByAssetId,
   selectAssetById,
   selectFeeAssetById,
+  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
@@ -120,7 +121,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [slippageFiatUserCurrency, setSlippageFiatUserCurrency] = useState<string | undefined>()
   const [isSlippageLoading, setIsSlippageLoading] = useState(false)
   const [position, setPosition] = useState<UserLpDataPosition | undefined>()
-  const [runeAccountId, setRuneAccountId] = useState<AccountId | undefined>()
+  const [positionRuneAccountId, setPositionRuneAccountId] = useState<AccountId | undefined>()
   const [percentageSelection, setPercentageSelection] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [sliderValue, setSliderValue] = useState<number>(INITIAL_REMOVAL_PERCENTAGE)
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
@@ -149,6 +150,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const { data: pool } = usePool(poolAssetId)
   const { data: userLpData } = useUserLpData({ assetId })
 
+  const firstRuneAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, thorchainChainId),
+  )
+
   const runeAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
   )
@@ -172,8 +177,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
   const runeBalanceFilter = useMemo(() => {
-    return { assetId: runeAsset?.assetId, accountId: runeAccountId }
-  }, [runeAsset, runeAccountId])
+    return { assetId: runeAsset?.assetId, accountId: positionRuneAccountId }
+  }, [runeAsset, positionRuneAccountId])
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
   )
@@ -190,9 +195,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     return {
       [poolAsset.chainId]: accountId,
       // @TODO: Support multi accounts, but it's currently not supported anywhere in the Thorchain LP feature
-      [thorchainChainId]: runeAccountId ?? runeAccountIds[0],
+      [thorchainChainId]: positionRuneAccountId ?? firstRuneAccountId,
     }
-  }, [accountId, poolAsset, runeAccountId, runeAccountIds])
+  }, [accountId, poolAsset, positionRuneAccountId, firstRuneAccountId])
 
   const actualAssetWithdrawAmountCryptoPrecision = useMemo(() => {
     switch (withdrawType) {
@@ -311,12 +316,12 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     const runeAddress = _position?.runeAddress
     if (!runeAddress) return
 
-    const _runeAccountId = toAccountId({
+    const _positionRuneAccountId = toAccountId({
       chainId: thorchainChainId,
       account: runeAddress,
     })
 
-    setRuneAccountId(_runeAccountId)
+    setPositionRuneAccountId(_positionRuneAccountId)
   }, [opportunityId, userLpData])
 
   const handleBackClick = useCallback(() => {
@@ -379,7 +384,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     dustAmountCryptoBaseUnit: runeDustAmountCryptoBaseUnit,
   } = useSendThorTx({
     assetId: thorchainAssetId,
-    accountId: runeAccountId ?? null,
+    accountId: positionRuneAccountId ?? null,
     // withdraw liquidity will use dust amount
     amountCryptoBaseUnit: null,
     memo,
@@ -620,6 +625,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!actualRuneWithdrawAmountCryptoPrecision) return
     if (!actualRuneWithdrawAmountFiatUserCurrency) return
     if (!shareOfPoolDecimalPercent) return
+    if (!currentAccountIdByChainId) return
 
     setConfirmedQuote({
       assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
@@ -650,7 +656,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     poolAsset,
     poolAssetGasFeeFiatUserCurrency,
     position,
-    runeAccountId,
+    positionRuneAccountId,
     runeGasFeeFiatUserCurrency,
     setConfirmedQuote,
     shareOfPoolDecimalPercent,

@@ -15,12 +15,12 @@ export type Opportunity = {
 }
 
 export type WithdrawOpportunityIntent = Omit<Opportunity, 'type'> & {
-  depositType: undefined
+  depositType?: never
   withdrawType: OpportunityType
 }
 export type DepositOpportunityIntent = Omit<Opportunity, 'type'> & {
   depositType: OpportunityType
-  withdrawType: undefined
+  withdrawType?: never
 }
 
 export type LpOpportunityIntent = DepositOpportunityIntent | WithdrawOpportunityIntent
@@ -57,13 +57,11 @@ export const fromQuote = <T extends LpConfirmedDepositQuote | LpConfirmedWithdra
     return {
       assetId,
       depositType: type,
-      withdrawType: undefined,
     }
   }
 
   return {
     assetId,
     withdrawType: quote.withdrawSide,
-    depositType: undefined,
   }
 }

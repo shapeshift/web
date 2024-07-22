@@ -14,7 +14,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
@@ -120,16 +120,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata
   }, [isRuneTx, runeAccountMetadata, poolAssetAccountMetadata])
 
-  const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
+  const { queryKey: thorchainFromAddressQueryKey, queryFn: thorchainFromAddressQueryFn } =
+    reactQueries.common.thorchainFromAddress({
       accountId: fromAccountId!,
       assetId: isRuneTx ? thorchainAssetId : poolAssetId,
       opportunityId: confirmedQuote.opportunityId,
       wallet: wallet!,
       accountMetadata: fromAccountMetadata!,
       getPosition: getThorchainLpPosition,
-    }),
-    enabled: Boolean(fromAccountId && fromAccountMetadata && wallet),
+    })
+
+  const { data: fromAddress } = useQuery({
+    queryKey: thorchainFromAddressQueryKey,
+    queryFn: Boolean(fromAccountId && fromAccountMetadata && wallet)
+      ? thorchainFromAddressQueryFn
+      : skipToken,
   })
 
   const pairAssetAccountId = useMemo(() => {

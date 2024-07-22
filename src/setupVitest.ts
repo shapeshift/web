@@ -14,8 +14,6 @@ moduleAlias.addAlias('ethers', (fromPath: string) => {
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')
-  vi.stubEnv('REACT_APP_FEATURE_COWSWAP_GNOSIS', 'true')
-  vi.stubEnv('REACT_APP_FEATURE_COWSWAP_ARBITRUM', 'true')
 })
 
 beforeAll(() => {

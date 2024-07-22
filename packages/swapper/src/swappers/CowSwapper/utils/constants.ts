@@ -21,23 +21,7 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
-].filter(chainId => {
-  if (
-    process.env.REACT_APP_FEATURE_COWSWAP_GNOSIS !== 'true' &&
-    chainId === KnownChainIds.GnosisMainnet
-  ) {
-    return false
-  }
-
-  if (
-    process.env.REACT_APP_FEATURE_COWSWAP_ARBITRUM !== 'true' &&
-    chainId === KnownChainIds.ArbitrumMainnet
-  ) {
-    return false
-  }
-
-  return true
-})
+]
 
 export const COW_SWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: SUPPORTED_CHAIN_IDS,

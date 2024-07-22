@@ -197,7 +197,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
-    accountId: isRuneTx ? runeAccountId ?? null : poolAssetAccountId ?? null,
+    accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
     fromAddress: fromAddress ?? null,

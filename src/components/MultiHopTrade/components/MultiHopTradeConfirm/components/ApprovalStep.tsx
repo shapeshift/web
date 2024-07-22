@@ -259,7 +259,12 @@ const ApprovalStepPending = ({
                 size='sm'
                 mx={2}
                 isChecked={isExactAllowance}
-                disabled={!isApprovalStep || isLifiStep || isAllowanceApprovalLoading}
+                disabled={
+                  !isApprovalStep ||
+                  isLifiStep ||
+                  isAllowanceApprovalLoading ||
+                  approval.state !== TransactionExecutionState.AwaitingConfirmation
+                }
                 onChange={toggleIsExactAllowance}
               />
               <Text

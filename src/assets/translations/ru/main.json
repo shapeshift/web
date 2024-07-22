@@ -2354,9 +2354,6 @@
     "highSlippageTrade": "На эту сделку влияет движение цены (%{slippagePercentage}%). Будьте осторожны.",
     "unsafeTrade": "Эта сделка может быть небезопасной или ниже рекомендуемого минимального размера, действуйте с осторожностью."
   },
-  "streamingAcknowledgement": {
-    "description": "Это потоковый обмен, и пока вы получаете лучшую цену, он может занять до %{estimatedTimeSeconds}s чтобы завершить."
-  },
   "watchlist": {
     "empty": {
       "title": "Начните формировать свой список наблюдения",
@@ -2405,9 +2402,6 @@
     "rewardAddressHelper": "Сюда будут отправляться вознаграждения",
     "useWalletAddress": "Используйте адрес кошелька",
     "useCustomAddress": "Использование пользовательского адреса",
-    "stakeWarning": "Когда вы стейкаете свои токены FOX, пожалуйста, имейте в виду, что существует период блокировки %{cooldownPeriod}. Это означает, что если вы решите снять токены, вам придется подождать %{cooldownPeriod}, прежде чем вы сможете получить свои средства.",
-    "bridgeCta": "Вы выбрали %{assetSymbol} в %{originNetwork}, но для ставки вам нужен %{assetSymbol} в %{destinationNetwork}. Мы можем помочь вам перевести ваши средства в %{destinationNetwork}. Хотите, чтобы мы провели вас через этот процесс?",
-    "unstakeWarning": "Прежде чем вы сможете потребовать свой FOX, наступает период %{cooldownPeriod} блокировки. По истечении этого времени вы сможете потребовать свою незастейканую сумму.",
     "tooltips": {
       "stakeAmount": "Это сумма FOX, которую вы будете стейкать.",
       "unstakeAmount": "Это количество FOX, которое вы разблокируете.",
@@ -2422,7 +2416,6 @@
     "changeRewardAddressPending": "Изменение адреса вознаграждения...",
     "changeRewardAddressSuccess": "Вы успешно изменили свой адрес вознаграждения THORChain.",
     "unstakePending": "Запрос на снятие %{amount} %{symbol}",
-    "unstakeSuccess": "По истечении  %{cooldownPeriod} вы сможете забрать свою %{amount} %{symbol}",
     "currentRewardAddress": "Текущий адрес для получения вознаграждения",
     "newRewardAddress": "Новый адрес для вознаграждений",
     "rewardCycleExplainer": "Это будет обновлено для следующего цикла вознаграждений.",
@@ -2439,7 +2432,6 @@
     "noClaimsAvailable": "Нет доступного клейма",
     "errorFetchingClaims": "Возникла ошибка при получении клейма.",
     "noClaimsAvailableDescription": "У вас нет ничего для клейма.",
-    "unstakeNow": "Снять со Стейкинга",
     "bridgeAndConfirm": "Перевести и подтвердить",
     "noSupportedChains": "Сеть не поддерживается",
     "noSupportedChainsDescription": "Добавьте %{chainLabel} или подключитесь к кошельку, который его поддерживает.",

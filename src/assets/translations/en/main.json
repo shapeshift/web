@@ -109,6 +109,7 @@
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",
+    "searchNameOrAddress": "Search by name or address",
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",
@@ -150,6 +151,7 @@
     "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
+    "import": "Import",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -764,7 +766,10 @@
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
-    }
+    },
+    "claims": "Claims",
+    "availableClaims": "Available",
+    "pendingClaims": "Pending"
   },
   "trade": {
     "trade": "Trade",
@@ -903,7 +908,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
-    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}.",
+    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
@@ -2184,10 +2189,14 @@
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
     "totalDebtBalance": "Total Debt Balance",
+    "totalDebtBalanceDescription": "Cumulative Debt Balance in the lending pool",
     "totalCollateral": "Total Collateral",
+    "totalCollateralDescription": "Total Collateral added to the lending pool",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
+    "estCollateralizationRatioDescription": "A flat Collateralization Ratio of 200% is currently in place. In the future, a dynamic ratio will balance between the maximum and minimum CR based on market conditions.",
     "collateralizationRatio": "Collateralization Ratio",
     "totalBorrowers": "Total Borrowers",
+    "totalBorrowersDescription": "Number of borrowers participating",
     "myLoanInformation": "My Loan Information",
     "loanInformation": "Loan Summary",
     "poolInformation": "Pool Information",
@@ -2207,11 +2216,12 @@
     "switchAssets": "Switch Assets",
     "backToLending": "Back to lending",
     "outstandingDebt": "Outstanding Debt",
+    "outstandingDebtDescription": "The amount of collateral you've borrowed",
     "collateral": "Collateral",
     "debt": "Debt",
-    "healthy": "Healthy",
-    "caution": "Caution",
-    "risky": "Risky",
+    "healthy": "Depth is optimal, loans are efficient.",
+    "caution": "Depth is moderate, expect some slippage on your borrow",
+    "risky": "Depth is low, high slippage likely on your borrow.",
     "confirmAndBorrow": "Confirm and Borrow",
     "confirmAndRepay": "Confirm and Repay",
     "borrowAgain": "Borrow Again",
@@ -2372,10 +2382,14 @@
     "highSlippageDeposit": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageBorrow": "This borrow has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "highSlippageTrade": "This trade is impacted by price movement (%{slippagePercentage}%). Proceed with caution.",
-    "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution."
+    "unsafeTrade": "This trade may be unsafe or below the recommended minimum size, proceed with caution.",
+    "customToken": "Anyone can create tokens, including fake ones, so caution is needed. Some tokens may not work with ShapeShift. By importing this token, you accept the risks. This token is not traded on major U.S. exchanges or frequently swapped on ShapeShift. Always research before trading."
   },
   "streamingAcknowledgement": {
     "description": "This is a streaming swap, while you get a better price it can take up to %{estimatedTimeHuman} to complete."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "I understand the risks"
   },
   "watchlist": {
     "empty": {
@@ -2461,6 +2475,7 @@
     "claimPending": "Requesting withdraw",
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
+    "noRewardsYet": "No rewards yet",
     "noClaimsAvailable": "No claims available",
     "errorFetchingClaims": "There was an error fetching claims",
     "noClaimsAvailableDescription": "You don't have any available claims",
@@ -2470,13 +2485,13 @@
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
     "myStakedBalance": "My Staked Balance",
-    "myStakedBalanceHelper": "My Staked Balance",
-    "pendingRewardsBalance": "Pending Rewards Balance",
-    "pendingRewardsBalanceHelper": "Pending Rewards Balance",
+    "myStakedBalanceHelper": "The amount of FOX you have staked",
+    "pendingRewardsBalance": "Current Estimated Rewards Balance",
+    "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",
-    "lifetimeRewardsHelper": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Lifetime rewards is the cumulative rewards from staking your FOX",
     "timeInPool": "Time in Pool",
-    "timeInPoolHelper": "Time in Pool",
+    "timeInPoolHelper": "Time in pool is the longest living deposit into rFOX",
     "myPosition": "My Position",
     "faq": {
       "title": "FAQ",

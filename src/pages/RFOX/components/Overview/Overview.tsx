@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { fromBaseUnit } from 'lib/math'
+import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,7 +31,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
     isLoading: isUserStakingBalanceCryptoBaseUnitLoading,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
-    select: ([stakingBalance]) => stakingBalance.toString(),
+    select: selectStakingBalance,
   })
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {

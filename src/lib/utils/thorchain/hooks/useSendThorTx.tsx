@@ -50,7 +50,7 @@ type Action =
   | 'withdrawSavers'
 
 type UseSendThorTxProps = {
-  accountId: AccountId | null
+  accountId: AccountId | undefined | null
   action: Action
   amountCryptoBaseUnit: string | null
   assetId: AssetId | undefined

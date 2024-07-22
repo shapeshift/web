@@ -29,8 +29,6 @@ export type FeatureFlags = {
   SaversVaultsWithdraw: boolean
   DefiDashboard: boolean
   Cowswap: boolean
-  CowswapGnosis: boolean
-  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean

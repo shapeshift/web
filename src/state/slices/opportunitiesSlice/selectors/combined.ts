@@ -494,7 +494,9 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
         totalVirtualFiatAmount,
       )
-      byProvider[provider as DefiProvider].apy = apy.toFixed()
+      if (byProvider[provider as DefiProvider].apy) {
+        // byProvider[provider as DefiProvider].apy = apy.toFixed()
+      }
     }
 
     const aggregatedEarnOpportunitiesByProvider = Object.values(byProvider).reduce<

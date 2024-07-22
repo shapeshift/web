@@ -120,12 +120,22 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
         accountId,
       }
     })
+
   const ethFoxStakingQueries = foxEthStakingIds.map(opportunityId => {
     return {
       accountId,
       opportunityId,
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.EthFoxStaking,
+    }
+  })
+
+  const rFoxStakingQueries = rFOXEthStakingIds.map(opportunityId => {
+    return {
+      accountId,
+      opportunityId,
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.rFOX,
     }
   })
 
@@ -140,6 +150,13 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
     dispatch(
       getOpportunityUserData.initiate(
         ethFoxStakingQueries,
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
+    dispatch(
+      getOpportunityUserData.initiate(
+        rFoxStakingQueries,
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false, ...options },
       ),

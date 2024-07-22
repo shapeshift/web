@@ -10,7 +10,7 @@ import * as coingecko from '../coingecko'
 import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-import { getPortalTokens } from '../utils/portals'
+// import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 
@@ -36,7 +36,8 @@ export const getAssets = async (): Promise<Asset[]> => {
     coingecko.getAssets(ethChainId),
     getUniswapV2Pools(),
     getIdleTokens(),
-    getPortalTokens(ethereum),
+    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
+    [], // getPortalTokens(ethereum),
   ])
 
   const ethAssets = [...idleTokens, foxyToken, ...ethTokens, ...uniV2PoolTokens, ...portalsAssets]

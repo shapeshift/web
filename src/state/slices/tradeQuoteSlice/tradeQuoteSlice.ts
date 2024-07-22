@@ -75,8 +75,11 @@ export const tradeQuoteSlice = createSlice({
         return
       }
       state.tradeExecution.state = TradeExecutionState.FirstHop
+      const allowanceResetRequired = state.tradeExecution.firstHop.allowanceReset.isRequired
       const approvalRequired = state.tradeExecution.firstHop.approval.isRequired
-      state.tradeExecution.firstHop.state = approvalRequired
+      state.tradeExecution.firstHop.state = allowanceResetRequired
+        ? HopExecutionState.AwaitingApprovalReset
+        : approvalRequired
         ? HopExecutionState.AwaitingApproval
         : HopExecutionState.AwaitingSwap
     },
@@ -94,6 +97,9 @@ export const tradeQuoteSlice = createSlice({
       const hopKey = hopIndex === 0 ? 'firstHop' : 'secondHop'
       const allowanceKey = isReset ? 'allowanceReset' : 'approval'
       state.tradeExecution[hopKey][allowanceKey].state = TransactionExecutionState.Failed
+      if (allowanceKey === 'allowanceReset') {
+        state.tradeExecution[hopKey].state = HopExecutionState.AwaitingApproval
+      }
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setApprovalTxComplete: (
@@ -104,6 +110,9 @@ export const tradeQuoteSlice = createSlice({
       const hopKey = hopIndex === 0 ? 'firstHop' : 'secondHop'
       const allowanceKey = isReset ? 'allowanceReset' : 'approval'
       state.tradeExecution[hopKey][allowanceKey].state = TransactionExecutionState.Complete
+      if (allowanceKey === 'allowanceReset') {
+        state.tradeExecution[hopKey].state = HopExecutionState.AwaitingApproval
+      }
     },
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
@@ -144,8 +153,11 @@ export const tradeQuoteSlice = createSlice({
         if (isMultiHopTrade) {
           // first hop of multi hop trade - begin second hop
           state.tradeExecution.state = TradeExecutionState.SecondHop
+          const allowanceResetRequired = state.tradeExecution.secondHop.allowanceReset.isRequired
           const approvalRequired = state.tradeExecution.secondHop.approval.isRequired
-          state.tradeExecution.secondHop.state = approvalRequired
+          state.tradeExecution.secondHop.state = allowanceResetRequired
+            ? HopExecutionState.AwaitingApprovalReset
+            : approvalRequired
             ? HopExecutionState.AwaitingApproval
             : HopExecutionState.AwaitingSwap
         } else {

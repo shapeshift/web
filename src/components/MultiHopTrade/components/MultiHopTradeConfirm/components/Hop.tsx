@@ -167,6 +167,7 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
       case HopExecutionState.AwaitingSwap:
         return (
@@ -205,7 +206,10 @@ export const Hop = ({
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+                isActive={
+                  hopExecutionState === HopExecutionState.AwaitingApprovalReset ||
+                  hopExecutionState === HopExecutionState.AwaitingApproval
+                }
               />
             )}
           </Collapse>

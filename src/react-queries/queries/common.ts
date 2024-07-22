@@ -67,7 +67,7 @@ export const common = createQueryKeys('common', {
     accountMetadata,
     getPosition,
   }: {
-    accountId: AccountId | undefined
+    accountId: AccountId
     assetId: AssetId
     opportunityId?: string | undefined
     wallet: HDWallet
@@ -78,18 +78,15 @@ export const common = createQueryKeys('common', {
       | typeof getThorchainLpPosition
   }) => ({
     queryKey: ['thorchainFromAddress', accountId, assetId, opportunityId],
-    queryFn: async () => {
-      if (!accountId) throw new Error('accountId is required')
-
-      return await getThorchainFromAddress({
+    queryFn: async () =>
+      await getThorchainFromAddress({
         accountId,
         assetId,
         opportunityId,
         getPosition,
         accountMetadata,
         wallet,
-      })
-    },
+      }),
   }),
   evmFees: ({
     data,

@@ -241,7 +241,9 @@ export const generateRelatedAssetIndex = async () => {
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 2000,
   })
-  for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {
+  const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
+  for (const [i, batch] of chunks.entries()) {
+    console.log(`Fetching chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
         await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)

@@ -109,6 +109,7 @@
     "chartUnavailable": "Les données du graphique de soldes sont temporairement indisponibles pour %{unavailableAssetNames}.",
     "search": "Rehercher",
     "searchAsset": "Rechercher un actif",
+    "searchNameOrAddress": "Rechercher par nom ou adresse",
     "enterAmount": "Entrer le montant",
     "enterAddress": "Entrer une adresse",
     "pageNotFound": "La page que vous recherchez est introuvable",
@@ -150,6 +151,7 @@
     "prices": "Prix",
     "symmetric": "Symétrique",
     "asymmetric": "Asymétrique (%{assetSymbol})",
+    "import": "Importer",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -764,7 +766,10 @@
       "waitWarning": "Le pont natif d'Arbitrum est plus sécurisé mais peut prendre jusqu'à une semaine pour la réclamation de fonds.",
       "waitCta": "Je comprends qu'il faudra ~7 jours avant de pouvoir réclamer des fonds sur Ethereum.",
       "claimCta": "Je comprends qu'après avoir réclamé mes fonds, je devrai envoyer une autre transaction moyennant des frais"
-    }
+    },
+    "claims": "Réclamations",
+    "availableClaims": "Disponible",
+    "pendingClaims": "En cours"
   },
   "trade": {
     "trade": "Échanger",
@@ -903,6 +908,7 @@
     "numHops": "Cet échange comprend %{numHops} sauts",
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse ou",
+    "smartContractReceiveAddressDescription": "Nous avons détecté que vous échangez depuis un contrat intelligent dont l'adresse n'existe peut-être pas sur la chaîne de destination. Veuillez vérifier et saisir manuellement l'adresse du destinataire souhaité sur %{chainName}",
     "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
@@ -2183,10 +2189,14 @@
     "poolDepth": "Profondeur du pool",
     "poolDepthDescription": "Le niveau de santé du pool",
     "totalDebtBalance": "Solde total des dettes",
+    "totalDebtBalanceDescription": "Solde cumulatif de la dette dans le pool de prêts",
     "totalCollateral": "Totale des collatéraux",
+    "totalCollateralDescription": "Collatéral total ajouté au pool de prêts",
     "estCollateralizationRatio": "Est. du ratio de collatéralisation",
+    "estCollateralizationRatioDescription": "Un ratio de collatéralisation (CR) forfaitaire de 200 % est actuellement en place. À l’avenir, un ratio dynamique s'équilibrera entre le CR maximum et minimum en fonction des conditions du marché.",
     "collateralizationRatio": "Ratio de collatéralisation",
     "totalBorrowers": "Total d'emprunteurs",
+    "totalBorrowersDescription": "Nombre d'emprunteurs participants",
     "myLoanInformation": "Informations sur mon prêt",
     "loanInformation": "Résumé du prêt",
     "poolInformation": "Informations sur le pool",
@@ -2206,8 +2216,12 @@
     "switchAssets": "Inverser les actifs",
     "backToLending": "Retour aux prêts",
     "outstandingDebt": "Dette en cours",
+    "outstandingDebtDescription": "Le montant du collatéral sur lequel vous avez emprunté",
     "collateral": "Collatéral",
     "debt": "Dette",
+    "healthy": "La profondeur est optimale, les prêts sont efficaces.",
+    "caution": "La profondeur est modérée, attendez-vous à un certain glissement/slippage sur vos emprunts",
+    "risky": "La profondeur est faible, un glissement/slippage élevé est probable sur vos emprunts.",
     "confirmAndBorrow": "Confirmer et emprunter",
     "confirmAndRepay": "Confirmer et rembourser",
     "borrowAgain": "Emprunter à nouveau",
@@ -2368,10 +2382,14 @@
     "highSlippageDeposit": "Ce dépôt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
     "highSlippageBorrow": "Cet emprunt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
     "highSlippageTrade": "Cet échange est influencé par les mouvements de cours (%{slippagePercentage}%). Procédez avec prudence.",
-    "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence."
+    "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence.",
+    "customToken": "N’importe qui peut créer des jetons, y compris des imposteurs, il faut donc faire preuve de prudence. Certains jetons peuvent ne pas fonctionner avec ShapeShift. En important ce jeton, vous en acceptez les risques. Ce jeton n'est pas échangé sur les principales bourses américaines ni fréquemment échangé sur ShapeShift. Faites toujours des recherches avant de faire des échanges."
   },
   "streamingAcknowledgement": {
     "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais cela peut prendre jusqu'à %{estimatedTimeHuman} pour se terminer."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "Je comprends les risques"
   },
   "watchlist": {
     "empty": {
@@ -2426,6 +2444,9 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
+    "stakeWarning": "Lorsque vous misez vos jetons FOX, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
+    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
+    "unstakeWarning": "Avant de pouvoir réclamer vos FOX, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
     "tooltips": {
       "stakeAmount": "C'est le montant en FOX que vous miserez",
       "unstakeAmount": "C'est le montant en FOX que vous démiserez",
@@ -2440,6 +2461,7 @@
     "changeRewardAddressPending": "Changement d'adresse de récompenses...",
     "changeRewardAddressSuccess": "Vous avez modifié avec succès votre adresse de récompenses THORChain.",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
+    "unstakeSuccess": "Une fois %{cooldownPeriod} écoulé(s), vous pourrez réclamer vos %{amount} %{symbol}",
     "currentRewardAddress": "Adresse de récompenses actuelle",
     "newRewardAddress": "Nouvelle adresse de récompenses",
     "rewardCycleExplainer": "Cela sera mis à jour pour le prochain cycle de récompenses.",
@@ -2453,17 +2475,23 @@
     "claimPending": "En demande de retrait",
     "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
     "claimReceiveAddress": "Adresse de réception de réclamation",
+    "noRewardsYet": "Aucune récompense pour l'instant",
     "noClaimsAvailable": "Aucune réclamation disponible",
     "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
+    "unstakeNow": "Démiser pour réclamer les FOX",
     "bridgeAndConfirm": "Bridger et confirmer",
     "noSupportedChains": "Chaîne non prise en charge",
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
     "confirmAndBridge": "Confirmer et bridger",
     "myStakedBalance": "Mon solde misé",
     "myStakedBalanceHelper": "Mon solde misé",
+    "pendingRewardsBalance": "Solde actuel estimé des récompenses",
+    "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l’époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois.",
     "lifetimeRewards": "Récompenses cumulées",
+    "lifetimeRewardsHelper": "Les récompenses cumulées sont le total de récompenses accumulées sur la mise de vos FOX",
     "timeInPool": "Temps dans le pool",
+    "timeInPoolHelper": "Le temps dans le pool correspond au dépôt le plus ancien dans rFOX",
     "myPosition": "Ma position",
     "faq": {
       "title": "FAQ",

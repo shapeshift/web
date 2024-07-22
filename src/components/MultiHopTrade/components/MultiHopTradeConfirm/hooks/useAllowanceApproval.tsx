@@ -73,7 +73,7 @@ export const useAllowanceApproval = (
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash, isReset }))
 
       const publicClient = assertGetViemClient(chainId)
 

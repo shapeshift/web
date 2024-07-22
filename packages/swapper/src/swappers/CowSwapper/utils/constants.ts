@@ -23,14 +23,14 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.ArbitrumMainnet,
 ].filter(chainId => {
   if (
-    process.env['REACT_APP_FEATURE_COWSWAP_GNOSIS'] !== 'true' &&
+    process.env.REACT_APP_FEATURE_COWSWAP_GNOSIS !== 'true' &&
     chainId === KnownChainIds.GnosisMainnet
   ) {
     return false
   }
 
   if (
-    process.env['REACT_APP_FEATURE_COWSWAP_ARBITRUM'] !== 'true' &&
+    process.env.REACT_APP_FEATURE_COWSWAP_ARBITRUM !== 'true' &&
     chainId === KnownChainIds.ArbitrumMainnet
   ) {
     return false

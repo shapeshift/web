@@ -947,6 +947,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [handleSubmit, isBelowMinimumWithdrawAmount])
 
   const handleAsymSideChange = useCallback((asymSide: string | null) => {
+    if (!asymSide) return
+
     setWithdrawType(asymSide as OpportunityType)
   }, [])
 

@@ -61,6 +61,7 @@ export type FeatureFlags = {
   CustomTokenImport: boolean
   RfoxMockRewardsTxHistory: boolean
   ArbitrumBridgeClaims: boolean
+  UsdtApprovalReset: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -147,6 +148,7 @@ const initialState: Preferences = {
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
+    UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

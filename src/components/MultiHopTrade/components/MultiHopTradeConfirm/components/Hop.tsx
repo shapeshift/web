@@ -43,7 +43,11 @@ import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
 
-const collapseWidth = { width: '100%' }
+const collapseWidth = {
+  width: '100%',
+  // fixes pulse animation getting cut off
+  overflow: undefined,
+}
 
 export const Hop = ({
   swapperName,
@@ -125,6 +129,7 @@ export const Hop = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingSwap:
@@ -162,6 +167,7 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
       case HopExecutionState.AwaitingSwap:
         return (
@@ -200,7 +206,10 @@ export const Hop = ({
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+                isActive={
+                  hopExecutionState === HopExecutionState.AwaitingApprovalReset ||
+                  hopExecutionState === HopExecutionState.AwaitingApproval
+                }
               />
             )}
           </Collapse>

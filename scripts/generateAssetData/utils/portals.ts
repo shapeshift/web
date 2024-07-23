@@ -138,6 +138,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       symbol: token.symbol,
       chainId: nativeAsset.chainId,
       assetId,
+      relatedAssetKey: undefined,
     }
   })
 }

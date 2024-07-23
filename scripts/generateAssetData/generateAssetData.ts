@@ -179,6 +179,7 @@ const generateAssetData = async () => {
     explorer: 'https://arbiscan.io',
     explorerAddressLink: 'https://arbiscan.io/address/',
     explorerTxLink: 'https://arbiscan.io/tx/',
+    relatedAssetKey: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
   }
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 

@@ -12,6 +12,7 @@ export const WETH: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'WETH',
+  relatedAssetKey: null,
 }
 
 export const ETH: Asset = {
@@ -25,6 +26,7 @@ export const ETH: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const FOX: Asset = {
@@ -38,4 +40,5 @@ export const FOX: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'FOX',
+  relatedAssetKey: null,
 }

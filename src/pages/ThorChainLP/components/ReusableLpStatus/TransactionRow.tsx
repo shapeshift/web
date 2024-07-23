@@ -36,17 +36,18 @@ import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
-import {
-  AsymSide,
-  type LpConfirmedDepositQuote,
-  type LpConfirmedWithdrawalQuote,
+import type {
+  LpConfirmedDepositQuote,
+  LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import { fromQuote, type OpportunityType } from 'pages/ThorChainLP/utils'
+import type { OpportunityType } from 'pages/ThorChainLP/utils'
+import { fromQuote } from 'pages/ThorChainLP/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,

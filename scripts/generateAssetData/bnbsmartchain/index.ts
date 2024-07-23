@@ -10,7 +10,7 @@ import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIc
 export const getAssets = async (): Promise<Asset[]> => {
   const [assets, portalsAssets] = await Promise.all([
     coingecko.getAssets(bscChainId),
-    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
+    // TODO(gomes): revert me back, there are 10k+ assets for BSC = problems
     [], // getPortalTokens(bnbsmartchain),
   ])
 

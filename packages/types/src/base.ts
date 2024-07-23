@@ -57,7 +57,7 @@ export type Asset = {
   explorer: string
   explorerTxLink: string
   explorerAddressLink: string
-  relatedAssetKey?: AssetId
+  relatedAssetKey: AssetId | null
 }
 
 export type AssetsById = Record<AssetId, Asset>

@@ -171,7 +171,8 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   // don't fetch if we've already got the data from a previous request
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
-  if (existingRelatedAssetKey) {
+  if (existingRelatedAssetKey !== undefined) {
+    console.log(`Related asset key already exists for ${assetId}, skipping...`)
     return
   }
 
@@ -202,20 +203,24 @@ const processRelatedAssetIds = async (
   // Has zerion-provided related assets, or manually added ones
   const hasRelatedAssets = mergedRelatedAssetIds.length > 0
 
-  // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
-  if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {
-    assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
-  }
+  if (hasRelatedAssets) {
+    // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
+    if (assetData[relatedAssetKey] !== undefined) {
+      assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
+    }
 
-  for (const assetId of mergedRelatedAssetIds) {
-    assetData[assetId].relatedAssetKey = relatedAssetKey
+    for (const assetId of mergedRelatedAssetIds) {
+      assetData[assetId].relatedAssetKey = relatedAssetKey
+    }
+    relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
+  } else {
+    // If there are no related assets, set relatedAssetKey to null
+    assetData[assetId].relatedAssetKey = null
   }
-  relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
-  return
 }
-
-export const generateRelatedAssetIndex = async () => {
-  console.log('generateRelatedAssetIndex() starting')
+// Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
+export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
+  console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
   const generatedAssetsPath = path.join(
     __dirname,
@@ -232,8 +237,11 @@ export const generateRelatedAssetIndex = async () => {
   const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
   const assetDataWithRelatedAssetKeys: AssetsById = { ...generatedAssetData }
 
-  // remove relatedAssetKey from the existing data to ensure the related assets get updated
-  Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
+  if (rebuildAll) {
+    // remove relatedAssetKey from the existing data to ensure the related assets get updated
+    // @ts-ignore this is fine, as we will then regen
+    Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
+  }
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
@@ -243,7 +251,7 @@ export const generateRelatedAssetIndex = async () => {
   })
   const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
-    console.log(`Fetching chunk: ${i} of ${chunks.length}`)
+    console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
         await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)

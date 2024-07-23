@@ -178,21 +178,16 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       // Withdraw Liquidity - WITHDRAW:POOL:BASISPOINTS:ASSET
       if (pool.includes('.')) {
+        if (maybeAsset) assertMemoHasAsset(maybeAsset, memo)
         assertIsValidBasisPoints(basisPoints, memo)
-        if (maybeAsset) {
-          assertMemoHasAsset(maybeAsset, memo)
-
-          return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}`
-        }
-
-        return `${_action}:${pool}:${basisPoints}`
+        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
       }
 
       // Withdraw Savers - WITHDRAW:POOL:BASISPOINTS
       if (pool.includes('/')) {
         if (maybeAsset) throw new Error('asset is not supported for savers withdraw')
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}`
+        return `${_action}:${pool}:${basisPoints}::${THORCHAIN_AFFILIATE_NAME}:0`
       }
 
       throw new Error(`invalid pool in memo: ${memo}`)

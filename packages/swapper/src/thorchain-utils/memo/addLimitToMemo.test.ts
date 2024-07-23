@@ -219,7 +219,7 @@ describe('addLimitToMemo', () => {
 
   describe('withdraw liquidity', () => {
     it('should not add limit to withdraw liquidity memo', () => {
-      const memo = '-:ETH.ETH:5000'
+      const memo = '-:ETH.ETH:5000::ss:0'
       const modifiedMemo = addLimitToMemo({
         memo,
         limit: '1000000000',
@@ -241,12 +241,12 @@ describe('addLimitToMemo', () => {
 
   describe('savers withdraw', () => {
     it('should not add limit to savers withdraw memo', () => {
-      const memo = '-:ETH/ETH:5000'
+      const memo = '-:ETH/ETH:5000::ss:50'
       const modifiedMemo = addLimitToMemo({
         memo,
         limit: '1000000000',
       })
-      expect(modifiedMemo).toBe('-:ETH/ETH:5000')
+      expect(modifiedMemo).toBe('-:ETH/ETH:5000::ss:0')
     })
   })
 })

@@ -171,11 +171,24 @@ const processRelatedAssetIds = async (
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
-  // don't fetch if we've already got the data from a previous request
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
+  // We already have an existing relatedAssetKey, so we don't need to fetch it again
   if (existingRelatedAssetKey !== undefined) return
 
-  console.log(`Fetching related assetIds for assetId: ${assetId}`)
+  console.log(`Processing related assetIds for ${assetId}`)
+
+  // Check if this asset is already in the relatedAssetIndex
+  for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
+    if (relatedAssets.includes(assetId)) {
+      if (existingRelatedAssetKey !== key) {
+        console.log(
+          `Updating relatedAssetKey for ${assetId} from ${existingRelatedAssetKey} to ${key}`,
+        )
+        assetData[assetId].relatedAssetKey = key
+      }
+      return // Else, early return as this asset is already processed
+    }
+  }
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
     .then(result => {
@@ -186,9 +199,9 @@ const processRelatedAssetIds = async (
       sadCount++
       return undefined
     })
+
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
-  // ensure empty results get added so we can use this index to generate distinct asset list
   const { relatedAssetIds: manualRelatedAssetIds } = manualRelatedAssetsResult ?? {
     relatedAssetIds: [],
   }
@@ -198,20 +211,18 @@ const processRelatedAssetIds = async (
 
   const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
   const mergedRelatedAssetIds = Array.from(
-    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds]),
+    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds, assetId]),
   )
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = mergedRelatedAssetIds.length > 0
+  const hasRelatedAssets = mergedRelatedAssetIds.length > 1
 
   if (hasRelatedAssets) {
-    // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
-    if (assetData[relatedAssetKey] !== undefined) {
-      assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
-    }
-
-    for (const assetId of mergedRelatedAssetIds) {
-      assetData[assetId].relatedAssetKey = relatedAssetKey
+    // attach the relatedAssetKey for all related assets including the primary implementation
+    for (const relatedAssetId of mergedRelatedAssetIds) {
+      if (assetData[relatedAssetId]) {
+        assetData[relatedAssetId].relatedAssetKey = relatedAssetKey
+      }
     }
     relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
   } else {
@@ -220,8 +231,7 @@ const processRelatedAssetIds = async (
   }
 
   await throttle()
-}
-// Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
+} // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 

@@ -110,6 +110,10 @@ export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }:
 
   const opportunityType = fromOpportunityId(opportunityId).type
 
+  const isRunePositionType = useMemo(() => opportunityType === AsymSide.Rune, [opportunityType])
+  const isAssetPositionType = useMemo(() => opportunityType === AsymSide.Asset, [opportunityType])
+  const isSymPositionType = useMemo(() => opportunityType === 'sym', [opportunityType])
+
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
     defaultValue: opportunityType,
@@ -126,15 +130,19 @@ export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }:
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
 
-      // Dual sided withdraw is only available on sym deposits
-      const isDisabled = isWithdraw && opportunityType !== 'sym' && option.value === 'sym'
+      const isDisabled = (() => {
+        if (!isWithdraw) return false
+
+        if (isSymPositionType) return false
+        if (isRunePositionType) return option.value !== AsymSide.Rune
+        if (isAssetPositionType) return option.value !== AsymSide.Asset
+
+        return false
+      })()
 
       return (
         <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
-          <Tooltip
-            isDisabled={!isDisabled}
-            label={translate('pools.symWithdrawOnAsymPositionAlert')}
-          >
+          <Tooltip isDisabled={!isDisabled} label={translate('pools.withdrawTypeNotAvailable')}>
             <Box>
               <PoolIcon assetIds={optionAssetIds} size='xs' />
               <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
@@ -150,7 +158,15 @@ export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }:
         </TypeRadio>
       )
     })
-  }, [getRadioProps, makeAssetIdsOption, opportunityType, translate, isWithdraw])
+  }, [
+    getRadioProps,
+    makeAssetIdsOption,
+    translate,
+    isWithdraw,
+    isSymPositionType,
+    isRunePositionType,
+    isAssetPositionType,
+  ])
 
   const group = getRootProps()
   return (

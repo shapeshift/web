@@ -2322,7 +2322,7 @@
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
     "symAfterRuneAlert": "Symmetrical deposits are not possible following an asymmetric RUNE deposit due to the way the THOR network works.",
-    "symWithdrawOnAsymPositionAlert": "Symmetrical withdraws are not possible for an asymmetric position.",
+    "withdrawTypeNotAvailable": "This withdraw type is not available for this pool.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedDemoWalletExplainer": "The demo wallet is not supported, please connect to a wallet to use this feature.",

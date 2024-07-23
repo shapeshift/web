@@ -36,16 +36,17 @@ import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { THORCHAIN_AFFILIATE_NAME } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
-import type {
-  LpConfirmedDepositQuote,
-  LpConfirmedWithdrawalQuote,
+import {
+  AsymSide,
+  type LpConfirmedDepositQuote,
+  type LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
 import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { OpportunityType } from 'pages/ThorChainLP/utils'
+import { fromQuote, type OpportunityType } from 'pages/ThorChainLP/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -64,6 +65,7 @@ type TransactionRowProps = {
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
   opportunityType: OpportunityType
+  isWithdraw?: boolean
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -75,6 +77,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   isActive,
   confirmedQuote,
   opportunityType,
+  isWithdraw,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -86,10 +89,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
+  const { type } = fromQuote(confirmedQuote)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const isAssetWithdraw =
+    isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'asset' && isWithdraw
+
+  const isRuneTx = useMemo(
+    () => assetId === thorchainAssetId || isAssetWithdraw,
+    [assetId, isAssetWithdraw],
+  )
+
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(isRuneTx ? thorchainAssetId : assetId).chainId),
   )
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
@@ -108,7 +121,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, runeAccountFilter),
   )
 
-  const isRuneTx = useMemo(() => assetId === thorchainAssetId, [assetId])
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
   const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
 
@@ -179,6 +191,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       if (isRuneTx && opportunityType !== 'sym')
         poolAssetId = assetIdToPoolAssetId({ assetId: thorchainAssetId })
       if (!isRuneTx && opportunityType !== 'sym') poolAssetId = assetIdToPoolAssetId({ assetId })
+      if (opportunityType === AsymSide.Asset && type === 'sym')
+        poolAssetId = assetIdToPoolAssetId({ assetId })
 
       if (poolAssetId) {
         return poolAssetId
@@ -198,6 +212,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     opportunityType,
     isRuneTx,
     assetId,
+    type,
   ])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({

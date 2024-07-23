@@ -301,6 +301,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
               opportunityType={opportunityType}
+              isWithdraw={!!withdrawType}
             />
           )
         })}
@@ -315,6 +316,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     activeStepIndex,
     isFailed,
     opportunityType,
+    withdrawType,
   ])
 
   if (!(poolAsset && baseAsset)) return null

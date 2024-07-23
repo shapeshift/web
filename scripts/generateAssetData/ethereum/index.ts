@@ -34,7 +34,7 @@ const foxyToken: Asset = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
     // getYearnVaults(),
     // getZapperTokens(),
@@ -44,6 +44,12 @@ export const getAssets = async (): Promise<Asset[]> => {
     // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
     [], // getPortalTokens(ethereum),
   ])
+
+  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
 
   const ethAssets = [
     ...idleTokens,

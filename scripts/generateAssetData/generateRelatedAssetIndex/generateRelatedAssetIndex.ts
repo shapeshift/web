@@ -202,6 +202,7 @@ const processRelatedAssetIds = async (
 
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
+  // ensure empty results get added so we can use this index to generate distinct asset list
   const { relatedAssetIds: manualRelatedAssetIds } = manualRelatedAssetsResult ?? {
     relatedAssetIds: [],
   }
@@ -231,7 +232,9 @@ const processRelatedAssetIds = async (
   }
 
   await throttle()
-} // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
+}
+
+// Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
@@ -256,7 +259,6 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
 
   if (rebuildAll) {
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    // @ts-ignore this is fine, as we will then regen
     Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
   }
 

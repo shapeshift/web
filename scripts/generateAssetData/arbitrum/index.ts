@@ -8,10 +8,15 @@ import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIc
 import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const [assets, portalsAssets] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(arbitrumChainId),
     getPortalTokens(arbitrum),
   ])
+  const [assets, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
   const allAssets = uniqBy(assets.concat(portalsAssets).concat([arbitrum]), 'assetId')
   return allAssets.map(asset => ({
     ...asset,

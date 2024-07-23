@@ -1,10 +1,10 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
   bscChainId,
-  type ChainId,
   ethChainId,
   gnosisChainId,
   optimismChainId,
@@ -58,9 +58,9 @@ export const fetchPortalsTokens = async (
   const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
 
   const { throttle, clear } = createThrottle({
-    capacity: 100, // 100 requests per minute https://build.portals.fi/billing
+    capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
     costPerReq: 1,
-    drainPerInterval: 25, // Replenish 25 requests every 15 seconds
+    drainPerInterval: 125, // Replenish 25 requests every 15 seconds
     intervalMs: 15000, // 15 seconds
   })
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')

@@ -8,15 +8,17 @@ import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIc
 // import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
-  // TODO(gomes): git-lfs and re-enable me?
-  const portalsAssets = [] as Asset[]
-  const [
-    assets,
-    // portalsAssets
-  ] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(bscChainId),
-    // getPortalTokens(bnbsmartchain),
+    // TODO(gomes): revert me back, there are 10k+ assets for BSC = problems
+    [], // getPortalTokens(bnbsmartchain),
   ])
+
+  const [assets, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
 
   const allAssets = uniqBy(assets.concat(portalsAssets).concat([bnbsmartchain]), 'assetId')
 

@@ -13,6 +13,8 @@ import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustW
 // import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
+// Yearn SDK is currently rugged upstream
+// import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
@@ -32,25 +34,36 @@ const foxyToken: Asset = {
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  // TODO(gomes): git-lfs and re-enable me?
-  const portalsAssets = [] as Asset[]
-
-  const [
-    ethTokens,
-    uniV2PoolTokens,
-    idleTokens,
-    // portalsAssets
-  ] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
+    // getYearnVaults(),
+    // getZapperTokens(),
+    // getUnderlyingVaultTokens(),
     getUniswapV2Pools(),
     getIdleTokens(),
-    // getPortalTokens(ethereum),
+    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
+    [], // getPortalTokens(ethereum),
   ])
 
-  const ethAssets = [...idleTokens, foxyToken, ...ethTokens, ...uniV2PoolTokens, ...portalsAssets]
+  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
 
-  const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId')
-  const batchSize = 100
+  const ethAssets = [
+    ...idleTokens,
+    foxyToken,
+    ...ethTokens,
+    // ...yearnVaults,
+    // ...zapperTokens,
+    // ...underlyingTokens,
+    ...uniV2PoolTokens,
+    ...portalsAssets,
+  ]
+
+  const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
+  const batchSize = 100 // tune this to keep rate limiting happy
   const assetBatches = chunk(uniqueAssets, batchSize)
   let modifiedAssets: Asset[] = []
   for (const [i, batch] of assetBatches.entries()) {

@@ -1,7 +1,8 @@
-import { AddIcon, ArrowDownIcon, ChatIcon, SettingsIcon } from '@chakra-ui/icons'
+import { ChatIcon, SettingsIcon } from '@chakra-ui/icons'
 import { Button, Stack } from '@chakra-ui/react'
 import { WalletConnectToDappsHeaderButton } from 'plugins/walletConnectToDapps/components/header/WalletConnectToDappsHeaderButton'
 import { useCallback, useMemo, useState } from 'react'
+import { TbCircleArrowDown, TbCirclePlus } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { MainNavLink } from 'components/Layout/Header/NavBar/MainNavLink'
 import { DialogBody } from 'components/Modal/components/DialogBody'
@@ -20,8 +21,8 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MobileWalletList } from 'pages/ConnectWallet/components/WalletList'
 
-const addIcon = <AddIcon />
-const importIcon = <ArrowDownIcon />
+const addIcon = <TbCirclePlus />
+const importIcon = <TbCircleArrowDown />
 const settingsIcon = <SettingsIcon />
 const chatIcon = <ChatIcon />
 
@@ -65,21 +66,24 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
   const mobileWalletFooter = useMemo(() => {
     return (
       <Stack pb={4} spacing={0}>
-        <MainNavLink
-          color='text.link'
+        <Button
+          variant='ghost'
+          colorScheme='blue'
           leftIcon={addIcon}
-          size='sm'
           onClick={handleCreate}
-          label={translate('connectWalletPage.createANewWallet')}
-        />
-        <MainNavLink
-          color='text.link'
+          justifyContent='flex-start'
+        >
+          {translate('connectWalletPage.createANewWallet')}
+        </Button>
+        <Button
+          variant='ghost'
           colorScheme='blue'
           leftIcon={importIcon}
-          size='sm'
           onClick={handleImport}
-          label={translate('connectWalletPage.importExisting')}
-        />
+          justifyContent='flex-start'
+        >
+          {translate('connectWalletPage.importExisting')}
+        </Button>
       </Stack>
     )
   }, [handleCreate, handleImport, translate])

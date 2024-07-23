@@ -11,13 +11,14 @@ import {
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { AssetsById } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 import path from 'path'
+import type { PartialFields } from 'lib/types'
 
 import { createThrottle } from '../utils'
 import { zerionImplementationToMaybeAssetId } from './mapping'
@@ -99,7 +100,7 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
 
 const getRelatedAssetIds = async (
   assetId: AssetId,
-  assetData: AssetsById,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   const basicAuth = 'Basic ' + Buffer.from(ZERION_API_KEY + ':').toString('base64')
 
@@ -166,7 +167,7 @@ let sadCount = 0
 
 const processRelatedAssetIds = async (
   assetId: AssetId,
-  assetData: AssetsById,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
 ): Promise<void> => {
   // don't fetch if we've already got the data from a previous request
@@ -235,7 +236,9 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
     await fs.promises.readFile(generatedAssetsPath, 'utf8'),
   )
   const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
-  const assetDataWithRelatedAssetKeys: AssetsById = { ...generatedAssetData }
+  const assetDataWithRelatedAssetKeys: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>> = {
+    ...generatedAssetData,
+  }
 
   if (rebuildAll) {
     // remove relatedAssetKey from the existing data to ensure the related assets get updated

@@ -4,8 +4,6 @@ import axios from 'axios'
 
 import { atom } from '../baseAssets'
 import { colorMap } from '../colorMap'
-import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
-import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 
 type CosmosAsset = {
   denom: string
@@ -70,23 +68,6 @@ export const getAssets = async (): Promise<Asset[]> => {
       explorerTxLink: atom.explorerTxLink,
     }
 
-    if (!assetDatum.icon) {
-      const options: IdenticonOptions = {
-        identiconImage: {
-          size: 128,
-          background: [45, 55, 72, 255],
-        },
-        identiconText: {
-          symbolScale: 7,
-          enableShadow: true,
-        },
-      }
-      assetDatum.icon = getRenderedIdenticonBase64(
-        assetDatum.assetId,
-        assetDatum.symbol.substring(0, 3),
-        options,
-      )
-    }
     acc.push(assetDatum)
 
     return acc

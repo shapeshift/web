@@ -31,6 +31,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({
     if (!id) return ''
     return makeBlockiesUrl(`${id}ifyoudriveatruckdriveitlikeyouhaveafarm`)
   }, [id])
+
   const avatar = useMemo(
     () => <Avatar src={profileImage} size='md' borderRadius='lg' />,
     [profileImage],
@@ -46,8 +47,15 @@ export const WalletCard: React.FC<WalletCardProps> = ({
     if (isEditing) {
       return (
         <Flex ml='auto'>
-          <IconButton aria-label='Rename' variant='ghost' icon={editIcon} onClick={handleRename} />
           <IconButton
+            as='a'
+            aria-label='Rename'
+            variant='ghost'
+            icon={editIcon}
+            onClick={handleRename}
+          />
+          <IconButton
+            as='a'
             aria-label='Delete'
             variant='ghost'
             icon={deleteIcon}

@@ -2,7 +2,7 @@ import { AnimatePresence } from 'framer-motion'
 import { MemoryRouter, Redirect, Route, Switch } from 'react-router'
 import { Dialog } from 'components/Modal/components/Dialog'
 
-import { DeleteWallet } from './routes/DeleteWallet'
+import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
 import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
 import { MobileWalletDialogRoutes } from './types'

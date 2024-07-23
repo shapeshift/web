@@ -1587,7 +1587,9 @@
         "header": "Saved Wallets",
         "body": "Loading your saved wallet... Enter your password when prompted.",
         "button": "Continue",
-        "confirmForget": "Are you sure you want to forget %{wallet}?"
+        "forgetWallet": "Forget Wallet",
+        "confirmForget": "Are you sure you want to forget %{wallet}?",
+        "confirmForgetBody": "You will not be able to access your wallet if you have not backed it up."
       },
       "import": {
         "header": "Import your wallet",

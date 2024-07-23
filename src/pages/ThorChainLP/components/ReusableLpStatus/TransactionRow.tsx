@@ -93,12 +93,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const isAssetWithdraw =
-    isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'asset' && isWithdraw
+  const isSymAssetWithdraw =
+    isLpConfirmedWithdrawalQuote(confirmedQuote) &&
+    opportunityType === AsymSide.Asset &&
+    isWithdraw &&
+    type === 'sym'
 
   const isRuneTx = useMemo(
-    () => assetId === thorchainAssetId || isAssetWithdraw,
-    [assetId, isAssetWithdraw],
+    () => assetId === thorchainAssetId || isSymAssetWithdraw,
+    [assetId, isSymAssetWithdraw],
   )
 
   const feeAsset = useAppSelector(state =>

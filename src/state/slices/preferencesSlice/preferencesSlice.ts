@@ -29,8 +29,6 @@ export type FeatureFlags = {
   SaversVaultsWithdraw: boolean
   DefiDashboard: boolean
   Cowswap: boolean
-  CowswapGnosis: boolean
-  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -63,6 +61,7 @@ export type FeatureFlags = {
   CustomTokenImport: boolean
   RfoxMockRewardsTxHistory: boolean
   ArbitrumBridgeClaims: boolean
+  UsdtApprovalReset: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -118,8 +117,6 @@ const initialState: Preferences = {
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
-    CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
@@ -151,6 +148,7 @@ const initialState: Preferences = {
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
+    UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

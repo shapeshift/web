@@ -23,6 +23,7 @@ export enum TransactionExecutionState {
 
 export enum HopExecutionState {
   Pending = 'Pending',
+  AwaitingApprovalReset = 'AwaitingApprovalReset',
   AwaitingApproval = 'AwaitingApproval',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
@@ -35,13 +36,6 @@ export enum TradeExecutionState {
   SecondHop = 'SecondHop',
   TradeComplete = 'Complete',
 }
-
-export const HOP_EXECUTION_STATE_ORDERED = [
-  HopExecutionState.Pending,
-  HopExecutionState.AwaitingApproval,
-  HopExecutionState.AwaitingSwap,
-  HopExecutionState.Complete,
-]
 
 export type StreamingSwapFailedSwap = {
   reason: string
@@ -70,6 +64,7 @@ export type SwapExecutionMetadata = {
 
 export type HopExecutionMetadata = {
   state: HopExecutionState
+  allowanceReset: ApprovalExecutionMetadata
   approval: ApprovalExecutionMetadata
   swap: SwapExecutionMetadata
 }

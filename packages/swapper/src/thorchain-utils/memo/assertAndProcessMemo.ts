@@ -178,9 +178,14 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       // Withdraw Liquidity - WITHDRAW:POOL:BASISPOINTS:ASSET
       if (pool.includes('.')) {
-        if (maybeAsset) assertMemoHasAsset(maybeAsset, memo)
         assertIsValidBasisPoints(basisPoints, memo)
-        return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}`
+        if (maybeAsset) {
+          assertMemoHasAsset(maybeAsset, memo)
+
+          return `${_action}:${pool}:${basisPoints}:${maybeAsset ?? ''}`
+        }
+
+        return `${_action}:${pool}:${basisPoints}`
       }
 
       // Withdraw Savers - WITHDRAW:POOL:BASISPOINTS

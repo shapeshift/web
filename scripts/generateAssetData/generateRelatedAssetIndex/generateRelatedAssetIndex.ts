@@ -19,6 +19,7 @@ import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 import path from 'path'
 
+import { createThrottle } from '../utils'
 import { zerionImplementationToMaybeAssetId } from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
@@ -94,54 +95,6 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
     result.push(chunk)
   }
   return result
-}
-
-const createThrottle = ({
-  capacity,
-  costPerReq,
-  drainPerInterval,
-  intervalMs,
-}: {
-  capacity: number
-  costPerReq: number
-  drainPerInterval: number
-  intervalMs: number
-}) => {
-  let currentLevel = 0
-  let pendingResolves: ((value?: unknown) => void)[] = []
-
-  const drain = () => {
-    const drainAmount = Math.min(currentLevel, drainPerInterval)
-    currentLevel -= drainAmount
-
-    // Resolve pending promises if there's enough capacity
-    while (pendingResolves.length > 0 && currentLevel + costPerReq <= capacity) {
-      const resolve = pendingResolves.shift()
-      if (resolve) {
-        currentLevel += costPerReq
-        resolve()
-      }
-    }
-  }
-
-  // Start the interval to drain the capacity
-  const intervalId = setInterval(drain, intervalMs)
-
-  const throttle = async () => {
-    if (currentLevel + costPerReq <= capacity) {
-      // If adding another request doesn't exceed capacity, proceed immediately
-      currentLevel += costPerReq
-    } else {
-      // Otherwise, wait until there's enough capacity
-      await new Promise(resolve => {
-        pendingResolves.push(resolve)
-      })
-    }
-  }
-
-  const clear = () => clearInterval(intervalId)
-
-  return { throttle, clear }
 }
 
 const getRelatedAssetIds = async (
@@ -288,7 +241,9 @@ export const generateRelatedAssetIndex = async () => {
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 2000,
   })
-  for (const batch of chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)) {
+  const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
+  for (const [i, batch] of chunks.entries()) {
+    console.log(`Fetching chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
         await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)

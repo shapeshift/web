@@ -169,6 +169,7 @@ const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
+  throttle: () => Promise<void>,
 ): Promise<void> => {
   // don't fetch if we've already got the data from a previous request
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
@@ -218,6 +219,8 @@ const processRelatedAssetIds = async (
     // If there are no related assets, set relatedAssetKey to null
     assetData[assetId].relatedAssetKey = null
   }
+
+  await throttle()
 }
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
@@ -257,8 +260,12 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
-        await throttle()
+        await processRelatedAssetIds(
+          assetId,
+          assetDataWithRelatedAssetKeys,
+          relatedAssetIndex,
+          throttle,
+        )
         return
       }),
     )

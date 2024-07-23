@@ -29,7 +29,6 @@ export const rFOXStakingMetadataResolver = async ({
         underlyingAssetId: foxOnArbitrumOneAssetId,
         underlyingAssetIds: [foxOnArbitrumOneAssetId],
         underlyingAssetRatiosBaseUnit: ['1'] as const,
-        apy: undefined,
         expired: false,
         name: 'rFOX',
         rewardAssetIds: [foxAssetId] as const,

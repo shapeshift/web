@@ -494,8 +494,10 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
       const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
         totalVirtualFiatAmount,
       )
-      if (byProvider[provider as DefiProvider].apy) {
-        // byProvider[provider as DefiProvider].apy = apy.toFixed()
+
+      // rFOX doesn't have an APY, so we don't want to set it
+      if (provider !== DefiProvider.rFOX) {
+        byProvider[provider as DefiProvider].apy = apy.toFixed()
       }
     }
 

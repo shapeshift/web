@@ -118,12 +118,14 @@ export const OpportunityRow: React.FC<
       ...(expired ? [expiredElement] : []),
     ]
 
-    return subText.map((element, index) => (
-      <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
-        {index > 0 && <RawText>•</RawText>}
-        {element}
-      </Flex>
-    ))
+    return subText.map((element, index) =>
+      element ? (
+        <Flex gap={1} alignItems='center' key={`subtext-${index}`}>
+          {index > 0 && subText[index - 1] && <RawText>•</RawText>}
+          {element}
+        </Flex>
+      ) : null,
+    )
   }, [apy, cryptoAmountBaseUnit, expired, group, type])
 
   const renderNestedAssets = useMemo(() => {

@@ -108,10 +108,6 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
 
-  if (provider === 'rFOX') {
-    console.log(apy, 'apy')
-  }
-
   return (
     <Card variant='dashboard'>
       <CardHeader

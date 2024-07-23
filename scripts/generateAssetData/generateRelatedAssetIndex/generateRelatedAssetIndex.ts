@@ -173,10 +173,9 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   // don't fetch if we've already got the data from a previous request
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
-  if (existingRelatedAssetKey !== undefined) {
-    console.log(`Related asset key already exists for ${assetId}, skipping...`)
-    return
-  }
+  if (existingRelatedAssetKey !== undefined) return
+
+  console.log(`Fetching related assetIds for assetId: ${assetId}`)
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
     .then(result => {

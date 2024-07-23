@@ -247,7 +247,9 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   const generatedAssetData: AssetsById = JSON.parse(
     await fs.promises.readFile(generatedAssetsPath, 'utf8'),
   )
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
+  const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
+    await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
+  )
   const assetDataWithRelatedAssetKeys: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>> = {
     ...generatedAssetData,
   }

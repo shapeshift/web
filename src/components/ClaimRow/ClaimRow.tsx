@@ -81,9 +81,14 @@ export const ClaimRow = ({
             >
               {statusText}
             </RawText>
-            <RawText fontSize='xl' fontWeight='bold' color='white' align='end'>
-              <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol ?? ''} />
-            </RawText>
+            <Amount.Crypto
+              value={amountCryptoPrecision}
+              symbol={asset.symbol ?? ''}
+              fontSize='xl'
+              fontWeight='bold'
+              color='white'
+              align='end'
+            />
           </Box>
         </Flex>
       </Flex>

@@ -163,7 +163,7 @@ const ApprovalStepPending = ({
       )
     }
 
-    if (isApprovalStep && approvalNetworkFeeCryptoBaseUnit) {
+    if (!isAllowanceResetStep && approvalNetworkFeeCryptoBaseUnit) {
       return toCrypto(
         fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
         feeAsset.symbol,
@@ -176,7 +176,6 @@ const ApprovalStepPending = ({
     approvalNetworkFeeCryptoBaseUnit,
     feeAsset,
     isAllowanceResetStep,
-    isApprovalStep,
     toCrypto,
   ])
 

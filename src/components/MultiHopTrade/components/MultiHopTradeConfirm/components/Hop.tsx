@@ -202,16 +202,16 @@ export const Hop = ({
               amountCryptoBaseUnit={tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit}
             />
           )}
-          <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
-            {isApprovalInitiallyNeeded === true && (
+          {allowanceReset.isRequired && (
+            <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
                 isAllowanceResetStep={allowanceReset.isRequired}
               />
-            )}
-          </Collapse>
+            </Collapse>
+          )}
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             {isApprovalInitiallyNeeded === true && (
               <ApprovalStep

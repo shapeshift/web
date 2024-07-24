@@ -41,11 +41,11 @@ export type AssetIdsTuple =
   | readonly []
 
 export type OpportunityMetadataBase = {
-  apy?: string
+  apy: string | undefined
   assetId: AssetId
   id: OpportunityId
   provider: string
-  tvl?: string
+  tvl: string
   type: DefiType
   // An optional user-facing `type` equivalent to allow us to display the opportunity type in the UI
   // our `type` property is an implementation detail that somehow ended up being user-facing, and might go away
@@ -185,8 +185,8 @@ type EarnDefiTypeBase = {
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy?: number | string
-  tvl?: string
+  apy: number | string | undefined
+  tvl: string
   underlyingAssetId: AssetId
   assetId: AssetId
   id: OpportunityId
@@ -233,7 +233,7 @@ export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunity
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  apy: string
+  apy: string | undefined
   fiatAmount: string
   cryptoBalancePrecision: string
   fiatRewardsAmount: string
@@ -242,7 +242,7 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
 
 export type AggregatedOpportunitiesByProviderReturn = {
   provider: string
-  apy: string
+  apy: string | undefined
   fiatAmount: string
   fiatRewardsAmount: string
   netProviderFiatAmount: string

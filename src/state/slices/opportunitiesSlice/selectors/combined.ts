@@ -138,7 +138,7 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             acc[assetId] = {
               assetId,
               underlyingAssetIds: cur.underlyingAssetIds,
-              apy: '0',
+              apy: undefined,
               fiatAmount: '0',
               cryptoBalancePrecision: '0',
               fiatRewardsAmount: '0',
@@ -192,14 +192,22 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
 
           // No active staking for the current AssetId, show the highest APY
           if (!isActiveAssetId) {
-            acc[assetId].apy = BigNumber.maximum(acc[assetId].apy, cur.apy ?? '0').toFixed()
+            if (cur.apy || acc[assetId].apy) {
+              acc[assetId].apy = BigNumber.maximum(
+                acc[assetId].apy ?? '0',
+                cur.apy ?? '0',
+              ).toFixed()
+            }
           } else if (isActiveOpportunityByFilter) {
             totalFiatAmountByAssetId[assetId] = bnOrZero(totalFiatAmountByAssetId[assetId]).plus(
               BigNumber.max(amountFiat, 0),
             )
-            projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
-              projectedAnnualizedYieldByAssetId[assetId],
-            ).plus(BigNumber.max(amountFiat, 0).times(cur.apy ?? '1'))
+
+            if (cur.apy) {
+              projectedAnnualizedYieldByAssetId[assetId] = bnOrZero(
+                projectedAnnualizedYieldByAssetId[assetId],
+              ).plus(BigNumber.max(amountFiat, 0).times(cur.apy))
+            }
           }
 
           acc[assetId].cryptoBalancePrecision = bnOrZero(acc[assetId].cryptoBalancePrecision)
@@ -383,7 +391,7 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
 
     const makeEmptyPayload = (provider: string): AggregatedOpportunitiesByProviderReturn => ({
       provider,
-      apy: '0',
+      apy: undefined,
       fiatAmount: '0',
       fiatRewardsAmount: '0',
       netProviderFiatAmount: '0',
@@ -453,14 +461,22 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
           (includeRewardsBalances && bnOrZero(maybeStakingRewardsAmountUserCurrency).gt(0))
         // No active staking for the current provider, show the highest APY
         if (!isActiveProvider) {
-          acc[provider].apy = BigNumber.maximum(acc[provider].apy, cur.apy ?? '0').toFixed()
+          if (cur.apy || acc[provider].apy) {
+            acc[provider].apy = BigNumber.maximum(
+              acc[provider].apy ?? '0',
+              cur.apy ?? '0',
+            ).toFixed()
+          }
         } else if (isActiveOpportunityByFilter) {
           totalFiatAmountByProvider[provider] = bnOrZero(totalFiatAmountByProvider[provider]).plus(
             BigNumber.max(cur.fiatAmount, 0),
           )
-          projectedAnnualizedYieldByProvider[provider] = bnOrZero(
-            projectedAnnualizedYieldByProvider[provider],
-          ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy ?? '1'))
+
+          if (cur.apy) {
+            projectedAnnualizedYieldByProvider[provider] = bnOrZero(
+              projectedAnnualizedYieldByProvider[provider],
+            ).plus(BigNumber.max(cur.fiatAmount, 0).times(cur.apy))
+          }
         }
 
         if (cur.type === DefiType.LiquidityPool) {
@@ -491,14 +507,13 @@ export const selectAggregatedEarnOpportunitiesByProvider = createDeepEqualOutput
     for (const [provider, totalVirtualFiatAmount] of Object.entries(totalFiatAmountByProvider)) {
       // Use the highest APY for inactive opportunities
       if (!isActiveStakingByFilter[provider as DefiProvider]) continue
+      if (!projectedAnnualizedYieldByProvider[provider as DefiProvider]) continue
+
       const apy = bnOrZero(projectedAnnualizedYieldByProvider[provider as DefiProvider]).div(
         totalVirtualFiatAmount,
       )
 
-      // rFOX doesn't have an APY, so we don't want to set it
-      if (provider !== DefiProvider.rFOX) {
-        byProvider[provider as DefiProvider].apy = apy.toFixed()
-      }
+      byProvider[provider as DefiProvider].apy = apy.toFixed()
     }
 
     const aggregatedEarnOpportunitiesByProvider = Object.values(byProvider).reduce<

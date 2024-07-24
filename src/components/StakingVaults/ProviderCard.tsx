@@ -129,7 +129,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
             <RawText textTransform='capitalize'>{provider}</RawText>
             <Amount.Fiat fontSize='lg' value={netProviderFiatAmount} display={displayMdBlock} />
           </Flex>
-          {apy !== '0' ? (
+          {apy !== undefined ? (
             <Tag colorScheme='green' ml='auto'>
               <Amount.Percent value={apy} suffix='Net APY' />
             </Tag>

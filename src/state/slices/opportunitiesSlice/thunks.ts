@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertIsKnownChainId } from 'lib/utils'
 import type { AppDispatch } from 'state/store'
 
-import { foxEthStakingIds, rFOXEthStakingIds } from '../opportunitiesSlice/constants'
+import { foxEthStakingIds, rFOXStakingIds } from '../opportunitiesSlice/constants'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
 import { opportunitiesApi } from './opportunitiesApiSlice'
 import { DefiProvider, DefiType } from './types'
@@ -49,7 +49,7 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
     }
   })
 
-  const rFOXStakingQueries = rFOXEthStakingIds.map(opportunityId => {
+  const rFOXStakingQueries = rFOXStakingIds.map(opportunityId => {
     return {
       opportunityId,
       defiType: DefiType.Staking,
@@ -130,7 +130,7 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
     }
   })
 
-  const rFoxStakingQueries = rFOXEthStakingIds.map(opportunityId => {
+  const rFoxStakingQueries = rFOXStakingIds.map(opportunityId => {
     return {
       accountId,
       opportunityId,

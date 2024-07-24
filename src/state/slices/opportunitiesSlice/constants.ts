@@ -95,9 +95,7 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdV9]: 'V9',
 }
 
-export const rFOXassetIds = [foxOnArbitrumOneAssetId] as const
-
-export const rFOXEthStakingIds = rFOXassetIds as readonly StakingId[]
+export const rFOXStakingIds = [foxOnArbitrumOneAssetId] as readonly StakingId[]
 
 export const STAKING_ID_DELIMITER = '*'
 
@@ -118,7 +116,7 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     provider: DefiProvider.rFOX,
     icon: '/fox-token-logo.png',
     color: '#00CD98',
-    url: 'https://app.shapeshift.com',
+    url: 'https://app.shapeshift.com/#/rfox',
   },
   [DefiProvider.UniV2]: {
     provider: DefiProvider.UniV2,

@@ -147,9 +147,14 @@ export const ClaimRow: FC<ClaimRowProps> = ({
             >
               {onClaimButtonClick ? statusText : status}
             </RawText>
-            <RawText fontSize='xl' fontWeight='bold' color='white' align={'end'}>
-              <Amount.Crypto value={amountCryptoPrecision} symbol={stakingAssetSymbol ?? ''} />
-            </RawText>
+            <Amount.Crypto
+              value={amountCryptoPrecision}
+              symbol={stakingAssetSymbol ?? ''}
+              fontSize='xl'
+              fontWeight='bold'
+              color='white'
+              align={'end'}
+            />
           </Box>
           {/* Claim button currently commented out as we don't support dashboard claim button click (yet?)
           onClaimButtonClick && (

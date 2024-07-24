@@ -18,7 +18,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const renderEligibleCards = useMemo(() => {
     // opportunities with 1% APY or more
-    const filteredEligibleOpportunities = eligibleOpportunities
+    let filteredEligibleOpportunities = eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) => bn(b.apy ?? '0').toNumber() - bn(a.apy ?? '0').toNumber())
       .slice(0, 5)
@@ -32,6 +32,10 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
       eligibleOpportunity => eligibleOpportunity.provider === DefiProvider.rFOX,
     )
 
+    if (rfoxOpportunity) {
+      filteredEligibleOpportunities = [rfoxOpportunity, ...filteredEligibleOpportunities]
+    }
+
     if (!foxFarmingV9) {
       return filteredEligibleOpportunities.map(opportunity => (
         <FeaturedCard key={`${opportunity.id}`} {...opportunity} />
@@ -42,13 +46,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
       [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
       'contractAddress',
-    ).slice(0, rfoxOpportunity ? 4 : 5)
-
-    if (rfoxOpportunity) {
-      return [rfoxOpportunity, ...filteredEligibleOpportunitiesWithFoxFarmingV9].map(
-        opportunity => <FeaturedCard key={`${opportunity.id}`} {...opportunity} />,
-      )
-    }
+    ).slice(0, 5)
 
     return filteredEligibleOpportunitiesWithFoxFarmingV9.map(opportunity => (
       <FeaturedCard key={`${opportunity.id}`} {...opportunity} />

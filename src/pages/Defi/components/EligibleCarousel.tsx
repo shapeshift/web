@@ -40,7 +40,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
   const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
   const filteredEligibleOpportunities = useMemo(() => {
     // opportunities with 1% APY or more
-    const filteredEligibleOpportunities = eligibleOpportunities
+    let filteredEligibleOpportunities = eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
       .sort((a, b) =>
         bn(b.apy ?? '0')
@@ -58,25 +58,21 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
       eligibleOpportunity => eligibleOpportunity.provider === DefiProvider.rFOX,
     )
 
-    if (!foxFarmingV9) {
-      if (!rfoxOpportunity) {
-        return filteredEligibleOpportunities
-      }
+    if (rfoxOpportunity) {
+      filteredEligibleOpportunities = [rfoxOpportunity, ...filteredEligibleOpportunities]
+    }
 
-      return [rfoxOpportunity, ...filteredEligibleOpportunities]
+    if (!foxFarmingV9) {
+      return filteredEligibleOpportunities
     }
 
     // TEMP: Hardcode the rFOX opportunity to be the first card
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
       [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
       'contractAddress',
-    ).slice(0, rfoxOpportunity ? 4 : 5)
+    ).slice(0, 5)
 
-    if (!rfoxOpportunity) {
-      return filteredEligibleOpportunitiesWithFoxFarmingV9
-    }
-
-    return [rfoxOpportunity, ...filteredEligibleOpportunitiesWithFoxFarmingV9]
+    return filteredEligibleOpportunitiesWithFoxFarmingV9
   }, [eligibleOpportunities])
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (

@@ -1478,6 +1478,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 assetId={poolAsset.assetId}
                 opportunityId={activeOpportunityId}
                 onAsymSideChange={handleAsymSideChange}
+                isDeposit={true}
               />
             )}
             {tradeAssetInputs}

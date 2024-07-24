@@ -86,10 +86,24 @@ type LpTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
   opportunityId: string
-  isWithdraw?: boolean
-}
+} & (
+  | {
+      isWithdraw: boolean
+      isDeposit?: never
+    }
+  | {
+      isWithdraw?: never
+      isDeposit?: boolean
+    }
+)
 
-export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }: LpTypeProps) => {
+export const LpType = ({
+  assetId,
+  opportunityId,
+  isWithdraw,
+  isDeposit,
+  onAsymSideChange,
+}: LpTypeProps) => {
   const translate = useTranslate()
 
   const makeAssetIdsOption = useCallback(
@@ -142,7 +156,10 @@ export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }:
 
       return (
         <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
-          <Tooltip isDisabled={!isDisabled} label={translate('pools.withdrawTypeNotAvailable')}>
+          <Tooltip
+            isDisabled={!isDisabled || isDeposit}
+            label={translate('pools.withdrawTypeNotAvailable')}
+          >
             <Box>
               <PoolIcon assetIds={optionAssetIds} size='xs' />
               <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
@@ -166,6 +183,7 @@ export const LpType = ({ assetId, opportunityId, isWithdraw, onAsymSideChange }:
     isSymPositionType,
     isRunePositionType,
     isAssetPositionType,
+    isDeposit,
   ])
 
   const group = getRootProps()

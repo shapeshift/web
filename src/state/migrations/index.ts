@@ -89,5 +89,4 @@ export const migrations = {
   79: clearAssets,
   80: clearAssets,
   81: clearAssets,
-  82: clearAssets,
 }

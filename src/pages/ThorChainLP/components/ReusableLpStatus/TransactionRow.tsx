@@ -46,7 +46,6 @@ import {
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { OpportunityType } from 'pages/ThorChainLP/utils'
 import { fromQuote } from 'pages/ThorChainLP/utils'
 import {
   selectAssetById,
@@ -65,7 +64,6 @@ type TransactionRowProps = {
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
-  opportunityType: OpportunityType
   isWithdraw?: boolean
 }
 
@@ -77,7 +75,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   onStart,
   isActive,
   confirmedQuote,
-  opportunityType,
   isWithdraw,
 }) => {
   const queryClient = useQueryClient()
@@ -90,15 +87,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
-  const { type } = fromQuote(confirmedQuote)
+  const { opportunityType, actionSide } = fromQuote(confirmedQuote)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const isSymAssetWithdraw =
     isLpConfirmedWithdrawalQuote(confirmedQuote) &&
-    opportunityType === AsymSide.Asset &&
+    actionSide === AsymSide.Asset &&
     isWithdraw &&
-    type === 'sym'
+    opportunityType === 'sym'
 
   const isRuneTx = useMemo(
     () => assetId === thorchainAssetId || isSymAssetWithdraw,
@@ -126,7 +123,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   )
 
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
-  const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
+  const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && actionSide === 'sym'
 
   const fromAccountId = useMemo(() => {
     return isRuneTx ? runeAccountId : poolAssetAccountId
@@ -171,10 +168,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
     select: address => {
       // Paranoia against previously cached calls, this should never happen but it could
-      if (opportunityType !== 'sym') return
+      if (actionSide !== 'sym') return
       return address.replace('bitcoincash:', '')
     },
-    enabled: Boolean(opportunityType === 'sym'),
+    enabled: Boolean(actionSide === 'sym'),
   })
 
   const thorchainNotationAssetId = useMemo(() => {
@@ -185,26 +182,19 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const memo = useMemo(() => {
     if (thorchainNotationAssetId === undefined) return null
-    if (opportunityType === 'sym' && !pairAssetAddress) return null
+    if (actionSide === 'sym' && !pairAssetAddress) return null
 
     const pairedAddress = pairAssetAddress ?? ''
 
     const asymDestinationPoolAssetId =
-      opportunityType !== 'sym' ? assetIdToPoolAssetId({ assetId }) : undefined
+      actionSide !== 'sym' ? assetIdToPoolAssetId({ assetId }) : undefined
 
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}${
           asymDestinationPoolAssetId ? `:${asymDestinationPoolAssetId}` : ''
         }`
-  }, [
-    isDeposit,
-    thorchainNotationAssetId,
-    pairAssetAddress,
-    confirmedQuote,
-    opportunityType,
-    assetId,
-  ])
+  }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, actionSide, assetId])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,

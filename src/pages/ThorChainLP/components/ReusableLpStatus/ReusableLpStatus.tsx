@@ -60,9 +60,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const hasTrackedStatus = useRef(false)
   const [txStatus, setTxStatus] = useState<TxStatus>()
 
-  const { assetId: poolAssetId, withdrawType, depositType } = fromQuote(confirmedQuote)
-
-  const opportunityType = depositType ?? withdrawType
+  const { assetId: poolAssetId, actionSide, action } = fromQuote(confirmedQuote)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
@@ -70,7 +68,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
 
-    switch (opportunityType) {
+    switch (actionSide) {
       case 'sym':
         return [baseAsset, poolAsset]
       case AsymSide.Rune:
@@ -78,24 +76,24 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(opportunityType)
+        assertUnreachable(actionSide)
     }
-  }, [poolAsset, baseAsset, opportunityType])
+  }, [poolAsset, baseAsset, actionSide])
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-    if (opportunityType === 'sym' && depositType) return [baseAsset, poolAsset]
+    if (actionSide === 'sym' && action === 'deposit') return [baseAsset, poolAsset]
 
-    switch (opportunityType) {
+    switch (actionSide) {
       case 'sym':
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(opportunityType)
+        assertUnreachable(actionSide)
     }
-  }, [poolAsset, baseAsset, opportunityType, depositType])
+  }, [poolAsset, baseAsset, actionSide, action])
 
   const handleStatusUpdate = useCallback(
     (status: TxStatus) => {
@@ -123,22 +121,22 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const hasTrackedStatusValue = hasTrackedStatus.current
     if (isComplete && !hasTrackedStatusValue)
       mixpanel?.track(
-        depositType ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
+        action === 'deposit' ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
         confirmedQuote,
       )
 
     if (isFailed && !hasTrackedStatusValue)
       mixpanel?.track(
-        depositType ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
+        action === 'deposit' ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
         confirmedQuote,
       )
-  }, [confirmedQuote, isComplete, depositType, isFailed, mixpanel])
+  }, [confirmedQuote, isComplete, action, isFailed, mixpanel])
 
   const hStackDivider = useMemo(() => {
-    if (opportunityType) return <></>
+    if (actionSide) return <></>
 
     return <RawText mx={1}>{translate('common.and')}</RawText>
-  }, [opportunityType, translate])
+  }, [actionSide, translate])
 
   const stepProgress = useMemo(
     () => (activeStepIndex / txAssets.length) * 100,
@@ -300,8 +298,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               onStatusUpdate={handleStatusUpdate}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
-              opportunityType={opportunityType}
-              isWithdraw={!!withdrawType}
+              isWithdraw={action === 'withdraw'}
             />
           )
         })}
@@ -315,8 +312,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     handleStatusUpdate,
     activeStepIndex,
     isFailed,
-    opportunityType,
-    withdrawType,
+    action,
   ])
 
   if (!(poolAsset && baseAsset)) return null

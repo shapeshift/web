@@ -11,24 +11,18 @@ export type OpportunityType = AsymSide | 'sym'
 
 export type Opportunity = {
   assetId: AssetId
-  type: OpportunityType
+  opportunityType: OpportunityType
 }
 
-export type WithdrawOpportunityIntent = Opportunity & {
-  depositType?: never
-  withdrawType: OpportunityType
+export type LpOpportunityIntent = Opportunity & {
+  actionSide: OpportunityType
+  action: 'withdraw' | 'deposit'
 }
-export type DepositOpportunityIntent = Opportunity & {
-  depositType: OpportunityType
-  withdrawType?: never
-}
-
-export type LpOpportunityIntent = DepositOpportunityIntent | WithdrawOpportunityIntent
 
 export const fromOpportunityId = (opportunityId: string): Opportunity => {
-  const [assetId, type] = opportunityId.split('*')
+  const [assetId, opportunityType] = opportunityId.split('*')
 
-  if (!assetId || !type) throw new Error(`Invalid opportunityId: ${opportunityId}`)
+  if (!assetId || !opportunityType) throw new Error(`Invalid opportunityId: ${opportunityId}`)
 
   try {
     fromAssetId(assetId)
@@ -41,29 +35,31 @@ export const fromOpportunityId = (opportunityId: string): Opportunity => {
 
   return {
     assetId: assetId as AssetId,
-    type: type as OpportunityType,
+    opportunityType: opportunityType as OpportunityType,
   }
 }
 
-export const toOpportunityId = ({ assetId, type }: Opportunity) => {
-  return `${assetId}*${type}`
+export const toOpportunityId = ({ assetId, opportunityType }: Opportunity) => {
+  return `${assetId}*${opportunityType}`
 }
 
 export const fromQuote = <T extends LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote>(
   quote: T,
 ): LpOpportunityIntent => {
-  const { assetId, type } = fromOpportunityId(quote.opportunityId)
+  const { assetId, opportunityType } = fromOpportunityId(quote.opportunityId)
   if (isLpConfirmedDepositQuote(quote)) {
     return {
       assetId,
-      depositType: type,
-      type,
+      actionSide: opportunityType,
+      opportunityType,
+      action: 'deposit',
     }
   }
 
   return {
     assetId,
-    withdrawType: quote.withdrawSide,
-    type,
+    actionSide: quote.withdrawSide,
+    opportunityType,
+    action: 'withdraw',
   }
 }

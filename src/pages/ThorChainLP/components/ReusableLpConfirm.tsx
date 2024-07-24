@@ -66,9 +66,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
 }) => {
   const translate = useTranslate()
 
-  const { assetId, depositType, withdrawType } = fromQuote(confirmedQuote)
-
-  const opportunityType = depositType ?? withdrawType
+  const { assetId, actionSide } = fromQuote(confirmedQuote)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
@@ -94,7 +92,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
   })
 
   const divider = useMemo(() => {
-    if (opportunityType !== 'sym') return <></>
+    if (actionSide !== 'sym') return <></>
 
     return (
       <Flex style={dividerStyle}>
@@ -116,7 +114,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         </Center>
       </Flex>
     )
-  }, [opportunityType])
+  }, [actionSide])
 
   const depositCards = useMemo(() => {
     if (!poolAsset || !baseAsset) return null
@@ -124,7 +122,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
     const assets: Asset[] = (() => {
       if (!(poolAsset && baseAsset)) return []
 
-      switch (opportunityType) {
+      switch (actionSide) {
         case AsymSide.Rune:
           return [baseAsset]
         case AsymSide.Asset:
@@ -132,7 +130,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         case 'sym':
           return [baseAsset, poolAsset]
         default:
-          assertUnreachable(opportunityType)
+          assertUnreachable(actionSide)
       }
     })()
 
@@ -195,7 +193,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         })}
       </Stack>
     )
-  }, [poolAsset, baseAsset, confirmedQuote, divider, opportunityType])
+  }, [poolAsset, baseAsset, confirmedQuote, divider, actionSide])
 
   const backIcon = useMemo(() => <ArrowBackIcon />, [])
 

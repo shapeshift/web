@@ -122,7 +122,7 @@ export const LpType = ({
     [assetId],
   )
 
-  const opportunityType = fromOpportunityId(opportunityId).type
+  const { opportunityType } = fromOpportunityId(opportunityId)
 
   const isRunePositionType = useMemo(() => opportunityType === AsymSide.Rune, [opportunityType])
   const isAssetPositionType = useMemo(() => opportunityType === AsymSide.Asset, [opportunityType])
@@ -136,7 +136,7 @@ export const LpType = ({
 
   useEffect(() => {
     if (!opportunityId) return
-    setValue(fromOpportunityId(opportunityId).type)
+    setValue(fromOpportunityId(opportunityId).opportunityType)
   }, [opportunityId, setValue])
 
   const radioOptions = useMemo(() => {

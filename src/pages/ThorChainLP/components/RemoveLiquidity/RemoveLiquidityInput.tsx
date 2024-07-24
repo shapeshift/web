@@ -127,7 +127,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const [shareOfPoolDecimalPercent, setShareOfPoolDecimalPercent] = useState<string | undefined>()
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
-  const { assetId, type: opportunityType } = useMemo(
+  const { assetId, opportunityType } = useMemo(
     () => fromOpportunityId(opportunityId),
     [opportunityId],
   )

@@ -68,6 +68,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       explorer: atom.explorer,
       explorerAddressLink: atom.explorerAddressLink,
       explorerTxLink: atom.explorerTxLink,
+      relatedAssetKey: null,
     }
 
     if (!assetDatum.icon) {

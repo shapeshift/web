@@ -741,6 +741,7 @@ export const Deposit: React.FC<DepositProps> = ({
     const debounced = debounce(() => {
       if (isThorchainSaversDepositQuoteError)
         throw new Error(thorchainSaversDepositQuoteError.message)
+      if (!opportunityData.apy) return
 
       const quote = thorchainSaversDepositQuote
 
@@ -764,7 +765,7 @@ export const Deposit: React.FC<DepositProps> = ({
         expectedAmountOutThorBaseUnit,
         amountCryptoBaseUnit,
         asset,
-        apy: opportunityData?.apy,
+        apy: opportunityData.apy,
       })
       setDaysToBreakEven(daysToBreakEven)
     })

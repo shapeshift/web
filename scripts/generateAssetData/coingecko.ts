@@ -144,6 +144,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         explorer,
         explorerAddressLink,
         explorerTxLink,
+        relatedAssetKey: undefined,
       }
       prev.push(asset)
     } catch {

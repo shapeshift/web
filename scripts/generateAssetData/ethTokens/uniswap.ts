@@ -47,6 +47,7 @@ export async function getUniswapTokens(): Promise<Asset[]> {
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/',
+      relatedAssetKey: null,
     }
     acc.push(result)
     return acc

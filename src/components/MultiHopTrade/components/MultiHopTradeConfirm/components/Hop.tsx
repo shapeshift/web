@@ -80,6 +80,7 @@ export const Hop = ({
     state: hopExecutionState,
     approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
     swap: { state: swapTxState },
+    allowanceReset,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
@@ -206,10 +207,17 @@ export const Hop = ({
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
-                isActive={
-                  hopExecutionState === HopExecutionState.AwaitingApprovalReset ||
-                  hopExecutionState === HopExecutionState.AwaitingApproval
-                }
+                isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
+                isAllowanceResetStep={allowanceReset.isRequired}
+              />
+            )}
+          </Collapse>
+          <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
+            {isApprovalInitiallyNeeded === true && (
+              <ApprovalStep
+                tradeQuoteStep={tradeQuoteStep}
+                hopIndex={hopIndex}
+                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
               />
             )}
           </Collapse>

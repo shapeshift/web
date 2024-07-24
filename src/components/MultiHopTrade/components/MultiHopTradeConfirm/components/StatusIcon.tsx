@@ -2,6 +2,7 @@ import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { Circle } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { FaThumbsUp } from 'react-icons/fa'
+import { FaRotateRight } from 'react-icons/fa6'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { assertUnreachable } from 'lib/utils'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -43,11 +44,16 @@ export const StatusIcon = ({
 export const ApprovalStatusIcon = ({
   hopExecutionState,
   approvalTxState,
+  isAllowanceResetStep,
 }: {
   hopExecutionState: HopExecutionState
   approvalTxState: TransactionExecutionState
+  isAllowanceResetStep: boolean | undefined
 }) => {
-  const defaultIcon = useMemo(() => <FaThumbsUp />, [])
+  const defaultIcon = useMemo(
+    () => (isAllowanceResetStep ? <FaRotateRight /> : <FaThumbsUp />),
+    [isAllowanceResetStep],
+  )
   const txStatus = useMemo(() => {
     switch (hopExecutionState) {
       case HopExecutionState.Pending:

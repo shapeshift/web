@@ -1,6 +1,9 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
@@ -22,6 +25,7 @@ import { isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -30,9 +34,8 @@ export async function getPortalsTradeQuote(
     accountNumber,
     affiliateBps,
     potentialAffiliateBps,
-    // TODO(gomes): consume me
-    // chainId,
-    // supportsEIP1559,
+    chainId,
+    supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -81,7 +84,7 @@ export async function getPortalsTradeQuote(
   try {
     if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
-    const portalsNetwork = chainIdToPortalsNetwork[input.chainId as KnownChainIds]
+    const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
 
     if (!portalsNetwork) {
       return Err(
@@ -113,14 +116,18 @@ export async function getPortalsTradeQuote(
       feePercentage: affiliateBpsPercentage,
     })
 
+    debugger
+
     const {
+      tx,
       context: {
         orderId,
         outputAmount: buyAmountAfterFeesCryptoBaseUnit,
         minOutputAmount: buyAmountBeforeFeesCryptoBaseUnit,
         slippageTolerancePercentage,
         target: allowanceContract,
-        feeAmount,
+        // TODO(gomes): if we go with gasless transactions, consume me - this is the `feeAmount` in token for token sells, not in native asset
+        // feeAmount,
       },
     } = portalsTradeOrderResponse
 
@@ -128,7 +135,29 @@ export async function getPortalsTradeQuote(
       .div(input.sellAmountIncludingProtocolFeesCryptoBaseUnit)
       .toString()
 
-    const networkFeeCryptoBaseUnit = '0' // TODO(gomes)
+    const adapter = assertGetEvmChainAdapter(chainId)
+
+    const feeAssetId = adapter.getFeeAssetId()
+
+    const networkFeeCryptoBaseUnit = await getFees({
+      adapter,
+      data: tx.data,
+      to: tx.to,
+      value: tx.value,
+      from: tx.from,
+      supportsEIP1559,
+    })
+      .then(({ networkFeeCryptoBaseUnit }) => networkFeeCryptoBaseUnit)
+      // TODO(gomes): Portals aren't able to do a rough fees estimation yet like other swappers, so we 0 out fees if they fail (i.e approval required and can't simulate Tx)
+      // The only fees they give us are the ones in token in case of a gasless Tx a la CoW
+      // Solutions would be to either:
+      // - Wait for Portals to implement a rough fees estimation for good ol' Txs
+      // - Go gasless, and repeat the CoW signatures madness, which is probably the best solution, but much less of an easy feat
+      .catch(e => {
+        console.log('Error getting fees for Portals', e)
+        return '0'
+      })
+
     const tradeQuote: TradeQuote = {
       id: orderId,
       receiveAddress: input.receiveAddress,
@@ -149,15 +178,14 @@ export async function getPortalsTradeQuote(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit,
-            protocolFees: feeAmount
-              ? {
-                  [input.sellAsset.assetId]: {
-                    amountCryptoBaseUnit: feeAmount,
-                    asset: input.sellAsset,
-                    requiresBalance: true,
-                  },
-                }
-              : {},
+            // TODO(gomes): if we go with gasless transactions, the protocolFees will always be paid in the sell asset
+            protocolFees: {
+              [feeAssetId]: {
+                amountCryptoBaseUnit: networkFeeCryptoBaseUnit,
+                asset: input.sellAsset,
+                requiresBalance: true,
+              },
+            },
           },
           source: SwapperName.Portals,
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info

@@ -7,6 +7,7 @@ import type {
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
+  SwapperDeps,
   TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
@@ -15,8 +16,12 @@ import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuot
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
+    { assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getPortalsTradeQuote(input as GetEvmTradeQuoteInput)
+    const tradeQuoteResult = await getPortalsTradeQuote(
+      input as GetEvmTradeQuoteInput,
+      assertGetEvmChainAdapter,
+    )
 
     return tradeQuoteResult.map(tradeQuote => {
       return [tradeQuote]

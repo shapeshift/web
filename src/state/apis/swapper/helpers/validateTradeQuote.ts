@@ -238,8 +238,14 @@ export const validateTradeQuote = async (
     if (swapperName !== SwapperName.Thorchain) return false
 
     // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    const _isSmartContractSellAddress = await isSmartContractAddress(sendAddress)
-    const _isSmartContractReceiveAddress = await isSmartContractAddress(quote.receiveAddress)
+    const _isSmartContractSellAddress = await isSmartContractAddress(
+      sendAddress,
+      firstHop.sellAsset.chainId,
+    )
+    const _isSmartContractReceiveAddress = await isSmartContractAddress(
+      quote.receiveAddress,
+      firstHop.buyAsset.chainId,
+    )
     // For long-tails, the *destination* address cannot be a smart contract
     // https://dev.thorchain.org/aggregators/aggregator-overview.html#admonition-warning
     // This doesn't apply to regular THOR swaps however, which docs have no mention of *destination* having to be an EOA

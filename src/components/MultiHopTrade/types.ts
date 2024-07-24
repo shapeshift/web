@@ -30,3 +30,8 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'allowMultiHop'
   | 'slippageTolerancePercentageDecimal'
 >
+
+export enum TradeInputTab {
+  Trade = 'trade',
+  Claim = 'claim',
+}

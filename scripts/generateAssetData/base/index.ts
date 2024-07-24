@@ -1,12 +1,27 @@
 import { baseChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import uniqBy from 'lodash/uniqBy'
 
 import { base } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
+import { getPortalTokens } from '../utils/portals'
 
-export const getAssets = async () => {
-  const assets = await coingecko.getAssets(baseChainId)
-  return [...assets, base].map(asset => ({
+export const getAssets = async (): Promise<Asset[]> => {
+  const results = await Promise.allSettled([
+    coingecko.getAssets(baseChainId),
+    getPortalTokens(base),
+  ])
+
+  const [assets, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
+
+  const allAssets = uniqBy(assets.concat(portalsAssets).concat([base]), 'assetId')
+
+  return allAssets.map(asset => ({
     ...asset,
     icon:
       asset.icon ||

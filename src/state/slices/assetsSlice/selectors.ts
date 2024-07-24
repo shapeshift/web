@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
 import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -43,15 +44,16 @@ export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relat
 
 export const selectAssetsSortedByMarketCap = createDeepEqualOutputSelector(
   selectMarketDataIdsSortedByMarketCapUsd,
+  selectAssetIds,
   selectAssets,
-  (marketDataAssetIds, assets): Asset[] => {
-    const sortedAssets = marketDataAssetIds.reduce<Asset[]>((acc, assetId) => {
+  (marketDataAssetIds, assetIds, assets): Asset[] => {
+    const nonMarketDataAssetIds = difference(assetIds, marketDataAssetIds)
+
+    return marketDataAssetIds.concat(nonMarketDataAssetIds).reduce<Asset[]>((acc, assetId) => {
       const asset = assets[assetId]
       if (asset) acc.push(asset)
       return acc
     }, [])
-
-    return sortedAssets
   },
 )
 

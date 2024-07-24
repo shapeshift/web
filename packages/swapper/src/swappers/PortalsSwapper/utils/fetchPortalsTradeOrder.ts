@@ -1,13 +1,14 @@
 import axios from 'axios'
 
-// non-exhaustive, TODO(gomes): complete me
+// non-exhaustive
 type PortalsTradeOrderParams = {
   sender: string
   inputToken: string
   inputAmount: string
   outputToken: string
   slippageTolerancePercentage?: number
-  partner?: string
+  // Technically optional, but we always want to use an affiliate addy
+  partner: string
   feePercentage?: number
   validate?: boolean
 }
@@ -57,6 +58,7 @@ export const fetchPortalsTradeOrder = async ({
   const url = 'https://api.portals.fi/v2/portal'
 
   const params = new URLSearchParams({
+    partner,
     sender,
     inputToken,
     inputAmount,
@@ -68,10 +70,6 @@ export const fetchPortalsTradeOrder = async ({
 
   if (slippageTolerancePercentage !== undefined) {
     params.append('slippageTolerancePercentage', slippageTolerancePercentage.toString())
-  }
-
-  if (partner) {
-    params.append('partner', partner)
   }
 
   if (feePercentage) {

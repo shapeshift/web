@@ -12,7 +12,7 @@ import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, type LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -82,6 +82,10 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
         },
         assets,
       )
+
+      if (provider === DefiProvider.rFOX) {
+        return history.push('/rfox')
+      }
 
       history.push({
         pathname: location.pathname,

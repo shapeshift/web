@@ -31,6 +31,7 @@ const foxyToken: Asset = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
   explorerTxLink: ethereum.explorerTxLink,
+  relatedAssetKey: null,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {

@@ -23,7 +23,7 @@ export const sansNotchBottom =
   'polygon( 29.875% 95.781%,29.875% 95.781%,32.106% 96.7%,34.39% 97.513%,36.724% 98.218%,39.105% 98.81%,41.529% 99.287%,43.995% 99.646%,46.498% 99.882%,49.036% 99.994%,51.605% 99.977%,54.203% 99.828%,54.203% 99.828%,61.486% 98.674%,68.384% 96.495%,74.816% 93.377%,80.7% 89.403%,85.955% 84.66%,90.5% 79.232%,94.254% 73.203%,97.135% 66.658%,99.062% 59.682%,99.953% 52.359%,99.953% 52.359%,100.006% 49.623%,99.913% 46.921%,99.679% 44.257%,99.307% 41.634%,98.801% 39.057%,98.164% 36.528%,97.401% 34.053%,96.516% 31.635%,95.511% 29.277%,94.391% 26.984%,94.391% 26.984%,94.286% 26.814%,94.163% 26.66%,94.022% 26.523%,93.867% 26.405%,93.699% 26.307%,93.521% 26.23%,93.335% 26.175%,93.143% 26.143%,92.947% 26.137%,92.75% 26.156%,92.75% 26.156%,82.77% 28.407%,73.334% 31.927%,64.536% 36.619%,56.474% 42.387%,49.244% 49.135%,42.943% 56.766%,37.667% 65.185%,33.512% 74.295%,30.575% 84%,28.953% 94.203%,28.953% 94.203%,28.947% 94.403%,28.967% 94.6%,29.01% 94.791%,29.076% 94.973%,29.164% 95.146%,29.273% 95.308%,29.401% 95.456%,29.547% 95.588%,29.711% 95.702%,29.891% 95.797%,29.875% 95.781% );'
 
 type AssetIconProps = {
-  assetId?: string
+  assetId?: AssetId
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
 } & AvatarProps
@@ -48,6 +48,9 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
   const iconSrc = src ?? asset?.icon
+  // We should only show the identicon if the asset doesn't have an icon/icons
+  // Failure to check this means we would lose loading FOX icon functionality
+  const showFallback = !asset?.icon && !asset?.icons?.length
 
   return (
     <Center>
@@ -67,6 +70,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
         )}
         <Avatar
           src={iconSrc}
+          name={showFallback ? asset?.symbol : undefined}
           icon={icon}
           border={0}
           size={size}
@@ -93,7 +97,7 @@ export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: Asset
   }
 
   if (assetId) {
-    if (asset?.icons) {
+    if (asset?.icons?.length) {
       return (
         <Flex flexDirection='row' alignItems='center'>
           {asset.icons.map((iconSrc, i) => (

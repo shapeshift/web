@@ -37,7 +37,7 @@ export type ApprovalStepProps = {
   isActive: boolean
   isLastStep?: boolean
   isLoading?: boolean
-  isAllowanceResetStep?: boolean
+  isAllowanceResetStep: boolean
 }
 
 type ApprovalDescriptionProps = {
@@ -45,7 +45,7 @@ type ApprovalDescriptionProps = {
   isError: boolean
   txHash: string | undefined
   approvalNetworkFeeCryptoFormatted: string | undefined
-  isAllowanceResetStep: boolean | undefined
+  isAllowanceResetStep: boolean
 }
 
 const ApprovalDescription = ({
@@ -241,9 +241,7 @@ const ApprovalStepPending = ({
           {allowanceReset.state === TransactionExecutionState.Pending && (
             <CircularProgress isIndeterminate size={2} mr={2} />
           )}
-          {allowanceReset.state === TransactionExecutionState.Complete
-            ? translate('common.success')
-            : translate('common.reset')}
+          {translate('common.reset')}
         </Button>
         <Divider />
       </>
@@ -374,11 +372,11 @@ const ApprovalStepComplete = ({
     return (
       <ApprovalStatusIcon
         hopExecutionState={state}
-        approvalTxState={approval.state}
+        approvalTxState={isAllowanceResetStep ? allowanceReset.state : approval.state}
         isAllowanceResetStep={isAllowanceResetStep}
       />
     )
-  }, [approval.state, isAllowanceResetStep, state])
+  }, [allowanceReset.state, approval.state, isAllowanceResetStep, state])
 
   const description = useMemo(() => {
     return (
@@ -412,7 +410,7 @@ const ApprovalStepComplete = ({
   ])
 
   // This should never happen as this should be render for *complete* approvals - but it may
-  if (!approval.txHash) return null
+  if (!approval.txHash && !allowanceReset.txHash) return null
 
   return (
     <StepperStep
@@ -446,21 +444,30 @@ export const ApprovalStep = ({
 }: ApprovalStepProps) => {
   const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
-  // separate component for completed states to simplify hook dismount
-  if (state === HopExecutionState.AwaitingSwap || state === HopExecutionState.Complete) {
-    return (
-      <ApprovalStepComplete
-        tradeQuoteStep={tradeQuoteStep}
-        hopIndex={hopIndex}
-        isActive={isActive}
-        isLastStep={isLastStep}
-        isLoading={isLoading}
-        isAllowanceResetStep={isAllowanceResetStep}
-      />
-    )
-  }
+  const isComplete = useMemo(() => {
+    switch (isAllowanceResetStep) {
+      case true:
+        return [
+          HopExecutionState.AwaitingApproval,
+          HopExecutionState.AwaitingSwap,
+          HopExecutionState.Complete,
+        ].includes(state)
+      default:
+        return [HopExecutionState.AwaitingSwap, HopExecutionState.Complete].includes(state)
+    }
+  }, [isAllowanceResetStep, state])
 
-  return (
+  // separate component for completed states to simplify hook dismount
+  return isComplete ? (
+    <ApprovalStepComplete
+      tradeQuoteStep={tradeQuoteStep}
+      hopIndex={hopIndex}
+      isActive={isActive}
+      isLastStep={isLastStep}
+      isLoading={isLoading}
+      isAllowanceResetStep={isAllowanceResetStep}
+    />
+  ) : (
     <ApprovalStepPending
       tradeQuoteStep={tradeQuoteStep}
       hopIndex={hopIndex}

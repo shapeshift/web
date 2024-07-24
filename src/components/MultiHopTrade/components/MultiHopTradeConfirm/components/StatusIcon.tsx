@@ -48,7 +48,7 @@ export const ApprovalStatusIcon = ({
 }: {
   hopExecutionState: HopExecutionState
   approvalTxState: TransactionExecutionState
-  isAllowanceResetStep: boolean | undefined
+  isAllowanceResetStep: boolean
 }) => {
   const defaultIcon = useMemo(
     () => (isAllowanceResetStep ? <FaRotateRight /> : <FaThumbsUp />),
@@ -61,7 +61,7 @@ export const ApprovalStatusIcon = ({
       case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
         // override completed state to pending, isApprovalNeeded dictates this
-        if (approvalTxState === TransactionExecutionState.Complete) {
+        if (approvalTxState === TransactionExecutionState.Complete && !isAllowanceResetStep) {
           return TransactionExecutionState.Pending
         }
 
@@ -73,6 +73,6 @@ export const ApprovalStatusIcon = ({
       default:
         assertUnreachable(hopExecutionState)
     }
-  }, [hopExecutionState, approvalTxState])
+  }, [hopExecutionState, approvalTxState, isAllowanceResetStep])
   return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />
 }

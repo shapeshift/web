@@ -47,6 +47,8 @@ type ApprovalDescriptionProps = {
   txHash: string | undefined
   approvalNetworkFeeCryptoFormatted: string | undefined
   isAllowanceResetStep: boolean
+  isAwaitingReset?: boolean
+  isLoadingNetworkFee?: boolean
 }
 
 const ApprovalDescription = ({
@@ -55,6 +57,8 @@ const ApprovalDescription = ({
   txHash,
   approvalNetworkFeeCryptoFormatted,
   isAllowanceResetStep,
+  isAwaitingReset = false,
+  isLoadingNetworkFee = false,
 }: ApprovalDescriptionProps) => {
   const translate = useTranslate()
   const errorMsg = isError ? (
@@ -65,13 +69,21 @@ const ApprovalDescription = ({
     />
   ) : null
 
+  if (isAwaitingReset) return null
+
   if (!txHash) {
     return (
       <>
         {errorMsg}
-        {translate(isAllowanceResetStep ? 'trade.approvalResetGasFee' : 'trade.approvalGasFee', {
-          fee: approvalNetworkFeeCryptoFormatted ?? '',
-        })}
+        {isLoadingNetworkFee
+          ? translate(
+              isAllowanceResetStep
+                ? 'trade.approvalResetGasFeeLoading'
+                : 'trade.approvalGasFeeLoading',
+            )
+          : translate(isAllowanceResetStep ? 'trade.approvalResetGasFee' : 'trade.approvalGasFee', {
+              fee: approvalNetworkFeeCryptoFormatted ?? '',
+            })}
       </>
     )
   }
@@ -117,6 +129,8 @@ const ApprovalStepPending = ({
     return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
   }, [isAllowanceResetStep, isExactAllowance])
 
+  // TODO: don't compute if isAwaitingReset is true, as the network fee will not be accurate - more gas is used to go from 0 -> 1 than 1 -> 2
+  // This will re-compute the network fee when the allowance is reset to 0
   const {
     executeAllowanceApproval,
     approvalNetworkFeeCryptoBaseUnit,
@@ -172,13 +186,17 @@ const ApprovalStepPending = ({
         txHash={undefined}
         approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted}
         isAllowanceResetStep={isAllowanceResetStep}
+        isAwaitingReset={isAwaitingReset}
+        isLoadingNetworkFee={isAllowanceApprovalLoading}
       />
     )
   }, [
     allowanceReset.state,
     approval.state,
     approvalNetworkFeeCryptoFormatted,
+    isAllowanceApprovalLoading,
     isAllowanceResetStep,
+    isAwaitingReset,
     tradeQuoteStep,
   ])
 

@@ -48,7 +48,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const showNetwork = feeAsset?.networkIcon || asset?.assetId !== feeAsset?.assetId
   const iconSrc = src ?? asset?.icon
-  // We should only show the identicon if the asset doesn't have an icon/icons
+  // We should only show the fallback if the asset doesn't have an icon/icons
   // Failure to check this means we would lose loading FOX icon functionality
   const showFallback = !asset?.icon && !asset?.icons?.length
 

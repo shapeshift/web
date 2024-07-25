@@ -64,7 +64,6 @@ type TransactionRowProps = {
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
-  isWithdraw?: boolean
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -75,7 +74,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   onStart,
   isActive,
   confirmedQuote,
-  isWithdraw,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -87,15 +85,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
-  const { opportunityType, actionSide } = fromQuote(confirmedQuote)
+  const { opportunityType, action, actionSide } = fromQuote(confirmedQuote)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const isSymAssetWithdraw =
-    isLpConfirmedWithdrawalQuote(confirmedQuote) &&
-    actionSide === AsymSide.Asset &&
-    isWithdraw &&
-    opportunityType === 'sym'
+    action === 'withdraw' && actionSide === AsymSide.Asset && opportunityType === 'sym'
 
   const isRuneTx = useMemo(
     () => assetId === thorchainAssetId || isSymAssetWithdraw,

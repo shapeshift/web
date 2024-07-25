@@ -1,9 +1,10 @@
 import type { RadioProps } from '@chakra-ui/react'
-import { Box, Flex, HStack, useRadio, useRadioGroup } from '@chakra-ui/react'
+import { Box, Flex, HStack, Tooltip, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { BiSolidBoltCircle } from 'react-icons/bi'
+import { useTranslate } from 'react-polyglot'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
 import { assertUnreachable } from 'lib/utils'
@@ -81,13 +82,30 @@ const options = [
   },
 ]
 
-type DepositTypeProps = {
+type LpTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
-  opportunityId?: string
-}
+  opportunityId: string
+} & (
+  | {
+      isWithdraw: boolean
+      isDeposit?: never
+    }
+  | {
+      isWithdraw?: never
+      isDeposit?: boolean
+    }
+)
 
-export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositTypeProps) => {
+export const LpType = ({
+  assetId,
+  opportunityId,
+  isWithdraw,
+  isDeposit,
+  onAsymSideChange,
+}: LpTypeProps) => {
+  const translate = useTranslate()
+
   const makeAssetIdsOption = useCallback(
     (value: AsymSide | 'sym'): AssetId[] => {
       switch (value) {
@@ -104,15 +122,21 @@ export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositType
     [assetId],
   )
 
+  const { opportunityType } = fromOpportunityId(opportunityId)
+
+  const isRunePositionType = useMemo(() => opportunityType === AsymSide.Rune, [opportunityType])
+  const isAssetPositionType = useMemo(() => opportunityType === AsymSide.Asset, [opportunityType])
+  const isSymPositionType = useMemo(() => opportunityType === 'sym', [opportunityType])
+
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: opportunityId ? fromOpportunityId(opportunityId).type : 'sym',
+    defaultValue: opportunityType,
     onChange: onAsymSideChange,
   })
 
   useEffect(() => {
     if (!opportunityId) return
-    setValue(fromOpportunityId(opportunityId).type)
+    setValue(fromOpportunityId(opportunityId).opportunityType)
   }, [opportunityId, setValue])
 
   const radioOptions = useMemo(() => {
@@ -120,21 +144,47 @@ export const LpType = ({ assetId, opportunityId, onAsymSideChange }: DepositType
       const radio = getRadioProps({ value: option.value })
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
 
+      const isDisabled = (() => {
+        if (!isWithdraw) return false
+
+        if (isSymPositionType) return false
+        if (isRunePositionType) return option.value !== AsymSide.Rune
+        if (isAssetPositionType) return option.value !== AsymSide.Asset
+
+        return false
+      })()
+
       return (
-        <TypeRadio key={`type-${index}`} {...radio}>
-          <PoolIcon assetIds={optionAssetIds} size='xs' />
-          <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
-            <TypeLabel assetIds={optionAssetIds} />
-            {optionAssetIds.length === 1 && (
-              <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
-                <BiSolidBoltCircle />
-              </Box>
-            )}
-          </Flex>
+        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
+          <Tooltip
+            isDisabled={!isDisabled || isDeposit}
+            label={translate('pools.withdrawTypeNotAvailable')}
+          >
+            <Box>
+              <PoolIcon assetIds={optionAssetIds} size='xs' />
+              <Flex mt={4} fontSize='sm' justifyContent='space-between' alignItems='center'>
+                <TypeLabel assetIds={optionAssetIds} />
+                {optionAssetIds.length === 1 && (
+                  <Box as='span' color='text.subtlest' fontSize='md' className='asym-icon'>
+                    <BiSolidBoltCircle />
+                  </Box>
+                )}
+              </Flex>
+            </Box>
+          </Tooltip>
         </TypeRadio>
       )
     })
-  }, [getRadioProps, makeAssetIdsOption])
+  }, [
+    getRadioProps,
+    makeAssetIdsOption,
+    translate,
+    isWithdraw,
+    isSymPositionType,
+    isRunePositionType,
+    isAssetPositionType,
+    isDeposit,
+  ])
 
   const group = getRootProps()
   return (

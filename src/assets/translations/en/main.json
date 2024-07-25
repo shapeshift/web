@@ -918,7 +918,11 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Approval gas fee loading...",
+    "approvalResetGasFee": "Approval reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
+    "approvalResetFailed": "A problem occurred during allowance reset",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
@@ -940,6 +944,7 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "resetTitle": "Token allowance reset",
     "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",

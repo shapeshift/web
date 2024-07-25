@@ -37,6 +37,16 @@ export enum TradeExecutionState {
   TradeComplete = 'Complete',
 }
 
+export enum HopKey {
+  FirstHop = 'firstHop',
+  SecondHop = 'secondHop',
+}
+
+export enum AllowanceKey {
+  AllowanceReset = 'allowanceReset',
+  Approval = 'approval',
+}
+
 export type StreamingSwapFailedSwap = {
   reason: string
   swapIndex: number

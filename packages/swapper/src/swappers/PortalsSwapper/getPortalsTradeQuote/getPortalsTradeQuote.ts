@@ -2,8 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
@@ -106,6 +106,7 @@ export async function getPortalsTradeQuote(
     const inputToken = `${portalsNetwork}:${sellAssetAddress}`
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
+    // Attempt fetching a quote with validation enabled to leverage upstream gasLimit estimate
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
       sender: sendAddress,
       inputToken,
@@ -114,18 +115,32 @@ export async function getPortalsTradeQuote(
       slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
+      validate: true,
+    }).catch(e => {
+      console.info('failed to get Portals quote with validation enabled', e)
+
+      // If validation fails, try again without validation, we won't get network fees, but we can't do any better
+      return fetchPortalsTradeOrder({
+        sender: sendAddress,
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+        partner: getTreasuryAddressFromChainId(sellAsset.chainId),
+        feePercentage: affiliateBpsPercentage,
+        validate: false,
+      })
     })
 
     const {
-      tx,
       context: {
         orderId,
         outputAmount: buyAmountAfterFeesCryptoBaseUnit,
         minOutputAmount: buyAmountBeforeFeesCryptoBaseUnit,
         slippageTolerancePercentage,
         target: allowanceContract,
-        // TODO(gomes): if we go with gasless transactions, consume me - this is the `feeAmount` in token for token sells, not in native asset
-        // feeAmount,
+        feeAmount,
+        gasLimit,
       },
     } = portalsTradeOrderResponse
 
@@ -134,27 +149,15 @@ export async function getPortalsTradeQuote(
       .toString()
 
     const adapter = assertGetEvmChainAdapter(chainId)
+    const { average } = await adapter.getGasFeeData()
 
-    const feeAssetId = adapter.getFeeAssetId()
-
-    const networkFeeCryptoBaseUnit = await getFees({
-      adapter,
-      data: tx.data,
-      to: tx.to,
-      value: tx.value,
-      from: tx.from,
+    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+      ...average,
       supportsEIP1559,
+      // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a
+      // buffer of ~15% to the gas limit
+      gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
-      .then(({ networkFeeCryptoBaseUnit }) => networkFeeCryptoBaseUnit)
-      // TODO(gomes): Portals aren't able to do a rough fees estimation yet like other swappers, so we 0 out fees if they fail (i.e approval required and can't simulate Tx)
-      // The only fees they give us are the ones in token in case of a gasless Tx a la CoW
-      // Solutions would be to either:
-      // - Wait for Portals to implement a rough fees estimation for good ol' Txs
-      // - Go gasless, and repeat the CoW signatures madness, which is probably the best solution, but much less of an easy feat
-      .catch(e => {
-        console.log('Error getting fees for Portals', e)
-        return '0'
-      })
 
     const tradeQuote: TradeQuote = {
       id: orderId,
@@ -176,12 +179,12 @@ export async function getPortalsTradeQuote(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit,
-            // TODO(gomes): if we go with gasless transactions, the protocolFees will always be paid in the sell asset
+            // Protocol fees are always denominated in buy asset here, this is the downside on the swap
             protocolFees: {
-              [feeAssetId]: {
-                amountCryptoBaseUnit: networkFeeCryptoBaseUnit,
-                asset: input.sellAsset,
-                requiresBalance: true,
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: feeAmount,
+                asset: buyAsset,
+                requiresBalance: false,
               },
             },
           },

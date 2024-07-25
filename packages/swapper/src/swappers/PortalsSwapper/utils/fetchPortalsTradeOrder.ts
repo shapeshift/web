@@ -10,7 +10,8 @@ type PortalsTradeOrderParams = {
   // Technically optional, but we always want to use an affiliate addy
   partner: string
   feePercentage?: number
-  validate?: boolean
+  // Technically optional, but we want to explicitly specify validate
+  validate: boolean
 }
 
 type PortalsTradeOrderResponse = {
@@ -54,6 +55,7 @@ export const fetchPortalsTradeOrder = async ({
   slippageTolerancePercentage,
   partner,
   feePercentage,
+  validate,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
   const url = 'https://api.portals.fi/v2/portal'
 
@@ -63,9 +65,7 @@ export const fetchPortalsTradeOrder = async ({
     inputToken,
     inputAmount,
     outputToken,
-    // This is correct - we don't really care about Portals doing validation, as we do it in the app
-    // This allows us to get a quote, even if non-actionable
-    validate: 'false',
+    validate: validate.toString(),
   })
 
   if (slippageTolerancePercentage !== undefined) {

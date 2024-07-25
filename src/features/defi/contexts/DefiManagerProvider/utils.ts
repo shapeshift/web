@@ -12,6 +12,9 @@ export const DefiProviderToDefiModuleResolverByDeFiType = {
   [`${DefiProvider.EthFoxStaking}`]: {
     [`${DefiType.Staking}`]: FoxFarmingManager,
   },
+  [`${DefiProvider.rFOX}`]: {
+    [`${DefiType.Staking}`]: FoxFarmingManager,
+  },
   [DefiProvider.ThorchainSavers]: {
     [`${DefiType.Staking}`]: ThorchainSaversManager,
   },

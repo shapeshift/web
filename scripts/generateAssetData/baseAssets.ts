@@ -15,6 +15,7 @@ export const ethereum: AssetWithNetworkName = {
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
 }
 
 export const bitcoin: AssetWithNetworkName = {
@@ -29,6 +30,7 @@ export const bitcoin: AssetWithNetworkName = {
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+  relatedAssetKey: null,
 }
 
 export const bitcoincash: AssetWithNetworkName = {
@@ -43,6 +45,7 @@ export const bitcoincash: AssetWithNetworkName = {
   explorer: 'https://blockchair.com',
   explorerAddressLink: 'https://blockchair.com/bitcoin-cash/address/',
   explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/',
+  relatedAssetKey: null,
 }
 
 export const dogecoin: AssetWithNetworkName = {
@@ -57,6 +60,7 @@ export const dogecoin: AssetWithNetworkName = {
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/doge/address/',
   explorerTxLink: 'https://live.blockcypher.com/doge/tx/',
+  relatedAssetKey: null,
 }
 
 export const litecoin: AssetWithNetworkName = {
@@ -71,6 +75,7 @@ export const litecoin: AssetWithNetworkName = {
   explorer: 'https://live.blockcypher.com',
   explorerAddressLink: 'https://live.blockcypher.com/ltc/address/',
   explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
+  relatedAssetKey: null,
 }
 
 export const atom: AssetWithNetworkName = {
@@ -85,6 +90,7 @@ export const atom: AssetWithNetworkName = {
   explorer: 'https://www.mintscan.io/cosmos',
   explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
+  relatedAssetKey: null,
 }
 
 export const avax: AssetWithNetworkName = {
@@ -99,6 +105,7 @@ export const avax: AssetWithNetworkName = {
   explorer: 'https://snowtrace.dev',
   explorerAddressLink: 'https://snowtrace.dev/address/',
   explorerTxLink: 'https://snowtrace.dev/tx/',
+  relatedAssetKey: null,
 }
 
 export const thorchain: AssetWithNetworkName = {
@@ -113,6 +120,7 @@ export const thorchain: AssetWithNetworkName = {
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
 }
 
 export const optimism: AssetWithNetworkName = {
@@ -129,6 +137,7 @@ export const optimism: AssetWithNetworkName = {
   explorer: 'https://optimistic.etherscan.io',
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
 }
 
 export const bnbsmartchain: AssetWithNetworkName = {
@@ -143,6 +152,7 @@ export const bnbsmartchain: AssetWithNetworkName = {
   explorer: 'https://bscscan.com',
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const polygon: AssetWithNetworkName = {
@@ -157,6 +167,7 @@ export const polygon: AssetWithNetworkName = {
   explorer: 'https://polygonscan.com/',
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const gnosis: AssetWithNetworkName = {
@@ -173,6 +184,7 @@ export const gnosis: AssetWithNetworkName = {
   explorer: 'https://gnosis.blockscout.com/',
   explorerAddressLink: 'https://gnosis.blockscout.com/address/',
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const arbitrum: AssetWithNetworkName = {
@@ -190,6 +202,7 @@ export const arbitrum: AssetWithNetworkName = {
   explorer: 'https://arbiscan.io',
   explorerAddressLink: 'https://arbiscan.io/address/',
   explorerTxLink: 'https://arbiscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
 }
 
 export const arbitrumNova: AssetWithNetworkName = {
@@ -207,6 +220,7 @@ export const arbitrumNova: AssetWithNetworkName = {
   explorer: 'https://nova.arbiscan.io',
   explorerAddressLink: 'https://nova.arbiscan.io/address/',
   explorerTxLink: 'https://nova.arbiscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
 }
 
 export const base: AssetWithNetworkName = {
@@ -224,4 +238,5 @@ export const base: AssetWithNetworkName = {
   explorer: 'https://basescan.org',
   explorerAddressLink: 'https://basescan.org/address/',
   explorerTxLink: 'https://basescan.org/tx/',
+  relatedAssetKey: null,
 }

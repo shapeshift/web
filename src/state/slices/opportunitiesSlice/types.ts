@@ -20,6 +20,7 @@ export enum DefiType {
 
 export enum DefiProvider {
   ShapeShift = 'ShapeShift',
+  rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
@@ -40,7 +41,7 @@ export type AssetIdsTuple =
   | readonly []
 
 export type OpportunityMetadataBase = {
-  apy: string
+  apy: string | undefined
   assetId: AssetId
   id: OpportunityId
   provider: string
@@ -184,7 +185,7 @@ type EarnDefiTypeBase = {
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy: number | string
+  apy: number | string | undefined
   tvl: string
   underlyingAssetId: AssetId
   assetId: AssetId
@@ -232,7 +233,7 @@ export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunity
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
   underlyingAssetIds: AssetIdsTuple
-  apy: string
+  apy: string | undefined
   fiatAmount: string
   cryptoBalancePrecision: string
   fiatRewardsAmount: string
@@ -241,7 +242,7 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
 
 export type AggregatedOpportunitiesByProviderReturn = {
   provider: string
-  apy: string
+  apy: string | undefined
   fiatAmount: string
   fiatRewardsAmount: string
   netProviderFiatAmount: string

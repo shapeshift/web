@@ -10,6 +10,7 @@ import * as coingecko from '../coingecko'
 import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
 import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
+// import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 // Yearn SDK is currently rugged upstream
@@ -30,17 +31,26 @@ const foxyToken: Asset = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
   explorerTxLink: ethereum.explorerTxLink,
+  relatedAssetKey: null,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const [ethTokens, uniV2PoolTokens, idleTokens] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
     getUniswapV2Pools(),
     getIdleTokens(),
+    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
+    [], // getPortalTokens(ethereum),
   ])
+
+  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
 
   const ethAssets = [
     ...idleTokens,
@@ -50,7 +60,9 @@ export const getAssets = async (): Promise<Asset[]> => {
     // ...zapperTokens,
     // ...underlyingTokens,
     ...uniV2PoolTokens,
+    ...portalsAssets,
   ]
+
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy
   const assetBatches = chunk(uniqueAssets, batchSize)

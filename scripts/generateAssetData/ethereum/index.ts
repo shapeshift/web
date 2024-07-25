@@ -8,7 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-import { getPortalTokens } from '../utils/portals'
+// import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 // Yearn SDK is currently rugged upstream
@@ -40,7 +40,8 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getUnderlyingVaultTokens(),
     getUniswapV2Pools(),
     getIdleTokens(),
-    getPortalTokens(ethereum),
+    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
+    [], // getPortalTokens(ethereum),
   ])
 
   const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {

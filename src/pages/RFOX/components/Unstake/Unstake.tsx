@@ -1,4 +1,4 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
@@ -10,6 +10,10 @@ import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstaki
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { useAppDispatch } from 'state/store'
 
 import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
 import { UnstakeRoutePaths } from './types'
@@ -58,6 +62,8 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   const location = useLocation()
   const queryClient = useQueryClient()
 
+  const dispatch = useAppDispatch()
+
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxUnstakingQuote | undefined>()
   const [unstakeTxid, setUnstakeTxid] = useState<string | undefined>()
 
@@ -89,12 +95,36 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
+
+    if (!confirmedQuote) return
+
+    const { getOpportunityUserData } = opportunitiesApi.endpoints
+
+    dispatch(
+      getOpportunityUserData.initiate(
+        [
+          {
+            opportunityId: toOpportunityId({
+              assetNamespace: fromAssetId(confirmedQuote.stakingAssetId).assetNamespace,
+              chainId: arbitrumChainId,
+              assetReference: fromAssetId(confirmedQuote.stakingAssetId).assetReference,
+            }),
+            accountId: confirmedQuote.stakingAssetAccountId,
+            defiProvider: DefiProvider.rFOX,
+            defiType: DefiType.Staking,
+          },
+        ],
+        { forceRefetch: true },
+      ),
+    )
   }, [
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
     unstakingRequestCountQueryKey,
     unstakingRequestQueryKey,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
+    confirmedQuote,
+    dispatch,
   ])
 
   const renderUnstakeInput = useCallback(() => {

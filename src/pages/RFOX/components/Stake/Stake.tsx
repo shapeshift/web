@@ -1,4 +1,9 @@
-import { foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
@@ -6,6 +11,10 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import { useAppDispatch } from 'state/store'
 
 import { BridgeRoutePaths, type RfoxBridgeQuote } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
@@ -69,6 +78,8 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation<RfoxBridgeQuote | undefined>()
   const { state: maybeBridgeQuote } = location
 
+  const dispatch = useAppDispatch()
+
   const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
@@ -87,13 +98,38 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
       : undefined,
     stakingAssetId,
   })
+
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+
+    if (!confirmedQuote) return
+
+    const { getOpportunityUserData } = opportunitiesApi.endpoints
+
+    dispatch(
+      getOpportunityUserData.initiate(
+        [
+          {
+            opportunityId: toOpportunityId({
+              assetNamespace: fromAssetId(stakingAssetId).assetNamespace,
+              chainId: arbitrumChainId,
+              assetReference: fromAssetId(stakingAssetId).assetReference,
+            }),
+            accountId: confirmedQuote.stakingAssetAccountId,
+            defiProvider: DefiProvider.rFOX,
+            defiType: DefiType.Staking,
+          },
+        ],
+        { forceRefetch: true },
+      ),
+    )
   }, [
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
+    confirmedQuote,
+    dispatch,
   ])
 
   const renderStakeInput = useCallback(() => {

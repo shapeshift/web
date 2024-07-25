@@ -8,6 +8,8 @@ import { NavLink } from 'react-router-dom'
 import { Carousel } from 'components/Carousel/Carousel'
 import type { CarouselHeaderProps } from 'components/Carousel/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { isSome } from 'lib/utils'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,7 +43,11 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
     // opportunities with 1% APY or more
     const filteredEligibleOpportunities = eligibleOpportunities
       .filter(o => bnOrZero(o.tvl).gt(50000) && bnOrZero(o.apy).gte(0.01))
-      .sort((a, b) => bn(b.apy).minus(a.apy).toNumber())
+      .sort((a, b) =>
+        bn(b.apy ?? '0')
+          .minus(a.apy ?? '0')
+          .toNumber(),
+      )
       .slice(0, 5)
 
     const foxFarmingV9 = eligibleOpportunities.find(
@@ -49,18 +55,27 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
         eligibleOpportunity.contractAddress === ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
     )
 
-    if (!foxFarmingV9) {
+    const rfoxOpportunity = eligibleOpportunities.find(
+      eligibleOpportunity => eligibleOpportunity.provider === DefiProvider.rFOX,
+    )
+
+    if (!foxFarmingV9 && !rfoxOpportunity) {
       return filteredEligibleOpportunities
     }
 
-    // TEMP: Hardcode the Fox Farming V9 opportunity to be the first card until enough TVL is in the pool
     const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
-      [filteredEligibleOpportunities[0], foxFarmingV9, ...filteredEligibleOpportunities.slice(1)],
+      [
+        rfoxOpportunity,
+        filteredEligibleOpportunities[0],
+        foxFarmingV9,
+        ...filteredEligibleOpportunities.slice(1),
+      ].filter(isSome),
       'contractAddress',
     ).slice(0, 5)
 
     return filteredEligibleOpportunitiesWithFoxFarmingV9
   }, [eligibleOpportunities])
+
   const renderEligibleCards = useMemo(() => {
     return filteredEligibleOpportunities.map(opportunity => (
       <FeaturedCard key={opportunity.assetId} {...opportunity} />

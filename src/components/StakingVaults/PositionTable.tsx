@@ -143,13 +143,18 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         Header: translate('defi.apy'),
         accessor: 'apy',
         textAlign: 'right',
-        Cell: ({ row }: { row: RowProps }) => (
-          <Flex justifyContent={cellFlexJustifyContent}>
-            <Tag colorScheme='green' size={cellTagSize}>
-              <Amount.Percent value={row.original.apy} />
-            </Tag>
-          </Flex>
-        ),
+        Cell: ({ row }: { row: RowProps }) =>
+          row.original.apy !== undefined ? (
+            <Flex justifyContent={cellFlexJustifyContent}>
+              <Tag colorScheme='green' size={cellTagSize}>
+                <Amount.Percent value={row.original.apy} />
+              </Tag>
+            </Flex>
+          ) : (
+            <Flex justifyContent={cellFlexJustifyContent}>
+              <RawText variant='sub-text'>-</RawText>
+            </Flex>
+          ),
       },
       {
         Header: () => null,

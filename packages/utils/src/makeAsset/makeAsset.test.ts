@@ -17,6 +17,7 @@ const ETH: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 describe('makeAsset', () => {

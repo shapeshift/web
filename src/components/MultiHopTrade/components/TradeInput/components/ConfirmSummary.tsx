@@ -230,12 +230,10 @@ export const ConfirmSummary = ({
     }, [activeQuote, buyAssetFeeAsset])
 
   const shouldForceManualAddressEntry = useMemo(() => {
-    return (
-      !disableSmartContractSwap &&
-      Boolean(_isSmartContractSellAddress) &&
-      sellAsset?.chainId !== buyAsset.chainId
-    )
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset, disableSmartContractSwap])
+    if (_isSmartContractSellAddress === undefined) return
+
+    return _isSmartContractSellAddress && sellAsset.chainId !== buyAsset.chainId
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
 
   return (
     <>
@@ -290,11 +288,12 @@ export const ConfirmSummary = ({
           </Alert>
         )}
         <WithLazyMount
-          shouldUse={Boolean(receiveAddress) && !shouldForceManualAddressEntry}
+          shouldUse={Boolean(receiveAddress) && shouldForceManualAddressEntry === false}
+          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={RecipientAddress}
         />
         <WithLazyMount
-          shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry}
+          shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry === true}
           shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={ManualAddressEntry}
           description={

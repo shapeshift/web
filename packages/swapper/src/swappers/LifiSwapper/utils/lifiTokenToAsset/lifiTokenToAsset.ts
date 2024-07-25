@@ -26,5 +26,6 @@ export const lifiTokenToAsset = (
     explorer: '',
     explorerTxLink: '',
     explorerAddressLink: '',
+    relatedAssetKey: null,
   }
 }

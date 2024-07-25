@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertIsKnownChainId } from 'lib/utils'
 import type { AppDispatch } from 'state/store'
 
-import { foxEthStakingIds } from '../opportunitiesSlice/constants'
+import { foxEthStakingIds, rFOXStakingIds } from '../opportunitiesSlice/constants'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
 import { opportunitiesApi } from './opportunitiesApiSlice'
 import { DefiProvider, DefiType } from './types'
@@ -49,6 +49,14 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
     }
   })
 
+  const rFOXStakingQueries = rFOXStakingIds.map(opportunityId => {
+    return {
+      opportunityId,
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.rFOX,
+    }
+  })
+
   await Promise.allSettled([
     dispatch(
       getOpportunitiesMetadata.initiate(
@@ -59,6 +67,9 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
     ),
     dispatch(
       getOpportunityMetadata.initiate(ethFoxStakingQueries, { forceRefetch: true, ...options }),
+    ),
+    dispatch(
+      getOpportunityMetadata.initiate(rFOXStakingQueries, { forceRefetch: true, ...options }),
     ),
   ])
 }
@@ -109,12 +120,22 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
         accountId,
       }
     })
+
   const ethFoxStakingQueries = foxEthStakingIds.map(opportunityId => {
     return {
       accountId,
       opportunityId,
       defiType: DefiType.Staking,
       defiProvider: DefiProvider.EthFoxStaking,
+    }
+  })
+
+  const rFoxStakingQueries = rFOXStakingIds.map(opportunityId => {
+    return {
+      accountId,
+      opportunityId,
+      defiType: DefiType.Staking,
+      defiProvider: DefiProvider.rFOX,
     }
   })
 
@@ -129,6 +150,13 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
     dispatch(
       getOpportunityUserData.initiate(
         ethFoxStakingQueries,
+        // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
+        { forceRefetch: false, ...options },
+      ),
+    ),
+    dispatch(
+      getOpportunityUserData.initiate(
+        rFoxStakingQueries,
         // Any previous query without portfolio loaded will be rejected, the first successful one will be cached
         { forceRefetch: false, ...options },
       ),

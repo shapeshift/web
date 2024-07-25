@@ -16,6 +16,7 @@ const assets: Asset[] = [
     explorer: 'https://etherscan.io',
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
+    relatedAssetKey: null,
   },
   {
     chainId: 'eip155:1',
@@ -28,6 +29,7 @@ const assets: Asset[] = [
     explorer: 'https://live.blockcypher.com',
     explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
     explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
+    relatedAssetKey: null,
   },
   {
     chainId: 'eip155:1',
@@ -40,6 +42,7 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
     symbol: 'AAMMDAI',
+    relatedAssetKey: null,
   },
   {
     chainId: 'eip155:1',
@@ -52,6 +55,7 @@ const assets: Asset[] = [
     explorerTxLink: 'https://etherscan.io/tx/',
     explorerAddressLink: 'https://etherscan.io/address/',
     symbol: 'DAI',
+    relatedAssetKey: null,
   },
 ]
 

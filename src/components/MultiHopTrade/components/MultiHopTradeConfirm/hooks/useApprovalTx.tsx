@@ -10,12 +10,13 @@ import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { APPROVAL_POLL_INTERVAL_MILLISECONDS } from '../../../hooks/constants'
+import type { AllowanceType } from './helpers'
 import { getApprovalTxData } from './helpers'
 
 export const useApprovalTx = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
-  isExactAllowance: boolean,
+  allowanceType: AllowanceType,
 ) => {
   const [approvalNetworkFeeCryptoBaseUnit, setApprovalNetworkFeeCryptoBaseUnit] = useState<
     string | undefined
@@ -28,6 +29,8 @@ export const useApprovalTx = (
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
   useEffect(() => {
+    setIsLoading(true)
+
     poll({
       fn: async () => {
         const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
@@ -44,7 +47,7 @@ export const useApprovalTx = (
           tradeQuoteStep,
           adapter,
           wallet,
-          isExactAllowance,
+          allowanceType,
           from,
           supportsEIP1559,
         })
@@ -57,7 +60,7 @@ export const useApprovalTx = (
       interval: APPROVAL_POLL_INTERVAL_MILLISECONDS,
       maxAttempts: Infinity,
     })
-  }, [sellAssetAccountId, isExactAllowance, poll, tradeQuoteStep, wallet])
+  }, [sellAssetAccountId, allowanceType, poll, tradeQuoteStep, wallet])
 
   const result = useMemo(
     () => ({

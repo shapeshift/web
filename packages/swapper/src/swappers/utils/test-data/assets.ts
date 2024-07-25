@@ -29,6 +29,7 @@ export const BTC: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
   symbol: 'BTC',
+  relatedAssetKey: null,
 }
 
 export const WETH: Asset = {
@@ -42,6 +43,7 @@ export const WETH: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'WETH',
+  relatedAssetKey: null,
 }
 
 export const FOX_MAINNET: Asset = {
@@ -55,6 +57,7 @@ export const FOX_MAINNET: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'FOX',
+  relatedAssetKey: null,
 }
 
 export const FOX_GNOSIS: Asset = {
@@ -68,6 +71,7 @@ export const FOX_GNOSIS: Asset = {
   explorerAddressLink: 'https://gnosis.blockscout.com/address/',
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
   symbol: 'FOX',
+  relatedAssetKey: null,
 }
 
 export const FOX_ARBITRUM: Asset = {
@@ -81,6 +85,7 @@ export const FOX_ARBITRUM: Asset = {
   name: 'Fox on Arbitrum One',
   precision: 18,
   symbol: 'FOX',
+  relatedAssetKey: null,
 }
 
 export const WBTC: Asset = {
@@ -94,6 +99,7 @@ export const WBTC: Asset = {
   name: 'Wrapped Bitcoin',
   precision: 8,
   symbol: 'WBTC',
+  relatedAssetKey: null,
 }
 
 export const ETH: Asset = {
@@ -107,6 +113,7 @@ export const ETH: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const UNSUPPORTED: Asset = {
@@ -120,6 +127,7 @@ export const UNSUPPORTED: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const USDC_MAINNET: Asset = {
@@ -133,6 +141,7 @@ export const USDC_MAINNET: Asset = {
   explorer: 'https://etherscan.io',
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
+  relatedAssetKey: null,
 }
 
 export const USDC_GNOSIS: Asset = {
@@ -146,6 +155,7 @@ export const USDC_GNOSIS: Asset = {
   explorer: 'https://gnosis.blockscout.com/',
   explorerAddressLink: 'https://gnosis.blockscout.com/address/',
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const ETH_ARBITRUM: Asset = {
@@ -163,6 +173,7 @@ export const ETH_ARBITRUM: Asset = {
   explorer: 'https://arbiscan.io',
   explorerAddressLink: 'https://arbiscan.io/address/',
   explorerTxLink: 'https://arbiscan.io/tx/',
+  relatedAssetKey: null,
 }
 
 export const USDC_ARBITRUM: Asset = {
@@ -176,6 +187,7 @@ export const USDC_ARBITRUM: Asset = {
   explorer: 'https://arbiscan.io',
   explorerAddressLink: 'https://arbiscan.io/address/',
   explorerTxLink: 'https://arbiscan.io/tx/',
+  relatedAssetKey: null,
 }
 
 export const AVAX: Asset = {
@@ -189,6 +201,7 @@ export const AVAX: Asset = {
   explorer: 'https://snowtrace.dev',
   explorerAddressLink: 'https://snowtrace.dev/address/',
   explorerTxLink: 'https://snowtrace.dev/tx/',
+  relatedAssetKey: null,
 }
 
 export const OPTIMISM: Asset = {
@@ -205,6 +218,7 @@ export const OPTIMISM: Asset = {
   explorer: 'https://optimistic.etherscan.io',
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
+  relatedAssetKey: null,
 }
 
 export const BSC: Asset = {
@@ -219,6 +233,7 @@ export const BSC: Asset = {
   explorer: 'https://bscscan.com',
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const XDAI: Asset = {
@@ -235,6 +250,7 @@ export const XDAI: Asset = {
   explorer: 'https://gnosis.blockscout.com/',
   explorerAddressLink: 'https://gnosis.blockscout.com/address/',
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
+  relatedAssetKey: null,
 }
 
 export const RUNE: Asset = {
@@ -248,6 +264,7 @@ export const RUNE: Asset = {
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
 }
 
 export const ZERO: Asset = {
@@ -261,4 +278,5 @@ export const ZERO: Asset = {
   name: '0 exchange',
   precision: 18,
   symbol: 'ZERO',
+  relatedAssetKey: null,
 }

@@ -76,7 +76,6 @@
     "transactionFailedBody": "İşlem Başarısız",
     "submitFeedback": "Geri Bildirim Gönder",
     "send": "Gönder",
-    "sendAmountAsset": "%{amount} %{asset} gönder",
     "receive": "Al",
     "privacy": "Gizlilik Politikası",
     "terms": "Kullanım Şartları",
@@ -106,9 +105,11 @@
     "switchNetwork": "Ağ Değiştir",
     "selectNetwork": "Bir ağ seçin",
     "unsupportedNetwork": "Desteklenmeyen Ağ",
+    "unsupportedWallet": "Desteklenmeyen Cüzdan",
     "chartUnavailable": "%{unavailableAssetNames} için bakiye tablosu verileri geçici olarak kullanılamıyor.",
     "search": "Ara",
     "searchAsset": "Varlıklarda Ara",
+    "searchNameOrAddress": "Ada veya adrese göre arayın",
     "enterAmount": "Miktarı Girin",
     "enterAddress": "Adresi Girin",
     "pageNotFound": "Aradığınız sayfa bulunamadı",
@@ -150,6 +151,7 @@
     "prices": "Fiyatlar",
     "symmetric": "Simetrik",
     "asymmetric": "Asimetrik (%{assetSymbol})",
+    "import": "İçe aktar",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -163,7 +165,8 @@
       "sortedDesc": "Azalan şekilde sırala",
       "expandRow": "Satırı Genişlet"
     },
-    "featureDisabled": "Bu özellik geçici olarak devre dışıdır."
+    "featureDisabled": "Bu özellik geçici olarak devre dışıdır.",
+    "yes": "Evet"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +644,15 @@
     "for": "için",
     "emptyMessage": "%{status} işlemleriniz burada görünecek.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Para Çekme Başlatıldı",
+        "outboundTransferDeposit": "Para Yatırma Başlatıldı",
+        "withdrawEth": "Para Çekme Başlatıldı",
+        "submitRetryable": "Alınan Depozit",
+        "createRetryableTicket": "Para Yatırma Başlatıldı",
+        "finalizeInboundTransfer": "Çekilen Para Alındı",
+        "depositEth": "Para Yatırma Başlatıldı"
+      },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Çekmek",
@@ -734,6 +746,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "%{destinationChainName} hesabınızda %{destinationSymbol} olduğundan emin olun, işlemler için buna ihtiyacınız olacak",
     "confirm": "Köprüyü Onayla",
     "selectChain": "Ağ Seç",
     "selectAsset": "Varlık Seç",
@@ -748,7 +761,15 @@
     "route": "Yol",
     "waitTimeLabel": "Yaklaşık Bekleme Süresi",
     "waitTimeValue": "~5-10 Dakika",
-    "noSupportedAssets": "Portföyde desteklenen varlık yok."
+    "noSupportedAssets": "Portföyde desteklenen varlık yok.",
+    "arbitrum": {
+      "waitWarning": "Arbitrum'un yerel köprüsü daha güvenlidir ancak alınması bir hafta kadar sürebilir.",
+      "waitCta": "Ethereum'da fon talebinde bulunabilmemin ~7 gün süreceğini biliyorum",
+      "claimCta": "Paramı talep ettikten sonra ücretli başka bir işlem göndermem gerekeceğini anlıyorum"
+    },
+    "claims": "Toplananlar",
+    "availableClaims": "Mevcut",
+    "pendingClaims": "Bekleyen"
   },
   "trade": {
     "trade": "Takas",
@@ -887,6 +908,7 @@
     "numHops": "Bu takas %{numHops} atlama içerir",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdanda %{chainName} adresi bulunamadı. Manuel olarak bir adres girin veya",
+    "smartContractReceiveAddressDescription": "Adresi hedef zincirinde bulunmayan bir akıllı sözleşmeden geçiş yaptığınızı tespit ettik. Lütfen %{chainName} üzerinde istenen alıcı adresini doğrulayın ve manuel olarak girin",
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
@@ -1427,7 +1449,9 @@
         "connectFailure": "Ledger cüzdanına bağlanılamıyor",
         "unknown": "Ledger cüzdanıyla iletişimde beklenmeyen bir hata oluştu",
         "appNotOpen": "%{app} Ledger'da açık değil",
-        "appNotOpenDescription": "Lütfen cihazınızda %{app} uygulamasını açın ve tekrar deneyin."
+        "appNotOpenDescription": "Lütfen cihazınızda %{app} uygulamasını açın ve tekrar deneyin.",
+        "noDeviceConnected": "Hiçbir Ledger cihazı bağlı değil",
+        "multipleDevicesConnected": "Birden fazla Ledger cihazı bağlı. Lütfen biri hariç tüm cihazların bağlantısını kesin."
       },
       "connect": {
         "header": "Ledger'i Eşleştir",
@@ -2165,10 +2189,14 @@
     "poolDepth": "Havuz Derinliği",
     "poolDepthDescription": "Havuzun sağlığı",
     "totalDebtBalance": "Toplam Borç Bakiyesi",
+    "totalDebtBalanceDescription": "Kredi havuzundaki kümülatif borç bakiyesi",
     "totalCollateral": "Toplam Teminat",
+    "totalCollateralDescription": "Kredi havuzuna eklenen Toplam Teminat",
     "estCollateralizationRatio": "Tahmini Teminat Oranı",
+    "estCollateralizationRatioDescription": "Şu anda %200'lük sabit bir Teminat Oranı mevcuttur. Gelecekte, piyasa koşullarına bağlı olarak maksimum ve minimum CR arasında dinamik bir oran dengelenecektir.",
     "collateralizationRatio": "Teminat Oranı",
     "totalBorrowers": "Tüm Borçlular",
+    "totalBorrowersDescription": "Katılan borçlu sayısı",
     "myLoanInformation": "Kredi Bilgilerim",
     "loanInformation": "Kredi Özeti",
     "poolInformation": "Havuz Bilgileri",
@@ -2188,11 +2216,12 @@
     "switchAssets": "Varlıkları Değiştir",
     "backToLending": "Borç vermeye geri dön",
     "outstandingDebt": "Ödenmemiş Borç",
+    "outstandingDebtDescription": "Ödünç aldığınız teminat miktarı",
     "collateral": "Teminat",
     "debt": "Borç",
-    "healthy": "Sağlık",
-    "caution": "Dikkat",
-    "risky": "Riskli",
+    "healthy": "Derinlik optimaldir, krediler etkilidir.",
+    "caution": "Derinlik orta düzeyde, ödünç alımınızda bir miktar kayma bekliyoruz",
+    "risky": "Derinlik düşük, ödünçünüzde yüksek kayma olasılığı var.",
     "confirmAndBorrow": "Onayla ve Borç Al",
     "confirmAndRepay": "Onayla ve Geri Öde",
     "borrowAgain": "Tekrar Ödünç Al",
@@ -2295,6 +2324,7 @@
     "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
+    "unsupportedDemoWalletExplainer": "Demo cüzdan desteklenmiyor, bu özelliği kullanmak için lütfen bir cüzdana bağlanın.",
     "unsupportedNetworkExplainer": "Cüzdanınız %{network} ağına bağlı değil. Lütfen bu zinciri bağlayın veya bu ağı destekleyen bir cüzdana geçin.",
     "unsupportedNetworksExplainer": "Cüzdanınız %{network1} ve %{network2}'ye bağlı değil. Lütfen bu zinciri bağlayın veya bu ağları destekleyen bir cüzdana geçin.",
     "shareOfPool": "Havuz Payı",
@@ -2352,7 +2382,14 @@
     "highSlippageDeposit": "Bu depozitoda yüksek kayma (%{slippagePercentage}%) var. Dikkatle ilerle.",
     "highSlippageBorrow": "Bu ödünç almanın kayma oranı yüksek (%{slippagePercentage}%). Dikkatle ilerle.",
     "highSlippageTrade": "Bu takas fiyat hareketinden (%{slippagePercentage}%) etkileniyor. Dikkatle ilerle.",
-    "unsafeTrade": "Bu takas güvensiz olabilir veya önerilen minimum boyutun altında olabilir, dikkatli ilerleyin."
+    "unsafeTrade": "Bu takas güvensiz olabilir veya önerilen minimum boyutun altında olabilir, dikkatli ilerleyin.",
+    "customToken": "Sahte olanlar da dahil olmak üzere herkes jeton oluşturabilir, bu nedenle dikkatli olunması gerekir. Bazı jetonlar ShapeShift ile çalışmayabilir. Bu jetonu içe aktararak riskleri kabul etmiş olursunuz. Bu token, büyük ABD borsalarında alınıp satılmıyor veya ShapeShift'te sıklıkla değiştirilmiyor. Ticaret yapmadan önce daima araştırın."
+  },
+  "streamingAcknowledgement": {
+    "description": "Bu bir yayınlanmış takastır; daha iyi bir fiyata sahip olsanız da tamamlanması %{estimatedTimeHuman} kadar sürebilir."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "Riskleri anlıyorum"
   },
   "watchlist": {
     "empty": {
@@ -2373,6 +2410,10 @@
     "lending": {
       "title": "Borç Verme",
       "body": "Varlıklarınıza karşılık borç alın."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "FOX stake ederek RUNE kazanın."
     }
   },
   "RFOX": {
@@ -2385,6 +2426,7 @@
     "claim": "Topla",
     "rewards": "Ödüller",
     "claims": "Toplanabilir",
+    "chainNotSupportedByWallet": "Zincir cüzdan tarafından desteklenmiyor",
     "changeAddress": "Adres değiştir",
     "sameAddressNotAllowed": "Aynı adrese izin verilmiyor",
     "stakingDetails": "Stake Detayları",
@@ -2402,6 +2444,9 @@
     "rewardAddressHelper": "Ödüllerin gönderileceği yer burasıdır",
     "useWalletAddress": "Cüzdan adresini kullan",
     "useCustomAddress": "Özel adres kullan",
+    "stakeWarning": "FOX tokenlarınızı stake ettiğinizde lütfen kilitlenme süresinin %{cooldownPeriod} olduğunu unutmayın. Bu, tokenlarınızı geri almaya karar verirseniz, paranızı talep etmeden önce %{cooldownPeriod} beklemeniz gerekeceği anlamına gelir.",
+    "bridgeCta": "%{originNetwork} üzerinde %{assetSymbol}'ı seçtiniz, ancak stake etmek için %{destinationNetwork} üzerinde %{assetSymbol}'a ihtiyacınız olacak. Paranızı %{destinationNetwork}'a bağlamanıza yardımcı olabiliriz. Süreç boyunca size rehberlik etmemizi ister misiniz?",
+    "unstakeWarning": "FOX'unuzu alabilmeniz için bekleme süresi %{cooldownPeriod}'dur. Bu süre geçtikten sonra, stake edilmemiş tutarınızı talep edebileceksiniz.",
     "tooltips": {
       "stakeAmount": "Bu, yatıracağınız FOX miktarıdır",
       "unstakeAmount": "Bu, kaldıracağınız FOX miktarıdır",
@@ -2416,6 +2461,7 @@
     "changeRewardAddressPending": "Ödül Adresi Değiştiriliyor...",
     "changeRewardAddressSuccess": "THORChain Ödül Adresinizi başarıyla değiştirdiniz.",
     "unstakePending": "%{amount} %{symbol} tutarın çekilmesi isteniyor",
+    "unstakeSuccess": "%{cooldownPeriod} geçtikten sonra %{amount} %{symbol} miktarınızı talep edebileceksiniz",
     "currentRewardAddress": "Güncel Ödül Adresi",
     "newRewardAddress": "Yeni Ödül Adresi",
     "rewardCycleExplainer": "Bu, bir sonraki ödül döngüsü için güncellenecektir.",
@@ -2429,21 +2475,23 @@
     "claimPending": "Çekim isteği",
     "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
     "claimReceiveAddress": "Alıcı Adresi Talebi",
+    "noRewardsYet": "Henüz ödül yok",
     "noClaimsAvailable": "Talep edilebilir yok",
     "errorFetchingClaims": "Hak talepleri alınırken bir hata oluştu",
     "noClaimsAvailableDescription": "Kullanılabilir talebiniz yok",
+    "unstakeNow": "FOX'u Almak İçin Stake'i kaldırın",
     "bridgeAndConfirm": "Köprüle ve Onayla",
     "noSupportedChains": "Zincir desteklenmiyor",
     "noSupportedChainsDescription": "%{chainLabel} ekleyin veya onu destekleyen bir cüzdana bağlanın.",
     "confirmAndBridge": "Onayla ve Köprüle",
-    "myRewardBalance": "Ödül Bakiyem",
-    "myRewardBalanceHelper": "Ödül Bakiyem",
-    "pendingRewardsBalance": "Bekleyen Ödül Bakiyesi",
-    "pendingRewardsBalanceHelper": "Bekleyen Ödül Bakiyesi",
+    "myStakedBalance": "Stake Edilmiş Bakiyem",
+    "myStakedBalanceHelper": "Stake edilen FOX miktarı",
+    "pendingRewardsBalance": "Mevcut Tahmini Ödül Bakiyesi",
+    "pendingRewardsBalanceHelper": "Bu yalnızca dönemden günümüze kadar olan gelirlere dayalı olarak bekleyen ödüllerinizin bir tahminidir. Tüm muhasebe dönem sonunda yapılır ve tam olarak ay sonundan önce hesaplanamaz",
     "lifetimeRewards": "Ömür Boyu Ödüller",
-    "lifetimeRewardsHelper": "Ömür Boyu Ödüller",
+    "lifetimeRewardsHelper": "Ömür boyu ödüller, FOX'unuzu stake etmenin kümülatif ödülleridir",
     "timeInPool": "Havuzda Kalma Süresi",
-    "timeInPoolHelper": "Havuzda Kalma Süresi",
+    "timeInPoolHelper": "Havuzda geçirilen süre, rFOX'taki en uzun ömürlü mevduattır",
     "myPosition": "Pozisyonum",
     "faq": {
       "title": "SSS",

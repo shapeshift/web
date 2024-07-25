@@ -51,7 +51,7 @@ export type Asset = {
   precision: number
   color: string
   networkColor?: string
-  icon: string
+  icon: string | undefined
   icons?: string[]
   networkIcon?: string
   explorer: string

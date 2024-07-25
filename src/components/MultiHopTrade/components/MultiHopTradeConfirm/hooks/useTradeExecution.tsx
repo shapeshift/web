@@ -1,13 +1,14 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, SignMessageInput, SignTx } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
-import type { BTCSignTx, ETHSignMessage, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, ETHSignTypedData, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmTransactionRequest, SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
+import type { TypedData } from 'eip-712'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -183,18 +184,18 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
           stepIndex: hopIndex,
           slippageTolerancePercentageDecimal,
           from,
-          signMessage: async (message: string) => {
-            const messageToSign: ETHSignMessage = {
+          signMessage: async (message: TypedData) => {
+            const typedDataToSign: ETHSignTypedData = {
               addressNList: toAddressNList(bip44Params),
-              message,
+              typedData: message,
             }
 
-            const signMessageInput: SignMessageInput<ETHSignMessage> = {
-              messageToSign,
+            const signTypedDataInput: SignTypedDataInput<ETHSignTypedData> = {
+              typedDataToSign,
               wallet,
             }
 
-            const output = await adapter.signMessage(signMessageInput)
+            const output = await adapter.signTypedData(signTypedDataInput)
 
             trackMixpanelEventOnExecute()
             return output

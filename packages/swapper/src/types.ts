@@ -20,6 +20,7 @@ import type {
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { TypedData } from 'eip-712'
 import type { ethers as ethersV5 } from 'ethers5'
 import type { Chain, PublicClient, Transport } from 'viem'
 
@@ -250,6 +251,7 @@ export type CowSwapOrder = {
   sellTokenBalance: string
   buyTokenBalance: string
   quoteId: number
+  signingScheme: 'eip712' | 'ethsign'
 }
 
 export type GetUnsignedTxArgs = {
@@ -266,7 +268,7 @@ export type EvmTransactionExecutionProps = {
 }
 
 export type EvmMessageExecutionProps = {
-  signMessage: (messageToSign: string) => Promise<string>
+  signMessage: (messageToSign: TypedData) => Promise<string>
 }
 
 export type UtxoTransactionExecutionProps = {
@@ -345,6 +347,7 @@ export type EvmTransactionRequest = {
 
 export type CowMessageToSign = {
   chainId: ChainId
+  from: string
   orderToSign: CowSwapOrder
 }
 

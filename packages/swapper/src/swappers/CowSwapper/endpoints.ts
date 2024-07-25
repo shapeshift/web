@@ -29,6 +29,7 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   ERC20_TOKEN_BALANCE,
   ORDER_KIND_SELL,
+  SIGNING_SCHEME,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
@@ -150,9 +151,10 @@ export const cowApi: SwapperApi = {
       buyTokenBalance: ERC20_TOKEN_BALANCE,
       quoteId: id,
       appDataHash,
+      signingScheme: SIGNING_SCHEME,
     }
 
-    return { chainId, orderToSign }
+    return { chainId, orderToSign, from }
   },
 
   checkTradeStatus: async ({

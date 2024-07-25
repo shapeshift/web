@@ -196,9 +196,12 @@ const ZapperTokenBaseSchema: Type<ZapperTokenBase> = z.intersection(
   // Note how tokens is different from ZapperAssetBaseSchema - we use z.lazy() to recursively reference ZapperTokenBaseSchema
   z
     .object({
+      createdAt: z.string().optional(),
       key: z.string().optional(),
+      uuid: z.string().optional(),
       type: z.string().optional(),
       appId: ZapperAppIdSchema.optional(),
+      groupLabel: z.string().optional(),
       groupId: z.string().optional(),
       network: SupportedZapperNetworks.optional(),
       address: z.string().optional(),
@@ -228,9 +231,12 @@ const ZapperTokenWithBalancesSchema = z.intersection(
 )
 
 const ZapperAssetBaseSchema = z.object({
+  createdAt: z.string(),
   key: z.string(),
+  uuid: z.string(),
   type: z.string(),
   appId: ZapperAppIdSchema,
+  groupLabel: z.string(),
   groupId: z.string(),
   network: SupportedZapperNetworks,
   address: z.string(),
@@ -486,6 +492,8 @@ const V2AppResponse = z.object({
   description: z.string(),
   url: z.string(),
   imgUrl: z.string(),
+  twitterUrl: z.string().nullable(),
+  farcasterUrl: z.string().nullable(),
   tags: z.array(z.string()),
   token: V2AppTokenResponse.nullable(),
   supportedNetworks: z.array(V2AppSupportedNetworkResponse),

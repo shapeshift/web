@@ -45,51 +45,53 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   const queries = useMemo(() => {
     if (!pools) return []
 
-    return pools.map(pool => {
-      const assetId = poolAssetIdToAssetId(pool.asset)
+    return pools
+      .map(pool => {
+        const assetId = poolAssetIdToAssetId(pool.asset)
 
-      if (!assetId) return null
+        if (!assetId) return null
 
-      return {
-        ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
-        enabled: Boolean(isSuccess && currentWalletId),
-        // We may or may not want to revisit this, but this will prevent overfetching for now
-        staleTime: Infinity,
-        queryFn: async () => {
-          const assetAccountIds = findAccountsByAssetId(portfolioAccounts, assetId)
-          const accountIds = assetAccountIds.concat(runeAccountIds)
+        return {
+          ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
+          enabled: Boolean(isSuccess && currentWalletId),
+          // We may or may not want to revisit this, but this will prevent overfetching for now
+          staleTime: Infinity,
+          queryFn: async () => {
+            const assetAccountIds = findAccountsByAssetId(portfolioAccounts, assetId)
+            const accountIds = assetAccountIds.concat(runeAccountIds)
 
-          return (
-            await Promise.all(
-              accountIds.map(accountId =>
-                queryClient.fetchQuery(
-                  reactQueries.thorchainLp.liquidityProviderPosition({ accountId, assetId }),
+            return (
+              await Promise.all(
+                accountIds.map(accountId =>
+                  queryClient.fetchQuery(
+                    reactQueries.thorchainLp.liquidityProviderPosition({ accountId, assetId }),
+                  ),
                 ),
-              ),
-            )
-          )
-            .flat()
-            .filter(isSome)
-        },
-        select: (positions: Position[] | undefined) => {
-          return {
-            assetId,
-            positions: (positions ?? [])
-              .map(position =>
-                getUserLpDataPosition({
-                  assetId,
-                  assetPrice: marketDataUserCurrency[assetId]?.price ?? '0',
-                  assets,
-                  pool,
-                  position,
-                  runePrice: runeMarketDataUserCurrency.price,
-                }),
               )
-              .filter(isSome),
-          }
-        },
-      }
-    })
+            )
+              .flat()
+              .filter(isSome)
+          },
+          select: (positions: Position[] | undefined) => {
+            return {
+              assetId,
+              positions: (positions ?? [])
+                .map(position =>
+                  getUserLpDataPosition({
+                    assetId,
+                    assetPrice: marketDataUserCurrency[assetId]?.price ?? '0',
+                    assets,
+                    pool,
+                    position,
+                    runePrice: runeMarketDataUserCurrency.price,
+                  }),
+                )
+                .filter(isSome),
+            }
+          },
+        }
+      })
+      .filter(isSome)
   }, [
     assets,
     currentWalletId,

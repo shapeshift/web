@@ -94,9 +94,13 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         isNumeric: true,
         Cell: ({ value, row }: { value: string | number | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Tag size={tagSize} colorScheme='green'>
-              <Amount.Percent value={value ?? ''} />
-            </Tag>
+            {row.original.apy !== undefined ? (
+              <Tag size={tagSize} colorScheme='green'>
+                <Amount.Percent value={value ?? ''} />
+              </Tag>
+            ) : (
+              <RawText>-</RawText>
+            )}
           </Skeleton>
         ),
         sortType: (a: RowProps, b: RowProps): number =>
@@ -106,9 +110,9 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         Header: translate('defi.tvl'),
         accessor: 'tvl',
         display: { base: 'none', lg: 'table-cell' },
-        Cell: ({ value, row }: { value: string; row: RowProps }) => (
+        Cell: ({ value, row }: { value: string | undefined; row: RowProps }) => (
           <Skeleton isLoaded={row.original.isLoaded}>
-            <Amount.Fiat value={value} />
+            {row.original.tvl !== undefined ? <Amount.Fiat value={value} /> : <RawText>-</RawText>}
           </Skeleton>
         ),
       },

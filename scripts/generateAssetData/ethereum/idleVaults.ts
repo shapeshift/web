@@ -67,6 +67,7 @@ export const getIdleTokens = async (): Promise<Asset[]> => {
       symbol,
       chainId,
       assetId,
+      relatedAssetKey: null,
       ...explorerData,
     })
   }

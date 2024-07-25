@@ -13,6 +13,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -83,6 +84,10 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
         },
         assets,
       )
+
+      if (provider === DefiProvider.rFOX) {
+        return history.push('/rfox')
+      }
 
       history.push({
         pathname: location.pathname,

@@ -33,7 +33,7 @@ import type {
 } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
-import { fromOpportunityId } from 'pages/ThorChainLP/utils'
+import { fromQuote } from 'pages/ThorChainLP/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -60,18 +60,15 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
   const hasTrackedStatus = useRef(false)
   const [txStatus, setTxStatus] = useState<TxStatus>()
 
-  const { opportunityId } = confirmedQuote
-  const { assetId: poolAssetId, type: opportunityType } = fromOpportunityId(opportunityId)
+  const { assetId: poolAssetId, actionSide, action } = fromQuote(confirmedQuote)
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const baseAsset = useAppSelector(state => selectAssetById(state, baseAssetId))
 
-  const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
-
   const poolAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
 
-    switch (opportunityType) {
+    switch (actionSide) {
       case 'sym':
         return [baseAsset, poolAsset]
       case AsymSide.Rune:
@@ -79,24 +76,24 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(opportunityType)
+        assertUnreachable(actionSide)
     }
-  }, [poolAsset, baseAsset, opportunityType])
+  }, [poolAsset, baseAsset, actionSide])
 
   const txAssets: Asset[] = useMemo(() => {
     if (!(poolAsset && baseAsset)) return []
-    if (opportunityType === 'sym' && isDeposit) return [baseAsset, poolAsset]
+    if (actionSide === 'sym' && action === 'deposit') return [baseAsset, poolAsset]
 
-    switch (opportunityType) {
+    switch (actionSide) {
       case 'sym':
       case AsymSide.Rune:
         return [baseAsset]
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(opportunityType)
+        assertUnreachable(actionSide)
     }
-  }, [poolAsset, baseAsset, opportunityType, isDeposit])
+  }, [poolAsset, baseAsset, actionSide, action])
 
   const handleStatusUpdate = useCallback(
     (status: TxStatus) => {
@@ -124,22 +121,22 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     const hasTrackedStatusValue = hasTrackedStatus.current
     if (isComplete && !hasTrackedStatusValue)
       mixpanel?.track(
-        isDeposit ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
+        action === 'deposit' ? MixPanelEvent.LpDepositSuccess : MixPanelEvent.LpWithdrawSuccess,
         confirmedQuote,
       )
 
     if (isFailed && !hasTrackedStatusValue)
       mixpanel?.track(
-        isDeposit ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
+        action === 'deposit' ? MixPanelEvent.LpDepositFailed : MixPanelEvent.LpWithdrawFailed,
         confirmedQuote,
       )
-  }, [confirmedQuote, isComplete, isDeposit, isFailed, mixpanel])
+  }, [confirmedQuote, isComplete, action, isFailed, mixpanel])
 
   const hStackDivider = useMemo(() => {
-    if (opportunityType) return <></>
+    if (actionSide) return <></>
 
     return <RawText mx={1}>{translate('common.and')}</RawText>
-  }, [opportunityType, translate])
+  }, [actionSide, translate])
 
   const stepProgress = useMemo(
     () => (activeStepIndex / txAssets.length) * 100,
@@ -301,7 +298,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
               onStatusUpdate={handleStatusUpdate}
               isActive={index === activeStepIndex && !isFailed}
               confirmedQuote={confirmedQuote}
-              opportunityType={opportunityType}
             />
           )
         })}
@@ -315,7 +311,6 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
     handleStatusUpdate,
     activeStepIndex,
     isFailed,
-    opportunityType,
   ])
 
   if (!(poolAsset && baseAsset)) return null

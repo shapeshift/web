@@ -1,6 +1,6 @@
 import { type AssetId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip/src/assetId/assetId'
-import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, AssetsById, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -46,7 +46,7 @@ const headers = {
   authorization,
 }
 
-const assets = generatedAssetData as Record<AssetId, Asset>
+const assets = generatedAssetData as unknown as AssetsById
 
 export const getUniswapV2Pools = async () => {
   const evmNetworks = [chainIdToZapperNetwork(ethChainId)]

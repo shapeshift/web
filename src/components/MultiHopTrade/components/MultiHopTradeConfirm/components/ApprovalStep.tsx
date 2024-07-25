@@ -38,6 +38,7 @@ export type ApprovalStepProps = {
   isLastStep?: boolean
   isLoading?: boolean
   isAllowanceResetStep: boolean
+  isAwaitingReset?: boolean
 }
 
 type ApprovalDescriptionProps = {
@@ -94,6 +95,7 @@ const ApprovalStepPending = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  isAwaitingReset = false,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
@@ -110,44 +112,24 @@ const ApprovalStepPending = ({
     selectHopExecutionMetadata(state, hopIndex),
   )
 
+  const allowanceType = useMemo(() => {
+    if (isAllowanceResetStep) return AllowanceType.Reset
+    return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
+  }, [isAllowanceResetStep, isExactAllowance])
+
   const {
     executeAllowanceApproval,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(
-    tradeQuoteStep,
-    hopIndex,
-    isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited,
-  )
-
-  // TODO: move useAllowanceApproval into a query and skip if reset not required
-  const {
-    executeAllowanceApproval: executeAllowanceReset,
-    approvalNetworkFeeCryptoBaseUnit: allowanceResetNetworkFeeCryptoBaseUnit,
-    isLoading: isAllowanceResetLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, AllowanceType.Reset)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, isAwaitingReset)
 
   const isApprovalStep = useMemo(() => {
     return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
   }, [isAllowanceResetStep, state])
 
-  const handleSignAllowanceReset = useCallback(async () => {
-    if (!isAllowanceResetStep) {
-      console.error('attempted to execute in-progress allowance reset')
-      return
-    }
-
-    await executeAllowanceReset()
-  }, [isAllowanceResetStep, executeAllowanceReset])
-
   const handleSignAllowanceApproval = useCallback(async () => {
-    if (!isApprovalStep) {
-      console.error('attempted to execute in-progress allowance approval')
-      return
-    }
-
     await executeAllowanceApproval()
-  }, [isApprovalStep, executeAllowanceApproval])
+  }, [executeAllowanceApproval])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),
@@ -156,14 +138,7 @@ const ApprovalStepPending = ({
   const approvalNetworkFeeCryptoFormatted = useMemo(() => {
     if (!feeAsset) return ''
 
-    if (isAllowanceResetStep && allowanceResetNetworkFeeCryptoBaseUnit) {
-      return toCrypto(
-        fromBaseUnit(allowanceResetNetworkFeeCryptoBaseUnit, feeAsset.precision),
-        feeAsset.symbol,
-      )
-    }
-
-    if (!isAllowanceResetStep && approvalNetworkFeeCryptoBaseUnit) {
+    if (approvalNetworkFeeCryptoBaseUnit) {
       return toCrypto(
         fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
         feeAsset.symbol,
@@ -171,13 +146,7 @@ const ApprovalStepPending = ({
     }
 
     return ''
-  }, [
-    allowanceResetNetworkFeeCryptoBaseUnit,
-    approvalNetworkFeeCryptoBaseUnit,
-    feeAsset,
-    isAllowanceResetStep,
-    toCrypto,
-  ])
+  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto])
 
   const stepIndicator = useMemo(() => {
     return (
@@ -231,12 +200,12 @@ const ApprovalStepPending = ({
           size='sm'
           colorScheme='blue'
           isDisabled={
-            isAllowanceResetLoading ||
+            isAllowanceApprovalLoading ||
             !isAllowanceResetStep ||
             allowanceReset.state !== TransactionExecutionState.AwaitingConfirmation
           }
-          isLoading={isAllowanceResetLoading}
-          onClick={handleSignAllowanceReset}
+          isLoading={isAllowanceApprovalLoading}
+          onClick={handleSignAllowanceApproval}
         >
           {allowanceReset.state === TransactionExecutionState.Pending && (
             <CircularProgress isIndeterminate size={2} mr={2} />
@@ -248,8 +217,8 @@ const ApprovalStepPending = ({
     )
   }, [
     allowanceReset.state,
-    handleSignAllowanceReset,
-    isAllowanceResetLoading,
+    handleSignAllowanceApproval,
+    isAllowanceApprovalLoading,
     isAllowanceResetStep,
     translate,
   ])
@@ -441,6 +410,7 @@ export const ApprovalStep = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  isAwaitingReset = false,
 }: ApprovalStepProps) => {
   const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
@@ -475,6 +445,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
+      isAwaitingReset={isAwaitingReset}
     />
   )
 }

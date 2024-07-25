@@ -116,8 +116,6 @@ export async function getPortalsTradeQuote(
       feePercentage: affiliateBpsPercentage,
     })
 
-    debugger
-
     const {
       tx,
       context: {

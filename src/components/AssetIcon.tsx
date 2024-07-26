@@ -124,32 +124,24 @@ export const AssetIcon = memo(
       [assetIconColor],
     )
 
-    if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
+    if (!asset) return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
+
+    if (assetId === nativeAssetId && asset.networkIcon && showNetworkIcon) {
       return <Avatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
     }
 
-    if (asset) {
-      if (asset.icons?.length) {
-        return (
-          <Flex flexDirection='row' alignItems='center'>
-            {asset.icons.map((iconSrc, i) => (
-              <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
-            ))}
-          </Flex>
-        )
-      }
-
+    if (asset.icons?.length) {
       return (
-        <AssetWithNetwork
-          asset={asset}
-          src={src}
-          icon={foxIcon}
-          showNetworkIcon={showNetworkIcon}
-          {...rest}
-        />
+        <Flex flexDirection='row' alignItems='center'>
+          {asset.icons.map((iconSrc, i) => (
+            <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
+          ))}
+        </Flex>
       )
     }
 
-    return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
+    return (
+      <AssetWithNetwork asset={asset} icon={foxIcon} showNetworkIcon={showNetworkIcon} {...rest} />
+    )
   },
 )

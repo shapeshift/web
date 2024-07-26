@@ -45,5 +45,11 @@ export const makeAsset = (
     }
   })()
 
-  return Object.assign({}, minimalAsset, explorerLinks, { chainId, color, icon, isCustomAsset })
+  return Object.assign({}, minimalAsset, explorerLinks, {
+    chainId,
+    color,
+    icon,
+    isCustomAsset,
+    relatedAssetKey: null,
+  })
 }

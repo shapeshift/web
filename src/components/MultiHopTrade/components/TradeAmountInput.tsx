@@ -85,7 +85,7 @@ export type TradeAmountInputProps = {
   assetId: AssetId
   accountId?: AccountId
   assetSymbol: string
-  assetIcon: string
+  assetIcon: string | undefined
   onChange?: (value: string, isFiat?: boolean) => void
   onMaxClick: (isFiat: boolean) => Promise<void>
   onPercentOptionClick?: (args: number) => void

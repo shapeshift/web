@@ -220,7 +220,7 @@ type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportuni
 
 export const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
   if (type === DefiType.Staking) {
-    if (provider === DefiProvider.EthFoxStaking) {
+    if (provider === DefiProvider.EthFoxStaking || provider === DefiProvider.rFOX) {
       return 'underlyingAssetId'
     }
   }

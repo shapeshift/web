@@ -43,7 +43,11 @@ import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
 import { TimeRemaining } from './TimeRemaining'
 
-const collapseWidth = { width: '100%' }
+const collapseWidth = {
+  width: '100%',
+  // fixes pulse animation getting cut off
+  overflow: undefined,
+}
 
 export const Hop = ({
   swapperName,
@@ -76,6 +80,7 @@ export const Hop = ({
     state: hopExecutionState,
     approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
     swap: { state: swapTxState },
+    allowanceReset: { isRequired: isAllowanceResetInitiallyNeeded },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
@@ -125,6 +130,7 @@ export const Hop = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingSwap:
@@ -162,6 +168,7 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
+      case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
       case HopExecutionState.AwaitingSwap:
         return (
@@ -195,12 +202,25 @@ export const Hop = ({
               amountCryptoBaseUnit={tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit}
             />
           )}
+
+          <Collapse in={isAllowanceResetInitiallyNeeded} style={collapseWidth}>
+            {isAllowanceResetInitiallyNeeded && (
+              <ApprovalStep
+                tradeQuoteStep={tradeQuoteStep}
+                hopIndex={hopIndex}
+                isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
+                isAllowanceResetStep={true}
+              />
+            )}
+          </Collapse>
           <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
             {isApprovalInitiallyNeeded === true && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+                isAllowanceResetStep={false}
+                isAwaitingReset={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
               />
             )}
           </Collapse>

@@ -39,6 +39,7 @@ const EthAsset: Asset = {
   explorer: 'https://etherscan.io/',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 vi.mock('./descriptions', () => ({
@@ -139,6 +140,7 @@ describe('AssetService', () => {
         color: '#FFFFFF',
         icon: 'https://assets.coingecko.com/coins/images/17049/thumb/BUNNY.png?1626148809',
         symbol: 'TST',
+        relatedAssetKey: null,
       }
       const expectedErrorMessage = `AssetService:description: no description available for ${tokenData.assetId}`
       await expect(assetService.description(tokenData.assetId)).rejects.toEqual(

@@ -340,6 +340,7 @@ export const LpType = ({
     isDeposit,
     informationsByPosition,
     subtitleStyle,
+    hasAsymRunePosition,
   ])
 
   const group = getRootProps()

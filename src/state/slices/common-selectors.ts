@@ -15,7 +15,11 @@ import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'st
 
 import { selectAssets } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
-import { selectMarketDataUsd, selectMarketDataUserCurrency } from './marketDataSlice/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectMarketDataUsd,
+  selectMarketDataUserCurrency,
+} from './marketDataSlice/selectors'
 import type { PortfolioAccountBalancesById } from './portfolioSlice/portfolioSliceCommon'
 import { selectBalanceThreshold } from './preferencesSlice/selectors'
 
@@ -227,5 +231,12 @@ export const selectHighestMarketCapFeeAsset = createSelector(
     )
 
     return sortedFeeAssets[0]
+  },
+)
+
+export const selectIsAssetWithoutMarketData = createSelector(
+  selectMarketDataByAssetIdUserCurrency,
+  (marketData): boolean => {
+    return !marketData || marketData.price === '0'
   },
 )

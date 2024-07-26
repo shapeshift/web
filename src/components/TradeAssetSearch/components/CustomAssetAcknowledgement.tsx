@@ -23,13 +23,8 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { middleEllipsis } from 'lib/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import {
-  defaultMarketData,
-  marketData as marketDataSlice,
-} from 'state/slices/marketDataSlice/marketDataSlice'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from 'state/store'
-
-import { getTokenMarketData } from '../hooks/useGetCustomTokenPriceQuery'
 
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
 
@@ -70,7 +65,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
 
   const [hasAcknowledged, toggleHasAcknowledged] = useToggle(false)
 
-  const onImportClick = useCallback(async () => {
+  const onImportClick = useCallback(() => {
     if (!asset) return
 
     getMixPanel()?.track(MixPanelEvent.CustomAssetAdded, {
@@ -79,29 +74,10 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
 
     // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
-
-    try {
-      const usdMarketData = await getTokenMarketData(asset.assetId)
-      if (usdMarketData) {
-        // Add market data to the store
-        dispatch(
-          marketDataSlice.actions.setCryptoMarketData({
-            [asset.assetId]: {
-              price: usdMarketData.price.toString(),
-              marketCap: usdMarketData.market_cap.toString(),
-              volume: '0', // Not available from Zerion
-              changePercent24Hr: usdMarketData.changes.percent_1d,
-            },
-          }),
-        )
-      }
-    } catch (error) {
-      // Else add an empty market data object to the store so it shows up in the asset search
-      dispatch(marketDataSlice.actions.setCryptoMarketData({ [asset.assetId]: defaultMarketData }))
-    } finally {
-      // Once the custom asset is in the store, proceed as if it was a normal asset
-      handleAssetClick(asset)
-    }
+    // Use the market API to get the market data for the custom asset
+    dispatch(marketApi.endpoints.findByAssetIds.initiate([asset.assetId]))
+    // Once the custom asset is in the store, proceed as if it was a normal asset
+    handleAssetClick(asset)
   }, [dispatch, handleAssetClick, asset])
 
   const checkboxTextColor = useColorModeValue('gray.800', 'gray.50')

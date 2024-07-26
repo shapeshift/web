@@ -21,7 +21,6 @@ import { Main } from './Layout/Main'
 import { MaybeChartUnavailable } from './MaybeChartUnavailable'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
-import { useFetchAndUpsertCustomTokenMarketData } from './TradeAssetSearch/hooks/useFetchAndUpsertCustomTokenMarketData'
 
 type AssetDetailsProps = {
   assetId: AssetId
@@ -37,8 +36,6 @@ const contentPaddingY = { base: 0, md: 8 }
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
-  const fetchAndUpsertCustomTokenMarketData = useFetchAndUpsertCustomTokenMarketData()
-  fetchAndUpsertCustomTokenMarketData(assetId)
 
   const assetHeader = useMemo(
     () => <AssetHeader assetId={assetId} accountId={accountId} />,

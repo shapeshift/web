@@ -64,7 +64,7 @@ export const AssetSummaryStep = ({
       description={
         isAssetWithoutMarketData
           ? undefined
-          : translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })
+          : translate('trade.fiatAmountOnChain', { amountFiatFormatted, chainName })
       }
       stepIndicator={assetIcon}
       isLastStep={isLastStep}

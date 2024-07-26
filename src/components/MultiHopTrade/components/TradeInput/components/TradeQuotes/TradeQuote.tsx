@@ -124,21 +124,16 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const isBuyAssetWithoutMarketData = useAppSelector(state =>
       selectIsAssetWithoutMarketData(state, buyAsset.assetId),
     )
-    const isTradingCustomAssetWithoutMarketData =
-      isSellAssetWithoutMarketData || isBuyAssetWithoutMarketData
+    const isTradingWithoutMarketData = isSellAssetWithoutMarketData || isBuyAssetWithoutMarketData
 
     const totalReceiveAmountFiatPrecision = useMemo(
       () =>
-        isTradingCustomAssetWithoutMarketData
+        isTradingWithoutMarketData
           ? undefined
           : bn(totalReceiveAmountCryptoPrecision)
               .times(buyAssetMarketData.price ?? 0)
               .toString(),
-      [
-        buyAssetMarketData.price,
-        isTradingCustomAssetWithoutMarketData,
-        totalReceiveAmountCryptoPrecision,
-      ],
+      [buyAssetMarketData.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
     )
 
     const handleQuoteSelection = useCallback(() => {
@@ -178,7 +173,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const hasAmountWithPositiveReceive =
       isAmountEntered &&
-      (!hasNegativeRatio || isTradingCustomAssetWithoutMarketData) &&
+      (!hasNegativeRatio || isTradingWithoutMarketData) &&
       bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
     const tag: JSX.Element | null = useMemo(() => {
@@ -211,10 +206,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
             <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
               <Tag size='sm'>
-                <Amount.Percent
-                  value={quoteOverallDifferenceDecimalPercentage ?? 0}
-                  autoColor={false}
-                />
+                <Amount.Percent value={quoteOverallDifferenceDecimalPercentage} autoColor={false} />
               </Tag>
             </Tooltip>
           ) : null

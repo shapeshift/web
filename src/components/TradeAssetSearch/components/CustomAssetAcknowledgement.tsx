@@ -102,7 +102,7 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
         flexDirection={flexDirection}
       >
         <Flex gap={4} alignItems='center' padding={4}>
-          <AssetIcon assetId={asset.assetId} size='sm' />
+          <AssetIcon asset={asset} size='sm' />
           <Box textAlign='left'>
             <Text
               lineHeight='normal'

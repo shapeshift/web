@@ -187,7 +187,12 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.OptimismMainnet]: [],
   [KnownChainIds.PolygonMainnet]: [],
   [KnownChainIds.GnosisMainnet]: [],
-  [KnownChainIds.ThorchainMainnet]: [],
+  [KnownChainIds.ThorchainMainnet]: [
+    {
+      defiProvider: DefiProvider.ThorchainSavers,
+      defiType: DefiType.Staking,
+    },
+  ],
   [KnownChainIds.ArbitrumMainnet]: [
     {
       defiProvider: DefiProvider.rFOX,

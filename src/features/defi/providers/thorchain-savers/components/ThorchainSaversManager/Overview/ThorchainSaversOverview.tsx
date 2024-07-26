@@ -392,11 +392,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   // })
 
   if (
-    ((!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
-      isTradingActiveLoading ||
-      isMockDepositQuoteLoading) &&
-    // @TODO: Real loading state for runepool
-    false
+    (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
+    isTradingActiveLoading ||
+    isMockDepositQuoteLoading
   ) {
     return (
       <Center minW='500px' minH='350px'>

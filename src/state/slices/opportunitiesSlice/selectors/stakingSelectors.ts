@@ -202,7 +202,6 @@ export const selectUserStakingOpportunityByUserStakingId = createDeepEqualOutput
 
     const userOpportunity = userStakingOpportunities[userStakingId]
     const opportunityMetadata = stakingOpportunities[stakingId]
-    console.log({ userOpportunity, userStakingId, opportunityMetadata })
 
     if (!opportunityMetadata) return null
 

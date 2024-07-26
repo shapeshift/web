@@ -84,7 +84,7 @@ export const SearchTermAssetList = ({
             precision: decimals,
             icon: logo ?? undefined,
           }
-          return makeAsset(assetsById, minimalAsset, true)
+          return makeAsset(assetsById, minimalAsset)
         })
         .filter(isSome),
     [assetsById, customTokens],

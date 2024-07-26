@@ -13,7 +13,7 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectAccountIdParamFromFilter, selectAssetIdParamFromFilter } from 'state/selectors'
 
-import { selectAssetById, selectAssets } from './assetsSlice/selectors'
+import { selectAssets } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import {
   selectMarketDataByAssetIdUserCurrency,

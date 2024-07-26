@@ -6,7 +6,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectMarketDataUserCurrency } from 'state/slices/selectors'
+import {
+  selectIsAssetWithoutMarketData,
+  selectMarketDataUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'
@@ -27,6 +30,9 @@ export const AssetSummaryStep = ({
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
+  const isAssetWithoutMarketData = useAppSelector(state =>
+    selectIsAssetWithoutMarketData(state, asset.assetId),
+  )
 
   const sellAmountCryptoPrecision = useMemo(
     () => fromBaseUnit(amountCryptoBaseUnit, asset.precision),
@@ -41,7 +47,7 @@ export const AssetSummaryStep = ({
   const amountFiatFormatted = useMemo(() => {
     const sellAssetRateUserCurrency = marketDataUserCurrency[asset.assetId]?.price ?? '0'
     return toFiat(bn(sellAmountCryptoPrecision).times(sellAssetRateUserCurrency).toString())
-  }, [marketDataUserCurrency, sellAmountCryptoPrecision, toFiat, asset.assetId])
+  }, [marketDataUserCurrency, asset.assetId, toFiat, sellAmountCryptoPrecision])
 
   const chainName = useMemo(() => {
     const chainAdapterManager = getChainAdapterManager()
@@ -55,7 +61,11 @@ export const AssetSummaryStep = ({
   return (
     <StepperStep
       title={amountCryptoFormatted}
-      description={translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })}
+      description={
+        isAssetWithoutMarketData
+          ? undefined
+          : translate('trade.fiatAmountOnChain', { amountFiatFormatted, chainName })
+      }
       stepIndicator={assetIcon}
       isLastStep={isLastStep}
     />

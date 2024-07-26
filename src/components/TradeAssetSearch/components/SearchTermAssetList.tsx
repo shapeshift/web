@@ -3,6 +3,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
+import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
   selectAssetsSortedByName,
@@ -29,7 +30,7 @@ export const SearchTermAssetList = ({
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
-  onAssetClick,
+  onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
   const assets = useAppSelector(selectAssetsSortedByName)
@@ -40,9 +41,14 @@ export const SearchTermAssetList = ({
     [activeChainId, walletConnectedChainIds],
   )
   const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
+  const customTokenSupportedChainIds = useMemo(
+    () =>
+      walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),
+    [walletSupportedEvmChainIds],
+  )
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
-    chainIds: walletSupportedEvmChainIds,
+    chainIds: customTokenSupportedChainIds,
   })
 
   const assetsForChain = useMemo(() => {
@@ -59,30 +65,28 @@ export const SearchTermAssetList = ({
 
   const customAssets: Asset[] = useMemo(
     () =>
-      customTokens
-        ? customTokens
-            .filter(isSome)
-            .map(metaData => {
-              const { name, symbol, decimals, logo } = metaData
-              // If we can't get all the information we need to create an Asset, don't allow the custom token
-              if (!name || !symbol || !decimals) return null
-              const assetId = toAssetId({
-                chainId: metaData.chainId,
-                assetNamespace:
-                  metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-                assetReference: metaData.contractAddress,
-              })
-              const minimalAsset: MinimalAsset = {
-                assetId,
-                name,
-                symbol,
-                precision: decimals,
-                icon: logo ?? undefined,
-              }
-              return makeAsset(assetsById, minimalAsset)
-            })
-            .filter(isSome)
-        : [],
+      (customTokens ?? [])
+        .map(metaData => {
+          if (!metaData) return null
+          const { name, symbol, decimals, logo } = metaData
+          // If we can't get all the information we need to create an Asset, don't allow the custom token
+          if (!name || !symbol || !decimals) return null
+          const assetId = toAssetId({
+            chainId: metaData.chainId,
+            assetNamespace:
+              metaData.chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetReference: metaData.contractAddress,
+          })
+          const minimalAsset: MinimalAsset = {
+            assetId,
+            name,
+            symbol,
+            precision: decimals,
+            icon: logo ?? undefined,
+          }
+          return makeAsset(assetsById, minimalAsset)
+        })
+        .filter(isSome),
     [assetsById, customTokens],
   )
 
@@ -110,7 +114,7 @@ export const SearchTermAssetList = ({
       groupCounts={groupCounts}
       hideZeroBalanceAmounts={true}
       groupIsLoading={groupIsLoading}
-      onAssetClick={onAssetClick}
+      onAssetClick={handleAssetClick}
       onImportClick={onImportClick}
     />
   )

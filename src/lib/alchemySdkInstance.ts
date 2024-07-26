@@ -11,6 +11,14 @@ import { getConfig } from 'config'
 
 const alchemyInstanceMap: Map<ChainId, Alchemy> = new Map()
 
+export const ALCHEMY_SUPPORTED_CHAIN_IDS = [
+  ethChainId,
+  polygonChainId,
+  optimismChainId,
+  arbitrumChainId,
+  baseChainId,
+] as const
+
 export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
   if (alchemyInstanceMap.get(chainId)) return alchemyInstanceMap.get(chainId)!
 

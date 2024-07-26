@@ -945,7 +945,7 @@
     },
     "approvalTitle": "Token allowance approval",
     "resetTitle": "Token allowance reset",
-    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
+    "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"

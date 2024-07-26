@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -96,6 +96,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
       toBaseUnit(1, asset?.precision ?? 0),
     ),
+    enabled: assetId !== thorchainAssetId,
   })
 
   const isHardCapReached = useMemo(
@@ -383,11 +384,19 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   )
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
+  // console.log({
+  //   earnOpportunityData,
+  //   highestStakedOrAssetBalanceAccountId,
+  //   isTradingActiveLoading,
+  //   isMockDepositQuoteLoading,
+  // })
 
   if (
-    (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
-    isTradingActiveLoading ||
-    isMockDepositQuoteLoading
+    ((!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
+      isTradingActiveLoading ||
+      isMockDepositQuoteLoading) &&
+    // @TODO: Real loading state for runepool
+    false
   ) {
     return (
       <Center minW='500px' minH='350px'>

@@ -39,6 +39,7 @@ const getOpportunityIds = (
   })
   const { data: opportunityIds } = selectOpportunityIds(getState() as any)
 
+  console.log(accountId, 'accountId in getOpportunityIds')
   // if we're not passed an AccountId, return all opportunityIds
   if (!accountId) return opportunityIds
 

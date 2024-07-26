@@ -114,6 +114,7 @@ export const mockStore: ReduxState = {
       RfoxMockRewardsTxHistory: false,
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,
+      RunePool: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

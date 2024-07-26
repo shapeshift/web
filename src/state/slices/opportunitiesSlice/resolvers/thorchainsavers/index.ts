@@ -1,5 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -58,6 +59,10 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
     return acc
   }, [])
+
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    opportunityIds.push(thorchainAssetId as StakingId)
+  }
 
   return {
     data: opportunityIds,
@@ -155,6 +160,28 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     }
   }
 
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    stakingOpportunitiesById[thorchainAssetId as StakingId] = {
+      // @TODO: calculate proper APY
+      apy: '0.1',
+      assetId: thorchainAssetId,
+      id: thorchainAssetId as StakingId,
+      provider: DefiProvider.ThorchainSavers,
+      // @TODO: calculate proper TVL
+      tvl: '10',
+      type: DefiType.Staking,
+      underlyingAssetId: thorchainAssetId,
+      underlyingAssetIds: [thorchainAssetId] as [AssetId],
+      rewardAssetIds: [thorchainAssetId] as [AssetId],
+      // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
+      underlyingAssetRatiosBaseUnit: ['1'],
+      name: `RUNEPool`,
+      saversMaxSupplyFiat: '5000000',
+      isFull: false,
+      isClaimableRewards: false,
+    }
+  }
+
   const data = {
     byId: stakingOpportunitiesById,
     type: defiType,
@@ -171,6 +198,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
+  console.log(opportunityIds, accountId, 'ids')
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
   const data = {
@@ -185,6 +213,17 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
+
+      if (stakingOpportunityId === thorchainAssetId) {
+        stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+          isLoaded: true,
+          userStakingId,
+          stakedAmountCryptoBaseUnit: '0',
+          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+        }
+
+        continue
+      }
 
       const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 

@@ -62,6 +62,7 @@ export type FeatureFlags = {
   RfoxMockRewardsTxHistory: boolean
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
+  RunePool: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -149,6 +150,7 @@ const initialState: Preferences = {
     RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
+    RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

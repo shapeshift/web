@@ -107,41 +107,49 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   )
 }
 
-export const AssetIcon = memo(({ assetId, showNetworkIcon, src, ...rest }: AssetIconProps) => {
-  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const assetIconBg = useColorModeValue('gray.200', 'gray.700')
-  const assetIconColor = useColorModeValue('text.subtle', 'text.subtle')
+export const AssetIcon = memo(
+  ({ assetId: _assetId, asset: _asset, showNetworkIcon, src, ...rest }: AssetIconProps) => {
+    const asset = useAppSelector(state =>
+      _asset ? _asset : selectAssetById(state, _assetId ?? ''),
+    )
+    const assetId = _assetId ?? asset?.assetId
+    const assetIconBg = useColorModeValue('gray.200', 'gray.700')
+    const assetIconColor = useColorModeValue('text.subtle', 'text.subtle')
 
-  const chainAdapterManager = getChainAdapterManager()
-  const chainId = assetId && fromAssetId(assetId).chainId
-  const nativeAssetId = chainAdapterManager.get(chainId ?? '')?.getFeeAssetId()
-  const foxIcon = useMemo(() => <FoxIcon boxSize='16px' color={assetIconColor} />, [assetIconColor])
+    const chainAdapterManager = getChainAdapterManager()
+    const chainId = assetId && fromAssetId(assetId).chainId
+    const nativeAssetId = chainAdapterManager.get(chainId ?? '')?.getFeeAssetId()
+    const foxIcon = useMemo(
+      () => <FoxIcon boxSize='16px' color={assetIconColor} />,
+      [assetIconColor],
+    )
 
-  if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
-    return <Avatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
-  }
+    if (assetId === nativeAssetId && asset?.networkIcon && showNetworkIcon) {
+      return <Avatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
+    }
 
-  if (asset) {
-    if (asset.icons?.length) {
+    if (asset) {
+      if (asset.icons?.length) {
+        return (
+          <Flex flexDirection='row' alignItems='center'>
+            {asset.icons.map((iconSrc, i) => (
+              <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
+            ))}
+          </Flex>
+        )
+      }
+
       return (
-        <Flex flexDirection='row' alignItems='center'>
-          {asset.icons.map((iconSrc, i) => (
-            <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
-          ))}
-        </Flex>
+        <AssetWithNetwork
+          asset={asset}
+          src={src}
+          icon={foxIcon}
+          showNetworkIcon={showNetworkIcon}
+          {...rest}
+        />
       )
     }
 
-    return (
-      <AssetWithNetwork
-        asset={asset}
-        src={src}
-        icon={foxIcon}
-        showNetworkIcon={showNetworkIcon}
-        {...rest}
-      />
-    )
-  }
-
-  return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
-})
+    return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
+  },
+)

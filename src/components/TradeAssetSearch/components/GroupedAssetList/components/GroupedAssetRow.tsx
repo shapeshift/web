@@ -80,7 +80,7 @@ export const GroupedAssetRow = ({
         _focus={focus}
       >
         <Flex gap={4} alignItems='center'>
-          <AssetIcon assetId={asset.assetId} size='sm' />
+          <AssetIcon asset={asset} size='sm' />
           <Box textAlign='left'>
             <Text
               lineHeight='normal'

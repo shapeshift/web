@@ -1,10 +1,13 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { useMemo } from 'react'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
-import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
+import { useAffiliateRevenueQuery } from 'pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
+import { useTotalStakedQuery } from 'pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,22 +20,50 @@ type StatsProps = {
 }
 
 export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
+
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
-  const { data: contractBalanceOfUserCurrency, isSuccess: isContractBalanceOfUserCurrencySuccess } =
-    useStakingBalanceOfQuery<string>({
-      stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
-      stakingAssetId,
-      select: data =>
-        bn(fromBaseUnit(data.toString(), stakingAsset?.precision ?? 0))
-          .times(stakingAssetMarketData.price)
-          .toFixed(2),
-      enabled: Boolean(stakingAssetMarketData),
-    })
 
-  if (!stakingAsset) return null
+  const currentEpochMetadata = useCurrentEpochMetadataQuery()
+
+  const totalStakedUserCurrency = useTotalStakedQuery<string>({
+    stakingAssetId,
+    select: (totalStaked: bigint) => {
+      return bn(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0))
+        .times(stakingAssetMarketData.price)
+        .toFixed(2)
+    },
+  })
+
+  const affiliateRevenue = useAffiliateRevenueQuery<string>({
+    startTimestamp: currentEpochMetadata.data?.epochStartTimestamp,
+    endTimestamp: currentEpochMetadata.data?.epochEndTimestamp,
+    select: (totalRevenue: bigint) => {
+      return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
+        .times(runeAssetMarketData.price)
+        .toFixed(2)
+    },
+  })
+
+  const emissions = useMemo(() => {
+    if (!affiliateRevenue.data) return
+    if (!currentEpochMetadata.data) return
+
+    return bn(affiliateRevenue.data).times(currentEpochMetadata.data.distributionRate).toFixed(2)
+  }, [affiliateRevenue.data, currentEpochMetadata.data])
+
+  const burn = useMemo(() => {
+    if (!affiliateRevenue.data) return
+    if (!currentEpochMetadata.data) return
+
+    return bn(affiliateRevenue.data).times(currentEpochMetadata.data.burnRate).toFixed(2)
+  }, [affiliateRevenue.data, currentEpochMetadata.data])
 
   // The commented out code is a placeholder for when we have the data to display
   return (
@@ -50,28 +81,29 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
       <SimpleGrid spacing={6} columns={gridColumns}>
         <StatItem
           description='RFOX.totalStaked'
-          // percentChangeDecimal={'0.0209'}
-          amountUserCurrency={contractBalanceOfUserCurrency}
-          isLoading={!isContractBalanceOfUserCurrencySuccess}
+          // percentChangeDecimal={'0'}
+          amountUserCurrency={totalStakedUserCurrency.data}
+          isLoading={totalStakedUserCurrency.isLoading}
         />
-        {/* <StatItem
+        <StatItem
           description='RFOX.totalFeesCollected'
-          amountUserCurrency='30600000'
-          isLoading={false}
+          // percentChangeDecimal={'0'}
+          amountUserCurrency={affiliateRevenue.data}
+          isLoading={affiliateRevenue.isLoading}
         />
         <StatItem
           description='RFOX.emissionsPool'
           helperTranslation='RFOX.emissionsPoolHelper'
-          percentChangeDecimal={'0.3445'}
-          amountUserCurrency='42890000'
-          isLoading={false}
+          //percentChangeDecimal={'0'}
+          amountUserCurrency={emissions}
+          isLoading={!emissions}
         />
         <StatItem
           description='RFOX.foxBurnAmount'
-          percentChangeDecimal={'0.3445'}
-          amountUserCurrency='15820310'
-          isLoading={false}
-        /> */}
+          //percentChangeDecimal={'0'}
+          amountUserCurrency={burn}
+          isLoading={!burn}
+        />
       </SimpleGrid>
     </Box>
   )

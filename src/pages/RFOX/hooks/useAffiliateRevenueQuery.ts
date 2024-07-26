@@ -1,18 +1,19 @@
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
-import { serialize } from 'wagmi'
 
-type AffiliateRevenueQueryKey = ['affiliateRevenue', string]
+type AffiliateRevenueQueryKey = [
+  'affiliateRevenue',
+  { startTimestamp?: number; endTimestamp?: number },
+]
 
-/**
- * @param startTimestamp The start timestamp in seconds - not required to be an actual block timestamp
- * @param endTimestamp The end timestamp in seconds - not required to be an actual block timestamp
- */
-type UseAffiliateRevenueQueryProps = {
-  startTimestamp: bigint
-  endTimestamp: bigint
+type TotalRevenue = bigint
+
+type UseAffiliateRevenueQueryProps<SelectData = TotalRevenue> = {
+  startTimestamp?: number
+  endTimestamp?: number
+  select?: (totalStaked: bigint) => SelectData
 }
 
 export const getAffiliateRevenueQueryKey = ({
@@ -20,35 +21,35 @@ export const getAffiliateRevenueQueryKey = ({
   endTimestamp,
 }: UseAffiliateRevenueQueryProps): AffiliateRevenueQueryKey => [
   'affiliateRevenue',
-  serialize({ startTimestamp, endTimestamp }),
+  { startTimestamp, endTimestamp },
 ]
 
-export const getAffiliateRevenueQueryFn =
-  ({ startTimestamp, endTimestamp }: UseAffiliateRevenueQueryProps) =>
-  async () => {
-    const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
-
-    // The timestamps are in seconds, but the API expects milliseconds
-    const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
-    const {
-      data: { address, amount },
-    } = await axios.get<{ address: string; amount: string }>(url)
-
-    try {
-      // Parse string directly to BigInt.
-      // This will throw if the string is not a valid number
-      const parsedRevenue = BigInt(amount)
-      return parsedRevenue
-    } catch (error) {
-      console.error({ address, amount })
-      throw Error('Error parsing affiliate revenue')
-    }
-  }
-
-export const useAffiliateRevenueQuery = ({
+export const getAffiliateRevenueQueryFn = ({
   startTimestamp,
   endTimestamp,
 }: UseAffiliateRevenueQueryProps) => {
+  return startTimestamp && endTimestamp
+    ? async () => {
+        const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
+
+        const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
+        const { data } = await axios.get<{ address: string; amount: string }>(url)
+
+        try {
+          return BigInt(data.amount)
+        } catch (error) {
+          console.error({ data })
+          throw Error('Error parsing affiliate revenue')
+        }
+      }
+    : skipToken
+}
+
+export const useAffiliateRevenueQuery = <SelectData = TotalRevenue>({
+  startTimestamp,
+  endTimestamp,
+  select,
+}: UseAffiliateRevenueQueryProps<SelectData>) => {
   const queryKey: AffiliateRevenueQueryKey = useMemo(
     () => getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
     [startTimestamp, endTimestamp],
@@ -62,6 +63,7 @@ export const useAffiliateRevenueQuery = ({
   const query = useQuery({
     queryKey,
     queryFn,
+    select,
   })
 
   return query

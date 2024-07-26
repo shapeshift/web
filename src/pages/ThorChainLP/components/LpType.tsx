@@ -279,6 +279,7 @@ export const LpType = ({
       const currentSideInformations = informationsByPosition?.[option.value as AsymSide | 'sym']
 
       const isDisabled = (() => {
+        if (isDeposit && hasAsymRunePosition && option.value === 'sym') return true
         if (!isWithdraw) return false
 
         if (isSymPositionType) return false

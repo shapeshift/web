@@ -52,6 +52,8 @@ export class MarketServiceManager {
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls, provider }),
+      // TODO: Zerion market provider
+      // TODO: Debank market provider
     ]
 
     this.assetService = new AssetService()

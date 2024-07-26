@@ -101,17 +101,28 @@ type PositionAmounts = {
 
 export type AmountsByPosition = Record<AsymSide | 'sym', PositionAmounts>
 
-type DepositTypeProps = {
+type LpTypeProps = {
   assetId: AssetId
   onAsymSideChange: (asymSide: string | null) => void
-  opportunityId?: string
-  side?: AsymSide | 'sym'
-  isDeposit?: boolean
-  hasAsymRunePosition?: boolean
-  hasAsymAssetPosition?: boolean
-  hasSymPosition?: boolean
-  amountsByPosition?: AmountsByPosition
-}
+  opportunityId: string
+} & (
+  | {
+      isWithdraw: boolean
+      isDeposit?: never
+      hasAsymRunePosition?: never
+      hasAsymAssetPosition?: never
+      hasSymPosition?: never
+      amountsByPosition?: never
+    }
+  | {
+      isWithdraw?: never
+      isDeposit?: boolean
+      hasAsymRunePosition?: boolean
+      hasAsymAssetPosition?: boolean
+      hasSymPosition?: boolean
+      amountsByPosition?: AmountsByPosition
+    }
+)
 
 type PositionInformations = {
   text: string | JSX.Element
@@ -123,14 +134,14 @@ type PositionInformations = {
 export const LpType = ({
   assetId,
   opportunityId,
-  side,
-  onAsymSideChange,
+  isWithdraw,
   isDeposit,
   hasAsymAssetPosition,
   hasAsymRunePosition,
   hasSymPosition,
   amountsByPosition,
-}: DepositTypeProps) => {
+  onAsymSideChange,
+}: LpTypeProps) => {
   const translate = useTranslate()
   const CircleCrossIcon = useCallback(() => <Box as={BiSolidPlusCircle} w='14px' h='14px' />, [])
   const CircleXIcon = useCallback(() => <Box as={BiSolidXCircle} w='14px' h='14px' />, [])
@@ -153,18 +164,21 @@ export const LpType = ({
     [assetId],
   )
 
-  const opportunityType = opportunityId ? fromOpportunityId(opportunityId).type : side
-  const defaultSide = opportunityType ?? hasAsymRunePosition ? AsymSide.Rune : side
+  const { opportunityType } = fromOpportunityId(opportunityId)
+
+  const isRunePositionType = useMemo(() => opportunityType === AsymSide.Rune, [opportunityType])
+  const isAssetPositionType = useMemo(() => opportunityType === AsymSide.Asset, [opportunityType])
+  const isSymPositionType = useMemo(() => opportunityType === 'sym', [opportunityType])
 
   const { getRootProps, getRadioProps, setValue } = useRadioGroup({
     name: 'depositType',
-    defaultValue: defaultSide,
+    defaultValue: opportunityType,
     onChange: onAsymSideChange,
   })
 
   useEffect(() => {
     if (!opportunityId) return
-    setValue(fromOpportunityId(opportunityId).type)
+    setValue(fromOpportunityId(opportunityId).opportunityType)
   }, [opportunityId, setValue])
 
   const subtitleStyle = useMemo(() => {
@@ -264,9 +278,15 @@ export const LpType = ({
       const optionAssetIds = makeAssetIdsOption(option.value as AsymSide | 'sym')
       const currentSideInformations = informationsByPosition?.[option.value as AsymSide | 'sym']
 
-      const isDisabled =
-        (!!side && opportunityType !== 'sym' && option.value === 'sym') ||
-        (hasAsymRunePosition && option.value === 'sym')
+      const isDisabled = (() => {
+        if (!isWithdraw) return false
+
+        if (isSymPositionType) return false
+        if (isRunePositionType) return option.value !== AsymSide.Rune
+        if (isAssetPositionType) return option.value !== AsymSide.Asset
+
+        return false
+      })()
 
       return (
         <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
@@ -311,13 +331,14 @@ export const LpType = ({
   }, [
     getRadioProps,
     makeAssetIdsOption,
-    side,
-    opportunityType,
-    hasAsymRunePosition,
     translate,
+    isWithdraw,
+    isSymPositionType,
+    isRunePositionType,
+    isAssetPositionType,
     isDeposit,
-    subtitleStyle,
     informationsByPosition,
+    subtitleStyle,
   ])
 
   const group = getRootProps()

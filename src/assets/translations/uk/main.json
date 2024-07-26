@@ -76,7 +76,6 @@
     "transactionFailedBody": "Транзакція не вдалася",
     "submitFeedback": "Залишити відгук",
     "send": "Надіслати",
-    "sendAmountAsset": "Надіслати %{amount} %{asset}",
     "receive": "Отримати",
     "privacy": "Політика конфіденційності",
     "terms": "Умови обслуговування",
@@ -106,9 +105,11 @@
     "switchNetwork": "Переключити мережу",
     "selectNetwork": "Оберіть мережу",
     "unsupportedNetwork": "Непідтримувана мережа",
+    "unsupportedWallet": "Непідтримуваний гаманець",
     "chartUnavailable": "Дані балансу тимчасово недоступні для  %{unavailableAssetNames}.",
     "search": "Пошук",
     "searchAsset": "Пошук активу",
+    "searchNameOrAddress": "Пошук за назвою або адресою",
     "enterAmount": "Ввести суму",
     "enterAddress": "Введіть адресу",
     "pageNotFound": "Сторінку, яку ви шукаєте, не вдається знайти",
@@ -150,6 +151,7 @@
     "prices": "Ціни",
     "symmetric": "Симетричний",
     "asymmetric": "Асиметричний (%{assetSymbol})",
+    "import": "Імпорт",
     "carousel": {
       "next": "Далі",
       "prev": "Попередній",
@@ -163,7 +165,8 @@
       "sortedDesc": "Відсортовано за спаданням",
       "expandRow": "Розгорнути рядок"
     },
-    "featureDisabled": "Ця функція тимчасово вимкнена."
+    "featureDisabled": "Ця функція тимчасово вимкнена.",
+    "yes": "Так"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +644,15 @@
     "for": "за",
     "emptyMessage": "Тут з'являться ваші транзакції %{status}.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Ініційовано виведення коштів",
+        "outboundTransferDeposit": "Депозит ініційовано",
+        "withdrawEth": "Виведення коштів Ініційовано",
+        "submitRetryable": "Отримано депозит",
+        "createRetryableTicket": "Депозит ініційовано",
+        "finalizeInboundTransfer": "Зняття коштів Отримано",
+        "depositEth": "Депозит ініційовано"
+      },
       "rfox": {
         "stake": "Стейкінг",
         "withdraw": "Зняти",
@@ -734,6 +746,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Переконайтеся, що у вас є %{destinationSymbol} у вашому акаунті %{destinationChainName}, він знадобиться вам для транзакцій",
     "confirm": "Підтвердити Переведення",
     "selectChain": "Виберіть ланцюжок",
     "selectAsset": "Виберіть актив",
@@ -748,7 +761,15 @@
     "route": "Маршрут",
     "waitTimeLabel": "Приблизний час очікування",
     "waitTimeValue": "~5-10 хвилин",
-    "noSupportedAssets": "Підтримуваних активів у портфелі немає."
+    "noSupportedAssets": "Підтримуваних активів у портфелі немає.",
+    "arbitrum": {
+      "waitWarning": "Нативний міст Arbitrum є більш захищеним, але може зайняти до тижня на перевод.",
+      "waitCta": "Я розумію, що пройде ~7 днів, перш ніж я зможу отримати кошти у мережі Ethereum",
+      "claimCta": "Я розумію, що після отримання коштів мені доведеться відправити ще одну транзакцію з комісією"
+    },
+    "claims": "Клейми",
+    "availableClaims": "Доступні",
+    "pendingClaims": "На розгляді"
   },
   "trade": {
     "trade": "Торгівля",
@@ -887,6 +908,7 @@
     "numHops": "Ця торгівля включає %{numHops} hops",
     "receiveAddress": "Адреса отримувача",
     "receiveAddressDescription": "Не знайдено адресу %{chainName} з підключеного гаманця. Введіть адресу вручну або",
+    "smartContractReceiveAddressDescription": "Ми виявили, що ви виконуєте обмін зі смарт-контракту, адреса якого може не існувати в ланцюжку одержувачів. Будь ласка, перевірте і введіть вручну бажану адресу одержувача в %{chainName}.",
     "toContinue": "щоб продовжити",
     "addressPlaceholder": "%{chainName} адреса",
     "priceImpactWarning": "Враховуючи розмір цієї угоди відносно наявної ліквідності, очікуваний вплив на ціну цієї угоди становить %{priceImpactPercentage}%. Ви впевнені, що хочете обміняти?",
@@ -1427,7 +1449,9 @@
         "connectFailure": "Не вдається підключити гаманець Ledger",
         "unknown": "Виникла несподівана помилка при взаємодії з гаманцем Ledger",
         "appNotOpen": "%{app} не відкрито в Ledger",
-        "appNotOpenDescription": "Будь ласка, відкрийте  %{app} на вашому пристрої та спробуйте ще раз."
+        "appNotOpenDescription": "Будь ласка, відкрийте  %{app} на вашому пристрої та спробуйте ще раз.",
+        "noDeviceConnected": "Не підключено пристрій Ledger",
+        "multipleDevicesConnected": "Підключено кілька пристроїв Ledger. Будь ласка, від'єднайте всі пристрої, крім одного."
       },
       "connect": {
         "header": "Спарити Ledger",
@@ -2165,10 +2189,14 @@
     "poolDepth": "Обсяг пулу",
     "poolDepthDescription": "Здоров'я пулу",
     "totalDebtBalance": "Загальний залишок боргу",
+    "totalDebtBalanceDescription": "Кумулятивний залишок заборгованості в кредитному пулі",
     "totalCollateral": "Загальна сума застави",
+    "totalCollateralDescription": "Загальна сума застави, доданої до кредитного пулу",
     "estCollateralizationRatio": "Приблизний коефіцієнт забезпечення",
+    "estCollateralizationRatioDescription": "Наразі діє фіксований коефіцієнт забезпечення на рівні 200%. У майбутньому динамічний коефіцієнт буде балансувати між максимальним та мінімальним КЗ, виходячи з ринкових умов.",
     "collateralizationRatio": "коефіцієнт забезпечення",
     "totalBorrowers": "Всього позичальників",
+    "totalBorrowersDescription": "Кількість позичальників, які беруть участь",
     "myLoanInformation": "Інформація про мій кредит",
     "loanInformation": "Короткий огляд кредиту",
     "poolInformation": "Інформація про пул",
@@ -2188,11 +2216,12 @@
     "switchAssets": "Переключити активи",
     "backToLending": "Назад до кредитування",
     "outstandingDebt": "Непогашена заборгованість",
+    "outstandingDebtDescription": "Сума застави, яку ви взяли в борг",
     "collateral": "Забезпечення",
     "debt": "Борг",
-    "healthy": "Безпечний",
-    "caution": "Обережніше!",
-    "risky": "Ризиковано.",
+    "healthy": "Глибина оптимальна, кредити ефективні.",
+    "caution": "Глибина помірна, очікуйте деякого прослизання вашої позики",
+    "risky": "Глибина низька, ймовірне високе прослизання вашої позики.",
     "confirmAndBorrow": "Підтвердити та позичити",
     "confirmAndRepay": "Підтвердити та погасити",
     "borrowAgain": "Позичте ще раз",
@@ -2295,6 +2324,7 @@
     "symAfterRuneAlert": "Симетричні депозити неможливі після асиметричного депозиту RUNE через те, як працює мережа THOR.",
     "incompletePositionDepositAlert": "Ця позиція є незавершеною, будь ласка, внесіть відповідну суму в %{asset} щоб завершити цю позицію.",
     "incompletePositionWithdrawAlert": "Ця позиція є незавершеною, будь ласка, скасуйте позицію, видаливши 100% ліквідності. Ви також можете завершити позицію через \"Додати ліквідність\".",
+    "unsupportedDemoWalletExplainer": "Демо-гаманець не підтримується, будь ласка, підключіться до гаманця, щоб скористатися цією функцією.",
     "unsupportedNetworkExplainer": "Ваш гаманець не підключено до %{network}. Будь ласка, підключіть цей ланцюжок або перейдіть на гаманець, який підтримує цю мережу.",
     "unsupportedNetworksExplainer": "Ваш гаманець не підключено до %{network1} та %{network2}. Будь ласка, підключіть цей ланцюжок або перейдіть на гаманець, який підтримує ці мережі.",
     "shareOfPool": "Частка пулу",
@@ -2352,7 +2382,14 @@
     "highSlippageDeposit": "Цей депозит має високе прослизання (%{slippagePercentage}%). Дійте з обережністю.",
     "highSlippageBorrow": "Ця позика має високе прослизання (%{slippagePercentage}%). Дійте з обережністю.",
     "highSlippageTrade": "На цю торгівлю впливає рух цін (%{slippagePercentage}%). Дійте з обережністю.",
-    "unsafeTrade": "Ця торгівля може бути небезпечною або нижче рекомендованого мінімального розміру, дійте з обережністю."
+    "unsafeTrade": "Ця торгівля може бути небезпечною або нижче рекомендованого мінімального розміру, дійте з обережністю.",
+    "customToken": "Будь-хто може створювати токени, в тому числі фейкові, тому слід бути обережним. Деякі токени можуть не працювати з ShapeShift. Імпортуючи цей токен, ви приймаєте ризики. Цей токен не торгується на основних біржах США і не часто обмінюється на ShapeShift. Завжди проводьте дослідження перед торгівлею."
+  },
+  "streamingAcknowledgement": {
+    "description": "Це потоковий обмін, і хоча ви отримуєте кращу ціну, він може зайняти до %{estimatedTimeHuman} для завершення."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "Я усвідомлюю ризики"
   },
   "watchlist": {
     "empty": {
@@ -2373,6 +2410,10 @@
     "lending": {
       "title": "Кредитування",
       "body": "Позичайте під заставу своїх активів."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Стейкайте FOX заробляйте RUNE."
     }
   },
   "RFOX": {
@@ -2385,6 +2426,7 @@
     "claim": "Клейм",
     "rewards": "Винагороди",
     "claims": "Клейм",
+    "chainNotSupportedByWallet": "Мережа не підтримується гаманцем",
     "changeAddress": "Змінити адресу",
     "sameAddressNotAllowed": "Однакова адреса не допускається",
     "stakingDetails": "Деталі Стейкінгу",
@@ -2402,6 +2444,9 @@
     "rewardAddressHelper": "Саме сюди будуть надсилатися винагороди",
     "useWalletAddress": "Використовуйте адресу гаманця",
     "useCustomAddress": "Використовуйте власну адресу",
+    "stakeWarning": "Коли ви розміщуєте свої токени FOX, будь ласка, пам'ятайте, що період блокування становить %{cooldownPeriod}. Це означає, що якщо ви вирішите зняти свої токени, вам потрібно буде почекати %{cooldownPeriod}, перш ніж ви зможете отримати свої кошти.",
+    "bridgeCta": "Ви вибрали %{assetSymbol} у %{originNetwork}, але для того, щоб застейкати, вам потрібен %{assetSymbol} у %{destinationNetwork}. Ми можемо допомогти вам перевести ваші кошти в %{destinationNetwork}. Бажаєте, щоб ми провели вас через цей процес?",
+    "unstakeWarning": "Перед тим, як ви зможете забрати свій FOX, ви маєте період відкликання %{cooldownPeriod}. Після закінчення цього часу ви зможете забрати свою не заклеймлену суму.",
     "tooltips": {
       "stakeAmount": "Це сума FOX, яку ви поставите на кін",
       "unstakeAmount": "Це кількість FOX, яку ви знімете зі стейкінгу",
@@ -2416,6 +2461,7 @@
     "changeRewardAddressPending": "Зміна адреси отримання винагороди...",
     "changeRewardAddressSuccess": "Ви успішно змінили свою адресу винагороди THORchain.",
     "unstakePending": "Запит на зняття %{amount} %{symbol}",
+    "unstakeSuccess": "Після закінчення %{cooldownPeriod} ви зможете отримати свої %{amount} %{symbol}",
     "currentRewardAddress": "Поточна адреса для отримання винагороди",
     "newRewardAddress": "Нова адреса для отримання винагороди",
     "rewardCycleExplainer": "Ця інформація буде оновлена для наступного циклу нагородження.",
@@ -2429,21 +2475,23 @@
     "claimPending": "Запит на виведення коштів",
     "claimSuccess": "Ви успішно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адреса отримання ",
+    "noRewardsYet": "Нагород ще немає",
     "noClaimsAvailable": "Немає коштів для клейму",
     "errorFetchingClaims": "Виникла помилка при клеймі",
     "noClaimsAvailableDescription": "Ви не маєте жодних наявних клеймів",
+    "unstakeNow": "Відстейкати і заклеймити FOX",
     "bridgeAndConfirm": "Перевести & Підтвердити",
     "noSupportedChains": "Мережа не підтримується",
     "noSupportedChainsDescription": "Додайте %{chainLabel} або підключіться до гаманця, який його підтримує.",
     "confirmAndBridge": "Підтвердити & Перевести",
-    "myRewardBalance": "Мій баланс винагороди",
-    "myRewardBalanceHelper": "Мій баланс винагороди",
-    "pendingRewardsBalance": "Очікуваний баланс винагород",
-    "pendingRewardsBalanceHelper": "Очікуваний баланс винагород",
+    "myStakedBalance": "Мій баланс стейкінгу",
+    "myStakedBalanceHelper": "Сума FOX, яку ви застейкали",
+    "pendingRewardsBalance": "Поточний розрахунковий баланс винагород",
+    "pendingRewardsBalanceHelper": "Це лише приблизний розрахунок ваших очікуваних винагород, який базується на доходах епохи на сьогоднішній день. Всі розрахунки проводяться в кінці епохи і не можуть бути точно розраховані до кінця місяця",
     "lifetimeRewards": "Винагороди за весь час",
-    "lifetimeRewardsHelper": "Винагороди за весь час",
+    "lifetimeRewardsHelper": "Довічні винагороди - це сукупні винагороди від стейкінку ваших FOX",
     "timeInPool": "Час в пулі",
-    "timeInPoolHelper": "Час в пулі",
+    "timeInPoolHelper": "Час у пулі - найдовший активний депозит у rFOX",
     "myPosition": "Моя позиція",
     "faq": {
       "title": "FAQ",

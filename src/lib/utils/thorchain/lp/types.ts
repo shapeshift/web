@@ -224,7 +224,7 @@ export type LpConfirmedWithdrawalQuote = {
   slippageFiatUserCurrency: string
   opportunityId: string
   withdrawSide: OpportunityType
-  currentAccountIdByChainId: Record<ChainId, AccountId>
+  currentAccountIdByChainId: Record<ChainId, AccountId | undefined>
   feeBps: string
   assetAddress: string | undefined
   withdrawalBps: string

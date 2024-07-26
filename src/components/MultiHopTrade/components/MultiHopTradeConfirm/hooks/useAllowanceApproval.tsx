@@ -10,13 +10,15 @@ import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { AllowanceType } from './helpers'
 import { useIsApprovalNeeded } from './useIsApprovalNeeded'
 
 // handles allowance approval tx execution, fees, and state orchestration
 export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
-  isExactAllowance: boolean,
+  allowanceType: AllowanceType,
+  isAwaitingReset: boolean,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
@@ -28,9 +30,9 @@ export const useAllowanceApproval = (
     buildCustomTxInput,
     stopPolling: stopPollingBuildApprovalTx,
     isLoading,
-  } = useApprovalTx(tradeQuoteStep, hopIndex, isExactAllowance)
+  } = useApprovalTx(tradeQuoteStep, hopIndex, allowanceType)
 
-  const { isLoading: isApprovalNeededLoading, isApprovalNeeded } = useIsApprovalNeeded(
+  const { isLoading: isApprovalNeededLoading, data: isApprovalNeededData } = useIsApprovalNeeded(
     tradeQuoteStep,
     sellAssetAccountId,
   )
@@ -39,18 +41,25 @@ export const useAllowanceApproval = (
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    if (!isApprovalNeededLoading && !isApprovalNeeded) {
+    if (!isApprovalNeededLoading && !isApprovalNeededData?.isApprovalNeeded) {
       dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex }))
     }
-  }, [dispatch, hopIndex, isApprovalNeeded, isApprovalNeededLoading])
+  }, [dispatch, hopIndex, isApprovalNeededData, isApprovalNeededLoading])
 
   const chainId = tradeQuoteStep.sellAsset.chainId
 
   const executeAllowanceApproval = useCallback(async () => {
-    if (isLoading || !isApprovalNeeded) return
+    if (isLoading || !isApprovalNeededData?.isApprovalNeeded) return
+
+    const isReset = allowanceType === AllowanceType.Reset
 
     stopPollingBuildApprovalTx()
-    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
+    dispatch(
+      tradeQuoteSlice.actions.setApprovalTxPending({
+        hopIndex,
+        isReset,
+      }),
+    )
 
     try {
       if (!buildCustomTxInput) {
@@ -65,7 +74,7 @@ export const useAllowanceApproval = (
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
       })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash, isReset }))
 
       const publicClient = assertGetViemClient(chainId)
 
@@ -73,17 +82,18 @@ export const useAllowanceApproval = (
         hash: txHash as Hash,
       })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset }))
     } catch (e) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset }))
       showErrorToast(e)
     }
   }, [
+    allowanceType,
     buildCustomTxInput,
     chainId,
     dispatch,
     hopIndex,
-    isApprovalNeeded,
+    isApprovalNeededData?.isApprovalNeeded,
     isLoading,
     showErrorToast,
     stopPollingBuildApprovalTx,
@@ -91,11 +101,11 @@ export const useAllowanceApproval = (
 
   const result = useMemo(
     () => ({
-      isLoading,
+      isLoading: isLoading || isAwaitingReset,
       executeAllowanceApproval,
       approvalNetworkFeeCryptoBaseUnit,
     }),
-    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
+    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isAwaitingReset, isLoading],
   )
 
   return result

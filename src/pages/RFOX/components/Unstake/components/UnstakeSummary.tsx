@@ -58,7 +58,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    stakingAssetAccountAddress: stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
 

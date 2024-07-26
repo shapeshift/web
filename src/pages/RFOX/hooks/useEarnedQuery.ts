@@ -1,71 +1,57 @@
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
 import type { Address } from 'viem'
 import { getAddress } from 'viem'
-import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { serialize } from 'wagmi'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
-type EarnedQueryKey = ['readContract', string]
+import { contract } from '../constants'
+
+type EarnedQueryKey = [
+  'earned',
+  { chainId: number; contractAddress: Address; stakingAssetAccountAddress?: string },
+]
 
 type UseEarnedQueryProps = {
   stakingAssetAccountAddress: string | undefined
 }
 
-const client = viemClientByNetworkId[arbitrum.id]
-
 export const getEarnedQueryKey = ({
   stakingAssetAccountAddress,
 }: UseEarnedQueryProps): EarnedQueryKey => [
-  'readContract',
-  serialize({
-    address: RFOX_PROXY_CONTRACT_ADDRESS,
-    functionName: 'earned',
-    args: [stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address)],
+  'earned',
+  {
     chainId: arbitrum.id,
-  }),
+    contractAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    stakingAssetAccountAddress,
+  },
 ]
 
-export const getEarnedQueryFn = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) =>
-  stakingAssetAccountAddress
-    ? async () =>
-        await readContract(client, {
-          abi: foxStakingV1Abi,
-          address: RFOX_PROXY_CONTRACT_ADDRESS,
-          functionName: 'earned',
-          args: [getAddress(stakingAssetAccountAddress)],
-          blockNumber: undefined, // use the latest block - archive node not allowed
-        }).catch((error: unknown) => {
-          console.error(error)
-          return 0n
-        })
-    : skipToken
+export const getEarnedQueryFn = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) => {
+  if (!stakingAssetAccountAddress) return skipToken
+
+  return async () => {
+    try {
+      return await contract.read.earned([getAddress(stakingAssetAccountAddress)])
+    } catch (err) {
+      console.error(err)
+      return 0n
+    }
+  }
+}
 
 export const useEarnedQuery = ({ stakingAssetAccountAddress }: UseEarnedQueryProps) => {
-  // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
-  const queryKey: EarnedQueryKey = useMemo(
-    () =>
-      getEarnedQueryKey({
-        stakingAssetAccountAddress,
-      }),
-    [stakingAssetAccountAddress],
-  )
+  const queryKey: EarnedQueryKey = useMemo(() => {
+    return getEarnedQueryKey({ stakingAssetAccountAddress })
+  }, [stakingAssetAccountAddress])
 
-  const queryFn = useMemo(
-    () =>
-      getEarnedQueryFn({
-        stakingAssetAccountAddress,
-      }),
-    [stakingAssetAccountAddress],
-  )
+  const queryFn = useMemo(() => {
+    return getEarnedQueryFn({ stakingAssetAccountAddress })
+  }, [stakingAssetAccountAddress])
 
   const query = useQuery({
     queryKey,
     queryFn,
-    enabled: stakingAssetAccountAddress !== undefined,
   })
 
   return query

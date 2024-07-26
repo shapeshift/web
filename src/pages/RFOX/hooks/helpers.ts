@@ -1,7 +1,7 @@
-import { RFOX_WAD } from 'contracts/constants'
+import { RFOX_REWARD_RATE } from 'contracts/constants'
 import { bn } from 'lib/bignumber/bignumber'
 
-import type { AbiStakingInfo, PartialEpoch, StakingInfo } from '../types'
+import type { AbiStakingInfo, CurrentEpochMetadata, StakingInfo } from '../types'
 
 /**
  * Calculates the reward for an account in an epoch in RUNE base units.
@@ -11,22 +11,24 @@ import type { AbiStakingInfo, PartialEpoch, StakingInfo } from '../types'
  * accounting on-chain.
  */
 export const calcEpochRewardForAccountRuneBaseUnit = (
-  epochRewardUnitsForAccount: bigint,
-  epoch: PartialEpoch,
+  rewardUnits: bigint,
+  affiliateRevenue: bigint,
+  currentEpochMetadata: CurrentEpochMetadata,
 ) => {
-  const epochEarningsForAccountAdjustedForWAD = epochRewardUnitsForAccount / RFOX_WAD
-  const distributionAmountRuneBaseUnit = scaleDistributionAmount(epoch)
-  const epochRewardRuneBaseUnit = bn(epochEarningsForAccountAdjustedForWAD.toString())
-    .div(epoch.totalRewardUnits.toString())
+  // Calculate the total reward units for the current epoch thus far
+  const secondsInCurrentEpoch = (Date.now() - currentEpochMetadata.epochStartTimestamp) / 1000
+  const totalRewardUnits = RFOX_REWARD_RATE * BigInt(Math.floor(secondsInCurrentEpoch))
+
+  const distributionAmountRuneBaseUnit = bn(affiliateRevenue.toString())
+    .times(currentEpochMetadata.distributionRate)
+    .toFixed(0)
+
+  const epochRewardRuneBaseUnit = bn(rewardUnits.toString())
+    .div(totalRewardUnits.toString())
     .times(distributionAmountRuneBaseUnit.toString())
     .toFixed(0)
 
   return BigInt(epochRewardRuneBaseUnit)
-}
-
-export const scaleDistributionAmount = (epoch: PartialEpoch) => {
-  const affiliateRevenueRuneBaseUnit = bn(epoch.totalRevenue)
-  return affiliateRevenueRuneBaseUnit.times(epoch.distributionRate)
 }
 
 export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {

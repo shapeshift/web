@@ -30,10 +30,9 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
 
-  const currentEpochMetadata = useCurrentEpochMetadataQuery()
+  const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
 
-  const totalStakedUserCurrency = useTotalStakedQuery<string>({
-    stakingAssetId,
+  const totalStakedUserCurrencyResult = useTotalStakedQuery<string>({
     select: (totalStaked: bigint) => {
       return bn(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0))
         .times(stakingAssetMarketData.price)
@@ -41,9 +40,9 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
     },
   })
 
-  const affiliateRevenue = useAffiliateRevenueQuery<string>({
-    startTimestamp: currentEpochMetadata.data?.epochStartTimestamp,
-    endTimestamp: currentEpochMetadata.data?.epochEndTimestamp,
+  const affiliateRevenueResult = useAffiliateRevenueQuery<string>({
+    startTimestamp: currentEpochMetadataResult.data?.epochStartTimestamp,
+    endTimestamp: currentEpochMetadataResult.data?.epochEndTimestamp,
     select: (totalRevenue: bigint) => {
       return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
         .times(runeAssetMarketData.price)
@@ -52,18 +51,22 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
   })
 
   const emissions = useMemo(() => {
-    if (!affiliateRevenue.data) return
-    if (!currentEpochMetadata.data) return
+    if (!affiliateRevenueResult.data) return
+    if (!currentEpochMetadataResult.data) return
 
-    return bn(affiliateRevenue.data).times(currentEpochMetadata.data.distributionRate).toFixed(2)
-  }, [affiliateRevenue.data, currentEpochMetadata.data])
+    return bn(affiliateRevenueResult.data)
+      .times(currentEpochMetadataResult.data.distributionRate)
+      .toFixed(2)
+  }, [affiliateRevenueResult.data, currentEpochMetadataResult.data])
 
   const burn = useMemo(() => {
-    if (!affiliateRevenue.data) return
-    if (!currentEpochMetadata.data) return
+    if (!affiliateRevenueResult.data) return
+    if (!currentEpochMetadataResult.data) return
 
-    return bn(affiliateRevenue.data).times(currentEpochMetadata.data.burnRate).toFixed(2)
-  }, [affiliateRevenue.data, currentEpochMetadata.data])
+    return bn(affiliateRevenueResult.data)
+      .times(currentEpochMetadataResult.data.burnRate)
+      .toFixed(2)
+  }, [affiliateRevenueResult.data, currentEpochMetadataResult.data])
 
   // The commented out code is a placeholder for when we have the data to display
   return (
@@ -82,14 +85,14 @@ export const Stats: React.FC<StatsProps> = ({ stakingAssetId }) => {
         <StatItem
           description='RFOX.totalStaked'
           // percentChangeDecimal={'0'}
-          amountUserCurrency={totalStakedUserCurrency.data}
-          isLoading={totalStakedUserCurrency.isLoading}
+          amountUserCurrency={totalStakedUserCurrencyResult.data}
+          isLoading={totalStakedUserCurrencyResult.isLoading}
         />
         <StatItem
           description='RFOX.totalFeesCollected'
           // percentChangeDecimal={'0'}
-          amountUserCurrency={affiliateRevenue.data}
-          isLoading={affiliateRevenue.isLoading}
+          amountUserCurrency={affiliateRevenueResult.data}
+          isLoading={affiliateRevenueResult.isLoading}
         />
         <StatItem
           description='RFOX.emissionsPool'

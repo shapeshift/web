@@ -186,7 +186,7 @@ export const useRfoxUnstake = ({
   })
 
   const userStakingBalanceOfQuery = useStakingInfoQuery({
-    stakingAssetAccountAddress,
+    stakingAssetAccountAddress: stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
   const { data: userStakingBalanceOfCryptoBaseUnit } = userStakingBalanceOfQuery

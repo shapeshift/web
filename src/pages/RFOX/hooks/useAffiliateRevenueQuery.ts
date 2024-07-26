@@ -28,21 +28,21 @@ export const getAffiliateRevenueQueryFn = ({
   startTimestamp,
   endTimestamp,
 }: UseAffiliateRevenueQueryProps) => {
-  return startTimestamp && endTimestamp
-    ? async () => {
-        const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
+  if (!startTimestamp || !endTimestamp) return skipToken
 
-        const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
-        const { data } = await axios.get<{ address: string; amount: string }>(url)
+  return async () => {
+    const baseUrl = getConfig().REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL
 
-        try {
-          return BigInt(data.amount)
-        } catch (error) {
-          console.error({ data })
-          throw Error('Error parsing affiliate revenue')
-        }
-      }
-    : skipToken
+    const url = `${baseUrl}/api/v1/affiliate/revenue?start=${startTimestamp}&end=${endTimestamp}`
+    const { data } = await axios.get<{ address: string; amount: string }>(url)
+
+    try {
+      return BigInt(data.amount)
+    } catch (error) {
+      console.error({ data })
+      throw Error('Error parsing affiliate revenue')
+    }
+  }
 }
 
 export const useAffiliateRevenueQuery = <SelectData = TotalRevenue>({
@@ -50,15 +50,13 @@ export const useAffiliateRevenueQuery = <SelectData = TotalRevenue>({
   endTimestamp,
   select,
 }: UseAffiliateRevenueQueryProps<SelectData>) => {
-  const queryKey: AffiliateRevenueQueryKey = useMemo(
-    () => getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp }),
-    [startTimestamp, endTimestamp],
-  )
+  const queryKey: AffiliateRevenueQueryKey = useMemo(() => {
+    return getAffiliateRevenueQueryKey({ startTimestamp, endTimestamp })
+  }, [startTimestamp, endTimestamp])
 
-  const queryFn = useMemo(
-    () => getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp }),
-    [startTimestamp, endTimestamp],
-  )
+  const queryFn = useMemo(() => {
+    return getAffiliateRevenueQueryFn({ startTimestamp, endTimestamp })
+  }, [startTimestamp, endTimestamp])
 
   const query = useQuery({
     queryKey,

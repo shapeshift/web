@@ -51,6 +51,8 @@ export const useEpochHistoryQuery = <SelectData = Epoch[]>({
   // This pattern looks weird but it allows us to add parameters to the query and key later without bigger refactor
   const queryKey = useMemo(() => getEpochHistoryQueryKey(), [])
 
+  const queryFn = useMemo(() => () => fetchEpochHistory(), [])
+
   const select = useCallback(
     (data: Epoch[]): SelectData => {
       // Filter out epochs prior to genesis
@@ -60,13 +62,11 @@ export const useEpochHistoryQuery = <SelectData = Epoch[]>({
     [_select],
   )
 
-  const query = useQuery({
+  return useQuery({
     queryKey,
-    queryFn: fetchEpochHistory,
+    queryFn,
     staleTime: 60 * 60 * 1000, // 1 hour in milliseconds
     select,
     enabled,
   })
-
-  return query
 }

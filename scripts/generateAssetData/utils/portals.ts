@@ -131,8 +131,8 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: token.images?.[0] ?? '',
-      icons: token.images ?? [],
+      icon: token.images?.[0],
+      icons: token.images,
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,

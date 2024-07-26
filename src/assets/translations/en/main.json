@@ -918,7 +918,11 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Approval gas fee loading...",
+    "approvalResetGasFee": "Approval reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
+    "approvalResetFailed": "A problem occurred during allowance reset",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
@@ -940,6 +944,7 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "resetTitle": "Token allowance reset",
     "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
@@ -2325,6 +2330,7 @@
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
     "symAfterRuneAlert": "Symmetrical deposits are not possible following an asymmetric RUNE deposit due to the way the THOR network works.",
+    "withdrawTypeNotAvailable": "This withdrawal type is not available for this pool.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedDemoWalletExplainer": "The demo wallet is not supported, please connect to a wallet to use this feature.",

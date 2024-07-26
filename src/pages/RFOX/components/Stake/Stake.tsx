@@ -87,7 +87,6 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
       : undefined,
     stakingAssetId,
   })
-
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })

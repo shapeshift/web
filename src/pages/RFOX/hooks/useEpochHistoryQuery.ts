@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { orderBy } from 'lodash'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import { IPFS_GATEWAY } from '../constants'
@@ -46,21 +46,12 @@ export const fetchEpochHistory = async (): Promise<Epoch[]> => {
 
 export const useEpochHistoryQuery = <SelectData = Epoch[]>({
   enabled,
-  select: _select,
+  select,
 }: UseEpochHistoryQueryProps<SelectData>) => {
   // This pattern looks weird but it allows us to add parameters to the query and key later without bigger refactor
   const queryKey = useMemo(() => getEpochHistoryQueryKey(), [])
 
   const queryFn = useMemo(() => () => fetchEpochHistory(), [])
-
-  const select = useCallback(
-    (data: Epoch[]): SelectData => {
-      // Filter out epochs prior to genesis
-      const filteredData = data.filter(epoch => epoch.number >= 0)
-      return _select ? _select(filteredData) : (filteredData as SelectData)
-    },
-    [_select],
-  )
 
   return useQuery({
     queryKey,

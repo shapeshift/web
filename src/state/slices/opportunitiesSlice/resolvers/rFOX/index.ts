@@ -87,12 +87,10 @@ export const rFOXStakingUserDataResolver = async ({
   opportunityId,
   accountId,
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { account } = fromAccountId(accountId)
-  const accountAddress = getAddress(account)
-
+  const stakingAssetAccountAddress = getAddress(fromAccountId(accountId).account)
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-  const rfoxStakingInfo = await getStakingInfoQueryFn(accountAddress, undefined)()
+  const rfoxStakingInfo = await getStakingInfoQueryFn(stakingAssetAccountAddress)()
   const stakedAmountCryptoBaseUnit = selectStakingBalance(rfoxStakingInfo)
 
   // TODO: Implement rewards

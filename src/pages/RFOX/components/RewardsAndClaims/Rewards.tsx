@@ -1,9 +1,7 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
@@ -26,31 +24,32 @@ type RewardsProps = {
 }
 
 const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
-  const rune = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const stakingAssetAccountAddresses = useMemo(() => {
     return [fromAccountId(stakingAssetAccountId).account]
   }, [stakingAssetAccountId])
 
-  const {
-    data: maybeRewardDistributions,
-    isLoading: isRewardDistributionsLoading,
-    isFetching: isRewardDistributionsFetching,
-  } = useLifetimeRewardDistributionsQuery({ stakingAssetAccountAddresses })
+  const lifetimeRewardDistributionsResult = useLifetimeRewardDistributionsQuery({
+    stakingAssetAccountAddresses,
+  })
 
   const isLoading = useMemo(() => {
-    return isRewardDistributionsLoading || isRewardDistributionsFetching
-  }, [isRewardDistributionsFetching, isRewardDistributionsLoading])
+    return (
+      lifetimeRewardDistributionsResult.isLoading || lifetimeRewardDistributionsResult.isFetching
+    )
+  }, [lifetimeRewardDistributionsResult])
 
   const rewardDistributionsByTxId = useMemo(() => {
-    if (!maybeRewardDistributions) return {}
-    return maybeRewardDistributions.reduce<Record<string, RewardDistribution>>(
+    if (!lifetimeRewardDistributionsResult.data) return {}
+
+    return lifetimeRewardDistributionsResult.data.reduce<Record<string, RewardDistribution>>(
       (acc, rewardDistribution) => {
         acc[rewardDistribution.txId] = rewardDistribution
         return acc
       },
       {},
     )
-  }, [maybeRewardDistributions])
+  }, [lifetimeRewardDistributionsResult])
 
   const txIds = useMemo(() => {
     return Object.keys(rewardDistributionsByTxId)
@@ -58,17 +57,9 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
 
   const getTxDetails = useCallback(
     (txId: TxId): TxDetails | undefined => {
-      if (!rune) return
+      if (!runeAsset) return
 
       const { rewardAddress, amount } = rewardDistributionsByTxId[txId]
-
-      const txTransfer: TxTransfer = {
-        from: [DAO_TREASURY_THORCHAIN],
-        to: [rewardAddress],
-        value: amount,
-        assetId: thorchainAssetId,
-        type: TransferType.Receive,
-      }
 
       const tx: Tx = {
         pubkey: rewardAddress,
@@ -78,7 +69,15 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         blockTime: 0,
         confirmations: 0,
         txid: txId,
-        transfers: [txTransfer],
+        transfers: [
+          {
+            from: [],
+            to: [rewardAddress],
+            value: amount,
+            assetId: thorchainAssetId,
+            type: TransferType.Receive,
+          },
+        ],
       }
 
       const txLink = getTxLink({
@@ -90,17 +89,12 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
       return {
         tx,
         fee: undefined,
-        transfers: [
-          {
-            ...txTransfer,
-            asset: rune,
-          },
-        ],
+        transfers: tx.transfers.map(transfer => ({ ...transfer, asset: runeAsset })),
         type: TransferType.Receive,
         txLink,
       }
     },
-    [rewardDistributionsByTxId, rune],
+    [rewardDistributionsByTxId, runeAsset],
   )
 
   if (!txIds.length && !isLoading) {

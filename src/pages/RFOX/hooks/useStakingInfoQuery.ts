@@ -35,10 +35,8 @@ export const getStakingInfoQueryKey = (
   ]
 }
 
-export const getStakingInfoQueryFn = ({ stakingAssetAccountAddress }: UseStakingInfoQueryProps) => {
-  return stakingAssetAccountAddress
-    ? () => contract.read.stakingInfo([getAddress(stakingAssetAccountAddress)])
-    : skipToken
+export const getStakingInfoQueryFn = (stakingAssetAccountAddress: string) => {
+  return () => contract.read.stakingInfo([getAddress(stakingAssetAccountAddress)])
 }
 
 export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
@@ -50,10 +48,11 @@ export const useStakingInfoQuery = <SelectData = AbiStakingInfo>({
     [stakingAssetAccountAddress],
   )
 
-  const queryFn = useMemo(
-    () => getStakingInfoQueryFn({ stakingAssetAccountAddress }),
-    [stakingAssetAccountAddress],
-  )
+  const queryFn = useMemo(() => {
+    return stakingAssetAccountAddress
+      ? getStakingInfoQueryFn(stakingAssetAccountAddress)
+      : skipToken
+  }, [stakingAssetAccountAddress])
 
   const stakingInfoQuery = useQuery({
     queryKey,

@@ -15,11 +15,11 @@ import { getTransfersByType } from './utils'
 
 export const TransactionCommon = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   isOpen,
   toggleOpen,
   parentWidth,
+  topRight,
 }: TransactionRowProps) => {
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
@@ -54,9 +54,9 @@ export const TransactionCommon = ({
         fee={txDetails.fee}
         txLink={txDetails.txLink}
         txid={txDetails.tx.txid}
-        showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
         txDetails={txDetails}
+        topRight={topRight}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         {txDetails.transfers.length > 0 && (

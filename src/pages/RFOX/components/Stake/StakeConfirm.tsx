@@ -142,7 +142,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress: stakingAssetAccountAddress,
+    stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
 

@@ -18,12 +18,14 @@ export const useLifetimeRewardsQuery = ({
     (data: Epoch[]): bigint => {
       if (!stakingAssetAccountAddress) return 0n
       const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
-      return data.reduce((acc, epoch) => {
-        const distribution =
-          epoch.distributionsByStakingAddress[checksumStakingAssetAccountAddress]?.amount
-        if (!distribution) return acc
-        return acc + BigInt(distribution)
-      }, 0n)
+      return data
+        .filter(epoch => epoch.number >= 0)
+        .reduce((acc, epoch) => {
+          const distribution =
+            epoch.distributionsByStakingAddress[checksumStakingAssetAccountAddress]?.amount
+          if (!distribution) return acc
+          return acc + BigInt(distribution)
+        }, 0n)
     },
     [stakingAssetAccountAddress],
   )

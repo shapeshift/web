@@ -1,9 +1,16 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
-import { TransactionRowFromTxDetails } from 'components/TransactionHistoryRows/TransactionRow'
+import { Text } from 'components/Text'
+import {
+  TransactionRow,
+  TransactionRowFromTxDetails,
+} from 'components/TransactionHistoryRows/TransactionRow'
 import { useResizeObserver } from 'hooks/useResizeObserver/useResizeObserver'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import type { ReduxState } from 'state/reducer'
+import { selectTxById } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { useAppSelector } from 'state/store'
 
 type RewardTransactionListProps = {
   txIds: TxId[]
@@ -12,29 +19,72 @@ type RewardTransactionListProps = {
   getTxDetails: (txId: TxId) => TxDetails | undefined
 }
 
-const RewardTransactionListLoaded = memo(
+type RewardTransactionProps = {
+  txId: string
+  useCompactMode?: boolean
+  entry: ResizeObserverEntry | undefined
+  getTxDetails: (txId: TxId) => TxDetails | undefined
+}
+
+const RewardTransaction = memo(
+  ({ txId, useCompactMode, entry, getTxDetails }: RewardTransactionProps) => {
+    const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
+
+    if (tx) {
+      return (
+        <TransactionRow
+          key={txId}
+          txId={txId}
+          useCompactMode={useCompactMode}
+          parentWidth={entry?.contentRect.width ?? 360}
+        />
+      )
+    }
+
+    const txDetails = getTxDetails(txId)
+
+    if (!txDetails) return null
+
+    return (
+      <TransactionRowFromTxDetails
+        key={txId}
+        useCompactMode={useCompactMode}
+        parentWidth={entry?.contentRect.width ?? 360}
+        txDetails={txDetails}
+        disableCollapse
+        topRight={
+          txId ? undefined : (
+            <Text
+              fontSize='sm'
+              fontWeight='bold'
+              color='yellow.300'
+              translation='RFOX.pendingDistribution'
+            />
+          )
+        }
+      />
+    )
+  },
+)
+
+const RewardsTransactions = memo(
   ({ txIds, useCompactMode, getTxDetails }: Omit<RewardTransactionListProps, 'isLoading'>) => {
     const { setNode, entry } = useResizeObserver()
 
     const renderedTxRows = useMemo(() => {
       return (
         <>
-          {txIds?.map((txId: TxId, index: number) => {
-            const txDetails = getTxDetails(txId)
-            if (!txDetails) return null
-            return (
-              <TransactionRowFromTxDetails
-                key={txId}
-                useCompactMode={useCompactMode}
-                showDateAndGuide={index === 0}
-                parentWidth={entry?.contentRect.width ?? 360}
-                txDetails={txDetails}
-              />
-            )
-          })}
+          {txIds?.map(txId => (
+            <RewardTransaction
+              txId={txId}
+              useCompactMode={useCompactMode}
+              entry={entry}
+              getTxDetails={getTxDetails}
+            />
+          ))}
         </>
       )
-    }, [entry?.contentRect.width, getTxDetails, txIds, useCompactMode])
+    }, [entry, getTxDetails, txIds, useCompactMode])
 
     return (
       <Stack px={2} spacing={2} ref={setNode}>
@@ -44,28 +94,19 @@ const RewardTransactionListLoaded = memo(
   },
 )
 
-const RewardTransactionListLoading = () => {
-  return (
-    <Stack px={2} spacing={2}>
-      {new Array(2).fill(null).map((_, i) => (
-        <Skeleton key={i} height={16} />
-      ))}
-    </Stack>
-  )
-}
-
 export const RewardTransactionList = ({
   isLoading,
   txIds,
   useCompactMode,
   getTxDetails,
 }: RewardTransactionListProps) => {
-  if (isLoading) return <RewardTransactionListLoading />
   return (
-    <RewardTransactionListLoaded
-      txIds={txIds}
-      useCompactMode={useCompactMode}
-      getTxDetails={getTxDetails}
-    />
+    <Skeleton isLoaded={!isLoading}>
+      <RewardsTransactions
+        txIds={txIds}
+        useCompactMode={useCompactMode}
+        getTxDetails={getTxDetails}
+      />
+    </Skeleton>
   )
 }

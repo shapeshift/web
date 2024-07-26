@@ -21,7 +21,6 @@ import { getTransfersByType, getTxMetadataWithAssetId } from './utils'
 
 export const TransactionMethod = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   isOpen,
   toggleOpen,
@@ -124,7 +123,6 @@ export const TransactionMethod = ({
         txLink={txDetails.txLink}
         txid={txDetails.tx.txid}
         txData={txMetadata}
-        showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
         txDetails={txDetails}
       />

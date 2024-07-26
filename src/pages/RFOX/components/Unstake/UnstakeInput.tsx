@@ -148,7 +148,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     data: userStakingBalanceOfCryptoBaseUnit,
     isSuccess: isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
-    stakingAssetAccountAddress: stakingAssetAccountAddress,
+    stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
 

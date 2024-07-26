@@ -15,49 +15,49 @@ dayjs.extend(relativeTime)
 
 export type TransactionRowProps = {
   txDetails: TxDetails
-  showDateAndGuide?: boolean
   compactMode: boolean
   isOpen: boolean
   toggleOpen?: () => void
   parentWidth: number
+  topRight?: JSX.Element
 }
 
-export type TxRowProps = {
+type TxRowProps = {
   txId: string
   activeAsset?: Asset
-  showDateAndGuide?: boolean
   useCompactMode?: boolean
   parentWidth: number
   initOpen?: boolean
   disableCollapse?: boolean
   boxProps?: BoxProps
+  topRight?: JSX.Element
 }
 
-export const TransactionType = ({
+const TransactionType = ({
   txDetails,
-  showDateAndGuide,
   useCompactMode,
   isOpen,
   parentWidth,
   toggleOpen,
+  topRight,
 }: {
   txDetails: TxDetails
-  showDateAndGuide?: boolean
   useCompactMode?: boolean
   isOpen: boolean
   parentWidth: number
   toggleOpen?: () => void
+  topRight?: JSX.Element
 }): JSX.Element => {
   const props: TransactionRowProps = useMemo(
     () => ({
       txDetails,
-      showDateAndGuide: showDateAndGuide ?? false,
       compactMode: useCompactMode ?? false,
       toggleOpen,
       isOpen,
       parentWidth,
+      topRight,
     }),
-    [isOpen, parentWidth, showDateAndGuide, toggleOpen, txDetails, useCompactMode],
+    [isOpen, parentWidth, toggleOpen, txDetails, useCompactMode, topRight],
   )
 
   switch (txDetails.type) {
@@ -79,17 +79,17 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
     {
       boxProps,
       txDetails,
-      showDateAndGuide,
       useCompactMode,
       parentWidth,
       initOpen = false,
       disableCollapse = false,
+      topRight,
     },
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(initOpen)
     const toggleOpen = useCallback(
-      () => (disableCollapse ? null : setIsOpen(!isOpen)),
+      () => (disableCollapse ? undefined : setIsOpen(!isOpen)),
       [disableCollapse, isOpen],
     )
 
@@ -115,11 +115,11 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
       >
         <TransactionType
           txDetails={txDetails}
-          showDateAndGuide={showDateAndGuide}
           useCompactMode={useCompactMode}
           isOpen={isOpen}
           toggleOpen={toggleOpen}
           parentWidth={parentWidth}
+          topRight={topRight}
         />
       </Box>
     )

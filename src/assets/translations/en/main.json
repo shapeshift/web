@@ -2533,6 +2533,7 @@
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
     "emissionsPool": "Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
-    "foxBurnAmount": "FOX Burn Amount"
+    "foxBurnAmount": "FOX Burn Amount (This Epoch)",
+    "pendingDistribution": "Pending Distribution"
   }
 }

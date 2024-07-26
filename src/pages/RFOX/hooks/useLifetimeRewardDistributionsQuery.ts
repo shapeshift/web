@@ -20,6 +20,7 @@ export const useLifetimeRewardDistributionsQuery = ({
     (data: Epoch[]): RewardDistribution[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
+        .filter(epoch => epoch.number >= 0)
         .flatMap(epoch =>
           stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
             const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)

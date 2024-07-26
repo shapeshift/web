@@ -22,7 +22,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
-  selectIsCustomAssetWithoutMarketData,
+  selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectUserSlippagePercentageDecimal,
@@ -118,14 +118,14 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [quote],
     )
 
-    const isSellAssetCustomAssetWithoutMarketData = useAppSelector(state =>
-      selectIsCustomAssetWithoutMarketData(state, sellAsset.assetId),
+    const isSellAssetWithoutMarketData = useAppSelector(state =>
+      selectIsAssetWithoutMarketData(state, sellAsset.assetId),
     )
-    const isBuyAssetCustomAssetWithoutMarketData = useAppSelector(state =>
-      selectIsCustomAssetWithoutMarketData(state, buyAsset.assetId),
+    const isBuyAssetWithoutMarketData = useAppSelector(state =>
+      selectIsAssetWithoutMarketData(state, buyAsset.assetId),
     )
     const isTradingCustomAssetWithoutMarketData =
-      isSellAssetCustomAssetWithoutMarketData || isBuyAssetCustomAssetWithoutMarketData
+      isSellAssetWithoutMarketData || isBuyAssetWithoutMarketData
 
     const totalReceiveAmountFiatPrecision = useMemo(
       () =>

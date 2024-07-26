@@ -234,16 +234,9 @@ export const selectHighestMarketCapFeeAsset = createSelector(
   },
 )
 
-export const selectIsCustomAsset = createSelector(selectAssetById, (asset): boolean => {
-  if (!asset) return false
-  return !!asset.isCustomAsset
-})
-
-// This is a specific case we want to check for, where we have a custom asset but no market data
-export const selectIsCustomAssetWithoutMarketData = createSelector(
+export const selectIsAssetWithoutMarketData = createSelector(
   selectMarketDataByAssetIdUserCurrency,
-  selectIsCustomAsset,
-  (marketData, isCustomAsset): boolean => {
-    return (!marketData || marketData.price === '0') && isCustomAsset
+  (marketData): boolean => {
+    return !marketData || marketData.price === '0'
   },
 )

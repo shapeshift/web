@@ -16,7 +16,6 @@ export type MinimalAsset = Partial<Asset> & Pick<Asset, 'assetId' | 'symbol' | '
 export const makeAsset = (
   assetsById: Partial<Record<AssetId, Asset>>,
   minimalAsset: MinimalAsset,
-  isCustomAsset = false,
 ): Asset => {
   const { assetId } = minimalAsset
 
@@ -49,7 +48,6 @@ export const makeAsset = (
     chainId,
     color,
     icon,
-    isCustomAsset,
     relatedAssetKey: null,
   })
 }

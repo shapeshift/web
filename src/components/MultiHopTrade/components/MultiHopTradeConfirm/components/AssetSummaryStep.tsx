@@ -7,7 +7,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
-  selectIsCustomAssetWithoutMarketData,
+  selectIsAssetWithoutMarketData,
   selectMarketDataUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -30,8 +30,8 @@ export const AssetSummaryStep = ({
     number: { toCrypto, toFiat },
   } = useLocaleFormatter()
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
-  const isCustomAssetWithoutMarketData = useAppSelector(state =>
-    selectIsCustomAssetWithoutMarketData(state, asset.assetId),
+  const isAssetWithoutMarketData = useAppSelector(state =>
+    selectIsAssetWithoutMarketData(state, asset.assetId),
   )
 
   const sellAmountCryptoPrecision = useMemo(
@@ -62,7 +62,7 @@ export const AssetSummaryStep = ({
     <StepperStep
       title={amountCryptoFormatted}
       description={
-        isCustomAssetWithoutMarketData
+        isAssetWithoutMarketData
           ? undefined
           : translate('trade.assetSummaryDescription', { amountFiatFormatted, chainName })
       }

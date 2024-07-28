@@ -73,11 +73,7 @@ export const AssetsTransfers: React.FC<AssetsTransfersProps> = ({
     >
       {singleAsset ? (
         <>
-          <AssetIcon
-            src={transfers[0].asset.icon}
-            assetId={transfers[0].asset?.assetId}
-            size={assetIconSize}
-          />
+          <AssetIcon asset={transfers[0].asset} size={assetIconSize} />
           <Box flex={1}>
             <Amount.Crypto
               color='inherit'

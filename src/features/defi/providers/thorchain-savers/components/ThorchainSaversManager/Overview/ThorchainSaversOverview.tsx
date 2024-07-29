@@ -325,11 +325,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           </HelperTooltip>
           <Flex gap={1}>
             <Amount.Fiat value={opportunityMetadata?.tvl ?? 0} />
-            <Amount.Fiat
-              value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
-              prefix='/'
-              color='text.subtle'
-            />
+            {opportunityMetadata?.saversMaxSupplyFiat !== undefined ? (
+              <Amount.Fiat
+                value={opportunityMetadata.saversMaxSupplyFiat ?? 0}
+                prefix='/'
+                color='text.subtle'
+              />
+            ) : null}
           </Flex>
         </Flex>
         {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (

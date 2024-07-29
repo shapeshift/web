@@ -162,6 +162,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {
+      // RUNEPool doesn't have any APY for now
+      // @TODO: calculate proper APY at opportunity meta time by doing some homemade mathematics
       apy: undefined,
       assetId: thorchainAssetId,
       id: thorchainAssetId as StakingId,
@@ -170,12 +172,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       tvl: '10',
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
+      // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
       underlyingAssetIds: [thorchainAssetId] as [AssetId],
       rewardAssetIds: [thorchainAssetId] as [AssetId],
-      // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
+      // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
       underlyingAssetRatiosBaseUnit: ['1'],
       name: `RUNEPool`,
-      saversMaxSupplyFiat: '5000000',
+      saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
     }
@@ -216,6 +219,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
           isLoaded: true,
           userStakingId,
+          // @TODO: implement me when wiring up RUNEPool queries
           stakedAmountCryptoBaseUnit: '0',
           rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
         }

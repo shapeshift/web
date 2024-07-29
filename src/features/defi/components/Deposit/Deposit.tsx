@@ -21,7 +21,7 @@ type DepositProps = {
   asset: Asset
   rewardAsset?: Asset
   // Estimated apy (Deposit Only)
-  apy: string
+  apy: string | undefined
   // Users available amount
   cryptoAmountAvailable: string
   // Validation rules for the crypto input
@@ -191,7 +191,7 @@ export const Deposit = ({
     [onContinue],
   )
 
-  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
+  const cryptoYield = calculateYearlyYield(bnOrZero(apy).toString(), values.cryptoAmount)
   const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
@@ -222,20 +222,22 @@ export const Deposit = ({
             percentOptions={percentOptions}
             icons={inputIcons}
           />
-          <Row>
-            <Stack flex={1} spacing={0}>
-              <Text fontWeight='medium' translation='modals.deposit.estimatedReturns' />
-              <Amount.Percent color={green} value={apy} prefix='@' suffix='APY' />
-            </Stack>
-            <Row.Value>
-              <Stack textAlign='right' spacing={0}>
-                <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
-                <Stack alignItems='flex-end'>
-                  <AssetIcon size='xs' src={(rewardAsset ?? asset).icon} />
-                </Stack>
+          {apy ? (
+            <Row>
+              <Stack flex={1} spacing={0}>
+                <Text fontWeight='medium' translation='modals.deposit.estimatedReturns' />
+                <Amount.Percent color={green} value={apy} prefix='@' suffix='APY' />
               </Stack>
-            </Row.Value>
-          </Row>
+              <Row.Value>
+                <Stack textAlign='right' spacing={0}>
+                  <Amount.Fiat value={fiatYield} fontWeight='bold' lineHeight='1' mb={1} />
+                  <Stack alignItems='flex-end'>
+                    <AssetIcon size='xs' src={(rewardAsset ?? asset).icon} />
+                  </Stack>
+                </Stack>
+              </Row.Value>
+            </Row>
+          ) : null}
         </FormField>
         {children}
         <Button

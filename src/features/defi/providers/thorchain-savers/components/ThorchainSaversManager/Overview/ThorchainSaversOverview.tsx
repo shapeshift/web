@@ -90,15 +90,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const isRunePool = assetId === thorchainAssetId
+
   const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
     asset,
     amountCryptoBaseUnit: BigNumber.max(
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
       toBaseUnit(1, asset?.precision ?? 0),
     ),
-    enabled: assetId !== thorchainAssetId,
+    enabled: !isRunePool,
   })
 
+  // @TODO: Find how we can handle this for RUNEPool
   const isHardCapReached = useMemo(
     () => (error ? error.message.includes('add liquidity rune is more than bond') : false),
     [error],

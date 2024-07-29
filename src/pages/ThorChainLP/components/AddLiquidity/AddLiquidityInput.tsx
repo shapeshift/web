@@ -310,7 +310,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     const defaultOpportunityId = toOpportunityId({
       assetId: assetId || walletSupportedOpportunity?.assetId || pools[0].assetId,
-      type: opportunityType,
+      opportunityType,
     })
 
     setActiveOpportunityId(defaultOpportunityId)
@@ -325,7 +325,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     accountIdsByChainId,
   ])
 
-  const { assetId, type: opportunityType } = useMemo<Partial<Opportunity>>(() => {
+  const { assetId, opportunityType } = useMemo<Partial<Opportunity>>(() => {
     if (!activeOpportunityId) return {}
     return fromOpportunityId(activeOpportunityId)
   }, [activeOpportunityId])
@@ -1257,7 +1257,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       setVirtualAssetDepositAmountFiatUserCurrency('0')
       setVirtualRuneDepositAmountCryptoPrecision('0')
       setVirtualRuneDepositAmountFiatUserCurrency('0')
-      setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, type }))
+      setActiveOpportunityId(toOpportunityId({ assetId: asset.assetId, opportunityType: type }))
     },
     [getDefaultOpportunityType],
   )
@@ -1317,7 +1317,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       if (!poolAsset) return
 
       setActiveOpportunityId(
-        toOpportunityId({ assetId: poolAsset.assetId, type: asymSide as AsymSide | 'sym' }),
+        toOpportunityId({
+          assetId: poolAsset.assetId,
+          opportunityType: asymSide as AsymSide | 'sym',
+        }),
       )
     },
     [poolAsset],
@@ -1473,11 +1476,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             <FormLabel mb={0} px={6} fontSize='sm'>
               {translate('pools.depositAmounts')}
             </FormLabel>
-            {!opportunityId && (
+            {!opportunityId && activeOpportunityId && (
               <LpType
                 assetId={poolAsset.assetId}
                 opportunityId={activeOpportunityId}
                 onAsymSideChange={handleAsymSideChange}
+                isDeposit={true}
               />
             )}
             {tradeAssetInputs}

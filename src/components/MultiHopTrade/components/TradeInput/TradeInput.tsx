@@ -2,6 +2,7 @@ import { Box, Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -211,15 +212,19 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     handleFormSubmit()
   }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
 
-  const handleTradeQuoteConfirm = useCallback(() => {
-    if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
-    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
-      return setShouldShowStreamingAcknowledgement(true)
-    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
-      return setShouldShowArbitrumBridgeAcknowledgement(true)
+  const handleTradeQuoteConfirm = useCallback(
+    (e: FormEvent<unknown>) => {
+      e.preventDefault()
+      if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
+      if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
+        return setShouldShowStreamingAcknowledgement(true)
+      if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
+        return setShouldShowArbitrumBridgeAcknowledgement(true)
 
-    handleFormSubmit()
-  }, [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
+      handleFormSubmit()
+    },
+    [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
+  )
 
   const warningAcknowledgementMessage = (() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)

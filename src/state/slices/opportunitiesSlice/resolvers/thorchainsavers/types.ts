@@ -93,3 +93,38 @@ export type ThorchainSaversDepositQuoteResponse =
 export type ThorchainSaversWithdrawQuoteResponse =
   | ThorchainSaversWithdrawQuoteResponseSuccess
   | ThorchainSaversCommonQuoteResponseError
+
+export type ThorchainRunepoolInformationsResponseSuccess = {
+  pol: {
+    rune_deposited: string
+    rune_withdrawn: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+  providers: {
+    units: string
+    pending_units: string
+    pending_rune: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+  reserve: {
+    units: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+}
+
+export type ThorchainFromAddressRunepoolInformationsResponseSuccess = {
+  rune_address: string
+  units: string
+  value: string
+  pnl: string
+  deposit_amount: string
+  withdraw_amount: string
+  last_deposit_height: number
+  last_withdraw_height: number
+}

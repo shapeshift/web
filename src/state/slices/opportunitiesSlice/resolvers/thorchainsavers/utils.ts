@@ -29,6 +29,8 @@ import type {
   MidgardPoolPeriod,
   MidgardPoolRequest,
   MidgardPoolResponse,
+  ThorchainFromAddressRunepoolInformationsResponseSuccess,
+  ThorchainRunepoolInformationsResponseSuccess,
   ThorchainSaverPositionResponse,
   ThorchainSaversDepositQuoteResponse,
   ThorchainSaversDepositQuoteResponseSuccess,
@@ -303,4 +305,38 @@ export const makeDaysToBreakEven = ({
   // and ~ a day after deposit
   const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
   return daysToBreakEven
+}
+
+export const getMaybeThorchainRunepoolInformations = async (): Promise<
+  Result<ThorchainRunepoolInformationsResponseSuccess, string>
+> => {
+  const { data: quoteData } = await axios.get<ThorchainRunepoolInformationsResponseSuccess>(
+    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+  )
+
+  if (!quoteData || 'error' in quoteData)
+    return Err(`Error fetching THORChain RUNEPool quote: ${quoteData?.error}`)
+
+  return Ok(quoteData)
+}
+
+export const getMaybeThorchainFromAddressRunepoolInformations = async ({
+  accountId,
+}: {
+  accountId: AccountId
+}): Promise<Result<ThorchainFromAddressRunepoolInformationsResponseSuccess, string>> => {
+  if (!accountId) return Err(`Invalid accountId for THORCHain RUNEPool: ${accountId}`)
+
+  const address = fromAccountId(accountId).account
+  console.log(address)
+
+  const { data: quoteData } =
+    await axios.get<ThorchainFromAddressRunepoolInformationsResponseSuccess>(
+      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
+    )
+
+  if (!quoteData || 'error' in quoteData)
+    return Err(`Error fetching THORChain RUNEPool quote: ${quoteData?.error}`)
+
+  return Ok(quoteData)
 }

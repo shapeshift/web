@@ -43,7 +43,7 @@ export const AssetTransfer: React.FC<AssetTransferProps> = ({ index, compactMode
       direction={index === 0 ? 'row' : 'row-reverse'}
       textAlign={index === 0 ? 'left' : 'right'}
     >
-      <AssetIcon src={transfer.asset.icon} assetId={transfer.asset?.assetId} size={assetIconSize} />
+      <AssetIcon asset={transfer.asset} size={assetIconSize} />
       <Box flex={1}>
         <Amount.Crypto
           color='inherit'

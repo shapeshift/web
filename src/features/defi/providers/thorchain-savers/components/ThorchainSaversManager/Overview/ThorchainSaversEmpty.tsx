@@ -83,12 +83,14 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   )
 
   const renderFooter = useMemo(() => {
+    if (!asset) return
+
     return (
       <Flex flexDir='column' gap={4} width='full'>
         {bnOrZero(cryptoBalance).eq(0) && assetSupportsBuy}
         <Alert status='info' justifyContent='space-between' borderRadius='xl'>
           <Flex gap={2} alignItems='center'>
-            <AssetIcon assetId={asset?.assetId} size='sm' />
+            <AssetIcon assetId={asset.assetId} size='sm' />
             <Text fontWeight='bold' letterSpacing='-0.02em' translation={needAssetTranslation} />
           </Flex>
           <Button variant='ghost' size='sm' colorScheme='blue' onClick={handleAssetBuyClick}>
@@ -117,12 +119,11 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
       </Flex>
     )
   }, [
-    asset?.assetId,
-    assetSupportsBuy,
+    asset,
     cryptoBalance,
-    handleAssetBuyClick,
+    assetSupportsBuy,
     needAssetTranslation,
-    onClick,
+    handleAssetBuyClick,
     translate,
     hasAccounts,
     handleHasAgreed,
@@ -130,6 +131,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     linkColor,
     backgroundColor,
     isRunePool,
+    onClick,
   ])
 
   const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])

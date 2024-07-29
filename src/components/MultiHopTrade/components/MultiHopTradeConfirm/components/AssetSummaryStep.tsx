@@ -56,8 +56,8 @@ export const AssetSummaryStep = ({
   }, [asset.chainId])
 
   const assetIcon = useMemo(() => {
-    return <AssetIcon src={asset.icon} boxSize='32px' />
-  }, [asset.icon])
+    return <AssetIcon assetId={asset.assetId} boxSize='32px' />
+  }, [asset.assetId])
   return (
     <StepperStep
       title={amountCryptoFormatted}

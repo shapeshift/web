@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import type { SwapperConfig } from '../../../types'
+
 // non-exhaustive
 type PortalsTradeOrderParams = {
   sender: string
@@ -12,6 +14,7 @@ type PortalsTradeOrderParams = {
   feePercentage?: number
   // Technically optional, but we want to explicitly specify validate
   validate: boolean
+  swapperConfig: SwapperConfig
 }
 
 type PortalsTradeOrderResponse = {
@@ -56,8 +59,9 @@ export const fetchPortalsTradeOrder = async ({
   partner,
   feePercentage,
   validate,
+  swapperConfig,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
-  const url = 'https://api.portals.fi/v2/portal'
+  const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal`
 
   const params = new URLSearchParams({
     partner,

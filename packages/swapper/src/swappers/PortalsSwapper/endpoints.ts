@@ -16,11 +16,12 @@ import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuot
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assertGetEvmChainAdapter }: SwapperDeps,
+    { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getPortalsTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
+      config,
     )
 
     return tradeQuoteResult.map(tradeQuote => {

@@ -9,6 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
   type SingleHopTradeQuoteSteps,
@@ -26,6 +27,7 @@ import { isSupportedChainId } from '../utils/helpers'
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  swapperConfig: SwapperConfig,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -116,6 +118,7 @@ export async function getPortalsTradeQuote(
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
+      swapperConfig,
     }).catch(e => {
       console.info('failed to get Portals quote with validation enabled', e)
 
@@ -129,6 +132,7 @@ export async function getPortalsTradeQuote(
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,
+        swapperConfig,
       })
     })
 

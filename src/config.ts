@@ -180,6 +180,7 @@ const validators = {
   REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS: str(),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
+  REACT_APP_PORTALS_BASE_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

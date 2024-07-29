@@ -10,7 +10,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -83,6 +83,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetNamespace,
     assetReference,
   })
+
+  const isRunePool = assetId === thorchainAssetId
 
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
@@ -186,12 +188,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     enabled: Boolean(accountId && wallet && accountMetadata),
   })
 
+  const memo = useMemo(() => {
+    if (isRunePool) return 'POOL+'
+    if (quoteData?.quote.memo) return quoteData.quote.memo
+
+    return null
+  }, [isRunePool, quoteData?.quote.memo])
+
   const { executeTransaction, isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: 'depositSavers',
-    memo: quoteData?.quote.memo ?? null,
+    memo,
     fromAddress: fromAddress ?? null,
   })
 
@@ -222,6 +231,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
     try {
+      if (!quoteData?.quote && !isRunePool) return
       if (
         !(
           fromAddress &&
@@ -229,8 +239,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           wallet &&
           supportsETH(wallet) &&
           opportunity &&
-          chainAdapter &&
-          quoteData?.quote
+          chainAdapter
         )
       )
         return
@@ -306,6 +315,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assets,
     toast,
     translate,
+    isRunePool,
   ])
 
   const handleCancel = useCallback(() => {
@@ -394,60 +404,66 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         </Row>
-        <Row variant='gutter'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isQuoteDataLoading}>
-              <Amount.Crypto
-                value={quoteData?.slippageCryptoAmountPrecision ?? ''}
-                symbol={asset.symbol}
-              />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isQuoteDataLoading}>
-              {translate(
-                `defi.modals.saversVaults.${
-                  bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
-                }`,
-                { amount: quoteData?.daysToBreakEven ?? '0' },
-              )}
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-              <Text translation='trade.protocolFee' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isQuoteDataLoading}>
-              <Box textAlign='right'>
-                <Amount.Fiat
-                  fontWeight='bold'
-                  value={bn(
-                    fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
-                  )
-                    .times(marketData.price)
-                    .toFixed()}
-                />
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
                 <Amount.Crypto
-                  color='text.subtle'
-                  value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
+                  value={quoteData?.slippageCryptoAmountPrecision ?? ''}
                   symbol={asset.symbol}
                 />
-              </Box>
-            </Skeleton>
-          </Row.Value>
-        </Row>
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
+                {translate(
+                  `defi.modals.saversVaults.${
+                    bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
+                  }`,
+                  { amount: quoteData?.daysToBreakEven ?? '0' },
+                )}
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+                <Text translation='trade.protocolFee' />
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
+                <Box textAlign='right'>
+                  <Amount.Fiat
+                    fontWeight='bold'
+                    value={bn(
+                      fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
+                    )
+                      .times(marketData.price)
+                      .toFixed()}
+                  />
+                  <Amount.Crypto
+                    color='text.subtle'
+                    value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
+                    symbol={asset.symbol}
+                  />
+                </Box>
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.minerFee')}>

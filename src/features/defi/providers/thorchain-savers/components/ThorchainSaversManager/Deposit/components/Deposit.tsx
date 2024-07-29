@@ -63,7 +63,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type DepositProps = StepComponentProps & {
@@ -174,7 +174,16 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useGetThorchainSaversDepositQuoteQuery({
     asset,
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
+    enabled: !isRunePool,
   })
+
+  const memo = useMemo(() => {
+    if (isRunePool) return DEPOSIT_MEMO
+
+    if (thorchainSaversDepositQuote?.memo) return thorchainSaversDepositQuote?.memo
+
+    return null
+  }, [isRunePool, thorchainSaversDepositQuote?.memo])
 
   const {
     estimatedFeesData,
@@ -185,7 +194,7 @@ export const Deposit: React.FC<DepositProps> = ({
     assetId,
     accountId: accountId ?? null,
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
-    memo: thorchainSaversDepositQuote?.memo ?? null,
+    memo,
     fromAddress: fromAddress ?? null,
     action: 'depositSavers',
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),

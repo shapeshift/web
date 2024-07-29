@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -54,6 +54,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const assets = useAppSelector(selectAssets)
   const assetId = state?.opportunity?.assetId
+
+  const isRunePool = assetId === thorchainAssetId
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
@@ -140,7 +142,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusText: StatusTextEnum.success,
           statusIcon: <CheckIcon color='white' />,
           statusBody: translate('modals.deposit.status.success', {
-            opportunity: `${asset.name} Vault`,
+            opportunity: isRunePool ? `RUNEPool` : `${asset.name} Vault`,
           }),
           statusBg: 'green.500',
         }
@@ -188,11 +190,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           </Row>
         </Row>
         <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-              <Text translation={'trade.protocolFee'} />
-            </HelperTooltip>
-          </Row.Label>
+          {!isRunePool ? (
+            <Row.Label>
+              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+                <Text translation={'trade.protocolFee'} />
+              </HelperTooltip>
+            </Row.Label>
+          ) : null}
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat

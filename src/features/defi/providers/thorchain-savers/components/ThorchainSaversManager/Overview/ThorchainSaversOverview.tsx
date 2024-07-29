@@ -377,13 +377,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const description = useMemo(
     () => ({
-      description: translate('defi.modals.saversVaults.description', {
-        asset: underlyingAsset?.symbol ?? '',
-      }),
+      description: translate(
+        isRunePool
+          ? 'defi.modals.saversVaults.runePoolOverviewDescription'
+          : 'defi.modals.saversVaults.description',
+        {
+          asset: underlyingAsset?.symbol ?? '',
+        },
+      ),
       isLoaded: !!underlyingAsset?.symbol,
       isTrustedDescription: true,
     }),
-    [translate, underlyingAsset?.symbol],
+    [translate, underlyingAsset?.symbol, isRunePool],
   )
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])

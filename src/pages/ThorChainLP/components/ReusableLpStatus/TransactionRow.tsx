@@ -410,15 +410,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
-        {isSymWithdraw && (
+        {isSymWithdraw && poolAsset && (
           // Symmetrical withdrawals withdraw both asset amounts in a single TX.
           // In this case, we want to show the pool asset amount in additional to the rune amount for the user
           <>
-            <AssetIcon size='xs' assetId={poolAsset?.assetId} />
+            <AssetIcon size='xs' assetId={poolAsset.assetId} />
             <Amount.Crypto
               fontWeight='bold'
               value={confirmedQuote.assetWithdrawAmountCryptoPrecision}
-              symbol={poolAsset?.symbol ?? ''}
+              symbol={poolAsset.symbol ?? ''}
             />{' '}
           </>
         )}

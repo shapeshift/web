@@ -918,7 +918,11 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Approval gas fee loading...",
+    "approvalResetGasFee": "Approval reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
+    "approvalResetFailed": "A problem occurred during allowance reset",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
@@ -940,7 +944,8 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
+    "resetTitle": "Token allowance reset",
+    "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
@@ -1771,6 +1776,7 @@
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
         "btcFormat": "BTC format",
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
+        "customAsset": "This is a custom imported asset. Market data may not be accurate.",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
         "availableSupply": "Available Supply",

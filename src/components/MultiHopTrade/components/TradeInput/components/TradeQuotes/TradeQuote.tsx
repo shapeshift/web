@@ -22,6 +22,7 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
+  selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectUserSlippagePercentageDecimal,
@@ -117,12 +118,22 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       [quote],
     )
 
+    const isSellAssetWithoutMarketData = useAppSelector(state =>
+      selectIsAssetWithoutMarketData(state, sellAsset.assetId),
+    )
+    const isBuyAssetWithoutMarketData = useAppSelector(state =>
+      selectIsAssetWithoutMarketData(state, buyAsset.assetId),
+    )
+    const isTradingWithoutMarketData = isSellAssetWithoutMarketData || isBuyAssetWithoutMarketData
+
     const totalReceiveAmountFiatPrecision = useMemo(
       () =>
-        bn(totalReceiveAmountCryptoPrecision)
-          .times(buyAssetMarketData.price ?? 0)
-          .toString(),
-      [buyAssetMarketData.price, totalReceiveAmountCryptoPrecision],
+        isTradingWithoutMarketData
+          ? undefined
+          : bn(totalReceiveAmountCryptoPrecision)
+              .times(buyAssetMarketData.price ?? 0)
+              .toString(),
+      [buyAssetMarketData.price, isTradingWithoutMarketData, totalReceiveAmountCryptoPrecision],
     )
 
     const handleQuoteSelection = useCallback(() => {
@@ -162,10 +173,10 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
 
     const hasAmountWithPositiveReceive =
       isAmountEntered &&
-      !hasNegativeRatio &&
+      (!hasNegativeRatio || isTradingWithoutMarketData) &&
       bnOrZero(totalReceiveAmountCryptoPrecision).isGreaterThan(0)
 
-    const tag: JSX.Element = useMemo(() => {
+    const tag: JSX.Element | null = useMemo(() => {
       const error = errors?.[0]
       const defaultError = { error: TradeQuoteValidationError.UnknownError }
 
@@ -192,18 +203,13 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
             </Tag>
           )
         default:
-          return (
+          return quoteOverallDifferenceDecimalPercentage !== undefined ? (
             <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
               <Tag size='sm'>
-                {quoteOverallDifferenceDecimalPercentage !== undefined && (
-                  <Amount.Percent
-                    value={quoteOverallDifferenceDecimalPercentage ?? 0}
-                    autoColor={false}
-                  />
-                )}
+                <Amount.Percent value={quoteOverallDifferenceDecimalPercentage} autoColor={false} />
               </Tag>
             </Tooltip>
-          )
+          ) : null
       }
     }, [
       errors,

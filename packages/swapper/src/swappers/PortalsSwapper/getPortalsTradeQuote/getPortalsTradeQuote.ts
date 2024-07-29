@@ -22,7 +22,7 @@ import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
-import { isSupportedChainId } from '../utils/helpers'
+import { getDummyQuoteParams, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -119,11 +119,43 @@ export async function getPortalsTradeQuote(
       feePercentage: affiliateBpsPercentage,
       validate: true,
       swapperConfig,
-    }).catch(e => {
+    }).catch(async e => {
+      // If validation fails, fire two more quotes:
+      // 1. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
+      // 2. another quote with validation disabled, to get an actual quote
       console.info('failed to get Portals quote with validation enabled', e)
+      const dummyQuoteParams = getDummyQuoteParams(sellAsset.chainId)
 
-      // If validation fails, try again without validation, we won't get network fees, but we can't do any better
-      return fetchPortalsTradeOrder({
+      const dummySellAssetAddress = isNativeEvmAsset(dummyQuoteParams.sellAssetId)
+        ? zeroAddress
+        : fromAssetId(dummyQuoteParams.sellAssetId).assetReference
+      const dummyBuyAssetAddress = isNativeEvmAsset(buyAsset.assetId)
+        ? zeroAddress
+        : fromAssetId(buyAsset.assetId).assetReference
+
+      const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
+      const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
+
+      const maybeGasLimit = await fetchPortalsTradeOrder({
+        sender: dummyQuoteParams.accountAddress,
+        inputToken: dummyInputToken,
+        outputToken: dummyOutputToken,
+        inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
+        slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+        partner: getTreasuryAddressFromChainId(sellAsset.chainId),
+        feePercentage: affiliateBpsPercentage,
+        validate: true,
+        swapperConfig,
+      })
+        .then(({ context }) => context.gasLimit)
+        .catch(e => {
+          console.info('failed to get Portals quote with validation enabled using dummy address', e)
+          return undefined
+        })
+
+      console.log({ gasLimit: maybeGasLimit })
+
+      const order = await fetchPortalsTradeOrder({
         sender: sendAddress,
         inputToken,
         outputToken,
@@ -134,6 +166,9 @@ export async function getPortalsTradeQuote(
         validate: false,
         swapperConfig,
       })
+
+      if (maybeGasLimit) order.context.gasLimit = maybeGasLimit
+      return order
     })
 
     const {

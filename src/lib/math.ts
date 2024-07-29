@@ -8,7 +8,7 @@ import { bn, bnOrZero } from './bignumber/bignumber'
 // - If displayDecimals are provided, it will use that precision, to return e.g a human, precision, or number stripped to any arbitrary decimal places
 // and use the ROUND_DOWN rounding mode
 export const fromBaseUnit = (
-  value: BigNumber.Value,
+  value: BigNumber.Value | undefined,
   precision: number,
   displayDecimals?: number,
 ): string => {

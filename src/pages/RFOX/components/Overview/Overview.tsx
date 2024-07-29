@@ -30,6 +30,14 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
     select: selectStakingBalance,
   })
 
+  const stakingBalanceCryptoBaseUnitLoading = useMemo(() => {
+    return (
+      stakingBalanceCryptoBaseUnitResult.isLoading ||
+      stakingBalanceCryptoBaseUnitResult.isPaused ||
+      stakingBalanceCryptoBaseUnitResult.isPending
+    )
+  }, [stakingBalanceCryptoBaseUnitResult])
+
   const stakingBalanceCryptoPrecision = useMemo(() => {
     if (!(stakingBalanceCryptoBaseUnitResult.data && stakingAsset)) return
     return fromBaseUnit(stakingBalanceCryptoBaseUnitResult.data, stakingAsset.precision)
@@ -43,11 +51,11 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <Flex alignItems='center' gap={2} mb={6}>
           <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
-            <Skeleton isLoaded={stakingBalanceCryptoBaseUnitResult.isSuccess}>
+            <Skeleton isLoaded={!stakingBalanceCryptoBaseUnitLoading}>
               <Amount.Crypto
                 fontWeight='bold'
                 fontSize='2xl'
-                value={stakingBalanceCryptoPrecision ?? '0'}
+                value={stakingBalanceCryptoPrecision}
                 symbol={stakingAsset.symbol}
               />
             </Skeleton>
@@ -57,7 +65,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
           stakingAssetId={stakingAssetId}
           stakingAssetAccountAddress={stakingAssetAccountAddress}
           stakingBalanceCryptoBaseUnit={stakingBalanceCryptoBaseUnitResult.data}
-          isStakingBalanceCryptoBaseUnitLoading={stakingBalanceCryptoBaseUnitResult.isLoading}
+          isStakingBalanceCryptoBaseUnitLoading={stakingBalanceCryptoBaseUnitLoading}
         />
       </CardHeader>
       <CardBody pb={6}>

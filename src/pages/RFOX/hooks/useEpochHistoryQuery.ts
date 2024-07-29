@@ -13,16 +13,18 @@ import {
 
 type EpochHistoryQueryKey = ['epochHistory']
 
-type UseEpochHistoryQueryProps<SelectData = Epoch[]> = {
+export type EpochWithIpfsHash = Epoch & { ipfsHash: string }
+
+type UseEpochHistoryQueryProps<SelectData = EpochWithIpfsHash[]> = {
   enabled?: boolean
-  select?: (data: Epoch[]) => SelectData
+  select?: (data: EpochWithIpfsHash[]) => SelectData
 }
 
 // The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
 // Instead we will rely on staleTime to refetch at a sensible interval.
 export const getEpochHistoryQueryKey = (): EpochHistoryQueryKey => ['epochHistory']
 
-export const fetchEpochHistory = async (): Promise<Epoch[]> => {
+export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
   const currentEpochMetadata = await queryClient.fetchQuery({
     queryKey: getCurrentEpochMetadataQueryKey(),
     queryFn: fetchCurrentEpochMetadata,
@@ -37,14 +39,15 @@ export const fetchEpochHistory = async (): Promise<Epoch[]> => {
     'asc',
   ).map(({ ipfsHash }) => ipfsHash)
 
-  const responses = await Promise.all(
-    orderedEpochIpfsHashes.map(hash => axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)),
+  return Promise.all(
+    orderedEpochIpfsHashes.map(async hash => {
+      const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
+      return { ...data, ipfsHash: hash }
+    }),
   )
-
-  return responses.map(({ data }) => data)
 }
 
-export const useEpochHistoryQuery = <SelectData = Epoch[]>({
+export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({
   enabled,
   select,
 }: UseEpochHistoryQueryProps<SelectData>) => {

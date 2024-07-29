@@ -26,19 +26,19 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
 }) => {
   const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
 
-  const timeInPoolHumanResult = useTimeInPoolQuery({
+  const currentEpochRewardsCryptoBaseUnitResult = useCurrentEpochRewardsQuery({
     stakingAssetAccountAddress,
-    select: timeInPoolSeconds =>
-      timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
+    currentEpochMetadata: currentEpochMetadataResult.data,
   })
 
   const lifetimeRewardsCryptoBaseUnitResult = useLifetimeRewardsQuery({
     stakingAssetAccountAddress,
   })
 
-  const currentEpochRewardsCryptoBaseUnitResult = useCurrentEpochRewardsQuery({
+  const timeInPoolHumanResult = useTimeInPoolQuery({
     stakingAssetAccountAddress,
-    currentEpochMetadata: currentEpochMetadataResult.data,
+    select: timeInPoolSeconds =>
+      timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
   return (

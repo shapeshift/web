@@ -1,15 +1,16 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { getTxLink } from 'lib/getTxLink'
+import type { RewardDistributionWithMetadata } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { useLifetimeRewardDistributionsQuery } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
-import type { RewardDistribution } from 'pages/RFOX/types'
 import { selectAssetById } from 'state/slices/selectors'
 import type { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { RewardTransactionList } from './RewardTransactionList'
@@ -25,6 +26,7 @@ type RewardsProps = {
 
 const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
   const stakingAssetAccountAddresses = useMemo(() => {
     return [fromAccountId(stakingAssetAccountId).account]
   }, [stakingAssetAccountId])
@@ -42,27 +44,32 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   const rewardDistributionsByTxId = useMemo(() => {
     if (!lifetimeRewardDistributionsResult.data) return {}
 
-    return lifetimeRewardDistributionsResult.data.reduce<Record<string, RewardDistribution>>(
-      (acc, rewardDistribution) => {
-        acc[rewardDistribution.txId] = rewardDistribution
-        return acc
-      },
-      {},
-    )
+    return lifetimeRewardDistributionsResult.data.reduce<
+      Record<string, RewardDistributionWithMetadata>
+    >((acc, rewardDistribution) => {
+      acc[rewardDistribution.txId] = rewardDistribution
+      return acc
+    }, {})
   }, [lifetimeRewardDistributionsResult])
 
   const txIds = useMemo(() => {
-    return Object.keys(rewardDistributionsByTxId)
+    return Object.entries(rewardDistributionsByTxId).map(([txId, distribution]) =>
+      serializeTxIndex(
+        toAccountId({ chainId: thorchainChainId, account: distribution.rewardAddress }),
+        txId,
+        distribution.rewardAddress,
+      ),
+    )
   }, [rewardDistributionsByTxId])
 
   const getTxDetails = useCallback(
     (txId: TxId): TxDetails | undefined => {
       if (!runeAsset) return
 
-      const { rewardAddress, amount } = rewardDistributionsByTxId[txId]
+      const distribution = rewardDistributionsByTxId[txId]
 
       const tx: Tx = {
-        pubkey: rewardAddress,
+        pubkey: distribution.rewardAddress,
         status: TxStatus.Confirmed,
         chainId: thorchainChainId,
         blockHeight: 0,
@@ -72,12 +79,20 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         transfers: [
           {
             from: [],
-            to: [rewardAddress],
-            value: amount,
+            to: [distribution.rewardAddress],
+            value: distribution.amount,
             assetId: thorchainAssetId,
             type: TransferType.Receive,
           },
         ],
+        data: {
+          parser: 'rfox',
+          type: 'thorchain',
+          method: 'reward',
+          epoch: distribution.epoch,
+          ipfsHash: distribution.ipfsHash,
+          stakingAddress: distribution.stakingAddress,
+        },
       }
 
       const txLink = getTxLink({
@@ -90,7 +105,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         tx,
         fee: undefined,
         transfers: tx.transfers.map(transfer => ({ ...transfer, asset: runeAsset })),
-        type: TransferType.Receive,
+        type: 'method',
         txLink,
       }
     },

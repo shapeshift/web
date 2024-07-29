@@ -2,11 +2,18 @@ import { isSome } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
-import type { Epoch, RewardDistribution } from '../types'
+import type { RewardDistribution } from '../types'
+import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardDistributionsQueryProps = {
   stakingAssetAccountAddresses: string[]
+}
+
+export type RewardDistributionWithMetadata = RewardDistribution & {
+  epoch: number
+  stakingAddress: string
+  ipfsHash: string
 }
 
 /**
@@ -17,14 +24,19 @@ export const useLifetimeRewardDistributionsQuery = ({
   stakingAssetAccountAddresses,
 }: UseLifetimeRewardDistributionsQueryProps) => {
   const select = useCallback(
-    (data: Epoch[]): RewardDistribution[] => {
+    (data: EpochWithIpfsHash[]): RewardDistributionWithMetadata[] => {
       if (!stakingAssetAccountAddresses) return []
       return data
         .filter(epoch => epoch.number >= 0)
         .flatMap(epoch =>
           stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
-            const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
-            return epoch.distributionsByStakingAddress[checksumStakingAssetAccountAddress]
+            const stakingAddress = getAddress(stakingAssetAccountAddress)
+            return {
+              epoch: epoch.number,
+              stakingAddress,
+              ipfsHash: epoch.ipfsHash,
+              ...epoch.distributionsByStakingAddress[stakingAddress],
+            }
           }),
         )
         .filter(isSome)

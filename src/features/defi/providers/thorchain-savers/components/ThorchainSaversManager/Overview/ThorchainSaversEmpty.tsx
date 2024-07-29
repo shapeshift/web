@@ -97,14 +97,16 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             {translate('common.buyNow')}
           </Button>
         </Alert>
-        <Box borderRadius='xl' background={backgroundColor}>
-          <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
-            {translate('defi.modals.saversVaults.agreeRunePool.1')}
-            <Link color={linkColor} isExternal href='#' marginLeft={1}>
-              {translate('defi.modals.saversVaults.agreeRunePool.2')}
-            </Link>
-          </Checkbox>
-        </Box>
+        {isRunePool ? (
+          <Box borderRadius='xl' background={backgroundColor}>
+            <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
+              {translate('defi.modals.saversVaults.agreeRunePool.1')}
+              <Link color={linkColor} isExternal href='#' marginLeft={1}>
+                {translate('defi.modals.saversVaults.agreeRunePool.2')}
+              </Link>
+            </Checkbox>
+          </Box>
+        ) : null}
         <Tooltip label={translate('defi.noAccountsOpportunities')} isDisabled={hasAccounts}>
           <Button
             size='lg'
@@ -139,7 +141,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   const description = useMemo(() => {
     if (isRunePool) return 'defi.modals.saversVaults.introducingRunePool'
 
-    return 'defi.modals.saversVaults.introducingRunePool'
+    return 'defi.modals.saversVaults.introducingSaversVaults'
   }, [isRunePool])
 
   if (!asset) return null

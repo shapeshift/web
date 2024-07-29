@@ -38,7 +38,6 @@ export const portalsApi: SwapperApi = {
     })
   },
 
-  // @ts-ignore TODO(gomes): implement me
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

@@ -3,6 +3,7 @@ import type { SubParser, Tx, TxSpecific } from '../../parser'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'rfox'
+  type: 'thorchain'
   epoch: number
   stakingAddress: string
   ipfsHash: string
@@ -29,6 +30,7 @@ export class Parser implements SubParser<Tx> {
     return await Promise.resolve({
       data: {
         parser: 'rfox',
+        type: 'thorchain',
         method: 'reward',
         epoch: parseInt(match.groups.epoch, 10),
         stakingAddress: match.groups.stakingAddress,

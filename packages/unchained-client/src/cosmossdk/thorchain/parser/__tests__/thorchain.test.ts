@@ -632,6 +632,7 @@ describe('parseTx', () => {
       ],
       data: {
         parser: 'rfox',
+        type: 'thorchain',
         method: 'reward',
         epoch: 0,
         ipfsHash: 'QmYUiUq9UWK5NPF1h2BGdatw95psNtW8seGQpXZYoQYK1s',

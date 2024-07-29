@@ -15,6 +15,7 @@ type ChainCardProps = {
 
 export const ChainCard: React.FC<ChainCardProps> = memo(({ chainId, isActive, onClick }) => {
   const feeAssetId = chainIdToFeeAssetId(chainId)
+  if (!feeAssetId) throw new Error(`feeAssetId not found for chainId ${chainId}`)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${feeAssetId}`)
 

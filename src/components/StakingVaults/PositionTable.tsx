@@ -206,7 +206,6 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const rows = useMemo(() => {
     return isSearching ? filterRowsBySearchTerm(filteredPositions, searchQuery) : filteredPositions
   }, [filterRowsBySearchTerm, filteredPositions, searchQuery, isSearching])
-  console.log(rows)
 
   const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
 

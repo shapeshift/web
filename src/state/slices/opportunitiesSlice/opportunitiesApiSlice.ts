@@ -39,7 +39,6 @@ const getOpportunityIds = (
   })
   const { data: opportunityIds } = selectOpportunityIds(getState() as any)
 
-  console.log(accountId, 'accountId in getOpportunityIds')
   // if we're not passed an AccountId, return all opportunityIds
   if (!accountId) return opportunityIds
 
@@ -243,8 +242,6 @@ export const opportunitiesApi = createApi({
               // TODO: collect and dispatch once to improve perf locally
               const onInvalidate = (userStakingId: UserStakingId) =>
                 dispatch(opportunities.actions.invalidateUserStakingOpportunity(userStakingId))
-
-              console.log({ opportunityIds, defiType, accountId }, 'in apiSlice')
 
               const resolved = await resolver({
                 opportunityIds,

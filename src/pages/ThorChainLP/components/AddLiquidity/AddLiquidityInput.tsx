@@ -359,19 +359,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!userLpData?.length) return
 
     return userLpData.reduce((acc, position) => {
-      if (!position.asym) {
-        return {
-          ...acc,
-          sym: {
-            underlyingAssetAmountCryptoPrecision: position.underlyingAssetAmountCryptoPrecision,
-            underlyingRuneAmountCryptoPrecision: position.underlyingRuneAmountCryptoPrecision,
-          },
-        }
-      }
-
       return {
         ...acc,
-        [position.asym.side]: {
+        [!position.asym ? 'sym' : position.asym.side]: {
           underlyingAssetAmountCryptoPrecision: position.underlyingAssetAmountCryptoPrecision,
           underlyingRuneAmountCryptoPrecision: position.underlyingRuneAmountCryptoPrecision,
         },

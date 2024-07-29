@@ -1,6 +1,7 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { RawText } from 'components/Text'
 import { Method } from 'hooks/useTxDetails/useTxDetails'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -25,6 +26,7 @@ export const TransactionMethod = ({
   isOpen,
   toggleOpen,
   parentWidth,
+  topRight,
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data!, [txDetails.tx.data]) // we are guaranteed to have had metadata to render this component
@@ -39,6 +41,10 @@ export const TransactionMethod = ({
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
+
+  const hasSend = useMemo(() => {
+    return transfersByType && transfersByType.Send && transfersByType.Send.length > 0
+  }, [transfersByType])
 
   const title = useMemo(() => {
     const symbol = asset?.symbol
@@ -88,6 +94,7 @@ export const TransactionMethod = ({
       case Method.RecvPacket:
       case Method.Refund:
       case Method.RemoveLiquidityEth:
+      case Method.Reward:
       case Method.SwapOut:
       case Method.SwapRefund:
       case Method.Unstake:
@@ -125,6 +132,7 @@ export const TransactionMethod = ({
         txData={txMetadata}
         parentWidth={parentWidth}
         txDetails={txDetails}
+        topRight={topRight}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
@@ -148,17 +156,25 @@ export const TransactionMethod = ({
               <Text value={txDetails.tx.trade.dexName} />
             </Row>
           )}
-          {txDetails.fee && (
+          {hasSend && (
             <Row title='minerFee'>
-              <Amount
-                value={txDetails.fee.value}
-                precision={txDetails.fee.asset.precision}
-                symbol={txDetails.fee.asset.symbol}
-              />
+              {txDetails.fee ? (
+                <Amount
+                  value={txDetails.fee.value}
+                  precision={txDetails.fee.asset.precision}
+                  symbol={txDetails.fee.asset.symbol}
+                />
+              ) : (
+                <RawText>{'--'}</RawText>
+              )}
             </Row>
           )}
           <Row title='date'>
-            <TransactionDate blockTime={txDetails.tx.blockTime} />
+            {txDetails.tx.blockTime ? (
+              <TransactionDate blockTime={txDetails.tx.blockTime} />
+            ) : (
+              <RawText>{'--'}</RawText>
+            )}
           </Row>
         </TxGrid>
       </TransactionDetailsContainer>

@@ -47,6 +47,7 @@ export enum Method {
   Refund = 'refund',
   RemoveLiquidityEth = 'removeLiquidityETH',
   Revoke = 'revoke',
+  Reward = 'reward',
   SetRuneAddress = 'setRuneAddress',
   Stake = 'stake',
   SubmitRetryable = 'submitRetryable',

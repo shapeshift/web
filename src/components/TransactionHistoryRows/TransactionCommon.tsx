@@ -20,12 +20,15 @@ export const TransactionCommon = ({
   isOpen,
   toggleOpen,
   parentWidth,
-  topRight,
 }: TransactionRowProps) => {
   const transfersByType = useMemo(
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
+
+  const hasSend = useMemo(() => {
+    return transfersByType && transfersByType.Send && transfersByType.Send.length > 0
+  }, [transfersByType])
 
   return (
     <>
@@ -41,7 +44,6 @@ export const TransactionCommon = ({
         txid={txDetails.tx.txid}
         parentWidth={parentWidth}
         txDetails={txDetails}
-        topRight={topRight}
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         {txDetails.transfers.length > 0 && (
@@ -52,17 +54,19 @@ export const TransactionCommon = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          <Row title='minerFee'>
-            {txDetails.fee ? (
-              <Amount
-                value={txDetails.fee?.value ?? '0'}
-                precision={txDetails.fee?.asset.precision ?? 0}
-                symbol={txDetails.fee?.asset.symbol ?? ''}
-              />
-            ) : (
-              <RawText>{'--'}</RawText>
-            )}
-          </Row>
+          {hasSend && (
+            <Row title='minerFee'>
+              {txDetails.fee ? (
+                <Amount
+                  value={txDetails.fee.value}
+                  precision={txDetails.fee.asset.precision}
+                  symbol={txDetails.fee.asset.symbol}
+                />
+              ) : (
+                <RawText>{'--'}</RawText>
+              )}
+            </Row>
+          )}
           <Row title='date'>
             {txDetails.tx.blockTime ? (
               <TransactionDate blockTime={txDetails.tx.blockTime} />

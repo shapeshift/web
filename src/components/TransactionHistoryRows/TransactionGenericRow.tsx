@@ -184,7 +184,11 @@ export const TransactionGenericRow = ({
       return <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
     }
 
-    if (txData?.parser === 'rfox' && txData?.method === Method.SetRuneAddress) {
+    if (
+      txData?.parser === 'rfox' &&
+      txData.type === 'evm' &&
+      txData?.method === Method.SetRuneAddress
+    ) {
       return <RawText>{txData.runeAddress ?? ''}</RawText>
     }
 
@@ -291,7 +295,11 @@ export const TransactionGenericRow = ({
       )
     }
 
-    if (txData?.parser === 'rfox' && txData?.method === Method.UnstakeRequest) {
+    if (
+      txData?.parser === 'rfox' &&
+      txData.type === 'evm' &&
+      txData?.method === Method.UnstakeRequest
+    ) {
       return (
         <Tag>
           <CryptoAmount value={txData.value ?? '0'} assetId={txData.assetId} />

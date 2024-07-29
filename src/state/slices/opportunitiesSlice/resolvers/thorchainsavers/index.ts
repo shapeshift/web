@@ -162,8 +162,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {
-      // @TODO: calculate proper APY
-      apy: '0.1',
+      apy: undefined,
       assetId: thorchainAssetId,
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
@@ -198,7 +197,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 }: OpportunitiesUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  console.log(opportunityIds, accountId, 'ids')
 
   const stakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] = {}
   const data = {

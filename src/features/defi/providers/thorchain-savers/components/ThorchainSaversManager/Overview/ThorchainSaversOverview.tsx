@@ -384,12 +384,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   )
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
-  // console.log({
-  //   earnOpportunityData,
-  //   highestStakedOrAssetBalanceAccountId,
-  //   isTradingActiveLoading,
-  //   isMockDepositQuoteLoading,
-  // })
+  console.log({
+    earnOpportunityData,
+    highestStakedOrAssetBalanceAccountId,
+    isTradingActiveLoading,
+    isMockDepositQuoteLoading,
+  })
 
   if (
     (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||

@@ -126,12 +126,8 @@ export async function getPortalsTradeQuote(
       console.info('failed to get Portals quote with validation enabled', e)
       const dummyQuoteParams = getDummyQuoteParams(sellAsset.chainId)
 
-      const dummySellAssetAddress = isNativeEvmAsset(dummyQuoteParams.sellAssetId)
-        ? zeroAddress
-        : fromAssetId(dummyQuoteParams.sellAssetId).assetReference
-      const dummyBuyAssetAddress = isNativeEvmAsset(buyAsset.assetId)
-        ? zeroAddress
-        : fromAssetId(buyAsset.assetId).assetReference
+      const dummySellAssetAddress = fromAssetId(dummyQuoteParams.sellAssetId).assetReference
+      const dummyBuyAssetAddress = fromAssetId(dummyQuoteParams.buyAssetId).assetReference
 
       const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
       const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
@@ -141,7 +137,7 @@ export async function getPortalsTradeQuote(
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
         inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
-        slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+        slippageTolerancePercentage: 10, // hardcoded high slippage tolerance for the dummy quote, the actual one will use the correct one
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: true,
@@ -152,8 +148,6 @@ export async function getPortalsTradeQuote(
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
           return undefined
         })
-
-      console.log({ gasLimit: maybeGasLimit })
 
       const order = await fetchPortalsTradeOrder({
         sender: sendAddress,

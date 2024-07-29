@@ -5,6 +5,8 @@ import {
   type ChainId,
   ethChainId,
   foxAssetId,
+  optimismChainId,
+  polygonChainId,
   // optimismChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -41,10 +43,21 @@ export const getDummyQuoteParams = (chainId: ChainId) => {
     [arbitrumChainId]: {
       sellAssetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDC
       sellAmountCryptoBaseUnit: '3000000', // 3 USDC
-      buyAssetId: 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDT
+      buyAssetId: 'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9', // USDT
+    },
+    [polygonChainId]: {
+      sellAssetId: 'eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359', // 5 USDC
+      sellAmountCryptoBaseUnit: '5000000', // 5 USDC
+      buyAssetId: 'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT
+    },
+    [optimismChainId]: {
+      sellAssetId: 'eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85', // USDC
+      sellAmountCryptoBaseUnit: '1000000', // 1 USDC
+      buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000006', // WETH
     },
   }
   const dummySellAssetId = DUMMY_QUOTE_PARAMS_BY_CHAIN_ID[chainId as EvmChainId].sellAssetId
+  const dummyBuyAssetId = DUMMY_QUOTE_PARAMS_BY_CHAIN_ID[chainId as EvmChainId].buyAssetId
   const dummyAmountCryptoBaseUnit =
     DUMMY_QUOTE_PARAMS_BY_CHAIN_ID[chainId as EvmChainId].sellAmountCryptoBaseUnit
   const dummyAccountId = toAccountId({
@@ -56,6 +69,7 @@ export const getDummyQuoteParams = (chainId: ChainId) => {
     accountId: dummyAccountId,
     accountAddress: '0x267586F48043e159624c4FE24300c8ad2f352fc7',
     sellAssetId: dummySellAssetId,
+    buyAssetId: dummyBuyAssetId,
     sellAmountCryptoBaseUnit: dummyAmountCryptoBaseUnit,
   }
 }

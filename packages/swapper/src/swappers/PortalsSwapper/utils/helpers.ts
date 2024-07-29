@@ -2,9 +2,12 @@ import {
   arbitrumChainId,
   type AssetId,
   avalancheChainId,
+  baseChainId,
+  bscChainId,
   type ChainId,
   ethChainId,
   foxAssetId,
+  gnosisChainId,
   optimismChainId,
   polygonChainId,
   // optimismChainId,
@@ -54,6 +57,21 @@ export const getDummyQuoteParams = (chainId: ChainId) => {
       sellAssetId: 'eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85', // USDC
       sellAmountCryptoBaseUnit: '1000000', // 1 USDC
       buyAssetId: 'eip155:10/erc20:0x4200000000000000000000000000000000000006', // WETH
+    },
+    [bscChainId]: {
+      sellAssetId: 'eip155:56/bep20:0xc5f0f7b66764f6ec8c8dff7ba683102295e16409', // FDUSD
+      sellAmountCryptoBaseUnit: '1000000000000000000', // 1 FDUSD
+      buyAssetId: 'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8', // WETH
+    },
+    [baseChainId]: {
+      sellAssetId: 'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', // USDC
+      sellAmountCryptoBaseUnit: '2000000', // 2 USDC
+      buyAssetId: 'eip155:8453/erc20:0x4200000000000000000000000000000000000006', // WETH
+    },
+    [gnosisChainId]: {
+      sellAssetId: 'eip155:250/erc20:0x6b175474e89094c44da98b954eedeac495271d0f', // WETH
+      sellAmountCryptoBaseUnit: '1000000000000000', // 0.001 WETH
+      buyAssetId: 'eip155:100/erc20:0x8e5bbbb09ed1ebde8674cda39a0c169401db4252', // WBTC
     },
   }
   const dummySellAssetId = DUMMY_QUOTE_PARAMS_BY_CHAIN_ID[chainId as EvmChainId].sellAssetId

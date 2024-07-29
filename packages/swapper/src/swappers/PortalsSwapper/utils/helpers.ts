@@ -5,6 +5,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { PortalsSupportedChainId } from '../types'
 import { PortalsSupportedChainIds } from '../types'
 
+const WELL_FUNDED_ADDRESS = '0x267586F48043e159624c4FE24300c8ad2f352fc7'
+
 export const isSupportedChainId = (chainId: ChainId): chainId is PortalsSupportedChainId => {
   return PortalsSupportedChainIds.includes(chainId as PortalsSupportedChainId)
 }
@@ -69,12 +71,12 @@ export const getDummyQuoteParams = (chainId: ChainId) => {
   const dummyAmountCryptoBaseUnit = params.sellAmountCryptoBaseUnit
   const dummyAccountId = toAccountId({
     chainId,
-    account: '0x267586F48043e159624c4FE24300c8ad2f352fc7', // well-enough funded addy with approvals granted for the assets above
+    account: WELL_FUNDED_ADDRESS, // well-enough funded addy with approvals granted for the assets above
   })
 
   return {
     accountId: dummyAccountId,
-    accountAddress: '0x267586F48043e159624c4FE24300c8ad2f352fc7',
+    accountAddress: WELL_FUNDED_ADDRESS,
     sellAssetId: dummySellAssetId,
     buyAssetId: dummyBuyAssetId,
     sellAmountCryptoBaseUnit: dummyAmountCryptoBaseUnit,

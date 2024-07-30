@@ -5,6 +5,7 @@ import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { fetchThorchainFromAddressRunepoolInformations } from 'lib/utils/thorchain/hooks/useGetThorchainFromAddressRunepoolInformations'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -213,11 +214,13 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
 
       if (stakingOpportunityId === thorchainAssetId) {
+        const runepoolData = await fetchThorchainFromAddressRunepoolInformations({ accountId })
+
         stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
           isLoaded: true,
           userStakingId,
-          stakedAmountCryptoBaseUnit: '0',
-          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+          stakedAmountCryptoBaseUnit: runepoolData.value,
+          rewardsCryptoBaseUnit: { amounts: [runepoolData.pnl], claimable: false },
         }
 
         continue

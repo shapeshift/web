@@ -99,6 +99,7 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import type { AmountsByPosition } from '../LpType'
 import { LpType } from '../LpType'
 import { ReadOnlyAsset } from '../ReadOnlyAsset'
 import { PoolSummary } from './components/PoolSummary'
@@ -338,10 +339,35 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!userLpData) return false
     return userLpData.some(position => position.asym?.side === AsymSide.Rune)
   }, [userLpData])
+
+  const hasAsymAssetPosition = useMemo(() => {
+    if (!userLpData) return false
+    return userLpData.some(position => position.asym?.side === AsymSide.Asset)
+  }, [userLpData])
+
+  const hasSymPosition = useMemo(() => {
+    if (!userLpData) return false
+    return userLpData.some(position => !position.asym)
+  }, [userLpData])
+
   const disabledSymDepositAfterRune = useMemo(
     () => opportunityType === 'sym' && hasAsymRunePosition,
     [hasAsymRunePosition, opportunityType],
   )
+
+  const amountsByPosition: AmountsByPosition | undefined = useMemo(() => {
+    if (!userLpData?.length) return
+
+    return userLpData.reduce((acc, position) => {
+      return {
+        ...acc,
+        [!position.asym ? 'sym' : position.asym.side]: {
+          underlyingAssetAmountCryptoPrecision: position.underlyingAssetAmountCryptoPrecision,
+          underlyingRuneAmountCryptoPrecision: position.underlyingRuneAmountCryptoPrecision,
+        },
+      }
+    }, {} as AmountsByPosition)
+  }, [userLpData])
 
   const position = useMemo(() => {
     return userLpData?.find(data => data.opportunityId === activeOpportunityId)
@@ -1193,17 +1219,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     )
   }, [poolAsset, runeAsset, translate, opportunityType])
 
-  const maybeSymAfterRuneAlert = useMemo(() => {
-    if (!disabledSymDepositAfterRune) return null
-
-    return (
-      <Alert status='warning' borderRadius='lg'>
-        <AlertIcon />
-        <Text translation={'pools.symAfterRuneAlert'} />
-      </Alert>
-    )
-  }, [disabledSymDepositAfterRune])
-
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
     if (walletSupportsOpportunity) return null
     if (!poolAsset || !runeAsset) return null
@@ -1481,6 +1496,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 opportunityId={activeOpportunityId}
                 onAsymSideChange={handleAsymSideChange}
                 isDeposit={true}
+                hasAsymRunePosition={hasAsymRunePosition}
+                hasAsymAssetPosition={hasAsymAssetPosition}
+                hasSymPosition={hasSymPosition}
+                amountsByPosition={amountsByPosition}
               />
             )}
             {tradeAssetInputs}
@@ -1555,7 +1574,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
           {incompleteAlert}
           {maybeOpportunityNotSupportedExplainer}
           {maybeAlert}
-          {maybeSymAfterRuneAlert}
 
           <ButtonWalletPredicate
             isValidWallet={Boolean(walletSupportsOpportunity)}

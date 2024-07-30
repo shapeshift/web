@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -96,6 +96,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
       toBaseUnit(1, asset?.precision ?? 0),
     ),
+    enabled: assetId !== thorchainAssetId,
   })
 
   const isHardCapReached = useMemo(
@@ -324,11 +325,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           </HelperTooltip>
           <Flex gap={1}>
             <Amount.Fiat value={opportunityMetadata?.tvl ?? 0} />
-            <Amount.Fiat
-              value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
-              prefix='/'
-              color='text.subtle'
-            />
+            {opportunityMetadata?.saversMaxSupplyFiat !== undefined ? (
+              <Amount.Fiat
+                value={opportunityMetadata.saversMaxSupplyFiat ?? 0}
+                prefix='/'
+                color='text.subtle'
+              />
+            ) : null}
           </Flex>
         </Flex>
         {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (

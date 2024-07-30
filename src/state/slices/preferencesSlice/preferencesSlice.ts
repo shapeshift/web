@@ -37,6 +37,7 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   ArbitrumBridge: boolean
+  Portals: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
   CoinbaseWallet: boolean
@@ -62,6 +63,7 @@ export type FeatureFlags = {
   RfoxMockRewardsTxHistory: boolean
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
+  RunePool: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -125,6 +127,7 @@ const initialState: Preferences = {
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
+    Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
@@ -149,6 +152,7 @@ const initialState: Preferences = {
     RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
+    RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

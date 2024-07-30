@@ -112,7 +112,7 @@ const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeo
 const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
 
 export class PortalsMarketService implements MarketService {
-  baseUrl = 'https://api.portals.fi'
+  baseUrl = process.env.REACT_APP_PORTALS_BASE_URL!
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 250,
@@ -132,7 +132,7 @@ export class PortalsMarketService implements MarketService {
           await throttle()
 
           const params = {
-            limit: '250',
+            limit: Math.min(this.defaultGetByMarketCapArgs.count, argsToUse.count),
             minLiquidity: '1000',
             minApy: '1',
             sortBy: 'volumeUsd7d',

@@ -47,9 +47,9 @@ export class MarketServiceManager {
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
-      new PortalsMarketService(),
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
+      new PortalsMarketService(),
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),

@@ -1,8 +1,19 @@
-import { Alert, Button, Flex, Link, Stack, Tooltip, useColorModeValue } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  Alert,
+  Box,
+  Button,
+  Checkbox,
+  Flex,
+  Link,
+  Stack,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
-import { useCallback, useMemo } from 'react'
+import type { ChangeEvent } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import SaversVaultTop from 'assets/savers-vault-top.png'
 import { AssetIcon } from 'components/AssetIcon'
@@ -24,6 +35,10 @@ type ThorchainSaversEmptyProps = {
   onClick?: () => void
 }
 
+// @TODO: update the RUNEPool link when a better article exists
+const RUNEPOOL_ARTICLE_LINK =
+  'https://gitlab.com/thorchain/thornode/-/blob/develop/docs/concepts/rune-pool.md'
+
 export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyProps) => {
   const translate = useTranslate()
   const { open: openFiatRamp } = useModal('fiatRamps')
@@ -37,6 +52,14 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     '--chakra-colors-blackAlpha-50',
     '--chakra-colors-blackAlpha-400',
   )
+  const backgroundColor = useColorModeValue('gray.100', 'darkNeutralAlpha.700')
+  const isRunePool = assetId === thorchainAssetId
+
+  const [hasAgreed, setHasAgreed] = useState(false)
+
+  const handleHasAgreed = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setHasAgreed(e.target.checked)
+  }, [])
 
   const walletConnectedChainIdsSorted = useAppSelector(selectWalletConnectedChainIdsSorted)
   const hasAccounts = useMemo(
@@ -54,8 +77,13 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   )
 
   const saversVaultDescriptionTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['defi.modals.saversVaults.description', { asset: asset?.symbol }],
-    [asset?.symbol],
+    () => [
+      isRunePool
+        ? 'defi.modals.saversVaults.runePoolDescription'
+        : 'defi.modals.saversVaults.description',
+      { asset: asset?.symbol },
+    ],
+    [asset?.symbol, isRunePool],
   )
 
   const renderFooter = useMemo(() => {
@@ -73,12 +101,19 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             {translate('common.buyNow')}
           </Button>
         </Alert>
+        {isRunePool ? (
+          <Box borderRadius='xl' background={backgroundColor}>
+            <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
+              {translate('defi.modals.saversVaults.agreeRunePool.1')}
+            </Checkbox>
+          </Box>
+        ) : null}
         <Tooltip label={translate('defi.noAccountsOpportunities')} isDisabled={hasAccounts}>
           <Button
             size='lg'
             width='full'
             colorScheme='blue'
-            isDisabled={!hasAccounts}
+            isDisabled={!hasAccounts || (!hasAgreed && isRunePool)}
             onClick={onClick}
           >
             <Text translation='common.continue' />
@@ -94,10 +129,29 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     handleAssetBuyClick,
     translate,
     hasAccounts,
+    handleHasAgreed,
+    hasAgreed,
+    backgroundColor,
+    isRunePool,
     onClick,
   ])
 
+  // @TODO: update the RUNEPool link a better article exists
+  const articleLink = useMemo(
+    () =>
+      isRunePool
+        ? RUNEPOOL_ARTICLE_LINK
+        : 'https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057',
+    [isRunePool],
+  )
+
   const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])
+
+  const description = useMemo(() => {
+    if (isRunePool) return 'defi.modals.saversVaults.introducingRunePool'
+
+    return 'defi.modals.saversVaults.introducingSaversVaults'
+  }, [isRunePool])
 
   if (!asset) return null
 
@@ -115,7 +169,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
             fontWeight='bold'
             fontSize='xl'
             letterSpacing='0.012em'
-            translation='defi.modals.saversVaults.introducingSaversVaults'
+            translation={description}
             textShadow={`0 2px 2px var(${textShadow})`}
           />
 
@@ -127,14 +181,14 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
           />
           <RawText color='text.subtle'>
             {`${translate('defi.modals.saversVaults.risksBody.1')} `}
-            <Link
-              color={linkColor}
-              isExternal
-              href='https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057'
-            >
+            <Link color={linkColor} isExternal href={articleLink} me={1}>
               {translate('defi.modals.saversVaults.risksBody.2')}
             </Link>
-            {` ${translate('defi.modals.saversVaults.risksBody.3')}`}
+            {translate(
+              isRunePool
+                ? 'defi.modals.saversVaults.risksBody.runePool'
+                : 'defi.modals.saversVaults.risksBody.3',
+            )}
           </RawText>
         </Stack>
       </EmptyOverview>

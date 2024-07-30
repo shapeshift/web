@@ -44,6 +44,7 @@ export const portalsApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
+    config: swapperConfig,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { affiliateBps, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
@@ -75,6 +76,7 @@ export const portalsApi: SwapperApi = {
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
+      swapperConfig,
     })
 
     if (!portalsTradeOrderResponse.tx) throw new Error('Portals Tx simulation failed upstream')

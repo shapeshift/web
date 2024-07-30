@@ -35,6 +35,10 @@ type ThorchainSaversEmptyProps = {
   onClick?: () => void
 }
 
+// @TODO: update the RUNEPool link when a better article exists
+const RUNEPOOL_ARTICLE_LINK =
+  'https://gitlab.com/thorchain/thornode/-/blob/develop/docs/concepts/rune-pool.md'
+
 export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyProps) => {
   const translate = useTranslate()
   const { open: openFiatRamp } = useModal('fiatRamps')
@@ -101,9 +105,6 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
           <Box borderRadius='xl' background={backgroundColor}>
             <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
               {translate('defi.modals.saversVaults.agreeRunePool.1')}
-              <Link color={linkColor} isExternal href='#' marginLeft={1}>
-                {translate('defi.modals.saversVaults.agreeRunePool.2')}
-              </Link>
             </Checkbox>
           </Box>
         ) : null}
@@ -130,11 +131,19 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     hasAccounts,
     handleHasAgreed,
     hasAgreed,
-    linkColor,
     backgroundColor,
     isRunePool,
     onClick,
   ])
+
+  // @TODO: update the RUNEPool link a better article exists
+  const articleLink = useMemo(
+    () =>
+      isRunePool
+        ? RUNEPOOL_ARTICLE_LINK
+        : 'https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057',
+    [isRunePool],
+  )
 
   const emptyOverviewAssets = useMemo(() => (asset ? [asset] : []), [asset])
 
@@ -172,18 +181,14 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
           />
           <RawText color='text.subtle'>
             {`${translate('defi.modals.saversVaults.risksBody.1')} `}
-            <Link
-              color={linkColor}
-              isExternal
-              href='https://medium.com/thorchain/thorchain-savers-vaults-fc3f086b4057'
-            >
+            <Link color={linkColor} isExternal href={articleLink} me={1}>
               {translate('defi.modals.saversVaults.risksBody.2')}
             </Link>
-            {` ${translate(
+            {translate(
               isRunePool
                 ? 'defi.modals.saversVaults.risksBody.runePool'
                 : 'defi.modals.saversVaults.risksBody.3',
-            )}`}
+            )}
           </RawText>
         </Stack>
       </EmptyOverview>

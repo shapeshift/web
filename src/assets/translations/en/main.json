@@ -398,7 +398,7 @@
       },
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
-        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools; everyone shares in the overall performance. ",
+        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedDepositTitle": "Deposits are temporarily halted.",
@@ -432,8 +432,7 @@
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
         "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
         "agreeRunePool": {
-          "1": "I understand that RUNEPool",
-          "2": "has impermanent loss"
+          "1": "I understand the risks associated with RUNEPool"
         }
       }
     },

@@ -5,7 +5,7 @@ import type { DefiProvider, DefiType, OpportunityMetadataBase } from '../../type
 export type ThorchainSaversStakingSpecificMetadata = OpportunityMetadataBase & {
   provider: DefiProvider.ThorchainSavers
   type: DefiType.Staking
-  saversMaxSupplyFiat: string
+  saversMaxSupplyFiat: string | undefined
   isFull: boolean
 }
 

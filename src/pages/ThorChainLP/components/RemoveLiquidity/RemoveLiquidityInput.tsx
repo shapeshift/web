@@ -940,6 +940,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const handleSubmitIntent = useCallback(() => {
     if (isBelowMinimumWithdrawAmount) {
+      // @TODO: verify if it applies to RUNEPool as well
       setShouldShowWarningAcknowledgement(true)
     } else {
       handleSubmit()

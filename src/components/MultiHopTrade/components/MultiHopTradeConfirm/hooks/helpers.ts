@@ -1,29 +1,27 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
-import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
+import { type AllowanceType, getApprovalAmountCryptoBaseUnit } from 'hooks/queries/useApprovalFees'
 import { assertGetEvmChainAdapter, getApproveContractData, getFeesWithWallet } from 'lib/utils/evm'
 import { approve } from 'lib/utils/evm/approve'
 
 export const getApprovalNetworkFeeCryptoBaseUnit = async ({
   tradeQuoteStep,
   wallet,
-  isExactAllowance,
+  allowanceType,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   wallet: HDWallet
-  isExactAllowance: boolean
+  allowanceType: AllowanceType
 }): Promise<string> => {
   const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
-
-  const approvalAmountCryptoBaseUnit = isExactAllowance
-    ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    : MAX_ALLOWANCE
-
   const { assetReference: to } = fromAssetId(tradeQuoteStep.sellAsset.assetId)
 
   const data = getApproveContractData({
-    approvalAmountCryptoBaseUnit,
+    approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
+      tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      allowanceType,
+    ),
     spender: tradeQuoteStep.allowanceContract,
     to,
     chainId: tradeQuoteStep.sellAsset.chainId,
@@ -44,20 +42,19 @@ export const getApprovalNetworkFeeCryptoBaseUnit = async ({
 export const approveTrade = async ({
   tradeQuoteStep,
   wallet,
-  isExactAllowance,
+  allowanceType,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   wallet: HDWallet
-  isExactAllowance: boolean
+  allowanceType: AllowanceType
 }): Promise<string> => {
-  const amountCryptoBaseUnit = isExactAllowance
-    ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    : MAX_ALLOWANCE
-
   const txHash = await approve({
     assetId: tradeQuoteStep.sellAsset.assetId,
     accountNumber: tradeQuoteStep.accountNumber,
-    amountCryptoBaseUnit,
+    amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
+      tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      allowanceType,
+    ),
     spender: tradeQuoteStep.allowanceContract,
     wallet,
   })

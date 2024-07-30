@@ -1,11 +1,14 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
-import { useApprovalFees } from 'hooks/queries/useApprovalFees'
+import {
+  AllowanceType,
+  getApprovalAmountCryptoBaseUnit,
+  useApprovalFees,
+} from 'hooks/queries/useApprovalFees'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetViemClient } from 'lib/viem-client'
@@ -17,24 +20,26 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
-  isExactAllowance: boolean,
+  allowanceType: AllowanceType,
+  isAwaitingReset: boolean,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet ?? undefined
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
-  const { allowanceQueryResult, evmFeesQueryResult, isApprovalRequired } = useApprovalFees({
+  const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
+
+  const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
     accountNumber: tradeQuoteStep.accountNumber,
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
-    isExactAllowance,
+    allowanceType,
     spender: tradeQuoteStep.allowanceContract,
   })
 
   useEffect(() => {
-    console.log({ isApprovalRequired })
     if (isApprovalRequired !== false) return
 
     // Mark the approval step complete if adequate allowance was found.
@@ -46,40 +51,41 @@ export const useAllowanceApproval = (
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve({
       accountNumber: tradeQuoteStep.accountNumber,
-      amountCryptoBaseUnit: isExactAllowance
-        ? tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit
-        : MAX_ALLOWANCE,
+      amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
+        tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        allowanceType,
+      ),
       assetId: tradeQuoteStep.sellAsset.assetId,
       spender: tradeQuoteStep.allowanceContract,
       wallet,
     }),
     onMutate() {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex, isReset }))
     },
     async onSuccess(txHash) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash, isReset }))
 
       const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset }))
     },
     onError(err) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset }))
       showErrorToast(err)
     },
   })
 
   return useMemo(() => {
     return {
-      isLoading: allowanceQueryResult.isLoading || evmFeesQueryResult.isLoading,
+      isLoading: allowanceCryptoBaseUnitResult.isLoading || evmFeesResult.isLoading,
       approveMutation,
-      approvalNetworkFeeCryptoBaseUnit: evmFeesQueryResult.data?.networkFeeCryptoBaseUnit,
+      approvalNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
     }
   }, [
-    allowanceQueryResult.isLoading,
+    allowanceCryptoBaseUnitResult.isLoading,
     approveMutation,
-    evmFeesQueryResult.data,
-    evmFeesQueryResult.isLoading,
+    evmFeesResult.data,
+    evmFeesResult.isLoading,
   ])
 }

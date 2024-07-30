@@ -254,17 +254,17 @@ export const YourLoans = () => {
           </HelperTooltip>
         </Flex>
 
-        <HelperTooltip label={translate('lending.outstandingDebt')}>
+        <HelperTooltip label={translate('lending.outstandingDebtDescription')}>
           <Text translation='lending.outstandingDebt' textAlign='right' />
         </HelperTooltip>
 
         <Flex display={mobileDisplay}>
-          <HelperTooltip label={translate('lending.collateralValue')}>
+          <HelperTooltip label={translate('lending.collateralValueDescription')}>
             <Text translation='lending.collateralValue' textAlign='right' />
           </HelperTooltip>
         </Flex>
         <Flex display={largeDisplay}>
-          <HelperTooltip label={translate('lending.repaymentLock')}>
+          <HelperTooltip label={translate('lending.repaymentLockDescription')}>
             <Text translation='lending.repaymentLock' textAlign='right' />
           </HelperTooltip>
         </Flex>

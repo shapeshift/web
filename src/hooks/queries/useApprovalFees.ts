@@ -1,19 +1,26 @@
-import type { AssetId, FromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMemo } from 'react'
+import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
 import { useEvmFees } from './useEvmFees'
 import { useIsApprovalRequired } from './useIsApprovalRequired'
 
+export enum AllowanceType {
+  Exact,
+  Unlimited,
+  Reset,
+}
+
 type UseApprovalFeesInput = {
   accountNumber: number
   assetId: AssetId
-  from: string
+  from?: string
   spender: string
   amountCryptoBaseUnit: string
-  isExactAllowance: boolean
+  allowanceType: AllowanceType
 }
 
 export const useApprovalFees = ({
@@ -21,14 +28,14 @@ export const useApprovalFees = ({
   assetId,
   amountCryptoBaseUnit,
   from,
-  isExactAllowance = false,
+  allowanceType,
   spender,
-}: Partial<UseApprovalFeesInput>) => {
+}: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
-    return assetId ? fromAssetId(assetId) : ({} as ReturnType<FromAssetId>)
+    return fromAssetId(assetId)
   }, [assetId])
 
-  const { allowanceQueryResult, isApprovalRequired } = useIsApprovalRequired({
+  const { allowanceCryptoBaseUnitResult, isApprovalRequired } = useIsApprovalRequired({
     amountCryptoBaseUnit,
     assetId,
     from,
@@ -36,19 +43,20 @@ export const useApprovalFees = ({
   })
 
   const approveContractData = useMemo(() => {
-    if (!amountCryptoBaseUnit || !chainId || !spender || !to) return
-
-    const approvalAmountCryptoBaseUnit = isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
+    if (!amountCryptoBaseUnit || !spender) return
 
     return getApproveContractData({
-      approvalAmountCryptoBaseUnit,
+      approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
+        amountCryptoBaseUnit,
+        allowanceType,
+      ),
       chainId,
       spender,
       to,
     })
-  }, [amountCryptoBaseUnit, chainId, isExactAllowance, spender, to])
+  }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
 
-  const evmFeesQueryResult = useEvmFees({
+  const evmFeesResult = useEvmFees({
     accountNumber,
     to,
     value: '0',
@@ -60,9 +68,25 @@ export const useApprovalFees = ({
   })
 
   return {
-    allowanceQueryResult,
+    allowanceCryptoBaseUnitResult,
     approveContractData,
-    evmFeesQueryResult,
+    evmFeesResult,
     isApprovalRequired,
+  }
+}
+
+export const getApprovalAmountCryptoBaseUnit = (
+  amountCryptoBaseUnit: string,
+  allowanceType: AllowanceType,
+) => {
+  switch (allowanceType) {
+    case AllowanceType.Exact:
+      return amountCryptoBaseUnit
+    case AllowanceType.Unlimited:
+      return MAX_ALLOWANCE
+    case AllowanceType.Reset:
+      return '0'
+    default:
+      assertUnreachable(allowanceType)
   }
 }

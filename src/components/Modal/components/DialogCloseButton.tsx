@@ -33,5 +33,5 @@ export const DialogCloseButton: React.FC<DialogCloseButtonProps> = ({ children, 
       </Drawer.Close>
     )
   }
-  return <ModalCloseButton size='md' fontsize='2xl' position='static' {...rest} />
+  return <ModalCloseButton size='md' position='static' {...rest} />
 }

@@ -76,7 +76,6 @@
     "transactionFailedBody": "処理に失敗しました",
     "submitFeedback": "フィードバックを送信",
     "send": "送信",
-    "sendAmountAsset": "%{amount} %{asset} を送る",
     "receive": "受け取る",
     "privacy": "プライバシーポリシー",
     "terms": "利用規約",
@@ -106,9 +105,11 @@
     "switchNetwork": "ネットワークを変更",
     "selectNetwork": "ネットワークを選択",
     "unsupportedNetwork": "サポートされていないネットワーク",
+    "unsupportedWallet": "サポートされていないウォレット",
     "chartUnavailable": "%{unavailableAssetNames} の残高グラフ データは一時的に利用できません。",
     "search": "検索",
     "searchAsset": "アセットの検索",
+    "searchNameOrAddress": "名前またはアドレスで検索",
     "enterAmount": "金額を入力",
     "enterAddress": "アドレスを入力",
     "pageNotFound": "お探しのページが見つかりません",
@@ -150,6 +151,7 @@
     "prices": "価格",
     "symmetric": "対称",
     "asymmetric": "非対称 (%{assetSymbol})",
+    "import": "インポート",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -163,7 +165,8 @@
       "sortedDesc": "降順でソート",
       "expandRow": "行を広げる"
     },
-    "featureDisabled": "この機能は一時的に無効になっています。"
+    "featureDisabled": "この機能は一時的に無効になっています。",
+    "yes": "はい"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +644,15 @@
     "for": "のために",
     "emptyMessage": "%{status} トランザクションがここに表示されます。",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "引き出し開始",
+        "outboundTransferDeposit": "入金開始",
+        "withdrawEth": "引き出し開始",
+        "submitRetryable": "入金受領",
+        "createRetryableTicket": "入金開始",
+        "finalizeInboundTransfer": "引き出し分を受け取りました",
+        "depositEth": "入金開始"
+      },
       "rfox": {
         "stake": "ステーク",
         "withdraw": "引き出す",
@@ -734,6 +746,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "%{destinationChainName} アカウントに %{destinationSymbol} があることを確認してください。トランザクションに必要になります。",
     "confirm": "ブリッジの確認",
     "selectChain": "チェーンの選択",
     "selectAsset": "アセットの選択",
@@ -748,7 +761,15 @@
     "route": "ルート",
     "waitTimeLabel": "待ち時間",
     "waitTimeValue": "5~10分",
-    "noSupportedAssets": "ポートフォリオにサポートされているアセットがありません。"
+    "noSupportedAssets": "ポートフォリオにサポートされているアセットがありません。",
+    "arbitrum": {
+      "waitWarning": "Arbitrum のネイティブ ブリッジはより安全ですが、請求までに最大 1 週間かかる場合があります。",
+      "waitCta": "イーサリアムで資金を請求できるようになるまでには最大7日かかることを理解しました。",
+      "claimCta": "資金を受け取った後、手数料を支払って別のトランザクションをする必要があることを理解しました。"
+    },
+    "claims": "請求",
+    "availableClaims": "利用可能",
+    "pendingClaims": "保留中"
   },
   "trade": {
     "trade": "取引",
@@ -887,6 +908,7 @@
     "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
+    "smartContractReceiveAddressDescription": "宛先チェーンに存在しないアドレスのスマートコントラクトからスワップしようとしていることが検出されました。%{chainName} で希望の受信者アドレスを確認し、手動で入力してください。",
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
@@ -1427,7 +1449,9 @@
         "connectFailure": "Ledgerウォレットに接続できません",
         "unknown": "Ledgerウォレットとの通信で予期せぬエラーが発生しました",
         "appNotOpen": "%{app} はチェーン上で開かれていません",
-        "appNotOpenDescription": "デバイスで %{app} アプリを開いて、もう一度お試しください。"
+        "appNotOpenDescription": "デバイスで %{app} アプリを開いて、もう一度お試しください。",
+        "noDeviceConnected": "Ledgerデバイスが接続されていません",
+        "multipleDevicesConnected": "複数の Ledger デバイスが接続されています。1 つのデバイス以外はすべて切断してください。"
       },
       "connect": {
         "header": "Ledgerのペアリング",
@@ -2165,10 +2189,14 @@
     "poolDepth": "プールの深さ",
     "poolDepthDescription": "プールの状態",
     "totalDebtBalance": "総負債残高",
+    "totalDebtBalanceDescription": "貸付プールの累積債務残高",
     "totalCollateral": "担保総額",
+    "totalCollateralDescription": "貸付プールに追加された総担保",
     "estCollateralizationRatio": "EST 担保比率",
+    "estCollateralizationRatioDescription": "現在、担保比率は 200% に固定されています。将来的には、市場の状況に基づいて、最大 CRと最小 CRの間で動的に比率が調整される予定です。",
     "collateralizationRatio": "担保比率",
     "totalBorrowers": "総借入者数",
+    "totalBorrowersDescription": "参加している借り手の数",
     "myLoanInformation": "ローン情報",
     "loanInformation": "ローン概要",
     "poolInformation": "プール情報",
@@ -2188,11 +2216,12 @@
     "switchAssets": "アセットの切り替え",
     "backToLending": "レンディングに戻る",
     "outstandingDebt": "負債残高",
+    "outstandingDebtDescription": "借りた担保の額",
     "collateral": "担保",
     "debt": "借金",
-    "healthy": "健康",
-    "caution": "注意",
-    "risky": "リスキーな",
+    "healthy": "深さは最適で、ローンも効率的です。",
+    "caution": "深さは中程度ですが、借入時に多少の価格差が生じる可能性があります。",
+    "risky": "深さは低く、借入時に大きな価格差が発生する可能性があります。",
     "confirmAndBorrow": "確認して借りる",
     "confirmAndRepay": "確認して返済する",
     "borrowAgain": "もう一度借りる",
@@ -2295,6 +2324,7 @@
     "symAfterRuneAlert": "THOR ネットワークの仕組み上、等価値でない RUNEの 入金の後に、等価値の入金を行うことはできません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
+    "unsupportedDemoWalletExplainer": "デモ ウォレットはサポートされていません。この機能を使用するには、ウォレットに接続してください。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
     "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
     "shareOfPool": "プールのシェア",
@@ -2352,7 +2382,14 @@
     "highSlippageDeposit": "この預金には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。",
     "highSlippageBorrow": "この借入には高いスリッページ（%{slippagePercentage}%）があります。注意して進めてください。",
     "highSlippageTrade": "この取引は価格変動の影響を受けます (%{slippagePercentage}%)。注意して進めてください。",
-    "unsafeTrade": "この取引は安全ではないか、推奨される最小サイズを下回っている可能性がありますので、注意して進めてください。"
+    "unsafeTrade": "この取引は安全ではないか、推奨される最小サイズを下回っている可能性がありますので、注意して進めてください。",
+    "customToken": "誰でもトークンを作成でき、偽のトークンも作成できるため、注意が必要です。一部のトークンは ShapeShift で動作しない場合があります。このトークンをインポートすると、リスクを受け入れたことになります。このトークンは米国の主要取引所で取引されておらず、ShapeShift で頻繁に交換されていません。取引する前に必ず調査してください。"
+  },
+  "streamingAcknowledgement": {
+    "description": "これはストリーミング スワップです。価格は安くなりますが、完了するまでに最大 %{estimatedTimeHuman} かかる場合があります。"
+  },
+  "customTokenAcknowledgement": {
+    "understand": "私はリスクを理解しました"
   },
   "watchlist": {
     "empty": {
@@ -2373,6 +2410,10 @@
     "lending": {
       "title": "貸出",
       "body": "資産を担保に借り入れる"
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "FOXをステークしてRUNEをもらう。"
     }
   },
   "RFOX": {
@@ -2385,6 +2426,7 @@
     "claim": "請求",
     "rewards": "報酬",
     "claims": "請求",
+    "chainNotSupportedByWallet": "ウォレットにチェーンがサポートされていません",
     "changeAddress": "アドレスを変える",
     "sameAddressNotAllowed": "同じアドレスは許可されていません",
     "stakingDetails": "ステーキングの詳細",
@@ -2402,6 +2444,9 @@
     "rewardAddressHelper": "報酬はこちらに送られます",
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
+    "stakeWarning": "FOX トークンをステークする際は、ロックアップ期間が %{cooldownPeriod} であることに注意してください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
+    "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。資金を %{destinationNetwork} にブリッジするお手伝いをいたします。手順についてのガイドを開始しますか?",
+    "unstakeWarning": "FOX を請求できるまでのクールダウン期間は %{cooldownPeriod} です。その時間が経過すると、ステークされていない金額を請求できるようになります。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
       "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
@@ -2416,6 +2461,7 @@
     "changeRewardAddressPending": "報酬アドレスを変更しています...",
     "changeRewardAddressSuccess": "THORChain 報酬アドレスの変更に成功しました。",
     "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
+    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -2429,21 +2475,23 @@
     "claimPending": "引き出しをリクエスト",
     "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
     "claimReceiveAddress": "請求受取アドレス",
+    "noRewardsYet": "まだ報酬はありません",
     "noClaimsAvailable": "請求できません",
     "errorFetchingClaims": "クレームの取得中にエラーが発生しました",
     "noClaimsAvailableDescription": "利用可能な請求はありません",
+    "unstakeNow": "FOXを請求するにはステークを解除してください",
     "bridgeAndConfirm": "ブリッジ＆確認",
     "noSupportedChains": "チェーンはサポートされていません",
     "noSupportedChainsDescription": "%{chainLabel} を追加するか、それをサポートするウォレットに接続します。",
     "confirmAndBridge": "確認＆ブリッジ",
-    "myRewardBalance": "自分の報酬残高",
-    "myRewardBalanceHelper": "自分の報酬残高",
-    "pendingRewardsBalance": "保留中の報酬残高",
-    "pendingRewardsBalanceHelper": "保留中の報酬残高",
+    "myStakedBalance": "私のステークした残高",
+    "myStakedBalanceHelper": "ステークしたFOXの量",
+    "pendingRewardsBalance": "現在の推定報酬残高",
+    "pendingRewardsBalanceHelper": "これは、エポックの現在の収益に基づいた保留中の報酬の見積もりにすぎません。すべての計算はエポックの終了時に行われ、月末までは正確に計算することはできません。",
     "lifetimeRewards": "生涯報酬",
-    "lifetimeRewardsHelper": "生涯報酬",
+    "lifetimeRewardsHelper": "生涯獲得報酬はFOXをステーキングすることで得られる累積報酬です",
     "timeInPool": "プール中の時間",
-    "timeInPoolHelper": "プール中の時間",
+    "timeInPoolHelper": "プールの中での時間がrFOXへの最長の預け入れ期間です。",
     "myPosition": "自分のポジション",
     "faq": {
       "title": "よくあるご質問",

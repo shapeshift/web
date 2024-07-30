@@ -1,5 +1,6 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -58,6 +59,10 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
     return acc
   }, [])
+
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    opportunityIds.push(thorchainAssetId as StakingId)
+  }
 
   return {
     data: opportunityIds,
@@ -155,6 +160,30 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     }
   }
 
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    stakingOpportunitiesById[thorchainAssetId as StakingId] = {
+      // RUNEPool doesn't have any APY for now
+      // @TODO: calculate proper APY at opportunity meta time by doing some homemade mathematics
+      apy: undefined,
+      assetId: thorchainAssetId,
+      id: thorchainAssetId as StakingId,
+      provider: DefiProvider.ThorchainSavers,
+      // @TODO: calculate proper TVL
+      tvl: '10',
+      type: DefiType.Staking,
+      underlyingAssetId: thorchainAssetId,
+      // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
+      underlyingAssetIds: [thorchainAssetId] as [AssetId],
+      rewardAssetIds: [thorchainAssetId] as [AssetId],
+      // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
+      underlyingAssetRatiosBaseUnit: ['1'],
+      name: `RUNEPool`,
+      saversMaxSupplyFiat: undefined,
+      isFull: false,
+      isClaimableRewards: false,
+    }
+  }
+
   const data = {
     byId: stakingOpportunitiesById,
     type: defiType,
@@ -185,6 +214,18 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
+
+      if (stakingOpportunityId === thorchainAssetId) {
+        stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
+          isLoaded: true,
+          userStakingId,
+          // @TODO: implement me when wiring up RUNEPool queries
+          stakedAmountCryptoBaseUnit: '0',
+          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
+        }
+
+        continue
+      }
 
       const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 

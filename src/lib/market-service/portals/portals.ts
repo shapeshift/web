@@ -126,11 +126,9 @@ export class PortalsMarketService implements MarketService {
     const marketCapResult: MarketCapResult = {}
 
     try {
-      for (const [chainId, network] of Object.entries(CHAIN_ID_TO_PORTALS_NETWORK)) {
-        let page = 0
-        let hasMore = true
-
-        while (hasMore && Object.keys(marketCapResult).length < count) {
+      await Promise.all(
+        Object.entries(CHAIN_ID_TO_PORTALS_NETWORK).map(async ([chainId, network]) => {
+          if (Object.keys(marketCapResult).length >= count) return
           await throttle()
 
           const params = {
@@ -139,7 +137,8 @@ export class PortalsMarketService implements MarketService {
             minApy: '1',
             sortBy: 'volumeUsd7d',
             networks: [network],
-            page: page.toString(),
+            // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
+            page: '0',
           }
 
           const { data } = await axios.get<GetTokensResponse>(tokensUrl, {
@@ -149,9 +148,6 @@ export class PortalsMarketService implements MarketService {
             },
             params,
           })
-
-          hasMore = data.more
-          page++
 
           for (const token of data.tokens) {
             if (Object.keys(marketCapResult).length >= count) break
@@ -174,10 +170,8 @@ export class PortalsMarketService implements MarketService {
 
             if (Object.keys(marketCapResult).length >= count) break
           }
-        }
-
-        if (Object.keys(marketCapResult).length >= count) break
-      }
+        }),
+      )
 
       return marketCapResult
     } catch (e) {

@@ -69,7 +69,6 @@ export class MarketServiceManager {
     for (let i = 0; i < this.marketProviders.length && !result; i++) {
       try {
         result = await this.marketProviders[i].findAll(args)
-        console.log({ result })
       } catch (e) {
         console.warn(e, '')
       }

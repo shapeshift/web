@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  adapters,
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
@@ -25,6 +24,7 @@ import type {
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import dayjs from 'dayjs'
 import qs from 'qs'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable, getTimeFrameBounds } from 'lib/utils'
@@ -103,7 +103,6 @@ export class PortalsMarketService implements MarketService {
   }
 
   async findAll(args?: FindAllMarketArgs) {
-    debugger
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
     const url = `${this.baseUrl}/v2/tokens`
@@ -169,6 +168,7 @@ export class PortalsMarketService implements MarketService {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
+    // TODO(gomes): guard against native AssetIds or support gracefully
     const assets = generatedAssetData as unknown as AssetsByIdPartial
 
     try {
@@ -221,63 +221,79 @@ export class PortalsMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    if (!adapters.assetIdToCoinCap(assetId)) return []
-    const id = adapters.assetIdToCoinCap(assetId)
+    // TODO(gomes): guard against native AssetIds or support gracefully
+    const { chainId, assetReference } = fromAssetId(assetId)
+    const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
+    if (!network) {
+      console.error(`Unsupported chainId: ${chainId}`)
+      return []
+    }
+
+    const id = `${network}:${assetReference}`
     const { start, end } = getTimeFrameBounds(timeframe)
 
-    const interval = (() => {
+    const resolution = (() => {
       switch (timeframe) {
         case HistoryTimeframe.HOUR:
-          return 'm5'
         case HistoryTimeframe.DAY:
-          return 'h1'
+          return '15m'
         case HistoryTimeframe.WEEK:
+          return '1h'
         case HistoryTimeframe.MONTH:
+          return '4h'
         case HistoryTimeframe.YEAR:
         case HistoryTimeframe.ALL:
-          return 'd1'
+          return '1d'
         default:
           assertUnreachable(timeframe)
       }
     })()
 
     try {
-      const from = start.valueOf()
-      const to = end.valueOf()
-      const url = `${this.baseUrl}/assets/${id}/history`
-      type CoincapHistoryData = {
-        data: {
-          priceUsd: number
-          time: number
-        }[]
-      }
-      const {
-        data: { data: coincapData },
-      } = await axios.get<CoincapHistoryData>(
-        `${url}?id=${id}&start=${from}&end=${to}&interval=${interval}`,
-      )
+      const from =
+        // Portals can only get historical market data up to 1 year ago
+        timeframe === HistoryTimeframe.ALL
+          ? dayjs().startOf('minute').subtract(1, 'year')
+          : Math.floor(start.valueOf() / 1000)
+      const to = Math.floor(end.valueOf() / 1000)
+      const url = `${this.baseUrl}/v2/tokens/history`
 
-      return coincapData.reduce<HistoryData[]>((acc, current) => {
-        const date = current.time
+      const params = {
+        id,
+        from,
+        to,
+        resolution,
+      }
+
+      const { data } = await axios.get<HistoryResponse>(url, {
+        headers: {
+          Authorization: `Bearer ${PORTALS_API_KEY}`,
+        },
+        params,
+      })
+
+      return data.history.reverse().reduce<HistoryData[]>((acc, current) => {
+        const date = new Date(current.time).getTime()
         if (!isValidDate(date)) {
-          console.error('Coincap asset history data has invalid date')
+          console.error('PortalsMarketService(findPriceHistoryByAssetId): invalid date')
           return acc
         }
-        const price = bn(current.priceUsd)
+
+        const price = bn(current.closePrice)
         if (price.isNaN()) {
-          console.error('Coincap asset history data has invalid price')
+          console.error('PortalsMarketService(findPriceHistoryByAssetId): invalid price')
           return acc
         }
-        acc.push({
-          date,
-          price: price.toNumber(),
-        })
+
+        acc.push({ date, price: price.toNumber() })
         return acc
       }, [])
-    } catch (e) {
-      console.warn(e, '')
-      throw new Error('MarketService(findPriceHistoryByAssetId): error fetching price history')
+    } catch (err) {
+      console.error(err)
+      throw new Error(
+        'PortalsMarketService(findPriceHistoryByAssetId): error fetching price history',
+      )
     }
   }
 }

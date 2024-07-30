@@ -28,13 +28,13 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { sleep } from 'lib/poll/poll'
 import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
 
 import generatedAssetData from '../../asset-service/service/generatedAssetData.json'
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
+import type { GetTokensResponse, HistoryResponse } from './types'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)
@@ -43,47 +43,7 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
   return close.minus(open).dividedBy(open).times(100).toNumber()
 }
 
-// TODO(gomes): move me somewhere shared
-// Non-exhaustive - https://api.portals.fi/docs#/Supported/SupportedController_getSupportedTokensV2 for full docs
-type TokenInfo = {
-  key: string
-  name: string
-  decimals: number
-  symbol: string
-  address: string
-  images: string[] | undefined
-  pricePerShare: string | undefined
-}
-
-type GetTokensResponse = {
-  totalItems: number
-  pageItems: number
-  more: boolean
-  page: number
-  tokens: TokenInfo[]
-}
-
-type HistoryResponse = {
-  totalItems: number
-  pageItems: number
-  more: boolean
-  page: number
-  history: {
-    time: string
-    highPrice: string
-    lowPrice: string
-    openPrice: string
-    closePrice: string
-    liquidity: string
-    reserves: string[]
-    totalSupply: string
-    pricePerShare: string
-    volume1dUsd: string
-    apy: string
-  }[]
-}
-
-const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
+export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [avalancheChainId]: 'avalanche',
   [ethChainId]: 'ethereum',
   [polygonChainId]: 'polygon',
@@ -94,7 +54,6 @@ const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [baseChainId]: 'base',
 }
 
-// TODO(gomes): can we have root-level utils so we don't redeclare this from the scripts folder?
 const { throttle, clear } = (({
   capacity,
   costPerReq,
@@ -179,6 +138,7 @@ export class PortalsMarketService implements MarketService {
             limit: '250',
             minLiquidity: '1000',
             minApy: '1',
+            sortBy: 'volumeUsd7d',
             networks: [network],
             page: page.toString(),
           }
@@ -195,7 +155,6 @@ export class PortalsMarketService implements MarketService {
           page++
 
           for (const token of data.tokens) {
-            await sleep(200)
             await throttle()
             if (Object.keys(marketCapResult).length >= count) break
 
@@ -214,12 +173,17 @@ export class PortalsMarketService implements MarketService {
                 page: '0',
               }
 
-              const { data: historyData } = await axios.get<HistoryResponse>(historyUrl, {
-                headers: {
-                  Authorization: `Bearer ${PORTALS_API_KEY}`,
-                },
-                params: historyParams,
-              })
+              const { data: historyData } = await axios
+                .get<HistoryResponse>(historyUrl, {
+                  headers: {
+                    Authorization: `Bearer ${PORTALS_API_KEY}`,
+                  },
+                  params: historyParams,
+                })
+                .catch(e => {
+                  console.error('Error fetching Portals data:', e)
+                  return { data: { history: [] } }
+                })
 
               if (historyData.history.length > 0) {
                 const latestData = historyData.history[0]

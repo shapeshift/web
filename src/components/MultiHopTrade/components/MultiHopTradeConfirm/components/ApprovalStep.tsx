@@ -38,7 +38,6 @@ export type ApprovalStepProps = {
   isLastStep?: boolean
   isLoading?: boolean
   isAllowanceResetStep: boolean
-  isAwaitingReset?: boolean
 }
 
 type ApprovalDescriptionProps = {
@@ -107,7 +106,6 @@ const ApprovalStepPending = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
-  isAwaitingReset = false,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
@@ -124,18 +122,20 @@ const ApprovalStepPending = ({
     selectHopExecutionMetadata(state, hopIndex),
   )
 
+  const isAwaitingReset = useMemo(() => {
+    return !isAllowanceResetStep && state !== HopExecutionState.AwaitingApproval
+  }, [isAllowanceResetStep, state])
+
   const allowanceType = useMemo(() => {
     if (isAllowanceResetStep) return AllowanceType.Reset
     return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
   }, [isAllowanceResetStep, isExactAllowance])
 
-  // TODO: don't compute if isAwaitingReset is true, as the network fee will not be accurate - more gas is used to go from 0 -> 1 than 1 -> 2
-  // This will re-compute the network fee when the allowance is reset to 0
   const {
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, isAwaitingReset)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType)
 
   const isApprovalStep = useMemo(() => {
     return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
@@ -428,7 +428,6 @@ export const ApprovalStep = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
-  isAwaitingReset = false,
 }: ApprovalStepProps) => {
   const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
@@ -463,7 +462,6 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
-      isAwaitingReset={isAwaitingReset}
     />
   )
 }

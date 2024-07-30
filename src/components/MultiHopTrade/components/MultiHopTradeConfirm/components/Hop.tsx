@@ -220,7 +220,6 @@ export const Hop = ({
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
                 isAllowanceResetStep={false}
-                isAwaitingReset={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
               />
             )}
           </Collapse>

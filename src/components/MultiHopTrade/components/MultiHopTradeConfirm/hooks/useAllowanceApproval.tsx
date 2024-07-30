@@ -21,7 +21,6 @@ export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   allowanceType: AllowanceType,
-  isAwaitingReset: boolean,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()

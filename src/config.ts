@@ -137,6 +137,7 @@ const validators = {
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
+  REACT_APP_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',
@@ -149,6 +150,7 @@ const validators = {
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY: str(),
+  REACT_APP_PORTALS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: url(),
@@ -179,6 +181,7 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
+  REACT_APP_PORTALS_BASE_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

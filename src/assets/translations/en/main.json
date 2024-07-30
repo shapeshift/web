@@ -398,7 +398,7 @@
       },
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
-        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools; everyone shares in the overall performance. ",
+        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
         "runePoolOverviewDescription": "RUNEPool optimizes %{asset} usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling %{asset} across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a %{asset} index and all THORChain PoL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Current maximum capacity for this vault",
@@ -433,8 +433,7 @@
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
         "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
         "agreeRunePool": {
-          "1": "I understand that RUNEPool",
-          "2": "has impermanent loss"
+          "1": "I understand the risks associated with RUNEPool"
         }
       }
     },
@@ -2365,6 +2364,10 @@
     "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
     "stagedTooltip": "Staged pools are new pools accepting liquidity, but will not accrue any earnings until Available",
+    "newPosition": "New position",
+    "newPositionTooltip": "This will create a new LP position instead of adding to any existing ones.",
+    "notSupported": "Not possible",
+    "notSupportedTooltip": "Due to your existing Asymmetric Rune position, depositing into this pool with both assets isn't possible. Please withdraw your current position if you wish to create a new LP with both assets.",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",

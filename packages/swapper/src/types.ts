@@ -43,6 +43,7 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
+  REACT_APP_PORTALS_BASE_URL: string
 }
 
 export enum SwapperName {
@@ -53,6 +54,7 @@ export enum SwapperName {
   LIFI = 'LI.FI',
   OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
+  Portals = 'Portals',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

@@ -98,9 +98,32 @@ export const getAllThorchainSaversPositions = async (
     staleTime: 60_000,
   })
 
-  if (!opportunitiesData) return []
+  const { data: runepoolInformations } = await queryClient.fetchQuery({
+    queryKey: ['thorchainRunepoolInformations'],
+    queryFn: () =>
+      axios.get<ThorchainRunepoolInformationsResponseSuccess>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+      ),
+    staleTime: 60_000,
+  })
 
-  return opportunitiesData
+  const runepoolOpportunity: ThorchainSaverPositionResponse = {
+    asset: 'THOR.RUNE',
+    asset_address: fromAssetId(thorchainAssetId).assetReference,
+    last_add_height: undefined,
+    units: runepoolInformations.providers.units,
+    asset_deposit_value: runepoolInformations.providers.current_deposit,
+    asset_redeem_value: runepoolInformations.providers.value,
+    growth_pct: undefined,
+  }
+
+  const opportunities = opportunitiesData || []
+
+  if (runepoolInformations) {
+    opportunities.push(runepoolOpportunity)
+  }
+
+  return opportunities
 }
 
 export const getThorchainSaversPosition = async ({
@@ -114,6 +137,32 @@ export const getThorchainSaversPosition = async ({
   const poolAssetId = assetIdToPoolAssetId({ assetId })
 
   const accountPosition = await (async () => {
+    if (assetId === thorchainAssetId) {
+      const { data: runepoolInformations } = await queryClient.fetchQuery({
+        queryKey: ['thorchainRunepoolOpportunity', accountId],
+        queryFn: () =>
+          axios.get<ThorchainFromAddressRunepoolInformationsResponseSuccess>(
+            `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
+          ),
+      })
+
+      const runepoolOpportunity: ThorchainSaverPositionResponse = {
+        asset: 'THOR.RUNE',
+        asset_address: fromAssetId(thorchainAssetId).assetReference,
+        last_add_height: undefined,
+        units: runepoolInformations.units,
+        asset_deposit_value: bnOrZero(runepoolInformations.value)
+          .plus(runepoolInformations.pnl)
+          .toFixed(),
+        asset_redeem_value: bnOrZero(runepoolInformations.value)
+          .plus(runepoolInformations.pnl)
+          .toFixed(),
+        growth_pct: undefined,
+      }
+
+      return runepoolOpportunity
+    }
+
     if (!isUtxoChainId(fromAssetId(assetId).chainId))
       return (
         await axios.get<ThorchainSaverPositionResponse>(
@@ -305,38 +354,4 @@ export const makeDaysToBreakEven = ({
   // and ~ a day after deposit
   const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
   return daysToBreakEven
-}
-
-export const getMaybeThorchainRunepoolInformations = async (): Promise<
-  Result<ThorchainRunepoolInformationsResponseSuccess, string>
-> => {
-  const { data: quoteData } = await axios.get<ThorchainRunepoolInformationsResponseSuccess>(
-    `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
-  )
-
-  if (!quoteData || 'error' in quoteData)
-    return Err(`Error fetching THORChain RUNEPool quote: ${quoteData?.error}`)
-
-  return Ok(quoteData)
-}
-
-export const getMaybeThorchainFromAddressRunepoolInformations = async ({
-  accountId,
-}: {
-  accountId: AccountId
-}): Promise<Result<ThorchainFromAddressRunepoolInformationsResponseSuccess, string>> => {
-  if (!accountId) return Err(`Invalid accountId for THORCHain RUNEPool: ${accountId}`)
-
-  const address = fromAccountId(accountId).account
-  console.log(address)
-
-  const { data: quoteData } =
-    await axios.get<ThorchainFromAddressRunepoolInformationsResponseSuccess>(
-      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
-    )
-
-  if (!quoteData || 'error' in quoteData)
-    return Err(`Error fetching THORChain RUNEPool quote: ${quoteData?.error}`)
-
-  return Ok(quoteData)
 }

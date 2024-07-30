@@ -231,7 +231,7 @@ export class PortalsMarketService implements MarketService {
     }
 
     const id = `${network}:${assetReference}`
-    const { start, end } = getTimeFrameBounds(timeframe)
+    const { start: _start, end } = getTimeFrameBounds(timeframe)
 
     const resolution = (() => {
       switch (timeframe) {
@@ -251,11 +251,10 @@ export class PortalsMarketService implements MarketService {
     })()
 
     try {
-      const from =
-        // Portals can only get historical market data up to 1 year ago
-        timeframe === HistoryTimeframe.ALL
-          ? dayjs().startOf('minute').subtract(1, 'year')
-          : Math.floor(start.valueOf() / 1000)
+      // Portals can only get historical market data up to 1 year ago
+      const start =
+        timeframe === HistoryTimeframe.ALL ? dayjs().startOf('minute').subtract(1, 'year') : _start
+      const from = Math.floor(start.valueOf() / 1000)
       const to = Math.floor(end.valueOf() / 1000)
       const url = `${this.baseUrl}/v2/tokens/history`
 

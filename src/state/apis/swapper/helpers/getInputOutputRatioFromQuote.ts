@@ -73,8 +73,9 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   amountCryptoBaseUnit: BigNumber.Value,
 ): BigNumber => {
   const usdRate = selectUsdRateByAssetId(state, asset.assetId)
-  if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate)
+  // TODO(gomes): revert me once we have a Portals market-data provider, this allows us to get quotes despite missing market data
+  // if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
+  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate ?? '0')
 }
 
 /*

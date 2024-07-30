@@ -115,6 +115,7 @@ export const mockStore: ReduxState = {
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,
       RunePool: false,
+      Portals: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

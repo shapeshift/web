@@ -144,7 +144,6 @@ export const getThorchainSaversPosition = async ({
           axios.get<ThorchainFromAddressRunepoolInformationsResponseSuccess>(
             `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
           ),
-        staleTime: 60_000,
       })
 
       const runepoolOpportunity: ThorchainSaverPositionResponse = {

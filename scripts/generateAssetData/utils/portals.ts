@@ -15,27 +15,10 @@ import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import type { GetTokensResponse, TokenInfo } from 'lib/market-service/portals/types'
 
 import { colorMap } from '../colorMap'
 import { createThrottle } from '.'
-
-// Non-exhaustive - https://api.portals.fi/docs#/Supported/SupportedController_getSupportedTokensV2 for full docs
-type TokenInfo = {
-  key: string
-  name: string
-  decimals: number
-  symbol: string
-  address: string
-  images: string[] | undefined
-}
-
-type GetTokensResponse = {
-  totalItems: number
-  pageItems: number
-  more: boolean
-  page: number
-  tokens: TokenInfo[]
-}
 
 const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [avalancheChainId]: 'avalanche',

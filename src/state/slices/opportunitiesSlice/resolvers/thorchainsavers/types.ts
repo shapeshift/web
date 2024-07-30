@@ -49,11 +49,11 @@ export type MidgardPoolResponse = {
 export type ThorchainSaverPositionResponse = {
   asset: string
   asset_address: string
-  last_add_height: number
+  last_add_height: number | undefined
   units: string
   asset_deposit_value: string
   asset_redeem_value: string
-  growth_pct: string
+  growth_pct: string | undefined
 }
 
 export type ThorchainSaversCommonQuoteResponseSuccess = {

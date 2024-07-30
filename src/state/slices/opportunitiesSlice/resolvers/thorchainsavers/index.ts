@@ -215,18 +215,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
 
-      if (stakingOpportunityId === thorchainAssetId) {
-        stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
-          isLoaded: true,
-          userStakingId,
-          // @TODO: implement me when wiring up RUNEPool queries
-          stakedAmountCryptoBaseUnit: '0',
-          rewardsCryptoBaseUnit: { amounts: ['0'], claimable: false },
-        }
-
-        continue
-      }
-
       const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
 
       if (!allPositions.length)

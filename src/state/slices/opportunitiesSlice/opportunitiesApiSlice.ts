@@ -255,6 +255,7 @@ export const opportunitiesApi = createApi({
                 // TODO: collect and dispatch once to improve perf locally
                 dispatch(opportunities.actions.upsertUserStakingOpportunities(resolved.data))
               }
+
               const byAccountId = {
                 [accountId]: Object.keys(resolved?.data.byId ?? {}).map(
                   userStakingId => deserializeUserStakingId(userStakingId as UserStakingId)[1],

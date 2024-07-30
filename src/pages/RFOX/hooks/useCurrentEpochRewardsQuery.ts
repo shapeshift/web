@@ -10,6 +10,12 @@ import { getAffiliateRevenueQueryFn, getAffiliateRevenueQueryKey } from './useAf
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
+type EpochRewardsResultTuple = [
+  epochHistory: Epoch[] | undefined,
+  currentEpochRewardUnits: bigint | undefined,
+  affiliateRevenue: bigint | undefined,
+]
+
 type UseCurrentEpochRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
   currentEpochMetadata: CurrentEpochMetadata | undefined
@@ -35,7 +41,7 @@ export const useCurrentEpochRewardsQuery = ({
       ) => {
         if (!stakingAssetAccountAddress) return 0n
 
-        const results = _results as [Epoch[] | undefined, bigint | undefined, bigint | undefined]
+        const results = _results as EpochRewardsResultTuple
 
         const [epochHistory, currentEpochRewardUnits, affiliateRevenue] = results
 

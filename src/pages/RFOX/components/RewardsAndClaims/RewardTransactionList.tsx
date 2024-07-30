@@ -10,6 +10,7 @@ import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import type { ReduxState } from 'state/reducer'
 import { selectTxById } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 type RewardTransactionListProps = {
@@ -41,7 +42,9 @@ const RewardTransaction = memo(
       )
     }
 
-    const txDetails = getTxDetails(txId)
+    const { txid } = deserializeTxIndex(txId)
+
+    const txDetails = getTxDetails(txid)
 
     if (!txDetails) return null
 
@@ -51,9 +54,9 @@ const RewardTransaction = memo(
         useCompactMode={useCompactMode}
         parentWidth={entry?.contentRect.width ?? 360}
         txDetails={txDetails}
-        disableCollapse
+        disableCollapse={!txid}
         topRight={
-          txId ? undefined : (
+          txid ? undefined : (
             <Text
               fontSize='sm'
               fontWeight='bold'

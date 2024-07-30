@@ -78,14 +78,14 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    approval: { state: approvalTxState, isRequired: isApprovalInitiallyNeeded },
-    swap: { state: swapTxState },
-    allowanceReset: { isRequired: isAllowanceResetInitiallyNeeded },
+    approval,
+    swap,
+    allowanceReset,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   const isError = useMemo(
-    () => [approvalTxState, swapTxState].includes(TransactionExecutionState.Failed),
-    [approvalTxState, swapTxState],
+    () => [approval.state, swap.state].includes(TransactionExecutionState.Failed),
+    [approval.state, swap.state],
   )
   const buyAmountCryptoPrecision = useMemo(
     () =>
@@ -102,7 +102,7 @@ export const Hop = ({
   )
 
   const rightComponent = useMemo(() => {
-    switch (swapTxState) {
+    switch (swap.state) {
       case TransactionExecutionState.AwaitingConfirmation:
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
@@ -124,17 +124,18 @@ export const Hop = ({
       default:
         return null
     }
-  }, [swapTxState, tradeQuoteStep.estimatedExecutionTimeMs, onToggleIsOpen, isOpen])
+  }, [swap.state, tradeQuoteStep.estimatedExecutionTimeMs, onToggleIsOpen, isOpen])
 
   const activeStep = useMemo(() => {
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
       case HopExecutionState.AwaitingApprovalReset:
-      case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 1 : 0
-      case HopExecutionState.AwaitingSwap:
+      case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 2 : 1
+      case HopExecutionState.AwaitingSwap:
+        return hopIndex === 0 ? 3 : 2
       case HopExecutionState.Complete:
         return Infinity
       default:
@@ -203,8 +204,8 @@ export const Hop = ({
             />
           )}
 
-          <Collapse in={isAllowanceResetInitiallyNeeded} style={collapseWidth}>
-            {isAllowanceResetInitiallyNeeded && (
+          <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
+            {allowanceReset.isRequired && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
@@ -213,8 +214,8 @@ export const Hop = ({
               />
             )}
           </Collapse>
-          <Collapse in={isApprovalInitiallyNeeded} style={collapseWidth}>
-            {isApprovalInitiallyNeeded === true && (
+          <Collapse in={approval.isRequired} style={collapseWidth}>
+            {approval.isRequired === true && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}

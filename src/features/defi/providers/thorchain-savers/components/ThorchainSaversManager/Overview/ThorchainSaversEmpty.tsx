@@ -105,9 +105,6 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
           <Box borderRadius='xl' background={backgroundColor}>
             <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
               {translate('defi.modals.saversVaults.agreeRunePool.1')}
-              <Link color={linkColor} isExternal href={RUNEPOOL_ARTICLE_LINK} marginLeft={1}>
-                {translate('defi.modals.saversVaults.agreeRunePool.2')}
-              </Link>
             </Checkbox>
           </Box>
         ) : null}
@@ -134,7 +131,6 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     hasAccounts,
     handleHasAgreed,
     hasAgreed,
-    linkColor,
     backgroundColor,
     isRunePool,
     onClick,
@@ -185,7 +181,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
           />
           <RawText color='text.subtle'>
             {`${translate('defi.modals.saversVaults.risksBody.1')} `}
-            <Link color={linkColor} isExternal href={articleLink}>
+            <Link color={linkColor} isExternal href={articleLink} me={1}>
               {translate('defi.modals.saversVaults.risksBody.2')}
             </Link>
             {translate(

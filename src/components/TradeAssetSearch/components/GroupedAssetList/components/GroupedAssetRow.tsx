@@ -1,8 +1,9 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { InlineCopyButton } from 'components/InlineCopyButton'
@@ -10,6 +11,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -36,6 +38,7 @@ export const GroupedAssetRow = ({
   hideZeroBalanceAmounts,
   onImportClick,
 }: GroupedAssetRowProps) => {
+  const dispatch = useDispatch()
   const color = useColorModeValue('text.subtle', 'whiteAlpha.500')
   const backgroundColor = useColorModeValue('gray.50', 'background.button.secondary.base')
   const translate = useTranslate()
@@ -65,6 +68,14 @@ export const GroupedAssetRow = ({
   }, [asset, onImportClick])
 
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
+
+  useEffect(() => {
+    if (!assetId) return
+
+    // Hydrates market-data for the currently-rendered asset - note no *forceRefetch*, this will
+    // only fetch market data while scrolling through the list if not present
+    dispatch(marketApi.endpoints.findByAssetIds.initiate([assetId]))
+  }, [assetId, dispatch])
 
   const KnownAssetRow: JSX.Element | null = useMemo(() => {
     if (!asset) return null

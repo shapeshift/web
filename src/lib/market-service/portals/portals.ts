@@ -26,8 +26,10 @@ import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import dayjs from 'dayjs'
 import qs from 'qs'
+import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, getTimeFrameBounds } from 'lib/utils'
+import { sleep } from 'lib/poll/poll'
+import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
 
 import generatedAssetData from '../../asset-service/service/generatedAssetData.json'
 import type { MarketService } from '../api'
@@ -41,6 +43,7 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
   return close.minus(open).dividedBy(open).times(100).toNumber()
 }
 
+// TODO(gomes): move me somewhere shared
 // Non-exhaustive - https://api.portals.fi/docs#/Supported/SupportedController_getSupportedTokensV2 for full docs
 type TokenInfo = {
   key: string
@@ -91,6 +94,60 @@ const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [baseChainId]: 'base',
 }
 
+// TODO(gomes): can we have root-level utils so we don't redeclare this from the scripts folder?
+const { throttle, clear } = (({
+  capacity,
+  costPerReq,
+  drainPerInterval,
+  intervalMs,
+}: {
+  capacity: number
+  costPerReq: number
+  drainPerInterval: number
+  intervalMs: number
+}) => {
+  let currentLevel = 0
+  let pendingResolves: ((value?: unknown) => void)[] = []
+
+  const drain = () => {
+    const drainAmount = Math.min(currentLevel, drainPerInterval)
+    currentLevel -= drainAmount
+
+    // Resolve pending promises if there's enough capacity
+    while (pendingResolves.length > 0 && currentLevel + costPerReq <= capacity) {
+      const resolve = pendingResolves.shift()
+      if (resolve) {
+        currentLevel += costPerReq
+        resolve()
+      }
+    }
+  }
+
+  // Start the interval to drain the capacity
+  const intervalId = setInterval(drain, intervalMs)
+
+  const throttle = async () => {
+    if (currentLevel + costPerReq <= capacity) {
+      // If adding another request doesn't exceed capacity, proceed immediately
+      currentLevel += costPerReq
+    } else {
+      // Otherwise, wait until there's enough capacity
+      await new Promise(resolve => {
+        pendingResolves.push(resolve)
+      })
+    }
+  }
+
+  const clear = () => clearInterval(intervalId)
+
+  return { throttle, clear }
+})({
+  capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
+  costPerReq: 1,
+  drainPerInterval: 125, // Replenish 125 requests every 15 seconds
+  intervalMs: 15000, // 15 seconds
+})
+
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
@@ -102,79 +159,105 @@ export class PortalsMarketService implements MarketService {
     count: 250,
   }
 
-  async findAll(args?: FindAllMarketArgs) {
+  async findAll(args?: FindAllMarketArgs): Promise<MarketCapResult> {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
-    const url = `${this.baseUrl}/v2/tokens`
-    let allTokens: TokenInfo[] = []
-    let page = 1
-    let hasMore = true
+    const tokensUrl = `${this.baseUrl}/v2/tokens`
+    const historyUrl = `${this.baseUrl}/v2/tokens/history`
 
-    while (hasMore && allTokens.length < count) {
-      const params = {
-        limit: '250',
-        minLiquidity: '1000',
-        minApy: '1',
-        networks: ['avalanche'],
-        page: page.toString(),
-      }
+    const marketCapResult: MarketCapResult = {}
 
-      try {
-        const { data } = await axios.get<GetTokensResponse>(url, {
-          paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-          headers: {
-            Authorization: `Bearer ${PORTALS_API_KEY}`,
-          },
-          params,
-        })
+    try {
+      for (const [chainId, network] of Object.entries(CHAIN_ID_TO_PORTALS_NETWORK)) {
+        let page = 0
+        let hasMore = true
 
-        allTokens = allTokens.concat(data.tokens)
-        hasMore = data.more
-        page++
-      } catch (e) {
-        console.error('Error fetching Portals data:', e)
-        break
-      }
-    }
+        while (hasMore && Object.keys(marketCapResult).length < count) {
+          await throttle()
 
-    return allTokens.slice(0, count).reduce((acc, token) => {
-      try {
-        const assetId = toAssetId({
-          chainId: avalancheChainId,
-          assetNamespace: ASSET_NAMESPACE.erc20,
-          assetReference: token.address,
-        })
+          const params = {
+            limit: '250',
+            minLiquidity: '1000',
+            minApy: '1',
+            networks: [network],
+            page: page.toString(),
+          }
 
-        if (!assetId) return acc
+          const { data } = await axios.get<GetTokensResponse>(tokensUrl, {
+            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+            headers: {
+              Authorization: `Bearer ${PORTALS_API_KEY}`,
+            },
+            params,
+          })
 
-        acc[assetId] = {
-          price: bnOrZero(token.pricePerShare).toFixed(),
-          marketCap: '0',
-          volume: '0',
-          changePercent24Hr: 0,
-          // TODO(gomes):
-          // marketCap: token.marketCap.toString(),
-          // volume: token.volume24h.toString(),
-          // changePercent24Hr: token.priceChange24h,
-          // supply: token.totalSupply,
-          // maxSupply: token.maxSupply?.toString(),
+          hasMore = data.more
+          page++
+
+          for (const token of data.tokens) {
+            await sleep(200)
+            await throttle()
+            if (Object.keys(marketCapResult).length >= count) break
+
+            const assetId = toAssetId({
+              chainId: chainId as ChainId,
+              assetNamespace:
+                chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+              assetReference: token.address,
+            })
+
+            if (assetId) {
+              const historyParams = {
+                id: `${network}:${token.address}`,
+                from: Math.floor(Date.now() / 1000) - 86400, // 24 hours ago
+                resolution: '1d',
+                page: '0',
+              }
+
+              const { data: historyData } = await axios.get<HistoryResponse>(historyUrl, {
+                headers: {
+                  Authorization: `Bearer ${PORTALS_API_KEY}`,
+                },
+                params: historyParams,
+              })
+
+              if (historyData.history.length > 0) {
+                const latestData = historyData.history[0]
+                marketCapResult[assetId] = {
+                  price: bnOrZero(latestData.closePrice).toFixed(),
+                  marketCap: bnOrZero(latestData.liquidity).toFixed(),
+                  volume: latestData.volume1dUsd,
+                  changePercent24Hr: calculatePercentChange(
+                    latestData.openPrice,
+                    latestData.closePrice,
+                  ),
+                  supply: latestData.totalSupply,
+                  maxSupply: undefined, // This endpoint doesn't provide max supply
+                }
+              }
+            }
+
+            if (Object.keys(marketCapResult).length >= count) break
+          }
         }
 
-        return acc
-      } catch {
-        return acc // no AssetId found, we don't support this asset
+        if (Object.keys(marketCapResult).length >= count) break
       }
-    }, {} as MarketCapResult)
-  }
 
+      return marketCapResult
+    } catch (e) {
+      console.error('Error fetching Portals data:', e)
+      return marketCapResult
+    } finally {
+      clear()
+    }
+  }
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
-    // TODO(gomes): guard against native AssetIds or support gracefully
     const assets = generatedAssetData as unknown as AssetsByIdPartial
 
     try {
       const asset = assets[assetId]
       if (!asset) return null
-      // TODO(gomes): native assetIds
       const { chainId, assetReference } = fromAssetId(assetId)
 
       const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
@@ -183,7 +266,7 @@ export class PortalsMarketService implements MarketService {
         return null
       }
 
-      const id = `${network}:${assetReference}`
+      const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
       const url = `${this.baseUrl}/v2/tokens/history`
       const params = {
         id,
@@ -221,7 +304,6 @@ export class PortalsMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    // TODO(gomes): guard against native AssetIds or support gracefully
     const { chainId, assetReference } = fromAssetId(assetId)
     const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
@@ -230,7 +312,7 @@ export class PortalsMarketService implements MarketService {
       return []
     }
 
-    const id = `${network}:${assetReference}`
+    const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
     const { start: _start, end } = getTimeFrameBounds(timeframe)
 
     const resolution = (() => {

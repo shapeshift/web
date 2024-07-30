@@ -122,7 +122,6 @@ export class PortalsMarketService implements MarketService {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
     const tokensUrl = `${this.baseUrl}/v2/tokens`
-    const historyUrl = `${this.baseUrl}/v2/tokens/history`
 
     const marketCapResult: MarketCapResult = {}
 
@@ -155,7 +154,6 @@ export class PortalsMarketService implements MarketService {
           page++
 
           for (const token of data.tokens) {
-            await throttle()
             if (Object.keys(marketCapResult).length >= count) break
 
             const assetId = toAssetId({
@@ -165,40 +163,13 @@ export class PortalsMarketService implements MarketService {
               assetReference: token.address,
             })
 
-            if (assetId) {
-              const historyParams = {
-                id: `${network}:${token.address}`,
-                from: Math.floor(Date.now() / 1000) - 86400, // 24 hours ago
-                resolution: '1d',
-                page: '0',
-              }
-
-              const { data: historyData } = await axios
-                .get<HistoryResponse>(historyUrl, {
-                  headers: {
-                    Authorization: `Bearer ${PORTALS_API_KEY}`,
-                  },
-                  params: historyParams,
-                })
-                .catch(e => {
-                  console.error('Error fetching Portals data:', e)
-                  return { data: { history: [] } }
-                })
-
-              if (historyData.history.length > 0) {
-                const latestData = historyData.history[0]
-                marketCapResult[assetId] = {
-                  price: bnOrZero(latestData.closePrice).toFixed(),
-                  marketCap: bnOrZero(latestData.liquidity).toFixed(),
-                  volume: latestData.volume1dUsd,
-                  changePercent24Hr: calculatePercentChange(
-                    latestData.openPrice,
-                    latestData.closePrice,
-                  ),
-                  supply: latestData.totalSupply,
-                  maxSupply: undefined, // This endpoint doesn't provide max supply
-                }
-              }
+            marketCapResult[assetId] = {
+              price: bnOrZero(token.pricePerShare).toFixed(),
+              marketCap: '0',
+              volume: '0',
+              changePercent24Hr: 0,
+              supply: undefined, // This endpoint doesn't provide supply
+              maxSupply: undefined, // This endpoint doesn't provide max supply
             }
 
             if (Object.keys(marketCapResult).length >= count) break

@@ -26,11 +26,7 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 import type { ThorchainRunepoolInformationResponseSuccess } from './types'
-import {
-  getAllThorchainSaversPositions,
-  getMidgardPools,
-  getThorchainSaversPosition,
-} from './utils'
+import { getMidgardPools, getThorchainSaversPosition } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -228,13 +224,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
-
-      const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
-
-      if (!allPositions.length)
-        throw new Error(
-          `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
-        )
 
       const accountPosition = await getThorchainSaversPosition({
         accountId,

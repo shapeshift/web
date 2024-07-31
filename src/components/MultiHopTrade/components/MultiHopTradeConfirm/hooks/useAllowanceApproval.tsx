@@ -18,6 +18,7 @@ export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   allowanceType: AllowanceType,
+  isAwaitingReset: boolean,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
@@ -100,11 +101,11 @@ export const useAllowanceApproval = (
 
   const result = useMemo(
     () => ({
-      isLoading,
+      isLoading: isLoading || isAwaitingReset,
       executeAllowanceApproval,
       approvalNetworkFeeCryptoBaseUnit,
     }),
-    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
+    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isAwaitingReset, isLoading],
   )
 
   return result

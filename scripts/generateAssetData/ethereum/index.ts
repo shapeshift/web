@@ -7,10 +7,8 @@ import uniqBy from 'lodash/uniqBy'
 
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
-import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-// import { getPortalTokens } from '../utils/portals'
+import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 // Yearn SDK is currently rugged upstream
@@ -31,6 +29,7 @@ const foxyToken: Asset = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
   explorerTxLink: ethereum.explorerTxLink,
+  relatedAssetKey: null,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
@@ -41,8 +40,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getUnderlyingVaultTokens(),
     getUniswapV2Pools(),
     getIdleTokens(),
-    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
-    [], // getPortalTokens(ethereum),
+    getPortalTokens(ethereum),
   ])
 
   const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
@@ -76,24 +74,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     const newModifiedTokens = result.map((res, idx) => {
       const key = i * batchSize + idx
       if (res.status === 'rejected') {
-        if (!uniqueAssets[key].icon) {
-          const options: IdenticonOptions = {
-            identiconImage: {
-              size: 128,
-              background: [45, 55, 72, 255],
-            },
-            identiconText: {
-              symbolScale: 7,
-              enableShadow: true,
-            },
-          }
-          uniqueAssets[key].icon = getRenderedIdenticonBase64(
-            uniqueAssets[key].assetId,
-            uniqueAssets[key].symbol.substring(0, 3),
-            options,
-          )
-        }
-        return uniqueAssets[key] // token without modified icon
+        return uniqueAssets[key]
       } else {
         const { icon } = generateTrustWalletUrl(uniqueAssets[key].assetId)
         return { ...uniqueAssets[key], icon }

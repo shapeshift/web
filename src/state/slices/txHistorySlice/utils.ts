@@ -62,7 +62,7 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   const txid = parts[1]
   const pubkey = parts[2]
 
-  if (!(accountId && txid && pubkey)) {
+  if (accountId === undefined || txid === undefined || pubkey === undefined) {
     throw new Error(`Invalid tx index: ${txIndex}`)
   }
 

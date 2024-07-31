@@ -11,13 +11,14 @@ import {
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { AssetsById } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 import path from 'path'
+import type { PartialFields } from 'lib/types'
 
 import { createThrottle } from '../utils'
 import { zerionImplementationToMaybeAssetId } from './mapping'
@@ -99,7 +100,7 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
 
 const getRelatedAssetIds = async (
   assetId: AssetId,
-  assetData: AssetsById,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   const basicAuth = 'Basic ' + Buffer.from(ZERION_API_KEY + ':').toString('base64')
 
@@ -166,13 +167,27 @@ let sadCount = 0
 
 const processRelatedAssetIds = async (
   assetId: AssetId,
-  assetData: AssetsById,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
+  throttle: () => Promise<void>,
 ): Promise<void> => {
-  // don't fetch if we've already got the data from a previous request
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
-  if (existingRelatedAssetKey) {
-    return
+  // We already have an existing relatedAssetKey, so we don't need to fetch it again
+  if (existingRelatedAssetKey !== undefined) return
+
+  console.log(`Processing related assetIds for ${assetId}`)
+
+  // Check if this asset is already in the relatedAssetIndex
+  for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
+    if (relatedAssets.includes(assetId)) {
+      if (existingRelatedAssetKey !== key) {
+        console.log(
+          `Updating relatedAssetKey for ${assetId} from ${existingRelatedAssetKey} to ${key}`,
+        )
+        assetData[assetId].relatedAssetKey = key
+      }
+      return // Else, early return as this asset is already processed
+    }
   }
 
   const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
@@ -184,6 +199,7 @@ const processRelatedAssetIds = async (
       sadCount++
       return undefined
     })
+
   const manualRelatedAssetsResult = getManualRelatedAssetIds(assetId)
 
   // ensure empty results get added so we can use this index to generate distinct asset list
@@ -196,26 +212,31 @@ const processRelatedAssetIds = async (
 
   const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
   const mergedRelatedAssetIds = Array.from(
-    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds]),
+    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds, assetId]),
   )
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = mergedRelatedAssetIds.length > 0
+  const hasRelatedAssets = mergedRelatedAssetIds.length > 1
 
-  // attach the relatedAssetKey for all related assets including the primary implementation (where supported by us)
-  if (hasRelatedAssets && assetData[relatedAssetKey] !== undefined) {
-    assetData[relatedAssetKey].relatedAssetKey = relatedAssetKey
+  if (hasRelatedAssets) {
+    // attach the relatedAssetKey for all related assets including the primary implementation
+    for (const relatedAssetId of mergedRelatedAssetIds) {
+      if (assetData[relatedAssetId]) {
+        assetData[relatedAssetId].relatedAssetKey = relatedAssetKey
+      }
+    }
+    relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
+  } else {
+    // If there are no related assets, set relatedAssetKey to null
+    assetData[assetId].relatedAssetKey = null
   }
 
-  for (const assetId of mergedRelatedAssetIds) {
-    assetData[assetId].relatedAssetKey = relatedAssetKey
-  }
-  relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
-  return
+  await throttle()
 }
 
-export const generateRelatedAssetIndex = async () => {
-  console.log('generateRelatedAssetIndex() starting')
+// Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
+export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
+  console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
   const generatedAssetsPath = path.join(
     __dirname,
@@ -229,11 +250,17 @@ export const generateRelatedAssetIndex = async () => {
   const generatedAssetData: AssetsById = JSON.parse(
     await fs.promises.readFile(generatedAssetsPath, 'utf8'),
   )
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = {}
-  const assetDataWithRelatedAssetKeys: AssetsById = { ...generatedAssetData }
+  const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
+    await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
+  )
+  const assetDataWithRelatedAssetKeys: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>> = {
+    ...generatedAssetData,
+  }
 
-  // remove relatedAssetKey from the existing data to ensure the related assets get updated
-  Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
+  if (rebuildAll) {
+    // remove relatedAssetKey from the existing data to ensure the related assets get updated
+    Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
+  }
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
@@ -243,11 +270,15 @@ export const generateRelatedAssetIndex = async () => {
   })
   const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
-    console.log(`Fetching chunk: ${i} of ${chunks.length}`)
+    console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(assetId, assetDataWithRelatedAssetKeys, relatedAssetIndex)
-        await throttle()
+        await processRelatedAssetIds(
+          assetId,
+          assetDataWithRelatedAssetKeys,
+          relatedAssetIndex,
+          throttle,
+        )
         return
       }),
     )

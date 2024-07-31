@@ -1,5 +1,11 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { ethChainId, foxAssetId, foxatarAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import {
+  ethChainId,
+  foxAssetId,
+  foxatarAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -20,6 +26,7 @@ import {
 } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { fetchAllOpportunitiesUserDataByAccountId } from 'state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
@@ -53,8 +60,9 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
     ({ chainId, data, transfers, status, txid }: Transaction, accountId: AccountId) => {
       if (status !== TxStatus.Confirmed) return
 
-      const { getOpportunitiesUserData } = opportunitiesApi.endpoints
+      const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
+      const shouldRefetchRfoxOpportunity = data?.parser === 'rfox' && data.type === 'evm'
       const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
       const shouldRefetchSaversOpportunities =
         isSupportedThorchainSaversChainId(chainId) &&
@@ -86,7 +94,25 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         )
       )
 
-      if (shouldRefetchCosmosSdkOpportunities) {
+      if (shouldRefetchRfoxOpportunity) {
+        dispatch(
+          getOpportunityUserData.initiate(
+            [
+              {
+                opportunityId: toOpportunityId({
+                  assetNamespace: fromAssetId(data.assetId).assetNamespace,
+                  chainId,
+                  assetReference: fromAssetId(data.assetId).assetReference,
+                }),
+                accountId,
+                defiProvider: DefiProvider.rFOX,
+                defiType: DefiType.Staking,
+              },
+            ],
+            { forceRefetch: true },
+          ),
+        )
+      } else if (shouldRefetchCosmosSdkOpportunities) {
         dispatch(
           getOpportunitiesUserData.initiate(
             [

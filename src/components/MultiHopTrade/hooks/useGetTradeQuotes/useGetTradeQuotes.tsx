@@ -274,6 +274,7 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.OneInch))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))

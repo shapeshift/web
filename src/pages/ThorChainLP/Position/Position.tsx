@@ -218,11 +218,11 @@ export const Position = () => {
   )
 
   const poolTypeText = useMemo(() => {
-    const { type } = fromOpportunityId(opportunityId)
+    const { opportunityType } = fromOpportunityId(opportunityId)
 
-    if (type === 'sym') return <Text translation='common.symmetric' />
+    if (opportunityType === 'sym') return <Text translation='common.symmetric' />
 
-    const positionAsset = type === AsymSide.Asset ? asset : runeAsset
+    const positionAsset = opportunityType === AsymSide.Asset ? asset : runeAsset
     if (!positionAsset) return null
     return (
       <Text

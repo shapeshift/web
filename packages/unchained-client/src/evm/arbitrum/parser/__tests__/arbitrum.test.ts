@@ -909,6 +909,7 @@ describe('parseTx', () => {
         },
         data: {
           method: 'stake',
+          type: 'evm',
           parser: 'rfox',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
           runeAddress: 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup',
@@ -951,6 +952,7 @@ describe('parseTx', () => {
         data: {
           method: 'unstakeRequest',
           parser: 'rfox',
+          type: 'evm',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
           value: '3273624096679687500',
         },
@@ -982,6 +984,7 @@ describe('parseTx', () => {
         data: {
           method: 'withdraw',
           parser: 'rfox',
+          type: 'evm',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
           claimIndex: 0,
         },
@@ -1023,6 +1026,7 @@ describe('parseTx', () => {
         data: {
           method: 'setRuneAddress',
           parser: 'rfox',
+          type: 'evm',
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
           runeAddress: 'thor1clpczglrkrvdq9xtcsmj9a8ayrjeet2llcqufl',
         },

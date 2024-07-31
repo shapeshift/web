@@ -1,5 +1,5 @@
 import { forwardRef } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { TransactionRow } from 'components/TransactionHistoryRows/TransactionRow'
 import type { GlobalSearchResult } from 'state/slices/search-selectors'
 import { GlobalSearchResultType } from 'state/slices/search-selectors'
@@ -18,6 +18,14 @@ export const TxResult = forwardRef<TxResultProps, 'div'>(
       () => onClick({ type: GlobalSearchResultType.Transaction, id: txId as TxId }),
       [onClick, txId],
     )
+
+    const boxProps = useMemo(() => {
+      return {
+        'aria-selected': selected ? true : undefined,
+        disableCollapse: true,
+      }
+    }, [selected])
+
     return (
       <TransactionRow
         useCompactMode
@@ -25,8 +33,7 @@ export const TxResult = forwardRef<TxResultProps, 'div'>(
         parentWidth={360}
         ref={ref}
         onClick={handleClick}
-        aria-selected={selected ? true : undefined}
-        disableCollapse
+        boxProps={boxProps}
       />
     )
   },

@@ -72,6 +72,10 @@ export const fetchPortalsTokens = async (
 
     const params = {
       limit: '250',
+      // Minimum 1000 bucks liquidity if asset is a LP token
+      minLiquidity: '1000',
+      // Minimum 1% APY if asset is a LP token
+      minApy: '1',
       networks: [network],
       page: page.toString(),
     }
@@ -131,13 +135,14 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: token.images?.[0] ?? '',
-      icons: token.images ?? [],
+      icon: token.images?.[0],
+      ...(token.images?.length && { icons: token.images }),
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId: nativeAsset.chainId,
       assetId,
+      relatedAssetKey: undefined,
     }
   })
 }

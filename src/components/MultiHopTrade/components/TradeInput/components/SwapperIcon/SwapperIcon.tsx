@@ -9,6 +9,7 @@ import OneInchIcon from './1inch-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import CowIcon from './cow-icon.png'
 import LiFiIcon from './lifi-icon.png'
+import PortalsIcon from './portals-icon.png'
 import THORChainIcon from './thorchain-icon.png'
 
 export const SwapperIcon = ({
@@ -32,6 +33,8 @@ export const SwapperIcon = ({
         return OneInchIcon
       case SwapperName.ArbitrumBridge:
         return ArbitrumBridgeIcon
+      case SwapperName.Portals:
+        return PortalsIcon
       case SwapperName.Test:
         return ''
       default:

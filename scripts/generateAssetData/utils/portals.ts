@@ -103,9 +103,9 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       chainId: nativeAsset.chainId,
       assetId,
       relatedAssetKey: undefined,
-      // undefined nullish coalescing isn't a mistake - JSON doesn't support undefined, so this will avoid adding an additional line to the JSON
+      // undefined short-circuit isn't a mistake - JSON doesn't support undefined, so this will avoid adding an additional line to the JSON
       // for non-pool assets
-      isPool: Boolean(token.metrics.apy) ?? undefined,
+      isPool: Boolean(token.metrics.apy) || undefined,
     }
   })
 }

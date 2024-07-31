@@ -244,35 +244,19 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useQuery({
     queryKey: ['marketData', {}],
     queryFn: async () => {
+      // TODO(gomes): is the below still true now that we can get market-data from Portals?
       // Exclude assets for which we are unable to get market data
       // We would fire query thunks / XHRs that would slow down the app
       // We insert price data for these as resolver-level, and are unable to get market data
       const excluded: AssetId[] = uniV2LpIdsData.data ?? []
       const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
 
-      // Only commented out to make it clear we do NOT want to use RTK options here
-      // We use react-query as a wrapper because it allows us to disable refetch for background tabs
-      // const opts = { subscriptionOptions: { pollingInterval: marketDataPollingInterval } }
-      const timeframe = DEFAULT_HISTORY_TIMEFRAME
-
-      await Promise.all([
-        dispatch(
-          marketApi.endpoints.findPriceHistoryByAssetIds.initiate(
-            {
-              timeframe,
-              assetIds: portfolioAssetIdsExcludeNoMarketData,
-            },
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            { forceRefetch: true },
-          ),
-        ),
-        dispatch(
-          marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData, {
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            forceRefetch: true,
-          }),
-        ),
-      ])
+      await dispatch(
+        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData, {
+          // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+          forceRefetch: true,
+        }),
+      )
 
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())

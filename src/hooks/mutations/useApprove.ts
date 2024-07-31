@@ -13,6 +13,7 @@ import { isToken } from 'lib/utils'
 import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
+  from?: string
   onSuccess?: (txHash: string) => void
 }
 

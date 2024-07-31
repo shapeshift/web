@@ -1,6 +1,8 @@
 import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
+import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -11,8 +13,6 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { useIsApprovalNeeded } from './useIsApprovalNeeded'
-
 const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteId: string | undefined,
   tradeQuoteStep: TradeQuoteStep | undefined,
@@ -21,10 +21,13 @@ const useIsApprovalInitiallyNeededForHop = (
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
   const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
 
-  const { isLoading, data: isApprovalNeededData } = useIsApprovalNeeded(
-    tradeQuoteStep,
-    sellAssetAccountId,
-  )
+  const { allowanceCryptoBaseUnitResult, isApprovalRequired, isAllowanceResetRequired } =
+    useIsApprovalRequired({
+      amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      assetId: tradeQuoteStep?.sellAsset.assetId,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+      spender: tradeQuoteStep?.allowanceContract,
+    })
 
   // Reset the approval requirements if the trade quote ID changes
   // IMPORTANT: This must be evaluated before the other useEffects to ensure that the initial approval requirements are reset
@@ -37,32 +40,27 @@ const useIsApprovalInitiallyNeededForHop = (
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
+    if (allowanceCryptoBaseUnitResult.isLoading || isApprovalRequired === undefined) return
 
-    if (!isLoading && isApprovalNeededData?.isApprovalNeeded !== undefined) {
-      setIsApprovalInitiallyNeeded(isApprovalNeededData?.isApprovalNeeded)
-    }
-  }, [isApprovalInitiallyNeeded, isApprovalNeededData, isLoading])
+    setIsApprovalInitiallyNeeded(isApprovalRequired)
+  }, [allowanceCryptoBaseUnitResult.isLoading, isApprovalInitiallyNeeded, isApprovalRequired])
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isAllowanceResetNeeded !== undefined) return
+    if (allowanceCryptoBaseUnitResult.isLoading || isAllowanceResetRequired === undefined) return
 
-    if (!isLoading && isApprovalNeededData?.isAllowanceResetNeeded !== undefined) {
-      setIsAllowanceResetNeeded(isApprovalNeededData?.isAllowanceResetNeeded)
-    }
-  }, [isAllowanceResetNeeded, isApprovalNeededData, isLoading])
+    setIsAllowanceResetNeeded(isAllowanceResetRequired)
+  }, [allowanceCryptoBaseUnitResult, isAllowanceResetNeeded, isAllowanceResetRequired])
 
-  const result = useMemo(
-    () => ({
-      isLoading,
+  return useMemo(() => {
+    return {
+      isLoading: allowanceCryptoBaseUnitResult.isLoading,
       isApprovalInitiallyNeeded,
       isAllowanceResetNeeded,
-    }),
-    [isLoading, isApprovalInitiallyNeeded, isAllowanceResetNeeded],
-  )
-
-  return result
+    }
+  }, [allowanceCryptoBaseUnitResult, isApprovalInitiallyNeeded, isAllowanceResetNeeded])
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
@@ -114,7 +112,7 @@ export const useIsApprovalInitiallyNeeded = () => {
   ])
 
   const result = useMemo(
-    () => ({ isLoading: isFirstHopLoading || (isMultiHopTrade && isSecondHopLoading) }),
+    () => ({ isLoading: isFirstHopLoading || (Boolean(isMultiHopTrade) && isSecondHopLoading) }),
     [isFirstHopLoading, isMultiHopTrade, isSecondHopLoading],
   )
 

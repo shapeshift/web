@@ -282,7 +282,6 @@ export const useRfoxStake = ({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress,
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       accountNumber: stakingAssetAccountNumber,

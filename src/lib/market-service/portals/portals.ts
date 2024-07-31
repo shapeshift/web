@@ -111,8 +111,7 @@ export class PortalsMarketService implements MarketService {
 
           const params = {
             limit: Math.min(this.defaultGetByMarketCapArgs.count, argsToUse.count),
-            minLiquidity: '1000',
-            minApy: '1',
+            minLiquidity: '100000',
             sortBy: 'volumeUsd7d',
             networks: [network],
             // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
@@ -138,7 +137,7 @@ export class PortalsMarketService implements MarketService {
             })
 
             marketCapResult[assetId] = {
-              price: bnOrZero(token.pricePerShare).toFixed(),
+              price: bnOrZero(token.price).toFixed(),
               marketCap: '0',
               volume: '0',
               changePercent24Hr: 0,

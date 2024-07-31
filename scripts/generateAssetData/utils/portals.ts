@@ -34,10 +34,8 @@ export const fetchPortalsTokens = async (
 
     const params = {
       limit: '250',
-      // Minimum 1000 bucks liquidity if asset is a LP token
-      minLiquidity: '1000',
-      // Minimum 1% APY if asset is a LP token
-      minApy: '1',
+      // Minimum 100,000 bucks liquidity if asset is a LP token
+      minLiquidity: '100000',
       networks: [network],
       page: page.toString(),
     }
@@ -94,6 +92,9 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
       assetReference: token.address,
     })
+    if (assetId === 'eip155:1/erc20:0xc97232527b62efb0d8ed38cf3ea103a6cca4037e') {
+      console.log({ token, isPool: Boolean(token.metrics.apy) })
+    }
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
@@ -105,6 +106,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       chainId: nativeAsset.chainId,
       assetId,
       relatedAssetKey: undefined,
+      isPool: Boolean(token.metrics.apy),
     }
   })
 }

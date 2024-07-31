@@ -25,19 +25,23 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
     [stakingAssetAccountId],
   )
 
-  const {
-    data: userStakingBalanceCryptoBaseUnit,
-    isSuccess: isUserStakingBalanceCryptoBaseUnitSuccess,
-    isLoading: isUserStakingBalanceCryptoBaseUnitLoading,
-  } = useStakingInfoQuery({
+  const stakingBalanceCryptoBaseUnitResult = useStakingInfoQuery({
     stakingAssetAccountAddress,
     select: selectStakingBalance,
   })
 
-  const userStakingBalanceCryptoPrecision = useMemo(() => {
-    if (!(userStakingBalanceCryptoBaseUnit && stakingAsset)) return
-    return fromBaseUnit(userStakingBalanceCryptoBaseUnit, stakingAsset.precision)
-  }, [stakingAsset, userStakingBalanceCryptoBaseUnit])
+  const stakingBalanceCryptoBaseUnitLoading = useMemo(() => {
+    return (
+      stakingBalanceCryptoBaseUnitResult.isLoading ||
+      stakingBalanceCryptoBaseUnitResult.isPaused ||
+      stakingBalanceCryptoBaseUnitResult.isPending
+    )
+  }, [stakingBalanceCryptoBaseUnitResult])
+
+  const stakingBalanceCryptoPrecision = useMemo(() => {
+    if (!(stakingBalanceCryptoBaseUnitResult.data && stakingAsset)) return
+    return fromBaseUnit(stakingBalanceCryptoBaseUnitResult.data, stakingAsset.precision)
+  }, [stakingAsset, stakingBalanceCryptoBaseUnitResult.data])
 
   if (!stakingAsset) return null
 
@@ -47,11 +51,11 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <Flex alignItems='center' gap={2} mb={6}>
           <AssetIcon size='sm' assetId={stakingAssetId} key={stakingAssetId} showNetworkIcon />
           <Flex flexDir='column'>
-            <Skeleton isLoaded={isUserStakingBalanceCryptoBaseUnitSuccess}>
+            <Skeleton isLoaded={!stakingBalanceCryptoBaseUnitLoading}>
               <Amount.Crypto
                 fontWeight='bold'
                 fontSize='2xl'
-                value={userStakingBalanceCryptoPrecision ?? '0'}
+                value={stakingBalanceCryptoPrecision}
                 symbol={stakingAsset.symbol}
               />
             </Skeleton>
@@ -60,8 +64,8 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
         <StakingInfo
           stakingAssetId={stakingAssetId}
           stakingAssetAccountAddress={stakingAssetAccountAddress}
-          userStakingBalanceCryptoBaseUnit={userStakingBalanceCryptoBaseUnit}
-          isUserStakingBalanceCryptoPrecisionLoading={isUserStakingBalanceCryptoBaseUnitLoading}
+          stakingBalanceCryptoBaseUnit={stakingBalanceCryptoBaseUnitResult.data}
+          isStakingBalanceCryptoBaseUnitLoading={stakingBalanceCryptoBaseUnitLoading}
         />
       </CardHeader>
       <CardBody pb={6}>

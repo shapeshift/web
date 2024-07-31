@@ -1,5 +1,6 @@
 import { TransferType } from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { RawText } from 'components/Text'
 
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
@@ -15,7 +16,6 @@ import { getTransfersByType } from './utils'
 
 export const TransactionCommon = ({
   txDetails,
-  showDateAndGuide,
   compactMode,
   isOpen,
   toggleOpen,
@@ -25,6 +25,10 @@ export const TransactionCommon = ({
     () => getTransfersByType(txDetails.transfers, [TransferType.Send, TransferType.Receive]),
     [txDetails.transfers],
   )
+
+  const hasSend = useMemo(() => {
+    return transfersByType && transfersByType.Send && transfersByType.Send.length > 0
+  }, [transfersByType])
 
   return (
     <>
@@ -38,7 +42,6 @@ export const TransactionCommon = ({
         fee={txDetails.fee}
         txLink={txDetails.txLink}
         txid={txDetails.tx.txid}
-        showDateAndGuide={showDateAndGuide}
         parentWidth={parentWidth}
         txDetails={txDetails}
       />
@@ -51,15 +54,25 @@ export const TransactionCommon = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          <Row title='minerFee'>
-            <Amount
-              value={txDetails.fee?.value ?? '0'}
-              precision={txDetails.fee?.asset.precision ?? 0}
-              symbol={txDetails.fee?.asset.symbol ?? ''}
-            />
-          </Row>
+          {hasSend && (
+            <Row title='minerFee'>
+              {txDetails.fee ? (
+                <Amount
+                  value={txDetails.fee.value}
+                  precision={txDetails.fee.asset.precision}
+                  symbol={txDetails.fee.asset.symbol}
+                />
+              ) : (
+                <RawText>{'--'}</RawText>
+              )}
+            </Row>
+          )}
           <Row title='date'>
-            <TransactionDate blockTime={txDetails.tx.blockTime} />
+            {txDetails.tx.blockTime ? (
+              <TransactionDate blockTime={txDetails.tx.blockTime} />
+            ) : (
+              <RawText>{'--'}</RawText>
+            )}
           </Row>
         </TxGrid>
       </TransactionDetailsContainer>

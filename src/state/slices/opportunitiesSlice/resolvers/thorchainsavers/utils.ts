@@ -29,7 +29,6 @@ import type {
   MidgardPoolPeriod,
   MidgardPoolRequest,
   MidgardPoolResponse,
-  ThorchainRunepoolInformationResponseSuccess,
   ThorchainRunepoolProviderResponseSuccess,
   ThorchainSaverPositionResponse,
   ThorchainSaversDepositQuoteResponse,
@@ -98,32 +97,9 @@ export const getAllThorchainSaversPositions = async (
     staleTime: 60_000,
   })
 
-  const { data: runepoolInformation } = await queryClient.fetchQuery({
-    queryKey: ['thorchainRunepoolInformation'],
-    queryFn: () =>
-      axios.get<ThorchainRunepoolInformationResponseSuccess>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
-      ),
-    staleTime: 60_000,
-  })
+  if (!opportunitiesData) return []
 
-  const runepoolOpportunity: ThorchainSaverPositionResponse = {
-    asset: 'THOR.RUNE',
-    asset_address: fromAssetId(thorchainAssetId).assetReference,
-    last_add_height: undefined,
-    units: runepoolInformation.providers.units,
-    asset_deposit_value: runepoolInformation.providers.current_deposit,
-    asset_redeem_value: runepoolInformation.providers.value,
-    growth_pct: undefined,
-  }
-
-  const opportunities = opportunitiesData || []
-
-  if (runepoolInformation) {
-    opportunities.push(runepoolOpportunity)
-  }
-
-  return opportunities
+  return opportunitiesData
 }
 
 export const getThorchainSaversPosition = async ({
@@ -149,12 +125,12 @@ export const getThorchainSaversPosition = async ({
       const runepoolOpportunity: ThorchainSaverPositionResponse = {
         asset: 'THOR.RUNE',
         asset_address: runepoolInformation.rune_address,
-        last_add_height: undefined,
+        last_add_height: runepoolInformation.last_deposit_height,
         units: runepoolInformation.units,
-        asset_deposit_value: bnOrZero(runepoolInformation.value)
-          .plus(runepoolInformation.pnl)
+        asset_deposit_value: bnOrZero(runepoolInformation.deposit_amount)
+          .minus(runepoolInformation.withdraw_amount)
           .toFixed(),
-        asset_redeem_value: bnOrZero(runepoolInformation.value).toFixed(),
+        asset_redeem_value: runepoolInformation.value,
         growth_pct: undefined,
       }
 

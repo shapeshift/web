@@ -1,10 +1,16 @@
 import type * as thorchain from '../../parser/thorchain'
 import type { BaseTxMetadata, StandardTx } from '../../types'
+import type * as rfox from '../thorchain/parser/rfox'
 import type * as cosmossdk from '../types'
 
 export type Tx = cosmossdk.Tx
 
-export type TxMetadata = StakingMetadata | IbcMetadata | LpMetadata | thorchain.TxMetadata
+export type TxMetadata =
+  | StakingMetadata
+  | IbcMetadata
+  | LpMetadata
+  | thorchain.TxMetadata
+  | rfox.TxMetadata
 
 export interface StakingMetadata extends BaseTxMetadata {
   parser: 'staking'

@@ -8,7 +8,7 @@ import { Text } from 'components/Text'
 import { getTransfers, getTxType } from 'hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { selectAssets, selectMarketDataUserCurrency, selectTxs } from 'state/slices/selectors'
+import { selectAssets, selectTxs } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -44,7 +44,6 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
   const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`)
   const allTxs = useAppSelector(selectTxs)
   const assets = useAppSelector(selectAssets)
-  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const translate = useTranslate()
   const fields = useMemo(
     () => ({
@@ -70,7 +69,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     const report: ReportRow[] = []
     for (const txId of txIds) {
       const tx = allTxs[txId]
-      const transfers = getTransfers(tx, assets, marketDataUserCurrency)
+      const transfers = getTransfers(tx, assets)
       const type = getTxType(tx, transfers)
       const feeAsset = tx.fee ? assets[tx.fee?.assetId] : undefined
 
@@ -122,7 +121,7 @@ export const DownloadButton = ({ txIds }: { txIds: TxId[] }) => {
     } finally {
       setIsLoading(false)
     }
-  }, [allTxs, assets, fields, marketDataUserCurrency, translate, txIds])
+  }, [allTxs, assets, fields, translate, txIds])
 
   return isLargerThanLg ? (
     <Button

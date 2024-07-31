@@ -98,7 +98,7 @@ export class MarketServiceManager {
 
       const asset = assets[assetId]
 
-      // Portals is prioritized when finding by AssetId, as it has more reliable data for e.g LP tokens
+      // Portals is prioritized when finding by AssetId, as it has more reliable data for LP tokens
       const prioritizedProviders = asset?.isPool
         ? [
             ...(portalsProvider ? [portalsProvider] : []),

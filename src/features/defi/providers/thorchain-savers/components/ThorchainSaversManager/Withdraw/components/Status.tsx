@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -54,6 +54,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { getOpportunitiesUserData } = opportunitiesApi.endpoints
 
   const assetId = state?.opportunity?.assetId
+
+  const isRunePool = assetId === thorchainAssetId
 
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
@@ -239,31 +241,33 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             </Box>
           </Row.Value>
         </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
-              <Text translation='defi.modals.saversVaults.dustAmount' />
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Box textAlign='right'>
-              <Amount.Fiat
-                fontWeight='bold'
-                value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
-                  .times(marketData.price)
-                  .toFixed()}
-              />
-              <Amount.Crypto
-                color='text.subtle'
-                value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
-                  .toFixed()}
-                symbol={asset.symbol}
-              />
-            </Box>
-          </Row.Value>
-        </Row>
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
+                <Text translation='defi.modals.saversVaults.dustAmount' />
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Box textAlign='right'>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
+                    .div(bn(10).pow(asset.precision))
+                    .times(marketData.price)
+                    .toFixed()}
+                />
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
+                    .div(bn(10).pow(asset.precision))
+                    .toFixed()}
+                  symbol={asset.symbol}
+                />
+              </Box>
+            </Row.Value>
+          </Row>
+        ) : null}
         <Row variant='gutter'>
           <Button
             as={Link}

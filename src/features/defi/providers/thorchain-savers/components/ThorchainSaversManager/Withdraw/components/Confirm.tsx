@@ -10,9 +10,16 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { bchChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  bchChainId,
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -94,6 +101,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetReference,
   })
 
+  const isRunePool = assetId === thorchainAssetId
+
   const opportunityId = useMemo(
     () => toOpportunityId({ chainId, assetNamespace, assetReference }),
     [assetNamespace, assetReference, chainId],
@@ -167,12 +176,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
   )
 
+  const amountAvailableCryptoPrecision = useMemo(() => {
+    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+      .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
+      .div(bn(10).pow(asset.precision))
+  }, [
+    asset.precision,
+    opportunityData?.rewardsCryptoBaseUnit,
+    opportunityData?.stakedAmountCryptoBaseUnit,
+  ])
+
   // notify
   const toast = useToast()
 
   useEffect(() => {
     ;(async () => {
       try {
+        if (isRunePool) return
         if (!(accountId && opportunityData?.stakedAmountCryptoBaseUnit && asset)) return
         // This effects sets these three state fields, so if we already have them, this is a no-op
         if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit && expiry) return
@@ -244,6 +264,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     state?.withdraw.cryptoAmount,
     protocolFeeCryptoBaseUnit,
     expiry,
+    isRunePool,
   ])
 
   useEffect(() => {
@@ -264,13 +285,31 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     })()
   }, [accountId, assetId, chainId, fromAddress])
 
+  const memo = useMemo(() => {
+    if (isRunePool && state) {
+      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const percent = bnOrZero(state.withdraw.cryptoAmount)
+        .div(balanceCryptoPrecision)
+        .times(100)
+        .toFixed(0)
+      const basisPoints = convertPercentageToBasisPoints(percent)
+
+      return `pool-:${basisPoints}`
+    }
+    if (quote?.memo) return quote.memo
+
+    return null
+  }, [isRunePool, quote, state, amountAvailableCryptoPrecision])
+
+  console.log(memo)
+
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    // withdraw savers will use dust amount
+    // withdraw savers will use dust amount if withdrawSavers, 0 if withdrawRunepool
     amountCryptoBaseUnit: null,
-    action: 'withdrawSavers',
-    memo: quote?.memo ?? null,
+    action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
+    memo,
     fromAddress,
   })
 
@@ -297,8 +336,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const handleConfirm = useCallback(async () => {
-    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData || !expiry)
-      return
+    if (!isRunePool && !expiry) return
+    if (!contextDispatch || !bip44Params || !accountId || !assetId || !opportunityData) return
     try {
       if (
         !(
@@ -315,7 +354,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       contextDispatch({ type: ThorchainSaversWithdrawActionType.SET_LOADING, payload: true })
       if (!state?.withdraw.cryptoAmount) return
 
-      if (dayjs().isAfter(dayjs.unix(Number(expiry)))) {
+      if (!isRunePool && dayjs().isAfter(dayjs.unix(Number(expiry)))) {
         toast({
           position: 'top-right',
           description: translate('trade.errors.quoteExpired'),
@@ -395,6 +434,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assets,
     toast,
     translate,
+    isRunePool,
   ])
 
   const handleCancel = useCallback(() => {
@@ -481,8 +521,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
-    return bnOrZero(amountCryptoBaseUnit).gte(protocolFeeCryptoBaseUnit)
-  }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit])
+    return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)
+  }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit, isRunePool])
 
   if (!state || !contextDispatch) return null
 
@@ -492,7 +532,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       preFooter={preFooter}
       headerText='modals.confirm.withdraw.header'
       isDisabled={
-        !expiry ||
+        (!expiry && !isRunePool) ||
         !hasEnoughBalanceForGas ||
         !userAddress ||
         disableSmartContractWithdraw ||
@@ -518,12 +558,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         </Row>
-        <Row variant='gutter'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-          </Row.Value>
-        </Row>
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+            </Row.Value>
+          </Row>
+        ) : null}
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
@@ -570,7 +612,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Box>
           </Row.Value>
         </Row>
-        {!isTokenWithdraw && (
+        {!isTokenWithdraw && !isRunePool && (
           <Row variant='gutter'>
             <Row.Label>
               <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>

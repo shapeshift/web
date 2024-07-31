@@ -172,7 +172,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
-    const marketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
+    const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {
       // RUNEPool doesn't have any APY for now
@@ -181,7 +181,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       assetId: thorchainAssetId,
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
-      tvl: fromThorBaseUnit(runepoolInformation.providers.value).times(marketData.price).toFixed(),
+      tvl: fromThorBaseUnit(runepoolInformation.providers.value)
+        .times(runeMarketData.price)
+        .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
       // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
@@ -190,9 +192,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
       underlyingAssetRatiosBaseUnit: ['1'],
       name: `RUNEPool`,
-      saversMaxSupplyFiat: fromThorBaseUnit(runepoolInformation.pol.current_deposit)
-        .times(marketData.price)
-        .toFixed(),
+      saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,
     }

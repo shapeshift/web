@@ -43,7 +43,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -61,7 +61,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { RUNEPOOL_DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
@@ -153,6 +153,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           })
         : undefined
 
+      // @TODO: verify that runepool deposit apply any slippage
       const slippageCryptoAmountPrecision = (() => {
         const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
@@ -200,7 +201,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
-    action: 'depositSavers',
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
   })

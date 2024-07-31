@@ -140,7 +140,6 @@ export class MarketServiceManager {
     for (let i = 0; i < this.marketProviders.length && !result?.length; i++) {
       try {
         result = await this.marketProviders[i].findPriceHistoryByAssetId({ assetId, timeframe })
-        console.log({ result })
       } catch (e) {
         // Swallow error, not every asset will be with every provider.
       }

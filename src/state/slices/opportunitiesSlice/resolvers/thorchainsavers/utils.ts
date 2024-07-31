@@ -149,12 +149,12 @@ export const getThorchainSaversPosition = async ({
       const runepoolOpportunity: ThorchainSaverPositionResponse = {
         asset: 'THOR.RUNE',
         asset_address: runepoolInformation.rune_address,
-        last_add_height: undefined,
+        last_add_height: runepoolInformation.last_deposit_height,
         units: runepoolInformation.units,
-        asset_deposit_value: bnOrZero(runepoolInformation.value)
-          .plus(runepoolInformation.pnl)
+        asset_deposit_value: bnOrZero(runepoolInformation.deposit_amount)
+          .minus(runepoolInformation.withdraw_amount)
           .toFixed(),
-        asset_redeem_value: bnOrZero(runepoolInformation.value).toFixed(),
+        asset_redeem_value: runepoolInformation.value,
         growth_pct: undefined,
       }
 

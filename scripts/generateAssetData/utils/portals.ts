@@ -92,9 +92,6 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
       assetReference: token.address,
     })
-    if (assetId === 'eip155:1/erc20:0xc97232527b62efb0d8ed38cf3ea103a6cca4037e') {
-      console.log({ token, isPool: Boolean(token.metrics.apy) })
-    }
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
@@ -106,7 +103,9 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       chainId: nativeAsset.chainId,
       assetId,
       relatedAssetKey: undefined,
-      isPool: Boolean(token.metrics.apy),
+      // undefined nullish coalescing isn't a mistake - JSON doesn't support undefined, so this will avoid adding an additional line to the JSON
+      // for non-pool assets
+      isPool: Boolean(token.metrics.apy) ?? undefined,
     }
   })
 }

@@ -43,7 +43,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     getPortalTokens(ethereum),
   ])
 
-  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+  const [ethTokens, uniV2PoolTokens, idleTokens, portalsTokens] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
@@ -52,12 +52,12 @@ export const getAssets = async (): Promise<Asset[]> => {
   const ethAssets = [
     ...idleTokens,
     foxyToken,
+    ...portalsTokens,
     ...ethTokens,
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
     ...uniV2PoolTokens,
-    ...portalsAssets,
   ]
 
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability

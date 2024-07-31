@@ -18,7 +18,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     return []
   })
 
-  const allAssets = uniqBy(assets.concat(portalsAssets).concat([bnbsmartchain]), 'assetId')
+  const allAssets = uniqBy(portalsAssets.concat(assets).concat([bnbsmartchain]), 'assetId')
 
   return allAssets
 }

@@ -58,7 +58,6 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
-  RfoxRewardsTxHistory: boolean
   CustomTokenImport: boolean
   ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
@@ -146,7 +145,6 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
-    RfoxRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY,
     CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
     ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,

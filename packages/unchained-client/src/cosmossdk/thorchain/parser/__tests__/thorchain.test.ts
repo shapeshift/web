@@ -13,6 +13,7 @@ import thorchainLpDeposit from './mockData/thorchainLpDeposit'
 import thorchainLpRefund from './mockData/thorchainLpRefund'
 import thorchainLpWithdraw from './mockData/thorchainLpWithdraw'
 import thorchainRefund from './mockData/thorchainRefund'
+import thorchainRfoxReward from './mockData/thorchainRfoxReward'
 import thorchainStreamingSwap from './mockData/thorchainStreamingSwap'
 import thorchainStreamingSwapOutbound from './mockData/thorchainStreamingSwapOutbound'
 import thorchainStreamingSwapRefund from './mockData/thorchainStreamingSwapRefund'
@@ -599,6 +600,44 @@ describe('parseTx', () => {
         },
       ],
       data: { parser: 'thorchain', memo, method: 'refund' },
+    }
+
+    const actual = await txParser.parse(tx, address)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should be able to parse an rfox reward tx', async () => {
+    const { tx } = thorchainRfoxReward
+    const address = 'thor1kvyk73thppq3ns2xanql0w6ejzjuwdlf9s2mdj'
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: thorchainChainId,
+      transfers: [
+        {
+          type: TransferType.Receive,
+          from: 'thor1m2420569wzzch3zgladujjhspwxkay2yyux5av',
+          to: address,
+          assetId: thorchainAssetId,
+          totalValue: '1',
+          components: [{ value: '1' }],
+        },
+      ],
+      data: {
+        parser: 'rfox',
+        type: 'thorchain',
+        method: 'reward',
+        epoch: 0,
+        ipfsHash: 'QmYUiUq9UWK5NPF1h2BGdatw95psNtW8seGQpXZYoQYK1s',
+        stakingAddress: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+      },
     }
 
     const actual = await txParser.parse(tx, address)

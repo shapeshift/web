@@ -9,6 +9,7 @@ import type { Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'rfox'
+  type: 'evm'
   assetId: AssetId
   value?: string
   runeAddress?: string
@@ -54,6 +55,7 @@ export class Parser implements SubParser<Tx> {
     const data: TxMetadata = {
       method: decoded.name,
       parser: 'rfox',
+      type: 'evm',
       assetId: this.stakingAssetId,
     }
 

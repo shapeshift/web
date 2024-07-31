@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -18,7 +18,7 @@ import {
   type TradeQuote,
   TradeQuoteError,
 } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
@@ -148,9 +148,12 @@ export async function getPortalsTradeQuote(
       },
     } = portalsTradeOrderResponse
 
-    const rate = bn(buyAmountAfterFeesCryptoBaseUnit)
-      .div(input.sellAmountIncludingProtocolFeesCryptoBaseUnit)
-      .toString()
+    const rate = getRate({
+      sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
 
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()

@@ -2,6 +2,7 @@ import { Box, SimpleGrid } from '@chakra-ui/react'
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { formatSecondsToDuration } from 'lib/utils/time'
+import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRewardsQuery'
 import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
@@ -13,40 +14,32 @@ const gridColumns = { base: 1, md: 2 }
 type StakingInfoProps = {
   stakingAssetId: AssetId
   stakingAssetAccountAddress: string | undefined
-  userStakingBalanceCryptoBaseUnit: string | undefined
-  isUserStakingBalanceCryptoPrecisionLoading: boolean
+  stakingBalanceCryptoBaseUnit: string | undefined
+  isStakingBalanceCryptoBaseUnitLoading: boolean
 }
 
 export const StakingInfo: React.FC<StakingInfoProps> = ({
   stakingAssetId,
   stakingAssetAccountAddress,
-  userStakingBalanceCryptoBaseUnit: userStakingBalanceCryptoPrecision,
-  isUserStakingBalanceCryptoPrecisionLoading,
+  stakingBalanceCryptoBaseUnit,
+  isStakingBalanceCryptoBaseUnitLoading,
 }) => {
-  const {
-    data: timeInPoolHuman,
-    isLoading: isTimeInPoolHumanLoading,
-    isPending: isTimeInPoolHumanPending,
-    isPaused: isTimeInPoolHumanPaused,
-  } = useTimeInPoolQuery({
+  const currentEpochMetadataResult = useCurrentEpochMetadataQuery()
+
+  const currentEpochRewardsCryptoBaseUnitResult = useCurrentEpochRewardsQuery({
+    stakingAssetAccountAddress,
+    currentEpochMetadata: currentEpochMetadataResult.data,
+  })
+
+  const lifetimeRewardsCryptoBaseUnitResult = useLifetimeRewardsQuery({
+    stakingAssetAccountAddress,
+  })
+
+  const timeInPoolHumanResult = useTimeInPoolQuery({
     stakingAssetAccountAddress,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
-
-  const {
-    data: lifetimeRewardsCryptoBaseUnit,
-    isLoading: isLifetimeRewardsCryptoBaseUnitLoading,
-    isPending: isLifetimeRewardsCryptoBaseUnitPending,
-    isPaused: isLifetimeRewardsCryptoBaseUnitPaused,
-  } = useLifetimeRewardsQuery({ stakingAssetAccountAddress })
-
-  const {
-    data: currentEpochRewardsCryptoBaseUnit,
-    isPending: isCurrentEpochRewardsCryptoBaseUnitPending,
-    isPaused: isCurrentEpochRewardsCryptoBaseUnitPaused,
-    isLoading: isCurrentEpochRewardsCryptoBaseUnitLoading,
-  } = useCurrentEpochRewardsQuery({ stakingAssetAccountAddress })
 
   return (
     <Box>
@@ -56,37 +49,39 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           informationDescription='RFOX.myStakedBalance'
           helperTranslation='RFOX.myStakedBalanceHelper'
           assetId={stakingAssetId}
-          amountCryptoBaseUnit={userStakingBalanceCryptoPrecision}
-          isLoading={isUserStakingBalanceCryptoPrecisionLoading}
+          amountCryptoBaseUnit={stakingBalanceCryptoBaseUnit}
+          isLoading={isStakingBalanceCryptoBaseUnitLoading}
         />
         <StakingInfoItem
           informationDescription='RFOX.pendingRewardsBalance'
           helperTranslation='RFOX.pendingRewardsBalanceHelper'
           assetId={thorchainAssetId}
-          amountCryptoBaseUnit={currentEpochRewardsCryptoBaseUnit?.toString()}
+          amountCryptoBaseUnit={currentEpochRewardsCryptoBaseUnitResult.data?.toString()}
           isLoading={
-            isCurrentEpochRewardsCryptoBaseUnitLoading ||
-            isCurrentEpochRewardsCryptoBaseUnitPaused ||
-            isCurrentEpochRewardsCryptoBaseUnitPending
+            currentEpochRewardsCryptoBaseUnitResult.isLoading ||
+            currentEpochRewardsCryptoBaseUnitResult.isPaused ||
+            currentEpochRewardsCryptoBaseUnitResult.isPending
           }
         />
         <StakingInfoItem
           informationDescription='RFOX.lifetimeRewards'
           helperTranslation='RFOX.lifetimeRewardsHelper'
           assetId={thorchainAssetId}
-          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnit?.toString()}
+          amountCryptoBaseUnit={lifetimeRewardsCryptoBaseUnitResult.data?.toString()}
           isLoading={
-            isLifetimeRewardsCryptoBaseUnitLoading ||
-            isLifetimeRewardsCryptoBaseUnitPaused ||
-            isLifetimeRewardsCryptoBaseUnitPending
+            lifetimeRewardsCryptoBaseUnitResult.isLoading ||
+            lifetimeRewardsCryptoBaseUnitResult.isPaused ||
+            lifetimeRewardsCryptoBaseUnitResult.isPaused
           }
         />
         <StakingInfoItem
           informationDescription='RFOX.timeInPool'
           helperTranslation='RFOX.timeInPoolHelper'
-          value={timeInPoolHuman}
+          value={timeInPoolHumanResult.data}
           isLoading={
-            isTimeInPoolHumanLoading || isTimeInPoolHumanPaused || isTimeInPoolHumanPending
+            timeInPoolHumanResult.isLoading ||
+            timeInPoolHumanResult.isPaused ||
+            timeInPoolHumanResult.isPending
           }
         />
       </SimpleGrid>

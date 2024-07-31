@@ -42,7 +42,7 @@ type PortalsTradeOrderResponse = {
     feeAmount?: string
     feeAmountUsd?: number
   }
-  tx: {
+  tx?: {
     to: string
     from: string
     data: string

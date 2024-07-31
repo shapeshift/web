@@ -432,8 +432,7 @@
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
         "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
         "agreeRunePool": {
-          "1": "I understand the risks associated with RUNEPool",
-          "2": "has impermanent loss"
+          "1": "I understand the risks associated with RUNEPool"
         }
       }
     },
@@ -665,7 +664,8 @@
         "stake": "Stake",
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
-        "setRuneAddress": "Set Rune Address"
+        "setRuneAddress": "Set Rune Address",
+        "reward": "Reward Distribution"
       },
       "weth": {
         "deposit": "Deposit",
@@ -2550,6 +2550,7 @@
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
     "emissionsPool": "Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
-    "foxBurnAmount": "FOX Burn Amount"
+    "foxBurnAmount": "FOX Burn Amount (This Epoch)",
+    "pendingDistribution": "Pending Distribution"
   }
 }

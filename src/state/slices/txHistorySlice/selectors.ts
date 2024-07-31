@@ -59,7 +59,7 @@ const selectTxIdsParam = createDeepEqualOutputSelector(
 export const selectTxById = createCachedSelector(
   selectTxs,
   selectTxIdParam,
-  (txsById, txId) => txsById[txId],
+  (txsById, txId): Tx | undefined => txsById[txId],
 )({
   keySelector: (_txsById, txId: TxId | undefined): TxId => txId ?? 'undefined',
   selectorCreator: createDeepEqualOutputSelector,
@@ -70,6 +70,7 @@ export const selectTxDateByIds = createDeepEqualOutputSelector(
   selectTxs,
   (txIds: TxId[], txs) =>
     txIds
+      .filter((txId: TxId) => txs[txId] !== undefined)
       .map((txId: TxId) => ({ txId, date: txs[txId].blockTime }))
       .sort((a, b) => b.date - a.date),
 )

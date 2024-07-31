@@ -1,17 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  ASSET_NAMESPACE,
-  avalancheChainId,
-  baseChainId,
-  bscChainId,
-  ethChainId,
-  fromAssetId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   AssetsByIdPartial,
   FindAllMarketArgs,
@@ -34,6 +22,7 @@ import generatedAssetData from '../../asset-service/service/generatedAssetData.j
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
 import type { GetTokensResponse, HistoryResponse } from './types'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
@@ -41,17 +30,6 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
   const close = bnOrZero(closePrice)
   if (open.isZero()) return 0
   return close.minus(open).dividedBy(open).times(100).toNumber()
-}
-
-export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
-  [avalancheChainId]: 'avalanche',
-  [ethChainId]: 'ethereum',
-  [polygonChainId]: 'polygon',
-  [bscChainId]: 'bsc',
-  [optimismChainId]: 'optimism',
-  [arbitrumChainId]: 'arbitrum',
-  [gnosisChainId]: 'gnosis',
-  [baseChainId]: 'base',
 }
 
 const { throttle, clear } = (({

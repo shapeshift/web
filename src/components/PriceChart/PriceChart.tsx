@@ -70,6 +70,8 @@ export const PriceChart: React.FC<PriceChartArgs> = props => {
     selectPriceHistoryByAssetTimeframe(state, assetId, timeframe),
   )
 
+  console.log({ priceData })
+
   useEffect(() => {
     setPercentChange(calculatePercentChange(priceData))
     setFiatChange && setFiatChange(calculateFiatChange(priceData))

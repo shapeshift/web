@@ -109,7 +109,6 @@ export const mockStore: ReduxState = {
       AccountManagement: false,
       AccountManagementLedger: false,
       RFOX: false,
-      RfoxRewardsTxHistory: false,
       CustomTokenImport: false,
       ArbitrumBridgeClaims: false,
       UsdtApprovalReset: false,

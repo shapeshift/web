@@ -175,8 +175,6 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
-  REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY: bool({ default: false }),
-  REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS: str(),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),

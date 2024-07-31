@@ -1,5 +1,6 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import axios from 'axios'
 import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -24,6 +25,7 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
+import type { ThorchainRunepoolInformationResponseSuccess } from './types'
 import {
   getAllThorchainSaversPositions,
   getMidgardPools,
@@ -105,6 +107,15 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     staleTime: Infinity,
   })
 
+  const { data: runepoolInformation } = await queryClient.fetchQuery({
+    queryKey: ['thorchainRunepoolInformation'],
+    queryFn: () =>
+      axios.get<ThorchainRunepoolInformationResponseSuccess>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+      ),
+    staleTime: 60_000,
+  })
+
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
   }
@@ -161,6 +172,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    const marketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
+
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {
       // RUNEPool doesn't have any APY for now
       // @TODO: calculate proper APY at opportunity meta time by doing some homemade mathematics
@@ -168,8 +181,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       assetId: thorchainAssetId,
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
-      // @TODO: calculate proper TVL
-      tvl: '10',
+      tvl: fromThorBaseUnit(runepoolInformation.providers.value).times(marketData.price).toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
       // @TODO: use all assets supported in RUNEPool as underlyingAssetIds

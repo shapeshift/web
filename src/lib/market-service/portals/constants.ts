@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   avalancheChainId,
   baseChainId,
   bscChainId,
@@ -8,7 +9,6 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import { arbitrumChainId } from '@shapeshiftoss/caip/src/constants'
 
 export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [avalancheChainId]: 'avalanche',

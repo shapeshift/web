@@ -1,5 +1,4 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
@@ -7,7 +6,6 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
-import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -27,8 +25,6 @@ import {
   marketData,
   useFindAllQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -233,26 +229,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
-  const uniV2LpIdsData = useAppSelector(
-    opportunitiesApi.endpoints.getOpportunityIds.select({
-      defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.UniV2,
-    }),
-  )
-
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQuery({
     queryKey: ['marketData', {}],
     queryFn: async () => {
-      // TODO(gomes): is the below still true now that we can get market-data from Portals?
-      // Exclude assets for which we are unable to get market data
-      // We would fire query thunks / XHRs that would slow down the app
-      // We insert price data for these as resolver-level, and are unable to get market data
-      const excluded: AssetId[] = uniV2LpIdsData.data ?? []
-      const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
-
       await dispatch(
-        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData, {
+        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIds, {
           // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
           forceRefetch: true,
         }),

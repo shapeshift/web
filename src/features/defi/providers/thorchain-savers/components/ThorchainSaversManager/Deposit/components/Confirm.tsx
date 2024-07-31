@@ -174,6 +174,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       amountCryptoBaseUnit,
       select: selectQuoteData,
+      enabled: !isRunePool,
     },
   )
 

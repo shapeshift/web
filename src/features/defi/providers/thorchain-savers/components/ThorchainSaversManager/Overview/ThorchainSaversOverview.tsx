@@ -101,7 +101,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     enabled: !isRunePool,
   })
 
-  // @TODO: Find how we can handle this for RUNEPool
   const isHardCapReached = useMemo(
     () => (error ? error.message.includes('add liquidity rune is more than bond') : false),
     [error],

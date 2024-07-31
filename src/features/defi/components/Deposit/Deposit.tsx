@@ -63,8 +63,10 @@ export type DepositValues = {
 
 const DEFAULT_SLIPPAGE = '0.5'
 
-function calculateYearlyYield(apy: string, amount: string = '') {
-  return bnOrZero(amount).times(apy).toString()
+function calculateYearlyYield(apy: string | undefined, amount: string = '') {
+  return bnOrZero(amount)
+    .times(apy ?? 0)
+    .toString()
 }
 
 export const Deposit = ({
@@ -191,7 +193,7 @@ export const Deposit = ({
     [onContinue],
   )
 
-  const cryptoYield = calculateYearlyYield(bnOrZero(apy).toString(), values.cryptoAmount)
+  const cryptoYield = calculateYearlyYield(apy, values.cryptoAmount)
   const fiatYield = bnOrZero(cryptoYield).times(marketData.price).toFixed(2)
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

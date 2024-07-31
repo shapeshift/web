@@ -91,9 +91,10 @@ export const swappers: Record<
 // Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
 const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
 const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_THOR_SLIPPAGE = '0.01' // 1%
-const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
+const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
+const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName?: SwapperName,
@@ -102,17 +103,18 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
   switch (swapperName) {
     case SwapperName.Zrx:
     case SwapperName.OneInch:
-    case SwapperName.Portals:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.LIFI:
       return DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.CowSwap:
       return DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Portals:
+      return DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Thorchain:
-      return DEFAULT_THOR_SLIPPAGE
+      return DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ArbitrumBridge:
-      return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE
+      return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       assertUnreachable(swapperName)
   }

@@ -107,15 +107,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
     staleTime: Infinity,
   })
 
-  const { data: runepoolInformation } = await queryClient.fetchQuery({
-    queryKey: ['thorchainRunepoolInformation'],
-    queryFn: () =>
-      axios.get<ThorchainRunepoolInformationResponseSuccess>(
-        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
-      ),
-    staleTime: 60_000,
-  })
-
   if (!thorchainPools.length) {
     throw new Error('Error fetching THORChain pools')
   }
@@ -172,6 +163,15 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    const { data: runepoolInformation } = await queryClient.fetchQuery({
+      queryKey: ['thorchainRunepoolInformation'],
+      queryFn: () =>
+        axios.get<ThorchainRunepoolInformationResponseSuccess>(
+          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+        ),
+      staleTime: 60_000,
+    })
+
     const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {

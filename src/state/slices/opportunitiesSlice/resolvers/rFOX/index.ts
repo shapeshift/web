@@ -13,7 +13,7 @@ import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import { viemClientByNetworkId } from 'lib/viem-client'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
-import { getReadStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
+import { getStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 
 import { rFOXStakingIds } from '../../constants'
@@ -87,12 +87,10 @@ export const rFOXStakingUserDataResolver = async ({
   opportunityId,
   accountId,
 }: OpportunityUserDataResolverInput): Promise<{ data: GetOpportunityUserStakingDataOutput }> => {
-  const { account } = fromAccountId(accountId)
-  const accountAddress = getAddress(account)
-
+  const stakingAssetAccountAddress = getAddress(fromAccountId(accountId).account)
   const userStakingId = serializeUserStakingId(accountId, opportunityId)
 
-  const rfoxStakingInfo = await getReadStakingInfoQueryFn(accountAddress, undefined)()
+  const rfoxStakingInfo = await getStakingInfoQueryFn(stakingAssetAccountAddress)()
   const stakedAmountCryptoBaseUnit = selectStakingBalance(rfoxStakingInfo)
 
   // TODO: Implement rewards

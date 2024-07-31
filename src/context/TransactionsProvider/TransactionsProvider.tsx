@@ -62,7 +62,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
       const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
-      const shouldRefetchRfoxOpportunity = data?.parser === 'rfox'
+      const shouldRefetchRfoxOpportunity = data?.parser === 'rfox' && data.type === 'evm'
       const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
       const shouldRefetchSaversOpportunities =
         isSupportedThorchainSaversChainId(chainId) &&

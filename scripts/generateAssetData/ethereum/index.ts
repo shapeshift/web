@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
+import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 
 import { ethereum } from '../baseAssets'
@@ -38,26 +39,32 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
-    getUniswapV2Pools(),
+    getUniswapV2Pools(), // TODO(gomes): can we remove this since Portals contains these?
     getIdleTokens(),
     getPortalTokens(ethereum),
   ])
 
-  const [ethTokens, uniV2PoolTokens, idleTokens, portalsTokens] = results.map(result => {
+  const [ethTokens, uniV2PoolTokens, idleTokens, _portalsAssets] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
   })
 
+  // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
+  // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
+  // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
+  const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
+
   const ethAssets = [
     ...idleTokens,
     foxyToken,
-    ...portalsTokens,
+    ...portalsPools,
     ...ethTokens,
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
     ...uniV2PoolTokens,
+    ...portalsAssets,
   ]
 
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability

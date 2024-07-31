@@ -61,7 +61,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { ThorchainSaversDepositActionType } from '../DepositCommon'
+import { RUNEPOOL_DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
@@ -189,7 +189,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const memo = useMemo(() => {
-    if (isRunePool) return 'POOL+'
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
     if (quoteData?.quote.memo) return quoteData.quote.memo
 
     return null
@@ -436,34 +436,32 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         ) : null}
-        {!isRunePool ? (
-          <Row variant='gutter'>
-            <Row.Label>
-              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                <Text translation='trade.protocolFee' />
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isQuoteDataLoading}>
-                <Box textAlign='right'>
-                  <Amount.Fiat
-                    fontWeight='bold'
-                    value={bn(
-                      fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
-                    )
-                      .times(marketData.price)
-                      .toFixed()}
-                  />
-                  <Amount.Crypto
-                    color='text.subtle'
-                    value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
-                    symbol={asset.symbol}
-                  />
-                </Box>
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        ) : null}
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation='trade.protocolFee' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!isQuoteDataLoading}>
+              <Box textAlign='right'>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bn(
+                    fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
+                  )
+                    .times(marketData.price)
+                    .toFixed()}
+                />
+                <Amount.Crypto
+                  color='text.subtle'
+                  value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
+                  symbol={asset.symbol}
+                />
+              </Box>
+            </Skeleton>
+          </Row.Value>
+        </Row>
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.minerFee')}>

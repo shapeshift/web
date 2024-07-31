@@ -70,4 +70,4 @@ export type ThorchainSaversDepositActions =
   | SetTxid
   | SetIsExactAllowance
 
-export const DEPOSIT_MEMO = 'POOL+'
+export const RUNEPOOL_DEPOSIT_MEMO = 'POOL+'

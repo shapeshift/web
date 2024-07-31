@@ -63,7 +63,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
+import { RUNEPOOL_DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type DepositProps = StepComponentProps & {
@@ -178,7 +178,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   const memo = useMemo(() => {
-    if (isRunePool) return DEPOSIT_MEMO
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
 
     if (thorchainSaversDepositQuote?.memo) return thorchainSaversDepositQuote?.memo
 

@@ -153,7 +153,7 @@ export async function getPortalsTradeQuote(
       buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
       sellAsset,
       buyAsset,
-    }).toFixed()
+    })
 
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()

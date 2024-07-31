@@ -8,7 +8,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import type BigNumber from 'bignumber.js'
 
 import type {
   EvmTransactionExecutionProps,
@@ -205,8 +204,8 @@ export const getRate = ({
   buyAmountCryptoBaseUnit: string
   sellAsset: Asset
   buyAsset: Asset
-}): BigNumber => {
+}): string => {
   const sellAmountCryptoHuman = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
   const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
-  return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman)
+  return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }

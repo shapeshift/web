@@ -79,7 +79,7 @@ export async function getTradeQuote(
     buyAsset,
     sellAmountCryptoBaseUnit: quote.fromTokenAmount,
     buyAmountCryptoBaseUnit: quote.toTokenAmount,
-  }).toString()
+  })
 
   const maybeAllowanceContract = await getApprovalAddress(apiUrl, chainId)
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())

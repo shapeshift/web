@@ -39,7 +39,9 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
-    getUniswapV2Pools(), // TODO(gomes): can we remove this since Portals contains these?
+    // TODO(gomes): Remove me in as part of https://github.com/shapeshift/web/issues/7452 - we can get this data from the Portals
+    // but will need to properly massage all Portals assets while at it
+    getUniswapV2Pools(),
     getIdleTokens(),
     getPortalTokens(ethereum),
   ])
@@ -56,6 +58,7 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const ethAssets = [
+    ...uniV2PoolTokens,
     ...idleTokens,
     foxyToken,
     ...portalsPools,
@@ -63,7 +66,6 @@ export const getAssets = async (): Promise<Asset[]> => {
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
-    ...uniV2PoolTokens,
     ...portalsAssets,
   ]
 

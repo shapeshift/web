@@ -2,7 +2,6 @@ import { WarningIcon } from '@chakra-ui/icons'
 import { Alert, AlertDescription, Button, Heading, Stack, Text } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
@@ -12,14 +11,12 @@ import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageH
 import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
 import { WalletCard } from 'pages/ConnectWallet/components/WalletCard'
 
-import { MobileWalletDialogRoutes } from '../../types'
-
 type ConfirmDeleteProps = {
   vault?: MobileLocationState['vault']
+  onBack: () => void
 }
 
-export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault }) => {
-  const history = useHistory()
+export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) => {
   const [error, setError] = useState<string | null>(null)
   const translate = useTranslate()
 
@@ -27,20 +24,19 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault }) => {
     if (vault?.id) {
       try {
         await deleteWallet(vault.id)
-        history.push(MobileWalletDialogRoutes.SAVED)
+        onBack()
       } catch (e) {
         console.log(e)
         setError('walletProvider.shapeShift.load.error.delete')
       }
     }
-  }, [history, vault?.id])
+  }, [onBack, vault?.id])
 
-  const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.DELETE), [history])
   return (
     <SlideTransition>
       <DialogHeader>
         <DialogHeaderLeft>
-          <DialogBackButton onClick={handleBack} />
+          <DialogBackButton onClick={onBack} />
         </DialogHeaderLeft>
       </DialogHeader>
       <DialogBody>

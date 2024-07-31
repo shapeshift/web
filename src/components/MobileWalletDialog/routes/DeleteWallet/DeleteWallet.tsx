@@ -12,7 +12,7 @@ export const DeleteWallet = () => {
   const parentLocation = useLocation<MobileLocationState>()
   const history = useHistory()
 
-  const handelBack = useCallback(() => {
+  const handleBack = useCallback(() => {
     history.push(MobileWalletDialogRoutes.SAVED)
   }, [history])
 
@@ -24,10 +24,10 @@ export const DeleteWallet = () => {
             <AnimatePresence mode='wait' initial={false}>
               <Switch key={location.key} location={location}>
                 <Route path={MobileWalletDialogRoutes.BACKUP}>
-                  <Backup onBack={handelBack} />
+                  <Backup onBack={handleBack} />
                 </Route>
                 <Route path={MobileWalletDialogRoutes.CONFIRM_DELETE}>
-                  <ConfirmDelete vault={parentLocation.state.vault} />
+                  <ConfirmDelete vault={parentLocation.state.vault} onBack={handleBack} />
                 </Route>
                 {/* TODO: This will change to backup in a follow up PR */}
                 <Redirect from='/' to={MobileWalletDialogRoutes.CONFIRM_DELETE} />

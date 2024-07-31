@@ -190,7 +190,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
       underlyingAssetRatiosBaseUnit: ['1'],
       name: `RUNEPool`,
-      saversMaxSupplyFiat: undefined,
+      saversMaxSupplyFiat: fromThorBaseUnit(runepoolInformation.pol.current_deposit)
+        .times(marketData.price)
+        .toFixed(),
       isFull: false,
       isClaimableRewards: false,
     }

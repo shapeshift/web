@@ -150,7 +150,6 @@ type ZapperToken = {
   balanceRaw?: string
 }
 
-// @ts-ignore zod/myzod is drunk https://github.com/colinhacks/zod/issues/577
 const ZapperTokenSchema: Type<ZapperToken> = z
   .object({
     type: z.literals('base-token', 'app-token'),

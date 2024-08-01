@@ -178,7 +178,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const amountAvailableCryptoPrecision = useMemo(() => {
     return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-      .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
+      .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // accrued RUNEPool rewards are denominated in RUNE
       .div(bn(10).pow(asset.precision))
   }, [
     asset.precision,
@@ -286,8 +286,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [accountId, assetId, chainId, fromAddress])
 
   const memo = useMemo(() => {
+    if (quote?.memo) return quote.memo
+
     if (isRunePool && state) {
-      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision)
       const percent = bnOrZero(state.withdraw.cryptoAmount)
         .div(balanceCryptoPrecision)
         .times(100)
@@ -296,7 +298,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
       return `pool-:${basisPoints}`
     }
-    if (quote?.memo) return quote.memo
 
     return null
   }, [isRunePool, quote, state, amountAvailableCryptoPrecision])
@@ -304,7 +305,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    // withdraw savers will use dust amount if withdrawSavers, 0 if withdrawRunepool
+    // withdraw savers will use dust amount
     amountCryptoBaseUnit: null,
     action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
     memo,
@@ -517,6 +518,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     )
   }, [_isSmartContractAddress, translate])
 
+  // @TODO: might be interesting to take in account deposit maturity for RUNEPool
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
     return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)

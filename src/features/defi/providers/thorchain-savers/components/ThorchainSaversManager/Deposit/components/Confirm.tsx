@@ -456,60 +456,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     .toFixed()}
                 />
                 <Amount.Crypto
-                  value={quoteData?.slippageCryptoAmountPrecision ?? ''}
+                  color='text.subtle'
+                  value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
                   symbol={asset.symbol}
                 />
               </Box>
             </Skeleton>
           </Row.Value>
         </Row>
-        {!isRunePool ? (
-          <Row variant='gutter'>
-            <Row.Label>
-              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isQuoteDataLoading}>
-                {translate(
-                  `defi.modals.saversVaults.${
-                    bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
-                  }`,
-                  { amount: quoteData?.daysToBreakEven ?? '0' },
-                )}
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        ) : null}
-        {!isRunePool ? (
-          <Row variant='gutter'>
-            <Row.Label>
-              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                <Text translation='trade.protocolFee' />
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={!isQuoteDataLoading}>
-                <Box textAlign='right'>
-                  <Amount.Fiat
-                    fontWeight='bold'
-                    value={bn(
-                      fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
-                    )
-                      .times(marketData.price)
-                      .toFixed()}
-                  />
-                  <Amount.Crypto
-                    color='text.subtle'
-                    value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
-                    symbol={asset.symbol}
-                  />
-                </Box>
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        ) : null}
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.minerFee')}>

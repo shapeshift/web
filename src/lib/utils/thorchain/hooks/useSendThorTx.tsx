@@ -16,7 +16,7 @@ import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { assertUnreachable, isToken } from 'lib/utils'
@@ -271,6 +271,13 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
 
+    if (
+      action !== 'withdrawRunepool' &&
+      !shouldUseDustAmount &&
+      !bn(amountOrDustCryptoBaseUnit).gt(0)
+    )
+      throw new Error('invalid amount specified')
+
     const { account } = fromAccountId(accountId)
 
     const { _txId, _serializedTxIndex } = await (async () => {
@@ -417,6 +424,7 @@ export const useSendThorTx = ({
     transactionType,
     translate,
     wallet,
+    action,
   ])
 
   return {

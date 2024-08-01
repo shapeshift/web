@@ -183,7 +183,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       asset,
       accountId,
       amountCryptoBaseUnit: toBaseUnit(cryptoAmount, asset.precision),
-      enabled: hasEnoughStakingBalance,
+      enabled: hasEnoughStakingBalance && !isRunePool,
     })
 
   const memo = useMemo(() => {
@@ -205,11 +205,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   } = useSendThorTx({
     assetId,
     accountId: accountId ?? '',
-    // withdraw savers will use dust amount
+    // withdraw savers will use dust amount and runepool will use the memo
     amountCryptoBaseUnit: null,
     memo,
     fromAddress: fromAddress ?? null,
-    action: 'withdrawSavers',
+    action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
   })
 
   const isSweepNeededArgs = useMemo(
@@ -354,6 +354,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         ]
 
         let slippage_bps = await (async () => {
+          // @TODO: verify if runepool doesn't occur any slippage
           if (isRunePool) return 0
 
           const maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string> =

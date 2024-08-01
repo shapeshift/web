@@ -218,7 +218,7 @@ export const assertAndProcessMemo = (memo: string): string => {
       return memo
     }
     case 'pool-': {
-      // SWAP:ASSET:DESTADDR:LIM/INTERVAL/QUANTITY:AFFILIATE:FEE
+      // RUNEPOOL:BASISPOINTS
       const [_action, basisPoints] = memo.split(':')
 
       assertIsValidBasisPoints(basisPoints, memo)

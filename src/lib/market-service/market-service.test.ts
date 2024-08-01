@@ -167,6 +167,7 @@ describe('market service', () => {
     it('returns next market service data if previous data does not exist', async () => {
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
       expect(result).toEqual(mockFoxyMarketData)
@@ -186,6 +187,7 @@ describe('market service', () => {
     it('can return from next market service if first is not found', async () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockFoxyMarketData)

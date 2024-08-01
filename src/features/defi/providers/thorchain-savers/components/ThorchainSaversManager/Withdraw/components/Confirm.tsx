@@ -19,7 +19,6 @@ import {
 } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -176,16 +175,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     selectPortfolioCryptoBalanceBaseUnitByFilter(s, feeAssetBalanceFilter),
   )
 
-  const amountAvailableCryptoPrecision = useMemo(() => {
-    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
-      .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // accrued RUNEPool rewards are denominated in RUNE
-      .div(bn(10).pow(asset.precision))
-  }, [
-    asset.precision,
-    opportunityData?.rewardsCryptoBaseUnit,
-    opportunityData?.stakedAmountCryptoBaseUnit,
-  ])
-
   // notify
   const toast = useToast()
 
@@ -288,19 +277,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const memo = useMemo(() => {
     if (quote?.memo) return quote.memo
 
-    if (isRunePool && state) {
-      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision)
-      const percent = bnOrZero(state.withdraw.cryptoAmount)
-        .div(balanceCryptoPrecision)
-        .times(100)
-        .toFixed(0)
-      const basisPoints = convertPercentageToBasisPoints(percent)
+    if (isRunePool && state && opportunityData?.stakedAmountCryptoBaseUnit) {
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+      const withdrawBps = getWithdrawBps({
+        withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
+        stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit,
+        rewardsAmountCryptoBaseUnit: opportunityData?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+      })
 
-      return `pool-:${basisPoints}`
+      return `pool-:${withdrawBps}`
     }
 
     return null
-  }, [isRunePool, quote, state, amountAvailableCryptoPrecision])
+  }, [isRunePool, quote, state, opportunityData, asset.precision])
 
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,

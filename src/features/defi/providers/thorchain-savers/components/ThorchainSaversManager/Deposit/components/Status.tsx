@@ -190,13 +190,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           </Row>
         </Row>
         <Row variant='gutter'>
-          {!isRunePool ? (
-            <Row.Label>
-              <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
-                <Text translation={'trade.protocolFee'} />
-              </HelperTooltip>
-            </Row.Label>
-          ) : null}
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation={'trade.protocolFee'} />
+            </HelperTooltip>
+          </Row.Label>
           <Row.Value>
             <Box textAlign='right'>
               <Amount.Fiat

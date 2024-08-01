@@ -271,9 +271,6 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
 
-    // if (!shouldUseDustAmount && !bn(amountOrDustCryptoBaseUnit).gt(0))
-    //   throw new Error('invalid amount specified')
-
     const { account } = fromAccountId(accountId)
 
     const { _txId, _serializedTxIndex } = await (async () => {

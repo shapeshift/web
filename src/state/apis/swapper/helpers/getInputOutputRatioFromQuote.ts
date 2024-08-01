@@ -73,8 +73,9 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   amountCryptoBaseUnit: BigNumber.Value,
 ): BigNumber => {
   const usdRate = selectUsdRateByAssetId(state, asset.assetId)
-  if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate)
+  // TODO(gomes): revert me once we have a Portals market-data provider, this allows us to get quotes despite missing market data
+  // if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
+  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate ?? '0')
 }
 
 /*
@@ -97,7 +98,6 @@ export const getInputOutputRatioFromQuote = ({
   quote: TradeQuote
   swapperName: SwapperName
 }): number => {
-  const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
   // A quote always has a first step
   const firstStep = getHopByIndex(quote, 0)!
   const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = firstStep
@@ -105,6 +105,12 @@ export const getInputOutputRatioFromQuote = ({
   // A quote always has a last step since it always has a first
   const lastStep = getHopByIndex(quote, lastStepIndex)!
   const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
+
+  // If we are trading custom assets we might not have USD rates, so we cannot determine a ratio
+  const hasSellAssetUsdRate = selectUsdRateByAssetId(state, sellAsset.assetId) !== undefined
+  const hasBuyAssetUsdRate = selectUsdRateByAssetId(state, buyAsset.assetId) !== undefined
+  if (!hasSellAssetUsdRate || !hasBuyAssetUsdRate) return 0
+
   // TODO: implement this when we do multi-hop
   const buySideNetworkFeeCryptoBaseUnit = bn(0)
 
@@ -125,6 +131,8 @@ export const getInputOutputRatioFromQuote = ({
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
+
+  const totalNetworkFeeUsdPrecision = _getTotalNetworkFeeUsdPrecision(state, quote)
 
   const sellSideNetworkFeeUsdPrecision = totalNetworkFeeUsdPrecision.minus(
     buySideNetworkFeeUsdPrecision,

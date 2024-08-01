@@ -1,18 +1,31 @@
-import { Box, Button, Card, Icon, Link, Switch, Tooltip, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Divider,
+  Icon,
+  Link,
+  Switch,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { AllowanceType } from 'hooks/queries/useApprovalFees'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { store, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { useAllowanceApproval } from '../hooks/useAllowanceApproval'
 import { ApprovalStatusIcon } from './StatusIcon'
@@ -24,6 +37,7 @@ export type ApprovalStepProps = {
   isActive: boolean
   isLastStep?: boolean
   isLoading?: boolean
+  isAllowanceResetStep: boolean
 }
 
 type ApprovalDescriptionProps = {
@@ -31,6 +45,9 @@ type ApprovalDescriptionProps = {
   isError: boolean
   txHash: string | undefined
   approvalNetworkFeeCryptoFormatted: string | undefined
+  isAllowanceResetStep: boolean
+  isAwaitingReset?: boolean
+  isLoadingNetworkFee?: boolean
 }
 
 const ApprovalDescription = ({
@@ -38,17 +55,34 @@ const ApprovalDescription = ({
   isError,
   txHash,
   approvalNetworkFeeCryptoFormatted,
+  isAllowanceResetStep,
+  isAwaitingReset = false,
+  isLoadingNetworkFee = false,
 }: ApprovalDescriptionProps) => {
   const translate = useTranslate()
   const errorMsg = isError ? (
-    <Text color='text.error' translation='trade.approvalFailed' fontWeight='bold' />
+    <Text
+      color='text.error'
+      translation={isAllowanceResetStep ? 'trade.approvalResetFailed' : 'trade.approvalFailed'}
+      fontWeight='bold'
+    />
   ) : null
+
+  if (isAwaitingReset) return null
 
   if (!txHash) {
     return (
       <>
         {errorMsg}
-        {translate('trade.approvalGasFee', { fee: approvalNetworkFeeCryptoFormatted ?? '' })}
+        {isLoadingNetworkFee
+          ? translate(
+              isAllowanceResetStep
+                ? 'trade.approvalResetGasFeeLoading'
+                : 'trade.approvalGasFeeLoading',
+            )
+          : translate(isAllowanceResetStep ? 'trade.approvalResetGasFee' : 'trade.approvalGasFee', {
+              fee: approvalNetworkFeeCryptoFormatted ?? '',
+            })}
       </>
     )
   }
@@ -71,58 +105,72 @@ const ApprovalStepPending = ({
   isActive,
   isLastStep,
   isLoading,
+  isAllowanceResetStep,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const [isExactAllowance, toggleIsExactAllowance] = useToggle(false)
+  const isLifiStep = useMemo(() => {
+    return tradeQuoteStep.source.startsWith(SwapperName.LIFI)
+  }, [tradeQuoteStep.source])
 
-  const {
-    state,
-    approval: { state: approvalTxState },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
+  // Default to exact allowance for LiFi due to contract vulnerabilities
+  const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
-  const isError = useMemo(
-    () => approvalTxState === TransactionExecutionState.Failed,
-    [approvalTxState],
+  const { state, allowanceReset, approval } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopIndex),
   )
 
+  const isAwaitingReset = useMemo(() => {
+    return !isAllowanceResetStep && state !== HopExecutionState.AwaitingApproval
+  }, [isAllowanceResetStep, state])
+
+  const allowanceType = useMemo(() => {
+    if (isAllowanceResetStep) return AllowanceType.Reset
+    return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
+  }, [isAllowanceResetStep, isExactAllowance])
+
   const {
-    executeAllowanceApproval,
+    approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, isExactAllowance)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType)
 
-  const canAttemptApproval = useMemo(
-    () =>
-      [TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(
-        approvalTxState,
-      ),
-    [approvalTxState],
-  )
+  const isApprovalStep = useMemo(() => {
+    return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
+  }, [isAllowanceResetStep, state])
 
   const handleSignAllowanceApproval = useCallback(async () => {
-    if (!canAttemptApproval) {
-      console.error('attempted to execute in-progress allowance approval')
-      return
+    await approveMutation.mutateAsync()
+  }, [approveMutation])
+
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),
+  )
+
+  const approvalNetworkFeeCryptoFormatted = useMemo(() => {
+    if (!feeAsset) return ''
+
+    if (approvalNetworkFeeCryptoBaseUnit) {
+      return toCrypto(
+        fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
+        feeAsset.symbol,
+      )
     }
 
-    await executeAllowanceApproval()
-  }, [canAttemptApproval, executeAllowanceApproval])
-
-  const feeAsset = selectFeeAssetById(store.getState(), tradeQuoteStep.sellAsset.assetId)
-  const approvalNetworkFeeCryptoFormatted =
-    feeAsset && approvalNetworkFeeCryptoBaseUnit
-      ? toCrypto(
-          fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
-          feeAsset.symbol,
-        )
-      : ''
+    return ''
+  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto])
 
   const stepIndicator = useMemo(() => {
-    return <ApprovalStatusIcon hopExecutionState={state} approvalTxState={approvalTxState} />
-  }, [approvalTxState, state])
+    return (
+      <ApprovalStatusIcon
+        hopExecutionState={state}
+        approvalTxState={isAllowanceResetStep ? allowanceReset.state : approval.state}
+        isAllowanceResetStep={isAllowanceResetStep}
+      />
+    )
+  }, [allowanceReset.state, approval.state, isAllowanceResetStep, state])
 
   const translate = useTranslate()
 
@@ -130,83 +178,167 @@ const ApprovalStepPending = ({
     return (
       <ApprovalDescription
         tradeQuoteStep={tradeQuoteStep}
-        isError={isError}
+        isError={
+          isAllowanceResetStep
+            ? allowanceReset.state === TransactionExecutionState.Failed
+            : approval.state === TransactionExecutionState.Failed
+        }
         txHash={undefined}
         approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted}
+        isAllowanceResetStep={isAllowanceResetStep}
+        isAwaitingReset={isAwaitingReset}
+        isLoadingNetworkFee={isAllowanceApprovalLoading}
       />
     )
-  }, [approvalNetworkFeeCryptoFormatted, isError, tradeQuoteStep])
+  }, [
+    allowanceReset.state,
+    approval.state,
+    approvalNetworkFeeCryptoFormatted,
+    isAllowanceApprovalLoading,
+    isAllowanceResetStep,
+    isAwaitingReset,
+    tradeQuoteStep,
+  ])
 
-  const content = useMemo(() => {
-    // only render the approval button when the component is active and we don't yet have a tx hash
-    if (approvalTxState !== TransactionExecutionState.AwaitingConfirmation || !isActive) return
-
+  const resetAllowanceContent = useMemo(() => {
     return (
-      <Card p='2' width='full'>
-        <VStack width='full'>
-          <Row px={2}>
-            <Row.Label display='flex' alignItems='center'>
-              <Text color='text.subtle' translation='trade.allowance' />
-              <Tooltip label={translate('trade.allowanceTooltip')}>
-                <Box ml={1}>
-                  <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
-                </Box>
-              </Tooltip>
-            </Row.Label>
-            <Row.Value textAlign='right' display='flex' alignItems='center'>
-              <Text
-                color={isExactAllowance ? 'text.subtle' : 'white'}
-                translation='trade.unlimited'
-                fontWeight='bold'
-              />
-              <Switch
-                size='sm'
-                mx={2}
-                isChecked={isExactAllowance}
-                disabled={!canAttemptApproval}
-                onChange={toggleIsExactAllowance}
-              />
-              <Text
-                color={isExactAllowance ? 'white' : 'text.subtle'}
-                translation='trade.exact'
-                fontWeight='bold'
-              />
-            </Row.Value>
-          </Row>
-          <Button
-            width='full'
-            size='sm'
-            colorScheme='blue'
-            disabled={isAllowanceApprovalLoading || !canAttemptApproval}
-            isLoading={isAllowanceApprovalLoading}
-            onClick={handleSignAllowanceApproval}
-          >
-            {translate('common.approve')}
-          </Button>
-        </VStack>
-      </Card>
+      <>
+        <Row px={2}>
+          <Row.Label display='flex' alignItems='center'>
+            <Text color='text.subtle' translation='trade.resetAllowance' />
+            <Tooltip label={translate('trade.resetAllowanceTooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+              </Box>
+            </Tooltip>
+          </Row.Label>
+        </Row>
+        <Button
+          width='full'
+          size='sm'
+          colorScheme='blue'
+          isDisabled={
+            isAllowanceApprovalLoading ||
+            !isAllowanceResetStep ||
+            allowanceReset.state !== TransactionExecutionState.AwaitingConfirmation
+          }
+          isLoading={isAllowanceApprovalLoading}
+          onClick={handleSignAllowanceApproval}
+        >
+          {allowanceReset.state === TransactionExecutionState.Pending && (
+            <CircularProgress isIndeterminate size={2} mr={2} />
+          )}
+          {translate('common.reset')}
+        </Button>
+        <Divider />
+      </>
     )
   }, [
-    approvalTxState,
-    canAttemptApproval,
+    allowanceReset.state,
     handleSignAllowanceApproval,
-    isActive,
     isAllowanceApprovalLoading,
+    isAllowanceResetStep,
+    translate,
+  ])
+
+  const allowanceContent = useMemo(() => {
+    return (
+      <>
+        <Row px={2}>
+          <Row.Label display='flex' alignItems='center'>
+            <Text color='text.subtle' translation='trade.allowance' />
+            <Tooltip label={translate('trade.allowanceTooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+              </Box>
+            </Tooltip>
+          </Row.Label>
+          <Row.Value textAlign='right' display='flex' alignItems='center'>
+            <Text
+              color={isExactAllowance ? 'text.subtle' : 'white'}
+              translation='trade.unlimited'
+              fontWeight='bold'
+            />
+            <Switch
+              size='sm'
+              mx={2}
+              isChecked={isExactAllowance}
+              disabled={
+                !isApprovalStep ||
+                isLifiStep ||
+                isAllowanceApprovalLoading ||
+                approval.state !== TransactionExecutionState.AwaitingConfirmation
+              }
+              onChange={toggleIsExactAllowance}
+            />
+            <Text
+              color={isExactAllowance ? 'white' : 'text.subtle'}
+              translation='trade.exact'
+              fontWeight='bold'
+            />
+          </Row.Value>
+        </Row>
+        <Button
+          width='full'
+          size='sm'
+          colorScheme='blue'
+          isDisabled={
+            isAllowanceApprovalLoading ||
+            !isApprovalStep ||
+            approval.state !== TransactionExecutionState.AwaitingConfirmation
+          }
+          isLoading={isAllowanceApprovalLoading}
+          onClick={handleSignAllowanceApproval}
+        >
+          {approval.state !== TransactionExecutionState.AwaitingConfirmation && (
+            <CircularProgress isIndeterminate size={2} mr={2} />
+          )}
+          {translate('common.approve')}
+        </Button>
+      </>
+    )
+  }, [
+    approval.state,
+    handleSignAllowanceApproval,
+    isAllowanceApprovalLoading,
+    isApprovalStep,
     isExactAllowance,
+    isLifiStep,
     toggleIsExactAllowance,
     translate,
   ])
 
+  const content = useMemo(() => {
+    // only render the approval button when the component is active and we don't yet have a tx hash
+    if (!isActive) return
+
+    return (
+      <Card p='2' width='full'>
+        <VStack width='full'>
+          {isAllowanceResetStep ? resetAllowanceContent : allowanceContent}
+        </VStack>
+      </Card>
+    )
+  }, [allowanceContent, isActive, isAllowanceResetStep, resetAllowanceContent])
+
   return (
     <StepperStep
-      title={translate('trade.approvalTitle')}
+      title={translate(isAllowanceResetStep ? 'trade.resetTitle' : 'trade.approvalTitle')}
       description={description}
       stepIndicator={stepIndicator}
       content={content}
       isLastStep={isLastStep}
       isLoading={isLoading}
-      isError={approvalTxState === TransactionExecutionState.Failed}
-      isPending={approvalTxState === TransactionExecutionState.Pending}
+      isError={
+        isAllowanceResetStep
+          ? allowanceReset.state === TransactionExecutionState.Failed
+          : approval.state === TransactionExecutionState.Failed
+      }
+      isPending={
+        isAllowanceResetStep
+          ? allowanceReset.state === TransactionExecutionState.Pending
+          : approval.state === TransactionExecutionState.Pending
+      }
     />
   )
 }
@@ -216,46 +348,75 @@ const ApprovalStepComplete = ({
   hopIndex,
   isLastStep,
   isLoading,
+  isAllowanceResetStep,
 }: ApprovalStepProps) => {
   const translate = useTranslate()
-  const {
-    state,
-    approval: { txHash, state: approvalTxState },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
-
-  const isError = useMemo(
-    () => approvalTxState === TransactionExecutionState.Failed,
-    [approvalTxState],
+  const { state, allowanceReset, approval } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopIndex),
   )
 
   const stepIndicator = useMemo(() => {
-    return <ApprovalStatusIcon hopExecutionState={state} approvalTxState={approvalTxState} />
-  }, [approvalTxState, state])
+    return (
+      <ApprovalStatusIcon
+        hopExecutionState={state}
+        approvalTxState={isAllowanceResetStep ? allowanceReset.state : approval.state}
+        isAllowanceResetStep={isAllowanceResetStep}
+      />
+    )
+  }, [allowanceReset.state, approval.state, isAllowanceResetStep, state])
 
   const description = useMemo(() => {
     return (
-      <ApprovalDescription
-        tradeQuoteStep={tradeQuoteStep}
-        isError={isError}
-        txHash={txHash}
-        approvalNetworkFeeCryptoFormatted={undefined}
-      />
+      <>
+        {isAllowanceResetStep ? (
+          <ApprovalDescription
+            tradeQuoteStep={tradeQuoteStep}
+            isError={allowanceReset.state === TransactionExecutionState.Failed}
+            txHash={allowanceReset.txHash}
+            approvalNetworkFeeCryptoFormatted={undefined}
+            isAllowanceResetStep={isAllowanceResetStep}
+          />
+        ) : (
+          <ApprovalDescription
+            tradeQuoteStep={tradeQuoteStep}
+            isError={approval.state === TransactionExecutionState.Failed}
+            txHash={approval.txHash}
+            approvalNetworkFeeCryptoFormatted={undefined}
+            isAllowanceResetStep={isAllowanceResetStep}
+          />
+        )}
+      </>
     )
-  }, [isError, tradeQuoteStep, txHash])
+  }, [
+    allowanceReset.state,
+    allowanceReset.txHash,
+    approval.state,
+    approval.txHash,
+    isAllowanceResetStep,
+    tradeQuoteStep,
+  ])
 
   // This should never happen as this should be render for *complete* approvals - but it may
-  if (!txHash) return null
+  if (!approval.txHash && !allowanceReset.txHash) return null
 
   return (
     <StepperStep
-      title={translate('trade.approvalTitle')}
+      title={translate(isAllowanceResetStep ? 'trade.resetTitle' : 'trade.approvalTitle')}
       description={description}
       stepIndicator={stepIndicator}
       content={undefined}
       isLastStep={isLastStep}
       isLoading={isLoading}
-      isError={approvalTxState === TransactionExecutionState.Failed}
-      isPending={approvalTxState === TransactionExecutionState.Pending}
+      isError={
+        isAllowanceResetStep
+          ? allowanceReset.state === TransactionExecutionState.Failed
+          : approval.state === TransactionExecutionState.Failed
+      }
+      isPending={
+        isAllowanceResetStep
+          ? allowanceReset.state === TransactionExecutionState.Pending
+          : approval.state === TransactionExecutionState.Pending
+      }
     />
   )
 }
@@ -266,29 +427,41 @@ export const ApprovalStep = ({
   isActive,
   isLastStep,
   isLoading,
+  isAllowanceResetStep,
 }: ApprovalStepProps) => {
   const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
-  // separate component for completed states to simplify hook dismount
-  if (state === HopExecutionState.AwaitingSwap || state === HopExecutionState.Complete) {
-    return (
-      <ApprovalStepComplete
-        tradeQuoteStep={tradeQuoteStep}
-        hopIndex={hopIndex}
-        isActive={isActive}
-        isLastStep={isLastStep}
-        isLoading={isLoading}
-      />
-    )
-  }
+  const isComplete = useMemo(() => {
+    switch (isAllowanceResetStep) {
+      case true:
+        return [
+          HopExecutionState.AwaitingApproval,
+          HopExecutionState.AwaitingSwap,
+          HopExecutionState.Complete,
+        ].includes(state)
+      default:
+        return [HopExecutionState.AwaitingSwap, HopExecutionState.Complete].includes(state)
+    }
+  }, [isAllowanceResetStep, state])
 
-  return (
+  // separate component for completed states to simplify hook dismount
+  return isComplete ? (
+    <ApprovalStepComplete
+      tradeQuoteStep={tradeQuoteStep}
+      hopIndex={hopIndex}
+      isActive={isActive}
+      isLastStep={isLastStep}
+      isLoading={isLoading}
+      isAllowanceResetStep={isAllowanceResetStep}
+    />
+  ) : (
     <ApprovalStepPending
       tradeQuoteStep={tradeQuoteStep}
       hopIndex={hopIndex}
       isActive={isActive}
       isLastStep={isLastStep}
       isLoading={isLoading}
+      isAllowanceResetStep={isAllowanceResetStep}
     />
   )
 }

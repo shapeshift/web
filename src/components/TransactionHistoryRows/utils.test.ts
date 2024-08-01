@@ -37,6 +37,7 @@ describe('TransactionHistoryRow/utils', () => {
       explorer: 'https://etherscan.io',
       explorerAddressLink: 'https://etherscan.io/address/',
       explorerTxLink: 'https://etherscan.io/tx/',
+      relatedAssetKey: null,
     }
 
     it('can parse erc20 parser revokes', () => {

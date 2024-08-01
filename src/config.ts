@@ -77,8 +77,6 @@ const validators = {
   REACT_APP_COVALENT_API_KEY: str(),
   REACT_APP_FEATURE_LIFI_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_COWSWAP: bool({ default: false }),
-  REACT_APP_FEATURE_COWSWAP_GNOSIS: bool({ default: false }),
-  REACT_APP_FEATURE_COWSWAP_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_JAYPEGZ: bool({ default: false }),
   REACT_APP_FEATURE_OPTIMISM: bool({ default: false }),
   REACT_APP_FEATURE_BNBSMARTCHAIN: bool({ default: false }),
@@ -94,6 +92,7 @@ const validators = {
   REACT_APP_FEATURE_SAVERS_VAULTS: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT: bool({ default: false }),
   REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW: bool({ default: false }),
+  REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT: bool({ default: false }),
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
@@ -138,6 +137,7 @@ const validators = {
   REACT_APP_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
+  REACT_APP_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
   REACT_APP_ONE_INCH_API_URL: url({
     default: 'https://api-shapeshift.1inch.io/v5.0',
@@ -150,6 +150,7 @@ const validators = {
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY: str(),
+  REACT_APP_PORTALS_API_KEY: str(),
   REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL: url(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL: url(),
@@ -174,9 +175,10 @@ const validators = {
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
   REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   REACT_APP_FEATURE_RFOX: bool({ default: false }),
-  REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY: bool({ default: false }),
-  REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY: bool({ default: true }),
-  REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS: str(),
+  REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
+  REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
+  REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
+  REACT_APP_PORTALS_BASE_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

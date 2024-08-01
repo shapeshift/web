@@ -140,13 +140,17 @@ export const TransactionTrade = ({
           <Row title='status'>
             <Status status={txDetails.tx.status} />
           </Row>
-          {txDetails.fee && (
+          {hasSend && (
             <Row title='minerFee'>
-              <TransactionAmount
-                value={txDetails.fee.value}
-                precision={txDetails.fee.asset.precision}
-                symbol={txDetails.fee.asset.symbol}
-              />
+              {txDetails.fee ? (
+                <TransactionAmount
+                  value={txDetails.fee.value}
+                  precision={txDetails.fee.asset.precision}
+                  symbol={txDetails.fee.asset.symbol}
+                />
+              ) : (
+                <RawText>{'--'}</RawText>
+              )}
             </Row>
           )}
           {txDetails.tx.trade && (
@@ -165,7 +169,11 @@ export const TransactionTrade = ({
             </Row>
           )}
           <Row title='date'>
-            <TransactionDate blockTime={txDetails.tx.blockTime} />
+            {txDetails.tx.blockTime ? (
+              <TransactionDate blockTime={txDetails.tx.blockTime} />
+            ) : (
+              <RawText>{'--'}</RawText>
+            )}
           </Row>
         </TxGrid>
       </TransactionDetailsContainer>

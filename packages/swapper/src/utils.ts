@@ -1,7 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
@@ -190,4 +192,20 @@ export const checkEvmSwapStatus = async ({
     console.error(e)
     return createDefaultStatusResponse(txHash)
   }
+}
+
+export const getRate = ({
+  sellAmountCryptoBaseUnit,
+  buyAmountCryptoBaseUnit,
+  sellAsset,
+  buyAsset,
+}: {
+  sellAmountCryptoBaseUnit: string
+  buyAmountCryptoBaseUnit: string
+  sellAsset: Asset
+  buyAsset: Asset
+}): string => {
+  const sellAmountCryptoHuman = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
+  const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
+  return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }

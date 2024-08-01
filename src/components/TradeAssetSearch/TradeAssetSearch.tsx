@@ -18,6 +18,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
@@ -51,6 +52,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
+  const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     selectPortfolioFungibleAssetsSortedByBalance,
@@ -84,7 +87,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     () => ({
       ...register('search'),
       type: 'text',
-      placeholder: translate('common.searchAsset'),
+      placeholder: translate('common.searchNameOrAddress'),
       pl: 10,
       variant: 'filled',
       borderWidth: 0,
@@ -170,8 +173,18 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     })
   }, [handleAssetClick, isPopularAssetIdsLoading, quickAccessAssets])
 
+  const handleImportIntent = useCallback((asset: Asset) => {
+    setAssetToImport(asset)
+    setShouldShowWarningAcknowledgement(true)
+  }, [])
+
   return (
-    <>
+    <CustomAssetAcknowledgement
+      asset={assetToImport}
+      handleAssetClick={handleAssetClick}
+      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+    >
       <Stack
         gap={4}
         px={4}
@@ -210,6 +223,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           activeChainId={activeChainId}
           searchString={searchString}
           onAssetClick={handleAssetClick}
+          onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
           allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         />
@@ -220,6 +234,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
         />
       )}
-    </>
+    </CustomAssetAcknowledgement>
   )
 }

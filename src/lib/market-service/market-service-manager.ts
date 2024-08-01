@@ -15,6 +15,7 @@ import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
+import { PortalsMarketService } from './portals/portals'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
@@ -48,10 +49,13 @@ export class MarketServiceManager {
       // More reliable providers should be listed first.
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
+      new PortalsMarketService(),
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls, provider }),
+      // TODO: Zerion market provider
+      // TODO: Debank market provider
     ]
 
     this.assetService = new AssetService()

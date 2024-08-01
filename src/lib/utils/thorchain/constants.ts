@@ -8,3 +8,4 @@ export const THORCHAIN_POOL_MODULE_ADDRESS = 'thor1g98cy3n9mmjrpn0sxmn63lztelera
 // Current blocktime as per https://thorchain.network/stats
 export const THORCHAIN_BLOCK_TIME_SECONDS = '6.1'
 export const thorchainBlockTimeMs = bn(THORCHAIN_BLOCK_TIME_SECONDS).times(1000).toNumber()
+export const RUNEPOOL_DEPOSIT_MEMO = 'POOL+'

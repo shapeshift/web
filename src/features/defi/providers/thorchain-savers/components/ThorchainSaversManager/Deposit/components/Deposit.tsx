@@ -1,6 +1,6 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -33,7 +33,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from 'lib/utils/utxo'
@@ -105,6 +105,8 @@ export const Deposit: React.FC<DepositProps> = ({
     assetReference,
   })
 
+  const isRunePool = assetId === thorchainAssetId
+
   const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
@@ -172,7 +174,16 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useGetThorchainSaversDepositQuoteQuery({
     asset,
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
+    enabled: !isRunePool,
   })
+
+  const memo = useMemo(() => {
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
+
+    if (thorchainSaversDepositQuote?.memo) return thorchainSaversDepositQuote?.memo
+
+    return null
+  }, [isRunePool, thorchainSaversDepositQuote?.memo])
 
   const {
     estimatedFeesData,
@@ -183,9 +194,9 @@ export const Deposit: React.FC<DepositProps> = ({
     assetId,
     accountId: accountId ?? null,
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
-    memo: thorchainSaversDepositQuote?.memo ?? null,
+    memo,
     fromAddress: fromAddress ?? null,
-    action: 'depositSavers',
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
@@ -741,6 +752,7 @@ export const Deposit: React.FC<DepositProps> = ({
     const debounced = debounce(() => {
       if (isThorchainSaversDepositQuoteError)
         throw new Error(thorchainSaversDepositQuoteError.message)
+      if (!opportunityData.apy) return
 
       const quote = thorchainSaversDepositQuote
 
@@ -764,7 +776,7 @@ export const Deposit: React.FC<DepositProps> = ({
         expectedAmountOutThorBaseUnit,
         amountCryptoBaseUnit,
         asset,
-        apy: opportunityData?.apy,
+        apy: opportunityData.apy,
       })
       setDaysToBreakEven(daysToBreakEven)
     })
@@ -827,7 +839,7 @@ export const Deposit: React.FC<DepositProps> = ({
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
-      apy={bnOrZero(opportunityData?.apy).toString()}
+      apy={opportunityData.apy ?? undefined}
       cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
@@ -847,29 +859,33 @@ export const Deposit: React.FC<DepositProps> = ({
         state.loading
       }
     >
-      <Row>
-        <Row.Label>{translate('common.slippage')}</Row.Label>
-        <Row.Value>
-          <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-            <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-          </Skeleton>
-        </Row.Value>
-      </Row>
-      <Row>
-        <Row.Label>
-          <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-            {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-          </HelperTooltip>
-        </Row.Label>
-        <Row.Value>
-          <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-            {translate(
-              `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-              { amount: daysToBreakEven ?? '0' },
-            )}
-          </Skeleton>
-        </Row.Value>
-      </Row>
+      {!isRunePool ? (
+        <>
+          <Row>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+          <Row>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                {translate(
+                  `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+                  { amount: daysToBreakEven ?? '0' },
+                )}
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        </>
+      ) : null}
     </ReusableDeposit>
   )
 }

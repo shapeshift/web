@@ -1,9 +1,8 @@
-import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
+import { getAddress } from 'viem'
 
-import { calcEpochRewardForAccountRuneBaseUnit } from './helpers'
-import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
-import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
+import type { Epoch } from '../types'
+import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
 type UseLifetimeRewardsQueryProps = {
   stakingAssetAccountAddress: string | undefined
@@ -15,72 +14,23 @@ type UseLifetimeRewardsQueryProps = {
 export const useLifetimeRewardsQuery = ({
   stakingAssetAccountAddress,
 }: UseLifetimeRewardsQueryProps) => {
-  const queryClient = useQueryClient()
-
-  const queryKey = useMemo(
-    () => [
-      'lifetimeRewards',
-      {
-        stakingAssetAccountAddress,
-      },
-    ],
+  const select = useCallback(
+    (data: Epoch[]): bigint => {
+      if (!stakingAssetAccountAddress) return 0n
+      const checksumStakingAssetAccountAddress = getAddress(stakingAssetAccountAddress)
+      return data
+        .filter(epoch => epoch.number >= 0)
+        .reduce((acc, epoch) => {
+          const distribution =
+            epoch.distributionsByStakingAddress[checksumStakingAssetAccountAddress]?.amount
+          if (!distribution) return acc
+          return acc + BigInt(distribution)
+        }, 0n)
+    },
     [stakingAssetAccountAddress],
   )
 
-  const queryFn = useMemo(
-    () =>
-      stakingAssetAccountAddress
-        ? async () => {
-            // using queryClient.fetchQuery here is ok because historical epoch metadata does not change so reactivity is not needed
-            const epochHistory = await queryClient.fetchQuery({
-              queryKey: getEpochHistoryQueryKey(),
-              queryFn: fetchEpochHistory,
-            })
+  const query = useEpochHistoryQuery({ select, enabled: !!stakingAssetAccountAddress })
 
-            const earnedByEpoch = await Promise.all(
-              epochHistory.map(async epochMetadata => {
-                // using queryClient.fetchQuery here is ok because historical earnings do not change so reactivity is not needed
-                const earned = await queryClient.fetchQuery({
-                  queryKey: getEarnedQueryKey({
-                    stakingAssetAccountAddress,
-                    blockNumber: epochMetadata.endBlockNumber,
-                  }),
-                  queryFn: getEarnedQueryFn({
-                    stakingAssetAccountAddress,
-                    blockNumber: epochMetadata.endBlockNumber,
-                  }),
-                })
-
-                return {
-                  earned,
-                  epochMetadata,
-                }
-              }),
-            )
-
-            let totalRewardRuneBaseUnit = 0n
-            let previousEpochEarned = 0n
-
-            for (const { earned, epochMetadata } of earnedByEpoch) {
-              const epochEarningsForAccount = earned - previousEpochEarned
-              const epochRewardRuneBaseUnit = calcEpochRewardForAccountRuneBaseUnit(
-                epochEarningsForAccount,
-                epochMetadata,
-              )
-              totalRewardRuneBaseUnit += epochRewardRuneBaseUnit
-              previousEpochEarned = epochEarningsForAccount
-            }
-
-            return totalRewardRuneBaseUnit
-          }
-        : skipToken,
-    [queryClient, stakingAssetAccountAddress],
-  )
-
-  const epochEarnedHistoryQuery = useQuery({
-    queryKey,
-    queryFn,
-  })
-
-  return epochEarnedHistoryQuery
+  return query
 }

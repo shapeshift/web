@@ -53,6 +53,7 @@ export const defaultAsset: Asset = {
   explorer: '',
   explorerTxLink: '',
   explorerAddressLink: '',
+  relatedAssetKey: null,
 }
 
 export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>

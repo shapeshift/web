@@ -1,3 +1,4 @@
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Block } from 'ethers'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getEthersProvider } from 'lib/ethersProviderSingleton'
@@ -6,7 +7,7 @@ import { findClosestFoxDiscountDelayBlockNumber } from './utils'
 
 vi.unmock('ethers')
 
-const getBlockSpy = vi.spyOn(getEthersProvider(), 'getBlock')
+const getBlockSpy = vi.spyOn(getEthersProvider(KnownChainIds.EthereumMainnet), 'getBlock')
 
 describe('findClosestFoxDiscountDelayBlockNumber', () => {
   beforeEach(() => {

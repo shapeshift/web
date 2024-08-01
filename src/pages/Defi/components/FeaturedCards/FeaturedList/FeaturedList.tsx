@@ -20,7 +20,7 @@ const sx = {
     display: 'none',
   },
 }
-const flexPx = { base: '20px', md: 6 }
+const flexPx = { base: '20px', md: 0 }
 const display = { base: 'none', md: 'block' }
 
 export const FeaturedList: React.FC<FeatureListProps> = ({

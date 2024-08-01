@@ -29,8 +29,6 @@ export type FeatureFlags = {
   SaversVaultsWithdraw: boolean
   DefiDashboard: boolean
   Cowswap: boolean
-  CowswapGnosis: boolean
-  CowswapArbitrum: boolean
   ZrxSwap: boolean
   Mixpanel: boolean
   LifiSwap: boolean
@@ -39,6 +37,7 @@ export type FeatureFlags = {
   Jaypegz: boolean
   OneInch: boolean
   ArbitrumBridge: boolean
+  Portals: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
   CoinbaseWallet: boolean
@@ -59,8 +58,10 @@ export type FeatureFlags = {
   AccountManagement: boolean
   AccountManagementLedger: boolean
   RFOX: boolean
-  RfoxRewardsTxHistory: boolean
-  RfoxMockRewardsTxHistory: boolean
+  CustomTokenImport: boolean
+  ArbitrumBridgeClaims: boolean
+  UsdtApprovalReset: boolean
+  RunePool: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -116,8 +117,6 @@ const initialState: Preferences = {
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
     DefiDashboard: getConfig().REACT_APP_FEATURE_DEFI_DASHBOARD,
     Cowswap: getConfig().REACT_APP_FEATURE_COWSWAP,
-    CowswapGnosis: getConfig().REACT_APP_FEATURE_COWSWAP_GNOSIS,
-    CowswapArbitrum: getConfig().REACT_APP_FEATURE_COWSWAP_ARBITRUM,
     ZrxSwap: getConfig().REACT_APP_FEATURE_ZRX_SWAP,
     LifiSwap: getConfig().REACT_APP_FEATURE_LIFI_SWAP,
     CovalentJaypegs: getConfig().REACT_APP_FEATURE_COVALENT_JAYPEGS,
@@ -126,6 +125,7 @@ const initialState: Preferences = {
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
+    Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
@@ -145,8 +145,10 @@ const initialState: Preferences = {
     AccountManagement: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT,
     AccountManagementLedger: getConfig().REACT_APP_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().REACT_APP_FEATURE_RFOX,
-    RfoxRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_REWARDS_TX_HISTORY,
-    RfoxMockRewardsTxHistory: getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY,
+    CustomTokenImport: getConfig().REACT_APP_FEATURE_CUSTOM_TOKEN_IMPORT,
+    ArbitrumBridgeClaims: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
+    UsdtApprovalReset: getConfig().REACT_APP_FEATURE_USDT_APPROVAL_RESET,
+    RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

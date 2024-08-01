@@ -802,7 +802,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThresholdByFilter = createDeep
 
 export type AccountRowData = {
   name: string
-  icon: string
+  icon: string | undefined
   symbol: string
   fiatAmount: string
   cryptoAmount: string

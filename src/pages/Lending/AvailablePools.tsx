@@ -172,26 +172,26 @@ export const AvailablePools = () => {
         >
           <Text translation='lending.pool' />
           <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.poolDepth')}>
+            <HelperTooltip label={translate('lending.poolDepthDescription')}>
               <Text translation='lending.poolDepth' />
             </HelperTooltip>
           </Flex>
           <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.totalDebtBalance')}>
+            <HelperTooltip label={translate('lending.totalDebtBalanceDescription')}>
               <Text translation='lending.totalDebtBalance' />
             </HelperTooltip>
           </Flex>
-          <HelperTooltip label={translate('lending.totalCollateral')}>
+          <HelperTooltip label={translate('lending.totalCollateralDescription')}>
             <Text translation='lending.totalCollateral' />
           </HelperTooltip>
 
           <Flex display={largeDisplay}>
-            <HelperTooltip label={translate('lending.estCollateralizationRatio')}>
+            <HelperTooltip label={translate('lending.estCollateralizationRatioDescription')}>
               <Text translation='lending.estCollateralizationRatio' />
             </HelperTooltip>
           </Flex>
           <Flex display={largeDisplay}>
-            <HelperTooltip label={translate('lending.totalBorrowers')}>
+            <HelperTooltip label={translate('lending.totalBorrowersDescription')}>
               <Text translation='lending.totalBorrowers' />
             </HelperTooltip>
           </Flex>

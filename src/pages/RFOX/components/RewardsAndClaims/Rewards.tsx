@@ -1,18 +1,19 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
-import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
-import { getConfig } from 'config'
-import { uniq } from 'lodash'
-import { useMemo } from 'react'
+import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { TransactionsGroupByDate } from 'components/TransactionHistory/TransactionsGroupByDate'
-import { isSome } from 'lib/utils'
-import { selectRuneAddress } from 'pages/RFOX/helpers'
-import { useStakingInfoHistoryQuery } from 'pages/RFOX/hooks/useStakingInfoHistoryQuery'
-import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
-import { selectReceivedTxsForAccountIdsByFilter } from 'state/slices/selectors'
+import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
+import { getTxLink } from 'lib/getTxLink'
+import type { RewardDistributionWithMetadata } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import { useLifetimeRewardDistributionsQuery } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import { selectAssetById } from 'state/slices/selectors'
+import type { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
+import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
+
+import { RewardTransactionList } from './RewardTransactionList'
 
 type RewardsContentProps = {
   stakingAssetAccountId: AccountId
@@ -24,85 +25,92 @@ type RewardsProps = {
 }
 
 const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
-  const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(stakingAssetAccountId).account,
-    [stakingAssetAccountId],
-  )
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
-  const {
-    data: historicalRuneAddresses,
-    isLoading: isStakingInfoHistoryLoading,
-    isFetching: isStakingInfoHistoryFetching,
-  } = useStakingInfoHistoryQuery({ stakingAssetAccountAddress, select: selectRuneAddress })
+  const stakingAssetAccountAddresses = useMemo(() => {
+    return [fromAccountId(stakingAssetAccountId).account]
+  }, [stakingAssetAccountId])
 
-  const {
-    data: currentRuneAddress,
-    isLoading: isCurrentStakingInfoLoading,
-    isFetching: isCurrentStakingInfoFetching,
-  } = useStakingInfoQuery({ stakingAssetAccountAddress, select: selectRuneAddress })
-
-  const uniqueHistoricalRuneAddresses = useMemo(() => {
-    if (!historicalRuneAddresses) {
-      return []
-    }
-
-    return uniq(historicalRuneAddresses.filter(isSome))
-  }, [historicalRuneAddresses])
-
-  const runeAddresses = useMemo(() => {
-    if (!currentRuneAddress) {
-      return uniqueHistoricalRuneAddresses
-    }
-
-    return uniq([...uniqueHistoricalRuneAddresses, currentRuneAddress])
-  }, [uniqueHistoricalRuneAddresses, currentRuneAddress])
-
-  const thorchainAccountIds = useMemo(() => {
-    return runeAddresses
-      .map(maybeRuneAddress => {
-        const isRfoxMockRewardsTxHistoryEnabled =
-          getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY
-
-        if (!isRfoxMockRewardsTxHistoryEnabled) return maybeRuneAddress
-
-        // backfill with mock rune address if enabled
-        const mockRfoxRewardsRuneAddress = getConfig().REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS
-        return maybeRuneAddress || mockRfoxRewardsRuneAddress
-      })
-      .filter(isSome)
-      .map(runeAddress => {
-        return toAccountId({
-          chainId: thorchainChainId,
-          account: runeAddress as string,
-        })
-      })
-  }, [runeAddresses])
-
-  const txIdsFilter = useMemo(() => {
-    return {
-      assetId: thorchainAssetId,
-      accountIds: thorchainAccountIds,
-      from: DAO_TREASURY_THORCHAIN,
-    }
-  }, [thorchainAccountIds])
-
-  // TODO: Fetch any rune accounts not held in tx history
-  const txIds = useAppSelector(state => selectReceivedTxsForAccountIdsByFilter(state, txIdsFilter))
+  const lifetimeRewardDistributionsResult = useLifetimeRewardDistributionsQuery({
+    stakingAssetAccountAddresses,
+  })
 
   const isLoading = useMemo(() => {
-    // TODO: show loading state if tx history is also loading
     return (
-      isStakingInfoHistoryLoading ||
-      isCurrentStakingInfoLoading ||
-      isStakingInfoHistoryFetching ||
-      isCurrentStakingInfoFetching
+      lifetimeRewardDistributionsResult.isLoading || lifetimeRewardDistributionsResult.isFetching
     )
-  }, [
-    isCurrentStakingInfoFetching,
-    isCurrentStakingInfoLoading,
-    isStakingInfoHistoryFetching,
-    isStakingInfoHistoryLoading,
-  ])
+  }, [lifetimeRewardDistributionsResult])
+
+  const rewardDistributionsByTxId = useMemo(() => {
+    if (!lifetimeRewardDistributionsResult.data) return {}
+
+    return lifetimeRewardDistributionsResult.data.reduce<
+      Record<string, RewardDistributionWithMetadata>
+    >((acc, rewardDistribution) => {
+      acc[rewardDistribution.txId] = rewardDistribution
+      return acc
+    }, {})
+  }, [lifetimeRewardDistributionsResult])
+
+  const txIds = useMemo(() => {
+    return Object.entries(rewardDistributionsByTxId).map(([txId, distribution]) =>
+      serializeTxIndex(
+        toAccountId({ chainId: thorchainChainId, account: distribution.rewardAddress }),
+        txId,
+        distribution.rewardAddress,
+      ),
+    )
+  }, [rewardDistributionsByTxId])
+
+  const getTxDetails = useCallback(
+    (txId: TxId): TxDetails | undefined => {
+      if (!runeAsset) return
+
+      const distribution = rewardDistributionsByTxId[txId]
+
+      const tx: Tx = {
+        pubkey: distribution.rewardAddress,
+        status: TxStatus.Confirmed,
+        chainId: thorchainChainId,
+        blockHeight: 0,
+        blockTime: 0,
+        confirmations: 0,
+        txid: txId,
+        transfers: [
+          {
+            from: [],
+            to: [distribution.rewardAddress],
+            value: distribution.amount,
+            assetId: thorchainAssetId,
+            type: TransferType.Receive,
+          },
+        ],
+        data: {
+          parser: 'rfox',
+          type: 'thorchain',
+          method: 'reward',
+          epoch: distribution.epoch,
+          ipfsHash: distribution.ipfsHash,
+          stakingAddress: distribution.stakingAddress,
+        },
+      }
+
+      const txLink = getTxLink({
+        name: Dex.Thor,
+        defaultExplorerBaseUrl: '',
+        txId,
+      })
+
+      return {
+        tx,
+        fee: undefined,
+        transfers: tx.transfers.map(transfer => ({ ...transfer, asset: runeAsset })),
+        type: 'method',
+        txLink,
+      }
+    },
+    [rewardDistributionsByTxId, runeAsset],
+  )
 
   if (!txIds.length && !isLoading) {
     return <Text color='text.subtle' translation='RFOX.noRewardsYet' />
@@ -110,7 +118,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
 
   return (
     <Box mx={-6}>
-      <TransactionsGroupByDate txIds={txIds} isLoading={isLoading} />
+      <RewardTransactionList txIds={txIds} isLoading={isLoading} getTxDetails={getTxDetails} />
     </Box>
   )
 }

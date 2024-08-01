@@ -47,6 +47,7 @@ type Action =
   | 'openLoan'
   | 'repayLoan'
   | 'depositSavers'
+  | 'depositRunepool'
   | 'withdrawSavers'
 
 type UseSendThorTxProps = {
@@ -92,6 +93,7 @@ export const useSendThorTx = ({
     return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
   }, [action])
 
+  // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
   const dustAmountCryptoBaseUnit = useMemo(() => {
     return THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
   }, [feeAsset])

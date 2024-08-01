@@ -22,6 +22,7 @@ export const rune: Asset = {
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'RUNE',
+  relatedAssetKey: null,
 }
 
 export const ethereum: Asset = {
@@ -35,6 +36,7 @@ export const ethereum: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const arbitrum: Asset = {
@@ -48,6 +50,7 @@ export const arbitrum: Asset = {
   explorer: 'https://arbiscan.io',
   explorerTxLink: 'https://arbiscan.io/tx/',
   explorerAddressLink: 'https://arbiscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const usdc: Asset = {
@@ -61,6 +64,7 @@ export const usdc: Asset = {
   explorer: 'https://etherscan.io',
   explorerTxLink: 'https://etherscan.io/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
+  relatedAssetKey: null,
 }
 
 export const zero: Asset = {
@@ -74,6 +78,7 @@ export const zero: Asset = {
   name: '0 exchange',
   precision: 18,
   symbol: 'ZERO',
+  relatedAssetKey: null,
 }
 
 export const fox: Asset = {
@@ -87,6 +92,7 @@ export const fox: Asset = {
   name: 'Fox',
   precision: 18,
   symbol: 'FOX',
+  relatedAssetKey: null,
 }
 
 export const foxOnArbitrum: Asset = {
@@ -100,6 +106,7 @@ export const foxOnArbitrum: Asset = {
   name: 'Fox on Arbitrum One',
   precision: 18,
   symbol: 'FOX',
+  relatedAssetKey: null,
 }
 
 export const bitcoin: Asset = {
@@ -113,6 +120,7 @@ export const bitcoin: Asset = {
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   explorerAddressLink: 'https://etherscan.io/address/',
   symbol: 'BTC',
+  relatedAssetKey: null,
 }
 
 export const mockAssetState = (obj?: Record<string, any>) =>

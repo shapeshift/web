@@ -32,6 +32,7 @@ export const getYearnVaults = async (): Promise<Asset[]> => {
       tokenId: toLower(vault.address),
       chainId,
       assetId,
+      relatedAssetKey: null,
       ...explorerData,
     }
   })
@@ -50,6 +51,7 @@ export const getZapperTokens = async (): Promise<Asset[]> => {
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId,
+      relatedAssetKey: null,
       assetId,
     }
   })
@@ -68,6 +70,7 @@ export const getUnderlyingVaultTokens = async (): Promise<Asset[]> => {
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId,
+      relatedAssetKey: null,
       assetId,
     }
   })

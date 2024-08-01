@@ -53,7 +53,7 @@ export type AssetInputProps = {
   accountId?: AccountId | undefined
   assetId: AssetId
   assetSymbol: string
-  assetIcon: string
+  assetIcon: string | undefined
   onChange?: (value: string, isFiat?: boolean) => void
   onAssetClick?: () => void
   onMaxClick?: () => Promise<void>

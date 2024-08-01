@@ -14,7 +14,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
 import { FaX } from 'react-icons/fa6'
@@ -40,12 +40,13 @@ import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/utils'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
-import type { OpportunityType } from 'pages/ThorChainLP/utils'
+import { fromQuote } from 'pages/ThorChainLP/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -63,7 +64,6 @@ type TransactionRowProps = {
   isActive?: boolean
   isLast?: boolean
   confirmedQuote: LpConfirmedDepositQuote | LpConfirmedWithdrawalQuote
-  opportunityType: OpportunityType
 }
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
@@ -74,7 +74,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   onStart,
   isActive,
   confirmedQuote,
-  opportunityType,
 }) => {
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -86,10 +85,20 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   const [txFeeCryptoPrecision, setTxFeeCryptoPrecision] = useState<string | undefined>()
 
   const { currentAccountIdByChainId, positionStatus } = confirmedQuote
+  const { opportunityType, action, actionSide } = fromQuote(confirmedQuote)
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const isSymAssetWithdraw =
+    action === 'withdraw' && actionSide === AsymSide.Asset && opportunityType === 'sym'
+
+  const isRuneTx = useMemo(
+    () => assetId === thorchainAssetId || isSymAssetWithdraw,
+    [assetId, isSymAssetWithdraw],
+  )
+
   const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(isRuneTx ? thorchainAssetId : assetId).chainId),
   )
 
   const poolAsset = useAppSelector(state => selectAssetById(state, poolAssetId))
@@ -108,9 +117,8 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, runeAccountFilter),
   )
 
-  const isRuneTx = useMemo(() => assetId === thorchainAssetId, [assetId])
   const isDeposit = isLpConfirmedDepositQuote(confirmedQuote)
-  const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && opportunityType === 'sym'
+  const isSymWithdraw = isLpConfirmedWithdrawalQuote(confirmedQuote) && actionSide === 'sym'
 
   const fromAccountId = useMemo(() => {
     return isRuneTx ? runeAccountId : poolAssetAccountId
@@ -120,16 +128,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     return isRuneTx ? runeAccountMetadata : poolAssetAccountMetadata
   }, [isRuneTx, runeAccountMetadata, poolAssetAccountMetadata])
 
-  const { data: fromAddress } = useQuery({
-    ...reactQueries.common.thorchainFromAddress({
-      accountId: fromAccountId,
+  const { queryKey: thorchainFromAddressQueryKey, queryFn: thorchainFromAddressQueryFn } =
+    reactQueries.common.thorchainFromAddress({
+      accountId: fromAccountId!,
       assetId: isRuneTx ? thorchainAssetId : poolAssetId,
       opportunityId: confirmedQuote.opportunityId,
       wallet: wallet!,
       accountMetadata: fromAccountMetadata!,
       getPosition: getThorchainLpPosition,
-    }),
-    enabled: Boolean(fromAccountId && fromAccountMetadata && wallet),
+    })
+
+  const { data: fromAddress } = useQuery({
+    queryKey: thorchainFromAddressQueryKey,
+    queryFn: Boolean(fromAccountId && fromAccountMetadata && wallet)
+      ? thorchainFromAddressQueryFn
+      : skipToken,
   })
 
   const pairAssetAccountId = useMemo(() => {
@@ -150,10 +163,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // strip bech32 prefix for use in thorchain memo (bech32 not supported)
     select: address => {
       // Paranoia against previously cached calls, this should never happen but it could
-      if (opportunityType !== 'sym') return
+      if (actionSide !== 'sym') return
       return address.replace('bitcoincash:', '')
     },
-    enabled: Boolean(opportunityType === 'sym'),
+    enabled: Boolean(actionSide === 'sym'),
   })
 
   const thorchainNotationAssetId = useMemo(() => {
@@ -164,35 +177,23 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const memo = useMemo(() => {
     if (thorchainNotationAssetId === undefined) return null
-    if (opportunityType === 'sym' && !pairAssetAddress) return null
+    if (actionSide === 'sym' && !pairAssetAddress) return null
 
     const pairedAddress = pairAssetAddress ?? ''
 
-    const asymDestinationAssetId = (() => {
-      if (isRuneTx && opportunityType !== 'sym') return thorchainAssetId
-      if (!isRuneTx && opportunityType !== 'sym') return assetId
-    })()
+    const asymDestinationPoolAssetId =
+      actionSide !== 'sym' ? assetIdToPoolAssetId({ assetId }) : undefined
 
     return isDeposit
       ? `+:${thorchainNotationAssetId}:${pairedAddress}:${THORCHAIN_AFFILIATE_NAME}:${confirmedQuote.feeBps}`
       : `-:${thorchainNotationAssetId}:${confirmedQuote.withdrawalBps}${
-          asymDestinationAssetId
-            ? `:${assetIdToPoolAssetId({ assetId: asymDestinationAssetId })}`
-            : ''
+          asymDestinationPoolAssetId ? `:${asymDestinationPoolAssetId}` : ''
         }`
-  }, [
-    isDeposit,
-    thorchainNotationAssetId,
-    pairAssetAddress,
-    confirmedQuote,
-    opportunityType,
-    isRuneTx,
-    assetId,
-  ])
+  }, [isDeposit, thorchainNotationAssetId, pairAssetAddress, confirmedQuote, actionSide, assetId])
 
   const { executeTransaction, estimatedFeesData, txId, serializedTxIndex } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
-    accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
+    accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
     amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
     memo,
     fromAddress: fromAddress ?? null,
@@ -409,15 +410,15 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       <CardHeader gap={2} display='flex' flexDir='row' alignItems='center'>
         <AssetIcon size='xs' assetId={asset.assetId} />
         <Amount.Crypto fontWeight='bold' value={amountCryptoPrecision} symbol={asset.symbol} />{' '}
-        {isSymWithdraw && (
+        {isSymWithdraw && poolAsset && (
           // Symmetrical withdrawals withdraw both asset amounts in a single TX.
           // In this case, we want to show the pool asset amount in additional to the rune amount for the user
           <>
-            <AssetIcon size='xs' assetId={poolAsset?.assetId} />
+            <AssetIcon size='xs' assetId={poolAsset.assetId} />
             <Amount.Crypto
               fontWeight='bold'
               value={confirmedQuote.assetWithdrawAmountCryptoPrecision}
-              symbol={poolAsset?.symbol ?? ''}
+              symbol={poolAsset.symbol ?? ''}
             />{' '}
           </>
         )}

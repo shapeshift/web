@@ -179,7 +179,7 @@ export const Acknowledgement = ({
               />
               <Box
                 textAlign={'center'}
-                maxWidth='90%'
+                maxWidth='100%'
                 mb={8}
                 fontWeight='medium'
                 color='text.subtle'

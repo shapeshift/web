@@ -301,8 +301,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return null
   }, [isRunePool, quote, state, amountAvailableCryptoPrecision])
 
-  console.log(memo)
-
   const { executeTransaction, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,

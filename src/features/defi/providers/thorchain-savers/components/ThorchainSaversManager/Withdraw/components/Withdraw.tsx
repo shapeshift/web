@@ -188,8 +188,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const memo = useMemo(() => {
     if (thorchainSaversWithdrawQuote?.memo) return thorchainSaversWithdrawQuote.memo
+    if (!hasEnoughStakingBalance) return null
 
-    if (isRunePool && hasEnoughStakingBalance) {
+    if (isRunePool) {
       const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
       const percent = bnOrZero(cryptoAmount).div(balanceCryptoPrecision).times(100).toFixed(0)
       const basisPoints = convertPercentageToBasisPoints(percent)

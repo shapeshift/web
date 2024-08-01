@@ -234,6 +234,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         setExpiry(_expiry)
 
         const protocolFeeCryptoThorBaseUnit = amountCryptoThorBaseUnit.minus(expected_amount_out)
+        // @TODO: might be interesting to take in account deposit maturity for RUNEPool
         setProtocolFeeCryptoBaseUnit(
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
@@ -518,7 +519,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     )
   }, [_isSmartContractAddress, translate])
 
-  // @TODO: might be interesting to take in account deposit maturity for RUNEPool
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
     return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)

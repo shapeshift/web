@@ -234,7 +234,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         setExpiry(_expiry)
 
         const protocolFeeCryptoThorBaseUnit = amountCryptoThorBaseUnit.minus(expected_amount_out)
-        // @TODO: might be interesting to take in account deposit maturity for RUNEPool
         setProtocolFeeCryptoBaseUnit(
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
@@ -521,6 +520,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
+
+    // @TODO: RUNEPool withdraws are not going through for now because of the 90 days lock, we don't know yet if there are any protocol fees
+    // we might want to adjust it later if we confirm that it involve some protocol fees
     return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)
   }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit, isRunePool])
 

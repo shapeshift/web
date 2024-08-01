@@ -204,10 +204,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
         .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
-      // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
       underlyingAssetIds,
       rewardAssetIds: [thorchainAssetId] as [AssetId],
-      // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
       underlyingAssetRatiosBaseUnit,
       name: `RUNEPool`,
       saversMaxSupplyFiat: undefined,

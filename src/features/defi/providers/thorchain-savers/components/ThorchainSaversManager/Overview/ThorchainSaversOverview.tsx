@@ -90,13 +90,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const isRunePool = assetId === thorchainAssetId
+
   const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
     asset,
     amountCryptoBaseUnit: BigNumber.max(
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
       toBaseUnit(1, asset?.precision ?? 0),
     ),
-    enabled: assetId !== thorchainAssetId,
+    enabled: !isRunePool,
   })
 
   const isHardCapReached = useMemo(
@@ -376,13 +378,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const description = useMemo(
     () => ({
-      description: translate('defi.modals.saversVaults.description', {
-        asset: underlyingAsset?.symbol ?? '',
-      }),
+      description: translate(
+        isRunePool
+          ? 'defi.modals.saversVaults.runePoolOverviewDescription'
+          : 'defi.modals.saversVaults.description',
+        {
+          asset: underlyingAsset?.symbol ?? '',
+        },
+      ),
       isLoaded: !!underlyingAsset?.symbol,
       isTrustedDescription: true,
     }),
-    [translate, underlyingAsset?.symbol],
+    [translate, underlyingAsset?.symbol, isRunePool],
   )
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])

@@ -75,6 +75,7 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   usdcEthereumAssetId,
   usdtEthereumAssetId,
   usdcAvalancheAssetId,
+  thorchainAssetId,
 ]
 
 const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(

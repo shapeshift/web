@@ -12,6 +12,7 @@ import type {
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
@@ -87,10 +88,10 @@ const { throttle, clear } = (({
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
-const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
+const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
 
 export class PortalsMarketService implements MarketService {
-  baseUrl = process.env.REACT_APP_PORTALS_BASE_URL!
+  baseUrl = getConfig().REACT_APP_PORTALS_BASE_URL
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 250,

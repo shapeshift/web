@@ -52,6 +52,8 @@ const Params = object({
   contractAddress: string().optional(),
   strategies: array(StrategySchema).optional(),
   delegationSpace: string().optional(),
+  contracts: array(string()).optional(),
+  multiplier: number().optional(),
 })
 
 const SpaceStrategy = object({

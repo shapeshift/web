@@ -16,6 +16,7 @@ import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSl
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
+  AssetIdsTuple,
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -30,7 +31,10 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
-import type { ThorchainRunepoolInformationResponseSuccess } from './types'
+import type {
+  ThorchainRunepoolInformationResponseSuccess,
+  ThorchainRunepoolReservePositionsResponse,
+} from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
@@ -164,10 +168,27 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
+      `${getConfig().REACT_APP_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
+    )
     const { data: runepoolInformation } =
       await axios.get<ThorchainRunepoolInformationResponseSuccess>(
         `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
       )
+
+    const underlyingAssetIds = reservePositions.pools.map(pool =>
+      poolAssetIdToAssetId(pool.pool),
+    ) as unknown as AssetIdsTuple
+
+    const totalRuneAdded = reservePositions.pools.reduce(
+      (sum, pool) => sum.plus(bnOrZero(pool.runeAdded)),
+      bnOrZero(0),
+    )
+
+    const underlyingAssetRatiosBaseUnit = reservePositions.pools.map(pool => {
+      const poolRatio = bnOrZero(pool.runeAdded).dividedBy(totalRuneAdded)
+      return poolRatio.toFixed(18) // Use 18 decimal places for precision
+    })
 
     const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 
@@ -184,10 +205,10 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
       // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
-      underlyingAssetIds: [],
+      underlyingAssetIds,
       rewardAssetIds: [thorchainAssetId] as [AssetId],
       // @TODO: calculate underlying asset ratios when every asset is supported by underlyingAssetIds
-      underlyingAssetRatiosBaseUnit: [],
+      underlyingAssetRatiosBaseUnit,
       name: `RUNEPool`,
       saversMaxSupplyFiat: undefined,
       isFull: false,

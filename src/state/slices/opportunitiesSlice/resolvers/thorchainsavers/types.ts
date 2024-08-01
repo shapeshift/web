@@ -94,7 +94,7 @@ export type ThorchainSaversWithdrawQuoteResponse =
   | ThorchainSaversWithdrawQuoteResponseSuccess
   | ThorchainSaversCommonQuoteResponseError
 
-export type ThorchainRunepoolInformationsResponseSuccess = {
+export type ThorchainRunepoolInformationResponseSuccess = {
   pol: {
     rune_deposited: string
     rune_withdrawn: string
@@ -118,7 +118,7 @@ export type ThorchainRunepoolInformationsResponseSuccess = {
   }
 }
 
-export type ThorchainFromAddressRunepoolInformationsResponseSuccess = {
+export type ThorchainRunepoolProviderResponseSuccess = {
   rune_address: string
   units: string
   value: string

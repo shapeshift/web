@@ -33,7 +33,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { isUtxoChainId } from 'lib/utils/utxo'
@@ -63,7 +63,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { DEPOSIT_MEMO, ThorchainSaversDepositActionType } from '../DepositCommon'
+import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
 type DepositProps = StepComponentProps & {
@@ -178,7 +178,7 @@ export const Deposit: React.FC<DepositProps> = ({
   })
 
   const memo = useMemo(() => {
-    if (isRunePool) return DEPOSIT_MEMO
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
 
     if (thorchainSaversDepositQuote?.memo) return thorchainSaversDepositQuote?.memo
 
@@ -196,7 +196,7 @@ export const Deposit: React.FC<DepositProps> = ({
     amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
     memo,
     fromAddress: fromAddress ?? null,
-    action: 'depositSavers',
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 

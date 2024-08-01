@@ -29,7 +29,6 @@ type TransactionGenericRowProps = {
   type: string
   status: TxStatus
   title?: string
-  showDateAndGuide?: boolean
   compactMode?: boolean
   transfersByType: Record<TransferType, Transfer[]>
   fee?: Fee
@@ -38,8 +37,9 @@ type TransactionGenericRowProps = {
   txDetails: TxDetails
   blockTime: number
   txLink: string
-  toggleOpen: () => void
+  toggleOpen?: () => void
   parentWidth: number
+  topRight?: JSX.Element
 }
 
 export const TransactionGenericRow = ({
@@ -50,6 +50,7 @@ export const TransactionGenericRow = ({
   txData,
   txDetails,
   toggleOpen,
+  topRight: _topRight,
 }: TransactionGenericRowProps) => {
   const translate = useTranslate()
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txData), [txData])
@@ -153,7 +154,9 @@ export const TransactionGenericRow = ({
       }
 
       if (type === TransferType.Receive) {
-        const address = middleEllipsis(txDetails.transfers[0].from[0])
+        const from = txDetails.transfers[0].from[0]
+        if (!from) return
+        const address = middleEllipsis(from)
         return translate('transactionHistory.receivedFrom', { address })
       }
 
@@ -170,9 +173,10 @@ export const TransactionGenericRow = ({
 
   // send value if there is also a receive value
   const topRight = useMemo(() => {
+    if (_topRight) return _topRight
     if (hasNoReceiveAssets) return
     return sendAmount
-  }, [hasNoReceiveAssets, sendAmount])
+  }, [hasNoReceiveAssets, sendAmount, _topRight])
 
   // asset(s) label
   const bottomLeft = useMemo(() => {
@@ -180,7 +184,11 @@ export const TransactionGenericRow = ({
       return <AssetSymbol fontWeight='bold' assetId={txMetadataWithAssetId?.assetId ?? ''} />
     }
 
-    if (txData?.parser === 'rfox' && txData?.method === Method.SetRuneAddress) {
+    if (
+      txData?.parser === 'rfox' &&
+      txData.type === 'evm' &&
+      txData?.method === Method.SetRuneAddress
+    ) {
       return <RawText>{txData.runeAddress ?? ''}</RawText>
     }
 
@@ -287,7 +295,11 @@ export const TransactionGenericRow = ({
       )
     }
 
-    if (txData?.parser === 'rfox' && txData?.method === Method.UnstakeRequest) {
+    if (
+      txData?.parser === 'rfox' &&
+      txData.type === 'evm' &&
+      txData?.method === Method.UnstakeRequest
+    ) {
       return (
         <Tag>
           <CryptoAmount value={txData.value ?? '0'} assetId={txData.assetId} />

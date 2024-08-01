@@ -27,10 +27,11 @@ import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 type FooterProps = {
+  isLoading: boolean
   handleSubmit: () => void
 }
 
-export const Footer: FC<FooterProps> = ({ handleSubmit }) => {
+export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -102,11 +103,6 @@ export const Footer: FC<FooterProps> = ({ handleSubmit }) => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  const isLoading = useMemo(
-    () => tradeExecutionState === TradeExecutionState.Initializing,
-    [tradeExecutionState],
-  )
-
   return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
     tradeExecutionState,
   ) ? (
@@ -139,7 +135,7 @@ export const Footer: FC<FooterProps> = ({ handleSubmit }) => {
         size='lg'
         width='full'
         onClick={handleSubmit}
-        isLoading={isLoading}
+        isLoading={isLoading || tradeExecutionState === TradeExecutionState.Initializing}
       >
         <Text translation={'trade.confirmAndTrade'} />
       </Button>

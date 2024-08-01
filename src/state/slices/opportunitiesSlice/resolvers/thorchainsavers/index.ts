@@ -1,5 +1,6 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import axios from 'axios'
 import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -24,11 +25,8 @@ import type {
   OpportunitiesMetadataResolverInput,
   OpportunitiesUserDataResolverInput,
 } from '../types'
-import {
-  getAllThorchainSaversPositions,
-  getMidgardPools,
-  getThorchainSaversPosition,
-} from './utils'
+import type { ThorchainRunepoolInformationResponseSuccess } from './types'
+import { getMidgardPools, getThorchainSaversPosition } from './utils'
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -161,6 +159,13 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   }
 
   if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+    const { data: runepoolInformation } =
+      await axios.get<ThorchainRunepoolInformationResponseSuccess>(
+        `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
+      )
+
+    const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
+
     stakingOpportunitiesById[thorchainAssetId as StakingId] = {
       // RUNEPool doesn't have any APY for now
       // @TODO: calculate proper APY at opportunity meta time by doing some homemade mathematics
@@ -168,8 +173,9 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       assetId: thorchainAssetId,
       id: thorchainAssetId as StakingId,
       provider: DefiProvider.ThorchainSavers,
-      // @TODO: calculate proper TVL
-      tvl: '10',
+      tvl: fromThorBaseUnit(runepoolInformation.providers.value)
+        .times(runeMarketData.price)
+        .toFixed(),
       type: DefiType.Staking,
       underlyingAssetId: thorchainAssetId,
       // @TODO: use all assets supported in RUNEPool as underlyingAssetIds
@@ -214,13 +220,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         throw new Error(`Cannot get asset for stakingOpportunityId: ${stakingOpportunityId}`)
 
       const userStakingId = serializeUserStakingId(accountId, stakingOpportunityId)
-
-      const allPositions = await getAllThorchainSaversPositions(stakingOpportunityId)
-
-      if (!allPositions.length)
-        throw new Error(
-          `Error fetching THORCHain savers positions for assetId: ${stakingOpportunityId}`,
-        )
 
       const accountPosition = await getThorchainSaversPosition({
         accountId,

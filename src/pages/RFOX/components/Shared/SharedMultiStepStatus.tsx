@@ -65,7 +65,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
   )
 
   const handleTxStatusUpdate = useCallback(
-    (status: TxStatus) => {
+    (status?: TxStatus) => {
       setTxStatus(status)
 
       if (status === TxStatus.Confirmed) return setActiveStepIndex(activeStepIndex + 1)

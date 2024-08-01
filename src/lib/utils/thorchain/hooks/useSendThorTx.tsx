@@ -47,6 +47,7 @@ type Action =
   | 'openLoan'
   | 'repayLoan'
   | 'depositSavers'
+  | 'depositRunepool'
   | 'withdrawSavers'
   | 'withdrawRunepool'
 

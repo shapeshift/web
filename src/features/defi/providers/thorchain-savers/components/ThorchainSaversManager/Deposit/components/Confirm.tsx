@@ -43,7 +43,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -153,6 +153,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           })
         : undefined
 
+      // @TODO: verify that runepool deposit apply any slippage
       const slippageCryptoAmountPrecision = (() => {
         const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
@@ -174,6 +175,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       amountCryptoBaseUnit,
       select: selectQuoteData,
+      enabled: !isRunePool,
     },
   )
 
@@ -189,7 +191,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   })
 
   const memo = useMemo(() => {
-    if (isRunePool) return 'POOL+'
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
     if (quoteData?.quote.memo) return quoteData.quote.memo
 
     return null
@@ -199,7 +201,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
-    action: 'depositSavers',
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
   })
@@ -417,6 +419,50 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         ) : null}
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
+                {translate(
+                  `defi.modals.saversVaults.${
+                    bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
+                  }`,
+                  { amount: quoteData?.daysToBreakEven ?? '0' },
+                )}
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
+        <Row variant='gutter'>
+          <Row.Label>
+            <HelperTooltip label={translate('trade.tooltip.protocolFee')}>
+              <Text translation='trade.protocolFee' />
+            </HelperTooltip>
+          </Row.Label>
+          <Row.Value>
+            <Skeleton isLoaded={!isQuoteDataLoading}>
+              <Box textAlign='right'>
+                <Amount.Fiat
+                  fontWeight='bold'
+                  value={bn(
+                    fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision),
+                  )
+                    .times(marketData.price)
+                    .toFixed()}
+                />
+                <Amount.Crypto
+                  value={quoteData?.slippageCryptoAmountPrecision ?? ''}
+                  symbol={asset.symbol}
+                />
+              </Box>
+            </Skeleton>
+          </Row.Value>
+        </Row>
         {!isRunePool ? (
           <Row variant='gutter'>
             <Row.Label>

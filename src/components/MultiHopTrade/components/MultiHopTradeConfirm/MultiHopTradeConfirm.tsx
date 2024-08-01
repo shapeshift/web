@@ -138,7 +138,7 @@ export const MultiHopTradeConfirm = memo(() => {
                   onToggleSecondHop={onToggleSecondHop}
                 />
               </CardBody>
-              <Footer handleSubmit={handleSubmit} />
+              <Footer isLoading={isLoading} handleSubmit={handleSubmit} />
             </>
           )}
         </WarningAcknowledgement>

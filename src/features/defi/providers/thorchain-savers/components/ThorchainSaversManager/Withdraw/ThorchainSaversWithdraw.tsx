@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -54,6 +54,9 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
     assetNamespace,
     assetReference,
   })
+
+  const isRunePool = assetId === thorchainAssetId
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
@@ -191,7 +194,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
       <DefiModalContent>
         <DefiModalHeader
           title={translate('modals.withdraw.withdrawFrom', {
-            opportunity: `${asset.symbol} Vault`,
+            opportunity: isRunePool ? 'RUNEPool' : `${asset.symbol} Vault`,
           })}
           onBack={handleBack}
         />

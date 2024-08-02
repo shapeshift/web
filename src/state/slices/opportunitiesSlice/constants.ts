@@ -143,7 +143,7 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
   },
 }
 
-export const isRunePoolOpportunity = (
+export const isRunePoolUserStakingOpportunity = (
   opportunity: Record<string, unknown> | undefined,
 ): opportunity is RunepoolUserStakingOpportunity => {
   return Boolean(

@@ -40,7 +40,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { isRunePoolOpportunity } from 'state/slices/opportunitiesSlice/constants'
+import { isRunePoolUserStakingOpportunity } from 'state/slices/opportunitiesSlice/constants'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
@@ -244,7 +244,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   )
 
   const isRunepoolWithdrawUnlocked = useMemo(() => {
-    if (!isRunePoolOpportunity(earnOpportunityData)) return
+    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return
 
     const maturityDate = new Date(earnOpportunityData.maturity)
     const currentDate = new Date()
@@ -253,7 +253,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   }, [earnOpportunityData])
 
   const runepoolSecondsLeftBeforeWithdrawal = useMemo(() => {
-    if (!isRunePoolOpportunity(earnOpportunityData)) return 0
+    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return 0
 
     const maturityDate = new Date(earnOpportunityData.maturity)
     const currentDate = new Date()

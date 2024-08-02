@@ -71,7 +71,7 @@ export const fetchPortalsTokens = async (
     const params = {
       limit: '250',
       // Minimum 100,000 bucks liquidity if asset is a LP token
-      minLiquidity: '10000',
+      minLiquidity: '100000',
       networks: [network],
       page: page.toString(),
     }

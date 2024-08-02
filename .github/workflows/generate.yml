@@ -3,9 +3,8 @@ name: Regenerate Asset Data and PR
 on:
   # Allows manual triggering if we ever want to
   workflow_dispatch:
-  # cron temporarily disabled. TODO(gomes): bring me back in https://github.com/shapeshift/web/pull/7458
-  # schedule:
-  # - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
+  schedule:
+  - cron: '0 9 * * 1,4' # Twice a week - 9AM UTC on Monday and Thursday
 
 jobs:
   regenerate-and-create-pr:

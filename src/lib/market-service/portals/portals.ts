@@ -12,6 +12,7 @@ import type {
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
@@ -87,10 +88,10 @@ const { throttle, clear } = (({
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
-const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
+const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
 
 export class PortalsMarketService implements MarketService {
-  baseUrl = process.env.REACT_APP_PORTALS_BASE_URL!
+  baseUrl = getConfig().REACT_APP_PORTALS_BASE_URL
 
   private readonly defaultGetByMarketCapArgs: FindAllMarketArgs = {
     count: 250,
@@ -111,8 +112,7 @@ export class PortalsMarketService implements MarketService {
 
           const params = {
             limit: Math.min(this.defaultGetByMarketCapArgs.count, argsToUse.count),
-            minLiquidity: '1000',
-            minApy: '1',
+            minLiquidity: '100000',
             sortBy: 'volumeUsd7d',
             networks: [network],
             // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
@@ -138,7 +138,7 @@ export class PortalsMarketService implements MarketService {
             })
 
             marketCapResult[assetId] = {
-              price: bnOrZero(token.pricePerShare).toFixed(),
+              price: bnOrZero(token.price).toFixed(),
               marketCap: '0',
               volume: '0',
               changePercent24Hr: 0,

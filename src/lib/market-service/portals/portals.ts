@@ -112,7 +112,7 @@ export class PortalsMarketService implements MarketService {
 
           const params = {
             limit: Math.min(this.defaultGetByMarketCapArgs.count, argsToUse.count),
-            minLiquidity: '100000',
+            minLiquidity: '40000',
             sortBy: 'volumeUsd7d',
             networks: [network],
             // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web

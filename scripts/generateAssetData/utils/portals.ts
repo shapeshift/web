@@ -70,8 +70,8 @@ export const fetchPortalsTokens = async (
 
     const params = {
       limit: '250',
-      // Minimum 100,000 bucks liquidity if asset is a LP token
-      minLiquidity: '100000',
+      // Minimum 40,000 bucks liquidity if asset is a LP token
+      minLiquidity: '40000',
       networks: [network],
       page: page.toString(),
     }
@@ -164,7 +164,8 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
     const name = (() => {
       // For single assets, just use the token name
       if (!isPool) return token.name
-      // For pools, create a name like "ASSET1/ASSET2 Pool"
+      // For pools, create a name in the format of "<platform> <assets> Pool"
+      // e.g "UniswapV2 ETH/FOX Pool"
       const assetSymbols =
         token.tokens?.map(underlyingToken => {
           const assetId = toAssetId({
@@ -191,7 +192,11 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
               return underlyingAsset.symbol
           }
         }) ?? []
-      return `${assetSymbols.join('/')} Pool (${platform.name})`
+
+      // Our best effort to contruct sane name using the native asset -> asset naming hack failed, but thankfully, upstream name is very close e.g
+      // for "UniswapV2 LP TRUST/WETH", we just have to append "Pool" to that and we're gucci
+      if (assetSymbols.some(symbol => !symbol)) return `${token.name} Pool`
+      return `${platform.name} ${assetSymbols.join('/')} Pool`
     })()
 
     console.log({ name, address: token.address, iconOrIcons })

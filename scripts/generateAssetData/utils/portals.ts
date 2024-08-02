@@ -1,21 +1,57 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
-import type { GetTokensResponse, TokenInfo } from 'lib/market-service/portals/types'
+import type {
+  GetPlatformsResponse,
+  GetTokensResponse,
+  PlatformsById,
+  TokenInfo,
+} from 'lib/market-service/portals/types'
 
+import generatedAssetData from '../../../src/lib/asset-service/service/generatedAssetData.json'
 import { colorMap } from '../colorMap'
 import { createThrottle } from '.'
+
+const assets = generatedAssetData as unknown as AssetsByIdPartial
+
+export const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
+  const url = 'https://api.portals.fi/v2/platforms'
+  const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
+  if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+
+  try {
+    const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
+      headers: {
+        Authorization: `Bearer ${PORTALS_API_KEY}`,
+      },
+    })
+
+    const byId = platforms.reduce<PlatformsById>((acc, platform) => {
+      acc[platform.platform] = platform
+      return acc
+    }, {})
+
+    return byId
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Failed to fetch Portals platforms: ${error.message}`)
+    }
+    console.error(`Failed to fetch Portals platforms: ${error}`)
+
+    return {}
+  }
+}
 
 export const fetchPortalsTokens = async (
   chainId: ChainId,
   page: number = 0,
   accTokens: TokenInfo[] = [],
 ): Promise<TokenInfo[]> => {
-  console.log(`Fetching page ${page} of Portals tokens for chainId: ${chainId}`)
   const url = 'https://api.portals.fi/v2/tokens'
   const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
 
@@ -78,6 +114,7 @@ export const fetchPortalsTokens = async (
 }
 
 export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
+  const portalsPlatforms = await fetchPortalsPlatforms()
   const chainId = nativeAsset.chainId
   const explorerData = {
     explorer: nativeAsset.explorer,
@@ -92,28 +129,78 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
       assetReference: token.address,
     })
+    const asset = assets[assetId]
 
-    // We may or may not want to use the protocol image at some point in the future
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_protocolImage, ...assetImages] = token.images ?? []
-
-    const hasPoolImages = assetImages.length > 1
+    const platform = portalsPlatforms[token.platform]
+    const isPool = Boolean(platform && token.tokens?.length) || undefined
 
     const iconOrIcons = (() => {
-      // No images, no icon
-      if (!assetImages?.length) return { icon: undefined }
+      // There are no underlying tokens, return asset icon
+      if (!token.tokens?.length) return { icon: asset?.icon }
 
       // This is a multiple assets pool, populate icons array
-      if (hasPoolImages) return { icons: assetImages, icon: undefined }
-      // Only a single asset icon, no need to populate the icons array
-      return { icon: assetImages[0] }
+      if (token.tokens.length > 1)
+        return {
+          icons: token.tokens
+            .map(underlyingToken => {
+              const underlyingAssetId = toAssetId({
+                chainId,
+                assetNamespace:
+                  chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                assetReference: underlyingToken,
+              })
+              const underlyingAsset = assets[underlyingAssetId]
+              return underlyingAsset?.icon
+            })
+            .filter(isSome),
+          icon: undefined,
+        }
+
+      // Only a single asset pool, no need to populate the icons array
+      return { icon: asset?.icon }
     })()
+
+    // New naming logic
+    const name = (() => {
+      // For single assets, just use the token name
+      if (!isPool) return token.name
+      // For pools, create a name like "ASSET1/ASSET2 Pool"
+      const assetSymbols =
+        token.tokens?.map(underlyingToken => {
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetReference: underlyingToken,
+          })
+          const underlyingAsset = assets[assetId]
+          if (!underlyingAsset) return undefined
+
+          // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
+          // We could potentially use related assets for this and use primary implementation, though we'd have to remove BTC from there as WBTC and BTC are very
+          // much different assets on diff networks, i.e can't deposit BTC instead of WBTC automagically like you would with ETH instead of WETH
+          switch (underlyingAsset.symbol) {
+            case 'WETH':
+              return 'ETH'
+            case 'WBNB':
+              return 'BNB'
+            case 'WMATIC':
+              return 'MATIC'
+            case 'WAVAX':
+              return 'AVAX'
+            default:
+              return underlyingAsset.symbol
+          }
+        }) ?? []
+      return `${assetSymbols.join('/')} Pool (${platform.name})`
+    })()
+
+    console.log({ name, address: token.address, iconOrIcons })
 
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
       ...iconOrIcons,
-      name: token.name,
+      name,
       precision: Number(token.decimals),
       symbol: token.symbol,
       chainId: nativeAsset.chainId,
@@ -121,7 +208,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       relatedAssetKey: undefined,
       // undefined short-circuit isn't a mistake - JSON doesn't support undefined, so this will avoid adding an additional line to the JSON
       // for non-pool assets
-      isPool: Boolean(token.metrics.apy) || undefined,
+      isPool,
     }
   })
 }

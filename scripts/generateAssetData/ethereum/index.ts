@@ -11,7 +11,6 @@ import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
 import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
-import { getUniswapV2Pools } from './uniswapV2Pools'
 // Yearn SDK is currently rugged upstream
 // import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
 
@@ -39,7 +38,6 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
-    getUniswapV2Pools(),
     getIdleTokens(),
     getPortalTokens(ethereum),
   ])

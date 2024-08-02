@@ -30,8 +30,7 @@ export const AssetMenuButton = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const icon = useMemo(() => {
-    if (asset?.icons)
-      return <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+    if (asset?.icons) return <PairIcons icons={asset.icons} iconBoxSize='24px' />
     if (assetId) return <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
     return null
   }, [asset?.icons, assetId, showNetworkIcon])

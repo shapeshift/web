@@ -1,6 +1,7 @@
 import { Box, Button, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -66,8 +67,14 @@ export const GroupedAssetRow = ({
 
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
+  const icon = useMemo(() => {
+    if (asset.icons) return <PairIcons icons={asset.icons} iconSize='sm' />
+    return <AssetIcon assetId={assetId} size='sm' />
+  }, [asset.icons, assetId])
+
   const KnownAssetRow: JSX.Element | null = useMemo(() => {
     if (!asset) return null
+
     return (
       <Button
         variant='ghost'
@@ -80,7 +87,7 @@ export const GroupedAssetRow = ({
         _focus={focus}
       >
         <Flex gap={4} alignItems='center'>
-          <AssetIcon assetId={assetId} size='sm' />
+          {icon}
           <Box textAlign='left'>
             <Text
               lineHeight='normal'
@@ -124,11 +131,11 @@ export const GroupedAssetRow = ({
     )
   }, [
     asset,
-    assetId,
     color,
     cryptoPrecisionBalance,
     handleAssetClick,
     hideAssetBalance,
+    icon,
     isConnected,
     isDemoWallet,
     isSupported,

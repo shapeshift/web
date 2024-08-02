@@ -154,7 +154,7 @@ export const cowApi: SwapperApi = {
       signingScheme: SIGNING_SCHEME,
     }
 
-    return { chainId, orderToSign, from }
+    return { chainId, orderToSign }
   },
 
   checkTradeStatus: async ({

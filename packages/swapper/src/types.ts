@@ -347,7 +347,6 @@ export type EvmTransactionRequest = {
 
 export type CowMessageToSign = {
   chainId: ChainId
-  from: string
   orderToSign: CowSwapOrder
 }
 

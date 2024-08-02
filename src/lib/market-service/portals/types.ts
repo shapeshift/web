@@ -13,6 +13,7 @@ export type TokenInfo = {
     volumeUsd1d?: string
     volumeUsd7d?: string
   }
+  tokens: string[]
 }
 
 export type GetTokensResponse = {

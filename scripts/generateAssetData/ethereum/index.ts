@@ -39,8 +39,6 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
-    // TODO(gomes): Remove me as part of https://github.com/shapeshift/web/issues/7452 - we can get this data from the Portals
-    // but will need to properly massage all Portals assets while at it
     getUniswapV2Pools(),
     getIdleTokens(),
     getPortalTokens(ethereum),

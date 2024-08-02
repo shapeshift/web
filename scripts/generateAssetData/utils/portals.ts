@@ -92,11 +92,27 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
       assetReference: token.address,
     })
+
+    // We may or may not want to use the protocol image at some point in the future
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_protocolImage, ...assetImages] = token.images ?? []
+
+    const hasPoolImages = assetImages.length > 1
+
+    const iconOrIcons = (() => {
+      // No images, no icon
+      if (!assetImages?.length) return { icon: undefined }
+
+      // This is a multiple assets pool, populate icons array
+      if (hasPoolImages) return { icons: assetImages, icon: undefined }
+      // Only a single asset icon, no need to populate the icons array
+      return { icon: assetImages[0] }
+    })()
+
     return {
       ...explorerData,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: token.images?.[0],
-      ...(token.images?.length && { icons: token.images }),
+      ...iconOrIcons,
       name: token.name,
       precision: Number(token.decimals),
       symbol: token.symbol,

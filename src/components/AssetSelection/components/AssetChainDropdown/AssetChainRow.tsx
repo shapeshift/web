@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -18,12 +18,14 @@ type AssetChainRowProps = {
   assetId: AssetId
   hideBalances?: boolean
   hideSymbol?: boolean
+  isMenuButton?: boolean
 }
 export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   mainImplementationAssetId,
   assetId,
   hideSymbol,
   hideBalances,
+  isMenuButton,
 }) => {
   const mainImplementationAsset = useAppSelector(state =>
     selectAssetById(state, mainImplementationAssetId),
@@ -46,10 +48,17 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
 
   return (
     <Flex alignItems='center' justifyContent='space-between' width='100%' height={10}>
-      <Flex alignItems='center' gap={4}>
-        <LazyLoadAvatar src={iconSrc} size='xs' />
-        {feeAsset.networkName ?? feeAsset.name}
-        {!hideSymbol && mainImplementationAsset.symbol !== asset.symbol && ` (${asset.symbol})`}
+      <Flex
+        alignItems='center'
+        gap={4}
+        overflow='hidden'
+        maxWidth={isMenuButton ? '40%' : undefined}
+      >
+        <LazyLoadAvatar src={iconSrc} size='xs' flexShrink={0} />
+        <Text overflow='hidden' textOverflow='ellipsis' whiteSpace='nowrap'>
+          {feeAsset.networkName ?? feeAsset.name}
+          {!hideSymbol && mainImplementationAsset.symbol !== asset.symbol && ` (${asset.symbol})`}
+        </Text>
       </Flex>
       {!hideAssetBalance && (
         <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' paddingLeft={12}>

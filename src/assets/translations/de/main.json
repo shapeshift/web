@@ -2528,7 +2528,6 @@
     "totalStaked": "Staking Summe an FOX",
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
     "emissionsPool": "Emissionspool (diese Epoche)",
-    "emissionsPoolHelper": "Emissionspool (diese Epoche)",
-    "foxBurnAmount": "Verbrannte FOX Menge"
+    "emissionsPoolHelper": "Emissionspool (diese Epoche)"
   }
 }

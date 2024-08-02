@@ -2528,7 +2528,6 @@
     "totalStaked": "Всего FOX Застейкано",
     "totalFeesCollected": "Общая сумма собранных комиссий (в эту эпоху)",
     "emissionsPool": "Пул эмиссии (данная эпоха)",
-    "emissionsPoolHelper": "Пул эмиссии (данная эпоха)",
-    "foxBurnAmount": "Сумма Сожженных FOX "
+    "emissionsPoolHelper": "Пул эмиссии (данная эпоха)"
   }
 }

@@ -2528,7 +2528,6 @@
     "totalStaked": "Total FOX Staking",
     "totalFeesCollected": "Tarifas totales cobradas (esta época)",
     "emissionsPool": "Fondo de Emisiones (esta época)",
-    "emissionsPoolHelper": "Fondo de Emisiones (esta época)",
-    "foxBurnAmount": "Cantidad de FOX quemados"
+    "emissionsPoolHelper": "Fondo de Emisiones (esta época)"
   }
 }

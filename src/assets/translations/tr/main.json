@@ -2528,7 +2528,6 @@
     "totalStaked": "Toplam Stake Edilmiş FOX ",
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
     "emissionsPool": "Emisyon Havuzu (Bu Dönem)",
-    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)",
-    "foxBurnAmount": "FOX Yakma Miktarı"
+    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)"
   }
 }

@@ -2528,7 +2528,6 @@
     "totalStaked": "ステークしたFOXの総額",
     "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
     "emissionsPool": "発行プール（このエポック中で）",
-    "emissionsPoolHelper": "発行プール（このエポック中で）",
-    "foxBurnAmount": "FOX のバーン量"
+    "emissionsPoolHelper": "発行プール（このエポック中で）"
   }
 }

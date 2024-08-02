@@ -2473,7 +2473,6 @@
     "totalStaked": "FOX 总质押量",
     "totalFeesCollected": "收取的费用总额（本期）",
     "emissionsPool": "排放池（本期）",
-    "emissionsPoolHelper": "排放池（本期）",
-    "foxBurnAmount": "FOX 销毁数量"
+    "emissionsPoolHelper": "排放池（本期）"
   }
 }

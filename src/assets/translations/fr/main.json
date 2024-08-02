@@ -2528,7 +2528,6 @@
     "totalStaked": "Total de FOX misés",
     "totalFeesCollected": "Total des frais collectés (cette époque)",
     "emissionsPool": "Pool d’émissions (cette époque)",
-    "emissionsPoolHelper": "Pool d’émissions (cette époque)",
-    "foxBurnAmount": "Montant de FOX brulés"
+    "emissionsPoolHelper": "Pool d’émissions (cette époque)"
   }
 }

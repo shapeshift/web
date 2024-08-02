@@ -1,3 +1,4 @@
+// Non-exhaustive - https://api.portals.fi/docs#/Supported/SupportedController_getSupportedTokensV2 for full docs
 export type TokenInfo = {
   key: string
   name: string
@@ -5,7 +6,13 @@ export type TokenInfo = {
   symbol: string
   address: string
   images: string[] | undefined
+  price: string | undefined
   pricePerShare: string | undefined
+  metrics: {
+    apy?: string
+    volumeUsd1d?: string
+    volumeUsd7d?: string
+  }
 }
 
 export type GetTokensResponse = {

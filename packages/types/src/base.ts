@@ -58,6 +58,7 @@ export type Asset = {
   explorerTxLink: string
   explorerAddressLink: string
   relatedAssetKey: AssetId | null | undefined
+  isPool?: boolean
 }
 
 export type AssetsById = Record<AssetId, Asset>

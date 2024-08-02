@@ -1,5 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import {
+  ethAssetId,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  thorchainAssetId,
+} from '@shapeshiftoss/caip'
 import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
@@ -139,7 +144,11 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
 }
 
 export const isRunePoolOpportunity = (
-  opportunity: any,
+  opportunity: Record<string, unknown> | undefined,
 ): opportunity is RunepoolUserStakingOpportunity => {
-  return opportunity.provider === DefiProvider.ThorchainSavers && opportunity.maturity
+  return Boolean(
+    opportunity &&
+      opportunity.provider === DefiProvider.ThorchainSavers &&
+      opportunity.id === thorchainAssetId,
+  )
 }

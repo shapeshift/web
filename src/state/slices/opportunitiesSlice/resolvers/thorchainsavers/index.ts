@@ -10,7 +10,7 @@ import {
   RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS,
   thorchainBlockTimeMs,
 } from 'lib/utils/thorchain/constants'
-import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
+import type { ThorchainBlock } from 'lib/utils/thorchain/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'

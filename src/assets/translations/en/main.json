@@ -406,7 +406,7 @@
         "disabledDepositTitle": "Deposits are temporarily disabled.",
         "haltedWithdrawTitle": "Withdraws are temporarily halted.",
         "disabledWithdrawTitle": "Withdraws are temporarily disabled.",
-        "disabledRunepoolWithdraw": "You have to wait %{days} days to withdraw.",
+        "runePoolWithdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "protocolFee": "Protocol Fee",
         "fee": "Fee",

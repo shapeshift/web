@@ -12,6 +12,7 @@ import {
   ethChainId,
   fromAccountId,
   ltcChainId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -44,6 +45,7 @@ export const opportunities = createQueryKeys('opportunities', {
               case avalancheChainId:
               case arbitrumChainId:
               case ethChainId:
+              case thorchainChainId:
                 await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)

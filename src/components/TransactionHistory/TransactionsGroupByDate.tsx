@@ -65,12 +65,11 @@ const TransactionsGroupByDateLoaded = memo(
           <RawText px={4} fontSize='md' fontWeight='medium'>
             {group.date}
           </RawText>
-          {group.txIds?.map((txId: TxId, index: number) => (
+          {group.txIds?.map((txId: TxId) => (
             <TransactionRow
               key={txId}
               txId={txId}
               useCompactMode={useCompactMode}
-              showDateAndGuide={index === 0}
               parentWidth={entry?.contentRect.width ?? 360}
             />
           ))}

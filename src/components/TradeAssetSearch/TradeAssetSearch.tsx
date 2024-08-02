@@ -18,9 +18,9 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
-import { CustomAssetAcknowledgement } from './hooks/CustomAssetAcknowledgement'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
 const buttonProps = {

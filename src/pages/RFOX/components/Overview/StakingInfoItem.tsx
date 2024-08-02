@@ -57,7 +57,7 @@ export const StakingInfoItem = ({
   }, [helperTranslation])
 
   const maybeCryptoAmount = useMemo(() => {
-    if (!(asset && amountCryptoBaseUnit)) return null
+    if (!asset) return null
 
     return (
       <Amount.Crypto

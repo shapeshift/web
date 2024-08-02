@@ -11587,7 +11587,6 @@ __metadata:
     html5-qrcode: ^2.3.8
     http-proxy-middleware: ^2.0.6
     https-browserify: ^1.0.0
-    identicon.js: ^2.3.3
     inquirer: 8.2.4
     js-file-download: ^0.4.12
     js-pixel-fonts: ^1.6.0
@@ -25646,13 +25645,6 @@ __metadata:
   version: 6.1.5
   resolution: "idb@npm:6.1.5"
   checksum: 45d81be3bf5d5ae6d009d62b4a7eeb873fe2a9972d235aaa5c33cd3e27947b33a01fd3fb7bbdbe795cd608d2279c55ccd2db3f8b3f486bc74bdb5eab1c1be957
-  languageName: node
-  linkType: hard
-
-"identicon.js@npm:^2.3.3":
-  version: 2.3.3
-  resolution: "identicon.js@npm:2.3.3"
-  checksum: 659318e1631c42d7a5c44d5834b90c09356f68c1d06f85e527b2b433c8c6f8adf0f1b32971f3e5014c796bcf25a1a4cf0ca04165712cd776abf8f4159d6dd003
   languageName: node
   linkType: hard
 

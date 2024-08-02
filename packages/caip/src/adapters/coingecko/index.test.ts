@@ -7,6 +7,7 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ethChainId,
+  foxOnArbitrumOneAssetId,
 } from '../../constants'
 import {
   assetIdToCoingecko,
@@ -103,6 +104,7 @@ describe('adapters:coingecko', () => {
         foxOnOptimism,
         foxOnPolygon,
         foxOnGnosis,
+        foxOnArbitrumOneAssetId,
       ])
     })
 

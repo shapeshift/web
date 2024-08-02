@@ -1,34 +1,33 @@
 import { bscChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { partition } from 'lodash'
 import uniqBy from 'lodash/uniqBy'
 
 import { bnbsmartchain } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
-// import { getPortalTokens } from '../utils/portals'
+import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(bscChainId),
-    // TODO(gomes): revert me back, there are 10k+ assets for BSC = problems
-    [], // getPortalTokens(bnbsmartchain),
+    getPortalTokens(bnbsmartchain),
   ])
 
-  const [assets, portalsAssets] = results.map(result => {
+  const [assets, _portalsAssets] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
   })
 
-  const allAssets = uniqBy(assets.concat(portalsAssets).concat([bnbsmartchain]), 'assetId')
+  // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
+  // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
+  // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
+  const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
-  return allAssets.map(asset => ({
-    ...asset,
-    icon:
-      asset.icon ||
-      getRenderedIdenticonBase64(asset.assetId, asset.symbol, {
-        identiconImage: { size: 128, background: [45, 55, 72, 255] },
-        identiconText: { symbolScale: 7, enableShadow: true },
-      }),
-  }))
+  const allAssets = uniqBy(
+    portalsPools.concat(assets).concat(portalsAssets).concat([bnbsmartchain]),
+    'assetId',
+  )
+
+  return allAssets
 }

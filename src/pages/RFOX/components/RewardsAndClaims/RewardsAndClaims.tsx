@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 import { Claims } from './Claims'
 import { Rewards } from './Rewards'
@@ -57,19 +56,15 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
     [setStepIndex],
   )
 
-  const isRfoxRewardsTxHistoryEnabled = useFeatureFlag('RfoxRewardsTxHistory')
-
   return (
     <Flex gap={4}>
-      {isRfoxRewardsTxHistoryEnabled && (
-        <RewardsAndClaimsTab
-          index={RewardsAndClaimsTabIndex.Rewards}
-          onClick={handleClick}
-          isActive={activeIndex === RewardsAndClaimsTabIndex.Rewards}
-        >
-          {translate('RFOX.rewards')}
-        </RewardsAndClaimsTab>
-      )}
+      <RewardsAndClaimsTab
+        index={RewardsAndClaimsTabIndex.Rewards}
+        onClick={handleClick}
+        isActive={activeIndex === RewardsAndClaimsTabIndex.Rewards}
+      >
+        {translate('RFOX.rewards')}
+      </RewardsAndClaimsTab>
       <RewardsAndClaimsTab
         index={RewardsAndClaimsTabIndex.Claims}
         onClick={handleClick}
@@ -90,12 +85,7 @@ export const RewardsAndClaims: React.FC<RewardsAndClaimsProps> = ({
   stakingAssetId,
   stakingAssetAccountId,
 }) => {
-  const isRfoxRewardsTxHistoryEnabled = useFeatureFlag('RfoxRewardsTxHistory')
-  const [stepIndex, setStepIndex] = useState(
-    isRfoxRewardsTxHistoryEnabled
-      ? RewardsAndClaimsTabIndex.Rewards
-      : RewardsAndClaimsTabIndex.Claims,
-  )
+  const [stepIndex, setStepIndex] = useState(RewardsAndClaimsTabIndex.Rewards)
 
   const TabHeader = useMemo(
     () => <RewardsAndClaimsHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,

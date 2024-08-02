@@ -30,11 +30,10 @@ export const AssetMenuButton = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const icon = useMemo(() => {
-    return asset?.icons ? (
-      <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
-    ) : (
-      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
-    )
+    if (asset?.icons)
+      return <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+    if (assetId) return <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
+    return null
   }, [asset?.icons, assetId, showNetworkIcon])
 
   const handleAssetClick = useCallback(() => {

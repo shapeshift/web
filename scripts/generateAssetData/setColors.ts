@@ -16,6 +16,7 @@ export const setColors = async (assets: Asset[]): Promise<Asset[]> => {
         asset.color = hexColor
       }
     } catch (err) {
+      console.error(err)
       console.info(
         `${index + 1}/${filteredAssets.length} Could not get color for ${asset.assetId} iconUrl: ${
           asset.icon

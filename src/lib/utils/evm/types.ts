@@ -5,9 +5,9 @@ type ApproveInput = {
   assetId: AssetId
   spender: string
   amountCryptoBaseUnit: string
-  from: string
   accountNumber: number
 }
+
 export type MaybeApproveInput = Partial<ApproveInput>
 
 export type ApproveInputWithWallet = ApproveInput & { wallet: HDWallet }

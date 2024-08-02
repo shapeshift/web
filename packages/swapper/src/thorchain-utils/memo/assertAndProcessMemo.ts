@@ -214,6 +214,9 @@ export const assertAndProcessMemo = (memo: string): string => {
 
       return `${_action}:${asset}:${destAddr}:${minOut ?? ''}:${THORCHAIN_AFFILIATE_NAME}:0`
     }
+    case 'pool+': {
+      return memo
+    }
     default:
       throw new Error(`unsupported memo: ${memo}`)
   }

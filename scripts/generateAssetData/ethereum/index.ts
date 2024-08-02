@@ -3,14 +3,13 @@ import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
+import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
-import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-// import { getPortalTokens } from '../utils/portals'
+import { getPortalTokens } from '../utils/portals'
 import { getIdleTokens } from './idleVaults'
 import { getUniswapV2Pools } from './uniswapV2Pools'
 // Yearn SDK is currently rugged upstream
@@ -40,26 +39,33 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
+    // TODO(gomes): Remove me as part of https://github.com/shapeshift/web/issues/7452 - we can get this data from the Portals
+    // but will need to properly massage all Portals assets while at it
     getUniswapV2Pools(),
     getIdleTokens(),
-    // TODO(gomes): revert me back, there are 10k+ assets for Ethereum = problems
-    [], // getPortalTokens(ethereum),
+    getPortalTokens(ethereum),
   ])
 
-  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+  const [ethTokens, uniV2PoolTokens, idleTokens, _portalsAssets] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
   })
 
+  // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
+  // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
+  // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
+  const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
+
   const ethAssets = [
+    ...uniV2PoolTokens,
     ...idleTokens,
     foxyToken,
+    ...portalsPools,
     ...ethTokens,
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
-    ...uniV2PoolTokens,
     ...portalsAssets,
   ]
 
@@ -77,24 +83,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     const newModifiedTokens = result.map((res, idx) => {
       const key = i * batchSize + idx
       if (res.status === 'rejected') {
-        if (!uniqueAssets[key].icon) {
-          const options: IdenticonOptions = {
-            identiconImage: {
-              size: 128,
-              background: [45, 55, 72, 255],
-            },
-            identiconText: {
-              symbolScale: 7,
-              enableShadow: true,
-            },
-          }
-          uniqueAssets[key].icon = getRenderedIdenticonBase64(
-            uniqueAssets[key].assetId,
-            uniqueAssets[key].symbol.substring(0, 3),
-            options,
-          )
-        }
-        return uniqueAssets[key] // token without modified icon
+        return uniqueAssets[key]
       } else {
         const { icon } = generateTrustWalletUrl(uniqueAssets[key].assetId)
         return { ...uniqueAssets[key], icon }

@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -67,6 +67,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   })
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+
+  const isRunePool = assetId === thorchainAssetId
 
   // user info
   const loading = useSelector(selectPortfolioLoading)
@@ -212,7 +214,9 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     <DepositContext.Provider value={value}>
       <DefiModalContent>
         <DefiModalHeader
-          title={translate('modals.deposit.depositInto', { opportunity: `${asset.symbol} Vault` })}
+          title={translate('modals.deposit.depositInto', {
+            opportunity: isRunePool ? 'RUNEPool' : `${asset.symbol} Vault`,
+          })}
           onBack={handleBack}
         />
         <Steps steps={StepConfig} />

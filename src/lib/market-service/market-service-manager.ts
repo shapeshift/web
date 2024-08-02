@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import type {
+  AssetsByIdPartial,
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
@@ -10,11 +11,13 @@ import type {
 import type { ethers } from 'ethers'
 import { AssetService } from 'lib/asset-service'
 
+import generatedAssetData from '../asset-service/service/generatedAssetData.json'
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
+import { PortalsMarketService } from './portals/portals'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
@@ -48,6 +51,7 @@ export class MarketServiceManager {
       // More reliable providers should be listed first.
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
+      new PortalsMarketService(),
       // Yearn is currently borked upstream
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
@@ -76,6 +80,8 @@ export class MarketServiceManager {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs) {
+    const assets = generatedAssetData as unknown as AssetsByIdPartial
+
     if (isNft(assetId)) {
       return {
         price: '0',
@@ -86,8 +92,21 @@ export class MarketServiceManager {
     }
 
     const result = await (async () => {
+      const portalsProvider = this.marketProviders.find(
+        provider => provider instanceof PortalsMarketService,
+      )
+
+      const asset = assets[assetId]
+
+      // Portals is prioritized when finding by AssetId, as it has more reliable data for LP tokens
+      const prioritizedProviders = asset?.isPool
+        ? [
+            ...(portalsProvider ? [portalsProvider] : []),
+            ...this.marketProviders.filter(provider => !(provider instanceof PortalsMarketService)),
+          ]
+        : this.marketProviders
       // Loop through market providers and look for asset market data. Once found, exit loop.
-      for (const provider of this.marketProviders) {
+      for (const provider of prioritizedProviders) {
         try {
           const data = await provider.findByAssetId({ assetId })
           if (data) return data

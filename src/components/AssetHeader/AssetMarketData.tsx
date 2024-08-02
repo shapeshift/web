@@ -128,11 +128,7 @@ export const AssetMarketData: React.FC<AssetMarketDataProps> = ({ assetId }) => 
                 <Text translation='assets.assetDetails.assetHeader.availableSupply' />
               </StatLabel>
               <StatValue isLoaded={isLoaded}>
-                <Amount
-                  value={Math.round(Number(marketData?.supply ?? 0))}
-                  abbreviated
-                  omitDecimalTrailingZeros
-                />
+                <Amount value={marketData?.supply} abbreviated omitDecimalTrailingZeros />
               </StatValue>
             </StatRow>
           )}

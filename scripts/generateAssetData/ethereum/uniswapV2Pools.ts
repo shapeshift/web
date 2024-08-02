@@ -1,6 +1,6 @@
 import { type AssetId, ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip/src/assetId/assetId'
-import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, AssetsById, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -46,7 +46,7 @@ const headers = {
   authorization,
 }
 
-const assets = generatedAssetData as Record<AssetId, Asset>
+const assets = generatedAssetData as unknown as AssetsById
 
 export const getUniswapV2Pools = async () => {
   const evmNetworks = [chainIdToZapperNetwork(ethChainId)]
@@ -106,6 +106,7 @@ export const getUniswapV2Pools = async () => {
         precision: Number(appTokenData.decimals),
         icons,
         icon: 'https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
+        isPool: true,
       })
     })
     .filter(Boolean) as Asset[]

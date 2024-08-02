@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -90,12 +90,15 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const isRunePool = assetId === thorchainAssetId
+
   const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
     asset,
     amountCryptoBaseUnit: BigNumber.max(
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
       toBaseUnit(1, asset?.precision ?? 0),
     ),
+    enabled: !isRunePool,
   })
 
   const isHardCapReached = useMemo(
@@ -324,11 +327,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           </HelperTooltip>
           <Flex gap={1}>
             <Amount.Fiat value={opportunityMetadata?.tvl ?? 0} />
-            <Amount.Fiat
-              value={opportunityMetadata?.saversMaxSupplyFiat ?? 0}
-              prefix='/'
-              color='text.subtle'
-            />
+            {opportunityMetadata?.saversMaxSupplyFiat !== undefined ? (
+              <Amount.Fiat
+                value={opportunityMetadata.saversMaxSupplyFiat ?? 0}
+                prefix='/'
+                color='text.subtle'
+              />
+            ) : null}
           </Flex>
         </Flex>
         {isHardCapReached || bnOrZero(currentCapFillPercentage).eq(100) ? (
@@ -373,13 +378,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const description = useMemo(
     () => ({
-      description: translate('defi.modals.saversVaults.description', {
-        asset: underlyingAsset?.symbol ?? '',
-      }),
+      description: translate(
+        isRunePool
+          ? 'defi.modals.saversVaults.runePoolOverviewDescription'
+          : 'defi.modals.saversVaults.description',
+        {
+          asset: underlyingAsset?.symbol ?? '',
+        },
+      ),
       isLoaded: !!underlyingAsset?.symbol,
       isTrustedDescription: true,
     }),
-    [translate, underlyingAsset?.symbol],
+    [translate, underlyingAsset?.symbol, isRunePool],
   )
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])

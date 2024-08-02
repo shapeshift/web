@@ -29,7 +29,7 @@ export type ChainMenuProps<T extends ChainId | 'All'> = {
   onMenuOptionClick: (chainId: T) => void
 }
 
-export const ChainIcon = (props: { chainId: ChainId } & AvatarProps) => {
+export const ChainIcon = (props: { chainId: ChainId } & Omit<AvatarProps, 'src' | 'icon'>) => {
   const { chainId, avatarProps } = useMemo(() => {
     const { chainId, ...avatarProps } = props
     return { chainId, avatarProps }
@@ -42,6 +42,8 @@ export const ChainIcon = (props: { chainId: ChainId } & AvatarProps) => {
     const feeAssetId = adapter?.getFeeAssetId()
     return feeAssetId
   }, [chainId])
+
+  if (!feeAssetId) return null
 
   return <AssetIcon showNetworkIcon assetId={feeAssetId} {...avatarProps} />
 }

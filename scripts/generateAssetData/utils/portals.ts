@@ -20,6 +20,7 @@ import { createThrottle } from '.'
 const assets = generatedAssetData as unknown as AssetsByIdPartial
 
 const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
+if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
 
 const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
   const url = 'https://api.portals.fi/v2/platforms'
@@ -112,8 +113,6 @@ const fetchPortalsTokens = async (
 }
 
 export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
-  if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
-
   const portalsPlatforms = await fetchPortalsPlatforms()
   const chainId = nativeAsset.chainId
   const explorerData = {

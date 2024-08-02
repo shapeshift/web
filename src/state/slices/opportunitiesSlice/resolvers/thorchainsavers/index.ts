@@ -6,6 +6,11 @@ import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import {
+  RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS,
+  thorchainBlockTimeMs,
+} from 'lib/utils/thorchain/constants'
+import type { ThorchainBlock } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -250,12 +255,28 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       const rewardsAmountsCryptoBaseUnit: [string] = [
         stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
       ]
+      let maturity: number | undefined = undefined
+
+      if (stakingOpportunityId === thorchainAssetId && accountPosition.last_add_height) {
+        const blockParams = new URLSearchParams({
+          height: accountPosition.last_add_height?.toString(),
+        })
+
+        const { data: blockDetails } = await axios.get<ThorchainBlock>(
+          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/block?${blockParams}`,
+        )
+
+        maturity =
+          new Date(blockDetails.header.time).getTime() +
+          thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
+      }
 
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         isLoaded: true,
         userStakingId,
         stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
         rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
+        maturity,
       }
     }
 

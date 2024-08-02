@@ -13,7 +13,7 @@ import {
 } from 'contracts/constants'
 import { getTypeGuardAssertion } from 'lib/utils'
 
-import type { DefiProviderMetadata, LpId, StakingId } from './types'
+import type { DefiProviderMetadata, LpId, RunepoolUserStakingOpportunity, StakingId } from './types'
 import { DefiProvider } from './types'
 
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
@@ -136,4 +136,10 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },
+}
+
+export const isRunePoolOpportunity = (
+  opportunity: any,
+): opportunity is RunepoolUserStakingOpportunity => {
+  return opportunity.provider === DefiProvider.ThorchainSavers && opportunity.maturity
 }

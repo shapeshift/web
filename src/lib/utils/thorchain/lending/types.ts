@@ -133,6 +133,7 @@ export const isLendingQuoteClose = (
 export type ThorchainBlock = {
   header: {
     height: number
+    time: string
   }
 }
 

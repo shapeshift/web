@@ -39,6 +39,7 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
+import { isRunePoolOpportunity } from 'state/slices/opportunitiesSlice/constants'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
@@ -241,6 +242,29 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       .length,
   )
 
+  const isOpportunityMature = useMemo(() => {
+    if (!isRunePool) return true
+    if (!isRunePoolOpportunity(earnOpportunityData)) return false
+    if (!earnOpportunityData?.maturity) return false
+
+    const maturityDate = new Date(earnOpportunityData.maturity)
+    const currentDate = new Date()
+
+    return currentDate >= maturityDate
+  }, [earnOpportunityData, isRunePool])
+
+  const runepoolDaysLeftBeforeWithdrawal = useMemo(() => {
+    if (!isRunePoolOpportunity(earnOpportunityData)) return 0
+    if (!earnOpportunityData?.maturity) return 0
+
+    const maturityDate = new Date(earnOpportunityData.maturity)
+    const currentDate = new Date()
+
+    const diffTime = maturityDate.getTime() - currentDate.getTime()
+
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  }, [earnOpportunityData])
+
   const makeDefaultMenu = useCallback(
     ({
       isFull,
@@ -249,6 +273,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits,
       isDisabledDeposits,
       isDisabledWithdrawals,
+      isOpportunityMature,
+      runepoolDaysLeftBeforeWithdrawal,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
@@ -256,6 +282,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits?: boolean
       isDisabledDeposits?: boolean
       isDisabledWithdrawals?: boolean
+      isOpportunityMature?: boolean
+      runepoolDaysLeftBeforeWithdrawal?: number
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -284,8 +312,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
         label: 'common.withdraw',
         icon: <ArrowDownIcon />,
         action: DefiAction.Withdraw,
-        isDisabled: hasPendingTxs || hasPendingQueries || isDisabledWithdrawals,
+        isDisabled:
+          hasPendingTxs || hasPendingQueries || isDisabledWithdrawals || !isOpportunityMature,
         toolTip: (() => {
+          if (!isOpportunityMature)
+            return translate('defi.modals.saversVaults.disabledRunepoolWithdraw', {
+              days: runepoolDaysLeftBeforeWithdrawal,
+            })
           if (isDisabledWithdrawals)
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')
           if (hasPendingTxs || hasPendingQueries)
@@ -305,6 +338,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits: isTradingActive === false,
       isDisabledDeposits: isThorchainSaversDepositEnabled === false,
       isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
+      isOpportunityMature,
+      runepoolDaysLeftBeforeWithdrawal,
     })
   }, [
     earnOpportunityData,
@@ -316,6 +351,8 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     isTradingActive,
     isThorchainSaversDepositEnabled,
     isThorchainSaversWithdrawalsEnabled,
+    isOpportunityMature,
+    runepoolDaysLeftBeforeWithdrawal,
   ])
 
   const renderVaultCap = useMemo(() => {

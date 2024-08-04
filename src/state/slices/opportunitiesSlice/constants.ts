@@ -1,10 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  ethAssetId,
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
@@ -18,7 +13,7 @@ import {
 } from 'contracts/constants'
 import { getTypeGuardAssertion } from 'lib/utils'
 
-import type { DefiProviderMetadata, LpId, RunepoolUserStakingOpportunity, StakingId } from './types'
+import type { DefiProviderMetadata, LpId, StakingId } from './types'
 import { DefiProvider } from './types'
 
 // UniswapV2Router02 https://docs.uniswap.org/protocol/V2/reference/smart-contracts/router-02
@@ -141,14 +136,4 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     color: '#0CDBE0',
     url: 'https://app.shapeshift.com',
   },
-}
-
-export const isRunePoolUserStakingOpportunity = (
-  opportunity: Record<string, unknown> | undefined,
-): opportunity is RunepoolUserStakingOpportunity => {
-  return Boolean(
-    opportunity &&
-      opportunity.provider === DefiProvider.ThorchainSavers &&
-      opportunity.id === thorchainAssetId,
-  )
 }

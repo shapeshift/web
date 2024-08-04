@@ -40,12 +40,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from 'lib/utils/time'
-import { isRunePoolUserStakingOpportunity } from 'state/slices/opportunitiesSlice/constants'
 import type { ThorchainSaversStakingSpecificMetadata } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
+  isRunePoolUserStakingOpportunity,
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   toOpportunityId,
@@ -272,6 +272,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isDisabledDeposits,
       isDisabledWithdrawals,
       isRunepoolWithdrawUnlocked,
+      isRunePool,
       runepoolSecondsLeftBeforeWithdrawal,
     }: {
       isFull?: boolean
@@ -281,6 +282,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isDisabledDeposits?: boolean
       isDisabledWithdrawals?: boolean
       isRunepoolWithdrawUnlocked?: boolean
+      isRunePool?: boolean
       runepoolSecondsLeftBeforeWithdrawal?: number
     } = {}): DefiButtonProps[] => [
       ...(isFull
@@ -314,9 +316,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           hasPendingTxs ||
           hasPendingQueries ||
           isDisabledWithdrawals ||
-          !isRunepoolWithdrawUnlocked,
+          (isRunePool && !isRunepoolWithdrawUnlocked),
         toolTip: (() => {
-          if (!isRunepoolWithdrawUnlocked && runepoolSecondsLeftBeforeWithdrawal)
+          if (isRunePool && !isRunepoolWithdrawUnlocked && runepoolSecondsLeftBeforeWithdrawal)
             return translate('defi.modals.saversVaults.runePoolWithdrawLockedTitle', {
               timeHuman: formatSecondsToDuration(runepoolSecondsLeftBeforeWithdrawal),
             })
@@ -341,6 +343,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
       isRunepoolWithdrawUnlocked,
       runepoolSecondsLeftBeforeWithdrawal,
+      isRunePool,
     })
   }, [
     earnOpportunityData,
@@ -354,6 +357,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     isThorchainSaversWithdrawalsEnabled,
     isRunepoolWithdrawUnlocked,
     runepoolSecondsLeftBeforeWithdrawal,
+    isRunePool,
   ])
 
   const renderVaultCap = useMemo(() => {

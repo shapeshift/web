@@ -1,5 +1,7 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/src/swappers/ThorchainSwapper/types'
+import { toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
@@ -11,6 +13,7 @@ import {
   thorchainBlockTimeMs,
 } from 'lib/utils/thorchain/constants'
 import type { ThorchainBlock } from 'lib/utils/thorchain/types'
+import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -85,6 +88,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
+  const assets: AssetsState = state.assets
 
   const { SaversVaults } = selectFeatureFlags(state)
 
@@ -176,19 +180,32 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
         `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
       )
 
+    const { data: poolsResponse } = await axios.get<ThornodePoolResponse[]>(
+      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
+    )
+
+    const poolsByAsset = poolsResponse.reduce<Record<string, ThornodePoolResponse>>(
+      (acc, pool) => ({ ...acc, [pool.asset]: pool }),
+      {},
+    )
+
     const underlyingAssetIds = reservePositions.pools.map(pool =>
       poolAssetIdToAssetId(pool.pool),
     ) as unknown as AssetIdsTuple
 
-    const totalRuneAdded = reservePositions.pools.reduce(
-      (sum, pool) => sum.plus(bnOrZero(pool.runeAdded)),
-      bnOrZero(0),
-    )
+    const underlyingAssetRatiosBaseUnit = reservePositions.pools.map((pool, i) => {
+      const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].balance_asset)
+      const runeAmount = share.times(
+        bnOrZero(poolsByAsset[pool.pool].balance_rune).times(underlyingAssetIds.length),
+      )
+      const assetAmount = share.times(poolsByAsset[pool.pool].balance_asset)
+      console.log({ runeAmount, assetAmount })
 
-    const underlyingAssetRatiosBaseUnit = reservePositions.pools.map(pool => {
-      const poolRatio = bnOrZero(pool.runeAdded).dividedBy(totalRuneAdded)
-      return poolRatio.toFixed(18) // Use 18 decimal places for precision
+      const poolRatio = bnOrZero(assetAmount).div(runeAmount)
+
+      return toBaseUnit(poolRatio, assets.byId[underlyingAssetIds[i]]?.precision ?? 0)
     })
+    console.log(underlyingAssetRatiosBaseUnit)
 
     const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 

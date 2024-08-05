@@ -27,6 +27,7 @@ export const sansNotchBottom =
 type AssetIconProps = {
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
+  pairProps?: { showFirst?: boolean }
 } & (
   | {
       assetId: AssetId
@@ -109,7 +110,14 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
 }
 
 export const AssetIcon = memo(
-  ({ assetId: _assetId, asset: _asset, showNetworkIcon, src, ...rest }: AssetIconProps) => {
+  ({
+    assetId: _assetId,
+    asset: _asset,
+    showNetworkIcon,
+    src,
+    pairProps,
+    ...rest
+  }: AssetIconProps) => {
     const asset = useAppSelector(state =>
       _asset ? _asset : selectAssetById(state, _assetId ?? ''),
     )
@@ -133,7 +141,13 @@ export const AssetIcon = memo(
 
     if (asset.icons?.length) {
       return (
-        <PairIcons icons={asset.icons} iconSize={rest.size} iconBoxSize={rest.boxSize} {...rest} />
+        <PairIcons
+          icons={asset.icons}
+          iconSize={rest.size}
+          iconBoxSize={rest.boxSize}
+          {...rest}
+          {...pairProps}
+        />
       )
     }
 

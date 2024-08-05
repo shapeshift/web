@@ -255,15 +255,13 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       const rewardsAmountsCryptoBaseUnit: [string] = [
         stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
       ]
-      let maturity: number | undefined = undefined
 
       if (stakingOpportunityId === thorchainAssetId && accountPosition.last_add_height) {
       }
 
       const maybeMaturity = await (async () => {
         if (stakingOpportunityId !== thorchainAssetId) return {}
-        // note undefined over missing property here, i.e this is a runepool position and explicitly undefined
-        if (!accountPosition.last_add_height) return
+        if (!accountPosition.last_add_height) return { maturity: undefined }
 
         const blockParams = new URLSearchParams({
           height: accountPosition.last_add_height?.toString(),
@@ -273,7 +271,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
           `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/block?${blockParams}`,
         )
 
-        maturity =
+        const maturity =
           new Date(blockDetails.header.time).getTime() +
           thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
 

@@ -217,6 +217,14 @@ export const assertAndProcessMemo = (memo: string): string => {
     case 'pool+': {
       return memo
     }
+    case 'pool-': {
+      // RUNEPOOL:BASISPOINTS
+      const [_action, basisPoints] = memo.split(':')
+
+      assertIsValidBasisPoints(basisPoints, memo)
+
+      return `${_action}:${basisPoints}:${THORCHAIN_AFFILIATE_NAME}:0`
+    }
     default:
       throw new Error(`unsupported memo: ${memo}`)
   }

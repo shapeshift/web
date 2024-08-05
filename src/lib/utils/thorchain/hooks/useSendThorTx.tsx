@@ -47,7 +47,9 @@ type Action =
   | 'openLoan'
   | 'repayLoan'
   | 'depositSavers'
+  | 'depositRunepool'
   | 'withdrawSavers'
+  | 'withdrawRunepool'
 
 type UseSendThorTxProps = {
   accountId: AccountId | null
@@ -269,7 +271,11 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
 
-    if (!shouldUseDustAmount && !bn(amountOrDustCryptoBaseUnit).gt(0))
+    if (
+      action !== 'withdrawRunepool' &&
+      !shouldUseDustAmount &&
+      !bn(amountOrDustCryptoBaseUnit).gt(0)
+    )
       throw new Error('invalid amount specified')
 
     const { account } = fromAccountId(accountId)
@@ -418,6 +424,7 @@ export const useSendThorTx = ({
     transactionType,
     translate,
     wallet,
+    action,
   ])
 
   return {

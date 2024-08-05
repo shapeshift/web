@@ -1,52 +1,14 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  ASSET_NAMESPACE,
-  avalancheChainId,
-  baseChainId,
-  bscChainId,
-  ethChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
+import type { GetTokensResponse, TokenInfo } from 'lib/market-service/portals/types'
 
 import { colorMap } from '../colorMap'
 import { createThrottle } from '.'
-
-// Non-exhaustive - https://api.portals.fi/docs#/Supported/SupportedController_getSupportedTokensV2 for full docs
-type TokenInfo = {
-  key: string
-  name: string
-  decimals: number
-  symbol: string
-  address: string
-  images: string[] | undefined
-}
-
-type GetTokensResponse = {
-  totalItems: number
-  pageItems: number
-  more: boolean
-  page: number
-  tokens: TokenInfo[]
-}
-
-const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
-  [avalancheChainId]: 'avalanche',
-  [ethChainId]: 'ethereum',
-  [polygonChainId]: 'polygon',
-  [bscChainId]: 'bsc',
-  [optimismChainId]: 'optimism',
-  [arbitrumChainId]: 'arbitrum',
-  [gnosisChainId]: 'gnosis',
-  [baseChainId]: 'base',
-}
 
 export const fetchPortalsTokens = async (
   chainId: ChainId,
@@ -72,10 +34,8 @@ export const fetchPortalsTokens = async (
 
     const params = {
       limit: '250',
-      // Minimum 1000 bucks liquidity if asset is a LP token
-      minLiquidity: '1000',
-      // Minimum 1% APY if asset is a LP token
-      minApy: '1',
+      // Minimum 100,000 bucks liquidity if asset is a LP token
+      minLiquidity: '100000',
       networks: [network],
       page: page.toString(),
     }
@@ -143,6 +103,9 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       chainId: nativeAsset.chainId,
       assetId,
       relatedAssetKey: undefined,
+      // undefined short-circuit isn't a mistake - JSON doesn't support undefined, so this will avoid adding an additional line to the JSON
+      // for non-pool assets
+      isPool: Boolean(token.metrics.apy) || undefined,
     }
   })
 }

@@ -11,7 +11,7 @@ export const withdrawEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Withdraw'
 
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'QmbBqNuQKe1FnHEHga7BnSWSSSR5qXTNHBfUe7yX2mD3FN'
+export const CURRENT_EPOCH_IPFS_HASH = 'QmPY36xH6HnNTUEGwogsCJoxQLmDFKZZ662DYDEcqpJDSo'
 
 const client = viemClientByNetworkId[arbitrum.id]
 

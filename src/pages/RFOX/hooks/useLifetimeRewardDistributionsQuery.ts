@@ -31,11 +31,15 @@ export const useLifetimeRewardDistributionsQuery = ({
         .flatMap(epoch =>
           stakingAssetAccountAddresses.map(stakingAssetAccountAddress => {
             const stakingAddress = getAddress(stakingAssetAccountAddress)
+            const distribution = epoch.distributionsByStakingAddress[stakingAddress]
+
+            if (!distribution) return null
+
             return {
               epoch: epoch.number,
               stakingAddress,
               ipfsHash: epoch.ipfsHash,
-              ...epoch.distributionsByStakingAddress[stakingAddress],
+              ...distribution,
             }
           }),
         )

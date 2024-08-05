@@ -74,7 +74,6 @@ export const useRfoxBridgeApproval = ({
     ...reactQueries.mutations.approve({
       assetId: confirmedQuote.sellAssetId,
       spender: allowanceContract!, // see handleApprove below
-      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       amountCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       accountNumber: sellAssetAccountNumber,

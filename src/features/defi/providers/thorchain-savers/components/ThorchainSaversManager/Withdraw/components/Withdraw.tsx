@@ -1,7 +1,8 @@
 import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import { Err, Ok, type Result } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
 import type { WithdrawValues } from 'features/defi/components/Withdraw/Withdraw'
@@ -79,6 +80,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const assets = useAppSelector(selectAssets)
   const assetId = toAssetId({ chainId, assetNamespace, assetReference })
+
+  const isRunePool = assetId === thorchainAssetId
 
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const opportunityId = useMemo(
@@ -180,8 +183,29 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       asset,
       accountId,
       amountCryptoBaseUnit: toBaseUnit(cryptoAmount, asset.precision),
-      enabled: hasEnoughStakingBalance,
+      enabled: hasEnoughStakingBalance && !isRunePool,
     })
+
+  const memo = useMemo(() => {
+    if (thorchainSaversWithdrawQuote?.memo) return thorchainSaversWithdrawQuote.memo
+    if (!hasEnoughStakingBalance) return null
+
+    if (isRunePool) {
+      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const percent = bnOrZero(cryptoAmount).div(balanceCryptoPrecision).times(100).toFixed(0)
+      const basisPoints = convertPercentageToBasisPoints(percent)
+
+      return `pool-:${basisPoints}`
+    }
+
+    return null
+  }, [
+    isRunePool,
+    thorchainSaversWithdrawQuote,
+    amountAvailableCryptoPrecision,
+    cryptoAmount,
+    hasEnoughStakingBalance,
+  ])
 
   const {
     estimatedFeesData,
@@ -191,11 +215,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   } = useSendThorTx({
     assetId,
     accountId: accountId ?? '',
-    // withdraw savers will use dust amount
+    // withdraw savers will use dust amount and runepool will use the memo
     amountCryptoBaseUnit: null,
-    memo: thorchainSaversWithdrawQuote?.memo ?? null,
+    memo,
     fromAddress: fromAddress ?? null,
-    action: 'withdrawSavers',
+    action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
   })
 
   const isSweepNeededArgs = useMemo(
@@ -339,22 +363,26 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           { asset, accountId, amountCryptoBaseUnit },
         ]
 
-        const maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string> =
-          await queryClient
-            .fetchQuery({
-              queryKey: thorchainSaversWithdrawQuoteQueryKey,
-              queryFn: () =>
-                fetchThorchainWithdrawQuote({ asset, accountId, amountCryptoBaseUnit }),
-              staleTime: 5000,
-            })
-            // Re-wrapping into a Result<T, E> since react-query expects promises to reject and doesn't speak monads
-            .then(res => Ok(res))
-            .catch((err: Error) => Err(err.message))
+        let slippage_bps = await (async () => {
+          // @TODO: verify if runepool doesn't occur any slippage
+          if (isRunePool) return 0
 
-        const quote = maybeQuote.unwrap()
-        const {
-          fees: { slippage_bps },
-        } = quote
+          const maybeQuote: Result<ThorchainSaversWithdrawQuoteResponseSuccess, string> =
+            await queryClient
+              .fetchQuery({
+                queryKey: thorchainSaversWithdrawQuoteQueryKey,
+                queryFn: () =>
+                  fetchThorchainWithdrawQuote({ asset, accountId, amountCryptoBaseUnit }),
+                staleTime: 5000,
+              })
+              // Re-wrapping into a Result<T, E> since react-query expects promises to reject and doesn't speak monads
+              .then(res => Ok(res))
+              .catch((err: Error) => Err(err.message))
+
+          const quote = maybeQuote.unwrap()
+
+          return quote.fees.slippage_bps
+        })()
 
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
@@ -426,6 +454,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       queryClient,
       safeOutboundFeeInAssetCryptoBaseUnit,
       translate,
+      isRunePool,
     ],
   )
 
@@ -575,14 +604,16 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         enableSlippage={false}
         handlePercentClick={handlePercentClick}
       >
-        <Row>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!quoteLoading}>
-              <Amount.Crypto value={slippageCryptoAmountPrecision} symbol={asset.symbol} />
-            </Skeleton>
-          </Row.Value>
-        </Row>
+        {!isRunePool ? (
+          <Row>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!quoteLoading}>
+                <Amount.Crypto value={slippageCryptoAmountPrecision} symbol={asset.symbol} />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
         {bnOrZero(missingFunds).gt(0) && (
           <Alert status='error' borderRadius='lg'>
             <AlertIcon />

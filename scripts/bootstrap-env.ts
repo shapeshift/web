@@ -23,7 +23,6 @@ const VALID_BRANCHES = [
   'juice',
   'wood',
   'gome',
-  'cafe',
   'arkeo',
   'neo',
 ] as const
@@ -41,7 +40,6 @@ const BRANCH_TO_ENVIRONMENT: Record<Branch, Environment> = {
   juice: 'develop',
   wood: 'develop',
   gome: 'develop',
-  cafe: 'develop',
   neo: 'develop',
   arkeo: 'develop',
   yeet: 'develop', // free for all

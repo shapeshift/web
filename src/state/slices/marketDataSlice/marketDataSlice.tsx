@@ -18,7 +18,6 @@ import type {
   MarketDataState,
 } from 'state/slices/marketDataSlice/types'
 
-import { foxEthLpAssetId } from '../opportunitiesSlice/constants'
 import type { MarketDataById } from './types'
 
 export const initialState: MarketDataState = {
@@ -43,14 +42,6 @@ export const initialState: MarketDataState = {
     },
   },
   isMarketDataLoaded: false,
-}
-
-const shouldIgnoreAsset = (assetId: AssetId | string): boolean => {
-  // TODO: remove this once single and multi sided delegation abstraction is implemented
-  // since foxEthLpAsset market data is monkey-patched, requesting its price history
-  // will return an empty array which overrides the patch.
-  const ignoreAssetIds: AssetId[] = [foxEthLpAssetId]
-  return ignoreAssetIds.includes(assetId)
 }
 
 export const defaultMarketData: MarketData = {
@@ -203,7 +194,6 @@ export const marketApi = createApi({
 
         const responseData: { assetId: AssetId; historyData: HistoryData[] }[] = await Promise.all(
           assetIds.map(async assetId => {
-            if (shouldIgnoreAsset(assetId)) return { assetId, historyData: [] }
             try {
               const historyData = await getMarketServiceManager().findPriceHistoryByAssetId({
                 timeframe,

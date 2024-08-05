@@ -1,5 +1,6 @@
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -31,30 +32,27 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   const { walletInfo } = state
   const localWallet = useLocalWallet()
   const history = useHistory()
-  const [wallets, setWallets] = useState<RevocableWallet[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (!wallets.length) {
-      setIsLoading(true) // Set loading state to true when fetching wallets
-      ;(async () => {
-        try {
-          const vaults = await listWallets()
-          if (!vaults.length) {
-            setError('walletProvider.shapeShift.load.error.noWallet')
-          } else {
-            setWallets(vaults)
-          }
-        } catch (e) {
-          console.log(e)
-          setError('An error occurred while fetching wallets.')
-        } finally {
-          setIsLoading(false) // Set loading state to false when fetching is done
+  const { isLoading, data: wallets } = useQuery({
+    queryKey: ['listWallets'],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    queryFn: async () => {
+      try {
+        const vaults = await listWallets()
+        if (!vaults.length) {
+          setError('walletProvider.shapeShift.load.error.noWallet')
+        } else {
+          return vaults
         }
-      })()
-    }
-  }, [wallets])
+      } catch (e) {
+        console.log(e)
+        setError('An error occurred while fetching wallets.')
+      }
+    },
+  })
 
   const handleWalletSelect = useCallback(
     async (item: RevocableWallet) => {
@@ -128,7 +126,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     }
     return (
       <Stack>
-        {wallets.map(wallet => (
+        {wallets?.map(wallet => (
           <WalletCard
             id={wallet.id}
             key={wallet.id}

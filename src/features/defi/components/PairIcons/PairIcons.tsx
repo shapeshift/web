@@ -4,6 +4,26 @@ import { useMemo } from 'react'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
 
+const getRandomPosition = (length: number) => {
+  const angle = Math.random() * 2 * Math.PI
+
+  // Define the center and radius in percentages
+  const centerX = 50 // 50% to center horizontally
+  const centerY = 50 // 50% to center vertically
+
+  // Randomize the distance from the center
+  const maxRadius = 50 // Maximum distance from the center in percentage
+  const distance = Math.random() * maxRadius
+
+  // Calculate the position in percentages
+  const left = centerX + distance * Math.cos(angle)
+  const top = centerY + distance * Math.sin(angle)
+
+  // Generate a random zIndex value
+  const zIndex = Math.floor(Math.random() * length)
+  return { left, top, zIndex }
+}
+
 export const PairIcons = ({
   icons,
   iconSize,
@@ -25,21 +45,27 @@ export const PairIcons = ({
           position='relative'
           overflow='hidden'
           borderRadius='full'
+          bg='background.surface.base'
           height='var(--avatar-size)'
           ml={showFirst ? '-2.5' : 0}
         >
-          {iconsMinusFirst.map((iconSrc, index) => (
-            <Avatar
-              key={iconSrc}
-              src={iconSrc}
-              position='absolute'
-              left={index * -3}
-              top={index * -3}
-              filter='blur(10px)'
-              size={iconSize}
-              boxSize={iconBoxSize}
-            />
-          ))}
+          {iconsMinusFirst.map(iconSrc => {
+            const { left, top, zIndex } = getRandomPosition(iconsMinusFirst.length)
+            return (
+              <Avatar
+                key={iconSrc}
+                src={iconSrc}
+                position='absolute'
+                left={`${left}%`}
+                top={`${top}%`}
+                size={iconSize}
+                filter='blur(10px)'
+                boxSize={iconBoxSize}
+                transform='translate(-50%, -50%)'
+                zIndex={zIndex}
+              />
+            )
+          })}
           <Avatar
             bg='whiteAlpha.100'
             borderRadius='none'
@@ -49,6 +75,7 @@ export const PairIcons = ({
             size={iconSize}
             sx={assetIconSx}
             boxSize={iconBoxSize}
+            zIndex={iconsMinusFirst.length}
           />
         </Center>
       )

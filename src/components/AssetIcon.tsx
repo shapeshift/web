@@ -145,8 +145,8 @@ export const AssetIcon = memo(
           icons={asset.icons}
           iconSize={rest.size}
           iconBoxSize={rest.boxSize}
-          {...rest}
           {...pairProps}
+          {...rest}
         />
       )
     }

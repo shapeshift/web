@@ -6,6 +6,7 @@ export type TokenInfo = {
   symbol: string
   address: string
   images: string[] | undefined
+  image: string | undefined
   price: string | undefined
   pricePerShare: string | undefined
   platform: string

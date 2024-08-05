@@ -139,36 +139,41 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
       const platform = portalsPlatforms[token.platform]
       const isPool = Boolean(platform && token.tokens?.length) || undefined
 
+      const images = token.images ?? []
+      const [, ...underlyingAssetsImages] = images
       const iconOrIcons = (() => {
-        // There are no underlying tokens, return asset icon
-        // Note, images are effectively off-by-1 in the API, the first image is the platform image
-        if (!token.tokens?.length)
-          return { icon: asset?.icon || maybeTokenImage(token.images?.[1]) }
+        // There are no underlying tokens' images, return asset icon if it exists
+        if (!underlyingAssetsImages?.length) return { icon: asset?.icon }
 
+        if (underlyingAssetsImages.length === 1) {
+          // We already have that asset in store, no-op
+          if (asset) return { icon: undefined }
+          return { icon: maybeTokenImage(token.image) }
+        }
         // This is a multiple assets pool, populate icons array
-        if (token.tokens.length > 1)
+        if (underlyingAssetsImages.length > 1)
           return {
-            icons: token.tokens.map((underlyingToken, i) => {
+            icons: underlyingAssetsImages.map((underlyingAssetsImage, i) => {
+              // No token at that index, but this isn't reliable as we've found out, it may be missing in tokens but present in images
+              // However, this has to be an early return and we can't use our own flavour of that asset... because we have no idea which asset it is.
+              if (!token.tokens[i]) return maybeTokenImage(underlyingAssetsImage)
+
               const underlyingAssetId = toAssetId({
                 chainId,
                 assetNamespace:
                   chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-                assetReference: underlyingToken,
+                assetReference: token.tokens[i],
               })
               const underlyingAsset = assets[underlyingAssetId]
-              return underlyingAsset?.icon || maybeTokenImage(token.images?.[i + 1])
+              // Prioritise our own flavour of icons for that asset if available, else use upstream if present
+              return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
             }),
             icon: undefined,
           }
-
-        // There *should* be only a single asset in pool, though that's not necessarily the case
-        // e.g `0xdf666a5370fb4b21672f9145b29a56d589cc91fd` has token.length === 1, but actually has two underlying tokens
-        // Assume the above is an edge case and return the icon if present in generatedAssetData.json, else assume sad and return the protocol icon
-        return { icon: asset?.icon || maybeTokenImage(token.images?.[0]) }
       })()
 
       // No icons in assets, nor upstream
-      if (!iconOrIcons.icon && !iconOrIcons.icons?.some(isSome)) return undefined
+      if (!iconOrIcons?.icon && !iconOrIcons?.icons?.some(isSome)) return undefined
 
       // New naming logic
       const name = (() => {

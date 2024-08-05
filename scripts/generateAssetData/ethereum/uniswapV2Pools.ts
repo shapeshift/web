@@ -106,6 +106,7 @@ export const getUniswapV2Pools = async () => {
         precision: Number(appTokenData.decimals),
         icons,
         icon: 'https://raw.githubusercontent.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png',
+        isPool: true,
       })
     })
     .filter(Boolean) as Asset[]

@@ -428,7 +428,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           asset: underlyingAsset?.symbol ?? '',
         },
       ),
-      isLoaded: !!underlyingAsset?.symbol,
+      isLoaded: isRunePool || !!underlyingAsset?.symbol,
       isTrustedDescription: true,
     }),
     [translate, underlyingAsset?.symbol, isRunePool],

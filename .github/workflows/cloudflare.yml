@@ -15,7 +15,7 @@ jobs:
     # syntax is if condition && true || false
     # i.e. if it's a pull request, use the head ref, otherwise use the ref name
     # so ultimately we only run this workflow against the whitelisted branches
-    if: contains(fromJSON('["develop", "release", "yeet", "main", "private", "beard", "juice", "wood", "gome", "cafe", "neo", "arkeo"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
+    if: contains(fromJSON('["develop", "release", "yeet", "main", "private", "beard", "juice", "wood", "gome", "neo", "neo", "arkeo"]'), github.event_name == 'pull_request' && github.head_ref || github.ref_name)
     runs-on: size-bertha
     name: Build
     steps:

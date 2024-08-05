@@ -1,5 +1,6 @@
 import { Button, Heading, Stack } from '@chakra-ui/react'
 import React, { useCallback } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { MobileWalletDialogRoutes } from 'components/MobileWalletDialog/types'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
@@ -17,6 +18,7 @@ type BackupProps = {
 }
 
 export const Backup: React.FC<BackupProps> = ({ onBack }) => {
+  const translate = useTranslate()
   const history = useHistory()
   const backupModal = useModal('backupNativePassphrase')
 
@@ -38,19 +40,19 @@ export const Backup: React.FC<BackupProps> = ({ onBack }) => {
       <DialogBody pb={8}>
         <Stack>
           <Heading size='md' textAlign='center' maxWidth='250px' mx='auto'>
-            Backup wallet
+            {translate('modals.shapeShift.backupPassphrase.confirm.title')}
           </Heading>
           <RawText textAlign='center' maxWidth='300px' mx='auto' mb={6} color='text.subtle'>
-            Before you forget your wallet, would you like to back up your secret recovery phrase?
+            {translate('modals.shapeShift.backupPassphrase.confirm.body')}
           </RawText>
         </Stack>
       </DialogBody>
       <DialogFooter flexDir='column' gap={2}>
         <Button colorScheme='blue' size='lg' width='full' onClick={handleBackup}>
-          Backup Now
+          {translate('modals.shapeShift.backupPassphrase.confirm.backupNow')}
         </Button>
         <Button colorScheme='gray' size='lg' width='full' onClick={handleContinue}>
-          No Thanks
+          {translate('common.noThanks')}
         </Button>
       </DialogFooter>
     </SlideTransition>

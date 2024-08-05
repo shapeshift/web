@@ -9,10 +9,12 @@
     "and": "and",
     "balance": "Balance",
     "next": "Next",
+    "edit": "Edit",
     "error": "Error",
     "show": "Show",
     "account": "Account",
     "address": "Address",
+    "noThanks": "No Thanks",
     "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
@@ -1073,6 +1075,11 @@
         "menuItem": "Back up my wallet",
         "enterPassword": "Enter your password to continue",
         "testTitle": "Verify Your Secret Recovery Phrase",
+        "confirm": {
+          "title": "Backup wallet",
+          "body": "Before you forget your wallet, would you like to back up your secret recovery phrase?",
+          "backupNow": "Backup Now"
+        },
         "info": {
           "title": "Your Secret Recovery Phrase",
           "description": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",

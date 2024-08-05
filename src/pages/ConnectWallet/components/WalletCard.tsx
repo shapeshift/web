@@ -1,6 +1,7 @@
 import { CheckCircleIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
 import { Avatar, Button, Flex, IconButton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { makeBlockiesUrl } from 'lib/blockies/makeBlockiesUrl'
 
@@ -27,6 +28,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   onRename,
   onDelete,
 }) => {
+  const translate = useTranslate()
   const profileImage = useMemo(() => {
     if (!id) return ''
     return makeBlockiesUrl(`${id}ifyoudriveatruckdriveitlikeyouhaveafarm`)
@@ -49,14 +51,14 @@ export const WalletCard: React.FC<WalletCardProps> = ({
         <Flex ml='auto'>
           <IconButton
             as='a'
-            aria-label='Rename'
+            aria-label={translate('common.rename')}
             variant='ghost'
             icon={editIcon}
             onClick={handleRename}
           />
           <IconButton
             as='a'
-            aria-label='Delete'
+            aria-label={translate('common.forget')}
             variant='ghost'
             icon={deleteIcon}
             isDisabled={isActive}
@@ -68,7 +70,7 @@ export const WalletCard: React.FC<WalletCardProps> = ({
     if (isActive) {
       return activeIcon
     }
-  }, [handleDelete, handleRename, isActive, isEditing])
+  }, [handleDelete, handleRename, isActive, isEditing, translate])
   return (
     <Button onClick={handleClick} height='auto' p={4} leftIcon={avatar} justifyContent='flex-start'>
       {wallet.label}

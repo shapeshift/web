@@ -96,7 +96,7 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         </DialogHeaderMiddle>
         <DialogHeaderRight>
           <Button variant='unstyled' color='text.link' onClick={handleEditToggle}>
-            {isEditing ? 'Done' : 'Edit'}
+            {isEditing ? translate('common.done') : translate('common.edit')}
           </Button>
         </DialogHeaderRight>
       </DialogHeader>

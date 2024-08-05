@@ -20,10 +20,12 @@ import { createThrottle } from '.'
 const assets = generatedAssetData as unknown as AssetsByIdPartial
 
 const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
+const PORTALS_BASE_URL = process.env.REACT_APP_PORTALS_BASE_URL
 if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
+if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
 
 const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
-  const url = 'https://api.portals.fi/v2/platforms'
+  const url = `${PORTALS_BASE_URL}/v2/platforms`
 
   try {
     const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
@@ -53,7 +55,7 @@ const fetchPortalsTokens = async (
   page: number = 0,
   accTokens: TokenInfo[] = [],
 ): Promise<TokenInfo[]> => {
-  const url = 'https://api.portals.fi/v2/tokens'
+  const url = `${PORTALS_BASE_URL}/v2/tokens`
 
   const { throttle, clear } = createThrottle({
     capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650

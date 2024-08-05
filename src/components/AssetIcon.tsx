@@ -1,8 +1,9 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Center, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Avatar, Center, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { memo, useMemo } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
@@ -132,11 +133,7 @@ export const AssetIcon = memo(
 
     if (asset.icons?.length) {
       return (
-        <Flex flexDirection='row' alignItems='center'>
-          {asset.icons.map((iconSrc, i) => (
-            <Avatar key={i} src={iconSrc} ml={i === 0 ? '0' : '-2.5'} icon={foxIcon} {...rest} />
-          ))}
-        </Flex>
+        <PairIcons icons={asset.icons} iconSize={rest.size} iconBoxSize={rest.boxSize} {...rest} />
       )
     }
 

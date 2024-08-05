@@ -1,7 +1,6 @@
-import type { FlexProps, ThemingProps } from '@chakra-ui/react'
+import type { AvatarProps, FlexProps } from '@chakra-ui/react'
 import { Avatar, Center, Flex } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { AssetIcon } from 'components/AssetIcon'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
 
@@ -9,18 +8,26 @@ export const PairIcons = ({
   icons,
   iconSize,
   iconBoxSize,
+  showFirst,
   ...styleProps
 }: {
   icons: string[]
-  iconBoxSize?: string
-  iconSize?: ThemingProps<'Avatar'>['size']
+  iconBoxSize?: AvatarProps['boxSize']
+  iconSize?: AvatarProps['size']
+  showFirst?: boolean
 } & FlexProps): JSX.Element => {
   const firstIcon = icons[0]
   const remainingIcons = useMemo(() => {
-    const iconsMinusFirst = icons.slice(1)
+    const iconsMinusFirst = icons.slice(showFirst ? 1 : 0)
     if (iconsMinusFirst.length > 1) {
       return (
-        <Center position='relative' overflow='hidden' borderRadius='full' ml='-2.5'>
+        <Center
+          position='relative'
+          overflow='hidden'
+          borderRadius='full'
+          height='var(--avatar-size)'
+          ml={showFirst ? '-2.5' : 0}
+        >
           {iconsMinusFirst.map((iconSrc, index) => (
             <Avatar
               key={iconSrc}
@@ -29,6 +36,8 @@ export const PairIcons = ({
               left={index * -3}
               top={index * -3}
               filter='blur(10px)'
+              size={iconSize}
+              boxSize={iconBoxSize}
             />
           ))}
           <Avatar
@@ -36,21 +45,28 @@ export const PairIcons = ({
             borderRadius='none'
             color='text.base'
             textShadow='sm'
-            name={`+ ${iconsMinusFirst.length}`}
-            boxSize={iconBoxSize}
+            name={`${showFirst ? '+ ' : ''}${iconsMinusFirst.length}`}
             size={iconSize}
             sx={assetIconSx}
+            boxSize={iconBoxSize}
           />
         </Center>
       )
     }
     return iconsMinusFirst.map(iconSrc => (
-      <AssetIcon ml='-2.5' key={iconSrc} src={iconSrc} boxSize={iconBoxSize} size={iconSize} />
+      <Avatar
+        ml={showFirst ? '-2.5' : 0}
+        key={iconSrc}
+        src={iconSrc}
+        size={iconSize}
+        boxSize={iconBoxSize}
+      />
     ))
-  }, [iconBoxSize, iconSize, icons])
+  }, [iconBoxSize, iconSize, icons, showFirst])
   return (
     <Flex flexDirection='row' alignItems='center' {...styleProps}>
-      <AssetIcon src={firstIcon} boxSize={iconBoxSize} size={iconSize} />
+      {showFirst && <Avatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
+
       {remainingIcons}
     </Flex>
   )

@@ -68,7 +68,7 @@ export const GroupedAssetRow = ({
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
   const icon = useMemo(() => {
-    if (asset?.icons) return <PairIcons icons={asset.icons} iconSize='sm' />
+    if (asset?.icons) return <PairIcons icons={asset.icons} iconSize='sm' showFirst />
     return <AssetIcon assetId={assetId} size='sm' />
   }, [asset.icons, assetId])
 

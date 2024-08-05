@@ -689,7 +689,9 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
                 .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
                 .toFixed(),
               icons: [underlyingAssetsIcons[i]],
-              allocationPercentage: bn('1').div(original.length).toString(),
+              allocationPercentage:
+                userStakingOpportunity.underlyingAssetRatios?.[i] ??
+                bn('1').div(original.length).toString(),
             }
           : undefined
       })

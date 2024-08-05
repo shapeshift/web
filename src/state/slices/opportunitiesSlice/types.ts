@@ -67,6 +67,8 @@ export type OpportunityMetadataBase = {
   underlyingAssetIds: AssetIdsTuple
   // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly string[]
+  // The underlying balancing ratios of every asset
+  underlyingAssetRatios?: readonly string[]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple

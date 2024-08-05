@@ -1,5 +1,5 @@
 import type { Infer } from 'myzod'
-import { array, boolean, number, object, string } from 'myzod'
+import { array, boolean, keySignature, number, object, string, unknown } from 'myzod'
 
 const MethodABI = object({
   name: string(),
@@ -54,6 +54,8 @@ const Params = object({
   delegationSpace: string().optional(),
   contracts: array(string()).optional(),
   multiplier: number().optional(),
+  // pass through unknown keys
+  [keySignature]: unknown(),
 })
 
 const SpaceStrategy = object({

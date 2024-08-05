@@ -79,6 +79,7 @@ const RewardsTransactions = memo(
         <>
           {txIds?.map(txId => (
             <RewardTransaction
+              key={txId}
               txId={txId}
               useCompactMode={useCompactMode}
               entry={entry}

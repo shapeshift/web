@@ -106,29 +106,27 @@ export const useTxDetails = (txId: string): TxDetails => {
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId))
   const assets = useAppSelector(selectAssets)
 
-  const transfers = useMemo(() => {
-    if (!tx) return []
-    return getTransfers(tx, assets)
-  }, [tx, assets])
+  // This should never happen, but if it does we should not continue
+  if (!tx) throw Error('Transaction not found')
+
+  const transfers = useMemo(() => getTransfers(tx, assets), [tx, assets])
 
   const fee = useMemo(() => {
     if (!tx?.fee) return
+
     return {
       ...tx.fee,
       asset: assets[tx.fee.assetId] ?? defaultAsset,
     }
   }, [tx?.fee, assets])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx?.chainId ?? ''))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, tx.chainId))
 
   const txLink = getTxLink({
-    name: tx?.trade?.dexName,
+    name: tx.trade?.dexName,
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
-    txId,
+    txId: tx.txid,
   })
-
-  // This should never happen, but if it does we should not continue
-  if (!tx) throw Error('Transaction not found')
 
   return {
     tx,

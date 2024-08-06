@@ -97,6 +97,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         size: 'sm',
         borderRadius: 'full',
         rightIcon,
+        maxWidth: '50%',
         _disabled: disabledStyle,
       },
       buttonProps,
@@ -112,7 +113,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         isLoading={isLoading}
         isDisabled={Boolean(isReadOnly)}
       />
-      <Text translation='trade.on' color='text.subtle' fontSize='sm' />
+      <Text flex='0 1 auto' translation='trade.on' color='text.subtle' fontSize='sm' />
       <AssetChainDropdown
         assetId={assetId}
         assetIds={assetIds}

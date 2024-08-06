@@ -60,6 +60,8 @@ const buildRowTitle = (asset: Asset, postFix?: string, showAssetSymbol?: boolean
   return asset.name
 }
 
+const pairProps = { showFirst: true }
+
 export const AssetCell = ({
   assetId,
   subText,
@@ -99,9 +101,9 @@ export const AssetCell = ({
       <HStack flex={1}>
         <SkeletonCircle isLoaded={!!asset} mr={2} width='auto' height='auto'>
           {icons && icons.length > 1 ? (
-            <PairIcons icons={icons} iconSize='sm' bg='none' />
+            <PairIcons icons={icons} iconSize='sm' bg='none' {...pairProps} />
           ) : (
-            <AssetIcon assetId={asset.assetId} size='md' />
+            <AssetIcon assetId={asset.assetId} size='md' pairProps={pairProps} />
           )}
         </SkeletonCircle>
         <SkeletonText noOfLines={2} isLoaded={!!asset} flex={1}>

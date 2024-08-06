@@ -36,6 +36,9 @@ export const Balance: React.FC<AssetBalanceProps> = ({
       prefix={label}
       value={cryptoBalance}
       textAlign={textAlign}
+      overflow='hidden'
+      textOverflow='ellipsis'
+      maxWidth='240px'
     />
   )
 }

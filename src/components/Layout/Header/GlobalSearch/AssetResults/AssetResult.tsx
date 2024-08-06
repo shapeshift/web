@@ -17,6 +17,8 @@ import { useAppSelector } from 'state/store'
 
 import { ResultButton } from '../ResultButton'
 
+const pairProps = { showFirst: true }
+
 type AssetResultProps = {
   assetId: AssetId
   index: number
@@ -46,7 +48,7 @@ export const AssetResult = forwardRef<AssetResultProps, 'div'>(
         onClick={handleSearchResultAssetTypeClick}
       >
         <Flex gap={2} flex={1}>
-          <AssetIcon assetId={asset.assetId} size='sm' />
+          <AssetIcon assetId={asset.assetId} size='sm' pairProps={pairProps} />
           <Flex flexDir='column' alignItems='flex-start' textAlign='left'>
             <RawText
               color='chakra-body-text'

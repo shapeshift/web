@@ -48,14 +48,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   if (!feeAsset || !asset || !mainImplementationAsset) return null
 
   return (
-    <Flex
-      alignItems='center'
-      justifyContent='space-between'
-      maxWidth='210px'
-      width='100%'
-      height={10}
-      {...flexProps}
-    >
+    <Flex alignItems='center' justifyContent='space-between' height={10} {...flexProps}>
       <Flex width={hideAssetBalance ? '100%' : 'inherit'} alignItems='center' gap={4}>
         <LazyLoadAvatar src={iconSrc} size='xs' />
         <Text as='span' textOverflow='ellipsis' overflow='hidden'>

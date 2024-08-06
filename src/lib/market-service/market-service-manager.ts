@@ -58,7 +58,6 @@ export class MarketServiceManager {
       // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls, provider }),
       new ZerionMarketService(),
-      // TODO: Zerion market provider
       // TODO: Debank market provider
     ]
 

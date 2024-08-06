@@ -41,8 +41,13 @@ export class ZerionMarketService implements MarketService {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
-    const zerionMarketData = await this.getZerionTokenMarketData(assetId)
-    if (!zerionMarketData) return null
-    return zerionMarketDataToMarketData(zerionMarketData)
+    try {
+      const zerionMarketData = await this.getZerionTokenMarketData(assetId)
+      if (!zerionMarketData) return null
+      return zerionMarketDataToMarketData(zerionMarketData)
+    } catch (e) {
+      console.error(`MarketService(findByAssetId): error fetching market data: ${e}`)
+      return null
+    }
   }
 }

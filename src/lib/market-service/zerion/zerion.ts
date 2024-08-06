@@ -27,17 +27,17 @@ export class ZerionMarketService implements MarketService {
     return res.data.attributes.market_data
   }
 
-  async findAll(_args?: FindAllMarketArgs): Promise<MarketCapResult> {
+  findAll(_args?: FindAllMarketArgs): Promise<MarketCapResult> {
     // TODO - unimplemented
-    return await Promise.resolve({})
+    throw new Error('Zerion findAll unimplemented')
   }
 
-  async findPriceHistoryByAssetId({
+  findPriceHistoryByAssetId({
     assetId: _assetId,
     timeframe: _timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
     // TODO - unimplemented
-    return await Promise.resolve([])
+    throw new Error('Zerion findPriceHistoryByAssetId unimplemented')
   }
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {

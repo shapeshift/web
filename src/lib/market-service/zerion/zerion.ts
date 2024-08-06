@@ -28,7 +28,7 @@ export class ZerionMarketService implements MarketService {
   }
 
   async findAll(_args?: FindAllMarketArgs): Promise<MarketCapResult> {
-    // TODO
+    // TODO - unimplemented
     return await Promise.resolve({})
   }
 
@@ -36,7 +36,7 @@ export class ZerionMarketService implements MarketService {
     assetId: _assetId,
     timeframe: _timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    // TODO
+    // TODO - unimplemented
     return await Promise.resolve([])
   }
 

@@ -1,20 +1,11 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
-import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -55,18 +46,11 @@ import { WithLazyMount } from './WithLazyMount'
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
   isLoading: boolean
-  initialSellAssetAccountId: AccountId | undefined
   receiveAddress: string | undefined
 }
 
-export const ConfirmSummary = ({
-  isCompact,
-  isLoading: isParentLoading,
-  initialSellAssetAccountId,
-  receiveAddress,
-}: ConfirmSummaryProps) => {
+export const ConfirmSummary = ({ isCompact, isLoading, receiveAddress }: ConfirmSummaryProps) => {
   const history = useHistory()
-  const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
     state: { isConnected, isDemoWallet, wallet },
@@ -100,49 +84,10 @@ export const ConfirmSummary = ({
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
-  const userAddress = useMemo(() => {
-    if (!initialSellAssetAccountId) return ''
-
-    return fromAccountId(initialSellAssetAccountId).account
-  }, [initialSellAssetAccountId])
-
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, sellAsset.chainId)
-
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
-
-  const disableSmartContractSwap = useMemo(() => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (activeSwapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress) return true
-    if (
-      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
-        tradeQuoteStep?.source!,
-      ) &&
-      _isSmartContractReceiveAddress
-    )
-      return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [
-    _isSmartContractReceiveAddress,
-    _isSmartContractSellAddress,
-    activeSwapperName,
-    tradeQuoteStep?.source,
-  ])
-
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
-
-  const isLoading = useMemo(() => {
-    return isParentLoading || isSellAddressByteCodeLoading || isReceiveAddressByteCodeLoading
-  }, [isParentLoading, isReceiveAddressByteCodeLoading, isSellAddressByteCodeLoading])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -154,8 +99,6 @@ export const ConfirmSummary = ({
       manualReceiveAddressIsValid === false ||
       // don't execute trades while in loading state
       isLoading ||
-      // don't execute trades for smart contract addresses where they aren't supported
-      disableSmartContractSwap ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -170,7 +113,6 @@ export const ConfirmSummary = ({
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    disableSmartContractSwap,
     activeSwapperName,
     activeQuote,
     hasUserEnteredAmount,
@@ -229,12 +171,6 @@ export const ConfirmSummary = ({
         ]
     }, [activeQuote, buyAssetFeeAsset])
 
-  const shouldForceManualAddressEntry = useMemo(() => {
-    if (_isSmartContractSellAddress === undefined) return
-
-    return _isSmartContractSellAddress && sellAsset.chainId !== buyAsset.chainId
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
-
   return (
     <>
       <CardFooter
@@ -287,23 +223,8 @@ export const ConfirmSummary = ({
             <Text translation={nativeAssetBridgeWarning} />
           </Alert>
         )}
-        <WithLazyMount
-          shouldUse={Boolean(receiveAddress) && shouldForceManualAddressEntry === false}
-          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
-          component={RecipientAddress}
-        />
-        <WithLazyMount
-          shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry === true}
-          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
-          component={ManualAddressEntry}
-          description={
-            shouldForceManualAddressEntry
-              ? translate('trade.smartContractReceiveAddressDescription', {
-                  chainName: buyAssetFeeAsset?.networkName,
-                })
-              : undefined
-          }
-        />
+        <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
+        <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
 
         <Button
           type='submit'

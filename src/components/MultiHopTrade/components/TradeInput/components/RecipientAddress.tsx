@@ -33,13 +33,7 @@ const editIcon = <EditIcon />
 const checkIcon = <CheckIcon />
 const closeIcon = <CloseIcon />
 
-type RecipientAddressProps = {
-  shouldForceManualAddressEntry?: boolean
-}
-
-export const RecipientAddress: React.FC<RecipientAddressProps> = ({
-  shouldForceManualAddressEntry,
-}) => {
+export const RecipientAddress: React.FC = () => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -154,7 +148,7 @@ export const RecipientAddress: React.FC<RecipientAddressProps> = ({
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  if (!receiveAddress || shouldForceManualAddressEntry) return null
+  if (!receiveAddress) return null
 
   return isRecipientAddressEditing ? (
     <form>

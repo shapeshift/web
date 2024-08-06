@@ -43,7 +43,7 @@ export const GroupedAssetRow = ({
   const {
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const asset: Asset | undefined = assets[index]
+  const asset = assets[index] as Asset | undefined
   const assetId = asset?.assetId
   // If the asset isn't in the store we are rendering a custom token
   const isAssetInStore = useAppSelector(s => s.assets.ids.some(a => a === assetId))
@@ -56,10 +56,13 @@ export const GroupedAssetRow = ({
     useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
 
   const handleAssetClick = useCallback(() => {
+    if (!asset) return
     onAssetClick(asset)
   }, [asset, onAssetClick])
 
   const handleImportClick = useCallback(() => {
+    if (!asset) return
+
     if (onImportClick) {
       onImportClick(asset)
     }
@@ -68,9 +71,11 @@ export const GroupedAssetRow = ({
   const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
   const icon = useMemo(() => {
-    if (asset?.icons) return <PairIcons icons={asset.icons} iconSize='sm' showFirst />
+    if (!(assetId && asset)) return null
+
+    if (asset.icons) return <PairIcons icons={asset.icons} iconSize='sm' showFirst />
     return <AssetIcon assetId={assetId} size='sm' />
-  }, [asset.icons, assetId])
+  }, [asset, assetId])
 
   const KnownAssetRow: JSX.Element | null = useMemo(() => {
     if (!asset) return null
@@ -143,7 +148,8 @@ export const GroupedAssetRow = ({
   ])
 
   const CustomAssetRow: JSX.Element | null = useMemo(() => {
-    if (!asset) return null
+    if (!(asset && assetId)) return null
+
     return (
       <Button
         variant='ghost'

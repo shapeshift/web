@@ -10,6 +10,7 @@ import type {
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'
+import { isToken } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -23,6 +24,8 @@ export class ZerionMarketService implements MarketService {
 
   getZerionTokenMarketData = async (assetId: AssetId): Promise<ZerionMarketData | undefined> => {
     const { assetReference } = fromAssetId(assetId)
+    if (!isToken(assetReference)) return undefined
+
     const url = `${this.baseUrl}/fungibles/${assetReference}`
     const { data: res } = await axios.get<ZerionFungibles>(url)
     return res.data.attributes.market_data

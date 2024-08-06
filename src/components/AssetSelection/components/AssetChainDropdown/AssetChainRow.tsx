@@ -1,4 +1,5 @@
-import { Flex } from '@chakra-ui/react'
+import type { FlexProps } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -18,12 +19,14 @@ type AssetChainRowProps = {
   assetId: AssetId
   hideBalances?: boolean
   hideSymbol?: boolean
+  flexProps?: FlexProps
 }
 export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   mainImplementationAssetId,
   assetId,
   hideSymbol,
   hideBalances,
+  flexProps,
 }) => {
   const mainImplementationAsset = useAppSelector(state =>
     selectAssetById(state, mainImplementationAssetId),
@@ -45,10 +48,19 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   if (!feeAsset || !asset || !mainImplementationAsset) return null
 
   return (
-    <Flex alignItems='center' justifyContent='space-between' width='100%' height={10}>
-      <Flex alignItems='center' gap={4}>
+    <Flex
+      alignItems='center'
+      justifyContent='space-between'
+      maxWidth='210px'
+      width='100%'
+      height={10}
+      {...flexProps}
+    >
+      <Flex width={hideAssetBalance ? '100%' : 'inherit'} alignItems='center' gap={4}>
         <LazyLoadAvatar src={iconSrc} size='xs' />
-        {feeAsset.networkName ?? feeAsset.name}
+        <Text as='span' textOverflow='ellipsis' overflow='hidden'>
+          {feeAsset.networkName ?? feeAsset.name}
+        </Text>
         {!hideSymbol && mainImplementationAsset.symbol !== asset.symbol && ` (${asset.symbol})`}
       </Flex>
       {!hideAssetBalance && (

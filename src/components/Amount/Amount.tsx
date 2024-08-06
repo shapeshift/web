@@ -1,5 +1,5 @@
 import type { TextProps } from '@chakra-ui/react'
-import { useColorModeValue } from '@chakra-ui/react'
+import { Text, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { RawText } from 'components/Text'
 import type { NumberFormatOptions } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -76,7 +76,7 @@ const Crypto = ({
     <RawText {...props}>
       {prefix && `${prefix} `}
       {crypto}
-      {suffix && ` ${suffix}`}
+      <Text as='span'>{suffix && ` ${suffix}`}</Text>
     </RawText>
   )
 }

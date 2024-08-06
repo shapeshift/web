@@ -51,8 +51,14 @@ type RenderController = ({
 }) => React.ReactElement
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
-const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
-const boxProps = { px: 0, m: 0 }
+const buttonProps = {
+  variant: 'unstyled',
+  display: 'flex',
+  height: 'auto',
+  lineHeight: '1',
+  width: '100%',
+}
+const boxProps = { px: 0, m: 0, maxWidth: '220px' }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
 const AmountInput = (props: InputProps) => {

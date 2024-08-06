@@ -20,6 +20,8 @@ import { TwirlyToggle } from '../TwirlyToggle'
 
 export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
 
+const pairProps = { showFirst: true }
+
 export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
   const translate = useTranslate()
 
@@ -52,7 +54,7 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
       <CardBody pb={0} px={0}>
         <SlideTransition>
           <Box textAlign='center' py={4}>
-            <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} />
+            <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} pairProps={pairProps} />
             <Text translation='trade.temp.tradeSuccess' />
             <RawText fontSize='md' color='gray.500' mt={2}>
               {subText}

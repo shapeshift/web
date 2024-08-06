@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -39,6 +39,11 @@ export const AssetMenuButton = ({
     if (asset) onAssetClick?.(asset)
   }, [asset, onAssetClick])
 
+  const flexProps = useMemo(
+    () => ({ width: buttonProps?.rightIcon ? 'calc(100% - 32px)' : '100%' }),
+    [buttonProps?.rightIcon],
+  )
+
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
@@ -50,9 +55,11 @@ export const AssetMenuButton = ({
       isLoading={isLoading}
       {...buttonProps}
     >
-      <Flex alignItems='center' gap={2}>
+      <Flex alignItems='center' gap={2} {...flexProps}>
         {icon}
-        {asset?.symbol}
+        <Text as='span' textOverflow='ellipsis' overflow='hidden'>
+          {asset?.symbol}
+        </Text>
       </Flex>
     </Button>
   )

@@ -59,13 +59,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>
-          <AssetIcon
-            assetId={asset.assetId}
-            boxSize='30px'
-            mr={4}
-            pairProps={pairProps}
-            shouldLazyLoad
-          />
+          <AssetIcon assetId={asset.assetId} boxSize='30px' pairProps={pairProps} shouldLazyLoad />
           <RawText fontWeight='bold'>{asset.name}</RawText>
         </Flex>
       </CardHeader>

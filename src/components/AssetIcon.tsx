@@ -83,7 +83,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   const showFallback = !asset.icon && !asset.icons?.length
 
   const [imageLoaded, setImageLoaded] = useState(false)
-  const [networkImageLoaded, setNetworkImageLoaded] = useState(false)
+  const [networkImageLoaded, setNetworkImageLoaded] = useState(!showNetwork)
 
   const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
   const handleNetworkImageLoaded = useCallback(() => setNetworkImageLoaded(true), [])

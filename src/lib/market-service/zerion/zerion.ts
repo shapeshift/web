@@ -18,7 +18,7 @@ import { zerionMarketDataToMarketData } from './utils'
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class ZerionMarketService implements MarketService {
-  baseUrl = 'https://zerion.shapeshift.com/'
+  baseUrl = 'https://zerion.shapeshift.com'
 
   getZerionTokenMarketData = async (assetId: AssetId): Promise<ZerionMarketData | undefined> => {
     const { assetReference } = fromAssetId(assetId)

@@ -1,10 +1,10 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Center, useColorModeValue } from '@chakra-ui/react'
+import { Avatar, Center, SkeletonCircle, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -27,6 +27,7 @@ export const sansNotchBottom =
 type AssetIconProps = {
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
+  shouldLazyLoad?: boolean
   pairProps?: { showFirst?: boolean }
 } & (
   | {
@@ -62,6 +63,7 @@ type AssetIconProps = {
 type AssetWithNetworkProps = {
   asset: Asset
   showNetworkIcon?: boolean
+  shouldLazyLoad?: boolean
 } & AvatarProps
 
 const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
@@ -69,6 +71,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   icon,
   src,
   showNetworkIcon = true,
+  shouldLazyLoad,
   size,
   ...rest
 }) => {
@@ -79,31 +82,48 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   // Failure to check this means we would lose loading FOX icon functionality
   const showFallback = !asset.icon && !asset.icons?.length
 
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [networkImageLoaded, setNetworkImageLoaded] = useState(false)
+
+  const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
+  const handleNetworkImageLoaded = useCallback(() => setNetworkImageLoaded(true), [])
+
+  const areImagesLoaded = useMemo(
+    () => (imageLoaded && networkImageLoaded) || !shouldLazyLoad,
+    [imageLoaded, networkImageLoaded, shouldLazyLoad],
+  )
+
   return (
     <Center>
       <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
-        {showNetwork && showNetworkIcon && (
+        <SkeletonCircle width='auto' height='auto' isLoaded={areImagesLoaded}>
+          {showNetwork && showNetworkIcon && (
+            <Avatar
+              loading={shouldLazyLoad ? 'lazy' : undefined}
+              position='absolute'
+              onLoad={handleNetworkImageLoaded}
+              left='-8%'
+              top='-8%'
+              transform='scale(0.4)'
+              transformOrigin='top left'
+              icon={icon}
+              fontSize='inherit'
+              src={feeAsset?.networkIcon ?? feeAsset?.icon}
+              size={size}
+            />
+          )}
           <Avatar
-            position='absolute'
-            left='-8%'
-            top='-8%'
-            transform='scale(0.4)'
-            transformOrigin='top left'
+            loading={shouldLazyLoad ? 'lazy' : undefined}
+            src={iconSrc}
+            onLoad={handleImageLoaded}
+            name={showFallback ? asset.symbol : undefined}
             icon={icon}
-            fontSize='inherit'
-            src={feeAsset?.networkIcon ?? feeAsset?.icon}
+            border={0}
             size={size}
+            clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
+            {...rest}
           />
-        )}
-        <Avatar
-          src={iconSrc}
-          name={showFallback ? asset.symbol : undefined}
-          icon={icon}
-          border={0}
-          size={size}
-          clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
-          {...rest}
-        />
+        </SkeletonCircle>
       </Center>
     </Center>
   )

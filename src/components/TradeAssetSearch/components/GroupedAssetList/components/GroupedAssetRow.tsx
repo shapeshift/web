@@ -91,7 +91,13 @@ export const GroupedAssetRow = ({
         mx={2}
         _focus={focus}
       >
-        <Flex maxWidth='100%' gap={4} alignItems='center'>
+        <Flex
+          gap={4}
+          alignItems='center'
+          maxWidth={
+            (isConnected || isDemoWallet) && !hideAssetBalance ? 'calc(100% - 100px)' : '100%'
+          }
+        >
           {icon}
           <Box textAlign='left' maxWidth='100%' overflow='hidden'>
             <Text
@@ -118,6 +124,8 @@ export const GroupedAssetRow = ({
                   fontWeight='medium'
                   value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
                   symbol={asset.symbol}
+                  overflow='hidden'
+                  textOverflow='ellipsis'
                 />
               )}
             </Flex>

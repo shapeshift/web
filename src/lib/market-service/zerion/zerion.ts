@@ -9,6 +9,7 @@ import type {
 } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import { getConfig } from 'config'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -18,7 +19,7 @@ import { zerionMarketDataToMarketData } from './utils'
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class ZerionMarketService implements MarketService {
-  baseUrl = 'https://zerion.shapeshift.com'
+  baseUrl = getConfig().REACT_APP_ZERION_BASE_URL
 
   getZerionTokenMarketData = async (assetId: AssetId): Promise<ZerionMarketData | undefined> => {
     const { assetReference } = fromAssetId(assetId)

@@ -3,6 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
+import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 
 import { ethereum } from '../baseAssets'
@@ -38,25 +39,33 @@ export const getAssets = async (): Promise<Asset[]> => {
     // getYearnVaults(),
     // getZapperTokens(),
     // getUnderlyingVaultTokens(),
+    // TODO(gomes): Remove me as part of https://github.com/shapeshift/web/issues/7452 - we can get this data from the Portals
+    // but will need to properly massage all Portals assets while at it
     getUniswapV2Pools(),
     getIdleTokens(),
     getPortalTokens(ethereum),
   ])
 
-  const [ethTokens, uniV2PoolTokens, idleTokens, portalsAssets] = results.map(result => {
+  const [ethTokens, uniV2PoolTokens, idleTokens, _portalsAssets] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
   })
 
+  // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
+  // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
+  // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
+  const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
+
   const ethAssets = [
+    ...uniV2PoolTokens,
     ...idleTokens,
     foxyToken,
+    ...portalsPools,
     ...ethTokens,
     // ...yearnVaults,
     // ...zapperTokens,
     // ...underlyingTokens,
-    ...uniV2PoolTokens,
     ...portalsAssets,
   ]
 

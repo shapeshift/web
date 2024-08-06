@@ -115,13 +115,10 @@ export const getThorchainSaversPosition = async ({
 
   const accountPosition = await (async () => {
     if (assetId === thorchainAssetId) {
-      const { data: runepoolInformation } = await queryClient.fetchQuery({
-        queryKey: ['thorchainRunepoolOpportunity', accountId],
-        queryFn: () =>
-          axios.get<ThorchainRunepoolProviderResponseSuccess>(
-            `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
-          ),
-      })
+      const { data: runepoolInformation } =
+        await axios.get<ThorchainRunepoolProviderResponseSuccess>(
+          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/rune_provider/${address}`,
+        )
 
       const runepoolOpportunity: ThorchainSaverPositionResponse = {
         asset: 'THOR.RUNE',

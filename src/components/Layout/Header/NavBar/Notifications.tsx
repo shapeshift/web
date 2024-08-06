@@ -119,6 +119,7 @@ export const Notifications = memo(() => {
       }
 
       try {
+        // TODO(gomes): why aren't we using chain-adapters' signMessage here?
         const signedMsg = await (wallet as ETHWallet).ethSignMessage({
           addressNList,
           message: toHex(message),

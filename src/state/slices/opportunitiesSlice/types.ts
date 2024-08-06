@@ -99,8 +99,13 @@ export type UserStakingOpportunityBase = {
   }
 }
 
+export type RunepoolUserStakingOpportunity = {
+  maturity: number
+} & UserStakingOpportunityBase
+
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
+  | RunepoolUserStakingOpportunity
   | CosmosSdkStakingSpecificUserStakingOpportunity
   | FoxySpecificUserStakingOpportunity
 
@@ -206,7 +211,7 @@ type EarnDefiTypeBase = {
 }
 
 export type StakingEarnOpportunityType = OpportunityMetadata &
-  Partial<UserStakingOpportunityBase> & {
+  Partial<UserStakingOpportunity> & {
     isVisible?: boolean
   } & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 

@@ -78,5 +78,9 @@ const generateColorMap = async () => {
 generateColorMap()
   .then(() => {
     console.info('done')
+    process.exit(0)
   })
-  .catch(err => console.info(err))
+  .catch(err => {
+    console.info(err)
+    process.exit(1)
+  })

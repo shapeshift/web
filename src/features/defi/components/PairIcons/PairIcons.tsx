@@ -91,7 +91,7 @@ export const PairIcons = ({
     ))
   }, [iconBoxSize, iconSize, icons, showFirst])
   return (
-    <Flex flexDirection='row' alignItems='center' {...styleProps}>
+    <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
       {showFirst && <Avatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
 
       {remainingIcons}

@@ -52,7 +52,7 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
       <CardBody pb={0} px={0}>
         <SlideTransition>
           <Box textAlign='center' py={4}>
-            <AssetIcon assetId={lastHop.buyAsset.assetId} />
+            <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} />
             <Text translation='trade.temp.tradeSuccess' />
             <RawText fontSize='md' color='gray.500' mt={2}>
               {subText}

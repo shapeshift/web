@@ -80,7 +80,7 @@ export const TransferColumn = (transfer: TransferColumnProps) => {
       />
       <Row title='for' justifyContent='flex-start' flexDirection='column' alignItems='flex-start'>
         <Stack direction='row' spacing={2} alignItems='center'>
-          <AssetIcon asset={transfer.asset} boxSize='4' />
+          <AssetIcon asset={transfer.asset} size='xs' />
           <Amount
             value={transfer.value}
             precision={transfer.asset.precision}

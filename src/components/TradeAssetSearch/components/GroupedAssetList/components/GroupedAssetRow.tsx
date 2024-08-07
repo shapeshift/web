@@ -11,7 +11,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
@@ -41,14 +40,13 @@ export const GroupedAssetRow = ({
   const backgroundColor = useColorModeValue('gray.50', 'background.button.secondary.base')
   const translate = useTranslate()
   const {
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet },
   } = useWallet()
   const asset = assets[index] as Asset | undefined
   const assetId = asset?.assetId
   // If the asset isn't in the store we are rendering a custom token
   const isAssetInStore = useAppSelector(s => s.assets.ids.some(a => a === assetId))
   const filter = useMemo(() => ({ assetId }), [assetId])
-  const isSupported = assetId && wallet && isAssetSupportedByWallet(assetId, wallet)
   const cryptoPrecisionBalance = useAppSelector(s =>
     selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
   )
@@ -85,7 +83,6 @@ export const GroupedAssetRow = ({
         variant='ghost'
         onClick={handleAssetClick}
         justifyContent='space-between'
-        isDisabled={!isSupported}
         height={16}
         width='stretch'
         mx={2}
@@ -152,7 +149,6 @@ export const GroupedAssetRow = ({
     icon,
     isConnected,
     isDemoWallet,
-    isSupported,
     userCurrencyBalance,
   ])
 
@@ -163,7 +159,6 @@ export const GroupedAssetRow = ({
       <Button
         variant='ghost'
         justifyContent='space-between'
-        isDisabled={!isSupported}
         height={16}
         width='stretch'
         mx={2}
@@ -209,7 +204,7 @@ export const GroupedAssetRow = ({
         </Flex>
       </Button>
     )
-  }, [asset, assetId, backgroundColor, color, handleImportClick, isSupported, translate])
+  }, [asset, assetId, backgroundColor, color, handleImportClick, translate])
 
   return isAssetInStore ? KnownAssetRow : CustomAssetRow
 }

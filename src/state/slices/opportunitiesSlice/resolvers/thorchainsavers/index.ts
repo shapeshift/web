@@ -1,7 +1,7 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/src/swappers/ThorchainSwapper/types'
-import { toBaseUnit } from '@shapeshiftoss/utils'
+import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { thornode } from 'react-queries/queries/thornode'
@@ -19,7 +19,6 @@ import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSl
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
 
 import type {
-  AssetIdsTuple,
   GetOpportunityIdsOutput,
   GetOpportunityMetadataOutput,
   GetOpportunityUserStakingDataOutput,
@@ -189,9 +188,11 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       {},
     )
 
-    const underlyingAssetIds = reservePositions.pools.map(pool =>
-      poolAssetIdToAssetId(pool.pool),
-    ) as unknown as AssetIdsTuple
+    const underlyingAssetIds = reservePositions.pools
+      .map(pool => poolAssetIdToAssetId(pool.pool))
+      .filter(
+        assetId => isSome(assetId) && opportunityIds.includes(assetId as OpportunityId),
+      ) as AssetId[]
 
     const totalRuneAmount = reservePositions.pools.reduce((acc, pool) => {
       const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].pool_units)

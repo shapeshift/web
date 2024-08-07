@@ -50,14 +50,7 @@ export const AssetMenuButton = ({
       isLoading={isLoading}
       {...buttonProps}
     >
-      <Flex
-        alignItems='center'
-        gap={2}
-        width='100%'
-        overflow='hidden'
-        textOverflow='ellisis'
-        whiteSpace='nowrap'
-      >
+      <Flex alignItems='center' gap={2} width='100%' overflow='hidden'>
         {icon}
         <Text as='span' textOverflow='ellipsis' overflow='hidden'>
           {asset?.symbol}

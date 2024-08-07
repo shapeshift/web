@@ -1,6 +1,7 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
-import { Avatar, Center, SkeletonCircle } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import { Avatar, Box, Center } from '@chakra-ui/react'
+import { useMemo } from 'react'
+import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 
 const assetIconSx = { '--avatar-font-size': '85%', fontWeight: 'bold' }
 
@@ -29,35 +30,14 @@ export const PairIcons = ({
   iconSize,
   iconBoxSize,
   showFirst,
-  shouldLazyLoad,
   ...styleProps
 }: {
   icons: string[]
   iconBoxSize?: AvatarProps['boxSize']
   iconSize?: AvatarProps['size']
   showFirst?: boolean
-  shouldLazyLoad?: boolean
 } & FlexProps): JSX.Element => {
   const firstIcon = icons[0]
-  const [imagesLoaded, setImagesLoaded] = useState(icons.map(() => !shouldLazyLoad))
-
-  const areImagesLoaded = useMemo(
-    () => !imagesLoaded.some(imageLoaded => imageLoaded === false) || !shouldLazyLoad,
-    [imagesLoaded, shouldLazyLoad],
-  )
-
-  const handleImageLoaded = useCallback(
-    (imageIndex: number) => {
-      if (areImagesLoaded) return
-      setImagesLoaded(prevImagesLoaded => {
-        const newImagesLoaded = [...prevImagesLoaded]
-        newImagesLoaded[imageIndex] = true
-        return newImagesLoaded
-      })
-    },
-
-    [areImagesLoaded],
-  )
 
   const remainingIcons = useMemo(() => {
     const iconsMinusFirst = icons.slice(showFirst ? 1 : 0)
@@ -71,18 +51,14 @@ export const PairIcons = ({
           height='var(--avatar-size)'
           ml={showFirst ? '-2.5' : 0}
         >
-          {iconsMinusFirst.map((iconSrc, i) => {
+          {iconsMinusFirst.map(iconSrc => {
             const { left, top, zIndex } = getRandomPosition(iconsMinusFirst.length)
 
             return (
-              <Avatar
+              <LazyLoadAvatar
                 key={iconSrc}
                 src={iconSrc}
                 position='absolute'
-                loading={shouldLazyLoad ? 'lazy' : undefined}
-                // we need to pass an arg here, so we need an anonymous function wrapper
-                // eslint-disable-next-line react-memo/require-usememo
-                onLoad={() => handleImageLoaded(i + 1)}
                 left={`${left}%`}
                 top={`${top}%`}
                 size={iconSize}
@@ -107,12 +83,8 @@ export const PairIcons = ({
         </Center>
       )
     }
-    return iconsMinusFirst.map((iconSrc, i) => (
-      <Avatar
-        loading={shouldLazyLoad ? 'lazy' : undefined}
-        // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
-        onLoad={() => handleImageLoaded(i + 1)}
+    return iconsMinusFirst.map(iconSrc => (
+      <LazyLoadAvatar
         ml={showFirst ? '-2.5' : 0}
         key={iconSrc}
         src={iconSrc}
@@ -120,31 +92,13 @@ export const PairIcons = ({
         boxSize={iconBoxSize}
       />
     ))
-  }, [iconBoxSize, iconSize, icons, showFirst, shouldLazyLoad, handleImageLoaded])
+  }, [iconBoxSize, iconSize, icons, showFirst])
 
   return (
-    <SkeletonCircle
-      isLoaded={areImagesLoaded}
-      display='inline-flex'
-      flexDirection='row'
-      alignItems='center'
-      width='auto'
-      height='auto'
-      {...styleProps}
-    >
-      {showFirst && (
-        <Avatar
-          loading={shouldLazyLoad ? 'lazy' : undefined}
-          // we need to pass an arg here, so we need an anonymous function wrapper
-          // eslint-disable-next-line react-memo/require-usememo
-          onLoad={() => handleImageLoaded(0)}
-          src={firstIcon}
-          size={iconSize}
-          boxSize={iconBoxSize}
-        />
-      )}
+    <Box display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+      {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
 
       {remainingIcons}
-    </SkeletonCircle>
+    </Box>
   )
 }

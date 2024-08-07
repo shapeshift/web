@@ -26,8 +26,12 @@ export const DeleteWallet = () => {
     return (
       <SlideTransition>
         <DialogBody>
-          <Heading>{translate('common.somethingWentWrong')}</Heading>
-          <Button onClick={handleBack}>{translate('common.goBack')}</Button>
+          <Heading size='md' textAlign='center' maxWidth='250px' mx='auto'>
+            {translate('common.somethingWentWrong')}
+          </Heading>
+          <Button onClick={handleBack} mx='auto'>
+            {translate('common.goBack')}
+          </Button>
         </DialogBody>
       </SlideTransition>
     )

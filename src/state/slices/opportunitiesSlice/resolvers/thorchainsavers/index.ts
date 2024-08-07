@@ -13,7 +13,6 @@ import {
   thorchainBlockTimeMs,
 } from 'lib/utils/thorchain/constants'
 import type { ThorchainBlock } from 'lib/utils/thorchain/types'
-import type { AssetsState } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -87,7 +86,6 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const assets: AssetsState = state.assets
 
   const { SaversVaults } = selectFeatureFlags(state)
 
@@ -179,12 +177,17 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
         `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/runepool`,
       )
 
-    const { data: poolsResponse } = await axios.get<ThornodePoolResponse[]>(
-      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/pools`,
-    )
+    const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
+      (acc, pool) => {
+        const assetId = poolAssetIdToAssetId(pool.asset)
 
-    const poolsByAsset = poolsResponse.reduce<Record<string, ThornodePoolResponse>>(
-      (acc, pool) => ({ ...acc, [pool.asset]: pool }),
+        if (!assetId) return acc
+
+        return {
+          ...acc,
+          [assetId]: pool,
+        }
+      },
       {},
     )
 
@@ -195,38 +198,47 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       ) as AssetId[]
 
     const totalRuneAmount = reservePositions.pools.reduce((acc, pool) => {
-      const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].pool_units)
-      const runeAmount = share.times(poolsByAsset[pool.pool].balance_rune)
+      const assetId = poolAssetIdToAssetId(pool.pool)
+
+      if (!assetId) return acc
+
+      const share = bnOrZero(pool.liquidityUnits).div(poolsByAssetid[assetId].pool_units)
+      const runeAmount = share.times(poolsByAssetid[assetId].balance_rune)
 
       return acc.plus(runeAmount)
     }, bn(0))
 
     const { underlyingAssetRatiosBaseUnit, underlyingAssetWeightPercentageDecimal } =
       reservePositions.pools.reduce(
-        (acc, pool, i) => {
-          const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].pool_units)
+        (acc, pool) => {
+          const assetId = poolAssetIdToAssetId(pool.pool)
 
-          const runeAmount = share.times(bnOrZero(poolsByAsset[pool.pool].balance_rune))
+          if (!assetId) return acc
 
-          const assetAmount = share.times(poolsByAsset[pool.pool].balance_asset)
+          const share = bnOrZero(pool.liquidityUnits).div(poolsByAssetid[assetId].pool_units)
 
-          const poolWeight = bnOrZero(runeAmount).div(totalRuneAmount)
+          const runeAmount = share.times(bnOrZero(poolsByAssetid[assetId].balance_rune))
+
+          const assetAmount = share.times(poolsByAssetid[assetId].balance_asset)
+
+          const poolWeightPercentageDecimal = bnOrZero(runeAmount).div(totalRuneAmount)
 
           const poolRatio = bnOrZero(assetAmount).div(runeAmount)
 
-          const adjustedRatio = poolRatio.times(poolWeight)
+          const adjustedRatio = poolRatio.times(poolWeightPercentageDecimal)
+
+          const asset = selectAssetById(state, assetId)
+
+          if (!asset) return acc
 
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              toBaseUnit(
-                adjustedRatio.toFixed(),
-                assets.byId[underlyingAssetIds[i]]?.precision ?? 0,
-              ),
+              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,
-              poolWeight.toFixed(),
+              poolWeightPercentageDecimal.toFixed(),
             ],
           }
         },

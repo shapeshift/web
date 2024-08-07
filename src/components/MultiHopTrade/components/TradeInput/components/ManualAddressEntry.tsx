@@ -141,7 +141,8 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
               translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
             {!isSnapInstalled && isSnapEnabled && wallet && isMetaMask(wallet) && (
               <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
-                {translate('trade.enableMetaMaskSnap')}
+                {translate('trade.or')}
+                &nbsp;{translate('trade.enableMetaMaskSnap')}
               </Link>
             )}
             {wallet && isLedger(wallet) && (

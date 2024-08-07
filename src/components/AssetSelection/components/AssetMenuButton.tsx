@@ -39,11 +39,6 @@ export const AssetMenuButton = ({
     if (asset) onAssetClick?.(asset)
   }, [asset, onAssetClick])
 
-  const flexProps = useMemo(
-    () => ({ width: buttonProps?.rightIcon ? 'calc(100% - 32px)' : '100%' }),
-    [buttonProps?.rightIcon],
-  )
-
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
   return (
@@ -55,7 +50,14 @@ export const AssetMenuButton = ({
       isLoading={isLoading}
       {...buttonProps}
     >
-      <Flex alignItems='center' gap={2} {...flexProps}>
+      <Flex
+        alignItems='center'
+        gap={2}
+        width='100%'
+        overflow='hidden'
+        textOverflow='ellisis'
+        whiteSpace='nowrap'
+      >
         {icon}
         <Text as='span' textOverflow='ellipsis' overflow='hidden'>
           {asset?.symbol}

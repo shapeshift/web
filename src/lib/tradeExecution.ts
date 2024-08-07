@@ -23,6 +23,7 @@ import EventEmitter from 'events'
 import { poll } from 'lib/poll/poll'
 
 import { getEthersV5Provider } from './ethersProviderSingleton'
+import { getSafeApiKit } from './safeApiKitSingleton'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
@@ -86,6 +87,7 @@ export class TradeExecution {
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,
+            getSafeApiKit,
             getEthersV5Provider,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
@@ -150,6 +152,7 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
           config,
           assertGetEvmChainAdapter,
+          getSafeApiKit,
           getEthersV5Provider,
         })
 
@@ -202,6 +205,7 @@ export class TradeExecution {
         from,
         config,
         assertGetEvmChainAdapter,
+        getSafeApiKit,
         getEthersV5Provider,
       })
 

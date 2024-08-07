@@ -1,5 +1,6 @@
+import type SafeApiKit from '@safe-global/api-kit'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
@@ -169,16 +170,25 @@ export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
   assertGetEvmChainAdapter,
+  getSafeApiKit,
 }: {
   txHash: string
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  getSafeApiKit: (chainId: EvmChainId, safeAddress: string) => Promise<SafeApiKit>
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
   message: string | undefined
 }> => {
   try {
+    const safeApiKit = await getSafeApiKit(
+      chainId as EvmChainId,
+      '0x00342Dc97c6419089130bB2F1a39c1Bfea4fFe40',
+    )
+    // @ts-ignore
+    const transaction = await safeApiKit.getTransaction(txHash)
+    debugger
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)

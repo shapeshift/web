@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -30,8 +30,7 @@ export const AssetMenuButton = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const icon = useMemo(() => {
-    if (asset?.icons)
-      return <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
+    if (asset?.icons) return <PairIcons icons={asset.icons} iconBoxSize='24px' showFirst />
     if (assetId) return <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
     return null
   }, [asset?.icons, assetId, showNetworkIcon])
@@ -39,6 +38,11 @@ export const AssetMenuButton = ({
   const handleAssetClick = useCallback(() => {
     if (asset) onAssetClick?.(asset)
   }, [asset, onAssetClick])
+
+  const flexProps = useMemo(
+    () => ({ width: buttonProps?.rightIcon ? 'calc(100% - 32px)' : '100%' }),
+    [buttonProps?.rightIcon],
+  )
 
   if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
 
@@ -51,9 +55,11 @@ export const AssetMenuButton = ({
       isLoading={isLoading}
       {...buttonProps}
     >
-      <Flex alignItems='center' gap={2}>
+      <Flex alignItems='center' gap={2} {...flexProps}>
         {icon}
-        {asset?.symbol}
+        <Text as='span' textOverflow='ellipsis' overflow='hidden'>
+          {asset?.symbol}
+        </Text>
       </Flex>
     </Button>
   )

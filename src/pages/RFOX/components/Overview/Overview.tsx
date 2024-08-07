@@ -5,6 +5,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { fromBaseUnit } from 'lib/math'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -19,6 +20,10 @@ type OverviewProps = {
 
 export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
+  const test = useRFOXContext()
+
+  console.log({ test })
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

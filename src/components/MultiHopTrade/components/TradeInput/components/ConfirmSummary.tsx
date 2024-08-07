@@ -1,11 +1,16 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
+import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -46,11 +51,18 @@ import { WithLazyMount } from './WithLazyMount'
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
   isLoading: boolean
+  initialSellAssetAccountId: AccountId | undefined
   receiveAddress: string | undefined
 }
 
-export const ConfirmSummary = ({ isCompact, isLoading, receiveAddress }: ConfirmSummaryProps) => {
+export const ConfirmSummary = ({
+  isCompact,
+  isLoading: isParentLoading,
+  initialSellAssetAccountId,
+  receiveAddress,
+}: ConfirmSummaryProps) => {
   const history = useHistory()
+  const translate = useTranslate()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
     state: { isConnected, isDemoWallet, wallet },
@@ -84,10 +96,23 @@ export const ConfirmSummary = ({ isCompact, isLoading, receiveAddress }: Confirm
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
+  const userAddress = useMemo(() => {
+    if (!initialSellAssetAccountId) return ''
+
+    return fromAccountId(initialSellAssetAccountId).account
+  }, [initialSellAssetAccountId])
+
+  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
+    useIsSmartContractAddress(userAddress, sellAsset.chainId)
+
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
+
+  const isLoading = useMemo(() => {
+    return isParentLoading || isSellAddressByteCodeLoading
+  }, [isParentLoading, isSellAddressByteCodeLoading])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -171,6 +196,16 @@ export const ConfirmSummary = ({ isCompact, isLoading, receiveAddress }: Confirm
         ]
     }, [activeQuote, buyAssetFeeAsset])
 
+  const shouldForceManualAddressEntry = useMemo(() => {
+    if (_isSmartContractSellAddress === undefined) return
+
+    return (
+      _isSmartContractSellAddress &&
+      sellAsset.chainId !== buyAsset.chainId &&
+      isEvmChainId(buyAsset.chainId)
+    )
+  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
+
   return (
     <>
       <CardFooter
@@ -223,8 +258,22 @@ export const ConfirmSummary = ({ isCompact, isLoading, receiveAddress }: Confirm
             <Text translation={nativeAssetBridgeWarning} />
           </Alert>
         )}
-        <WithLazyMount shouldUse={Boolean(receiveAddress)} component={RecipientAddress} />
-        <WithLazyMount shouldUse={!walletSupportsBuyAssetChain} component={ManualAddressEntry} />
+        <WithLazyMount
+          shouldUse={Boolean(receiveAddress) && shouldForceManualAddressEntry === false}
+          component={RecipientAddress}
+        />
+        <WithLazyMount
+          shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry === true}
+          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
+          component={ManualAddressEntry}
+          description={
+            shouldForceManualAddressEntry
+              ? translate('trade.smartContractReceiveAddressDescription', {
+                  chainName: buyAssetFeeAsset?.networkName,
+                })
+              : undefined
+          }
+        />
 
         <Button
           type='submit'

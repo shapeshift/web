@@ -22,11 +22,12 @@ import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ManualAddressEntryProps = {
+  description?: string
   shouldForceManualAddressEntry?: boolean
 }
 
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
-  ({ shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
+  ({ description, shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
     const dispatch = useAppDispatch()
 
     const {
@@ -136,10 +137,12 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       return (
         <FormControl>
           <FormLabel color='yellow.400'>
-            {translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
+            {description ??
+              translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
             {!isSnapInstalled && isSnapEnabled && wallet && isMetaMask(wallet) && (
               <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
-                {translate('trade.enableMetaMaskSnap')}
+                {translate('trade.or')}
+                &nbsp;{translate('trade.enableMetaMaskSnap')}
               </Link>
             )}
             {wallet && isLedger(wallet) && (
@@ -167,6 +170,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       rules,
       translate,
       wallet,
+      description,
     ])
 
     return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null

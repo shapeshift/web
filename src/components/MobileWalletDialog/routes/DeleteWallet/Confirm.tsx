@@ -8,11 +8,11 @@ import { DialogFooter } from 'components/Modal/components/DialogFooter'
 import { DialogHeader, DialogHeaderLeft } from 'components/Modal/components/DialogHeader'
 import { SlideTransition } from 'components/SlideTransition'
 import { deleteWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/types'
+import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { WalletCard } from 'pages/ConnectWallet/components/WalletCard'
 
 type ConfirmDeleteProps = {
-  vault: MobileLocationState['vault']
+  vault: RevocableWallet
   onBack: () => void
 }
 
@@ -48,7 +48,7 @@ export const ConfirmDelete: React.FC<ConfirmDeleteProps> = ({ vault, onBack }) =
           <Text textAlign='center' maxWidth='300px' mx='auto' mb={6} color='text.subtle'>
             {translate('walletProvider.shapeShift.load.confirmForgetBody')}
           </Text>
-          {vault && <WalletCard wallet={vault} id={vault.id} />}
+          <WalletCard wallet={vault} id={vault.id} />
         </Stack>
       </DialogBody>
       <DialogFooter flexDir='column' gap={2}>

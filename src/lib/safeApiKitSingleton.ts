@@ -45,10 +45,13 @@ export const getSafeApiKit = async (
     const safeApiKit = new SafeApiKit({
       chainId: networkId,
     })
-    await Safe.init({
+    const safe = await Safe.init({
       provider: rpcUrlByChainId(chainId),
       safeAddress,
     })
+    // TODO(gomes): should we check for SAFE deployed here?
+    const isSafeDeployed = await safe.isSafeDeployed()
+    debugger
     safeApiKits.set(chainId, safeApiKit)
     return safeApiKit
   } else {

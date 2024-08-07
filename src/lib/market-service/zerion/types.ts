@@ -19,3 +19,25 @@ export type ZerionFungibles = {
     }
   }
 }
+
+export type ZerionChartResponse = {
+  links: {
+    self: string
+  }
+  data: {
+    type: string
+    id: string
+    attributes: {
+      begin_at: string
+      end_at: string
+      stats: {
+        first: number | null
+        min: number | null
+        avg: number | null
+        max: number | null
+        last: number | null
+      }
+      points: [number, number][]
+    }
+  }
+}

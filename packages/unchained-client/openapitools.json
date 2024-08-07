@@ -199,6 +199,19 @@
           "supportsES6": "true",
           "useSingleRequestParameter": true
         }
+      },
+      "thorchainV1": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain-v1/api/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/thorchainV1",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
       }
     }
   }

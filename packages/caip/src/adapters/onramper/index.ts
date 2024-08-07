@@ -46,7 +46,7 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'eip155:1/erc20:0x0258f474786ddfd37abce6df6bbb1dd5dfc4434a': ['orn_ethereum'],
   'eip155:56/bep20:0xe4ca1f75eca6214393fce1c1b316c237664eaa8e': ['orn_bsc'],
   'eip155:1/erc20:0xaf9f549774ecedbd0966c52f250acc548d3f36e5': ['rfuel_ethereum'],
-  'cosmos:thorchain-mainnet-v1/slip44:931': ['rune_thorchain'],
+  'cosmos:thorchain-mainnet-v2/slip44:931': ['rune_thorchain'],
   'eip155:1/erc20:0x3845badade8e6dff049820680d1f14bd3903a5d0': ['sand_ethereum'],
   'eip155:56/bep20:0x67b725d7e342d7b611fa85e859df9697d9378b2e': ['sand_bsc'],
   'eip155:137/erc20:0xbbba073c31bf03b8acf7c28ef0738decf3695683': ['sand_polygon'],

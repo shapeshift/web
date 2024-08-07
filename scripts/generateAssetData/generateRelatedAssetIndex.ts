@@ -4,7 +4,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 
 const main = async () => {
   try {
-    await generateRelatedAssetIndex(true)
+    await generateRelatedAssetIndex()
 
     console.info('Related assets data generated')
     process.exit(0)

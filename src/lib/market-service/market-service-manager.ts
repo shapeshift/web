@@ -18,6 +18,7 @@ import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import { FoxyMarketService } from './foxy/foxy'
 import { PortalsMarketService } from './portals/portals'
+import { ZerionMarketService } from './zerion/zerion'
 // import { YearnTokenMarketCapService } from './yearn/yearn-tokens'
 // import { YearnVaultMarketCapService } from './yearn/yearn-vaults'
 
@@ -56,7 +57,7 @@ export class MarketServiceManager {
       // new YearnVaultMarketCapService({ yearnSdk }),
       // new YearnTokenMarketCapService({ yearnSdk }),
       new FoxyMarketService({ providerUrls, provider }),
-      // TODO: Zerion market provider
+      new ZerionMarketService(),
       // TODO: Debank market provider
     ]
 

@@ -13,18 +13,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { WalletCard } from './WalletCard'
 
-export type WalletInfo = {
-  id?: string
-  name?: string
-  createdAt?: number
-}
-
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
   isEditing?: boolean
 }
 
-export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
+export const MobileWallestList: React.FC<MobileWalletDialogProps> = ({
   footerComponent,
   isEditing,
 }) => {

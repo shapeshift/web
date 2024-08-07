@@ -1,5 +1,5 @@
 import { CheckCircleIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons'
-import { Avatar, Button, Flex, IconButton } from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, IconButton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
@@ -12,7 +12,7 @@ const deleteIcon = <DeleteIcon />
 type WalletCardProps = {
   id?: string
   wallet: RevocableWallet
-  onClick?: (arg: RevocableWallet) => void
+  onClick?: (arg: RevocableWallet) => Promise<void>
   isActive?: boolean
   isEditing?: boolean
   onRename?: (wallet: RevocableWallet) => void
@@ -73,7 +73,16 @@ export const WalletCard: React.FC<WalletCardProps> = ({
   }, [handleDelete, handleRename, isActive, isEditing, translate])
   return (
     <Button onClick={handleClick} height='auto' p={4} leftIcon={avatar} justifyContent='flex-start'>
-      {wallet.label}
+      <Box
+        as='span'
+        textAlign='left'
+        flex={1}
+        overflow='hidden'
+        whiteSpace='nowrap'
+        textOverflow='ellipsis'
+      >
+        {wallet.label}
+      </Box>
       {rightElement}
     </Button>
   )

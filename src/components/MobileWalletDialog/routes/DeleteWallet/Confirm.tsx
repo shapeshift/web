@@ -12,7 +12,7 @@ import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/ty
 import { WalletCard } from 'pages/ConnectWallet/components/WalletCard'
 
 type ConfirmDeleteProps = {
-  vault?: MobileLocationState['vault']
+  vault: MobileLocationState['vault']
   onBack: () => void
 }
 

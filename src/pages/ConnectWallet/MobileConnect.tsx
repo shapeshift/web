@@ -30,7 +30,7 @@ import { listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHa
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-import { MobileWalletList } from './components/WalletList'
+import { MobileWallestList } from './components/WalletList'
 
 const containerStyles = { touchAction: 'none' }
 
@@ -165,7 +165,7 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileSelectBody')}</BodyText>
           </Stack>
           <Stack>
-            <MobileWalletList />
+            <MobileWallestList />
             <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
               {translate('connectWalletPage.createOrImport')}
             </Button>

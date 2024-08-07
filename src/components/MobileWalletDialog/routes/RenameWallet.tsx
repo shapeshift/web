@@ -1,5 +1,6 @@
 import { Button, FormControl, FormErrorMessage, Input } from '@chakra-ui/react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
+import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
@@ -18,41 +19,31 @@ import type { MobileLocationState } from 'context/WalletProvider/MobileWallet/ty
 
 import { MobileWalletDialogRoutes } from '../types'
 
-const isValidLabel = (label: unknown): label is string => {
-  return typeof label === 'string' && label.length > 0 && label.length < 65
+type FormValues = {
+  label: string
 }
 
 export const RenameWallet = () => {
   const location = useLocation<MobileLocationState>()
   const history = useHistory()
   const translate = useTranslate()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [label, setLabel] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<FormValues>({ mode: 'onChange' })
 
-  const handleClick = useCallback(async () => {
-    setIsSubmitting(true)
-    try {
-      if (
-        isValidLabel(label) &&
-        location.state.vault?.id &&
-        // Ask the mobile app to update the label on the wallet
-        (await updateWallet(location.state.vault.id, { label }))
-      ) {
+  const onSubmit = useCallback(
+    async (values: FormValues) => {
+      if (!location.state.vault?.id) return
+      try {
+        await updateWallet(location.state.vault.id, { label: values.label })
         history.goBack()
-      } else {
-        setError(translate('modals.shapeShift.password.error.maxLength'))
+      } catch (e) {
+        console.log(e)
       }
-    } catch (e) {
-      console.log(e)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [history, label, location.state.vault?.id, translate])
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setLabel(e.target.value),
-    [],
+    },
+    [history, location.state.vault?.id],
   )
 
   const handleBack = useCallback(() => history.push(MobileWalletDialogRoutes.SAVED), [history])
@@ -67,32 +58,39 @@ export const RenameWallet = () => {
           <DialogTitle>{translate('walletProvider.shapeShift.rename.header')}</DialogTitle>
         </DialogHeaderMiddle>
       </DialogHeader>
-      <DialogBody>
-        <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
-        <FormControl mb={6} isInvalid={Boolean(error)}>
-          <Input
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <DialogBody>
+          <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
+          <FormControl mb={6} isInvalid={!!errors.label}>
+            <Input
+              size='lg'
+              variant='filled'
+              id='name'
+              placeholder={translate('walletProvider.shapeShift.rename.walletName')}
+              {...register('label', {
+                required: true,
+                maxLength: {
+                  value: 64,
+                  message: translate('modals.shapeShift.password.error.maxLength', { length: 64 }),
+                },
+              })}
+            />
+            <FormErrorMessage>{errors.label && errors.label.message}</FormErrorMessage>
+          </FormControl>
+        </DialogBody>
+        <DialogFooter pt={4}>
+          <Button
+            colorScheme='blue'
             size='lg'
-            variant='filled'
-            id='name'
-            placeholder={translate('walletProvider.shapeShift.rename.walletName')}
-            onChange={handleChange}
-          />
-          <FormErrorMessage>{error}</FormErrorMessage>
-        </FormControl>
-      </DialogBody>
-      <DialogFooter pt={4}>
-        <Button
-          colorScheme='blue'
-          size='lg'
-          width='full'
-          type='submit'
-          isLoading={isSubmitting}
-          isDisabled={Boolean(error) || !label || isSubmitting}
-          onClick={handleClick}
-        >
-          <Text translation={'walletProvider.shapeShift.rename.button'} />
-        </Button>
-      </DialogFooter>
+            width='full'
+            isLoading={isSubmitting}
+            type='submit'
+            isDisabled={!isValid}
+          >
+            <Text translation={'walletProvider.shapeShift.rename.button'} />
+          </Button>
+        </DialogFooter>
+      </form>
     </SlideTransition>
   )
 }

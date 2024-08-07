@@ -292,6 +292,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                           <ConfirmSummary
                             isCompact={isCompact}
                             isLoading={isLoading}
+                            initialSellAssetAccountId={initialSellAssetAccountId}
                             receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
                           />
                         </Box>

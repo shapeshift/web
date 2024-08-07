@@ -215,11 +215,15 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
 
           if (!assetId) return acc
 
-          const share = bnOrZero(pool.liquidityUnits).div(poolsByAssetid[assetId].pool_units)
+          const thorchainPool = poolsByAssetid[assetId]
 
-          const runeAmount = share.times(bnOrZero(poolsByAssetid[assetId].balance_rune))
+          if (!thorchainPool) return acc
 
-          const assetAmount = share.times(poolsByAssetid[assetId].balance_asset)
+          const share = bnOrZero(pool.liquidityUnits).div(thorchainPool.pool_units)
+
+          const runeAmount = share.times(bnOrZero(thorchainPool.balance_rune))
+
+          const assetAmount = share.times(thorchainPool.balance_asset)
 
           const poolWeightPercentageDecimal = bnOrZero(runeAmount).div(totalRuneAmount)
 

@@ -245,10 +245,6 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
       rewardAssetIds: [],
       isClaimableRewards: false,
     }
-    console.log(token0PoolRatio, token1PoolRatio, token0Decimals, token1Decimals, [
-      toBaseUnit(token0PoolRatio.toString(), token0Decimals),
-      toBaseUnit(token1PoolRatio.toString(), token1Decimals),
-    ])
   }
 
   dispatch(marketData.actions.setCryptoMarketData(lpMarketDataById))

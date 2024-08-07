@@ -14,7 +14,7 @@ type GetTxBaseUrl = {
 }
 
 type GetTxLink = GetTxBaseUrl &
-  ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never })
+  ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never }) & { isSafeTxid: boolean }
 
 export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBaseUrl): string => {
   switch (name) {
@@ -32,10 +32,21 @@ export const getTxBaseUrl = ({ name, defaultExplorerBaseUrl, isOrder }: GetTxBas
   }
 }
 
-export const getTxLink = ({ name, defaultExplorerBaseUrl, txId, tradeId }: GetTxLink): string => {
+export const getTxLink = ({
+  name,
+  defaultExplorerBaseUrl,
+  txId,
+  tradeId,
+  isSafeTxid,
+}: GetTxLink): string => {
   const id = txId ?? tradeId
   const isOrder = !!tradeId
   const baseUrl = getTxBaseUrl({ name, defaultExplorerBaseUrl, isOrder })
+
+  // TODO(gomes): make this async, pass full serializedTxid (including address and AccountId, hence ChainId), and construct a correct link in the form of
+  // https://app.safe.global/transactions/tx?id=multisig_<safeAddy>_<safeTxHash>&safe=avax:<safeAddy>
+  // where avax is the prefix of the chain
+  // Alternatively, only pass AccountId and ChainId to avoid deserialization madness
 
   switch (name) {
     case Dex.Thor:

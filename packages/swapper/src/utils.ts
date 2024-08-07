@@ -182,13 +182,26 @@ export const checkEvmSwapStatus = async ({
   message: string | undefined
 }> => {
   try {
+    // TODO(gomes): isSafeDeployed, don't run this logic if we're not in the context of a SAFE
     const safeApiKit = await getSafeApiKit(
       chainId as EvmChainId,
       '0x00342Dc97c6419089130bB2F1a39c1Bfea4fFe40',
     )
     // @ts-ignore
     const transaction = await safeApiKit.getTransaction(txHash)
-    debugger
+    const { confirmationsRequired, confirmations } = transaction
+
+    // TODO(gomes): here, we indeed don't have a buyTxHash - however we should make sure we use the right SAFE Txlink
+    if (confirmations && Number(confirmations.length) < confirmationsRequired) {
+      return {
+        status: TxStatus.Pending,
+        message: `SAFE proposal submitted. ${confirmations.length} out of ${confirmationsRequired} signed.`,
+        buyTxHash: undefined,
+      }
+    } else if (transaction.transactionHash) {
+      // Mutate with  the actual on-chain transaction work and let things work as-is
+      txHash = transaction.transactionHash
+    }
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)

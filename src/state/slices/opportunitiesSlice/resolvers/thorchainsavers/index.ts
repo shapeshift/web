@@ -201,30 +201,40 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       return acc.plus(runeAmount)
     }, bn(0))
 
-    const { underlyingAssetRatiosBaseUnit, underlyingAssetRatios } = reservePositions.pools.reduce(
-      (acc, pool, i) => {
-        const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].pool_units)
+    const { underlyingAssetRatiosBaseUnit, underlyingAssetWeightPercentageDecimal } =
+      reservePositions.pools.reduce(
+        (acc, pool, i) => {
+          const share = bnOrZero(pool.liquidityUnits).div(poolsByAsset[pool.pool].pool_units)
 
-        const runeAmount = share.times(bnOrZero(poolsByAsset[pool.pool].balance_rune))
+          const runeAmount = share.times(bnOrZero(poolsByAsset[pool.pool].balance_rune))
 
-        const assetAmount = share.times(poolsByAsset[pool.pool].balance_asset)
+          const assetAmount = share.times(poolsByAsset[pool.pool].balance_asset)
 
-        const poolWeight = bnOrZero(runeAmount).div(totalRuneAmount)
+          const poolWeight = bnOrZero(runeAmount).div(totalRuneAmount)
 
-        const poolRatio = bnOrZero(assetAmount).div(runeAmount)
+          const poolRatio = bnOrZero(assetAmount).div(runeAmount)
 
-        const adjustedRatio = poolRatio.times(poolWeight)
+          const adjustedRatio = poolRatio.times(poolWeight)
 
-        return {
-          underlyingAssetRatiosBaseUnit: [
-            ...acc.underlyingAssetRatiosBaseUnit,
-            toBaseUnit(adjustedRatio.toFixed(), assets.byId[underlyingAssetIds[i]]?.precision ?? 0),
-          ],
-          underlyingAssetRatios: [...acc.underlyingAssetRatios, poolWeight.toFixed()],
-        }
-      },
-      { underlyingAssetRatiosBaseUnit: [] as string[], underlyingAssetRatios: [] as string[] },
-    )
+          return {
+            underlyingAssetRatiosBaseUnit: [
+              ...acc.underlyingAssetRatiosBaseUnit,
+              toBaseUnit(
+                adjustedRatio.toFixed(),
+                assets.byId[underlyingAssetIds[i]]?.precision ?? 0,
+              ),
+            ],
+            underlyingAssetWeightPercentageDecimal: [
+              ...acc.underlyingAssetWeightPercentageDecimal,
+              poolWeight.toFixed(),
+            ],
+          }
+        },
+        {
+          underlyingAssetRatiosBaseUnit: [] as string[],
+          underlyingAssetWeightPercentageDecimal: [] as string[],
+        },
+      )
 
     const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 
@@ -243,7 +253,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetIds,
       rewardAssetIds: [thorchainAssetId] as [AssetId],
       underlyingAssetRatiosBaseUnit,
-      underlyingAssetRatios,
+      underlyingAssetWeightPercentageDecimal,
       name: `RUNEPool`,
       saversMaxSupplyFiat: undefined,
       isFull: false,

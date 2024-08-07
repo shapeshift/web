@@ -919,7 +919,7 @@
     "unknownGas": "(unknown)",
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
-    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
     "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",

@@ -488,7 +488,7 @@ export const zapper = createApi({
                   const underlyingAssetIds = asset.tokens.map(token => {
                     const underlyingAssetId = zapperAssetToMaybeAssetId(token)
                     return underlyingAssetId!
-                  }) as unknown as AssetIdsTuple
+                  })
 
                   const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
                   const assetPrice =

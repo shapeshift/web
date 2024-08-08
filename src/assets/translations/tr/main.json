@@ -24,6 +24,7 @@
     "claimable": "Toplanabilir",
     "comingSoon": "Yakında...",
     "approve": "Onayla",
+    "reset": "Sıfırla",
     "confirm": "Onaylayın",
     "seeDetails": "Detayları gör",
     "activity": "Aktivite",
@@ -397,12 +398,15 @@
       },
       "saversVaults": {
         "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
+        "runePoolDescription": "RUNEPool, %{asset}'inizi başkalarıyla birleştirerek daha fazla %{asset} kazanmanızı sağlar. Belirli havuzları seçmenize gerek yok, herkes genel performanstan pay alır.",
+        "runePoolOverviewDescription": "RUNEPool, %{asset} kullanımını THORChain'deki tüm POL etkinleştirilmiş likidite havuzlarına yatırarak optimize eder. Katılımcılar, %{asset}'i bu havuzlar arasında birleştirerek, birleşik APY kazanır ancak toplam geçici kayba maruz kalır. Kullanıcılar, bireysel havuzları seçmek yerine genel performanstan yararlanır ve etkili bir şekilde bir %{asset} endeksine ve tüm THORChain PoL etkinleştirilmiş varlıklara yatırım yapar. Bu, likidite sağlamayı basitleştirir ve bireysel riski azaltır.",
         "vaultCap": "Kasa Üst Limiti",
         "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedDepositTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
         "disabledDepositTitle": "Para yatırma işlemleri geçici olarak devre dışı bırakıldı.",
         "haltedWithdrawTitle": "Para çekme işlemleri geçici olarak durdurulmuştur.",
         "disabledWithdrawTitle": "Para çekme işlemleri geçici olarak devre dışı bırakıldı.",
+        "runePoolWithdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",
@@ -412,10 +416,12 @@
         "sendDust": "Toz Gönder",
         "addressToSendTo": "Gönderilecek Adres",
         "introducingSaversVaults": "Saver Vaults Giriş",
+        "introducingRunePool": "RUNEPool'u Tanıtımı",
         "risksBody": {
           "1": "Saver Vaults ile ilgili riskler için",
           "2": "bu makaleye",
-          "3": "bakın."
+          "3": "bakın.",
+          "runePool": "RUNEPool ile ilgili riskler için."
         },
         "understand": "Anladım",
         "days": "%{amount} günler",
@@ -426,7 +432,10 @@
         },
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
-        "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün."
+        "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün.",
+        "agreeRunePool": {
+          "1": "RUNEPool'un hem 90 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu biliyorum."
+        }
       }
     },
     "memoNote": {
@@ -657,7 +666,8 @@
         "stake": "Stake",
         "withdraw": "Çekmek",
         "unstakeRequest": "Stake Kaldırma Talebi",
-        "setRuneAddress": "Rune Adresini Ayarla"
+        "setRuneAddress": "Rune Adresini Ayarla",
+        "reward": "Ödül Dağıtımı"
       },
       "weth": {
         "deposit": "Depozit",
@@ -773,12 +783,14 @@
   },
   "trade": {
     "trade": "Takas",
+    "resetAllowance": "Ödeneği Sıfırla",
     "allowance": "Ödenek",
     "verifyAddresses": "Adresleri Doğrulayın",
     "assetAddress": "%{asset} adresi",
     "verifyAsset": "%{asset}'ı doğrulayın",
     "verifyAddressMessage": "Devam etmeden önce adreslerinizin doğru olduğundan emin olun.",
     "slippageInfo": "Fiyat bu orandan daha fazla olumsuz yönde değişirse işleminiz geri alınır.",
+    "resetAllowanceTooltip": "Bu token için sıfırdan farklı bir ödenek kaldığında, son ödeneği onaylamadan önce ödeneğin ilk önce 0'a sıfırlanması gerekir.",
     "allowanceTooltip": "Akıllı sözleşmeye sizin adınıza kullanması için izin vereceğiniz tutar.",
     "searchingRate": "Oran getiriliyor...",
     "noRateAvailable": "Uygun Oran Yok.",
@@ -915,7 +927,11 @@
     "enableMetaMaskSnap": "Multichain snap'i kullan",
     "connectChain": "%{chainName}'i bağla",
     "approvalGasFee": "Gaz ücreti onayı %{fee}",
+    "approvalGasFeeLoading": "Onaylanan gaz ücreti yükleniyor...",
+    "approvalResetGasFee": "Onaylanan gaz ücretini sıfırla %{fee}",
+    "approvalResetGasFeeLoading": "Onaylanan gaz ücreti sıfırlama yükleniyor...",
     "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
+    "approvalResetFailed": "Ödenek sıfırlama sırasında bir sorun oluştu",
     "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
     "showDetails": "Detayları göster",
@@ -937,7 +953,8 @@
       "swap": "%{sellChainName} üzerinde %{swapperName} aracılığıyla takas yapın"
     },
     "approvalTitle": "Token ödeneği onayı",
-    "assetSummaryDescription": "%{chainName} üzerinde %{amountFiatFormatted}",
+    "resetTitle": "Token ödeneği sıfırlama",
+    "fiatAmountOnChain": "%{chainName} üzerinde %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
       "slippage": "Kayma: %{slippageFormatted}"
@@ -1768,6 +1785,7 @@
         "SegwitNativeTooltip": "Çoğu kullanıcı için önerilir. Diğer adresleri yalnızca ne işe yaradıklarını biliyorsanız kullanın.",
         "btcFormat": "BTC Format",
         "assetUnavailable": "Bu varlık için piyasa verileri henüz mevcut değil. Üzerinde çalışıyoruz, sıkı durun!",
+        "customAsset": "Bu özel olarak içe aktarılmış bir varlıktır. Piyasa verileri doğru olmayabilir.",
         "loading": "Fiyat geçmişi getiriliyor, bekleyin...",
         "maxTotalSupply": "Maksimum Toplam Tedarik",
         "availableSupply": "Mevcut Tedarik",
@@ -2322,6 +2340,7 @@
     "pricePerAsset": "%{to} başına %{from}",
     "symAlert": "%{from}'unuz, havuza girdikten sonra hem %{to} hem de %{from}'a 50:50'lik bir maruziyete bölünecek.",
     "symAfterRuneAlert": "THOR ağının çalışma şekli nedeniyle asimetrik bir RUNE yatırma sonrasında simetrik yatırmalar mümkün değildir.",
+    "withdrawTypeNotAvailable": "Bu çekim türü bu havuz için geçerli değil.",
     "incompletePositionDepositAlert": "Bu pozisyon eksik, lütfen bu pozisyonu tamamlamak için ilgili miktarda %{asset} yatırın.",
     "incompletePositionWithdrawAlert": "Bu pozisyon eksik, lütfen likiditenin %100'ünü çekerek pozisyonu iptal edin. Pozisyonu 'Likidite Ekle' yoluyla da sonlandırabilirsiniz.",
     "unsupportedDemoWalletExplainer": "Demo cüzdan desteklenmiyor, bu özelliği kullanmak için lütfen bir cüzdana bağlanın.",
@@ -2347,6 +2366,10 @@
     "confirmAndWithdraw": "Onayla ve Çek",
     "removeAmounts": "Tutar(lar) Kaldır",
     "stagedTooltip": "Aşamalı havuzlar likiditeyi kabul eden yeni havuzlardır ancak Kullanılabilir hale gelene kadar herhangi bir kazanç tahakkuk etmeyecektir.",
+    "newPosition": "Yeni pozisyon",
+    "newPositionTooltip": "Bu, mevcut olanlara ekleme yapmak yerine yeni bir LP pozisyonu yaratacaktır.",
+    "notSupported": "Mümkün değil",
+    "notSupportedTooltip": "Mevcut Asimetrik Rune pozisyonunuz nedeniyle, bu havuza her iki varlıkla para yatırmanız mümkün değildir. Her iki varlıkla yeni bir LP oluşturmak istiyorsanız lütfen mevcut pozisyonunuzu geri çekin.",
     "yourPositions": {
       "yourPositions": "Pozisyonlarınız",
       "emptyTitle": "Aktif pozisyon yok",
@@ -2528,6 +2551,8 @@
     "totalStaked": "Toplam Stake Edilmiş FOX ",
     "totalFeesCollected": "Toplanan Toplam Ücretler (Bu Dönem)",
     "emissionsPool": "Emisyon Havuzu (Bu Dönem)",
-    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)"
+    "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)",
+    "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
+    "pendingDistribution": "Bekleyen Dağıtım"
   }
 }

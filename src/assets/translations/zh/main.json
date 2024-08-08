@@ -406,6 +406,7 @@
         "disabledDepositTitle": "暂时禁止存款。",
         "haltedWithdrawTitle": "提款暂时停止。",
         "disabledWithdrawTitle": "暂时禁止提款。",
+        "runePoolWithdrawLockedTitle": "您必须等待 %{timeHuman} 才能提款。",
         "haltedDescription": "请 @THORChain 发推文以提高上限！",
         "protocolFee": "协议费",
         "fee": "费用",

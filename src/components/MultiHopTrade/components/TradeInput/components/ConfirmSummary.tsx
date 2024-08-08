@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import {
@@ -232,7 +233,11 @@ export const ConfirmSummary = ({
   const shouldForceManualAddressEntry = useMemo(() => {
     if (_isSmartContractSellAddress === undefined) return
 
-    return _isSmartContractSellAddress && sellAsset.chainId !== buyAsset.chainId
+    return (
+      _isSmartContractSellAddress &&
+      sellAsset.chainId !== buyAsset.chainId &&
+      isEvmChainId(buyAsset.chainId)
+    )
   }, [_isSmartContractSellAddress, sellAsset, buyAsset])
 
   return (

@@ -27,10 +27,9 @@ WARNING: If your PR introduces a new on-chain transaction or modifies an existin
 E.g. an upgrade to `hdwallet` or core state management would be considered higher risk, and might require a full regression test. UI or isolated view changes, or something behind a feature flag may have near zero risk. Small bug fixes might require testing isolated to the specific fix.
 ------------------------------------------------------------------------------>
 
-> What protocols, transaction types or contract interactions might be affected by this PR?
+> What protocols, transaction types, wallets or contract interactions might be affected by this PR?
 
 ## Testing
-
 <!-----------------------------------------------------------------------------
 We treat every PR to be merged with the same scrutiny as if we were merging directly to production.
 
@@ -44,6 +43,7 @@ Include sufficient information here for an engineer to test your PR. This may in
 ------------------------------------------------------------------------------>
 
 ### Operations
+- [ ] :checkered_flag: My feature is behind a flag and doesn't require operations testing (yet)
 
 <!-----------------------------------------------------------------------------
 If your changes have a user-facing impact, describe how a non-technical QA team can functionally test your changes in a preview environment.

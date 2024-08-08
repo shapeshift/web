@@ -15,11 +15,15 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectHopExecutionMetadata,
+  selectHopSellAccountId,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
@@ -92,6 +96,14 @@ export const HopTransactionStep = ({
     [tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId],
   )
 
+  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+  const { data: safeTx } = useSafeTxQuery({
+    maybeSafeTxHash: sellTxHash,
+    chainId: tradeQuoteStep.sellAsset.chainId,
+  })
+
+  console.log({ safeTx })
+
   const txLinks = useMemo(() => {
     const txLinks = []
     if (buyTxHash) {
@@ -100,6 +112,9 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           txId: buyTxHash,
+          // Assume buy TxHash can never be a user SAFE hash
+          isSafeTxHash: false,
+          accountId: sellAssetAccountId,
         }),
         txHash: buyTxHash,
       })
@@ -110,6 +125,8 @@ export const HopTransactionStep = ({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+          accountId: sellAssetAccountId,
+          isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
           ...(tradeQuoteStep.source === SwapperName.CowSwap
             ? {
                 tradeId: sellTxHash,
@@ -123,7 +140,15 @@ export const HopTransactionStep = ({
     }
 
     return txLinks
-  }, [buyTxHash, sellTxHash, tradeQuoteStep])
+  }, [
+    buyTxHash,
+    safeTx?.isSafeTxHash,
+    sellAssetAccountId,
+    sellTxHash,
+    tradeQuoteStep.buyAsset.explorerTxLink,
+    tradeQuoteStep.sellAsset.explorerTxLink,
+    tradeQuoteStep.source,
+  ])
 
   const stepIndicator = useMemo(() => {
     const defaultIcon = <SwapperIcon swapperName={swapperName} />

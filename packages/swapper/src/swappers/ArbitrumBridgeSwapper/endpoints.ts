@@ -159,7 +159,6 @@ export const arbitrumBridgeApi: SwapperApi = {
     txHash,
     chainId,
     assertGetEvmChainAdapter,
-    getSafeApiKit,
     getEthersV5Provider,
   }): Promise<{
     status: TxStatus
@@ -170,7 +169,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
-      getSafeApiKit,
     })
     const isWithdraw = chainId === arbitrumChainId
 
@@ -230,7 +228,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       txHash: maybeBuyTxHash,
       chainId: arbitrumChainId,
       assertGetEvmChainAdapter,
-      getSafeApiKit,
     })
 
     // i.e Unknown is perfectly valid since ETH deposits L2 Txids are available immediately deterministically, but will only be in the mempool after ~10mn

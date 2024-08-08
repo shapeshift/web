@@ -19,7 +19,6 @@ import { swapper } from 'react-queries/queries/swapper'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { fromBaseUnit } from 'lib/math'
-import { getSafeApiKit } from 'lib/safeApiKitSingleton'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import {
@@ -165,7 +164,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     return {
       assetsById,
       assertGetChainAdapter,
-      getSafeApiKit,
       assertGetEvmChainAdapter,
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,

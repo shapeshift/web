@@ -308,14 +308,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 
+  const { data: safeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    chainId: fromAssetId(isRuneTx ? thorchainAssetId : assetId).chainId,
+  })
+
   const txIdLink = useMemo(
     () =>
       getTxLink({
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
         name: SwapperName.Thorchain,
+        isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+        accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
       }),
-    [txId],
+    [isRuneTx, poolAssetAccountId, runeAccountId, safeTx?.isSafeTxHash, txId],
   )
 
   const handleSignTx = useCallback(async () => {

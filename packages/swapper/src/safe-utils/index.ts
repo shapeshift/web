@@ -15,6 +15,9 @@ export const fetchSafeTransactionInfo = async ({
   accountId,
   fetchIsSmartContractAddressQuery,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
+  if (!accountId) {
+    return { transaction: null, isSafeTxHash: false }
+  }
   const chainId = fromAccountId(accountId).chainId
   if (!isEvmChainId(chainId)) return { transaction: null, isSafeTxHash: false }
   const isSmartContractAddress = await fetchIsSmartContractAddressQuery(

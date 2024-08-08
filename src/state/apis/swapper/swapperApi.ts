@@ -14,6 +14,7 @@ import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -71,6 +72,7 @@ export const swapperApi = createApi({
           assertGetEvmChainAdapter,
           assertGetUtxoChainAdapter,
           assertGetCosmosSdkChainAdapter,
+          fetchIsSmartContractAddressQuery,
           getEthersV5Provider,
           viemClientByChainId,
           config: getConfig(),

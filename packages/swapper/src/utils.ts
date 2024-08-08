@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -223,11 +223,15 @@ export const checkSafeTransactionStatus = async ({
 export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
+  accountId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
   txHash: string
+  accountId: AccountId | undefined
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
@@ -235,11 +239,12 @@ export const checkEvmSwapStatus = async ({
 }> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
-      txHash,
-      chainId,
-      assertGetEvmChainAdapter,
+      accountId,
+      safeTxHash: txHash,
+      fetchIsSmartContractAddressQuery,
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
+
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)

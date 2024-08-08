@@ -4,7 +4,6 @@ import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '
 import { Dex, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
-import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { getTxLink } from 'lib/getTxLink'
 import type { RewardDistributionWithMetadata } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
@@ -63,11 +62,6 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
     )
   }, [rewardDistributionsByTxId])
 
-  const { data: safeTx } = useSafeTxQuery({
-    maybeSafeTxHash: txId ?? undefined,
-    chainId: fromAccountId(stakingAssetAccountId).chainId,
-  })
-
   const getTxDetails = useCallback(
     (txId: TxId): TxDetails | undefined => {
       if (!runeAsset) return
@@ -105,8 +99,9 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         name: Dex.Thor,
         defaultExplorerBaseUrl: '',
         txId,
-        isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
-        accountId: stakingAssetAccountId,
+        // This can't be a SAFE Tx - it's a reward distribution on RUNE
+        isSafeTxHash: false,
+        accountId: undefined,
       })
 
       return {
@@ -117,7 +112,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         txLink,
       }
     },
-    [rewardDistributionsByTxId, runeAsset, safeTx?.isSafeTxHash, stakingAssetAccountId],
+    [rewardDistributionsByTxId, runeAsset],
   )
 
   if (!txIds.length && !isLoading) {

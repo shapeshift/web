@@ -100,6 +100,7 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
     return (
       <ClaimStatus
+        accountId={confirmedQuote.stakingAssetAccountId}
         txId={claimTxid}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}

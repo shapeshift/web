@@ -666,7 +666,7 @@
         "stake": "Stake",
         "withdraw": "Çekmek",
         "unstakeRequest": "Stake Kaldırma Talebi",
-        "setRuneAddress": "Rune Adresini Ayarla",
+        "setRuneAddress": "RUNE Adresini Ayarla",
         "reward": "Ödül Dağıtımı"
       },
       "weth": {

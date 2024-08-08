@@ -666,7 +666,7 @@
         "stake": "质押",
         "withdraw": "提现",
         "unstakeRequest": "取消质押请求",
-        "setRuneAddress": "设置符文地址",
+        "setRuneAddress": "设置 RUNE 地址",
         "reward": "奖励分配"
       },
       "weth": {

@@ -666,7 +666,7 @@
         "stake": "Стейкінг",
         "withdraw": "Зняти",
         "unstakeRequest": "Запит на зняття з стейкінгу",
-        "setRuneAddress": "Встановити адресу для Rune",
+        "setRuneAddress": "Встановити адресу для RUNE",
         "reward": "Розподіл винагороди"
       },
       "weth": {

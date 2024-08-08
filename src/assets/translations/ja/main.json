@@ -666,7 +666,7 @@
         "stake": "ステーク",
         "withdraw": "引き出す",
         "unstakeRequest": "ステーク解除リクエスト",
-        "setRuneAddress": "ルーンアドレスの設定",
+        "setRuneAddress": "RUNEアドレスの設定",
         "reward": "報酬の分配"
       },
       "weth": {

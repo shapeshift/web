@@ -666,7 +666,7 @@
         "stake": "Staking",
         "withdraw": "Retirar",
         "unstakeRequest": "Solicitud para retirar Staking",
-        "setRuneAddress": "Establecer Dirección Rune",
+        "setRuneAddress": "Establecer Dirección RUNE",
         "reward": "Distribución de Recompensas"
       },
       "weth": {

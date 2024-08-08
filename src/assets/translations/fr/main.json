@@ -434,7 +434,7 @@
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
         "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
         "agreeRunePool": {
-          "1": "Je comprends que RUNEPool a à la fois un blocage minimum de 90 jours et un risque accru de perte impermanentes."
+          "1": "Je comprends que RUNEPool a à la fois un blocage minimum de 90 jours et un risque accru de pertes impermanentes."
         }
       }
     },
@@ -666,7 +666,7 @@
         "stake": "Miser",
         "withdraw": "Retirer",
         "unstakeRequest": "Demande de démise",
-        "setRuneAddress": "Définir l'adresse Rune",
+        "setRuneAddress": "Définir l'adresse RUNE",
         "reward": "Distribution des récompenses"
       },
       "weth": {
@@ -928,7 +928,7 @@
     "connectChain": "connectez %{chainName}",
     "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
     "approvalGasFeeLoading": "Chargement des frais de carburant pour l'autorisation...",
-    "approvalResetGasFee": "Frais de carburant pour réinitialisation d'autorisation %{fee}",
+    "approvalResetGasFee": "Frais de carburant pour réinitialisation de l'autorisation %{fee}",
     "approvalResetGasFeeLoading": "Chargement des frais de carburant pour réinitialisation de l'autorisation...",
     "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
     "approvalResetFailed": "Un problème est survenu lors de la réinitialisation de l'allocation",

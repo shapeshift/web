@@ -64,9 +64,11 @@ export type OpportunityMetadataBase = {
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
   // For opportunities a la FOXy, that's the asset the opportunity wraps
-  underlyingAssetIds: AssetIdsTuple
-  // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
+  underlyingAssetIds: AssetId[]
+  // The underlying amount of underlyingAssetId per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly string[]
+  // The balancing weight percentage of every underlying asset
+  underlyingAssetWeightPercentageDecimal?: readonly string[]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple
@@ -237,7 +239,7 @@ export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunity
 
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
-  underlyingAssetIds: AssetIdsTuple
+  underlyingAssetIds: AssetId[]
   apy: string | undefined
   fiatAmount: string
   cryptoBalancePrecision: string

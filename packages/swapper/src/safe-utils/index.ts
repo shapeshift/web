@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 
@@ -10,10 +11,23 @@ import type {
 } from './types'
 
 export const fetchSafeTransactionInfo = async ({
-  chainId,
   safeTxHash,
+  accountId,
+  fetchIsSmartContractAddressQuery,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
+  const chainId = fromAccountId(accountId).chainId
   if (!isEvmChainId(chainId)) return { transaction: null, isSafeTxHash: false }
+  const isSmartContractAddress = await fetchIsSmartContractAddressQuery(
+    fromAccountId(accountId).account,
+    chainId,
+  )
+
+  if (!isSmartContractAddress) {
+    // Assume any smart contract address is a SAFE, and by extension, any non-smart contract address is not
+    // This is super naive, but this is exactly the same way SAFE does it
+    // https://github.com/safe-global/safe-core-sdk/blob/ea0d5018a93f294dfd891e6c8963edcb96431876/packages/protocol-kit/src/Safe.ts#L303
+    return { transaction: null, isSafeTxHash: false }
+  }
 
   const baseUrl = ChainIdToSafeBaseUrl[chainId]
   if (!baseUrl) {

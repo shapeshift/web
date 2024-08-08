@@ -1,22 +1,29 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { SafeTxInfo } from '@shapeshiftoss/swapper'
 import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 
 type UseSafeTxQueryArgs = {
-  chainId: ChainId
+  accountId: AccountId | undefined
   maybeSafeTxHash: string | undefined
 }
 
 export const useSafeTxQuery = ({
-  chainId,
+  accountId,
   maybeSafeTxHash,
 }: UseSafeTxQueryArgs): UseQueryResult<SafeTxInfo, Error> => {
   return useQuery({
-    queryKey: ['safeTransaction', { chainId, maybeSafeTxHash }],
-    queryFn: maybeSafeTxHash
-      ? () => fetchSafeTransactionInfo({ chainId, safeTxHash: maybeSafeTxHash })
-      : skipToken,
+    queryKey: ['safeTransaction', { accountId, safeTxHash: maybeSafeTxHash }],
+    queryFn:
+      maybeSafeTxHash && accountId
+        ? () =>
+            fetchSafeTransactionInfo({
+              accountId,
+              safeTxHash: maybeSafeTxHash,
+              fetchIsSmartContractAddressQuery,
+            })
+        : skipToken,
   })
 }

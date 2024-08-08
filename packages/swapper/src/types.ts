@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
@@ -329,6 +329,7 @@ export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
+  accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
 } & EvmSwapperDeps &

@@ -1,12 +1,8 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_LONGTAIL_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -109,40 +105,14 @@ export const ConfirmSummary = ({
   const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
     useIsSmartContractAddress(userAddress, sellAsset.chainId)
 
-  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
-    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
-
-  const disableSmartContractSwap = useMemo(() => {
-    // Swappers other than THORChain shouldn't be affected by this limitation
-    if (activeSwapperName !== SwapperName.Thorchain) return false
-
-    // This is either a smart contract address, or the bytecode is still loading - disable confirm
-    if (_isSmartContractSellAddress) return true
-    if (
-      [THORCHAIN_LONGTAIL_SWAP_SOURCE, THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE].includes(
-        tradeQuoteStep?.source!,
-      ) &&
-      _isSmartContractReceiveAddress
-    )
-      return true
-
-    // All checks passed - this is an EOA address
-    return false
-  }, [
-    _isSmartContractReceiveAddress,
-    _isSmartContractSellAddress,
-    activeSwapperName,
-    tradeQuoteStep?.source,
-  ])
-
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
 
   const isLoading = useMemo(() => {
-    return isParentLoading || isSellAddressByteCodeLoading || isReceiveAddressByteCodeLoading
-  }, [isParentLoading, isReceiveAddressByteCodeLoading, isSellAddressByteCodeLoading])
+    return isParentLoading || isSellAddressByteCodeLoading
+  }, [isParentLoading, isSellAddressByteCodeLoading])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -154,8 +124,6 @@ export const ConfirmSummary = ({
       manualReceiveAddressIsValid === false ||
       // don't execute trades while in loading state
       isLoading ||
-      // don't execute trades for smart contract addresses where they aren't supported
-      disableSmartContractSwap ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -170,7 +138,6 @@ export const ConfirmSummary = ({
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    disableSmartContractSwap,
     activeSwapperName,
     activeQuote,
     hasUserEnteredAmount,
@@ -232,7 +199,11 @@ export const ConfirmSummary = ({
   const shouldForceManualAddressEntry = useMemo(() => {
     if (_isSmartContractSellAddress === undefined) return
 
-    return _isSmartContractSellAddress && sellAsset.chainId !== buyAsset.chainId
+    return (
+      _isSmartContractSellAddress &&
+      sellAsset.chainId !== buyAsset.chainId &&
+      isEvmChainId(buyAsset.chainId)
+    )
   }, [_isSmartContractSellAddress, sellAsset, buyAsset])
 
   return (
@@ -289,7 +260,6 @@ export const ConfirmSummary = ({
         )}
         <WithLazyMount
           shouldUse={Boolean(receiveAddress) && shouldForceManualAddressEntry === false}
-          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={RecipientAddress}
         />
         <WithLazyMount

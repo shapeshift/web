@@ -27,7 +27,6 @@ export enum TradeQuoteRequestError {
 // The following affect individual trade quotes.
 // These errors affect the ability to execute an individual quote as opposed to inability to get an individual quote.
 export enum TradeQuoteValidationError {
-  SmartContractWalletNotSupported = 'SmartContractWalletNotSupported',
   TradingInactiveOnSellChain = 'TradingInactiveOnSellChain',
   TradingInactiveOnBuyChain = 'TradingInactiveOnBuyChain',
   SellAmountBelowTradeFee = 'SellAmountBelowTradeFee',

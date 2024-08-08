@@ -102,8 +102,6 @@ export const HopTransactionStep = ({
     chainId: tradeQuoteStep.sellAsset.chainId,
   })
 
-  console.log({ safeTx })
-
   const txLinks = useMemo(() => {
     const txLinks = []
     if (buyTxHash) {

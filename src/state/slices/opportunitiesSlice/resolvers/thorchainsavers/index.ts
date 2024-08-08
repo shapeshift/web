@@ -338,9 +338,6 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
       ]
 
-      if (stakingOpportunityId === thorchainAssetId && accountPosition.last_add_height) {
-      }
-
       const maybeMaturity = await (async () => {
         if (stakingOpportunityId !== thorchainAssetId) return {}
         if (!accountPosition.last_add_height) return { maturity: undefined }

@@ -205,7 +205,7 @@ export const checkEvmSwapStatus = async ({
     return {
       status,
       buyTxHash: txHash,
-      message: undefined,
+      message: transaction?.transactionHash ? `SAFE proposal executed.` : undefined,
     }
   } catch (e) {
     console.error(e)

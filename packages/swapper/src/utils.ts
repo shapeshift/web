@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -169,18 +169,26 @@ export const createDefaultStatusResponse = (buyTxHash?: string) => ({
 export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
+  accountId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
   txHash: string
+  accountId: AccountId | undefined
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
   message: string | undefined
 }> => {
   try {
-    const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, maybeSafeTxHash: txHash })
+    const safeTransactionInfo = await fetchSafeTransactionInfo({
+      accountId,
+      maybeSafeTxHash: txHash,
+      fetchIsSmartContractAddressQuery,
+    })
     const { isSafeTxHash, transaction } = safeTransactionInfo
 
     // No buyTxHash handling is correct - we mutate with the actual on-chain transaction, meaning the regular flow then takes over

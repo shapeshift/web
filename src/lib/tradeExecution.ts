@@ -20,6 +20,7 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import EventEmitter from 'events'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -99,6 +100,7 @@ export class TradeExecution {
             getEthersV5Provider,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
+            fetchIsSmartContractAddressQuery,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

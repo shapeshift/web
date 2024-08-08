@@ -51,7 +51,7 @@ export type SafeTransactionError = {
 }
 
 export type FetchSafeTransactionArgs = {
-  accountId: AccountId
+  accountId: AccountId | undefined
   maybeSafeTxHash: string
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }

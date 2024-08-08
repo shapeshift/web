@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import { type AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
@@ -97,7 +97,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
 
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    chainId: fromAccountId(accountId).chainId,
+    accountId,
   })
 
   const txLink = useMemo(

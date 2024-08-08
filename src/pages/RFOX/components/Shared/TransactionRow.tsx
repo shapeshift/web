@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo, useState } from 'react'
@@ -54,7 +54,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    chainId: accountId ? fromAccountId(accountId).chainId : undefined,
+    accountId,
   })
 
   const txIdLink = useMemo(() => {

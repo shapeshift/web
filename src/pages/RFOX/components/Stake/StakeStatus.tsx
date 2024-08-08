@@ -1,5 +1,4 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
@@ -98,7 +97,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
 
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    chainId: fromAccountId(confirmedQuote.stakingAssetAccountId).chainId,
+    accountId: confirmedQuote.stakingAssetAccountId,
   })
 
   const txLink = useMemo(

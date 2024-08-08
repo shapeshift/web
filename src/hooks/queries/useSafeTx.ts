@@ -3,6 +3,7 @@ import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper/dist/safe-utils
 import { type SafeTxInfo } from '@shapeshiftoss/swapper/dist/safe-utils/types'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 
 type UseSafeTxQueryArgs = {
   accountId: AccountId | undefined
@@ -14,10 +15,15 @@ export const useSafeTxQuery = ({
   maybeSafeTxHash,
 }: UseSafeTxQueryArgs): UseQueryResult<SafeTxInfo, Error> => {
   return useQuery({
-    queryKey: ['safeTransaction', { chainId, maybeSafeTxHash }],
+    queryKey: ['safeTransaction', { accountId, maybeSafeTxHash }],
     queryFn:
       maybeSafeTxHash && accountId
-        ? () => fetchSafeTransactionInfo({ chainId, maybeSafeTxHash })
+        ? () =>
+            fetchSafeTransactionInfo({
+              accountId,
+              maybeSafeTxHash,
+              fetchIsSmartContractAddressQuery,
+            })
         : skipToken,
   })
 }

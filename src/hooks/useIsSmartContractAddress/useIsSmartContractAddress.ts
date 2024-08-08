@@ -6,7 +6,7 @@ import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { isSmartContractAddress } from 'lib/address/utils'
 
 // For use outside of react-query, while still leveraging caching
-export const isSmartContractAddressQuery = (userAddress: string, chainId: ChainId) => {
+export const fetchIsSmartContractAddressQuery = (userAddress: string, chainId: ChainId) => {
   if (!isEvmChainId(chainId)) return Promise.resolve(false)
   if (!userAddress.length) return Promise.resolve(false)
 

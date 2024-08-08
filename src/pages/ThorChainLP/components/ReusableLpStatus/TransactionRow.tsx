@@ -26,6 +26,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -310,7 +311,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
 
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
-    chainId: fromAssetId(isRuneTx ? thorchainAssetId : assetId).chainId,
+    accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
   })
 
   const txIdLink = useMemo(

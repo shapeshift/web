@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
 import { swapper } from 'react-queries/queries/swapper'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { fromBaseUnit } from 'lib/math'
@@ -168,6 +169,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,
       getEthersV5Provider,
+      fetchIsSmartContractAddressQuery,
       viemClientByChainId,
       config: getConfig(),
     }
@@ -267,6 +269,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
               chainId: sellAsset.chainId,
               quoteId: '',
               stepIndex: 0,
+              accountId: confirmedQuote.sellAssetAccountId,
               ...swapperDeps,
             })
         : skipToken,

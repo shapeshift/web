@@ -10,9 +10,6 @@ import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
 import { getPortalTokens } from '../utils/portals'
-import { getIdleTokens } from './idleVaults'
-// Yearn SDK is currently rugged upstream
-// import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
@@ -35,14 +32,10 @@ const foxyToken: Asset = {
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
-    // getYearnVaults(),
-    // getZapperTokens(),
-    // getUnderlyingVaultTokens(),
-    getIdleTokens(),
     getPortalTokens(ethereum),
   ])
 
-  const [ethTokens, uniV2PoolTokens, idleTokens, _portalsAssets] = results.map(result => {
+  const [coingeckoTokens, portalsTokens] = results.map(result => {
     if (result.status === 'fulfilled') return result.value
     console.error(result.reason)
     return []
@@ -51,19 +44,9 @@ export const getAssets = async (): Promise<Asset[]> => {
   // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
   // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
   // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
-  const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
+  const [portalsPools, portalsAssets] = partition(portalsTokens, 'isPool')
 
-  const ethAssets = [
-    ...uniV2PoolTokens,
-    ...idleTokens,
-    foxyToken,
-    ...portalsPools,
-    ...ethTokens,
-    // ...yearnVaults,
-    // ...zapperTokens,
-    // ...underlyingTokens,
-    ...portalsAssets,
-  ]
+  const ethAssets = portalsPools.concat(coingeckoTokens).concat(portalsAssets).concat(foxyToken)
 
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy

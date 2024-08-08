@@ -15,7 +15,7 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { middleEllipsis, tokenOrUndefined } from 'lib/utils'
+import { isToken, middleEllipsis } from 'lib/utils'
 import {
   selectAccountIdsByAssetId,
   selectAssetById,
@@ -70,14 +70,13 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const href = (() => {
     const { assetReference } = fromAssetId(asset.assetId)
-    const maybeToken = tokenOrUndefined(assetReference)
 
     if (isNft(asset.assetId)) {
       const [token] = assetReference.split('/')
       return `${asset.explorer}/token/${token}?a=${asset.id}`
     }
 
-    if (maybeToken) return `${asset?.explorerAddressLink}${maybeToken}`
+    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
 
     return asset.explorer
   })()

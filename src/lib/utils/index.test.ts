@@ -1,11 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  ASSET_REFERENCE,
   cosmosAssetId,
   cosmosChainId,
+  ethAssetId,
   ethChainId,
   foxAssetId,
   foxyAssetId,
+  fromAssetId,
 } from '@shapeshiftoss/caip'
 import { describe, expect, it, test, vi } from 'vitest'
 import { fauxmesAccountId } from 'state/slices/opportunitiesSlice/mocks'
@@ -19,6 +20,7 @@ import { opportunityIdToChainId } from 'state/slices/opportunitiesSlice/utils'
 
 import {
   assertIsDefined,
+  contractAddressOrUndefined,
   deepUpsertArray,
   hashCode,
   isFulfilled,
@@ -30,7 +32,6 @@ import {
   partitionCompare,
   partitionCompareWith,
   sha256,
-  tokenOrUndefined,
   upsertArray,
 } from '.'
 
@@ -205,17 +206,16 @@ describe('lib/utils', () => {
 
   describe('isToken', () => {
     it('should return false for non-token', () => {
-      const ethAssetReference = ASSET_REFERENCE.Ethereum
-      expect(isToken(ethAssetReference)).toBe(false)
+      expect(isToken(ethAssetId)).toBe(false)
     })
     it('should return true for token', () => {
-      expect(isToken('0x470e8de2ebaef52014a47cb5e6af86884947f08c')).toBe(true)
+      expect(isToken(foxAssetId)).toBe(true)
     })
   })
-  describe('tokenOrUndefined', () => {
-    it('should return token for token', () => {
-      const assetReference = '0x470e8de2ebaef52014a47cb5e6af86884947f08c'
-      expect(tokenOrUndefined(assetReference)).toBe(assetReference)
+  describe('contractAddressOrUndefined', () => {
+    it('should return contract address for token', () => {
+      const { assetReference } = fromAssetId(foxAssetId)
+      expect(contractAddressOrUndefined(foxAssetId)).toBe(assetReference)
     })
   })
 

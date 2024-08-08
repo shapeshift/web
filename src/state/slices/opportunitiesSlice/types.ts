@@ -20,6 +20,7 @@ export enum DefiType {
 
 export enum DefiProvider {
   ShapeShift = 'ShapeShift',
+  rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
   UniV2 = 'Uniswap V2',
   CosmosSdk = 'Cosmos SDK',
@@ -40,7 +41,7 @@ export type AssetIdsTuple =
   | readonly []
 
 export type OpportunityMetadataBase = {
-  apy: string
+  apy: string | undefined
   assetId: AssetId
   id: OpportunityId
   provider: string
@@ -63,9 +64,11 @@ export type OpportunityMetadataBase = {
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
   // For opportunities a la FOXy, that's the asset the opportunity wraps
-  underlyingAssetIds: AssetIdsTuple
-  // The underlying amount of underlyingAssetId 0 and maybe 1 per 1 LP token, in base unit
+  underlyingAssetIds: AssetId[]
+  // The underlying amount of underlyingAssetId per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly string[]
+  // The balancing weight percentage of every underlying asset
+  underlyingAssetWeightPercentageDecimal?: readonly string[]
   // The reward assets this opportunity yields, typically 1/2 or 3 assets max.
   // Can also be empty in case there are no denominated rewards or we are unable to track them
   rewardAssetIds: AssetIdsTuple
@@ -98,8 +101,13 @@ export type UserStakingOpportunityBase = {
   }
 }
 
+export type RunepoolUserStakingOpportunity = {
+  maturity: number
+} & UserStakingOpportunityBase
+
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
+  | RunepoolUserStakingOpportunity
   | CosmosSdkStakingSpecificUserStakingOpportunity
   | FoxySpecificUserStakingOpportunity
 
@@ -184,7 +192,7 @@ type EarnDefiTypeBase = {
   version?: string
   contractAddress?: string
   rewardAddress?: string
-  apy: number | string
+  apy: number | string | undefined
   tvl: string
   underlyingAssetId: AssetId
   assetId: AssetId
@@ -205,7 +213,7 @@ type EarnDefiTypeBase = {
 }
 
 export type StakingEarnOpportunityType = OpportunityMetadata &
-  Partial<UserStakingOpportunityBase> & {
+  Partial<UserStakingOpportunity> & {
     isVisible?: boolean
   } & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 
@@ -231,8 +239,8 @@ export type EarnOpportunityType = StakingEarnOpportunityType | LpEarnOpportunity
 
 export type AggregatedOpportunitiesByAssetIdReturn = {
   assetId: AssetId
-  underlyingAssetIds: AssetIdsTuple
-  apy: string
+  underlyingAssetIds: AssetId[]
+  apy: string | undefined
   fiatAmount: string
   cryptoBalancePrecision: string
   fiatRewardsAmount: string
@@ -241,7 +249,7 @@ export type AggregatedOpportunitiesByAssetIdReturn = {
 
 export type AggregatedOpportunitiesByProviderReturn = {
   provider: string
-  apy: string
+  apy: string | undefined
   fiatAmount: string
   fiatRewardsAmount: string
   netProviderFiatAmount: string

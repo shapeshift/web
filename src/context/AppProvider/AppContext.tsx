@@ -1,17 +1,11 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { DAO_TREASURY_THORCHAIN } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
-import dayjs from 'dayjs'
-import difference from 'lodash/difference'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -31,8 +25,6 @@ import {
   marketData,
   useFindAllQuery,
 } from 'state/slices/marketDataSlice/marketDataSlice'
-import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
-import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -44,7 +36,7 @@ import {
   selectSelectedLocale,
   selectWalletAccountIds,
 } from 'state/slices/selectors'
-import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
+import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 /**
@@ -231,102 +223,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (!requestedAccountIds.length) return
       if (portfolioLoadingStatus === 'loading') return
 
-      if (getConfig().REACT_APP_FEATURE_RFOX_MOCK_REWARDS_TX_HISTORY) {
-        const runeAddress = getConfig().REACT_APP_RFOX_REWARDS_MOCK_RUNE_ADDRESS
-        const accountId = toAccountId({ chainId: thorchainChainId, account: runeAddress })
-        const mockRfoxRewardTxs = {
-          [accountId]: [
-            {
-              address: runeAddress,
-              blockHeight: 123456789,
-              blockTime: dayjs('2024-06-01T00:00:00Z').unix(),
-              chainId: thorchainChainId,
-              confirmations: 999,
-              status: TxStatus.Confirmed,
-              txid: 'mock-123',
-              pubkey: runeAddress,
-              transfers: [
-                {
-                  from: [DAO_TREASURY_THORCHAIN],
-                  to: [runeAddress],
-                  value: '123412341234',
-                  type: TransferType.Receive,
-                  totalValue: '123412341234',
-                  assetId: thorchainAssetId,
-                },
-              ],
-            },
-            {
-              address: runeAddress,
-              blockHeight: 113456789,
-              blockTime: dayjs('2024-05-01T00:00:00Z').unix(),
-              chainId: thorchainChainId,
-              confirmations: 999,
-              status: TxStatus.Confirmed,
-              txid: 'mock-321',
-              pubkey: runeAddress,
-              transfers: [
-                {
-                  from: [DAO_TREASURY_THORCHAIN],
-                  to: [runeAddress],
-                  value: '43214321',
-                  type: TransferType.Receive,
-                  totalValue: '43214321',
-                  assetId: thorchainAssetId,
-                },
-              ],
-            },
-          ],
-        }
-        await dispatch(txHistory.actions.upsertTxsByAccountId(mockRfoxRewardTxs))
-      }
-
       const { getAllTxHistory } = txHistoryApi.endpoints
 
       await dispatch(getAllTxHistory.initiate(requestedAccountIds))
     })()
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
-  const uniV2LpIdsData = useAppSelector(
-    opportunitiesApi.endpoints.getOpportunityIds.select({
-      defiType: DefiType.LiquidityPool,
-      defiProvider: DefiProvider.UniV2,
-    }),
-  )
-
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQuery({
     queryKey: ['marketData', {}],
     queryFn: async () => {
-      // Exclude assets for which we are unable to get market data
-      // We would fire query thunks / XHRs that would slow down the app
-      // We insert price data for these as resolver-level, and are unable to get market data
-      const excluded: AssetId[] = uniV2LpIdsData.data ?? []
-      const portfolioAssetIdsExcludeNoMarketData = difference(portfolioAssetIds, excluded)
-
-      // Only commented out to make it clear we do NOT want to use RTK options here
-      // We use react-query as a wrapper because it allows us to disable refetch for background tabs
-      // const opts = { subscriptionOptions: { pollingInterval: marketDataPollingInterval } }
-      const timeframe = DEFAULT_HISTORY_TIMEFRAME
-
-      await Promise.all([
-        dispatch(
-          marketApi.endpoints.findPriceHistoryByAssetIds.initiate(
-            {
-              timeframe,
-              assetIds: portfolioAssetIdsExcludeNoMarketData,
-            },
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            { forceRefetch: true },
-          ),
-        ),
-        dispatch(
-          marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIdsExcludeNoMarketData, {
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            forceRefetch: true,
-          }),
-        ),
-      ])
+      await dispatch(
+        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIds, {
+          // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+          forceRefetch: true,
+        }),
+      )
 
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())

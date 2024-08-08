@@ -20,6 +20,7 @@ import { RawText } from 'components/Text'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { StakingEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
 import { selectAssetById, selectAssets } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -76,6 +77,10 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
       assets,
     )
 
+    if (provider === DefiProvider.rFOX) {
+      return history.push('/rfox')
+    }
+
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -123,7 +128,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
         {backgroundIcons}
       </Box>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center' gap={4}>
-        <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
+        <PairIcons showFirst={true} icons={icons ?? []} iconSize='sm' bg='transparent' />
         <Tag mt={2} textTransform='capitalize'>
           {providerDisplayName}
         </Tag>
@@ -138,7 +143,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
         </RawText>
       </CardBody>
       <CardFooter display='flex' flexDir='column' mt='auto'>
-        <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' />
+        {apy ? <Amount.Percent value={apy} fontSize='2xl' autoColor suffix='APY' /> : null}
         <Button
           mt={4}
           variant='ghost-filled'

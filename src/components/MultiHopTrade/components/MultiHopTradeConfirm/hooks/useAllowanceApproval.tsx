@@ -1,102 +1,90 @@
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
-import { useApprovalTx } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/hooks/useApprovalTx'
+import {
+  AllowanceType,
+  getApprovalAmountCryptoBaseUnit,
+  useApprovalFees,
+} from 'hooks/queries/useApprovalFees'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
-import { assertGetEvmChainAdapter, buildAndBroadcast } from 'lib/utils/evm'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetViemClient } from 'lib/viem-client'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { useIsApprovalNeeded } from './useIsApprovalNeeded'
-
 // handles allowance approval tx execution, fees, and state orchestration
 export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
-  isExactAllowance: boolean,
+  allowanceType: AllowanceType,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
-
+  const wallet = useWallet().state.wallet ?? undefined
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
 
-  const {
-    approvalNetworkFeeCryptoBaseUnit,
-    buildCustomTxInput,
-    stopPolling: stopPollingBuildApprovalTx,
-    isLoading,
-  } = useApprovalTx(tradeQuoteStep, hopIndex, isExactAllowance)
+  const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
 
-  const { isLoading: isApprovalNeededLoading, isApprovalNeeded } = useIsApprovalNeeded(
-    tradeQuoteStep,
-    sellAssetAccountId,
-  )
+  const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
+    accountNumber: tradeQuoteStep.accountNumber,
+    amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    assetId: tradeQuoteStep.sellAsset.assetId,
+    from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+    allowanceType,
+    spender: tradeQuoteStep.allowanceContract,
+  })
 
   useEffect(() => {
+    if (isApprovalRequired !== false) return
+
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    if (!isApprovalNeededLoading && !isApprovalNeeded) {
-      dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex }))
-    }
-  }, [dispatch, hopIndex, isApprovalNeeded, isApprovalNeededLoading])
+    dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex }))
+  }, [dispatch, hopIndex, isApprovalRequired])
 
-  const chainId = tradeQuoteStep.sellAsset.chainId
+  const approveMutation = useMutation({
+    ...reactQueries.mutations.approve({
+      accountNumber: tradeQuoteStep.accountNumber,
+      amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
+        tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        allowanceType,
+      ),
+      assetId: tradeQuoteStep.sellAsset.assetId,
+      spender: tradeQuoteStep.allowanceContract,
+      wallet,
+    }),
+    onMutate() {
+      dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex, isReset }))
+    },
+    async onSuccess(txHash) {
+      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash, isReset }))
 
-  const executeAllowanceApproval = useCallback(async () => {
-    if (isLoading || !isApprovalNeeded) return
+      const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
+      await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-    stopPollingBuildApprovalTx()
-    dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset }))
+    },
+    onError(err) {
+      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset }))
+      showErrorToast(err)
+    },
+  })
 
-    try {
-      if (!buildCustomTxInput) {
-        throw Error('missing buildCustomTxInput')
-      }
-
-      const adapter = assertGetEvmChainAdapter(chainId)
-
-      const txHash = await buildAndBroadcast({
-        adapter,
-        buildCustomTxInput,
-        receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-      })
-
-      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash }))
-
-      const publicClient = assertGetViemClient(chainId)
-
-      await publicClient.waitForTransactionReceipt({
-        hash: txHash as Hash,
-      })
-
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex }))
-    } catch (e) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex }))
-      showErrorToast(e)
+  return useMemo(() => {
+    return {
+      isLoading: allowanceCryptoBaseUnitResult.isLoading || evmFeesResult.isLoading,
+      approveMutation,
+      approvalNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
     }
   }, [
-    buildCustomTxInput,
-    chainId,
-    dispatch,
-    hopIndex,
-    isApprovalNeeded,
-    isLoading,
-    showErrorToast,
-    stopPollingBuildApprovalTx,
+    allowanceCryptoBaseUnitResult.isLoading,
+    approveMutation,
+    evmFeesResult.data,
+    evmFeesResult.isLoading,
   ])
-
-  const result = useMemo(
-    () => ({
-      isLoading,
-      executeAllowanceApproval,
-      approvalNetworkFeeCryptoBaseUnit,
-    }),
-    [approvalNetworkFeeCryptoBaseUnit, executeAllowanceApproval, isLoading],
-  )
-
-  return result
 }

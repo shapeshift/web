@@ -17,7 +17,7 @@ export type TradeQuoteContentProps = {
   buyAsset: Asset
   isBest: boolean
   numHops: number
-  totalReceiveAmountFiatPrecision: string
+  totalReceiveAmountFiatPrecision: string | undefined
   hasAmountWithPositiveReceive: boolean
   totalReceiveAmountCryptoPrecision: string
   quoteDifferenceDecimalPercentage: number | undefined
@@ -128,12 +128,14 @@ export const TradeQuoteContent = ({
             )}
           </Flex>
           <Skeleton isLoaded={!isLoading}>
-            <Amount.Fiat
-              color='text.subtle'
-              value={totalReceiveAmountFiatPrecision}
-              prefix='≈'
-              lineHeight={1}
-            />
+            {totalReceiveAmountFiatPrecision ? (
+              <Amount.Fiat
+                color='text.subtle'
+                value={totalReceiveAmountFiatPrecision}
+                prefix='≈'
+                lineHeight={1}
+              />
+            ) : null}
           </Skeleton>
         </Flex>
       </CardBody>

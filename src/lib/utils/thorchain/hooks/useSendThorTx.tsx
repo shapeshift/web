@@ -47,7 +47,9 @@ type Action =
   | 'openLoan'
   | 'repayLoan'
   | 'depositSavers'
+  | 'depositRunepool'
   | 'withdrawSavers'
+  | 'withdrawRunepool'
 
 type UseSendThorTxProps = {
   accountId: AccountId | null
@@ -92,6 +94,7 @@ export const useSendThorTx = ({
     return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
   }, [action])
 
+  // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
   const dustAmountCryptoBaseUnit = useMemo(() => {
     return THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
   }, [feeAsset])
@@ -268,7 +271,11 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
 
-    if (!shouldUseDustAmount && !bn(amountOrDustCryptoBaseUnit).gt(0))
+    if (
+      action !== 'withdrawRunepool' &&
+      !shouldUseDustAmount &&
+      !bn(amountOrDustCryptoBaseUnit).gt(0)
+    )
       throw new Error('invalid amount specified')
 
     const { account } = fromAccountId(accountId)
@@ -417,6 +424,7 @@ export const useSendThorTx = ({
     transactionType,
     translate,
     wallet,
+    action,
   ])
 
   return {

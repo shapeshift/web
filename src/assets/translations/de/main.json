@@ -76,7 +76,6 @@
     "transactionFailedBody": "Transaktion fehlgeschlagen",
     "submitFeedback": "Feedback senden",
     "send": "Senden",
-    "sendAmountAsset": "Sende %{amount} %{asset}",
     "receive": "Empfangen ",
     "privacy": "Datenschutz-Bestimmungen",
     "terms": "Nutzungsbedingungen",
@@ -106,9 +105,11 @@
     "switchNetwork": "Netzwerk wechseln",
     "selectNetwork": "Netzwerk auswählen",
     "unsupportedNetwork": "Nicht unterstütztes Netzwerk",
+    "unsupportedWallet": "Nicht unterstützte Wallet",
     "chartUnavailable": "Vermögen Diagrammdaten sind für %{unavailableAssetNames} vorübergehend nicht verfügbar.",
     "search": "Suchen",
     "searchAsset": "Vermögenswert suchen",
+    "searchNameOrAddress": "Suche nach Namen oder Adresse",
     "enterAmount": "Betrag eingeben",
     "enterAddress": "Adresse eingeben",
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
@@ -150,6 +151,7 @@
     "prices": "Preise",
     "symmetric": "Symmetrische",
     "asymmetric": "Asymmetrische (%{assetSymbol})",
+    "import": "Importieren",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -163,7 +165,8 @@
       "sortedDesc": "Absteigend sortiert",
       "expandRow": "Zeile erweitern"
     },
-    "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert."
+    "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert.",
+    "yes": "Ja"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +644,15 @@
     "for": "für",
     "emptyMessage": "Ihre %{status} Transaktionen werden hier angezeigt.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Abheben eingeleitet",
+        "outboundTransferDeposit": "Einzahlen eingeleitet",
+        "withdrawEth": "Abheben eingeleitet",
+        "submitRetryable": "Einzahlung empfangen",
+        "createRetryableTicket": "Einzahlen eingeleitet",
+        "finalizeInboundTransfer": "Abhebung erhalten",
+        "depositEth": "Einzahlen eingeleitet"
+      },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Abheben",
@@ -734,6 +746,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Stellen Sie sicher, dass Sie %{destinationSymbol} in Ihrem %{destinationChainName}-Konto haben, Sie benötigen es für Transaktionen",
     "confirm": "Bridge bestätigen",
     "selectChain": "Wählen Sie eine Blockchain",
     "selectAsset": "Wählen Sie Vermögenswert aus",
@@ -748,7 +761,15 @@
     "route": "Route",
     "waitTimeLabel": "zirka Wartezeit",
     "waitTimeValue": "~5-10 Minuten",
-    "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio."
+    "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio.",
+    "arbitrum": {
+      "waitWarning": "Die natives bridging von Arbitrum ist sicherer, aber die Geltendmachung kann bis zu einer Woche dauern.",
+      "waitCta": "Ich verstehe, dass es zirka 7 Tage dauern wird, bis ich Guthaben auf Ethereum einfordern kann",
+      "claimCta": "Ich verstehe, dass ich nach der Beantragung meines Geldes eine weitere gebührenpflichtige Transaktion durchführen muss."
+    },
+    "claims": "Ansprüche",
+    "availableClaims": "Verfügbar",
+    "pendingClaims": "Ausstehend"
   },
   "trade": {
     "trade": "Handeln",
@@ -887,6 +908,7 @@
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse der verbundenen Wallet gefunden. Geben Sie manuell eine Adresse ein oder",
+    "smartContractReceiveAddressDescription": "Wir haben festgestellt, dass Sie von einem Smart Contract wechseln, dessen Adresse möglicherweise nicht in der Zielkette vorhanden ist. Bitte überprüfen Sie die gewünschte Empfängeradresse und geben Sie sie manuell unter %{chainName} ein.",
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
@@ -1427,7 +1449,9 @@
         "connectFailure": "Ledger Wallet kann nicht verbunden werden",
         "unknown": "Bei der Kommunikation mit der Ledger Wallet ist ein unerwarteter Fehler aufgetreten",
         "appNotOpen": "%{app} ist auf Ledger nicht geöffnet",
-        "appNotOpenDescription": "Bitte öffnen Sie die %{app} App auf Ihrem Gerät und versuchen Sie es erneut."
+        "appNotOpenDescription": "Bitte öffnen Sie die %{app} App auf Ihrem Gerät und versuchen Sie es erneut.",
+        "noDeviceConnected": "Kein Ledger-Gerät verbunden",
+        "multipleDevicesConnected": "Mehrere Ledger-Geräte verbunden. Bitte trennen Sie alle Geräte bis auf eines."
       },
       "connect": {
         "header": "Ledger koppeln",
@@ -2164,10 +2188,14 @@
     "poolDepth": "Pooltiefe",
     "poolDepthDescription": "Die Gesundheit des Pools",
     "totalDebtBalance": "Gesamtschuldensaldo",
+    "totalDebtBalanceDescription": "Kumulierter Schuldenstand im Lending-pool",
     "totalCollateral": "Gesamtsicherheiten",
+    "totalCollateralDescription": "Gesamte dem Lending-pool hinzugefügte Sicherheiten",
     "estCollateralizationRatio": "zirka Besicherungsverhältnis",
+    "estCollateralizationRatioDescription": "Derzeit gilt eine pauschale Besicherungsquote von 200 %. Zukünftig wird eine dynamische Quote je nach Marktbedingungen einen Ausgleich zwischen der maximalen und minimalen Besicherungsquote schaffen.",
     "collateralizationRatio": "Besicherungsverhältnis",
     "totalBorrowers": "Gesamtzahl der Kreditnehmer",
+    "totalBorrowersDescription": "Anzahl der teilnehmenden Kreditnehmer",
     "myLoanInformation": "Meine Kreditinformationen",
     "loanInformation": "Kreditübersicht",
     "poolInformation": "Pool Information",
@@ -2187,11 +2215,12 @@
     "switchAssets": "Vermögenswerte wechseln",
     "backToLending": "Zurück zur Kreditvergabe",
     "outstandingDebt": "Restschuld",
+    "outstandingDebtDescription": "Die Höhe der von Ihnen geliehenen Sicherheiten",
     "collateral": "Sicherheit",
     "debt": "Schulden",
-    "healthy": "Gesund",
-    "caution": "Vorsicht",
-    "risky": "Riskant",
+    "healthy": "Die Tiefe ist optimal, die Kredite sind effizient.",
+    "caution": "Die Tiefe ist mäßig, rechnen Sie mit einem gewissen Schlupf bei Ihrer Anleihe",
+    "risky": "Die Tiefe ist gering, bei Ihrer Anleihe ist wahrscheinlich ein hoher Schlupf zu erwarten.",
     "confirmAndBorrow": "Bestätigen und ausleihen",
     "confirmAndRepay": "Bestätigen und zurückzahlen",
     "borrowAgain": "Nochmals ausleihen",
@@ -2294,6 +2323,7 @@
     "symAfterRuneAlert": "Aufgrund der Funktionsweise des THOR-Netzwerks sind symmetrische Einzahlungen nach einer asymmetrischen RUNE-Einzahlung nicht möglich.",
     "incompletePositionDepositAlert": "Diese Position ist unvollständig. Bitte zahlen Sie den entsprechenden Betrag von %{asset} ein, um diese Position abzuschließen.",
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
+    "unsupportedDemoWalletExplainer": "Die Demo-Wallet wird nicht unterstützt. Bitte stellen Sie eine Verbindung zu einer echten Wallet her, um diese Funktion zu nutzen.",
     "unsupportedNetworkExplainer": "Ihre Wallet ist nicht mit %{network} verbunden. Bitte verbinden Sie sie oder wechseln Sie zu einer Wallet, die dieses Netzwerk unterstützt.",
     "unsupportedNetworksExplainer": "Ihre Wallet ist nicht mit %{network1} und %{network2} verbunden. Bitte verbinden Sie sie  oder wechseln Sie zu einer Wallet, die diese Netzwerke unterstützt.",
     "shareOfPool": "Anteil am Pool",
@@ -2351,7 +2381,14 @@
     "highSlippageDeposit": "Diese Einzahlung weist eine hohe Slippage auf (%{slippagePercentage}%). Gehen Sie mit Vorsicht vor.",
     "highSlippageBorrow": "Dieses Ausleihen weist eine hohe Slippage auf (%{slippagePercentage}%). Gehen Sie mit Vorsicht vor.",
     "highSlippageTrade": "Dieser Handel wird durch Preisschwankungen (%{slippagePercentage}%) beeinflusst. Gehen Sie mit Vorsicht vor.",
-    "unsafeTrade": "Dieser Handel kann unsicher sein oder unter der empfohlenen Mindestgröße liegen. Gehen Sie daher vorsichtig vor."
+    "unsafeTrade": "Dieser Handel kann unsicher sein oder unter der empfohlenen Mindestgröße liegen. Gehen Sie daher vorsichtig vor.",
+    "customToken": "Jeder kann Token erstellen, auch gefälschte, also ist Vorsicht geboten. Einige Token funktionieren möglicherweise nicht mit ShapeShift. Indem Sie diesen Token importieren, akzeptieren Sie die Risiken. Dieser Token wird nicht an großen US-Börsen gehandelt oder häufig auf ShapeShift getauscht. Informieren Sie sich immer, bevor Sie handeln."
+  },
+  "streamingAcknowledgement": {
+    "description": "Dies ist ein Streaming-Tausch. Sie erhalten zwar einen besseren Preis, aber die Fertigstellung kann bis zu %{estimatedTimeHuman} dauern."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "ich verstehe die Risiken"
   },
   "watchlist": {
     "empty": {
@@ -2372,6 +2409,10 @@
     "lending": {
       "title": "Ausleihen",
       "body": "Nehmen Sie einen Kredit auf Ihr Vermögen auf."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Stake FOX verdiene RUNE."
     }
   },
   "RFOX": {
@@ -2384,6 +2425,7 @@
     "claim": "Beanspruchen",
     "rewards": "Belohnung",
     "claims": "Ansprüche",
+    "chainNotSupportedByWallet": "Kette wird von der Wallet nicht unterstützt",
     "changeAddress": "Adresse ändern",
     "sameAddressNotAllowed": "Dieselbe Adresse ist nicht zulässig",
     "stakingDetails": "Staking Details",
@@ -2401,6 +2443,9 @@
     "rewardAddressHelper": "Hierhin werden die Belohnungen geschickt",
     "useWalletAddress": "Wallet Adresse verwenden",
     "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
+    "stakeWarning": "Beachten Sie beim Einsatz Ihrer FOX-Token, dass die Sperrfrist %{cooldownPeriod} beträgt. Dies bedeutet, dass Sie, wenn Sie sich entscheiden, Ihre Token nicht mehr einzusetzen, %{cooldownPeriod} warten müssen, bevor Sie Ihr Geld einfordern können.",
+    "bridgeCta": "Sie haben %{assetSymbol} auf %{originNetwork} ausgewählt, aber Sie benötigen %{assetSymbol} auf %{destinationNetwork} zum Staking. Wir können Ihnen helfen, Ihre Mittel auf %{destinationNetwork} zu übertragen. Möchten Sie, dass wir Sie durch den Prozess führen?",
+    "unstakeWarning": "Bevor Sie Ihren FOX beanspruchen können, beträgt die Abkühlphase %{cooldownPeriod}. Nach Ablauf dieser Zeit können Sie Ihren nicht eingesetzten Betrag beanspruchen.",
     "tooltips": {
       "stakeAmount": "Dies ist der Betrag an FOX, den Sie Staken werden",
       "unstakeAmount": "Dies ist der Betrag an FOX, den Sie Unstaken werden",
@@ -2415,6 +2460,7 @@
     "changeRewardAddressPending": "Belohnungsadresse ändern …",
     "changeRewardAddressSuccess": "Sie haben Ihre THORChain-Belohnungsadresse erfolgreich geändert.",
     "unstakePending": "Auszahlung von %{amount} %{symbol} anfordern",
+    "unstakeSuccess": "Sobald %{cooldownPeriod} abgelaufen ist, können Sie Ihren %{amount} %{symbol} einfordern",
     "currentRewardAddress": "Aktuelle Belohnungsadresse",
     "newRewardAddress": "Neue Belohnungsadresse",
     "rewardCycleExplainer": "Dies wird für den nächsten Belohnungszyklus aktualisiert.",
@@ -2428,21 +2474,23 @@
     "claimPending": "Auszahlung anfordern",
     "claimSuccess": "Sie haben %{amount} %{symbol} erfolgreich beansprucht.",
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
+    "noRewardsYet": "Noch keine Belohnungen",
     "noClaimsAvailable": "Keine Ansprüche vorhanden",
     "errorFetchingClaims": "Beim Abrufen der Ansprüche ist ein Fehler aufgetreten",
     "noClaimsAvailableDescription": "Sie haben keine verfügbaren Ansprüche",
+    "unstakeNow": "Unstake des Einsatzes, um FOX zu beanspruchen",
     "bridgeAndConfirm": "Bridge & Bestätigen",
     "noSupportedChains": "Netzwerk wird nicht unterstützt",
     "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",
     "confirmAndBridge": "Bestätigen & Bridge",
-    "myRewardBalance": "Mein Belohnungsguthaben",
-    "myRewardBalanceHelper": "Mein Belohnungsguthaben",
-    "pendingRewardsBalance": "Ausstehendes Belohnungsguthaben",
-    "pendingRewardsBalanceHelper": "Ausstehendes Belohnungsguthaben",
+    "myStakedBalance": "Mein gestaktes Guthaben",
+    "myStakedBalanceHelper": "Die Menge an FOX, die Sie staken",
+    "pendingRewardsBalance": "Aktueller geschätzter Prämienbetrag",
+    "pendingRewardsBalanceHelper": "Dies ist nur eine Schätzung Ihrer ausstehenden Belohnungen basierend auf den Einnahmen der Epoche bis heute. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann nicht vor Monatsende genau berechnet werden.",
     "lifetimeRewards": "Lebenslange Belohnungen",
-    "lifetimeRewardsHelper": "Lebenslange Belohnungen",
+    "lifetimeRewardsHelper": "Lebenslange Belohnungen sind die kumulierten Belohnungen aus dem Staken Ihres FOX",
     "timeInPool": "Zeit im Pool",
-    "timeInPoolHelper": "Zeit im Pool",
+    "timeInPoolHelper": "Die Zeit im Pool ist die am längsten bestehende Einzahlung in rFOX",
     "myPosition": "Meine Position",
     "faq": {
       "title": "FAQ",

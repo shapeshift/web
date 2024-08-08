@@ -24,6 +24,7 @@
     "claimable": "Claimable",
     "comingSoon": "Coming Soon ...",
     "approve": "Approve",
+    "reset": "Reset",
     "confirm": "Confirm",
     "seeDetails": "See details",
     "activity": "Activity",
@@ -397,12 +398,15 @@
       },
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
+        "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
+        "runePoolOverviewDescription": "RUNEPool optimizes RUNE usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling RUNE across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a RUNE index and all THORChain PoL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedDepositTitle": "Deposits are temporarily halted.",
         "disabledDepositTitle": "Deposits are temporarily disabled.",
         "haltedWithdrawTitle": "Withdraws are temporarily halted.",
         "disabledWithdrawTitle": "Withdraws are temporarily disabled.",
+        "runePoolWithdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "protocolFee": "Protocol Fee",
         "fee": "Fee",
@@ -412,10 +416,12 @@
         "sendDust": "Send Dust",
         "addressToSendTo": "Address to Send To",
         "introducingSaversVaults": "Introducing Savers Vaults",
+        "introducingRunePool": "Introducing RUNEPool",
         "risksBody": {
           "1": "Refer to",
           "2": "this article",
-          "3": "for risks involved with savers vaults."
+          "3": "for risks involved with savers vaults.",
+          "runePool": "for risks involved with RUNEPool."
         },
         "understand": "I understand",
         "days": "%{amount} days",
@@ -426,7 +432,10 @@
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
-        "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue."
+        "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
+        "agreeRunePool": {
+          "1": "I understand that RUNEPool has both a 90 day minimum lockup and a heightened risk of impermanent loss."
+        }
       }
     },
     "memoNote": {
@@ -657,7 +666,8 @@
         "stake": "Stake",
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
-        "setRuneAddress": "Set Rune Address"
+        "setRuneAddress": "Set Rune Address",
+        "reward": "Reward Distribution"
       },
       "weth": {
         "deposit": "Deposit",
@@ -773,12 +783,14 @@
   },
   "trade": {
     "trade": "Trade",
+    "resetAllowance": "Reset Allowance",
     "allowance": "Allowance",
     "verifyAddresses": "Verify Addresses",
     "assetAddress": "%{asset} address",
     "verifyAsset": "Verify %{asset}",
     "verifyAddressMessage": "Ensure your addresses are correct before proceeding.",
     "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
+    "resetAllowanceTooltip": "When there is a non-zero allowance remaining for this token, the allowance must first be reset to 0 before approving the final allowance.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
@@ -907,7 +919,7 @@
     "unknownGas": "(unknown)",
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
-    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address or",
+    "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
     "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
@@ -915,7 +927,11 @@
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
     "approvalGasFee": "Approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Approval gas fee loading...",
+    "approvalResetGasFee": "Approval reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
+    "approvalResetFailed": "A problem occurred during allowance reset",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
@@ -937,7 +953,8 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
-    "assetSummaryDescription": "%{amountFiatFormatted} on %{chainName}",
+    "resetTitle": "Token allowance reset",
+    "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
@@ -1768,6 +1785,7 @@
         "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
         "btcFormat": "BTC format",
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
+        "customAsset": "This is a custom imported asset. Market data may not be accurate.",
         "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
         "availableSupply": "Available Supply",
@@ -2189,10 +2207,14 @@
     "poolDepth": "Pool Depth",
     "poolDepthDescription": "The healthiness of the pool",
     "totalDebtBalance": "Total Debt Balance",
+    "totalDebtBalanceDescription": "Cumulative Debt Balance in the lending pool",
     "totalCollateral": "Total Collateral",
+    "totalCollateralDescription": "Total Collateral added to the lending pool",
     "estCollateralizationRatio": "Est. Collateralization Ratio",
+    "estCollateralizationRatioDescription": "A flat Collateralization Ratio of 200% is currently in place. In the future, a dynamic ratio will balance between the maximum and minimum CR based on market conditions.",
     "collateralizationRatio": "Collateralization Ratio",
     "totalBorrowers": "Total Borrowers",
+    "totalBorrowersDescription": "Number of borrowers participating",
     "myLoanInformation": "My Loan Information",
     "loanInformation": "Loan Summary",
     "poolInformation": "Pool Information",
@@ -2212,11 +2234,12 @@
     "switchAssets": "Switch Assets",
     "backToLending": "Back to lending",
     "outstandingDebt": "Outstanding Debt",
+    "outstandingDebtDescription": "The amount of collateral you've borrowed",
     "collateral": "Collateral",
     "debt": "Debt",
-    "healthy": "Healthy",
-    "caution": "Caution",
-    "risky": "Risky",
+    "healthy": "Depth is optimal, loans are efficient.",
+    "caution": "Depth is moderate, expect some slippage on your borrow",
+    "risky": "Depth is low, high slippage likely on your borrow.",
     "confirmAndBorrow": "Confirm and Borrow",
     "confirmAndRepay": "Confirm and Repay",
     "borrowAgain": "Borrow Again",
@@ -2317,6 +2340,7 @@
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
     "symAfterRuneAlert": "Symmetrical deposits are not possible following an asymmetric RUNE deposit due to the way the THOR network works.",
+    "withdrawTypeNotAvailable": "This withdrawal type is not available for this pool.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
     "unsupportedDemoWalletExplainer": "The demo wallet is not supported, please connect to a wallet to use this feature.",
@@ -2342,6 +2366,10 @@
     "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
     "stagedTooltip": "Staged pools are new pools accepting liquidity, but will not accrue any earnings until Available",
+    "newPosition": "New position",
+    "newPositionTooltip": "This will create a new LP position instead of adding to any existing ones.",
+    "notSupported": "Not possible",
+    "notSupportedTooltip": "Due to your existing Asymmetric Rune position, depositing into this pool with both assets isn't possible. Please withdraw your current position if you wish to create a new LP with both assets.",
     "yourPositions": {
       "yourPositions": "Your Positions",
       "emptyTitle": "No active positions",
@@ -2480,13 +2508,13 @@
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
     "confirmAndBridge": "Confirm & Bridge",
     "myStakedBalance": "My Staked Balance",
-    "myStakedBalanceHelper": "My Staked Balance",
-    "pendingRewardsBalance": "Pending Rewards Balance",
-    "pendingRewardsBalanceHelper": "Pending Rewards Balance",
+    "myStakedBalanceHelper": "The amount of FOX you have staked",
+    "pendingRewardsBalance": "Current Estimated Rewards Balance",
+    "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",
-    "lifetimeRewardsHelper": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Lifetime rewards is the cumulative rewards from staking your FOX",
     "timeInPool": "Time in Pool",
-    "timeInPoolHelper": "Time in Pool",
+    "timeInPoolHelper": "Time in pool is the longest living deposit into rFOX",
     "myPosition": "My Position",
     "faq": {
       "title": "FAQ",
@@ -2524,6 +2552,7 @@
     "totalFeesCollected": "Total Fees Collected (This Epoch)",
     "emissionsPool": "Emissions Pool (This Epoch)",
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
-    "foxBurnAmount": "FOX Burn Amount"
+    "foxBurnAmount": "FOX Burn Amount (This Epoch)",
+    "pendingDistribution": "Pending Distribution"
   }
 }

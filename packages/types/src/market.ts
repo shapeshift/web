@@ -1,3 +1,5 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+
 export type MarketData = {
   price: string
   marketCap: string
@@ -39,5 +41,5 @@ export type FindAllMarketArgs = {
 }
 
 export type MarketCapResult = {
-  [k: string]: MarketData
+  [k: AssetId]: MarketData
 }

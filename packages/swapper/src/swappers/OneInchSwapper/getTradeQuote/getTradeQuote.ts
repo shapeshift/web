@@ -14,10 +14,10 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { getApprovalAddress } from '../getApprovalAddress/getApprovalAddress'
-import { assertValidTrade, getOneInchTokenAddress, getRate } from '../utils/helpers'
+import { assertValidTrade, getOneInchTokenAddress } from '../utils/helpers'
 import { oneInchService } from '../utils/oneInchService'
 import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 
@@ -74,7 +74,12 @@ export async function getTradeQuote(
     affiliateBps,
   )
 
-  const rate = getRate(quote).toString()
+  const rate = getRate({
+    sellAsset,
+    buyAsset,
+    sellAmountCryptoBaseUnit: quote.fromTokenAmount,
+    buyAmountCryptoBaseUnit: quote.toTokenAmount,
+  })
 
   const maybeAllowanceContract = await getApprovalAddress(apiUrl, chainId)
   if (maybeAllowanceContract.isErr()) return Err(maybeAllowanceContract.unwrapErr())

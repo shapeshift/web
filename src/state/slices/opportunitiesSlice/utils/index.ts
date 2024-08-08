@@ -1,5 +1,11 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  toAccountId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -13,6 +19,7 @@ import type { FoxySpecificUserStakingOpportunity } from '../resolvers/foxy/types
 import type {
   OpportunityId,
   OpportunityMetadataBase,
+  RunepoolUserStakingOpportunity,
   StakingEarnOpportunityType,
   StakingId,
   UserStakingId,
@@ -220,9 +227,19 @@ type GetOpportunityAccessor = (args: GetOpportunityAccessorArgs) => GetOpportuni
 
 export const getOpportunityAccessor: GetOpportunityAccessor = ({ provider, type }) => {
   if (type === DefiType.Staking) {
-    if (provider === DefiProvider.EthFoxStaking) {
+    if (provider === DefiProvider.EthFoxStaking || provider === DefiProvider.rFOX) {
       return 'underlyingAssetId'
     }
   }
   return 'underlyingAssetIds'
+}
+
+export const isRunePoolUserStakingOpportunity = (
+  opportunity: StakingEarnOpportunityType | undefined,
+): opportunity is StakingEarnOpportunityType & RunepoolUserStakingOpportunity => {
+  return Boolean(
+    opportunity &&
+      opportunity.provider === DefiProvider.ThorchainSavers &&
+      opportunity.id === thorchainAssetId,
+  )
 }

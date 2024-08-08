@@ -3,17 +3,13 @@ import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'
+import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 
 import { ethereum } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import type { IdenticonOptions } from '../generateAssetIcon/generateAssetIcon'
-import { getRenderedIdenticonBase64 } from '../generateAssetIcon/generateAssetIcon'
 import { generateTrustWalletUrl } from '../generateTrustWalletUrl/generateTrustWalletUrl'
-import { getIdleTokens } from './idleVaults'
-import { getUniswapV2Pools } from './uniswapV2Pools'
-// Yearn SDK is currently rugged upstream
-// import { getUnderlyingVaultTokens, getYearnVaults, getZapperTokens } from './yearnVaults'
+import { getPortalTokens } from '../utils/portals'
 
 const foxyToken: Asset = {
   assetId: toAssetId({
@@ -30,27 +26,28 @@ const foxyToken: Asset = {
   explorer: ethereum.explorer,
   explorerAddressLink: ethereum.explorerAddressLink,
   explorerTxLink: ethereum.explorerTxLink,
+  relatedAssetKey: null,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const [ethTokens, uniV2PoolTokens, idleTokens] = await Promise.all([
+  const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
-    // getYearnVaults(),
-    // getZapperTokens(),
-    // getUnderlyingVaultTokens(),
-    getUniswapV2Pools(),
-    getIdleTokens(),
+    getPortalTokens(ethereum),
   ])
 
-  const ethAssets = [
-    ...idleTokens,
-    foxyToken,
-    ...ethTokens,
-    // ...yearnVaults,
-    // ...zapperTokens,
-    // ...underlyingTokens,
-    ...uniV2PoolTokens,
-  ]
+  const [coingeckoTokens, portalsTokens] = results.map(result => {
+    if (result.status === 'fulfilled') return result.value
+    console.error(result.reason)
+    return []
+  })
+
+  // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria
+  // portals pools *have* to be first since Coingecko may also contain the same asset, but won't be able to get the `isPool` info
+  // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
+  const [portalsPools, portalsAssets] = partition(portalsTokens, 'isPool')
+
+  const ethAssets = portalsPools.concat(coingeckoTokens).concat(portalsAssets).concat(foxyToken)
+
   const uniqueAssets = orderBy(uniqBy(ethAssets, 'assetId'), 'assetId') // Remove dups and order for PR readability
   const batchSize = 100 // tune this to keep rate limiting happy
   const assetBatches = chunk(uniqueAssets, batchSize)
@@ -65,24 +62,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     const newModifiedTokens = result.map((res, idx) => {
       const key = i * batchSize + idx
       if (res.status === 'rejected') {
-        if (!uniqueAssets[key].icon) {
-          const options: IdenticonOptions = {
-            identiconImage: {
-              size: 128,
-              background: [45, 55, 72, 255],
-            },
-            identiconText: {
-              symbolScale: 7,
-              enableShadow: true,
-            },
-          }
-          uniqueAssets[key].icon = getRenderedIdenticonBase64(
-            uniqueAssets[key].assetId,
-            uniqueAssets[key].symbol.substring(0, 3),
-            options,
-          )
-        }
-        return uniqueAssets[key] // token without modified icon
+        return uniqueAssets[key]
       } else {
         const { icon } = generateTrustWalletUrl(uniqueAssets[key].assetId)
         return { ...uniqueAssets[key], icon }

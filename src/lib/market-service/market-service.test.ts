@@ -49,6 +49,22 @@ vi.mock('./coincap/coincap', () => ({
   }),
 }))
 
+const mockPortalsFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
+const mockPortalsFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
+const mockPortalsFindPriceHistoryByAssetId = vi
+  .fn()
+  .mockImplementation(() => mockCGPriceHistoryData)
+
+vi.mock('./portals/portals', () => ({
+  PortalsMarketService: vi.fn().mockImplementation(() => {
+    return {
+      findAll: mockPortalsFindAll,
+      findByAssetId: mockPortalsFindByAssetId,
+      findPriceHistoryByAssetId: mockPortalsFindPriceHistoryByAssetId,
+    }
+  }),
+}))
+
 const mockYearnVaultFindAll = vi.fn().mockImplementation(() => mockYearnServiceFindAllData)
 const mockYearnVaultFindByAssetId = vi.fn().mockImplementation(() => mockYearnFindByAssetIdData)
 const mockYearnVaultFindPriceHistoryByAssetId = vi
@@ -133,6 +149,7 @@ describe('market service', () => {
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindAll.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindAll.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
@@ -150,6 +167,7 @@ describe('market service', () => {
     it('returns next market service data if previous data does not exist', async () => {
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
       expect(result).toEqual(mockFoxyMarketData)
@@ -169,6 +187,7 @@ describe('market service', () => {
     it('can return from next market service if first is not found', async () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockFoxyMarketData)
@@ -177,6 +196,7 @@ describe('market service', () => {
     it('can return null if no data found', async () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
@@ -203,6 +223,7 @@ describe('market service', () => {
     it('can return from the next market service if the first is not found', async () => {
       mockCoingeckoFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
@@ -213,6 +234,7 @@ describe('market service', () => {
     it('can return null if no data found', async () => {
       mockCoingeckoFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
+      mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnVaultFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockYearnTokenFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })

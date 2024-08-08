@@ -76,7 +76,6 @@
     "transactionFailedBody": "Transacción fallida",
     "submitFeedback": "Enviar Comentarios",
     "send": "Enviar",
-    "sendAmountAsset": "Enviar %{amount} %{asset}",
     "receive": "Recibir",
     "privacy": "Política de Privacidad",
     "terms": "Términos de Servicio",
@@ -106,9 +105,11 @@
     "switchNetwork": "Cambiar Red",
     "selectNetwork": "Seleccione red",
     "unsupportedNetwork": "Red No Soportada",
+    "unsupportedWallet": "Billetera no Compatible",
     "chartUnavailable": "Los datos del balance gráfico no están disponibles temporalmente para %{unavailableAssetNames}.",
     "search": "Búsqueda",
     "searchAsset": "Buscar activo",
+    "searchNameOrAddress": "Buscar por nombre o dirección",
     "enterAmount": "Ingrese la cantidad",
     "enterAddress": "Ingrese Dirección",
     "pageNotFound": "La página que buscas no se encuentra",
@@ -150,6 +151,7 @@
     "prices": "Precios",
     "symmetric": "Simétrico",
     "asymmetric": "Asimétrico (%{assetSymbol})",
+    "import": "Importar",
     "carousel": {
       "next": "Siguiente",
       "prev": "Anterior",
@@ -163,7 +165,8 @@
       "sortedDesc": "Ordenado descendente",
       "expandRow": "Expandir fila"
     },
-    "featureDisabled": "Esta característica está temporalmente deshabilitada."
+    "featureDisabled": "Esta característica está temporalmente deshabilitada.",
+    "yes": "Sí"
   },
   "consentBanner": {
     "body": {
@@ -641,6 +644,15 @@
     "for": "para",
     "emptyMessage": "El %{status} de tus transacciones aparecerán aquí.",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "Retiro Iniciado",
+        "outboundTransferDeposit": "Depósito Iniciado",
+        "withdrawEth": "Retirarse Iniciado",
+        "submitRetryable": "Depósito Recibido",
+        "createRetryableTicket": "Depósito Iniciado",
+        "finalizeInboundTransfer": "Retiro Recibido",
+        "depositEth": "Depósito Iniciado"
+      },
       "rfox": {
         "stake": "Staking",
         "withdraw": "Retirar",
@@ -734,6 +746,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "Asegúrese tener %{destinationSymbol} en su cuenta %{destinationChainName}, la necesitará para transacciones",
     "confirm": "Confirmar Bridge",
     "selectChain": "Seleccionar Cadena",
     "selectAsset": "Seleccionar Activo",
@@ -748,7 +761,15 @@
     "route": "Ruta",
     "waitTimeLabel": "Tiempo de espera Aprox. ",
     "waitTimeValue": "~5-10 minutos",
-    "noSupportedAssets": "No hay activos soportados en la billetera."
+    "noSupportedAssets": "No hay activos soportados en la billetera.",
+    "arbitrum": {
+      "waitWarning": "El puente nativo Arbitrum es más seguro, pero puede tardar hasta una semana en reclamar.",
+      "waitCta": "Entiendo que pasarán ~7 días antes que pueda reclamar fondos en Ethereum",
+      "claimCta": "Entiendo que después de reclamar mis fondos, enviaré otra transacción con tarifa"
+    },
+    "claims": "Reclamos",
+    "availableClaims": "Disponible",
+    "pendingClaims": "Pendiente"
   },
   "trade": {
     "trade": "Intercambiar",
@@ -887,6 +908,7 @@
     "numHops": "Esta operación incluye %{numHops} saltos",
     "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No hay dirección %{chainName} en billetera conectada. Introduzca dirección ó",
+    "smartContractReceiveAddressDescription": "Detectamos que realiza un intercambio desde un contrato inteligente cuya dirección puede no existir en la cadena destino. Verifique e ingrese manual la dirección del destinatario en %{chainName}",
     "toContinue": "para continuar.",
     "addressPlaceholder": "Dirección %{chainName}",
     "priceImpactWarning": "Debido al tamaño de la operación en relación a la liquidez disponible, el impacto de precio esperado es %{priceImpactPercentage}%. ¿Estás seguro quieres operar?",
@@ -1427,7 +1449,9 @@
         "connectFailure": "No se puede conectar la billetera Ledger",
         "unknown": "Error inesperado al comunicarse con la billetera Ledger",
         "appNotOpen": "%{app} no abierta en Ledger",
-        "appNotOpenDescription": "Abra la app %{app} en su dispositivo e intente de nuevo."
+        "appNotOpenDescription": "Abra la app %{app} en su dispositivo e intente de nuevo.",
+        "noDeviceConnected": "No hay dispositivo Ledger conectado",
+        "multipleDevicesConnected": "Múltiples dispositivos Ledger conectados. Desconecte todos los dispositivos menos uno."
       },
       "connect": {
         "header": "Emparejar Ledger",
@@ -2164,10 +2188,14 @@
     "poolDepth": "Profundidad de la piscina",
     "poolDepthDescription": "La salud de su pool",
     "totalDebtBalance": "Saldo total de la deuda",
+    "totalDebtBalanceDescription": "Saldo de Deuda Acumulada en  conjunto de préstamos",
     "totalCollateral": "Total de garantía colateral",
+    "totalCollateralDescription": "Garantía total agregada al conjunto de préstamos",
     "estCollateralizationRatio": "Est. Ratio de colateral",
+    "estCollateralizationRatioDescription": "Actualmente existe índice de garantía fijo del 200%. En el futuro, un ratio dinámico equilibrará el CR máximo y mínimo en función de las condiciones del mercado.",
     "collateralizationRatio": "Ratio de garantía colateral",
     "totalBorrowers": "Prestatarios totales",
+    "totalBorrowersDescription": "Número de prestatarios participantes",
     "myLoanInformation": "Mi información de préstamo",
     "loanInformation": "Resumen del préstamo",
     "poolInformation": "Información de la piscina",
@@ -2187,11 +2215,12 @@
     "switchAssets": "Cambiar Activos",
     "backToLending": "Volver a Préstamos",
     "outstandingDebt": "Deuda pendiente",
+    "outstandingDebtDescription": "La cantidad de garantía que ha tomado prestada",
     "collateral": "Colateral",
     "debt": "Deuda",
-    "healthy": "Saludable",
-    "caution": "Precaución",
-    "risky": "Arriesgado",
+    "healthy": "La profundidad es óptima, los préstamos son eficientes.",
+    "caution": "Profundidad moderada, espere deslizamiento en préstamo",
+    "risky": "Profundidad baja, probable gran deslizamiento en préstamo.",
     "confirmAndBorrow": "Confirmar y pedir prestado",
     "confirmAndRepay": "Confirmar y repagar",
     "borrowAgain": "Pedir Prestado de nuevo",
@@ -2294,6 +2323,7 @@
     "symAfterRuneAlert": "Depósitos simétricos no son posibles después de depósito RUNE asimétrico debido a como funciona la red THOR.",
     "incompletePositionDepositAlert": "Posición incompleta, deposite la cantidad correspondiente de %{asset} para finalizar esta posición.",
     "incompletePositionWithdrawAlert": "Posición incompleta, cancele la posición eliminando el 100% de la liquidez. También puede finalizar la posición a través de \"Agregar liquidez\".",
+    "unsupportedDemoWalletExplainer": "La billetera demo no es compatible; conecte una billetera para usar esta función.",
     "unsupportedNetworkExplainer": "Tu billetera no está conectada a %{network}. Conecte esta cadena o cambie a una billetera que admita esta red.",
     "unsupportedNetworksExplainer": "Tu billetera no está conectada a %{network1} y %{network2}. Conecte esta cadena o cambie a una billetera que admita estas redes.",
     "shareOfPool": "Participación de Pool",
@@ -2351,7 +2381,14 @@
     "highSlippageDeposit": "Este depósito tiene un alto deslizamiento (%{slippagePercentage}%). Proceda con precaución.",
     "highSlippageBorrow": "Este préstamo tiene un alto deslizamiento (%{slippagePercentage}%). Proceda con precaución.",
     "highSlippageTrade": "Esta operación se ve afectada por el movimiento de precios (%{slippagePercentage}%). Proceda con precaución.",
-    "unsafeTrade": "Esta operación puede ser insegura o estar por debajo del tamaño mínimo recomendado; proceda con precaución."
+    "unsafeTrade": "Esta operación puede ser insegura o estar por debajo del tamaño mínimo recomendado; proceda con precaución.",
+    "customToken": "Cualquiera puede crear tokens, incluidos falsos, ten precaución. Es posible que algunos tokens no funcionen en ShapeShift. Al importarlo, acepta riesgos. El token no comercializa en principales bolsas de EE. UU. ni intercambia con frecuencia en ShapeShift. Siempre investigue antes de operar."
+  },
+  "streamingAcknowledgement": {
+    "description": "Este es intercambio streaming, aunque obtienes un mejor precio, puede tardar hasta %{estimatedTimeHuman} en completar."
+  },
+  "customTokenAcknowledgement": {
+    "understand": "Entiendo los riesgos"
   },
   "watchlist": {
     "empty": {
@@ -2372,6 +2409,10 @@
     "lending": {
       "title": "Préstamo",
       "body": "Préstamo contra sus activos."
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "Staking FOX gana RUNE."
     }
   },
   "RFOX": {
@@ -2384,6 +2425,7 @@
     "claim": "Reclamar",
     "rewards": "Recompensas",
     "claims": "Reclamar",
+    "chainNotSupportedByWallet": "Cadena no soportada por billetera",
     "changeAddress": "Cambiar dirección",
     "sameAddressNotAllowed": "No se permite misma dirección",
     "stakingDetails": "Detalles Staking",
@@ -2401,6 +2443,9 @@
     "rewardAddressHelper": "Aquí se enviarán recompensas.",
     "useWalletAddress": "Usar dirección de billetera",
     "useCustomAddress": "Usar dirección personalizada",
+    "stakeWarning": "Cuando haces staking de tus tokens FOX, hay un período de bloqueo es %{cooldownPeriod}. Significa que si decide dejar de staking, deberá esperar %{cooldownPeriod} antes de poder reclamar sus fondos.",
+    "bridgeCta": "Seleccionó %{assetSymbol} en %{originNetwork}, pero necesitará %{assetSymbol} en %{destinationNetwork} para staking. Podemos ayudar a transferir sus fondos a %{destinationNetwork}. ¿Quieres que te guiemos en el proceso?",
+    "unstakeWarning": "Antes de poder reclamar tus FOX, el período de recuperación es %{cooldownPeriod}. Una vez transcurrido, podrás reclamar el monto sin staking.",
     "tooltips": {
       "stakeAmount": "Esta es la cantidad de FOX que Stake",
       "unstakeAmount": "Cantidad de FOX a Unstake",
@@ -2415,6 +2460,7 @@
     "changeRewardAddressPending": "Cambiando dirección de recompensa...",
     "changeRewardAddressSuccess": "Ha cambiado con éxito su dirección de recompensas THORChain.",
     "unstakePending": "Solicitando retiro de %{amount} %{symbol}",
+    "unstakeSuccess": "Una vez transcurrido %{cooldownPeriod} podrás reclamar tu %{amount} %{symbol}",
     "currentRewardAddress": "Dirección de Recompensa Actual",
     "newRewardAddress": "Nueva Dirección de Recompensa",
     "rewardCycleExplainer": "Esto se actualizará para el próximo ciclo de recompensas.",
@@ -2428,21 +2474,23 @@
     "claimPending": "Solicitando retiro",
     "claimSuccess": "Has reclamado %{amount} %{symbol} con éxito.",
     "claimReceiveAddress": "Dirección para Reclamar Recompensas",
+    "noRewardsYet": "Aún no hay recompensas",
     "noClaimsAvailable": "No hay reclamaciones disponibles",
     "errorFetchingClaims": "Se produjo error al recuperar sus reclamos.",
     "noClaimsAvailableDescription": "No tienes ningún reclamo disponible",
+    "unstakeNow": "Retira de staking para reclamar tus FOX",
     "bridgeAndConfirm": "Bridge y Confirmar",
     "noSupportedChains": "Cadena no compatible",
     "noSupportedChainsDescription": "Agregue %{chainLabel} o conecte billetera que la admita.",
     "confirmAndBridge": "Confirmar y Bridge",
-    "myRewardBalance": "Mi Balance de Recompensas",
-    "myRewardBalanceHelper": "Mi Balance de Recompensas",
-    "pendingRewardsBalance": "Balance de Recompensa Pendiente",
-    "pendingRewardsBalanceHelper": "Balance de Recompensa Pendiente",
+    "myStakedBalance": "Mi Balance en Staking",
+    "myStakedBalanceHelper": "Cantidad de FOX en staking",
+    "pendingRewardsBalance": "Saldo de Recompensas Estimado Actual",
+    "pendingRewardsBalanceHelper": "Esta es solo una estimación de recompensas pendientes según ingresos de la época hasta la fecha. La contabilidad se realiza al final de la época y no se puede calcular exactamente antes de fin de mes.",
     "lifetimeRewards": "Recompensas de por Vida",
-    "lifetimeRewardsHelper": "Lifetime Rewards",
+    "lifetimeRewardsHelper": "Las recompensas de por vida son las acumuladas por hacer staking de sus FOX",
     "timeInPool": "Tiempo en Pool",
-    "timeInPoolHelper": "Tiempo en Pool",
+    "timeInPoolHelper": "El tiempo en el pool es el depósito más duradero en rFOX",
     "myPosition": "Mi posición",
     "faq": {
       "title": "Preguntas Frecuentes",

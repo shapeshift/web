@@ -6,7 +6,9 @@ import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
 import {
+  AllowanceKey,
   HopExecutionState,
+  HopKey,
   type StreamingSwapMetadata,
   TradeExecutionState,
   TransactionExecutionState,
@@ -75,41 +77,59 @@ export const tradeQuoteSlice = createSlice({
         return
       }
       state.tradeExecution.state = TradeExecutionState.FirstHop
+      const allowanceResetRequired = state.tradeExecution.firstHop.allowanceReset.isRequired
       const approvalRequired = state.tradeExecution.firstHop.approval.isRequired
-      state.tradeExecution.firstHop.state = approvalRequired
+      state.tradeExecution.firstHop.state = allowanceResetRequired
+        ? HopExecutionState.AwaitingApprovalReset
+        : approvalRequired
         ? HopExecutionState.AwaitingApproval
         : HopExecutionState.AwaitingSwap
     },
-    setApprovalTxPending: (state, action: PayloadAction<{ hopIndex: number }>) => {
-      const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Pending
+    setApprovalTxPending: (
+      state,
+      action: PayloadAction<{ hopIndex: number; isReset: boolean }>,
+    ) => {
+      const { hopIndex, isReset } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
+      state.tradeExecution[hopKey][allowanceKey].state = TransactionExecutionState.Pending
     },
-    setApprovalTxFailed: (state, action: PayloadAction<{ hopIndex: number }>) => {
-      const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Failed
+    setApprovalTxFailed: (state, action: PayloadAction<{ hopIndex: number; isReset: boolean }>) => {
+      const { hopIndex, isReset } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
+      state.tradeExecution[hopKey][allowanceKey].state = TransactionExecutionState.Failed
+      if (allowanceKey === AllowanceKey.AllowanceReset) {
+        state.tradeExecution[hopKey].state = HopExecutionState.AwaitingApproval
+      }
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
-    setApprovalTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
-      const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.state = TransactionExecutionState.Complete
+    setApprovalTxComplete: (
+      state,
+      action: PayloadAction<{ hopIndex: number; isReset: boolean }>,
+    ) => {
+      const { hopIndex, isReset } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
+      state.tradeExecution[hopKey][allowanceKey].state = TransactionExecutionState.Complete
+      if (allowanceKey === AllowanceKey.AllowanceReset) {
+        state.tradeExecution[hopKey].state = HopExecutionState.AwaitingApproval
+      }
     },
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].state = HopExecutionState.AwaitingSwap
     },
     setSwapTxPending: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.state = TransactionExecutionState.Pending
     },
     setSwapTxFailed: (state, action: PayloadAction<{ hopIndex: number }>) => {
       const { hopIndex } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.state = TransactionExecutionState.Failed
     },
     setSwapTxMessage: (
@@ -117,7 +137,7 @@ export const tradeQuoteSlice = createSlice({
       action: PayloadAction<{ hopIndex: number; message: string | undefined }>,
     ) => {
       const { hopIndex, message } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.message = message
     },
     setSwapTxComplete: (state, action: PayloadAction<{ hopIndex: number }>) => {
@@ -135,8 +155,11 @@ export const tradeQuoteSlice = createSlice({
         if (isMultiHopTrade) {
           // first hop of multi hop trade - begin second hop
           state.tradeExecution.state = TradeExecutionState.SecondHop
+          const allowanceResetRequired = state.tradeExecution.secondHop.allowanceReset.isRequired
           const approvalRequired = state.tradeExecution.secondHop.approval.isRequired
-          state.tradeExecution.secondHop.state = approvalRequired
+          state.tradeExecution.secondHop.state = allowanceResetRequired
+            ? HopExecutionState.AwaitingApprovalReset
+            : approvalRequired
             ? HopExecutionState.AwaitingApproval
             : HopExecutionState.AwaitingSwap
         } else {
@@ -160,19 +183,30 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution.firstHop.approval.isRequired = action.payload?.firstHop
       state.tradeExecution.secondHop.approval.isRequired = action.payload?.secondHop
     },
-    setApprovalTxHash: (state, action: PayloadAction<{ hopIndex: number; txHash: string }>) => {
-      const { hopIndex, txHash } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
-      state.tradeExecution[key].approval.txHash = txHash
+    setAllowanceResetRequirements: (
+      state,
+      action: PayloadAction<{ firstHop: boolean; secondHop: boolean } | undefined>,
+    ) => {
+      state.tradeExecution.firstHop.allowanceReset.isRequired = action.payload?.firstHop
+      state.tradeExecution.secondHop.allowanceReset.isRequired = action.payload?.secondHop
+    },
+    setApprovalTxHash: (
+      state,
+      action: PayloadAction<{ hopIndex: number; txHash: string; isReset: boolean }>,
+    ) => {
+      const { hopIndex, txHash, isReset } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
+      state.tradeExecution[hopKey][allowanceKey].txHash = txHash
     },
     setSwapSellTxHash: (state, action: PayloadAction<{ hopIndex: number; sellTxHash: string }>) => {
       const { hopIndex, sellTxHash } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.sellTxHash = sellTxHash
     },
     setSwapBuyTxHash: (state, action: PayloadAction<{ hopIndex: number; buyTxHash: string }>) => {
       const { hopIndex, buyTxHash } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.buyTxHash = buyTxHash
     },
     setStreamingSwapMeta: (
@@ -180,7 +214,7 @@ export const tradeQuoteSlice = createSlice({
       action: PayloadAction<{ hopIndex: number; streamingSwapMetadata: StreamingSwapMetadata }>,
     ) => {
       const { hopIndex, streamingSwapMetadata } = action.payload
-      const key = hopIndex === 0 ? 'firstHop' : 'secondHop'
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[key].swap.streamingSwap = streamingSwapMetadata
     },
     updateTradeQuoteDisplayCache: (

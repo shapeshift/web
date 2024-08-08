@@ -10,7 +10,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -43,7 +43,7 @@ import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
-import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import type { ThorchainSaversDepositQuoteResponseSuccess } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
@@ -83,6 +83,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assetNamespace,
     assetReference,
   })
+
+  const isRunePool = assetId === thorchainAssetId
 
   const asset: Asset | undefined = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
@@ -146,11 +148,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         ? makeDaysToBreakEven({
             amountCryptoBaseUnit,
             asset,
-            apy: opportunity.apy,
+            apy: opportunity.apy ?? '0',
             expectedAmountOutThorBaseUnit,
           })
         : undefined
 
+      // @TODO: verify that runepool deposit apply any slippage
       const slippageCryptoAmountPrecision = (() => {
         const slippagePercentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
 
@@ -172,6 +175,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       asset,
       amountCryptoBaseUnit,
       select: selectQuoteData,
+      enabled: !isRunePool,
     },
   )
 
@@ -186,12 +190,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     enabled: Boolean(accountId && wallet && accountMetadata),
   })
 
+  const memo = useMemo(() => {
+    if (isRunePool) return RUNEPOOL_DEPOSIT_MEMO
+    if (quoteData?.quote.memo) return quoteData.quote.memo
+
+    return null
+  }, [isRunePool, quoteData?.quote.memo])
+
   const { executeTransaction, isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
-    action: 'depositSavers',
-    memo: quoteData?.quote.memo ?? null,
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
+    memo,
     fromAddress: fromAddress ?? null,
   })
 
@@ -222,6 +233,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const handleDeposit = useCallback(async () => {
     if (!contextDispatch || !bip44Params || !accountId || !assetId) return
     try {
+      if (!quoteData?.quote && !isRunePool) return
       if (
         !(
           fromAddress &&
@@ -229,8 +241,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           wallet &&
           supportsETH(wallet) &&
           opportunity &&
-          chainAdapter &&
-          quoteData?.quote
+          chainAdapter
         )
       )
         return
@@ -306,6 +317,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     assets,
     toast,
     translate,
+    isRunePool,
   ])
 
   const handleCancel = useCallback(() => {
@@ -394,34 +406,38 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Row.Value>
           </Row>
         </Row>
-        <Row variant='gutter'>
-          <Row.Label>{translate('common.slippage')}</Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isQuoteDataLoading}>
-              <Amount.Crypto
-                value={quoteData?.slippageCryptoAmountPrecision ?? ''}
-                symbol={asset.symbol}
-              />
-            </Skeleton>
-          </Row.Value>
-        </Row>
-        <Row variant='gutter'>
-          <Row.Label>
-            <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-              {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-            </HelperTooltip>
-          </Row.Label>
-          <Row.Value>
-            <Skeleton isLoaded={!isQuoteDataLoading}>
-              {translate(
-                `defi.modals.saversVaults.${
-                  bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
-                }`,
-                { amount: quoteData?.daysToBreakEven ?? '0' },
-              )}
-            </Skeleton>
-          </Row.Value>
-        </Row>
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>{translate('common.slippage')}</Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
+                <Amount.Crypto
+                  value={quoteData?.slippageCryptoAmountPrecision ?? ''}
+                  symbol={asset.symbol}
+                />
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
+        {!isRunePool ? (
+          <Row variant='gutter'>
+            <Row.Label>
+              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
+                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+              </HelperTooltip>
+            </Row.Label>
+            <Row.Value>
+              <Skeleton isLoaded={!isQuoteDataLoading}>
+                {translate(
+                  `defi.modals.saversVaults.${
+                    bnOrZero(quoteData?.daysToBreakEven).eq(1) ? 'day' : 'days'
+                  }`,
+                  { amount: quoteData?.daysToBreakEven ?? '0' },
+                )}
+              </Skeleton>
+            </Row.Value>
+          </Row>
+        ) : null}
         <Row variant='gutter'>
           <Row.Label>
             <HelperTooltip label={translate('trade.tooltip.protocolFee')}>

@@ -20,6 +20,7 @@ import type {
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { TypedData } from 'eip-712'
 import type { ethers as ethersV5 } from 'ethers5'
 import type { Chain, PublicClient, Transport } from 'viem'
 
@@ -43,6 +44,7 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_AVALANCHE_HTTP_URL: string
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
+  REACT_APP_PORTALS_BASE_URL: string
 }
 
 export enum SwapperName {
@@ -53,6 +55,7 @@ export enum SwapperName {
   LIFI = 'LI.FI',
   OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
+  Portals = 'Portals',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -250,6 +253,7 @@ export type CowSwapOrder = {
   sellTokenBalance: string
   buyTokenBalance: string
   quoteId: number
+  signingScheme: 'eip712' | 'ethsign'
 }
 
 export type GetUnsignedTxArgs = {
@@ -266,7 +270,7 @@ export type EvmTransactionExecutionProps = {
 }
 
 export type EvmMessageExecutionProps = {
-  signMessage: (messageToSign: string) => Promise<string>
+  signMessage: (messageToSign: TypedData) => Promise<string>
 }
 
 export type UtxoTransactionExecutionProps = {

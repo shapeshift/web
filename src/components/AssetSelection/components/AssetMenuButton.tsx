@@ -1,5 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex } from '@chakra-ui/react'
+import { Button, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
@@ -30,11 +30,9 @@ export const AssetMenuButton = ({
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
   const icon = useMemo(() => {
-    return asset?.icons ? (
-      <PairIcons icons={asset.icons} iconBoxSize='5' h='38px' p={1} borderRadius={8} />
-    ) : (
-      <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
-    )
+    if (asset?.icons) return <PairIcons icons={asset.icons} iconBoxSize='24px' showFirst />
+    if (assetId) return <AssetIcon assetId={assetId} size='xs' showNetworkIcon={showNetworkIcon} />
+    return null
   }, [asset?.icons, assetId, showNetworkIcon])
 
   const handleAssetClick = useCallback(() => {
@@ -52,9 +50,11 @@ export const AssetMenuButton = ({
       isLoading={isLoading}
       {...buttonProps}
     >
-      <Flex alignItems='center' gap={2}>
+      <Flex alignItems='center' gap={2} width='100%' overflow='hidden'>
         {icon}
-        {asset?.symbol}
+        <Text as='span' textOverflow='ellipsis' overflow='hidden'>
+          {asset?.symbol}
+        </Text>
       </Flex>
     </Button>
   )

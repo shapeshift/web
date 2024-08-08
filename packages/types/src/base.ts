@@ -51,13 +51,14 @@ export type Asset = {
   precision: number
   color: string
   networkColor?: string
-  icon: string
+  icon: string | undefined
   icons?: string[]
   networkIcon?: string
   explorer: string
   explorerTxLink: string
   explorerAddressLink: string
-  relatedAssetKey?: AssetId
+  relatedAssetKey: AssetId | null | undefined
+  isPool?: boolean
 }
 
 export type AssetsById = Record<AssetId, Asset>

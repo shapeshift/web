@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import {
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
   ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
@@ -20,7 +20,7 @@ import { DefiProvider } from './types'
 export const uniswapV2Router02AssetId: AssetId =
   'eip155:1/erc20:0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
 // LP contracts
-export const foxEthPair = [ethAssetId, foxAssetId] as const
+export const foxEthPair = [ethAssetId, foxAssetId]
 export const foxEthLpAssetId: LpId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 export const foxEthLpAssetIds = [foxEthLpAssetId] as const
 
@@ -95,6 +95,8 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdV9]: 'V9',
 }
 
+export const rFOXStakingIds = [foxOnArbitrumOneAssetId] as readonly StakingId[]
+
 export const STAKING_ID_DELIMITER = '*'
 
 export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadata> = {
@@ -109,6 +111,12 @@ export const DEFI_PROVIDER_TO_METADATA: Record<DefiProvider, DefiProviderMetadat
     icon: '/fox-token-logo.png',
     color: '#00CD98',
     url: 'https://app.shapeshift.com',
+  },
+  [DefiProvider.rFOX]: {
+    provider: DefiProvider.rFOX,
+    icon: '/fox-token-logo.png',
+    color: '#00CD98',
+    url: 'https://app.shapeshift.com/#/rfox',
   },
   [DefiProvider.UniV2]: {
     provider: DefiProvider.UniV2,

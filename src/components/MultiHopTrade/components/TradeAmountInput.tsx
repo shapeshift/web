@@ -28,7 +28,11 @@ import { PercentOptionsButtonGroup } from 'components/DeFi/components/PercentOpt
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectIsAssetWithoutMarketData,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { colors } from 'theme/colors'
 
@@ -47,8 +51,14 @@ type RenderController = ({
 }) => React.ReactElement
 
 const cryptoInputStyle = { caretColor: colors.blue[200] }
-const buttonProps = { variant: 'unstyled', display: 'flex', height: 'auto', lineHeight: '1' }
-const boxProps = { px: 0, m: 0 }
+const buttonProps = {
+  variant: 'unstyled',
+  display: 'flex',
+  height: 'auto',
+  lineHeight: '1',
+  width: '100%',
+}
+const boxProps = { px: 0, m: 0, maxWidth: '220px' }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
 const AmountInput = (props: InputProps) => {
@@ -81,7 +91,7 @@ export type TradeAmountInputProps = {
   assetId: AssetId
   accountId?: AccountId
   assetSymbol: string
-  assetIcon: string
+  assetIcon: string | undefined
   onChange?: (value: string, isFiat?: boolean) => void
   onMaxClick: (isFiat: boolean) => Promise<void>
   onPercentOptionClick?: (args: number) => void
@@ -169,6 +179,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const assetMarketDataUserCurrency = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
+    )
+    const isAssetWithoutMarketData = useAppSelector(state =>
+      selectIsAssetWithoutMarketData(state, assetId),
     )
 
     // Local controller in case consumers don't have a form context, which is the case for all current consumers currently except RFOX
@@ -348,7 +361,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               />
             </Skeleton>
             {RightComponent && <RightComponent assetId={assetId} />}
-            {layout === 'inline' && showFiatAmount && !hideAmounts && (
+            {layout === 'inline' && showFiatAmount && !isAssetWithoutMarketData && !hideAmounts && (
               <Button
                 onClick={toggleIsFiat}
                 size='sm'
@@ -374,7 +387,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             alignItems='center'
             display={hideAmounts ? 'none' : 'flex'}
           >
-            {showFiatAmount && (
+            {showFiatAmount && !isAssetWithoutMarketData && (
               <Flex alignItems='center' gap={2}>
                 <Button
                   onClick={toggleIsFiat}

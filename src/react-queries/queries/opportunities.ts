@@ -1,6 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AccountId } from '@shapeshiftoss/caip'
 import {
+  arbitrumChainId,
   type AssetId,
   avalancheChainId,
   bchChainId,
@@ -11,6 +12,7 @@ import {
   ethChainId,
   fromAccountId,
   ltcChainId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import {
   fetchAllOpportunitiesIdsByChainId,
@@ -41,7 +43,9 @@ export const opportunities = createQueryKeys('opportunities', {
               case cosmosChainId:
               case bscChainId:
               case avalancheChainId:
+              case arbitrumChainId:
               case ethChainId:
+              case thorchainChainId:
                 await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
                 await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)

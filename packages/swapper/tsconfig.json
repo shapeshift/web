@@ -17,6 +17,9 @@
     },
     {
       "path": "../caip",
+    },
+    {
+      "path": "../chain-adapters",
     }
   ]
 }

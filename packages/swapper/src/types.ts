@@ -1,5 +1,4 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type SafeApiKit from '@safe-global/api-kit'
 import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -160,7 +159,6 @@ export type GetTradeQuoteInput =
   | GetCosmosSdkTradeQuoteInput
 
 export type EvmSwapperDeps = {
-  getSafeApiKit: (chainId: EvmChainId, safeAddress: string) => Promise<SafeApiKit>
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }

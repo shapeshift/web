@@ -24,6 +24,7 @@
     "claimable": "Resgatável",
     "comingSoon": "Em breve ...",
     "approve": "Aprovar",
+    "reset": "Reiniciar",
     "confirm": "Confirmar",
     "seeDetails": "Veja detalhes",
     "activity": "Atividade",
@@ -397,12 +398,15 @@
       },
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
+        "runePoolDescription": "RUNEPool permite que você ganhe mais %{asset} ao juntar seu %{asset} com outros. Você não precisa escolher pools específicos, todos compartilham o desempenho geral.",
+        "runePoolOverviewDescription": "O RUNEPool otimiza o uso de %{asset} depositando-o em todos os pools de liquidez habilitados para POL no THORChain. Ao reunir %{asset} entre esses pools, os participantes ganham o APY combinado, mas enfrentam exposição à perda impermanente agregada. Em vez de escolher pools individuais, os usuários se beneficiam do desempenho geral, investindo efetivamente em um índice %{asset} e todos os ativos habilitados para PoL do THORChain. Isso simplifica o fornecimento de liquidez e reduz o risco individual.",
         "vaultCap": "Limite da Vault",
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedDepositTitle": "Depósitos estão temporariamente desabilitados. ",
         "disabledDepositTitle": "Os depósitos estão temporariamente desativados.",
         "haltedWithdrawTitle": "As retiradas estão temporariamente suspensas.",
         "disabledWithdrawTitle": "Os saques estão temporariamente desativados.",
+        "runePoolWithdrawLockedTitle": "Você tem que esperar %{timeHuman} para sacar.",
         "haltedDescription": "Por favor, twitte em @THORChain para aumentar o limite!",
         "protocolFee": "Taxas do Protocolo",
         "fee": "Taxa",
@@ -412,10 +416,12 @@
         "sendDust": "Enviar Cripto",
         "addressToSendTo": "Endereço para Enviar",
         "introducingSaversVaults": "Introduzindo a Savers Vault",
+        "introducingRunePool": "Apresentando RUNEPool",
         "risksBody": {
           "1": "Indique para",
           "2": "este artigo",
-          "3": "para riscos envolvidos com a Savers Vault"
+          "3": "para riscos envolvidos com a Savers Vault",
+          "runePool": "para riscos envolvidos com o RUNEPool."
         },
         "understand": "Eu entendo",
         "days": "%{amount} dias",
@@ -426,7 +432,10 @@
         },
         "cannotDepositWhilePendingTx": "Não é possível depositar enquanto as Txs estiverem pendentes",
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
-        "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema."
+        "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema.",
+        "agreeRunePool": {
+          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 90 dias e um risco maior de perda temporária."
+        }
       }
     },
     "memoNote": {
@@ -657,7 +666,8 @@
         "stake": "Stake",
         "withdraw": "Retirar",
         "unstakeRequest": "Solicitação de Unstake",
-        "setRuneAddress": "Definir endereço da Rune"
+        "setRuneAddress": "Definir endereço da Rune",
+        "reward": "Distribuição de recompensas"
       },
       "weth": {
         "deposit": "Depósito",
@@ -773,12 +783,14 @@
   },
   "trade": {
     "trade": "Swap",
+    "resetAllowance": "Redefinir permissão",
     "allowance": "Quota",
     "verifyAddresses": "Verifique os endereços",
     "assetAddress": "%{asset} endereço",
     "verifyAsset": "Verifique %{asset}",
     "verifyAddressMessage": "Certifique-se de que seus endereços estejam corretos antes de continuar.",
     "slippageInfo": "Sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta porcentagem.",
+    "resetAllowanceTooltip": "Quando houver uma permissão diferente de zero restante para este token, a permissão deverá primeiro ser redefinida para 0 antes de aprovar a permissão final.",
     "allowanceTooltip": "O valor que você concederá ao contrato inteligente para usar em sua assinatura.",
     "searchingRate": "Procurando a melhor taxa...",
     "noRateAvailable": "Nenhuma taxa disponível.",
@@ -915,7 +927,11 @@
     "enableMetaMaskSnap": "use o snap multichain",
     "connectChain": "conectar %{chainName}",
     "approvalGasFee": "Taxa para aprovação %{fee}",
+    "approvalGasFeeLoading": "Aprovação da taxa de gás carregando...",
+    "approvalResetGasFee": "Taxa de gás de redefinição de aprovação %{fee}",
+    "approvalResetGasFeeLoading": "Aprovação redefinida taxa de gás carregando...",
     "approvalFailed": "Um problema ocorreu durante a aprovação dos tokens",
+    "approvalResetFailed": "Ocorreu um problema durante a redefinição da permissão",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
     "doAnotherTrade": "Faça outra negociação",
     "showDetails": "Mostrar detalhes",
@@ -937,7 +953,8 @@
       "swap": "Swap na %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Aprovação de permissão de token",
-    "assetSummaryDescription": "%{amountFiatFormatted} na %{chainName}",
+    "resetTitle": "Redefinição da permissão de token",
+    "fiatAmountOnChain": "%{amountFiatFormatted} em %{chainName}",
     "quote": {
       "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
@@ -1768,6 +1785,7 @@
         "SegwitNativeTooltip": "Recomendado para a maioria dos usuários. Só utilize outros endereços sabendo sua função.",
         "btcFormat": "Formato BTC",
         "assetUnavailable": "Os dados de mercado para este ativo ainda não estão disponíveis. Estamos trabalhando nisso, aguente firme!",
+        "customAsset": "Este é um ativo importado personalizado. Os dados de mercado podem não ser precisos.",
         "loading": "Buscando histórico de preços, aguarde...",
         "maxTotalSupply": "Fornecimento total máximo",
         "availableSupply": "Fornecimento disponível",
@@ -2322,6 +2340,7 @@
     "pricePerAsset": "%{from} por %{to}",
     "symAlert": "Seu %{from} será dividido em uma exposição de 50:50 para %{to} e %{from} ao entrar na pool.",
     "symAfterRuneAlert": "Depósitos simétricos não são possíveis após um depósito RUNE assimétrico devido à forma como a rede THOR funciona.",
+    "withdrawTypeNotAvailable": "Este tipo de retirada não está disponível para este pool.",
     "incompletePositionDepositAlert": "Esta posição está incompleta, por favor deposite o valor correspondente de %{asset} para finalizar esta posição.",
     "incompletePositionWithdrawAlert": "Esta posição está incompleta, cancele a posição retirando 100% da liquidez. Você também pode finalizar a posição através de 'Adicionar Liquidez'.",
     "unsupportedDemoWalletExplainer": "A carteira de demonstração não é suportada. Conecte-se a uma carteira para usar este recurso.",
@@ -2347,6 +2366,10 @@
     "confirmAndWithdraw": "Confirmar e retirar",
     "removeAmounts": "Remover Valor(es)",
     "stagedTooltip": "Staged pools aquelas que aceitam liquidez, mas não acumularão nenhum lucro até estarem disponíveis",
+    "newPosition": "Nova posição",
+    "newPositionTooltip": "Isso criará uma nova posição de LP em vez de adicionar uma já existente.",
+    "notSupported": "Não é possivel",
+    "notSupportedTooltip": "Devido à sua posição Asymmetric Rune existente, depositar neste pool com ambos os ativos não é possível. Por favor, retire sua posição atual se desejar criar um novo LP com ambos os ativos.",
     "yourPositions": {
       "yourPositions": "Suas posições",
       "emptyTitle": "Nenhuma posição ativa",
@@ -2528,6 +2551,8 @@
     "totalStaked": "FOX total em stake",
     "totalFeesCollected": "Total de taxas coletadas (esta época)",
     "emissionsPool": "Emissões da Pool (esta época)",
-    "emissionsPoolHelper": "Emissões da Pool (esta época)"
+    "emissionsPoolHelper": "Emissões da Pool (esta época)",
+    "foxBurnAmount": "Quantidade de queima da FOX (nesta época)",
+    "pendingDistribution": "Distribuição pendente"
   }
 }

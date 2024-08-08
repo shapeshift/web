@@ -94,5 +94,6 @@ export const migrations = {
   83: clearAssets,
   84: clearAssets,
   85: clearAssets,
-  86: clearWalletConnectWalletsMetadata,
+  86: clearAssets,
+  87: clearWalletConnectWalletsMetadata,
 }

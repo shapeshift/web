@@ -6,14 +6,28 @@ export type TokenInfo = {
   symbol: string
   address: string
   images: string[] | undefined
+  image: string | undefined
   price: string | undefined
   pricePerShare: string | undefined
+  platform: string
   metrics: {
     apy?: string
     volumeUsd1d?: string
     volumeUsd7d?: string
   }
+  tokens: string[]
 }
+
+type Platform = {
+  platform: string
+  name: string
+  image: string
+  network: string
+}
+
+export type PlatformsById = Record<string, Platform>
+
+export type GetPlatformsResponse = Platform[]
 
 export type GetTokensResponse = {
   totalItems: number

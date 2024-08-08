@@ -31,6 +31,10 @@ type AssetChainDropdownProps = {
   isDisabled?: boolean
 }
 
+const flexProps = {
+  width: '100%',
+}
+
 export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
   ({
     assetId,
@@ -115,6 +119,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
               mainImplementationAssetId={assetId}
               hideBalances
               hideSymbol
+              flexProps={flexProps}
             />
           </MenuButton>
         </Tooltip>

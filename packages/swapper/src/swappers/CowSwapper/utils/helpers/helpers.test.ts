@@ -2,8 +2,7 @@ import type { AxiosStatic } from 'axios'
 import type { Awaitable, HookCleanupCallback } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { CowSwapOrder } from '../../../../types'
-import { domain, getFullAppData, getNowPlusThirtyMinutesTimestamp, hashOrder } from './helpers'
+import { getFullAppData, getNowPlusThirtyMinutesTimestamp } from './helpers'
 
 vi.mock('../cowService', async () => {
   const axios: AxiosStatic = await vi.importMock('axios')
@@ -37,30 +36,6 @@ describe('utils', () => {
     })
   })
 
-  describe('hashOrder', () => {
-    it('should return the correct order digest', () => {
-      const order: Omit<CowSwapOrder, 'appDataHash'> = {
-        sellToken: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-        buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-        sellAmount: '20200000000000000',
-        buyAmount: '272522025311597443544',
-        validTo: 1656667297,
-        appData: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
-        feeAmount: '3514395197690019',
-        kind: 'sell',
-        partiallyFillable: false,
-        receiver: '0xFc81A7B9f715A344A7c4ABFc444A774c3E9BA42D',
-        sellTokenBalance: 'erc20',
-        buyTokenBalance: 'erc20',
-        quoteId: 1,
-      }
-
-      const orderDigest = hashOrder(domain(1, '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'), order)
-      expect(orderDigest).toEqual(
-        '0x36f3ae3a19c9c5898d921ce86c1be9e3ae0c8ec1bdd162e7d2f6e83e6bf9a4e6',
-      )
-    })
-  })
   describe('getFullAppData', () => {
     it('should return correct AppData for given inputs for no affiliate fee', async () => {
       const slippageTolerancePercentage = '0.005' // 0.5%

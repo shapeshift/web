@@ -128,7 +128,7 @@ export const FeaturedCard: React.FC<StakingEarnOpportunityType> = opportunity =>
         {backgroundIcons}
       </Box>
       <CardHeader display='flex' justifyContent='space-between' alignItems='center' gap={4}>
-        <PairIcons icons={icons ?? []} iconSize='sm' bg='transparent' />
+        <PairIcons showFirst={true} icons={icons ?? []} iconSize='sm' bg='transparent' />
         <Tag mt={2} textTransform='capitalize'>
           {providerDisplayName}
         </Tag>

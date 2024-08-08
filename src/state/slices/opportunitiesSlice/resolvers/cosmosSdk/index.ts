@@ -120,7 +120,7 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
           provider: DefiProvider.CosmosSdk,
           assetId,
           underlyingAssetId: assetId,
-          underlyingAssetIds: [assetId] as const,
+          underlyingAssetIds: [assetId],
           underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit] as const,
           // TODO: Handle different denom rewards
           rewardAssetIds: [assetId] as const,

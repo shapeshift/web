@@ -87,6 +87,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
             position={compareIndex === 2 ? 'absolute' : 'static'}
             borderRadius={isNft ? 0 : 'full'}
             left={0}
+            top={0}
           />
         </Box>
       )

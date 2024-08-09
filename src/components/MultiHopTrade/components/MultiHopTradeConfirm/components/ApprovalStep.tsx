@@ -119,7 +119,7 @@ const ApprovalStepPending = ({
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
-  const checkLedgerAppOpen = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const { state, allowanceReset, approval } = useAppSelector(state =>
     selectHopExecutionMetadata(state, hopIndex),
@@ -147,10 +147,10 @@ const ApprovalStepPending = ({
   const handleSignAllowanceApproval = useCallback(async () => {
     // Only proceed to execute the approval if the promise is resolved, i.e the user has opened the
     // Ledger app without cancelling
-    await checkLedgerAppOpen(tradeQuoteStep.sellAsset.chainId)
+    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
       .then(() => approveMutation.mutateAsync())
       .catch(console.error)
-  }, [approveMutation, checkLedgerAppOpen, tradeQuoteStep.sellAsset.chainId])
+  }, [approveMutation, checkLedgerAppOpenIfLedgerConnected, tradeQuoteStep.sellAsset.chainId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),

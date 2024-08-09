@@ -25,7 +25,7 @@ export const ManageAccountsDrawer = ({
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
-  const checkLedgerAppOpen = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const handleClose = useCallback(() => {
     setStep('selectChain')
@@ -71,11 +71,11 @@ export const ManageAccountsDrawer = ({
 
       // Only proceed to next step if the promise is resolved, i.e the user has opened the Ledger
       // app without cancelling
-      await checkLedgerAppOpen(chainId)
+      await checkLedgerAppOpenIfLedgerConnected(chainId)
         .then(() => handleNext())
         .catch(console.error)
     },
-    [checkLedgerAppOpen, handleNext],
+    [checkLedgerAppOpenIfLedgerConnected, handleNext],
   )
 
   const drawerContent = useMemo(() => {

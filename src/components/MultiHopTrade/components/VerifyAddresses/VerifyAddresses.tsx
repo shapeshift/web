@@ -220,23 +220,23 @@ export const VerifyAddresses = () => {
     ],
   )
 
-  const checkLedgerAppOpen = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const handleBuyVerify = useCallback(async () => {
     // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
     // the Ledger app without cancelling
-    await checkLedgerAppOpen(buyAsset.chainId)
+    await checkLedgerAppOpenIfLedgerConnected(buyAsset.chainId)
       .then(() => handleVerify('buy'))
       .catch(console.error)
-  }, [checkLedgerAppOpen, handleVerify, buyAsset.chainId])
+  }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, buyAsset.chainId])
 
   const handleSellVerify = useCallback(async () => {
     // Only proceed to verify the sell address if the promise is resolved, i.e the user has opened
     // the Ledger app without cancelling
-    await checkLedgerAppOpen(sellAsset.chainId)
+    await checkLedgerAppOpenIfLedgerConnected(sellAsset.chainId)
       .then(() => handleVerify('sell'))
       .catch(console.error)
-  }, [checkLedgerAppOpen, handleVerify, sellAsset.chainId])
+  }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, sellAsset.chainId])
 
   const verifyBuyAssetTranslation: TextPropTypes['translation'] = useMemo(
     () => ['trade.verifyAsset', { asset: buyAsset.symbol }],

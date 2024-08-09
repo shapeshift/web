@@ -46,7 +46,7 @@ export const HopTransactionStep = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
 
-  const checkLedgerAppOpen = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
@@ -64,10 +64,10 @@ export const HopTransactionStep = ({
 
     // Only proceed to execute the trade if the promise is resolved, i.e the user has opened the
     // Ledger app without cancelling
-    await checkLedgerAppOpen(tradeQuoteStep.sellAsset.chainId)
+    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
       .then(() => executeTrade())
       .catch(console.error)
-  }, [checkLedgerAppOpen, executeTrade, swapTxState, tradeQuoteStep.sellAsset.chainId])
+  }, [checkLedgerAppOpenIfLedgerConnected, executeTrade, swapTxState, tradeQuoteStep.sellAsset.chainId])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,

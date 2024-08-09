@@ -1,5 +1,5 @@
 import type { AvatarProps, FlexProps } from '@chakra-ui/react'
-import { Avatar, Box, Center } from '@chakra-ui/react'
+import { Avatar, Center, Flex } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 
@@ -95,10 +95,10 @@ export const PairIcons = ({
   }, [iconBoxSize, iconSize, icons, showFirst])
 
   return (
-    <Box display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
+    <Flex display='inline-flex' flexDirection='row' alignItems='center' {...styleProps}>
       {showFirst && <LazyLoadAvatar src={firstIcon} size={iconSize} boxSize={iconBoxSize} />}
 
       {remainingIcons}
-    </Box>
+    </Flex>
   )
 }

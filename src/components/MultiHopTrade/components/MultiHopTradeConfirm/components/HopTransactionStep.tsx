@@ -74,7 +74,7 @@ export const HopTransactionStep = ({
   const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: sellTxHash,
-    chainId: tradeQuoteStep.sellAsset.chainId,
+    accountId: sellAssetAccountId,
   })
 
   const txLinks = useMemo(() => {

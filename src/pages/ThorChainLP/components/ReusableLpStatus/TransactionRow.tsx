@@ -26,6 +26,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Row } from 'components/Row/Row'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -308,14 +309,21 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 
+  const { data: safeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
+  })
+
   const txIdLink = useMemo(
     () =>
       getTxLink({
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
         name: SwapperName.Thorchain,
+        isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+        accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
       }),
-    [txId],
+    [isRuneTx, poolAssetAccountId, runeAccountId, safeTx?.isSafeTxHash, txId],
   )
 
   const handleSignTx = useCallback(async () => {

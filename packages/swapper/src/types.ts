@@ -1,5 +1,5 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
-import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
@@ -160,6 +160,7 @@ export type GetTradeQuoteInput =
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
   getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
@@ -294,10 +295,13 @@ export type CommonGetUnsignedTransactionArgs = {
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean } & EvmSwapperDeps
+  EvmAccountMetadata & { supportsEIP1559: boolean } & Omit<
+    EvmSwapperDeps,
+    'fetchIsSmartContractAddressQuery'
+  >
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
-  EvmSwapperDeps
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -328,6 +332,7 @@ export type CheckTradeStatusInput = {
   quoteId: string
   txHash: string
   chainId: ChainId
+  accountId: AccountId | undefined
   stepIndex: SupportedTradeQuoteStepIndex
   config: SwapperConfig
 } & EvmSwapperDeps &

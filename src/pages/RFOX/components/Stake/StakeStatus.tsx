@@ -4,6 +4,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -94,9 +95,25 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     }
   }, [txStatus, stakingAmountCryptoPrecision, stakingAsset])
 
+  const { data: safeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId: confirmedQuote.stakingAssetAccountId,
+  })
+
   const txLink = useMemo(
-    () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
-    [stakingAsset?.explorerTxLink, txId],
+    () =>
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+        isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+        accountId: confirmedQuote.stakingAssetAccountId,
+      }),
+    [
+      confirmedQuote.stakingAssetAccountId,
+      safeTx?.isSafeTxHash,
+      stakingAsset?.explorerTxLink,
+      txId,
+    ],
   )
 
   return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />

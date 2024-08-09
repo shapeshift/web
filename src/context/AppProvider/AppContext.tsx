@@ -1,6 +1,5 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -108,9 +107,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       return requestedAccountIds.length > 0
     })()
 
-    // Skip if wallet is ledger, or if wallet is already connected to accounts - prevents this overriding user selection in account management
-    if (!wallet || isLedger(wallet) || hasManagedAccounts) return
     ;(async () => {
+      // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
+      // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
+      if (hasManagedAccounts) {
+        requestedAccountIds.forEach(accountId => {
+          dispatch(
+            portfolioApi.endpoints.getAccount.initiate(
+              { accountId, upsertOnFetch: true },
+              { forceRefetch: true },
+            ),
+          )
+        })
+        return
+      }
+
+      if (!wallet) return
+
       let chainIds = supportedChains.filter(chainId => {
         return walletSupportsChain({
           chainId,

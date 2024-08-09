@@ -22,6 +22,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
@@ -73,7 +74,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
 }) => {
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
+  const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, setSelectedAssetAccountId } =
+    useRFOXContext()
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -107,11 +109,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
   const stakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const selectedAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, selectedAsset?.chainId ?? ''),
   )
   const stakingAssetAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
@@ -213,8 +210,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   })
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
-  // TODO(gomes): implement me when we have multi-account here
-  const handleAccountIdChange = useCallback(() => {}, [])
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -275,7 +270,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     history,
     selectedAssetId,
   ])
-
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
@@ -286,9 +280,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       title: 'common.selectAsset',
       assets: [stakingAsset, l1Asset],
     })
-  }, [stakingAsset, l1Asset, buyAssetSearch])
+  }, [stakingAsset, l1Asset, buyAssetSearch, setSelectedAssetId])
 
-  const handleAssetChange = useCallback((asset: Asset) => setSelectedAssetId(asset.assetId), [])
+  const handleAssetChange = useCallback(
+    (asset: Asset) => setSelectedAssetId(asset.assetId),
+    [setSelectedAssetId],
+  )
 
   const assetSelectComponent = useMemo(() => {
     return (
@@ -433,9 +430,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               assetSymbol={selectedAsset?.symbol ?? ''}
               assetIcon={selectedAsset?.icon ?? ''}
               percentOptions={percentOptions}
-              onAccountIdChange={handleAccountIdChange}
-              // TODO: remove me when implementing multi-account
-              isAccountSelectionDisabled={true}
+              onAccountIdChange={setSelectedAssetAccountId}
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}

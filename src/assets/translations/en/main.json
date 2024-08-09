@@ -666,7 +666,7 @@
         "stake": "Stake",
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
-        "setRuneAddress": "Set Rune Address",
+        "setRuneAddress": "Set RUNE Address",
         "reward": "Reward Distribution"
       },
       "weth": {
@@ -1235,6 +1235,7 @@
       },
       "withdrawTo": "Withdraw To",
       "amountToDeposit": "Amount To Deposit",
+      "amountDeposited": "Amount Deposited",
       "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
       "amountToClaim": "Amount To Claim",

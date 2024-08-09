@@ -112,6 +112,10 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     selectAssetById(state, underlyingAssetId),
   )
 
+  const thorchainAsset: Asset | undefined = useAppSelector(state =>
+    selectAssetById(state, thorchainAssetId),
+  )
+
   const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,
@@ -152,7 +156,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', {
-          asset: underlyingAsset?.symbol ?? '',
+          asset: isRunePool ? thorchainAsset?.symbol : underlyingAsset?.symbol ?? '',
         }),
         component: ownProps => (
           <Deposit
@@ -198,6 +202,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     assetId,
     makeHandleSweepBack,
     makeHandleSweepSeen,
+    isRunePool,
+    thorchainAsset,
   ])
 
   const value = useMemo(() => ({ state, dispatch }), [state])

@@ -165,7 +165,11 @@ export const arbitrumBridgeApi: SwapperApi = {
     buyTxHash: string | undefined
     message: string | undefined
   }> => {
-    const swapTxStatus = await checkEvmSwapStatus({ txHash, chainId, assertGetEvmChainAdapter })
+    const swapTxStatus = await checkEvmSwapStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
     const isWithdraw = chainId === arbitrumChainId
 
     if (isWithdraw) {

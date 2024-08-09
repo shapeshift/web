@@ -12,6 +12,7 @@ import axios from 'axios'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
+import { fetchSafeTransactionInfo } from '../../safe-utils'
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
   CosmosSdkFeeData,
@@ -328,6 +329,7 @@ export const thorchainApi: SwapperApi = {
 
   checkTradeStatus: async ({
     txHash,
+    chainId,
     config,
   }): Promise<{
     status: TxStatus
@@ -335,6 +337,28 @@ export const thorchainApi: SwapperApi = {
     message: string | undefined
   }> => {
     try {
+      const safeTransactionInfo = await fetchSafeTransactionInfo({
+        chainId,
+        maybeSafeTxHash: txHash,
+      })
+      const { isSafeTxHash, transaction } = safeTransactionInfo
+
+      // No buyTxHash handling is correct - we mutate with the actual on-chain transaction, meaning the regular flow then takes over
+      if (
+        isSafeTxHash &&
+        transaction?.confirmations &&
+        Number(transaction.confirmations.length) < transaction.confirmationsRequired
+      ) {
+        return {
+          status: TxStatus.Pending,
+          message: `SAFE proposal submitted. ${transaction.confirmations.length} out of ${transaction.confirmationsRequired} signed.`,
+          buyTxHash: undefined,
+        }
+      } else if (transaction?.transactionHash) {
+        // Mutate with  the actual on-chain transaction work and let things work as-is
+        txHash = transaction.transactionHash
+      }
+
       const thorTxHash = txHash.replace(/^0x/, '')
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context

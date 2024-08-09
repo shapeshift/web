@@ -9,6 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 
+import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
@@ -179,6 +180,24 @@ export const checkEvmSwapStatus = async ({
   message: string | undefined
 }> => {
   try {
+    const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, maybeSafeTxHash: txHash })
+    const { isSafeTxHash, transaction } = safeTransactionInfo
+
+    // No buyTxHash handling is correct - we mutate with the actual on-chain transaction, meaning the regular flow then takes over
+    if (
+      isSafeTxHash &&
+      transaction?.confirmations &&
+      Number(transaction.confirmations.length) < transaction.confirmationsRequired
+    ) {
+      return {
+        status: TxStatus.Pending,
+        message: `SAFE proposal submitted. ${transaction.confirmations.length} out of ${transaction.confirmationsRequired} signed.`,
+        buyTxHash: undefined,
+      }
+    } else if (transaction?.transactionHash) {
+      // Mutate with  the actual on-chain transaction work and let things work as-is
+      txHash = transaction.transactionHash
+    }
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)
@@ -186,7 +205,7 @@ export const checkEvmSwapStatus = async ({
     return {
       status,
       buyTxHash: txHash,
-      message: undefined,
+      message: transaction?.transactionHash ? `SAFE proposal executed.` : undefined,
     }
   } catch (e) {
     console.error(e)

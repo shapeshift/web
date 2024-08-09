@@ -1,0 +1,22 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper/dist/safe-utils'
+import { type SafeTxInfo } from '@shapeshiftoss/swapper/dist/safe-utils/types'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
+
+type UseSafeTxQueryArgs = {
+  chainId: ChainId
+  maybeSafeTxHash: string | undefined
+}
+
+export const useSafeTxQuery = ({
+  chainId,
+  maybeSafeTxHash,
+}: UseSafeTxQueryArgs): UseQueryResult<SafeTxInfo, Error> => {
+  return useQuery({
+    queryKey: ['safeTransaction', { chainId, maybeSafeTxHash }],
+    queryFn: maybeSafeTxHash
+      ? () => fetchSafeTransactionInfo({ chainId, maybeSafeTxHash })
+      : skipToken,
+  })
+}

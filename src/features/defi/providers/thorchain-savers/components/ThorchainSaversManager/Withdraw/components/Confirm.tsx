@@ -10,13 +10,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  bchChainId,
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { bchChainId, fromAccountId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import dayjs from 'dayjs'
@@ -151,7 +145,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const isTokenWithdraw = isToken(fromAssetId(assetId).assetReference)
+  const isTokenWithdraw = isToken(assetId)
 
   // user info
   const {

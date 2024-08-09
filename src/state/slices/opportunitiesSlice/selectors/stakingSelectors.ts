@@ -410,7 +410,7 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
               rewardAddress: fromAssetId(foxAssetId).assetReference,
             }
 
-          if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference)) {
+          if (isToken(opportunity.underlyingAssetId)) {
             return {
               contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
             }
@@ -501,7 +501,7 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
                   contractAddress: fromAssetId(opportunity.assetId).assetReference,
                 }
 
-              if (isToken(fromAssetId(opportunity.underlyingAssetId).assetReference))
+              if (isToken(opportunity.underlyingAssetId))
                 return {
                   contractAddress: fromAssetId(opportunity.underlyingAssetId).assetReference,
                 }

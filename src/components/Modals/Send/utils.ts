@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainId,
   EvmChainId,
@@ -18,7 +18,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertGetChainAdapter, tokenOrUndefined } from 'lib/utils'
+import { assertGetChainAdapter, contractAddressOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -151,7 +151,7 @@ export const handleSend = async ({
       if (!shouldUseEIP1559Fees && gasPrice === undefined) {
         throw new Error(`useFormSend: missing gasPrice for non-EIP-1559 tx`)
       }
-      const contractAddress = tokenOrUndefined(fromAssetId(asset.assetId).assetReference)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
       const adapter = assertGetEvmChainAdapter(chainId)
       return await adapter.buildSendTransaction({

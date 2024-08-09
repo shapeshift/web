@@ -62,7 +62,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
 
   const isApprovalRequired = useMemo(() => {
     if (!(input.assetId && input.amountCryptoBaseUnit && chainId)) return false
-    if (!(isEvmChainId(chainId) && isToken(fromAssetId(input.assetId).assetReference))) return false
+    if (!(isEvmChainId(chainId) && isToken(input.assetId))) return false
 
     if (!allowanceDataQuery?.data) return
 

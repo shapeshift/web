@@ -22,9 +22,11 @@ const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeo
 export class ZerionMarketService implements MarketService {
   baseUrl = getConfig().REACT_APP_ZERION_BASE_URL
 
-  getZerionTokenMarketData = async (assetId: AssetId): Promise<ZerionMarketData | undefined> => {
+  private getZerionTokenMarketData = async (
+    assetId: AssetId,
+  ): Promise<ZerionMarketData | undefined> => {
     const { assetReference } = fromAssetId(assetId)
-    if (!isToken(assetReference)) return undefined
+    if (!isToken(assetId)) return undefined
 
     const url = `${this.baseUrl}/fungibles/${assetReference}`
     const { data: res } = await axios.get<ZerionFungibles>(url)

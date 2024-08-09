@@ -655,7 +655,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (!confirmedQuote) return false
     if (!poolAsset) return false
     if (incompleteSide === AsymSide.Rune) return false
-    if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) return false
+    if (!isToken(poolAsset.assetId)) return false
 
     const supportedEvmChainIds = getSupportedEvmChainIds()
     if (!supportedEvmChainIds.includes(fromAssetId(poolAsset.assetId).chainId as KnownChainIds))
@@ -711,7 +711,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if ((!isApprovalRequired && !poolAssetTxFeeCryptoBaseUnit) || !poolAsset) return false
 
     // If the asset is not a token, assume it's a native asset and fees are taken from the same asset balance
-    if (!isToken(fromAssetId(poolAsset.assetId).assetReference)) {
+    if (!isToken(poolAsset.assetId)) {
       const assetAmountCryptoBaseUnit = toBaseUnit(
         actualAssetDepositAmountCryptoPrecision!,
         poolAsset?.precision,

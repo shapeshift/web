@@ -12,7 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { tokenOrUndefined } from 'lib/utils'
+import { contractAddressOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -109,8 +109,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     state: { wallet },
   } = useWallet()
 
-  const { assetReference } = fromAssetId(assetId)
-  const contractAddress = tokenOrUndefined(assetReference)
+  const contractAddress = contractAddressOrUndefined(assetId)
 
   const estimateFormFees = useCallback(
     ({

@@ -22,8 +22,9 @@
     "continue": "Continuer",
     "reward": "Récompense",
     "claimable": "Réclamable",
-    "comingSoon": "Bientôt disponible ...",
+    "comingSoon": "Bientôt disponible...",
     "approve": "Autoriser",
+    "reset": "Réinitialiser",
     "confirm": "Confirmer",
     "seeDetails": "Voir les détails",
     "activity": "Activité",
@@ -257,7 +258,7 @@
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
     "coinbase": "Coinbase",
-    "comingSoon": "Bientôt disponible ...",
+    "comingSoon": "Bientôt disponible...",
     "buy": "Acheter",
     "sell": "Vendre",
     "asset": "Actif",
@@ -397,12 +398,15 @@
       },
       "saversVaults": {
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
+        "runePoolDescription": "RUNEPool vous permet de gagner des %{asset} en plus en poolant vos %{asset} avec d'autres. Vous n'avez pas à choisir de pools spécifiques, tout le monde partage les performances globales.",
+        "runePoolOverviewDescription": "RUNEPool optimise l'utilisation des %{asset} en les déposant dans tous les pools de liquidités compatibles POL de THORChain. En regroupant les %{asset} dans ces pools, les participants gagnent l'APY combiné mais sont exposés aux pertes impermanentes globales. Au lieu de choisir des pools individuels, les utilisateurs bénéficient de la performance globale, en investissant en réalité dans un indice %{asset} et de tous les actifs compatibles PoL de THORChain. Cela simplifie la mise à disposition de liquidités et réduit le risque individuel.",
         "vaultCap": "Plafond du Vault",
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
         "disabledDepositTitle": "Les dépôts sont temporairement désactivés.",
         "haltedWithdrawTitle": "Les retraits sont temporairement interrompus.",
         "disabledWithdrawTitle": "Les retraits sont temporairement désactivés.",
+        "runePoolWithdrawLockedTitle": "Vous devez attendre %{timeHuman} pour retirer.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",
@@ -412,10 +416,12 @@
         "sendDust": "Envoyer de la poussière",
         "addressToSendTo": "Adresse à laquelle envoyer",
         "introducingSaversVaults": "Présentation des Savers Vaults",
+        "introducingRunePool": "Présentation de RUNEPool",
         "risksBody": {
           "1": "Référez-vous à",
           "2": "cet article",
-          "3": "pour les risques liés aux Savers Vaults."
+          "3": "pour les risques liés aux Savers Vaults.",
+          "runePool": "pour les risques liés à RUNEPool."
         },
         "understand": "Je comprends",
         "days": "%{amount} jours",
@@ -426,7 +432,10 @@
         },
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
-        "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème."
+        "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
+        "agreeRunePool": {
+          "1": "Je comprends que RUNEPool a à la fois un blocage minimum de 90 jours et un risque accru de pertes impermanentes."
+        }
       }
     },
     "memoNote": {
@@ -657,7 +666,8 @@
         "stake": "Miser",
         "withdraw": "Retirer",
         "unstakeRequest": "Demande de démise",
-        "setRuneAddress": "Définir l'adresse Rune"
+        "setRuneAddress": "Définir l'adresse RUNE",
+        "reward": "Distribution des récompenses"
       },
       "weth": {
         "deposit": "Dépôt",
@@ -773,12 +783,14 @@
   },
   "trade": {
     "trade": "Échanger",
+    "resetAllowance": "Réinitialiser l'allocation",
     "allowance": "Allocation",
     "verifyAddresses": "Vérifier les adresses",
     "assetAddress": "Adresse %{asset}",
     "verifyAsset": "Vérifier %{asset}",
     "verifyAddressMessage": "Assurez-vous que vos adresses sont correctes avant de continuer.",
     "slippageInfo": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",
+    "resetAllowanceTooltip": "Lorsqu'il reste une allocation non nulle pour ce jeton, l'allocation doit d'abord être réinitialisée à 0 avant d'approuver l'allocation finale.",
     "allowanceTooltip": "Le montant que vous allez autoriser le contrat intelligent à utiliser en votre nom.",
     "searchingRate": "Recherche du meilleur taux...",
     "noRateAvailable": "Aucun taux disponible.",
@@ -915,7 +927,11 @@
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
     "connectChain": "connectez %{chainName}",
     "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
+    "approvalGasFeeLoading": "Chargement des frais de carburant pour l'autorisation...",
+    "approvalResetGasFee": "Frais de carburant pour réinitialisation de l'autorisation %{fee}",
+    "approvalResetGasFeeLoading": "Chargement des frais de carburant pour réinitialisation de l'autorisation...",
     "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
+    "approvalResetFailed": "Un problème est survenu lors de la réinitialisation de l'allocation",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
     "doAnotherTrade": "Faire un autre échange",
     "showDetails": "Afficher les détails",
@@ -937,7 +953,8 @@
       "swap": "Échange sur %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Autorisation d'allocation de jetons",
-    "assetSummaryDescription": "%{amountFiatFormatted} sur %{chainName}",
+    "resetTitle": "Réinitialisation de l'allocation de jetons",
+    "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
       "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userslippageFormatted}) pour %{swapperName}",
       "slippage": "Glissement/Slippage : %{slippageFormatted}"
@@ -1768,6 +1785,7 @@
         "SegwitNativeTooltip": "Recommandé pour la plupart des utilisateurs. N'utilisez les autres adresses que si vous savez à quoi elles servent",
         "btcFormat": "Format BTC",
         "assetUnavailable": "Les données du marché pour cet actif ne sont pas encore disponibles. On y travaille, tenez-bon !",
+        "customAsset": "Il s'agit d'un actif importé personnalisé. Les données du marché peuvent ne pas être exactes.",
         "loading": "Récupération de l'historique des prix, veuillez patienter...",
         "maxTotalSupply": "Masse monétaire totale",
         "availableSupply": "Masse monétaire disponible",
@@ -1972,7 +1990,7 @@
       "optInModal": {
         "title": "Aidez-nous à améliorer ShapeShift",
         "description": "ShapeShift souhaite recueillir des données d'utilisation afin de mieux comprendre comment nos utilisateurs interagissent avec l'application. Ces données seront utilisées pour améliorer continuellement la convivialité et l'expérience utilisateur de notre produit.",
-        "actionsSentence": "ShapeShift ...",
+        "actionsSentence": "ShapeShift...",
         "noThanks": "Non merci, dirigez-moi vers la version privée",
         "sendEvents": "Va envoyer des événements anonymisés de clics et de pages vues",
         "neverCollectPersonalInformations": "Ne collecte jamais de clés, d'adresses, de transactions, de soldes ou d'autres informations personnelles",
@@ -2321,6 +2339,7 @@
     "pricePerAsset": "%{from} par %{to}",
     "symAlert": "Votre %{from} sera divisé en une exposition 50:50 à %{to} et %{from} dès votre entrée dans le pool.",
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
+    "withdrawTypeNotAvailable": "Ce type de retrait n'est pas disponible pour ce pool.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
     "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
     "unsupportedDemoWalletExplainer": "Le porte-monnaie de démo n'est pas pris en charge, veuillez vous connecter à un porte-monnaie pour utiliser cette fonctionnalité.",
@@ -2346,6 +2365,10 @@
     "confirmAndWithdraw": "Confirmer et retirer",
     "removeAmounts": "Supprimer le(s) montant(s)",
     "stagedTooltip": "Les pools aménagés sont de nouveaux pools acceptant des liquidités, mais n'accumulant aucun gains avant qu'ils n'aient le statut Disponible.",
+    "newPosition": "Nouvelle position",
+    "newPositionTooltip": "Cela créera une nouvelle position LP au lieu de s'ajouter aux positions existantes.",
+    "notSupported": "Pas possible",
+    "notSupportedTooltip": "En raison de votre position Rune Asymétrique existante, il n'est pas possible de déposer dans ce pool avec les deux actifs. Veuillez retirer votre position actuelle si vous souhaitez créer une nouvelle position LP avec les deux actifs.",
     "yourPositions": {
       "yourPositions": "Vos positions",
       "emptyTitle": "Aucune position active",
@@ -2528,6 +2551,7 @@
     "totalFeesCollected": "Total des frais collectés (cette époque)",
     "emissionsPool": "Pool d’émissions (cette époque)",
     "emissionsPoolHelper": "Pool d’émissions (cette époque)",
-    "foxBurnAmount": "Montant de FOX brulés"
+    "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
+    "pendingDistribution": "Distribution en attente"
   }
 }

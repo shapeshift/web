@@ -67,7 +67,12 @@ export const HopTransactionStep = ({
     await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
       .then(() => executeTrade())
       .catch(console.error)
-  }, [checkLedgerAppOpenIfLedgerConnected, executeTrade, swapTxState, tradeQuoteStep.sellAsset.chainId])
+  }, [
+    checkLedgerAppOpenIfLedgerConnected,
+    executeTrade,
+    swapTxState,
+    tradeQuoteStep.sellAsset.chainId,
+  ])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,

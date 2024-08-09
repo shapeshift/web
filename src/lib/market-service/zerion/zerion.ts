@@ -63,6 +63,7 @@ export class ZerionMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<ZerionChartResponse | null> => {
+    // Fee assets aren't supported in this implementation
     const { assetReference } = fromAssetId(assetId)
     if (!isToken(assetReference)) return null
 
@@ -93,52 +94,83 @@ export class ZerionMarketService implements MarketService {
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {
     const argsToUse = { ...this.defaultGetByMarketCapArgs, ...args }
     const { count } = argsToUse
-    const url = `${this.baseUrl}/fungibles/`
+    let url = `${this.baseUrl}/fungibles/`
 
     const marketCapResult: MarketCapResult = {}
 
     try {
-      await Promise.all(
-        Object.entries(ZERION_CHAINS_MAP).map(async ([zerionChainId, chainId]) => {
-          if (Object.keys(marketCapResult).length >= count) return
-          await throttle()
+      let isFirstRequest = true
+      let consecutiveEmptyPages = 0
 
-          const params = {
+      while (Object.keys(marketCapResult).length < count) {
+        await throttle()
+
+        let params = {}
+        if (isFirstRequest) {
+          params = {
             sort: 'market_data.market_cap',
-            'filter[implementation_chain_id]': zerionChainId,
-            // Only fetch a single page for each chain, to avoid Avalanche/Ethereum assets eating all the 1000 count passed by web
-            'page[size]': 100, // 0 to 100
+            'page[size]': 100, // Between 1 and 100
           }
+          isFirstRequest = false
+        }
 
-          const { data } = await axios.get<ListFungiblesResponse>(url, {
-            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
-            params,
-          })
+        const { data } = await axios.get<ListFungiblesResponse>(url, {
+          paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' }),
+          params,
+        })
 
-          for (const token of data.data) {
-            if (Object.keys(marketCapResult).length >= count) break
-            const marketData = token.attributes.market_data
+        let addedInThisPage = 0
 
+        for (const token of data.data) {
+          if (Object.keys(marketCapResult).length >= count) break
+          const marketData = token.attributes.market_data
+
+          for (const implementation of token.attributes.implementations) {
+            const chainId = ZERION_CHAINS_MAP[implementation.chain_id]
+            if (!chainId) continue // We don't support this chain, skip this implementation
             const assetId = toAssetId({
               chainId: chainId as ChainId,
               assetNamespace:
                 chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-              assetReference: token.id,
+              assetReference: implementation.address,
             })
 
-            marketCapResult[assetId] = {
-              price: bnOrZero(marketData.price).toFixed(),
-              marketCap: marketData.market_cap?.toFixed() ?? '0',
-              volume: '0', // Not provided by Zerion
-              changePercent24Hr: marketData.changes.percent_1d ?? 0,
-              supply: marketData.circulating_supply?.toFixed() ?? undefined,
-              maxSupply: marketData.total_supply?.toFixed() ?? undefined,
+            if (!marketCapResult[assetId]) {
+              marketCapResult[assetId] = {
+                price: bnOrZero(marketData.price).toFixed(),
+                marketCap: marketData.market_cap?.toFixed() ?? '0',
+                volume: '0', // Not provided by Zerion
+                changePercent24Hr: marketData.changes.percent_1d ?? 0,
+                supply: marketData.circulating_supply?.toFixed() ?? undefined,
+                maxSupply: marketData.total_supply?.toFixed() ?? undefined,
+              }
+              addedInThisPage++
+              if (Object.keys(marketCapResult).length >= count) break
             }
-
-            if (Object.keys(marketCapResult).length >= count) break
           }
-        }),
-      )
+        }
+
+        if (addedInThisPage === 0) {
+          consecutiveEmptyPages++
+        } else {
+          consecutiveEmptyPages = 0
+        }
+
+        // If we've had 3 consecutive pages with no new additions, assume we've exhausted all options
+        if (consecutiveEmptyPages >= 3) {
+          console.warn(`No new assets added in the last 3 pages. Stopping the fetch.`)
+          break
+        }
+
+        if (data.links.next) {
+          const nextUrl = new URL(data.links.next)
+          const path = nextUrl.pathname.split('/v1/')[1]
+          const query = nextUrl.search
+          url = `${this.baseUrl}/${path}${query}`
+        } else {
+          break // No more pages to fetch
+        }
+      }
 
       return marketCapResult
     } catch (e) {

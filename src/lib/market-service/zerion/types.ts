@@ -1,3 +1,5 @@
+import type { ZerionChainId } from '@shapeshiftoss/types'
+
 export type ZerionMarketData = {
   price: number | null
   total_supply: number | null
@@ -78,7 +80,7 @@ export type ListFungiblesResponse = {
         url: string
       }[]
       implementations: {
-        chain_id: string
+        chain_id: ZerionChainId
         address: string
         decimals: number
       }[]

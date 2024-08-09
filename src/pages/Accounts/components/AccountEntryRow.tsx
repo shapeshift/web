@@ -58,8 +58,11 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   )
 
   const assetIdOrIconSrcProps = useMemo(
-    () => (asset?.icons ? { assetId } : { src: icon }),
-    [asset?.icons, assetId, icon],
+    () =>
+      asset?.icons
+        ? { assetId, name: title, bg: asset.color }
+        : { src: icon, name: title, bg: asset?.color },
+    [asset?.icons, assetId, icon, title, asset?.color],
   )
 
   const AccountEntryRowLeftIcon = useMemo(

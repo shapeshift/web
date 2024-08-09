@@ -177,7 +177,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       <Summary spacing={0} mx={6} mb={4}>
         <Row variant='vert-gutter'>
           <Row.Label>
-            <Text translation='modals.confirm.amountToDeposit' />
+            <Text
+              translation={
+                state.deposit.txStatus === 'pending'
+                  ? 'modals.confirm.amountToDeposit'
+                  : 'modals.confirm.amountDeposited'
+              }
+            />
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>

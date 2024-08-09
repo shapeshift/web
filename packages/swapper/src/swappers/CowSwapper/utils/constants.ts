@@ -10,7 +10,7 @@ export const COW_SWAP_VAULT_RELAYER_ADDRESS = '0xc92e8bdf79f0507f65a392b0ab46677
 export const COW_SWAP_SETTLEMENT_ADDRESS = '0x9008D19f58AAbD9eD0D60971565AA8510560ab41'
 
 export const ORDER_KIND_SELL = 'sell'
-export const SIGNING_SCHEME = 'ethsign'
+export const SIGNING_SCHEME = 'eip712'
 export const ERC20_TOKEN_BALANCE = 'erc20'
 
 // Address used by CowSwap to buy ETH

@@ -15,8 +15,8 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { TypedData } from 'eip-712'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
-import { TypedDataEncoder } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
 
 import type { CowSwapOrder, SwapErrorRight } from '../../../../types'
@@ -86,30 +86,25 @@ export const getNowPlusThirtyMinutesTimestamp = (): number => {
   return Math.round(ts.getTime() / 1000)
 }
 
-export const hashTypedData = (
+export const getSignTypeDataPayload = (
   domain: TypedDataDomain,
-  types: TypedDataTypes,
-  data: Record<string, unknown>,
-): string => {
-  return TypedDataEncoder.hash(domain, types, data)
-}
-
-/**
- * Compute the 32-byte signing hash for the specified order.
- * Implementation is following https://github.com/cowprotocol/contracts/blob/main/src/ts/order.ts
- * Some more ressources that can be useful :
- * https://docs.cow.fi/tutorials/how-to-submit-orders-via-the-api/4.-signing-the-order
- * https://docs.cow.fi/smart-contracts/settlement-contract/signature-schemes
- *
- * @param domain The EIP-712 domain separator to compute the hash for.
- * @param order The order to compute the digest for.
- * @return Hex-encoded 32-byte order digest.
- */
-export const hashOrder = (
-  domain: TypedDataDomain,
-  order: Omit<CowSwapOrder, 'appDataHash'>,
-): string => {
-  return hashTypedData(domain, { Order: ORDER_TYPE_FIELDS }, order)
+  order: Omit<CowSwapOrder, 'signingScheme' | 'quoteId' | 'appDataHash'>,
+): TypedData => {
+  return {
+    // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
+    domain: domain as Record<string, unknown>,
+    primaryType: 'Order',
+    types: {
+      Order: ORDER_TYPE_FIELDS,
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
+    },
+    message: order,
+  }
 }
 
 export const domain = (chainId: number, verifyingContract: string): TypedDataDomain => {

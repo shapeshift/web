@@ -330,7 +330,8 @@ export const thorchainApi: SwapperApi = {
 
   checkTradeStatus: async ({
     txHash,
-    chainId,
+    fetchIsSmartContractAddressQuery,
+    accountId,
     config,
     assertGetEvmChainAdapter,
   }): Promise<{
@@ -340,9 +341,9 @@ export const thorchainApi: SwapperApi = {
   }> => {
     try {
       const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
-        txHash,
-        chainId,
-        assertGetEvmChainAdapter,
+        accountId,
+        safeTxHash: txHash,
+        fetchIsSmartContractAddressQuery,
       })
 
       if (maybeSafeTransactionStatus) {

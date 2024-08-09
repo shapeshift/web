@@ -10,15 +10,17 @@ import { useMutation, type UseQueryResult } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import {
   assertGetEvmChainAdapter,
@@ -289,6 +291,50 @@ export const useRfoxStake = ({
     refetchInterval: 15_000,
   })
 
+  const { data: maybeSafeApprovalTx } = useSafeTxQuery({
+    maybeSafeTxHash: approvalTxHash ?? undefined,
+    accountId: stakingAssetAccountId,
+  })
+
+  const approvalTxLink = useMemo(() => {
+    if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountId)) return
+
+    return getTxLink({
+      name: undefined,
+      defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
+      txId: approvalTxHash,
+      // Assume buy TxHash can never be a user SAFE hash
+      isSafeTxHash: maybeSafeApprovalTx.isSafeTxHash,
+      accountId: stakingAssetAccountId,
+    })
+  }, [
+    approvalTxHash,
+    maybeSafeApprovalTx,
+    stakingAssetAccountId,
+    stakingAssetFeeAsset?.explorerTxLink,
+  ])
+
+  useEffect(() => {
+    if (!approvalTxLink) return
+
+    toast({
+      title: translate('modals.send.transactionSent'),
+      description: (
+        <Text>
+          {stakingAssetFeeAsset?.explorerTxLink && (
+            <Link href={approvalTxLink} isExternal>
+              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+            </Link>
+          )}
+        </Text>
+      ),
+      status: 'success',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right',
+    })
+  }, [approvalTxHash, approvalTxLink, stakingAssetFeeAsset?.explorerTxLink, toast, translate])
+
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
@@ -299,22 +345,6 @@ export const useRfoxStake = ({
     }),
     onSuccess: (txId: string) => {
       setApprovalTxHash(txId)
-      toast({
-        title: translate('modals.send.transactionSent'),
-        description: (
-          <Text>
-            {stakingAssetFeeAsset?.explorerTxLink && (
-              <Link href={`${stakingAssetFeeAsset.explorerTxLink}${txId}`} isExternal>
-                {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-              </Link>
-            )}
-          </Text>
-        ),
-        status: 'success',
-        duration: 9000,
-        isClosable: true,
-        position: 'top-right',
-      })
     },
   })
 

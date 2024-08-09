@@ -79,7 +79,13 @@ export const Status = () => {
       <Summary mx={4} mb={4}>
         <Row variant='vertical' p={4}>
           <Row.Label>
-            <Text translation='modals.confirm.amountToDeposit' />
+            <Text
+              translation={
+                state.deposit.txStatus === 'pending'
+                  ? 'modals.confirm.amountToDeposit'
+                  : 'modals.confirm.amountDeposited'
+              }
+            />
           </Row.Label>
           <Row px={0} fontWeight='medium'>
             <Stack direction='row' alignItems='center'>

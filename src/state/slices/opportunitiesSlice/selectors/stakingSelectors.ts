@@ -619,9 +619,9 @@ export const selectAggregatedEarnUserStakingEligibleOpportunities = createDeepEq
     const eligibleOpportunities = aggregatedEarnUserStakingOpportunities.reduce<
       StakingEarnOpportunityType[]
     >((acc, opportunity) => {
-      const hasBalance = opportunity.underlyingAssetIds.some(
-        assetId => !bnOrZero(assetBalances[assetId]).isZero(),
-      )
+      const hasBalance = opportunity.underlyingAssetIds
+        .concat(opportunity.underlyingAssetId)
+        .some(assetId => !bnOrZero(assetBalances[assetId]).isZero())
       const hasOpportunityBalance = !bnOrZero(opportunity.fiatAmount).isZero()
       if (hasBalance && !opportunity.expired && !hasOpportunityBalance) acc.push(opportunity)
       return acc

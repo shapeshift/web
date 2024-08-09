@@ -172,6 +172,14 @@ const ManageAccountsModal = makeSuspenseful(
   ),
 )
 
+const LedgerOpenAppModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/LedgerOpenApp/LedgerOpenAppModal').then(({ LedgerOpenAppModal }) => ({
+      default: LedgerOpenAppModal,
+    })),
+  ),
+)
+
 const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -192,6 +200,8 @@ const MODALS: Modals = {
   nft: NftModal,
   feedbackSupport: FeedbackAndSupport,
   snaps: Snaps,
+  // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened
+  ledgerOpenApp: LedgerOpenAppModal,
   manageAccounts: ManageAccountsModal,
 } as const
 

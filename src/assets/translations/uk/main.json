@@ -1868,11 +1868,10 @@
       "description": "Виберіть облікові записи, які ви хочете імпортувати, зі списку нижче.",
       "import": "Імпортувати",
       "loadMoreDisabled": "Цей гаманець не підтримує кілька акаунтів для одного ланцюжка."
-    },
-    "ledgerOpenApp": {
-      "title": "Відкрити %{appName} додаток",
-      "description": "Щоб підключити цю мережу, вам потрібно відкрити додаток Ledger на вашому пристрої."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Відкрити %{appName} додаток"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

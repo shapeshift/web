@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetActions } from 'components/AssetHeader/AssetActions'
-import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
+import { AssetIcon } from 'components/AssetIcon'
 import { RawText } from 'components/Text'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -26,6 +26,7 @@ type AccountBalanceProps = {
 
 const arrowBackIcon = <ArrowBackIcon />
 const flexDirMdRow: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
+const pairProps = { showFirst: true }
 
 export const AccountBalance: React.FC<AccountBalanceProps> = ({
   assetId,
@@ -58,7 +59,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({
           {backLabel ?? accountLabel}
         </Button>
         <Flex alignItems='center' gap={2}>
-          <LazyLoadAvatar src={asset.icon} />
+          <AssetIcon assetId={asset.assetId} height='30px' width='auto' pairProps={pairProps} />
           <RawText fontWeight='bold'>{asset.name}</RawText>
         </Flex>
       </CardHeader>

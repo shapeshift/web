@@ -11,6 +11,7 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
@@ -45,6 +46,8 @@ export const HopTransactionStep = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
 
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
@@ -59,8 +62,17 @@ export const HopTransactionStep = ({
       return
     }
 
-    await executeTrade()
-  }, [executeTrade, swapTxState])
+    // Only proceed to execute the trade if the promise is resolved, i.e the user has opened the
+    // Ledger app without cancelling
+    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
+      .then(() => executeTrade())
+      .catch(console.error)
+  }, [
+    checkLedgerAppOpenIfLedgerConnected,
+    executeTrade,
+    swapTxState,
+    tradeQuoteStep.sellAsset.chainId,
+  ])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,

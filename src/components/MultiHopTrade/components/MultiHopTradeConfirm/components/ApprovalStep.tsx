@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
@@ -112,6 +112,8 @@ const ApprovalStepPending = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
+  const [feeQueryEnabled, setFeeQueryEnabled] = useState(true)
+
   const isLifiStep = useMemo(() => {
     return tradeQuoteStep.source.startsWith(SwapperName.LIFI)
   }, [tradeQuoteStep.source])
@@ -134,11 +136,16 @@ const ApprovalStepPending = ({
     return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
   }, [isAllowanceResetStep, isExactAllowance])
 
+  // Ensure only one fee query is made at a time (reset or approval) to avoid race conditions with Ledger
+  useEffect(() => {
+    setFeeQueryEnabled(!isAllowanceResetStep && !isAwaitingReset)
+  }, [isAllowanceResetStep, isAwaitingReset])
+
   const {
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, feeQueryEnabled)
 
   const isApprovalStep = useMemo(() => {
     return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
@@ -147,9 +154,15 @@ const ApprovalStepPending = ({
   const handleSignAllowanceApproval = useCallback(async () => {
     // Only proceed to execute the approval if the promise is resolved, i.e the user has opened the
     // Ledger app without cancelling
-    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
-      .then(() => approveMutation.mutateAsync())
-      .catch(console.error)
+    try {
+      await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
+      setFeeQueryEnabled(false)
+      await approveMutation.mutateAsync()
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setFeeQueryEnabled(true)
+    }
   }, [approveMutation, checkLedgerAppOpenIfLedgerConnected, tradeQuoteStep.sellAsset.chainId])
 
   const feeAsset = useAppSelector(state =>

@@ -112,10 +112,6 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     selectAssetById(state, underlyingAssetId),
   )
 
-  const thorchainAsset: Asset | undefined = useAppSelector(state =>
-    selectAssetById(state, thorchainAssetId),
-  )
-
   const handleBack = useCallback(() => {
     history.push({
       pathname: location.pathname,

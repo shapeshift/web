@@ -105,8 +105,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   }, [opportunityData])
 
   const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
+    () => opportunityData?.underlyingAssetId ?? '',
+    [opportunityData?.underlyingAssetId],
   )
   const underlyingAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, underlyingAssetId),
@@ -156,7 +156,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
       [DefiStep.Info]: {
         label: translate('defi.steps.deposit.info.title'),
         description: translate('defi.steps.deposit.info.description', {
-          asset: isRunePool ? thorchainAsset?.symbol : underlyingAsset?.symbol ?? '',
+          asset: underlyingAsset?.symbol ?? '',
         }),
         component: ownProps => (
           <Deposit

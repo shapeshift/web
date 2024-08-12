@@ -1868,11 +1868,10 @@
       "description": "从下面的列表中选择你想要导入的帐户。",
       "import": "导入",
       "loadMoreDisabled": "此钱包不支持此链的多个账户。"
-    },
-    "ledgerOpenApp": {
-      "title": "打开 %{appName} 应用",
-      "description": "要连接此链，你需要在设备上打开 Ledger 应用程序。"
     }
+  },
+  "ledgerOpenApp": {
+    "title": "打开 %{appName} 应用"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

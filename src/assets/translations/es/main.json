@@ -1868,11 +1868,10 @@
       "description": "Seleccione las cuentas que desea importar de la lista a continuación.",
       "import": "Importar",
       "loadMoreDisabled": "Esta billetera no admite múltiples cuentas para esta cadena."
-    },
-    "ledgerOpenApp": {
-      "title": "Abra la app %{appName}",
-      "description": "Para conectar esta cadena, deberá abrir la aplicación Ledger en su dispositivo."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Abra la app %{appName}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

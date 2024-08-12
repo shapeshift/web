@@ -53,7 +53,17 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     '--chakra-colors-blackAlpha-400',
   )
   const backgroundColor = useColorModeValue('gray.100', 'darkNeutralAlpha.700')
+  const checkboxBackground = useColorModeValue('white', 'transparent')
   const isRunePool = assetId === thorchainAssetId
+
+  const checkboxStyles = useMemo(
+    () => ({
+      '.chakra-checkbox__control:not([data-checked])': {
+        background: checkboxBackground,
+      },
+    }),
+    [checkboxBackground],
+  )
 
   const [hasAgreed, setHasAgreed] = useState(false)
 
@@ -103,7 +113,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
         </Alert>
         {isRunePool ? (
           <Box borderRadius='xl' background={backgroundColor}>
-            <Checkbox isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
+            <Checkbox sx={checkboxStyles} isChecked={hasAgreed} onChange={handleHasAgreed} p={4}>
               {translate('defi.modals.saversVaults.agreeRunePool.1')}
             </Checkbox>
           </Box>
@@ -134,6 +144,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
     backgroundColor,
     isRunePool,
     onClick,
+    checkboxStyles,
   ])
 
   // @TODO: update the RUNEPool link a better article exists

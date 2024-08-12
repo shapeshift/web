@@ -1868,11 +1868,10 @@
       "description": "Sélectionnez les comptes que vous souhaitez importer dans la liste ci-dessous.",
       "import": "Importer",
       "loadMoreDisabled": "Ce porte-monnaie ne prend pas en charge les comptes multiples pour cette chaîne."
-    },
-    "ledgerOpenApp": {
-      "title": "Ouvrir l'app %{appName}",
-      "description": "Pour connecter cette chaîne, vous devrez ouvrir l'app Ledger sur votre appareil."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Ouvrir l'app %{appName}"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

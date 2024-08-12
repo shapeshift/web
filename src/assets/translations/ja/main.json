@@ -1868,11 +1868,10 @@
       "description": "以下のリストからインポートするアカウントを選択してください。",
       "import": "インポート",
       "loadMoreDisabled": "このウォレットは、このチェーンの複数のアカウントをサポートしていません。"
-    },
-    "ledgerOpenApp": {
-      "title": "%{appName} アプリを開く",
-      "description": "このチェーンを接続するには、デバイスで台帳アプリを開く必要があります。"
     }
+  },
+  "ledgerOpenApp": {
+    "title": "%{appName} アプリを開く"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

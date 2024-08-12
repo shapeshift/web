@@ -202,8 +202,6 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
     assetId,
     makeHandleSweepBack,
     makeHandleSweepSeen,
-    isRunePool,
-    thorchainAsset,
   ])
 
   const value = useMemo(() => ({ state, dispatch }), [state])

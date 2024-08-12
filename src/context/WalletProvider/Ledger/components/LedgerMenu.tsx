@@ -38,7 +38,7 @@ export const LedgerMenu: React.FC<LedgerMenuProps> = ({ onClose }) => {
     hasCompletedChainInit,
     isAccountManagementEnabled,
     isLedgerAccountManagementEnabled,
-    state,
+    state.modalType,
   ])
 
   const handleChainsClick = useCallback(() => {

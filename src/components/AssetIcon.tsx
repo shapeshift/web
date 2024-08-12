@@ -1,5 +1,5 @@
 import type { AvatarProps } from '@chakra-ui/react'
-import { Avatar, Center, useColorModeValue } from '@chakra-ui/react'
+import { Center, useColorModeValue } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -10,6 +10,7 @@ import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxIcon } from './Icons/FoxIcon'
+import { LazyLoadAvatar } from './LazyLoadAvatar'
 
 export const defaultClipPath =
   'polygon( 37.122% 12.175%,37.122% 12.175%,36.79% 16.293%,35.828% 20.199%,34.288% 23.841%,32.224% 27.167%,29.687% 30.125%,26.729% 32.662%,23.403% 34.727%,19.761% 36.266%,15.855% 37.228%,11.737% 37.56%,11.737% 37.56%,11.437% 37.558%,11.138% 37.553%,10.84% 37.545%,10.543% 37.533%,10.247% 37.517%,9.952% 37.498%,9.657% 37.476%,9.364% 37.451%,9.071% 37.422%,8.779% 37.39%,8.779% 37.39%,7.696% 37.329%,6.618% 37.397%,5.568% 37.592%,4.566% 37.91%,3.635% 38.35%,2.795% 38.911%,2.067% 39.589%,1.474% 40.383%,1.036% 41.29%,0.775% 42.309%,0.775% 42.309%,0.667% 43.05%,0.57% 43.795%,0.483% 44.543%,0.408% 45.294%,0.345% 46.049%,0.292% 46.806%,0.251% 47.567%,0.222% 48.331%,0.205% 49.098%,0.199% 49.868%,0.199% 49.868%,0.843% 57.853%,2.709% 65.429%,5.694% 72.492%,9.697% 78.943%,14.618% 84.679%,20.354% 89.6%,26.805% 93.604%,33.869% 96.589%,41.444% 98.454%,49.43% 99.099%,49.43% 99.099%,57.415% 98.454%,64.99% 96.589%,72.054% 93.604%,78.505% 89.6%,84.241% 84.679%,89.162% 78.943%,93.165% 72.492%,96.15% 65.429%,98.016% 57.853%,98.66% 49.868%,98.66% 49.868%,98.016% 41.882%,96.15% 34.307%,93.165% 27.243%,89.162% 20.793%,84.241% 15.056%,78.505% 10.136%,72.054% 6.132%,64.99% 3.147%,57.415% 1.281%,49.43% 0.637%,49.43% 0.637%,48.66% 0.643%,47.893% 0.661%,47.129% 0.69%,46.368% 0.731%,45.61% 0.783%,44.856% 0.847%,44.104% 0.922%,43.357% 1.008%,42.612% 1.105%,41.871% 1.214%,41.871% 1.214%,40.852% 1.475%,39.945% 1.912%,39.151% 2.506%,38.473% 3.233%,37.912% 4.073%,37.472% 5.005%,37.153% 6.006%,36.959% 7.057%,36.891% 8.134%,36.951% 9.218%,36.951% 9.218%,36.983% 9.509%,37.012% 9.802%,37.038% 10.095%,37.06% 10.39%,37.079% 10.685%,37.094% 10.982%,37.106% 11.279%,37.115% 11.577%,37.12% 11.876%,37.122% 12.175% );'
@@ -83,7 +84,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
     <Center>
       <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
         {showNetwork && showNetworkIcon && (
-          <Avatar
+          <LazyLoadAvatar
             position='absolute'
             left='-8%'
             top='-8%'
@@ -95,7 +96,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
             size={size}
           />
         )}
-        <Avatar
+        <LazyLoadAvatar
           src={iconSrc}
           name={showFallback ? asset.symbol : undefined}
           icon={icon}
@@ -133,10 +134,10 @@ export const AssetIcon = memo(
       [assetIconColor],
     )
 
-    if (!asset) return <Avatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
+    if (!asset) return <LazyLoadAvatar src={src} bg={assetIconBg} icon={foxIcon} {...rest} />
 
     if (assetId === nativeAssetId && asset.networkIcon && showNetworkIcon) {
-      return <Avatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
+      return <LazyLoadAvatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
     }
 
     if (asset.icons?.length) {

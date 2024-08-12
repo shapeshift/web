@@ -21,6 +21,7 @@ type UseApprovalFeesInput = {
   spender: string
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
+  enabled: boolean
 }
 
 export const useApprovalFees = ({
@@ -30,6 +31,7 @@ export const useApprovalFees = ({
   from,
   allowanceType,
   spender,
+  enabled,
 }: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
     return fromAssetId(assetId)
@@ -62,7 +64,7 @@ export const useApprovalFees = ({
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(isApprovalRequired),
+    enabled: Boolean(isApprovalRequired && enabled),
     refetchIntervalInBackground: true,
     refetchInterval: isApprovalRequired ? 15_000 : false,
   })

@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -5,6 +6,7 @@ import {
   baseChainId,
   bscChainId,
   ethChainId,
+  fromAccountId,
   gnosisChainId,
   optimismChainId,
   polygonChainId,
@@ -24,12 +26,14 @@ import {
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { canAddMetaMaskAccount } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { isSmartContractAddress } from 'lib/address/utils'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
+  if (!supportsETH(wallet)) return {}
 
   let address = ''
   const result: AccountMetadataById = {}
@@ -60,6 +64,25 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     const accountId = toAccountId({ chainId, account: address })
     result[accountId] = { bip44Params }
   }
+
+  // WCV2 defines all EVM chains as supported, but a smart contract may only be deployed on a specific chain
+  // For all intents and purposes, if one smart contract is found, assume none other exists on other chains
+  // and there is only one AccountId for that wallet
+  let maybeWalletConnectV2SmartContractAccountId: AccountId | undefined
+
+  for (const accountId of Object.keys(result)) {
+    const { chainId, account } = fromAccountId(accountId)
+    if (await isSmartContractAddress(account, chainId)) {
+      maybeWalletConnectV2SmartContractAccountId = accountId
+      break
+    }
+  }
+
+  if (maybeWalletConnectV2SmartContractAccountId)
+    return {
+      [maybeWalletConnectV2SmartContractAccountId]:
+        result[maybeWalletConnectV2SmartContractAccountId],
+    }
 
   return result
 }

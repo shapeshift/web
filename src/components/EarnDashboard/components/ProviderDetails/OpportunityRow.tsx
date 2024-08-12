@@ -1,4 +1,5 @@
 import { Button, Flex, List, Stat, Tag } from '@chakra-ui/react'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,9 +8,10 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type {
-  LpEarnOpportunityType,
-  StakingEarnOpportunityType,
+import {
+  DefiProvider,
+  type LpEarnOpportunityType,
+  type StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
 import {
   getRewardBalances,
@@ -53,6 +55,9 @@ export const OpportunityRow: React.FC<
   const asset = useAppSelector(state => selectAssetById(state, underlyingAssetId))
   const assets = useAppSelector(selectAssets)
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
+
+  const isRunePool =
+    assetId === thorchainAssetId && opportunity.provider === DefiProvider.ThorchainSavers
 
   const rewardsBalances = useMemo(() => {
     if (!(opportunity as StakingEarnOpportunityType)?.rewardsCryptoBaseUnit) return []
@@ -216,6 +221,7 @@ export const OpportunityRow: React.FC<
             subText={assetCellSubText}
             justifyContent='flex-start'
             isExternal={opportunity.isReadOnly}
+            opportunityName={isRunePool ? opportunity.opportunityName : undefined}
           />
           <Amount.Crypto
             value={bnOrZero(cryptoAmountBaseUnit)

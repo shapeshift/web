@@ -82,8 +82,8 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   }, [assetId, openFiatRamp])
 
   const needAssetTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['common.needAsset', { asset: asset?.name }],
-    [asset?.name],
+    () => ['common.needAsset', { asset: isRunePool ? asset?.symbol : asset?.name }],
+    [asset?.name, asset?.symbol, isRunePool],
   )
 
   const saversVaultDescriptionTranslation: TextPropTypes['translation'] = useMemo(

@@ -58,7 +58,6 @@ export const useApprovalFees = ({
     })
   }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
 
-  console.log('xxx useApprovalFees useEvmFees', enabled, allowanceType)
   const evmFeesResult = useEvmFees({
     accountNumber,
     to,

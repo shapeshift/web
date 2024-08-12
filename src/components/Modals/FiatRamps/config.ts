@@ -1,9 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId } from '@shapeshiftoss/caip'
-import concat from 'lodash/concat'
 import banxaLogo from 'assets/banxa.png'
 import CoinbaseLogo from 'assets/coinbase-logo.svg'
-import gemLogo from 'assets/gem-mark.png'
 import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
 import OnRamperLogo from 'assets/onramper-logo.svg'
@@ -11,15 +9,11 @@ import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlic
 
 import type commonFiatCurrencyList from './FiatCurrencyList.json'
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
-import { createCoinbaseUrl, getCoinbaseSupportedAssets } from './fiatRampProviders/coinbase'
 import {
-  fetchCoinifySupportedCurrencies,
-  fetchWyreSupportedCurrencies,
-  getSupportedGemFiatCurrencies,
-  makeGemPartnerUrl,
-  parseGemBuyAssets,
-  parseGemSellAssets,
-} from './fiatRampProviders/gem'
+  createCoinbaseUrl,
+  getCoinbaseSupportedAssets,
+  getSupportedCoinbaseFiatCurrencies,
+} from './fiatRampProviders/coinbase'
 import {
   createJunoPayUrl,
   getJunoPayAssets,
@@ -70,7 +64,7 @@ export interface SupportedFiatRampConfig {
   minimumSellThreshold?: number
 }
 
-const fiatRamps = ['Gem', 'Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
+const fiatRamps = ['Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
 export type FiatRamp = (typeof fiatRamps)[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
@@ -85,37 +79,12 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       const sellList = getCoinbaseSupportedAssets().sell
       return Promise.resolve([buyList, sellList])
     },
-    getSupportedFiatList: () => getSupportedGemFiatCurrencies(),
+    getSupportedFiatList: () => getSupportedCoinbaseFiatCurrencies(),
     onSubmit: props => {
       return createCoinbaseUrl(props)
     },
     isActive: () => true,
     minimumSellThreshold: 0,
-  },
-  Gem: {
-    id: 'Gem',
-    label: 'fiatRamps.gem',
-    logo: gemLogo,
-    order: 1,
-    getBuyAndSellList: async () => {
-      const coinifyAssets = await fetchCoinifySupportedCurrencies()
-      const wyreAssets = await fetchWyreSupportedCurrencies()
-      const currencyList = concat(coinifyAssets, wyreAssets)
-      const buyAssetIds = parseGemBuyAssets(currencyList)
-      const sellAssetIds = parseGemSellAssets(currencyList)
-      return [buyAssetIds, sellAssetIds]
-    },
-    getSupportedFiatList: () => getSupportedGemFiatCurrencies(),
-    onSubmit: props => {
-      try {
-        const gemPartnerUrl = makeGemPartnerUrl(props)
-        return gemPartnerUrl
-      } catch (err) {
-        console.error(err)
-      }
-    },
-    isActive: () => false,
-    minimumSellThreshold: 5,
   },
   OnRamper: {
     id: 'OnRamper',

@@ -160,6 +160,8 @@ const ApprovalStepPending = ({
       await approveMutation.mutateAsync()
     } catch (error) {
       console.error(error)
+    } finally {
+      setFeeQueryEnabled(true)
     }
   }, [approveMutation, checkLedgerAppOpenIfLedgerConnected, tradeQuoteStep.sellAsset.chainId])
 

@@ -21,9 +21,8 @@ This mapping serves two purposes:
 See these commits for reference:
 - [Banxa mapping](https://github.com/shapeshift/lib/commit/f24f9d800041534ae45a5196bb2030bba5f5864a)
 - [Coinbase mapping](https://github.com/shapeshift/lib/commit/fb2cc5aafe74ac33d896f130952b4dcbfbf98e4a) (unused in [web](https://github.com/shapeshift/web))
-- [OnJuno mapping](https://github.com/shapeshift/lib/commit/5fade1f998cc6224dd2cb5d076f26a4c485b649a)
 
-You can copy any of these commits, located in lib's [packages/caip/src/adapters](https://github.com/shapeshift/lib/tree/main/packages/caip/src/adapters) directory (Banxa, Coinbase or JunoPay are all fiat ramp adapters there) and adapt it to the ramp you're integrating.
+You can copy any of these commits, located in lib's [packages/caip/src/adapters](https://github.com/shapeshift/lib/tree/main/packages/caip/src/adapters) directory (Banxa, Coinbase or are all fiat ramp adapters there) and adapt it to the ramp you're integrating.
 
 Refer to the documentation of the ramp you're integrating to find out the ID of the assets you're adding in this mapping.
 

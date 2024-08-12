@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId } from '@shapeshiftoss/caip'
 import banxaLogo from 'assets/banxa.png'
 import CoinbaseLogo from 'assets/coinbase-logo.svg'
-import junoPayLogo from 'assets/junoPay.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
 import OnRamperLogo from 'assets/onramper-logo.svg'
 import type { FeatureFlags } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -14,11 +13,6 @@ import {
   getCoinbaseSupportedAssets,
   getSupportedCoinbaseFiatCurrencies,
 } from './fiatRampProviders/coinbase'
-import {
-  createJunoPayUrl,
-  getJunoPayAssets,
-  getSupportedJunoPayFiatCurrencies,
-} from './fiatRampProviders/junopay'
 import {
   createMtPelerinUrl,
   getMtPelerinAssets,
@@ -64,7 +58,7 @@ export interface SupportedFiatRampConfig {
   minimumSellThreshold?: number
 }
 
-const fiatRamps = ['Banxa', 'JunoPay', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
+const fiatRamps = ['Banxa', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
 export type FiatRamp = (typeof fiatRamps)[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>
 
@@ -125,28 +119,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)
         return banxaCheckoutUrl
-      } catch (err) {
-        console.error(err)
-      }
-    },
-  },
-  JunoPay: {
-    id: 'JunoPay',
-    label: 'fiatRamps.junoPay',
-    tags: ['fiatRamps.usOnly'],
-    logo: junoPayLogo,
-    order: 4,
-    isActive: () => false,
-    getBuyAndSellList: async () => {
-      const buyAssetIds = await getJunoPayAssets()
-      const sellAssetIds: AssetId[] = []
-      return [buyAssetIds, sellAssetIds]
-    },
-    getSupportedFiatList: () => getSupportedJunoPayFiatCurrencies(),
-    onSubmit: props => {
-      try {
-        const junoPayCheckoutUrl = createJunoPayUrl(props)
-        return junoPayCheckoutUrl
       } catch (err) {
         console.error(err)
       }

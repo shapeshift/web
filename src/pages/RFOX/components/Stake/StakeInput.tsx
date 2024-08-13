@@ -428,13 +428,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               assetSymbol={selectedAsset?.symbol ?? ''}
               assetIcon={selectedAsset?.icon ?? ''}
               percentOptions={percentOptions}
-              // This isn't a mistake - staking asset and selected are synced - staking asset is always the source of truth,
-              // and selected asset AccountId is derived from that using the same accountNumber (if it exists)
+              isAccountSelectionDisabled
+              // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
+              // this *is* effectively disabled, however, onAccountIdChange *needs* to be a noop, or else the top-level
+              // dropdown will break, as this component calls onAccountIdChange once on first render - regardless of whether account selection is disabled or not
               onAccountIdChange={noop}
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}
-              isAccountSelectionDisabled
               formControlProps={formControlProps}
               layout='stacked'
               label={translate('transactionRow.amount')}

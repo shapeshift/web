@@ -2,6 +2,7 @@ import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -73,13 +74,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
 }) => {
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
-  const {
-    selectedAssetId,
-    setSelectedAssetId,
-    selectedAssetAccountId,
-    setStakingAssetAccountId,
-    stakingAssetAccountId,
-  } = useRFOXContext()
+  const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
+    useRFOXContext()
 
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
@@ -434,7 +430,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               percentOptions={percentOptions}
               // This isn't a mistake - staking asset and selected are synced - staking asset is always the source of truth,
               // and selected asset AccountId is derived from that using the same accountNumber (if it exists)
-              onAccountIdChange={setStakingAssetAccountId}
+              onAccountIdChange={noop}
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}

@@ -27,7 +27,6 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -74,8 +73,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
 }) => {
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
-  const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, setSelectedAssetAccountId } =
-    useRFOXContext()
+  const {
+    selectedAssetId,
+    setSelectedAssetId,
+    selectedAssetAccountId,
+    setSelectedAssetAccountId,
+    stakingAssetAccountId,
+  } = useRFOXContext()
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -109,9 +113,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
   const stakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const selectedAssetMarketData = useAppSelector(state =>

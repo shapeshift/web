@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
-  selectAssetsSortedByName,
+  selectAssetsSortedByNameAndBalance,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
 import { selectAssets } from 'state/slices/selectors'
@@ -33,7 +33,7 @@ export const SearchTermAssetList = ({
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByName)
+  const assets = useAppSelector(selectAssetsSortedByNameAndBalance)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const chainIds = useMemo(
@@ -95,7 +95,6 @@ export const SearchTermAssetList = ({
     const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
-
     return filteredAssets.concat(uniqueCustomAssets)
   }, [assetsForChain, customAssets, searchString])
 

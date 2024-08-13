@@ -196,6 +196,17 @@ export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAsse
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])
 })
 
+export const selectAssetsSortedByNameAndBalance = createDeepEqualOutputSelector(
+  selectAssetsSortedByName,
+  selectPortfolioUserCurrencyBalances,
+  (assets, portfolioUserCurrencyBalances) => {
+    const getAssetBalance = (asset: Asset) =>
+      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+
+    return orderBy(Object.values(assets).filter(isSome), [getAssetBalance], ['desc'])
+  },
+)
+
 export const selectPortfolioFungibleAssetsSortedByBalance = createDeepEqualOutputSelector(
   selectPortfolioUserCurrencyBalances,
   selectAssets,

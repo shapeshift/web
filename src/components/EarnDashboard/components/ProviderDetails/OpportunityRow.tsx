@@ -8,11 +8,11 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  DefiProvider,
-  type LpEarnOpportunityType,
-  type StakingEarnOpportunityType,
+import type {
+  LpEarnOpportunityType,
+  StakingEarnOpportunityType,
 } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
 import {
   getRewardBalances,
   getUnderlyingAssetIdsBalances,

@@ -1,10 +1,10 @@
 import { CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
@@ -20,12 +20,12 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { ReadOnlyAsset } from 'pages/ThorChainLP/components/ReadOnlyAsset'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
@@ -52,17 +52,16 @@ const defaultFormValues = {
 }
 
 type UnstakeInputProps = {
-  stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxUnstakingQuote | undefined) => void
 }
 
 export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
-  stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
   headerComponent,
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,
@@ -111,11 +110,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
-  )
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const stakingAssetAccountAddress = useMemo(
@@ -319,6 +313,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             {headerComponent}
             <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
               <Stack>
+                <AccountDropdown
+                  defaultAccountId={stakingAssetAccountId}
+                  assetId={stakingAssetId}
+                  onChange={setSelectedAssetAccountId}
+                  showLabel={false}
+                />
                 <AmountSlider
                   sliderValue={sliderValue}
                   handlePercentageSliderChange={handlePercentageSliderChange}

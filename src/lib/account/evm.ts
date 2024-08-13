@@ -58,15 +58,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     const bip44Params = adapter.getBIP44Params({ accountNumber })
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
-    address =
-      address ||
-      (await adapter.getAddress({ accountNumber, wallet }).catch(e => {
-        console.error(
-          `Failed to get address for account ${accountNumber} on chainId ${chainId}:`,
-          e,
-        )
-        return ''
-      }))
+    address = address || (await adapter.getAddress({ accountNumber, wallet }))
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })
@@ -80,14 +72,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
   for (const accountId of Object.keys(result)) {
     const { chainId, account } = fromAccountId(accountId)
-    const isSmartContractAddy = await isSmartContractAddress(account, chainId).catch(error => {
-      console.error(
-        `Failed to check isSmartContractAddress for address ${account} on chainId ${chainId}:`,
-        error,
-      )
-      return false
-    })
-    if (isSmartContractAddy) {
+    if (await isSmartContractAddress(account, chainId)) {
       maybeWalletConnectV2SmartContractAccountId = accountId
       break
     }

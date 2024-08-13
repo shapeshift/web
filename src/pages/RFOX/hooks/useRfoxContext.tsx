@@ -21,7 +21,7 @@ type RFOXContextType = {
   stakingAssetId: AssetId
   runeMatchingAccountId: AccountId | undefined
   setSelectedAssetId: (assetId: AssetId) => void
-  setSelectedAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
+  setStakingAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
 
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
@@ -32,25 +32,25 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
 }) => {
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
 
-  const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   // This is required for wallets not supporting BIP44 accounts
-  const defaultSelectedAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, selectedAsset?.chainId ?? ''),
+  const defaultStakingAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
-  const [selectedAssetAccountId, setSelectedAssetAccountId] = useState<AccountId | undefined>(
-    defaultSelectedAssetAccountId,
+  const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>(
+    defaultStakingAssetAccountId,
   )
 
   const filter = useMemo(
     () =>
-      selectedAssetAccountId && selectedAssetId
-        ? { assetId: selectedAssetAccountId, accountId: selectedAssetAccountId }
+      stakingAssetAccountId && stakingAssetId
+        ? { assetId: stakingAssetAccountId, accountId: stakingAssetAccountId }
         : undefined,
-    [selectedAssetAccountId, selectedAssetId],
+    [stakingAssetAccountId, stakingAssetId],
   )
 
-  const selectedAssetAccountNumber = useAppSelector(state =>
+  const stakingAssetAccountNumber = useAppSelector(state =>
     filter ? selectAccountNumberByAccountId(state, filter) : undefined,
   )
 
@@ -58,24 +58,24 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
     selectAccountIdByAccountNumberAndChainId,
   )
 
-  const stakingAssetAccountId = useMemo(() => {
-    if (!(filter && selectedAssetAccountNumber !== undefined)) return
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[selectedAssetAccountNumber]
-    const stakingAssetAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
-    return stakingAssetAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetAccountNumber, stakingAssetId])
+  const selectedAssetAccountId = useMemo(() => {
+    if (!(filter && stakingAssetAccountNumber !== undefined)) return
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
+    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(selectedAssetId).chainId]
+    return matchingAccountId
+  }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetId, stakingAssetAccountNumber])
 
   const runeMatchingAccountId = useMemo(() => {
-    if (!(filter && selectedAssetAccountNumber !== undefined)) return
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[selectedAssetAccountNumber]
+    if (!(filter && stakingAssetAccountNumber !== undefined)) return
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
     const runeAccountId = accountNumberAccountIds?.[thorchainChainId]
     return runeAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetAccountNumber])
+  }, [accountIdsByAccountNumberAndChainId, filter, stakingAssetAccountNumber])
 
   const value: RFOXContextType = useMemo(
     () => ({
       selectedAssetAccountId,
-      setSelectedAssetAccountId,
+      setStakingAssetAccountId,
       setSelectedAssetId,
       selectedAssetId,
       stakingAssetAccountId,

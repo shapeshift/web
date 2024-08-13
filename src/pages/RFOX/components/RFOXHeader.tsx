@@ -18,7 +18,7 @@ export const RFOXHeader = () => {
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
-  const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, setStakingAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
   const accountIdsFilter = useMemo(() => ({ assetId: stakingAssetId }), [stakingAssetId])
   const accountIds = useAppSelector(state =>
@@ -33,7 +33,7 @@ export const RFOXHeader = () => {
         <AccountDropdown
           defaultAccountId={stakingAssetAccountId}
           assetId={stakingAssetId}
-          onChange={setSelectedAssetAccountId}
+          onChange={setStakingAssetAccountId}
           // dis already memoized
           // eslint-disable-next-line react-memo/require-usememo
           buttonProps={{ variant: 'solid', width: 'full' }}
@@ -41,7 +41,7 @@ export const RFOXHeader = () => {
         />
       </Flex>
     )
-  }, [accountIds.length, setSelectedAssetAccountId, stakingAssetAccountId, stakingAssetId])
+  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
 
   return (
     <>

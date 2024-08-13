@@ -77,9 +77,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectedAssetId,
     setSelectedAssetId,
     selectedAssetAccountId,
-    setSelectedAssetAccountId,
+    setStakingAssetAccountId,
     stakingAssetAccountId,
   } = useRFOXContext()
+
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -431,7 +432,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               assetSymbol={selectedAsset?.symbol ?? ''}
               assetIcon={selectedAsset?.icon ?? ''}
               percentOptions={percentOptions}
-              onAccountIdChange={setSelectedAssetAccountId}
+              // This isn't a mistake - staking asset and selected are synced - staking asset is always the source of truth,
+              // and selected asset AccountId is derived from that using the same accountNumber (if it exists)
+              onAccountIdChange={setStakingAssetAccountId}
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}

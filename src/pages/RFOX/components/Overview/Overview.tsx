@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Flex, Skeleton } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -13,17 +13,9 @@ import { useAppSelector } from 'state/store'
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
 
-type OverviewProps = {
-  stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
-}
-
-export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
+export const Overview: React.FC = () => {
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-
-  const test = useRFOXContext()
-
-  console.log({ test })
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

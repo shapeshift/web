@@ -1,5 +1,4 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
@@ -7,6 +6,7 @@ import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -14,24 +14,23 @@ import { ClaimRow } from '../Claim/ClaimRow'
 
 type ClaimsProps = {
   headerComponent: JSX.Element
-  stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId
 }
 
-export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId }: ClaimsProps) => {
+export const Claims = ({ headerComponent }: ClaimsProps) => {
+  const { stakingAssetAccountId, stakingAssetId } = useRFOXContext()
   const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const stakingAssetAccountAddress = useMemo(
-    () => fromAccountId(stakingAssetAccountId).account,
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
 
   const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
-    if (!stakingAsset) return null
+    if (!stakingAsset || !stakingAssetAccountId) return null
 
     if (!unstakingRequestsResult.isSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
@@ -66,7 +65,14 @@ export const Claims = ({ headerComponent, stakingAssetId, stakingAssetAccountId 
         />
       )
     })
-  }, [setConfirmedQuote, stakingAsset, stakingAssetId, unstakingRequestsResult])
+  }, [
+    setConfirmedQuote,
+    stakingAsset,
+    stakingAssetAccountId,
+    stakingAssetId,
+    unstakingRequestsResult.data,
+    unstakingRequestsResult.isSuccess,
+  ])
 
   if (!stakingAsset) return null
 

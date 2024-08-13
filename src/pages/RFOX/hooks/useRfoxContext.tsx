@@ -14,6 +14,8 @@ import { useAppSelector } from 'state/store'
 type RFOXContextType = {
   selectedAssetAccountId: AccountId | undefined
   selectedAssetId: AssetId
+  stakingAssetAccountId: AccountId | undefined
+  stakingAssetId: AssetId
   setSelectedAssetId: (assetId: AssetId) => void
   setSelectedAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
@@ -57,8 +59,9 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
       setSelectedAssetId,
       selectedAssetId,
       stakingAssetAccountId,
+      stakingAssetId,
     }),
-    [selectedAssetAccountId, selectedAssetId, stakingAssetAccountId],
+    [selectedAssetAccountId, selectedAssetId, stakingAssetAccountId, stakingAssetId],
   )
 
   return <RFOXContext.Provider value={value}>{children}</RFOXContext.Provider>

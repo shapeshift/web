@@ -3,6 +3,7 @@ import {
   type AssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
@@ -16,6 +17,7 @@ type RFOXContextType = {
   selectedAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   stakingAssetId: AssetId
+  runeMatchingAccountId: AccountId | undefined
   setSelectedAssetId: (assetId: AssetId) => void
   setSelectedAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
@@ -52,6 +54,13 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
     return stakingAssetAccountId
   }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetAccountNumber, stakingAssetId])
 
+  const runeMatchingAccountId = useMemo(() => {
+    if (!(filter && selectedAssetAccountNumber !== undefined)) return
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[selectedAssetAccountNumber]
+    const runeAccountId = accountNumberAccountIds?.[thorchainChainId]
+    return runeAccountId
+  }, [accountIdsByAccountNumberAndChainId, filter, selectedAssetAccountNumber])
+
   const value: RFOXContextType = useMemo(
     () => ({
       selectedAssetAccountId,
@@ -60,8 +69,15 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
       selectedAssetId,
       stakingAssetAccountId,
       stakingAssetId,
+      runeMatchingAccountId,
     }),
-    [selectedAssetAccountId, selectedAssetId, stakingAssetAccountId, stakingAssetId],
+    [
+      runeMatchingAccountId,
+      selectedAssetAccountId,
+      selectedAssetId,
+      stakingAssetAccountId,
+      stakingAssetId,
+    ],
   )
 
   return <RFOXContext.Provider value={value}>{children}</RFOXContext.Provider>

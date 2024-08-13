@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { validateAddress } from 'lib/address/address'
 
+import { useRFOXContext } from '../hooks/useRfoxContext'
 import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
@@ -49,6 +50,8 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   validateIsNewAddress,
 }) => {
   const translate = useTranslate()
+
+  const { runeMatchingAccountId } = useRFOXContext()
 
   // Local controller in case consumers don't have a form context
   const _methods = useForm<AddressSelectionValues>()
@@ -138,13 +141,14 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 
     return (
       <AccountDropdown
+        defaultAccountId={runeMatchingAccountId}
         assetId={thorchainAssetId}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
         buttonProps={buttonProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress])
+  }, [handleAccountIdChange, isManualAddress, runeMatchingAccountId])
 
   const addressSelectionLabel = useMemo(
     () =>

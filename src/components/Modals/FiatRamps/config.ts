@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, btcAssetId } from '@shapeshiftoss/caip'
+import { adapters, btcAssetId, fromAssetId, gnosisChainId } from '@shapeshiftoss/caip'
 import banxaLogo from 'assets/banxa.png'
 import CoinbaseLogo from 'assets/coinbase-logo.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
@@ -90,7 +90,11 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     order: 3,
     getBuyAndSellList: async () => {
       const buyAndSellAssetIds = await getOnRamperAssets()
-      return [buyAndSellAssetIds, buyAndSellAssetIds]
+      // Gnosis network is listed in supported assets, but is not currently working (pending support ticket response)
+      const filteredBuyAndSellAssetIds = buyAndSellAssetIds.filter(
+        assetId => fromAssetId(assetId).chainId !== gnosisChainId,
+      )
+      return [filteredBuyAndSellAssetIds, filteredBuyAndSellAssetIds]
     },
     getSupportedFiatList: () => getSupportedOnRamperFiatCurrencies(),
     onSubmit: props => {

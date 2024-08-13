@@ -7,6 +7,8 @@ import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
+import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
 
@@ -18,20 +20,28 @@ export const RFOXHeader = () => {
   }, [history])
   const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
-  const accountDropdown = useMemo(
-    () => (
-      <AccountDropdown
-        defaultAccountId={stakingAssetAccountId}
-        assetId={stakingAssetId}
-        onChange={setSelectedAssetAccountId}
-        // dis already memoized
-        // eslint-disable-next-line react-memo/require-usememo
-        buttonProps={{ variant: 'solid', width: 'full' }}
-        showLabel={false}
-      />
-    ),
-    [setSelectedAssetAccountId, stakingAssetAccountId, stakingAssetId],
+  const accountIdsFilter = useMemo(() => ({ assetId: stakingAssetId }), [stakingAssetId])
+  const accountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
+  const activeAccountDropdown = useMemo(() => {
+    if (!(accountIds.length > 1)) return null
+    return (
+      <Flex alignItems='center' gap={2}>
+        <Text translation='common.activeAccount' fontWeight='medium' />
+
+        <AccountDropdown
+          defaultAccountId={stakingAssetAccountId}
+          assetId={stakingAssetId}
+          onChange={setSelectedAssetAccountId}
+          // dis already memoized
+          // eslint-disable-next-line react-memo/require-usememo
+          buttonProps={{ variant: 'solid', width: 'full' }}
+          showLabel={false}
+        />
+      </Flex>
+    )
+  }, [accountIds.length, setSelectedAssetAccountId, stakingAssetAccountId, stakingAssetId])
 
   return (
     <>
@@ -52,18 +62,13 @@ export const RFOXHeader = () => {
               <Text translation='explore.rfox.body' color='text.subtle' />
             </Stack>
           </PageHeader.Left>
-          <PageHeader.Right>
-            <Flex alignItems='center' gap={2}>
-              <Text translation='common.activeAccount' fontWeight='medium' />
-              {accountDropdown}
-            </Flex>
-          </PageHeader.Right>
+          <PageHeader.Right>{activeAccountDropdown}</PageHeader.Right>
         </Display.Desktop>
       </PageHeader>
       <Display.Mobile>
         <Flex direction='column' px={4} mt={4}>
           <Text translation='common.activeAccount' fontWeight='medium' mb={2} />
-          {accountDropdown}
+          {activeAccountDropdown}
         </Flex>
       </Display.Mobile>
     </>

@@ -435,6 +435,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}
+              isAccountSelectionDisabled
               formControlProps={formControlProps}
               layout='stacked'
               label={translate('transactionRow.amount')}

@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { AssetIcon } from 'components/AssetIcon'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { SlideTransition } from 'components/SlideTransition'
@@ -83,7 +82,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
@@ -160,12 +159,6 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       <Stack>{headerComponent}</Stack>
       <CardBody py={12}>
         <Flex flexDir='column' gap={4}>
-          <AccountDropdown
-            defaultAccountId={stakingAssetAccountId}
-            assetId={stakingAssetId}
-            onChange={setSelectedAssetAccountId}
-            showLabel={false}
-          />
           {claimBody}
         </Flex>
       </CardBody>

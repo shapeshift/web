@@ -7,7 +7,6 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -43,7 +42,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   headerComponent,
   setConfirmedQuote,
 }) => {
-  const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
@@ -211,12 +210,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       <FormProvider {...methods}>
         <Stack>
           {headerComponent}
-          <AccountDropdown
-            defaultAccountId={stakingAssetAccountId}
-            assetId={stakingAssetId}
-            onChange={setSelectedAssetAccountId}
-            showLabel={false}
-          />
           <Stack px={6} py={4}>
             <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />

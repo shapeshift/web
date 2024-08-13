@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import { AmountSlider } from 'components/AmountSlider'
@@ -61,7 +60,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const { stakingAssetId, setSelectedAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
 
   const methods = useForm<UnstakeInputValues>({
     defaultValues: defaultFormValues,
@@ -313,12 +312,6 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             {headerComponent}
             <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
               <Stack>
-                <AccountDropdown
-                  defaultAccountId={stakingAssetAccountId}
-                  assetId={stakingAssetId}
-                  onChange={setSelectedAssetAccountId}
-                  showLabel={false}
-                />
                 <AmountSlider
                   sliderValue={sliderValue}
                   handlePercentageSliderChange={handlePercentageSliderChange}

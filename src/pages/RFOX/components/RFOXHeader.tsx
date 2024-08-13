@@ -65,12 +65,7 @@ export const RFOXHeader = () => {
           <PageHeader.Right>{activeAccountDropdown}</PageHeader.Right>
         </Display.Desktop>
       </PageHeader>
-      <Display.Mobile>
-        <Flex direction='column' px={4} mt={4}>
-          <Text translation='common.activeAccount' fontWeight='medium' mb={2} />
-          {activeAccountDropdown}
-        </Flex>
-      </Display.Mobile>
+      <Display.Mobile>{activeAccountDropdown}</Display.Mobile>
     </>
   )
 }

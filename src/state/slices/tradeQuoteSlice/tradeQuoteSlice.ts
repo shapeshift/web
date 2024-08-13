@@ -43,26 +43,10 @@ export const tradeQuoteSlice = createSlice({
         }
       }
     },
-    incrementStep: state => {
-      const activeQuote = state.confirmedQuote
-      const activeStepOrDefault = state.activeStep ?? 0
-      if (!activeQuote) return // This should never happen as we shouldn't call this without an active quote, but double wrap never hurts for swapper
-      if (activeStepOrDefault === activeQuote.steps.length - 1) return // No-op: we're on the last step - don't increment
-      state.activeStep = activeStepOrDefault + 1
-    },
-    resetActiveStep: state => {
-      state.activeStep = undefined
-    },
-    resetActiveQuote: state => {
-      state.activeQuoteMeta = undefined
-    },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote | undefined>) => {
       state.confirmedQuote = action.payload
       state.tradeExecution = initialTradeExecutionState
     },
-    resetConfirmedQuote: state => {
-      state.confirmedQuote = undefined
-      state.tradeExecution = initialTradeExecutionState
     },
     setTradeInitialized: state => {
       state.tradeExecution.state = TradeExecutionState.Previewing

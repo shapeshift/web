@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { AssetId, AssetReference, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
@@ -96,12 +96,22 @@ export function partitionCompareWith<T>(
   return result
 }
 
-export const isToken = (assetReference: AssetReference | string) => {
-  return !Object.values(ASSET_REFERENCE).includes(assetReference as AssetReference)
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case 'erc20':
+    case 'erc721':
+    case 'erc1155':
+    case 'bep20':
+    case 'bep721':
+    case 'bep1155':
+      return true
+    default:
+      return false
+  }
 }
 
-export const tokenOrUndefined = (assetReference: AssetReference | string) =>
-  isToken(assetReference) ? assetReference : undefined
+export const contractAddressOrUndefined = (assetId: AssetId) =>
+  isToken(assetId) ? fromAssetId(assetId).assetReference : undefined
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)

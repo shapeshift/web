@@ -54,10 +54,7 @@ import type {
 
 export * from './foxy-types'
 
-type EthereumChainReference =
-  | typeof CHAIN_REFERENCE.EthereumMainnet
-  | typeof CHAIN_REFERENCE.EthereumRinkeby
-  | typeof CHAIN_REFERENCE.EthereumRopsten
+type EthereumChainReference = typeof CHAIN_REFERENCE.EthereumMainnet
 
 export type ConstructorArgs = {
   adapter: EvmBaseAdapter<KnownChainIds.EthereumMainnet>

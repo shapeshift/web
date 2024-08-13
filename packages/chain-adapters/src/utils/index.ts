@@ -38,8 +38,6 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
     case CHAIN_NAMESPACE.Evm:
       switch (chainReference) {
         case CHAIN_REFERENCE.EthereumMainnet:
-        case CHAIN_REFERENCE.EthereumRinkeby:
-        case CHAIN_REFERENCE.EthereumRopsten:
         case CHAIN_REFERENCE.AvalancheCChain:
         case CHAIN_REFERENCE.OptimismMainnet:
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
@@ -57,7 +55,6 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
     case CHAIN_NAMESPACE.CosmosSdk:
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
-        case CHAIN_REFERENCE.CosmosHubVega:
           return 'cosmos'
         case CHAIN_REFERENCE.ThorchainMainnet:
           return 'thorchain'

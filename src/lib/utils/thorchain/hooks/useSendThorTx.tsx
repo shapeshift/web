@@ -150,7 +150,7 @@ export const useSendThorTx = ({
      * https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d_
      */
     const assetAddress =
-      !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+      !isToken(assetId) || shouldUseDustAmount
         ? zeroAddress
         : getAddress(fromAssetId(assetId).assetReference)
 
@@ -195,7 +195,7 @@ export const useSendThorTx = ({
 
         return {
           amountCryptoPrecision:
-            !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+            !isToken(assetId) || shouldUseDustAmount
               ? fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision)
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
@@ -269,7 +269,7 @@ export const useSendThorTx = ({
     if (!transactionType) return
     if (!estimateFeesArgs) return
     if (accountNumber === undefined) return
-    if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
+    if (isToken(asset.assetId) && !inboundAddressData) return
 
     if (
       action !== 'withdrawRunepool' &&
@@ -327,9 +327,7 @@ export const useSendThorTx = ({
             adapter,
             data: depositWithExpiryInputData,
             value:
-              !isToken(fromAssetId(asset.assetId).assetReference) || shouldUseDustAmount
-                ? amountOrDustCryptoBaseUnit
-                : '0',
+              !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
           })

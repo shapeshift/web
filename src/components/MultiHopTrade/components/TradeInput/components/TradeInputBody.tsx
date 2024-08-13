@@ -8,7 +8,6 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -95,7 +94,7 @@ export const TradeInputBody = ({
 
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
-    if (!isToken(fromAssetId(sellAsset.assetId).assetReference)) return []
+    if (!isToken(sellAsset.assetId)) return []
 
     return [1]
   }, [sellAsset.assetId])

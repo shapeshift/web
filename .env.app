@@ -39,7 +39,7 @@ REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://api.ethereum.shapeshift.com/api/v1/jsonrpc
 REACT_APP_AVALANCHE_NODE_URL=https://api.avalanche.shapeshift.com/api/v1/jsonrpc
-REACT_APP_OPTIMISM_NODE_URL=https://daemon.optimism.shapeshift.com
+REACT_APP_OPTIMISM_NODE_URL=https://api.optimism.shapeshift.com/api/v1/jsonrpc
 REACT_APP_BNBSMARTCHAIN_NODE_URL=https://api.bnbsmartchain.shapeshift.com/api/v1/jsonrpc
 REACT_APP_POLYGON_NODE_URL=https://api.polygon.shapeshift.com/api/v1/jsonrpc
 REACT_APP_GNOSIS_NODE_URL=https://daemon.gnosis.shapeshift.com

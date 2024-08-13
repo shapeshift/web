@@ -128,7 +128,7 @@ export class PortalsMarketService implements MarketService {
         return null
       }
 
-      const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
+      const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
       const url = `${this.baseUrl}/v2/tokens/history`
       const params = {
         id,
@@ -174,7 +174,7 @@ export class PortalsMarketService implements MarketService {
       return []
     }
 
-    const id = `${network}:${isToken(assetReference) ? assetReference : zeroAddress}`
+    const id = `${network}:${isToken(assetId) ? assetReference : zeroAddress}`
     const { start: _start, end } = getTimeFrameBounds(timeframe)
 
     const resolution = (() => {

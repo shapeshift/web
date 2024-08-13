@@ -21,6 +21,7 @@ export const useAllowanceApproval = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   allowanceType: AllowanceType,
+  feeQueryEnabled: boolean,
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
@@ -36,6 +37,7 @@ export const useAllowanceApproval = (
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
     allowanceType,
     spender: tradeQuoteStep.allowanceContract,
+    enabled: feeQueryEnabled,
   })
 
   useEffect(() => {

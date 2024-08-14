@@ -633,7 +633,7 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
   },
 )
 
-export const selectTradeExecutionState = createSelector(
+export const selectConfirmedTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
   selectConfirmedQuoteTradeId,
   (swappers, tradeId) => {

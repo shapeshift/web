@@ -18,10 +18,10 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveSwapperName,
+  selectConfirmedTradeExecutionState,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrencyPrecision,
-  selectTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -35,7 +35,7 @@ export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
-  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
@@ -103,10 +103,10 @@ export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
-  if (!tradeExecutionState) return null
+  if (!confirmedTradeExecutionState) return null
 
   return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-    tradeExecutionState,
+    confirmedTradeExecutionState,
   ) ? (
     <CardFooter
       flexDir='column'
@@ -137,7 +137,7 @@ export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
         size='lg'
         width='full'
         onClick={handleSubmit}
-        isLoading={isLoading || tradeExecutionState === TradeExecutionState.Initializing}
+        isLoading={isLoading || confirmedTradeExecutionState === TradeExecutionState.Initializing}
       >
         <Text translation={'trade.confirmAndTrade'} />
       </Button>

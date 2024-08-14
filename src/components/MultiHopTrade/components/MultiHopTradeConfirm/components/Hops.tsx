@@ -33,6 +33,8 @@ export const Hops = memo((props: HopsProps) => {
 
   if (!activeQuote || !firstHop || !swapperName) return null
 
+  const tradeId = activeQuote.id
+
   return (
     <Stack spacing={0} divider={divider} borderColor='border.base'>
       <Hop
@@ -42,6 +44,7 @@ export const Hops = memo((props: HopsProps) => {
         isOpen={isFirstHopOpen}
         onToggleIsOpen={onToggleFirstHop}
         slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
+        tradeId={tradeId}
       />
       {isMultiHopTrade && lastHop && (
         <Hop
@@ -51,6 +54,7 @@ export const Hops = memo((props: HopsProps) => {
           isOpen={isSecondHopOpen}
           onToggleIsOpen={onToggleSecondHop}
           slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
+          tradeId={tradeId}
         />
       )}
     </Stack>

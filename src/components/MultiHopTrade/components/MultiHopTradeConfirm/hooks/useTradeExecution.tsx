@@ -5,7 +5,11 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignTypedData, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { EvmTransactionRequest, SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type {
+  EvmTransactionRequest,
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+} from '@shapeshiftoss/swapper'
 import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { TypedData } from 'eip-712'
@@ -31,7 +35,10 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMixpanel } from './useMixpanel'
 
-export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
+export const useTradeExecution = (
+  hopIndex: SupportedTradeQuoteStepIndex,
+  tradeId: TradeQuote['id'],
+) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const wallet = useWallet().state.wallet
@@ -80,12 +87,12 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
     if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 
     return new Promise<void>(async resolve => {
-      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex }))
+      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: tradeId }))
 
       const onFail = (e: unknown) => {
         const { message } = (e ?? { message: undefined }) as { message?: string }
-        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
-        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex }))
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: tradeId }))
+        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex, id: tradeId }))
         showErrorToast(e)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
@@ -114,19 +121,19 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
 
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         txHashReceived = true
-        dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash }))
+        dispatch(tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: tradeId }))
       })
       execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
-        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message }))
+        dispatch(tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: tradeId }))
         if (buyTxHash) {
           txHashReceived = true
-          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
+          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: tradeId }))
         }
       })
       execution.on(TradeExecutionEvent.Success, ({ buyTxHash }) => {
         if (buyTxHash) {
           txHashReceived = true
-          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
+          dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: tradeId }))
         }
 
         if (!txHashReceived) {
@@ -139,6 +146,7 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
           tradeQuoteSlice.actions.setSwapTxMessage({
             hopIndex,
             message: translate('trade.transactionSuccessful'),
+            id: tradeId,
           }),
         )
 
@@ -155,7 +163,7 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
           // issue in the interim.
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
-        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
+        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex, id: tradeId }))
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
@@ -336,8 +344,9 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
     tradeQuote,
     swapperName,
     sellAssetAccountId,
-    dispatch,
     hopIndex,
+    dispatch,
+    tradeId,
     showErrorToast,
     trackMixpanelEvent,
     translate,

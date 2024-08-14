@@ -103,6 +103,8 @@ export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
     )
   }, [swapperName, lastHopBuyAsset, translate])
 
+  if (!tradeExecutionState) return null
+
   return [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
     tradeExecutionState,
   ) ? (

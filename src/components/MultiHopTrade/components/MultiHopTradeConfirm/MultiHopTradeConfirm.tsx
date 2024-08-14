@@ -41,10 +41,10 @@ export const MultiHopTradeConfirm = memo(() => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || !activeQuote) return
 
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized())
-  }, [dispatch, isLoading])
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
+  }, [dispatch, isLoading, activeQuote])
 
   const isTradeComplete = useMemo(
     () => tradeExecutionState === TradeExecutionState.TradeComplete,
@@ -81,8 +81,9 @@ export const MultiHopTradeConfirm = memo(() => {
   ])
 
   const handleTradeConfirm = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.confirmTrade())
-  }, [dispatch])
+    if (!activeQuote) return
+    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
+  }, [dispatch, activeQuote])
 
   const handleSubmit = useCallback(() => {
     if (isModeratePriceImpact) {
@@ -91,6 +92,8 @@ export const MultiHopTradeConfirm = memo(() => {
       handleTradeConfirm()
     }
   }, [handleTradeConfirm, isModeratePriceImpact])
+
+  if (!tradeExecutionState) return null
 
   return (
     <TradeSlideTransition>

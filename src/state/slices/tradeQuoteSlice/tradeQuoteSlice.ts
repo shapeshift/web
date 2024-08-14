@@ -18,7 +18,10 @@ export const tradeQuoteSlice = createSlice({
   name: 'tradeQuote',
   initialState,
   reducers: {
-    clear: () => initialState,
+    clear: state => ({
+      ...initialState,
+      tradeExecution: state.tradeExecution, // Leave the trade execution state alone
+    }),
     setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
     },

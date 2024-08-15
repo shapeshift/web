@@ -216,6 +216,7 @@ export const OpportunityRow: React.FC<
             subText={assetCellSubText}
             justifyContent='flex-start'
             isExternal={opportunity.isReadOnly}
+            opportunityName={opportunity.opportunityName}
           />
           <Amount.Crypto
             value={bnOrZero(cryptoAmountBaseUnit)

@@ -1,12 +1,14 @@
 import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
+import { bnOrZero, makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
+import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
-  selectAssetsSortedByNameAndBalance,
+  selectAssetsSortedByName,
+  selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
 import { selectAssets } from 'state/slices/selectors'
@@ -33,7 +35,8 @@ export const SearchTermAssetList = ({
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByNameAndBalance)
+  const assets = useAppSelector(selectAssetsSortedByName)
+  const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const chainIds = useMemo(
@@ -95,8 +98,16 @@ export const SearchTermAssetList = ({
     const filteredAssets = filterAssetsBySearchTerm(searchString, assetsForChain)
     const existingAssetIds = new Set(filteredAssets.map(asset => asset.assetId))
     const uniqueCustomAssets = customAssets.filter(asset => !existingAssetIds.has(asset.assetId))
-    return filteredAssets.concat(uniqueCustomAssets)
-  }, [assetsForChain, customAssets, searchString])
+    const assetsWithCustomAssets = filteredAssets.concat(uniqueCustomAssets)
+    const getAssetBalance = (asset: Asset) =>
+      bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
+
+    return orderBy(
+      Object.values(assetsWithCustomAssets).filter(isSome),
+      [getAssetBalance],
+      ['desc'],
+    )
+  }, [assetsForChain, customAssets, searchString, portfolioUserCurrencyBalances])
 
   const { groups, groupCounts, groupIsLoading } = useMemo(() => {
     return {

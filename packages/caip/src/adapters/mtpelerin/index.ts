@@ -9,6 +9,7 @@ import {
   baseAssetId,
   baseChainId,
   bscAssetId,
+  bscChainId,
   btcAssetId,
   btcChainId,
   ethAssetId,
@@ -143,6 +144,7 @@ const chainIdToMtPelerinNetworkCodeMap: Record<ChainId, string> = {
   [optimismChainId]: 'optimism_mainnet',
   [polygonChainId]: 'matic_mainnet',
   [gnosisChainId]: 'xdai_mainnet',
+  [bscChainId]: 'bsc_mainnet',
   [arbitrumChainId]: 'arbitrum_mainnet',
   [baseChainId]: 'base_mainnet',
 } as const

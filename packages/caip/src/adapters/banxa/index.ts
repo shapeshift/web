@@ -5,9 +5,11 @@ import type { AssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
   arbitrumAssetId,
+  arbitrumChainId,
   avalancheAssetId,
   avalancheChainId,
   baseAssetId,
+  baseChainId,
   bscAssetId,
   bscChainId,
   btcAssetId,
@@ -118,6 +120,8 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [avalancheChainId]: 'AVAX-C', // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
   [optimismChainId]: 'OPTIMISM',
   [polygonChainId]: 'MATIC',
+  [arbitrumChainId]: 'ARB',
+  [baseChainId]: 'BASE',
   [thorchainChainId]: 'THORCHAIN',
 } as const
 

@@ -1,6 +1,4 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -51,14 +49,12 @@ import { WithLazyMount } from './WithLazyMount'
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
   isLoading: boolean
-  initialSellAssetAccountId: AccountId | undefined
   receiveAddress: string | undefined
 }
 
 export const ConfirmSummary = ({
   isCompact,
   isLoading: isParentLoading,
-  initialSellAssetAccountId,
   receiveAddress,
 }: ConfirmSummaryProps) => {
   const history = useHistory()
@@ -96,14 +92,22 @@ export const ConfirmSummary = ({
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
-  const userAddress = useMemo(() => {
-    if (!initialSellAssetAccountId) return ''
+  const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
+    useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
-    return fromAccountId(initialSellAssetAccountId).account
-  }, [initialSellAssetAccountId])
+  const disableThorNativeSmartContractReceive = useMemo(() => {
+    // Buy asset fee asset is still loading - disable
+    if (!buyAssetFeeAsset) return true
 
-  const { data: _isSmartContractSellAddress, isLoading: isSellAddressByteCodeLoading } =
-    useIsSmartContractAddress(userAddress, sellAsset.chainId)
+    if (!_isSmartContractReceiveAddress) return false
+
+    // THORChain is only affected by the sc limitation for native EVM receives
+    // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
+    if (!(isEvmChainId(buyAsset.chainId) && buyAsset.assetId === buyAssetFeeAsset.assetId))
+      return false
+
+    return true
+  }, [buyAssetFeeAsset, _isSmartContractReceiveAddress, buyAsset.chainId, buyAsset.assetId])
 
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
@@ -111,8 +115,8 @@ export const ConfirmSummary = ({
   }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
 
   const isLoading = useMemo(() => {
-    return isParentLoading || isSellAddressByteCodeLoading
-  }, [isParentLoading, isSellAddressByteCodeLoading])
+    return isParentLoading || isReceiveAddressByteCodeLoading || !buyAssetFeeAsset
+  }, [buyAssetFeeAsset, isParentLoading, isReceiveAddressByteCodeLoading])
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
@@ -124,6 +128,8 @@ export const ConfirmSummary = ({
       manualReceiveAddressIsValid === false ||
       // don't execute trades while in loading state
       isLoading ||
+      // don't execute trades for smart contract receive addresses for THOR native assets receives
+      disableThorNativeSmartContractReceive ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -138,9 +144,10 @@ export const ConfirmSummary = ({
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
-    activeSwapperName,
+    disableThorNativeSmartContractReceive,
     activeQuote,
     hasUserEnteredAmount,
+    activeSwapperName,
     isTradeQuoteApiQueryPending,
   ])
 
@@ -196,15 +203,19 @@ export const ConfirmSummary = ({
         ]
     }, [activeQuote, buyAssetFeeAsset])
 
-  const shouldForceManualAddressEntry = useMemo(() => {
-    if (_isSmartContractSellAddress === undefined) return
-
-    return (
-      _isSmartContractSellAddress &&
-      sellAsset.chainId !== buyAsset.chainId &&
-      isEvmChainId(buyAsset.chainId)
-    )
-  }, [_isSmartContractSellAddress, sellAsset, buyAsset])
+  const manualAddressEntryDescription = useMemo(() => {
+    if (disableThorNativeSmartContractReceive)
+      return translate('trade.disableThorNativeSmartContractReceive', {
+        chainName: buyAssetFeeAsset?.networkName,
+        nativeAssetSymbol: buyAssetFeeAsset?.symbol,
+      })
+    return undefined
+  }, [
+    buyAssetFeeAsset?.networkName,
+    buyAssetFeeAsset?.symbol,
+    disableThorNativeSmartContractReceive,
+    translate,
+  ])
 
   return (
     <>
@@ -259,20 +270,15 @@ export const ConfirmSummary = ({
           </Alert>
         )}
         <WithLazyMount
-          shouldUse={Boolean(receiveAddress) && shouldForceManualAddressEntry === false}
+          shouldUse={Boolean(receiveAddress) && disableThorNativeSmartContractReceive === false}
+          shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={RecipientAddress}
         />
         <WithLazyMount
-          shouldUse={!walletSupportsBuyAssetChain || shouldForceManualAddressEntry === true}
-          shouldForceManualAddressEntry={shouldForceManualAddressEntry}
+          shouldUse={!walletSupportsBuyAssetChain || disableThorNativeSmartContractReceive === true}
+          shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={ManualAddressEntry}
-          description={
-            shouldForceManualAddressEntry
-              ? translate('trade.smartContractReceiveAddressDescription', {
-                  chainName: buyAssetFeeAsset?.networkName,
-                })
-              : undefined
-          }
+          description={manualAddressEntryDescription}
         />
 
         <Button

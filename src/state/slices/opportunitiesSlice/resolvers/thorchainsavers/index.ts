@@ -161,14 +161,16 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       rewardAssetIds: [assetId] as [AssetId],
       // Thorchain opportunities represent a single native asset being staked, so the ratio will always be 1
       underlyingAssetRatiosBaseUnit: [underlyingAssetRatioBaseUnit],
-      name: `${underlyingAsset.symbol} Vault`,
+      name: underlyingAsset.symbol,
       saversMaxSupplyFiat: saversMaxSupplyUserCurrency,
       isFull: thorchainPool.synth_mint_paused,
       isClaimableRewards: false,
     }
   }
 
-  if (getConfig().REACT_APP_FEATURE_RUNEPOOL) {
+  const asset = selectAssetById(state, thorchainAssetId)
+
+  if (getConfig().REACT_APP_FEATURE_RUNEPOOL && asset) {
     const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
       `${getConfig().REACT_APP_MIDGARD_URL}/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
     )
@@ -270,7 +272,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       rewardAssetIds: [thorchainAssetId] as [AssetId],
       underlyingAssetRatiosBaseUnit,
       underlyingAssetWeightPercentageDecimal,
-      name: `RUNEPool`,
+      name: asset.symbol,
       saversMaxSupplyFiat: undefined,
       isFull: false,
       isClaimableRewards: false,

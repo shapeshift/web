@@ -15,20 +15,26 @@ type MtPelerinResponse = {
 }
 
 export const getMtPelerinFiatCurrencies = (): CommonFiatCurrencies[] => {
+  // From https://www.mtpelerin.com/supported-blockchains-currencies -> Fiat
   return [
-    'CHF',
-    'EUR',
-    'USD',
-    'GBP',
+    'AED',
     'AUD',
     'CAD',
+    'CHF',
+    'CZK',
     'DKK',
+    'EUR',
+    'GBP',
     'HKD',
+    'HUF',
     'JPY',
+    'MXN',
     'NOK',
     'NZD',
+    'PLN',
     'SEK',
     'SGD',
+    'USD',
     'ZAR',
   ]
 }

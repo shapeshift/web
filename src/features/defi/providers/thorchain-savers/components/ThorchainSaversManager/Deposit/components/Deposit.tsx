@@ -107,7 +107,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const isRunePool = assetId === thorchainAssetId
 
-  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+  const isTokenDeposit = isToken(assetId)
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>

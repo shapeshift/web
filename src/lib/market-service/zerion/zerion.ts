@@ -50,9 +50,11 @@ export class ZerionMarketService implements MarketService {
     count: 250,
   }
 
-  getZerionTokenMarketData = async (assetId: AssetId): Promise<ZerionMarketData | undefined> => {
+  private getZerionTokenMarketData = async (
+    assetId: AssetId,
+  ): Promise<ZerionMarketData | undefined> => {
     const { assetReference } = fromAssetId(assetId)
-    if (!isToken(assetReference)) return undefined
+    if (!isToken(assetId)) return undefined
 
     const url = `${this.baseUrl}/fungibles/${assetReference}`
     const { data: res } = await axios.get<ZerionFungibles>(url)

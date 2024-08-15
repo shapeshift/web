@@ -33,20 +33,20 @@ REACT_APP_UNCHAINED_BITCOINCASH_HTTP_URL=https://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_BITCOINCASH_WS_URL=wss://api.bitcoincash.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_HTTP_URL=https://api.cosmos.shapeshift.com
 REACT_APP_UNCHAINED_COSMOS_WS_URL=wss://api.cosmos.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://api.thorchain.shapeshift.com
-REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL=https://dev-api.thorchain.shapeshift.com
+REACT_APP_UNCHAINED_THORCHAIN_WS_URL=wss://dev-api.thorchain.shapeshift.com
 
 # nodes
 REACT_APP_ETHEREUM_NODE_URL=https://api.ethereum.shapeshift.com/api/v1/jsonrpc
 REACT_APP_AVALANCHE_NODE_URL=https://api.avalanche.shapeshift.com/api/v1/jsonrpc
-REACT_APP_OPTIMISM_NODE_URL=https://daemon.optimism.shapeshift.com
+REACT_APP_OPTIMISM_NODE_URL=https://api.optimism.shapeshift.com/api/v1/jsonrpc
 REACT_APP_BNBSMARTCHAIN_NODE_URL=https://api.bnbsmartchain.shapeshift.com/api/v1/jsonrpc
 REACT_APP_POLYGON_NODE_URL=https://api.polygon.shapeshift.com/api/v1/jsonrpc
 REACT_APP_GNOSIS_NODE_URL=https://daemon.gnosis.shapeshift.com
 REACT_APP_ARBITRUM_NODE_URL=https://api.arbitrum.shapeshift.com/api/v1/jsonrpc
 REACT_APP_ARBITRUM_NOVA_NODE_URL=https://api.arbitrum-nova.shapeshift.com/api/v1/jsonrpc
 REACT_APP_BASE_NODE_URL=https://api.base.shapeshift.com/api/v1/jsonrpc
-REACT_APP_THORCHAIN_NODE_URL=https://daemon.thorchain.shapeshift.com
+REACT_APP_THORCHAIN_NODE_URL=https://dev-daemon.thorchain.shapeshift.com
 
 # thorchain
-REACT_APP_MIDGARD_URL=https://indexer.thorchain.shapeshift.com/v2
+REACT_APP_MIDGARD_URL=https://dev-indexer.thorchain.shapeshift.com/v2

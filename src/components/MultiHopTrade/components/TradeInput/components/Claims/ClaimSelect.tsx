@@ -1,17 +1,35 @@
 import { Box, CardBody } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { useHistory } from 'react-router'
 import { fox } from 'test/mocks/assets'
 import { ClaimRow } from 'components/ClaimRow/ClaimRow'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { Text } from 'components/Text'
+import { selectArbitrumWithdrawTxs } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
-export const Claims = () => {
+import { useArbitrumClaimsByStatus } from './hooks/useArbitrumClaimsByStatus'
+import { ClaimRoutePaths } from './types'
+
+export const ClaimSelect = () => {
+  const history = useHistory()
+
   // TODO: Replace with actual implementation
   const tooltipText = 'tooltip text'
   const actionText = 'Bridge via Arbitrum'
   const statusText = 'status text'
   const stakingAsset = fox
-  const handleClaimClick = useCallback(() => {}, [])
+
+  const arbitrumWithdrawTxs = useAppSelector(selectArbitrumWithdrawTxs)
+
+  console.log({ arbitrumWithdrawTxs })
+
+  const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
+
+  const { claimsByStatus } = useArbitrumClaimsByStatus(arbitrumWithdrawTxs)
+
+  console.log({ claimsByStatus })
+
   return (
     <CardBody px={6}>
       <Box mb={6}>

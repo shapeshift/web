@@ -777,7 +777,7 @@
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
     },
-    "claims": "Claims",
+    "claim": "Claim",
     "availableClaims": "Available",
     "pendingClaims": "Pending"
   },

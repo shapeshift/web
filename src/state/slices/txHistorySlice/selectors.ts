@@ -100,6 +100,14 @@ const selectWalletTxsByAccountIdAssetId = createSelector(
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
+export const selectArbitrumWithdrawTxs = createSelector(selectTxs, (txs): Tx[] => {
+  return Object.values(txs).filter(
+    tx =>
+      tx.data?.parser === 'arbitrumBridge' &&
+      ['outboundTransfer', 'withdrawEth'].includes(tx.data.method as Method),
+  )
+})
+
 export const selectTxIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,

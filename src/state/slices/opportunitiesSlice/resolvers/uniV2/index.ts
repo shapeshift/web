@@ -175,7 +175,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
             assetReference: token1Address,
             chainId,
           })
-    const underlyingAssetIds = [assetId0, assetId1] as const
+    const underlyingAssetIds = [assetId0, assetId1]
     const underlyingAsset0 = assets.byId[underlyingAssetIds[0]]
     const underlyingAsset1 = assets.byId[underlyingAssetIds[1]]
     const lpAsset = assets.byId[opportunityId]

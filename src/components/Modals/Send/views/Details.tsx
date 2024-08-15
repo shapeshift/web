@@ -92,7 +92,9 @@ export const Details = () => {
     [amountCryptoPrecision, fiatAmount, previousAccountId, setValue],
   )
 
-  const { close: handleClose } = useModal('send')
+  const send = useModal('send')
+  const qrCode = useModal('qrCode')
+
   const {
     balancesLoading,
     fieldName,
@@ -177,6 +179,12 @@ export const Details = () => {
     () => ['modals.send.sendForm.assetMemo', { assetSymbol: asset?.symbol ?? '' }],
     [asset?.symbol],
   )
+
+  const handleClose = useCallback(() => {
+    // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
+    send.close?.()
+    qrCode.close?.()
+  }, [send, qrCode])
 
   const handleArrowBackClick = useCallback(() => history.push(SendRoutes.Address), [history])
   const handleAccountCardClick = useCallback(() => history.push('/send/select'), [history])

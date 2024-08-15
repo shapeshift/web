@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isAddress } from 'viem'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
+import { getAddress, isAddress } from 'viem'
+import { viemClientByChainId } from 'lib/viem-client'
 
 export const isEthAddress = (address: string): boolean => /^0x[0-9A-Fa-f]{40}$/.test(address)
 
@@ -11,6 +11,6 @@ export const isSmartContractAddress = async (
 ): Promise<boolean> => {
   if (!isAddress(address)) return false
   if (!isEvmChainId(chainId)) return false
-  const bytecode = await getEthersProvider(chainId).getCode(address)
-  return bytecode !== '0x'
+  const bytecode = await viemClientByChainId[chainId].getBytecode({ address: getAddress(address) })
+  return bytecode !== undefined
 }

@@ -4,7 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import { getConfig } from 'config'
 import type { Chain, PublicClient, Transport } from 'viem'
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, fallback, http } from 'viem'
 import {
   arbitrum,
   arbitrumNova,
@@ -19,47 +19,83 @@ import {
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
-  transport: http(getConfig().REACT_APP_ETHEREUM_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_ETHEREUM_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js
+    http('https://eth.llamarpc.com'),
+  ]),
 })
 
 export const viemBscClient = createPublicClient({
   chain: bsc,
-  transport: http(getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_BNBSMARTCHAIN_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L30
+    http('https://binance.llamarpc.com'),
+  ]),
 })
 
 export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
-  transport: http(getConfig().REACT_APP_AVALANCHE_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_AVALANCHE_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L937
+    http('https://api.avax.network/ext/bc/C/rpc'),
+  ]),
 })
 
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
-  transport: http(getConfig().REACT_APP_ARBITRUM_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_ARBITRUM_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L63
+    http('https://arbitrum.llamarpc.com'),
+  ]),
 })
 
 export const viemArbitrumNovaClient = createPublicClient({
   chain: arbitrumNova,
-  transport: http(getConfig().REACT_APP_ARBITRUM_NOVA_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_ARBITRUM_NOVA_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1393
+    http('https://nova.arbitrum.io/rpc'),
+  ]),
 })
 
 export const viemOptimismClient = createPublicClient({
   chain: optimism,
-  transport: http(getConfig().REACT_APP_OPTIMISM_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_OPTIMISM_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L41
+    http('https://optimism.llamarpc.com'),
+  ]),
 })
 
 export const viemGnosisClient = createPublicClient({
   chain: gnosis,
-  transport: http(getConfig().REACT_APP_GNOSIS_NODE_URL),
+  transport: fallback([
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
+    http(getConfig().REACT_APP_GNOSIS_NODE_URL),
+    http('https://rpc.gnosischain.com'),
+  ]),
 })
 
 export const viemPolygonClient = createPublicClient({
   chain: polygon,
-  transport: http(getConfig().REACT_APP_POLYGON_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_POLYGON_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L52
+    http('https://polygon.llamarpc.com'),
+  ]),
 })
 
 export const viemBaseClient = createPublicClient({
   chain: base,
-  transport: http(getConfig().REACT_APP_BASE_NODE_URL),
+  transport: fallback([
+    http(getConfig().REACT_APP_BASE_NODE_URL),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
+    http('https://base.llamarpc.com'),
+  ]),
 })
 
 export const viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>> = {

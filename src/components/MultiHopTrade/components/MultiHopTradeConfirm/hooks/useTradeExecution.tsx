@@ -30,6 +30,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useMixpanel } from './useMixpanel'
+import { useThorStreamingProgress } from './useThorStreamingProgress'
 
 export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
   const translate = useTranslate()
@@ -66,6 +67,12 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
   // then it must be unsupported.
   const supportedBuyAsset = useAppSelector(state =>
     selectAssetById(state, tradeQuote?.steps[hopIndex]?.buyAsset.assetId ?? ''),
+  )
+
+  const isStreamingSwap = tradeQuote?.isStreaming
+  const { waitForStreamingSwapCompletion } = useThorStreamingProgress(
+    hopIndex,
+    isStreamingSwap ?? false,
   )
 
   const executeTrade = useCallback(() => {
@@ -123,7 +130,7 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
           dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
         }
       })
-      execution.on(TradeExecutionEvent.Success, ({ buyTxHash }) => {
+      execution.on(TradeExecutionEvent.Success, async ({ buyTxHash }) => {
         if (buyTxHash) {
           txHashReceived = true
           dispatch(tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash }))
@@ -155,6 +162,11 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
           // issue in the interim.
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
+        // If it's a streaming swap, we need to wait for the stream to complete before we can consider the trade complete
+        if (isStreamingSwap) {
+          await waitForStreamingSwapCompletion()
+        }
+
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex }))
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
@@ -336,12 +348,14 @@ export const useTradeExecution = (hopIndex: SupportedTradeQuoteStepIndex) => {
     tradeQuote,
     swapperName,
     sellAssetAccountId,
-    dispatch,
     hopIndex,
+    dispatch,
     showErrorToast,
     trackMixpanelEvent,
     translate,
     supportedBuyAsset,
+    isStreamingSwap,
+    waitForStreamingSwapCompletion,
     slippageTolerancePercentageDecimal,
   ])
 

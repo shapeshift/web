@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { getConfig } from 'config'
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -56,11 +56,14 @@ const getStreamingSwapMetadata = (
 
 export const useThorStreamingProgress = (
   hopIndex: number,
+  // Allow the caller to opt out of polling for streaming swaps
+  isStreaming: boolean = true,
 ): {
   isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
+  waitForStreamingSwapCompletion: () => Promise<void>
 } => {
   // a ref is used to allow updating and reading state without creating a dependency cycle
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
@@ -71,6 +74,9 @@ export const useThorStreamingProgress = (
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
 
   useEffect(() => {
+    // Don't need to poll for non-streaming swaps
+    if (!isStreaming) return
+
     // don't start polling until we have a tx
     if (!sellTxHash) return
 
@@ -123,18 +129,30 @@ export const useThorStreamingProgress = (
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash])
+  }, [cancelPolling, dispatch, hopIndex, isStreaming, poll, sellTxHash])
 
-  const result = useMemo(() => {
-    const isComplete =
+  const isComplete = useMemo(() => {
+    return (
       streamingSwapMeta !== undefined &&
       streamingSwapMeta.attemptedSwapCount === streamingSwapMeta.totalSwapCount
+    )
+  }, [streamingSwapMeta])
 
+  const waitForStreamingSwapCompletion = useCallback(() => {
+    return new Promise<void>(resolve => {
+      if (!isStreaming || isComplete) {
+        resolve()
+      }
+    })
+  }, [isStreaming, isComplete])
+
+  const result = useMemo(() => {
     return {
       isComplete,
+      waitForStreamingSwapCompletion,
       ...(streamingSwapMeta ?? DEFAULT_STREAMING_SWAP_METADATA),
     }
-  }, [streamingSwapMeta])
+  }, [isComplete, streamingSwapMeta, waitForStreamingSwapCompletion])
 
   return result
 }

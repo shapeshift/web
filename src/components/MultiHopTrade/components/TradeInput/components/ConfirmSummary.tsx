@@ -99,12 +99,13 @@ export const ConfirmSummary = ({
     // Buy asset fee asset is still loading - disable
     if (!buyAssetFeeAsset) return true
 
-    if (!_isSmartContractReceiveAddress) return false
-
     // THORChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
     if (!(isEvmChainId(buyAsset.chainId) && buyAsset.assetId === buyAssetFeeAsset.assetId))
       return false
+
+    // This is either a smart contract receive address, or the bytecode is still loading - disable confirm
+    if (!_isSmartContractReceiveAddress) return true
 
     return true
   }, [buyAssetFeeAsset, _isSmartContractReceiveAddress, buyAsset.chainId, buyAsset.assetId])

@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 
@@ -16,33 +16,31 @@ const ClaimSelect = makeSuspenseful(
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
 export const Claim: React.FC = () => {
-  const location = useLocation()
-
   return (
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
-      <AnimatePresence mode='wait' initial={false}>
-        <Switch location={location}>
-          <Suspense>
-            <Route
-              key={ClaimRoutePaths.Select}
-              path={ClaimRoutePaths.Select}
-              render={ClaimSelect}
-            />
-            {/**
-            <Route
-              key={ClaimRoutePaths.Confirm}
-              path={ClaimRoutePaths.Confirm}
-              render={renderClaimConfirm}
-            />
-            <Route
-              key={ClaimRoutePaths.Status}
-              path={ClaimRoutePaths.Status}
-              render={renderClaimStatus}
-            />
-             */}
-          </Suspense>
-        </Switch>
-      </AnimatePresence>
+      <ClaimRoutes />
     </MemoryRouter>
+  )
+}
+
+export const ClaimRoutes: React.FC = () => {
+  const location = useLocation()
+
+  const renderClaimSelect = useCallback(() => {
+    return <ClaimSelect />
+  }, [])
+
+  return (
+    <AnimatePresence mode='wait' initial={false}>
+      <Switch location={location}>
+        <Suspense>
+          <Route
+            key={ClaimRoutePaths.Select}
+            path={ClaimRoutePaths.Select}
+            render={renderClaimSelect}
+          />
+        </Suspense>
+      </Switch>
+    </AnimatePresence>
   )
 }

@@ -104,7 +104,7 @@ export const selectArbitrumWithdrawTxs = createSelector(selectTxs, (txs): Tx[] =
   return Object.values(txs).filter(
     tx =>
       tx.data?.parser === 'arbitrumBridge' &&
-      ['outboundTransfer', 'withdrawEth'].includes(tx.data.method as Method),
+      ['outboundTransfer', 'withdrawEth'].includes(tx.data?.method ?? ''),
   )
 })
 

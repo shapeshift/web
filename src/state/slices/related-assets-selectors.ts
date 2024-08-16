@@ -4,13 +4,27 @@ import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { ReduxState } from 'state/reducer'
-import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
+import {
+  selectAssetIdParamFromFilter,
+  selectOnlyConnectedChainsParamFromFilter,
+} from 'state/selectors'
 
 import { selectAssetByFilter } from './assetsSlice/selectors'
 import {
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from './common-selectors'
+
+export const selectRelatedAssetIndex = (state: ReduxState) => state.assets.relatedAssetIndex
+
+export const selectRelatedAssetIdsByAssetId = createCachedSelector(
+  selectRelatedAssetIndex,
+  selectAssetIdParamFromFilter,
+  (relatedAssetIndex, assetId): AssetId[] => {
+    if (!assetId) return []
+    return relatedAssetIndex[assetId] ?? []
+  },
+)((_s: ReduxState, filter) => `${filter?.assetId ?? 'assetId'}`)
 
 /**
  * Selects all related assetIds, inclusive of the asset being queried.

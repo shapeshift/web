@@ -20,7 +20,9 @@ type ClaimStatusResult = {
   timeRemainingSeconds: number | undefined
 }
 
-type ClaimsByStatus = Record<ClaimStatus, (Omit<ClaimStatusResult, 'status'> & { tx: Tx })[]>
+export type Claim = Omit<ClaimStatusResult, 'status'> & { tx: Tx }
+
+type ClaimsByStatus = Record<ClaimStatus, Claim[]>
 
 export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
@@ -97,7 +99,7 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
   const claimStatuses = useQueries(queries)
 
   const claimsByStatus = useMemo(() => {
-    claimStatuses.reduce<ClaimsByStatus>(
+    return claimStatuses.reduce<ClaimsByStatus>(
       (prev, { data }) => {
         if (!data) return prev
 

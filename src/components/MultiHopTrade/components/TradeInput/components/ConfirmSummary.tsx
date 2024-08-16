@@ -1,5 +1,6 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
@@ -96,20 +97,24 @@ export const ConfirmSummary = ({
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
   const disableThorNativeSmartContractReceive = useMemo(() => {
-    // Buy asset fee asset is still loading - disable
-    if (!buyAssetFeeAsset) return true
-
     // THORChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
-    if (!(isEvmChainId(buyAsset.chainId) && buyAsset.assetId === buyAssetFeeAsset.assetId))
-      return false
+    if (
+      activeSwapperName === SwapperName.Thorchain &&
+      _isSmartContractReceiveAddress &&
+      isEvmChainId(buyAsset.chainId) &&
+      buyAsset.assetId === buyAssetFeeAsset?.assetId
+    )
+      return true
 
-    // This is either a smart contract receive address, or the bytecode is still loading - disable confirm
-    if (!_isSmartContractReceiveAddress) return true
-
-    return true
-  }, [buyAssetFeeAsset, _isSmartContractReceiveAddress, buyAsset.chainId, buyAsset.assetId])
-
+    return false
+  }, [
+    activeSwapperName,
+    buyAssetFeeAsset,
+    _isSmartContractReceiveAddress,
+    buyAsset.chainId,
+    buyAsset.assetId,
+  ])
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length

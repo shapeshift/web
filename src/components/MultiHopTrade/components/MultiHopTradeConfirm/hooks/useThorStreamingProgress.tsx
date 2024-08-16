@@ -57,7 +57,7 @@ const getStreamingSwapMetadata = (
 
 export const useThorStreamingProgress = (
   hopIndex: number,
-  tradeId: TradeQuote['id'],
+  confirmedTradeId: TradeQuote['id'],
 ): {
   isComplete: boolean
   attemptedSwapCount: number
@@ -70,7 +70,7 @@ export const useThorStreamingProgress = (
   const dispatch = useAppDispatch()
   const {
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, tradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, confirmedTradeId, hopIndex))
 
   useEffect(() => {
     // don't start polling until we have a tx
@@ -99,7 +99,7 @@ export const useThorStreamingProgress = (
             tradeQuoteSlice.actions.setStreamingSwapMeta({
               hopIndex,
               streamingSwapMetadata: getStreamingSwapMetadata(completedStreamingSwapData),
-              id: tradeId,
+              id: confirmedTradeId,
             }),
           )
 
@@ -112,7 +112,7 @@ export const useThorStreamingProgress = (
           tradeQuoteSlice.actions.setStreamingSwapMeta({
             hopIndex,
             streamingSwapMetadata: getStreamingSwapMetadata(updatedStreamingSwapData),
-            id: tradeId,
+            id: confirmedTradeId,
           }),
         )
         return updatedStreamingSwapData
@@ -127,7 +127,7 @@ export const useThorStreamingProgress = (
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, tradeId])
+  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId])
 
   const result = useMemo(() => {
     const isComplete =

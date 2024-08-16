@@ -636,9 +636,9 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
 export const selectConfirmedTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
   selectConfirmedQuoteTradeId,
-  (swappers, tradeId) => {
-    if (!tradeId) return
-    return swappers.tradeExecution[tradeId].state
+  (swappers, confirmedTradeId) => {
+    if (!confirmedTradeId) return
+    return swappers.tradeExecution[confirmedTradeId].state
   },
 )
 

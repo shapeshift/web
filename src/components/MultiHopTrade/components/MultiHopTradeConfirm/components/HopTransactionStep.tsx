@@ -36,7 +36,7 @@ export type HopTransactionStepProps = {
   isActive: boolean
   hopIndex: SupportedTradeQuoteStepIndex
   isLastStep?: boolean
-  tradeId: TradeQuote['id']
+  activeTradeId: TradeQuote['id']
 }
 
 export const HopTransactionStep = ({
@@ -45,7 +45,7 @@ export const HopTransactionStep = ({
   isActive,
   hopIndex,
   isLastStep,
-  tradeId,
+  activeTradeId,
 }: HopTransactionStepProps) => {
   const {
     number: { toCrypto },
@@ -56,11 +56,11 @@ export const HopTransactionStep = ({
 
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, tradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, activeTradeId, hopIndex))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 
-  const executeTrade = useTradeExecution(hopIndex, tradeId)
+  const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
   const handleSignTx = useCallback(async () => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -147,7 +147,7 @@ export const HopTransactionStep = ({
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap hopIndex={hopIndex} tradeId={tradeId} />
+            <StreamingSwap hopIndex={hopIndex} activeTradeId={activeTradeId} />
           </CardBody>
         </Card>
       )
@@ -158,7 +158,7 @@ export const HopTransactionStep = ({
     isActive,
     sellTxHash,
     swapTxState,
-    tradeId,
+    activeTradeId,
     tradeQuoteStep.source,
     translate,
   ])

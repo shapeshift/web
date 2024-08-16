@@ -57,7 +57,7 @@ export const Hop = ({
   isOpen,
   slippageTolerancePercentageDecimal,
   onToggleIsOpen,
-  tradeId,
+  activeTradeId,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
@@ -65,7 +65,7 @@ export const Hop = ({
   isOpen: boolean
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
-  tradeId: TradeQuote['id']
+  activeTradeId: TradeQuote['id']
 }) => {
   const {
     number: { toCrypto },
@@ -84,7 +84,7 @@ export const Hop = ({
     approval,
     swap,
     allowanceReset,
-  } = useAppSelector(state => selectHopExecutionMetadata(state, tradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, activeTradeId, hopIndex))
 
   const isError = useMemo(
     () => [approval.state, swap.state].includes(TransactionExecutionState.Failed),
@@ -214,7 +214,7 @@ export const Hop = ({
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
                 isAllowanceResetStep={true}
-                tradeId={tradeId}
+                activeTradeId={activeTradeId}
               />
             )}
           </Collapse>
@@ -225,7 +225,7 @@ export const Hop = ({
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
                 isAllowanceResetStep={false}
-                tradeId={tradeId}
+                activeTradeId={activeTradeId}
               />
             )}
           </Collapse>
@@ -235,7 +235,7 @@ export const Hop = ({
             isActive={hopExecutionState === HopExecutionState.AwaitingSwap}
             hopIndex={hopIndex}
             isLastStep={!shouldRenderFinalSteps}
-            tradeId={tradeId}
+            activeTradeId={activeTradeId}
           />
           {shouldRenderFinalSteps ? <FeeStep /> : null}
           {shouldRenderFinalSteps && (

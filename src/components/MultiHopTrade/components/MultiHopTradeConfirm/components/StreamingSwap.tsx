@@ -8,17 +8,17 @@ import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
 
 export type StreamingSwapProps = {
   hopIndex: number
-  tradeId: TradeQuote['id']
+  activeTradeId: TradeQuote['id']
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {
-  const { hopIndex, tradeId } = props
+  const { hopIndex, activeTradeId } = props
 
   const translate = useTranslate()
 
   const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = useThorStreamingProgress(
     hopIndex,
-    tradeId,
+    activeTradeId,
   )
 
   return (

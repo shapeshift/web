@@ -18,7 +18,6 @@ import { parseAddressInputWithChainId } from 'lib/address/address'
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ManualAddressEntryProps = {
@@ -46,25 +45,9 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
 
     const isSnapInstalled = useIsSnapInstalled()
     const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
-    const activeQuote = useAppSelector(selectActiveQuote)
     const buyAssetAccountIds = useAppSelector(state =>
       selectAccountIdsByAssetId(state, { assetId: buyAssetAssetId }),
     )
-    const shouldShowManualReceiveAddressInput = useMemo(() => {
-      if (shouldForceManualAddressEntry) return true
-      // Ledger "supports" all chains, but may not have them connected
-      if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length && !activeQuote
-      // We want to display the manual address entry if the wallet doesn't support the buy asset chain,
-      // but stop displaying it as soon as we have a quote
-      return !walletSupportsBuyAssetChain && !activeQuote
-    }, [
-      activeQuote,
-      buyAssetAccountIds.length,
-      wallet,
-      walletSupportsBuyAssetChain,
-      shouldForceManualAddressEntry,
-    ])
-
     const useReceiveAddressArgs = useMemo(
       () => ({
         fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
@@ -72,6 +55,21 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       [wallet],
     )
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+
+    const shouldShowManualReceiveAddressInput = useMemo(() => {
+      if (shouldForceManualAddressEntry) return true
+      if (manualReceiveAddress) return false
+      // Ledger "supports" all chains, but may not have them connected
+      if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length
+      // We want to display the manual address entry if the wallet doesn't support the buy asset chain
+      return !walletSupportsBuyAssetChain
+    }, [
+      buyAssetAccountIds.length,
+      manualReceiveAddress,
+      wallet,
+      walletSupportsBuyAssetChain,
+      shouldForceManualAddressEntry,
+    ])
 
     const chainAdapterManager = getChainAdapterManager()
     const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()

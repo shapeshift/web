@@ -132,19 +132,32 @@ export const useThorStreamingProgress = (
   }, [cancelPolling, dispatch, hopIndex, isStreaming, poll, sellTxHash])
 
   const isComplete = useMemo(() => {
+    if (!isStreaming) return true
     return (
       streamingSwapMeta !== undefined &&
       streamingSwapMeta.attemptedSwapCount === streamingSwapMeta.totalSwapCount
     )
-  }, [streamingSwapMeta])
+  }, [isStreaming, streamingSwapMeta])
+
+  const isCompleteRef = useRef(isComplete)
+  isCompleteRef.current = isComplete
 
   const waitForStreamingSwapCompletion = useCallback(() => {
     return new Promise<void>(resolve => {
-      if (!isStreaming || isComplete) {
+      if (isCompleteRef.current) {
         resolve()
+      } else {
+        const checkCompletion = () => {
+          if (isCompleteRef.current) {
+            resolve()
+          } else {
+            setTimeout(checkCompletion, 1000) // Check every second
+          }
+        }
+        checkCompletion()
       }
     })
-  }, [isStreaming, isComplete])
+  }, [])
 
   const result = useMemo(() => {
     return {

@@ -54,9 +54,16 @@ export const HopTransactionStep = ({
 
   const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
+  const selectHopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
+
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, activeTradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, selectHopExecutionMetadataFilter))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 

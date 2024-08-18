@@ -23,6 +23,10 @@ import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper/ty
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectHopIndexParamFromRequiredFilter,
+  selectTradeIdParamFromRequiredFilter,
+} from 'state/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
@@ -484,7 +488,7 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 export const selectHopNetworkFeeUserCurrencyPrecision = createDeepEqualOutputSelector(
   selectFirstHopNetworkFeeUserCurrencyPrecision,
   selectSecondHopNetworkFeeUserCurrencyPrecision,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
+  selectHopIndexParamFromRequiredFilter,
   (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision, hopIndex) => {
     return hopIndex === 0
       ? firstHopNetworkFeeUserCurrencyPrecision
@@ -646,7 +650,7 @@ export const selectConfirmedTradeExecutionState = createSelector(
 export const selectHopSellAccountId = createSelector(
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
+  selectHopIndexParamFromRequiredFilter,
   (firstHopSellAccountId, secondHopSellAccountId, hopIndex) => {
     return hopIndex === 0 ? firstHopSellAccountId : secondHopSellAccountId
   },
@@ -654,8 +658,8 @@ export const selectHopSellAccountId = createSelector(
 
 export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
-  (_state: ReduxState, tradeId: TradeQuote['id']) => tradeId,
-  (_state: ReduxState, _tradeId: TradeQuote['id'], hopIndex: number) => hopIndex,
+  selectTradeIdParamFromRequiredFilter,
+  selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
     return hopIndex === 0
       ? swappers.tradeExecution[tradeId].firstHop

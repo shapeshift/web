@@ -1,5 +1,5 @@
 import { Flex, Heading, Stack } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -24,6 +24,14 @@ export const RFOXHeader = () => {
   const accountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
+
+  // Ensure switching from a multi-account wallet to an account with only one AccountId for that chain (e.g MM, native without accounts 0+) is happy
+  useEffect(() => {
+    if (accountIds.length === 1) {
+      setStakingAssetAccountId(accountIds[0])
+    }
+  }, [accountIds, setStakingAssetAccountId])
+
   const activeAccountDropdown = useMemo(() => {
     if (!(accountIds.length > 1)) return null
     return (

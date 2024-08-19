@@ -42,8 +42,6 @@ export class Parser implements SubParser<Tx> {
   readonly l1OrbitCustomGatewayAbi = new ethers.Interface(L1_ORBIT_CUSTOM_GATEWAY_ABI)
   readonly l1ArbitrumGatewayAbi = new ethers.Interface(L1_ARBITRUM_GATEWAY_ABI)
 
-  readonly supportedFunctions = {}
-
   constructor(args: ParserArgs) {
     this.chainId = args.chainId
   }

@@ -2,11 +2,10 @@ import { ethChainId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { outboxAbi } from 'contracts/abis/Outbox'
 import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
@@ -25,6 +24,7 @@ export const useArbitrumClaimTx = (
   setClaimTxStatus: (txStatus: TxStatus) => void,
 ) => {
   const wallet = useWallet().state.wallet
+  const queryClient = useQueryClient()
 
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
@@ -106,8 +106,10 @@ export const useArbitrumClaimTx = (
         const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
         switch (status) {
-          case 'success':
+          case 'success': {
+            queryClient.setQueryData(['claimStatus', { txid: claim.tx.txid }], () => null)
             return setClaimTxStatus(TxStatus.Confirmed)
+          }
           case 'reverted':
           default:
             return setClaimTxStatus(TxStatus.Failed)
@@ -120,7 +122,10 @@ export const useArbitrumClaimTx = (
       setClaimTxStatus(TxStatus.Failed)
     },
     onSettled() {
-      queryClient.invalidateQueries({ queryKey: ['claimStatus', { txid: claim.tx.txid }] })
+      queryClient.invalidateQueries({
+        queryKey: ['claimStatus', { txid: claim.tx.txid }],
+        refetchType: 'all',
+      })
     },
   })
 

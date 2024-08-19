@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { type FC, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -38,7 +38,7 @@ type ClaimConfirmProps = {
 
 const backIcon = <ArrowBackIcon />
 
-export const ClaimConfirm: FC<ClaimConfirmProps> = ({
+export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   activeClaim,
   setClaimTxHash,
   setClaimTxStatus,

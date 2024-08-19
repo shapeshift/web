@@ -1,9 +1,12 @@
 import { ethChainId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { outboxAbi } from 'contracts/abis/Outbox'
+import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
@@ -12,10 +15,15 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { assertGetViemClient } from 'lib/viem-client'
 
-import type { Claim } from './useArbitrumClaimsByStatus'
+import type { ClaimDetails } from './useArbitrumClaimsByStatus'
 
-export const useArbitrumClaimTx = (claim: Claim) => {
+export const useArbitrumClaimTx = (
+  claim: ClaimDetails,
+  setClaimTxHash: (txHash: string) => void,
+  setClaimTxStatus: (txStatus: TxStatus) => void,
+) => {
   const wallet = useWallet().state.wallet
 
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
@@ -26,8 +34,6 @@ export const useArbitrumClaimTx = (claim: Claim) => {
       const { event, message } = claim
 
       const proof = await message.getOutboxProof(l2Provider)
-
-      console.log({ proof })
 
       if (!('position' in event)) return
 
@@ -83,6 +89,38 @@ export const useArbitrumClaimTx = (claim: Claim) => {
       })
 
       return txHash
+    },
+    onMutate() {
+      setClaimTxStatus(TxStatus.Pending)
+    },
+    onSuccess(txHash) {
+      if (!txHash) {
+        setClaimTxStatus(TxStatus.Failed)
+        return
+      }
+
+      setClaimTxHash(txHash)
+
+      const checkStatus = async () => {
+        const publicClient = assertGetViemClient(claim.destinationChainId)
+        const { status } = await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        switch (status) {
+          case 'success':
+            return setClaimTxStatus(TxStatus.Confirmed)
+          case 'reverted':
+          default:
+            return setClaimTxStatus(TxStatus.Failed)
+        }
+      }
+
+      checkStatus()
+    },
+    onError() {
+      setClaimTxStatus(TxStatus.Failed)
+    },
+    onSettled() {
+      queryClient.invalidateQueries({ queryKey: ['claimStatus', { txid: claim.tx.txid }] })
     },
   })
 

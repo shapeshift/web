@@ -399,7 +399,6 @@
       "saversVaults": {
         "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
         "runePoolDescription": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
-        "runePoolOverviewDescription": "RUNEPool は、THORChain 内のすべての POL 対応流動性プールに %{asset} を預けることで、%{asset} の使用を最適化します。これらのプール間で %{asset} をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、%{asset} インデックスとすべての THORChain PoL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
         "haltedDepositTitle": "一時的に入金を停止しております。",
@@ -919,7 +918,6 @@
     "unknownGas": "(unknown)",
     "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
-    "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
     "smartContractReceiveAddressDescription": "宛先チェーンに存在しないアドレスのスマートコントラクトからスワップしようとしていることが検出されました。%{chainName} で希望の受信者アドレスを確認し、手動で入力してください。",
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",

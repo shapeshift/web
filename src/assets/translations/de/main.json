@@ -399,7 +399,6 @@
       "saversVaults": {
         "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
         "runePoolDescription": "Mit RUNEPool können Sie mehr %{asset} verdienen, indem Sie Ihr %{asset} mit anderen bündeln. Sie müssen keine bestimmten Pools auswählen, alle sind an der Gesamtleistung beteiligt.",
-        "runePoolOverviewDescription": "RUNEPool optimiert die Nutzung von %{asset}, indem es in alle POL-fähigen Liquiditätspools in THORChain eingezahlt wird. Durch das Bündeln von %{asset} in diesen Pools verdienen die Teilnehmer den kombinierten APY, sind jedoch dem gesamten vorübergehenden Verlust ausgesetzt. Anstatt einzelne Pools auszuwählen, profitieren Benutzer von der Gesamtleistung und investieren effektiv in einen %{asset}-Index und alle POL-fähigen THORChain-Assets. Dies vereinfacht die Liquiditätsbereitstellung und reduziert das individuelle Risiko.",
         "vaultCap": "Tresorobergrenze",
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedDepositTitle": "Einzahlungen sind vorübergehend gestoppt.",
@@ -919,7 +918,6 @@
     "unknownGas": "(unbekannt)",
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
-    "receiveAddressDescription": "Keine %{chainName} Adresse der verbundenen Wallet gefunden. Geben Sie manuell eine Adresse ein oder",
     "smartContractReceiveAddressDescription": "Wir haben festgestellt, dass Sie von einem Smart Contract wechseln, dessen Adresse möglicherweise nicht in der Zielkette vorhanden ist. Bitte überprüfen Sie die gewünschte Empfängeradresse und geben Sie sie manuell unter %{chainName} ein.",
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",

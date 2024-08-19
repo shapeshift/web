@@ -399,7 +399,6 @@
       "saversVaults": {
         "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "runePoolDescription": "RUNEPool vous permet de gagner des %{asset} en plus en poolant vos %{asset} avec d'autres. Vous n'avez pas à choisir de pools spécifiques, tout le monde partage les performances globales.",
-        "runePoolOverviewDescription": "RUNEPool optimise l'utilisation des %{asset} en les déposant dans tous les pools de liquidités compatibles POL de THORChain. En regroupant les %{asset} dans ces pools, les participants gagnent l'APY combiné mais sont exposés aux pertes impermanentes globales. Au lieu de choisir des pools individuels, les utilisateurs bénéficient de la performance globale, en investissant en réalité dans un indice %{asset} et de tous les actifs compatibles PoL de THORChain. Cela simplifie la mise à disposition de liquidités et réduit le risque individuel.",
         "vaultCap": "Plafond du Vault",
         "vaultCapTooltip": "Capacité maximale actuelle pour ce Vault",
         "haltedDepositTitle": "Les dépôts sont temporairement suspendus.",
@@ -919,7 +918,6 @@
     "unknownGas": "(inconnu)",
     "numHops": "Cet échange comprend %{numHops} sauts",
     "receiveAddress": "Adresse de réception",
-    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse ou",
     "smartContractReceiveAddressDescription": "Nous avons détecté que vous échangez depuis un contrat intelligent dont l'adresse n'existe peut-être pas sur la chaîne de destination. Veuillez vérifier et saisir manuellement l'adresse du destinataire souhaité sur %{chainName}",
     "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",

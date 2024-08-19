@@ -399,7 +399,6 @@
       "saversVaults": {
         "description": "Ganhe recompensas em seu %{asset} através da THORChain Savers Vaults. Não precisa travá-lo e os incentivos são acumulados automaticamente. As recompensas na THORChain vem de taxas de swap e recompensas de blocos. O ganho do single-sided é limitado à metade do ganho obtido pelos provedores de liquidez em pools double-sided.",
         "runePoolDescription": "RUNEPool permite que você ganhe mais %{asset} ao juntar seu %{asset} com outros. Você não precisa escolher pools específicos, todos compartilham o desempenho geral.",
-        "runePoolOverviewDescription": "O RUNEPool otimiza o uso de %{asset} depositando-o em todos os pools de liquidez habilitados para POL no THORChain. Ao reunir %{asset} entre esses pools, os participantes ganham o APY combinado, mas enfrentam exposição à perda impermanente agregada. Em vez de escolher pools individuais, os usuários se beneficiam do desempenho geral, investindo efetivamente em um índice %{asset} e todos os ativos habilitados para PoL do THORChain. Isso simplifica o fornecimento de liquidez e reduz o risco individual.",
         "vaultCap": "Limite da Vault",
         "vaultCapTooltip": "Capacidade máxima atual para este cofre",
         "haltedDepositTitle": "Depósitos estão temporariamente desabilitados. ",
@@ -919,7 +918,6 @@
     "unknownGas": "(desconhecido)",
     "numHops": "Esta negociação inclui %{numHops} Hops",
     "receiveAddress": "Endereço de recebimento",
-    "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira manualmente um endereço ou",
     "smartContractReceiveAddressDescription": "Detectamos que você está trocando de um contrato inteligente cujo endereço pode não existir na rede de destino. Verifique e insira manualmente o endereço do destinatário desejado em %{chainName}",
     "toContinue": "para continuar.",
     "addressPlaceholder": "%{chainName} endereço",

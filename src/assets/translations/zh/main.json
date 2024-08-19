@@ -399,7 +399,6 @@
       "saversVaults": {
         "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
         "runePoolDescription": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
-        "runePoolOverviewDescription": "RUNEPool 通过将 %{asset} 存入 THORChain 中所有支持 POL 的流动性池来优化 %{asset} 的使用。通过将这些 %{asset} 汇入这些池中，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资 %{asset} 指数和所有支持 THORChain PoL 的资产。这简化了流动性提供并降低了个人风险。",
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
         "haltedDepositTitle": "充值暂时停止。",
@@ -919,7 +918,6 @@
     "unknownGas": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
-    "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
     "smartContractReceiveAddressDescription": "我们检测到你正在从智能合约进行兑换，而该合约的地址可能不存在于目标链上。请验证并在 %{chainName} 上手动输入所需的收件人地址",
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",

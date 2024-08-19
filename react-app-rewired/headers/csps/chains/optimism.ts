@@ -5,5 +5,6 @@ export const csp: Csp = {
     process.env.REACT_APP_OPTIMISM_NODE_URL!,
     process.env.REACT_APP_UNCHAINED_OPTIMISM_HTTP_URL!,
     process.env.REACT_APP_UNCHAINED_OPTIMISM_WS_URL!,
+    'https://optimism.llamarpc.com',
   ],
 }

@@ -105,8 +105,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   }, [opportunityData])
 
   const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
+    () => opportunityData?.underlyingAssetId ?? '',
+    [opportunityData?.underlyingAssetId],
   )
   const underlyingAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, underlyingAssetId),

@@ -11,7 +11,7 @@ import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import {
   selectActiveQuote,
-  selectTradeExecutionState,
+  selectConfirmedTradeExecutionState,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -30,8 +30,8 @@ const useDisclosureProps = {
 export const MultiHopTradeConfirm = memo(() => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
-  const tradeExecutionState = useAppSelector(selectTradeExecutionState)
-  const previousTradeExecutionState = usePrevious(tradeExecutionState)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const previousTradeExecutionState = usePrevious(confirmedTradeExecutionState)
   const history = useHistory()
 
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -41,14 +41,14 @@ export const MultiHopTradeConfirm = memo(() => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || !activeQuote) return
 
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized())
-  }, [dispatch, isLoading])
+    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
+  }, [dispatch, isLoading, activeQuote])
 
   const isTradeComplete = useMemo(
-    () => tradeExecutionState === TradeExecutionState.TradeComplete,
-    [tradeExecutionState],
+    () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
+    [confirmedTradeExecutionState],
   )
 
   const handleBack = useCallback(() => {
@@ -65,7 +65,7 @@ export const MultiHopTradeConfirm = memo(() => {
   // toggle hop open states as we transition to the next hop
   useEffect(() => {
     if (
-      previousTradeExecutionState !== tradeExecutionState &&
+      previousTradeExecutionState !== confirmedTradeExecutionState &&
       previousTradeExecutionState === TradeExecutionState.FirstHop
     ) {
       if (isFirstHopOpen) onToggleFirstHop()
@@ -77,12 +77,13 @@ export const MultiHopTradeConfirm = memo(() => {
     onToggleFirstHop,
     onToggleSecondHop,
     previousTradeExecutionState,
-    tradeExecutionState,
+    confirmedTradeExecutionState,
   ])
 
   const handleTradeConfirm = useCallback(() => {
-    dispatch(tradeQuoteSlice.actions.confirmTrade())
-  }, [dispatch])
+    if (!activeQuote) return
+    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
+  }, [dispatch, activeQuote])
 
   const handleSubmit = useCallback(() => {
     if (isModeratePriceImpact) {
@@ -91,6 +92,8 @@ export const MultiHopTradeConfirm = memo(() => {
       handleTradeConfirm()
     }
   }, [handleTradeConfirm, isModeratePriceImpact])
+
+  if (!confirmedTradeExecutionState) return null
 
   return (
     <TradeSlideTransition>
@@ -115,7 +118,7 @@ export const MultiHopTradeConfirm = memo(() => {
                 <Text
                   translation={
                     [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-                      tradeExecutionState,
+                      confirmedTradeExecutionState,
                     )
                       ? 'trade.confirmDetails'
                       : 'trade.trade'

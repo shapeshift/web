@@ -10,15 +10,16 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { fromBaseUnit } from 'lib/math'
@@ -38,6 +39,7 @@ export type ApprovalStepProps = {
   isLastStep?: boolean
   isLoading?: boolean
   isAllowanceResetStep: boolean
+  activeTradeId: TradeQuote['id']
 }
 
 type ApprovalDescriptionProps = {
@@ -106,10 +108,13 @@ const ApprovalStepPending = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
+
+  const [feeQueryEnabled, setFeeQueryEnabled] = useState(true)
 
   const isLifiStep = useMemo(() => {
     return tradeQuoteStep.source.startsWith(SwapperName.LIFI)
@@ -118,8 +123,10 @@ const ApprovalStepPending = ({
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopIndex),
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
   )
 
   const isAwaitingReset = useMemo(() => {
@@ -131,19 +138,34 @@ const ApprovalStepPending = ({
     return isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited
   }, [isAllowanceResetStep, isExactAllowance])
 
+  // Ensure only one fee query is made at a time (reset or approval) to avoid race conditions with Ledger
+  useEffect(() => {
+    setFeeQueryEnabled(!isAllowanceResetStep && !isAwaitingReset)
+  }, [isAllowanceResetStep, isAwaitingReset])
+
   const {
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, feeQueryEnabled, activeTradeId)
 
   const isApprovalStep = useMemo(() => {
     return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
   }, [isAllowanceResetStep, state])
 
   const handleSignAllowanceApproval = useCallback(async () => {
-    await approveMutation.mutateAsync()
-  }, [approveMutation])
+    // Only proceed to execute the approval if the promise is resolved, i.e the user has opened the
+    // Ledger app without cancelling
+    try {
+      await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
+      setFeeQueryEnabled(false)
+      await approveMutation.mutateAsync()
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setFeeQueryEnabled(true)
+    }
+  }, [approveMutation, checkLedgerAppOpenIfLedgerConnected, tradeQuoteStep.sellAsset.chainId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),
@@ -349,10 +371,11 @@ const ApprovalStepComplete = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
   const translate = useTranslate()
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopIndex),
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
   )
 
   const stepIndicator = useMemo(() => {
@@ -428,8 +451,11 @@ export const ApprovalStep = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
-  const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
+  const { state } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
+  )
 
   const isComplete = useMemo(() => {
     switch (isAllowanceResetStep) {
@@ -453,6 +479,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
+      activeTradeId={activeTradeId}
     />
   ) : (
     <ApprovalStepPending
@@ -462,6 +489,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
+      activeTradeId={activeTradeId}
     />
   )
 }

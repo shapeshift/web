@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import type { BackupPassphraseModalProps } from 'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import type { AssetSearchModalProps } from 'components/Modals/AssetSearch/AssetSearchModal'
 import type { FiatRampsModalProps } from 'components/Modals/FiatRamps/FiatRampsModal'
+import type { LedgerOpenAppModalProps } from 'components/Modals/LedgerOpenApp/LedgerOpenAppModal'
 import type { NftModalProps } from 'components/Modals/Nfts/NftModal'
 import type { PopupWindowModalProps } from 'components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
@@ -33,6 +34,7 @@ export type Modals = {
   feedbackSupport: FC<{}>
   snaps: FC<SnapsModalProps>
   manageAccounts: FC<{}>
+  ledgerOpenApp: FC<LedgerOpenAppModalProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

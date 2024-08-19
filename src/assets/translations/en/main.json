@@ -771,13 +771,20 @@
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "No supported assets in portfolio.",
     "arbitrum": {
+      "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
     },
     "claim": "Claim",
+    "claimReceiveAddress": "Claim Receive Address",
+    "claimPending": "Awaiting your claim of",
+    "claimSuccess": "You have successfully claimed",
+    "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
-    "pendingClaims": "Pending"
+    "pendingClaims": "Pending",
+    "availableIn": "Available in %{time}",
+    "confirmAndClaim": "Confirm & Claim"
   },
   "trade": {
     "trade": "Trade",

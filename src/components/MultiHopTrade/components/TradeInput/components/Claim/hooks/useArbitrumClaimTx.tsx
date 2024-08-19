@@ -18,6 +18,8 @@ import { assertGetViemClient } from 'lib/viem-client'
 
 import type { ClaimDetails } from './useArbitrumClaimsByStatus'
 
+const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
+
 export const useArbitrumClaimTx = (
   claim: ClaimDetails,
   setClaimTxHash: (txHash: string) => void,
@@ -61,7 +63,7 @@ export const useArbitrumClaimTx = (
     chainId: ethChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
-    to: getAddress('0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'),
+    to: getAddress(ARBITRUM_OUTBOX),
     value: '0',
   })
 
@@ -77,7 +79,7 @@ export const useArbitrumClaimTx = (
         accountNumber: 0,
         adapter,
         data: executeTransactionDataResult.data,
-        to: '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840',
+        to: ARBITRUM_OUTBOX,
         value: '0',
         wallet,
       })

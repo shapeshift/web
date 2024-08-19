@@ -1126,6 +1126,8 @@ describe('parseTx', () => {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           method: 'outboundTransfer',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          value: '1000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',
@@ -1201,6 +1203,8 @@ describe('parseTx', () => {
           assetId: undefined,
           method: 'withdrawEth',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          value: '100000000000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',

@@ -708,6 +708,7 @@
         "out": "Outbound Received",
         "refund": "Refund",
         "swapOut": "Swap Received",
+        "swap": "Trade",
         "swapRefund": "Swap Refund",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",

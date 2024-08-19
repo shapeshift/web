@@ -1,5 +1,5 @@
 import { Flex, Heading, Stack } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -25,14 +25,13 @@ export const RFOXHeader = () => {
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
 
-  // Ensure switching from a multi-account wallet to an account with only one AccountId for that chain (e.g MM, native without accounts 0+) is happy
-  useEffect(() => {
+  const activeAccountDropdown = useMemo(() => {
+    // Side-effect is useMemo isn't a mistake - reactivity is borked if trying to do an `useEffect` instead, see
+    // https://github.com/shapeshift/web/pull/7509#issuecomment-2297664261
     if (accountIds.length === 1) {
       setStakingAssetAccountId(accountIds[0])
+      return null
     }
-  }, [accountIds, setStakingAssetAccountId])
-
-  const activeAccountDropdown = useMemo(() => {
     if (!(accountIds.length > 1)) return null
     return (
       <Flex alignItems='center' gap={2}>
@@ -49,7 +48,15 @@ export const RFOXHeader = () => {
         />
       </Flex>
     )
-  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
+    // We *do* want accountIds.length as an explicit dep
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    accountIds.length,
+    accountIds,
+    setStakingAssetAccountId,
+    stakingAssetAccountId,
+    stakingAssetId,
+  ])
 
   return (
     <>

@@ -2,7 +2,6 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
-import { initialTradeExecutionState } from 'state/slices/tradeQuoteSlice/constants'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -202,7 +201,7 @@ export const mockStore: ReduxState = {
     activeQuoteMeta: undefined,
     confirmedQuote: undefined,
     activeStep: undefined,
-    tradeExecution: initialTradeExecutionState,
+    tradeExecution: {},
     tradeQuotes: {},
     tradeQuoteDisplayCache: [],
     isTradeQuoteRequestAborted: false,

@@ -8,7 +8,7 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
@@ -16,6 +16,9 @@ import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { validateAddress } from 'lib/address/address'
 
+import { selectRuneAddress } from '../helpers'
+import { useRFOXContext } from '../hooks/useRfoxContext'
+import { useStakingInfoQuery } from '../hooks/useStakingInfoQuery'
 import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
@@ -57,6 +60,14 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   const register = methods?.register ?? _methods.register
   const formState = methods?.formState ?? _methods.formState
   const { errors } = formState
+
+  const { stakingAssetAccountId } = useRFOXContext()
+  const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetAccountAddress: stakingAssetAccountId
+      ? fromAccountId(stakingAssetAccountId).account
+      : undefined,
+    select: selectRuneAddress,
+  })
 
   const [isManualAddress, setIsManualAddress] = useState(false)
 
@@ -135,16 +146,20 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
+    const maybeRuneAccountId = currentRuneAddress
+      ? toAccountId({ account: currentRuneAddress, chainId: thorchainChainId })
+      : undefined
 
     return (
       <AccountDropdown
+        defaultAccountId={maybeRuneAccountId}
         assetId={thorchainAssetId}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
         buttonProps={buttonProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress])
+  }, [currentRuneAddress, handleAccountIdChange, isManualAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

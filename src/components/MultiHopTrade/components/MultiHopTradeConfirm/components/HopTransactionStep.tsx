@@ -1,5 +1,9 @@
 import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
-import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
@@ -32,6 +36,7 @@ export type HopTransactionStepProps = {
   isActive: boolean
   hopIndex: SupportedTradeQuoteStepIndex
   isLastStep?: boolean
+  activeTradeId: TradeQuote['id']
 }
 
 export const HopTransactionStep = ({
@@ -40,6 +45,7 @@ export const HopTransactionStep = ({
   isActive,
   hopIndex,
   isLastStep,
+  activeTradeId,
 }: HopTransactionStepProps) => {
   const {
     number: { toCrypto },
@@ -50,11 +56,11 @@ export const HopTransactionStep = ({
 
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, activeTradeId, hopIndex))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 
-  const executeTrade = useTradeExecution(hopIndex)
+  const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
   const handleSignTx = useCallback(async () => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -141,12 +147,21 @@ export const HopTransactionStep = ({
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap hopIndex={hopIndex} />
+            <StreamingSwap hopIndex={hopIndex} activeTradeId={activeTradeId} />
           </CardBody>
         </Card>
       )
     }
-  }, [handleSignTx, hopIndex, isActive, sellTxHash, swapTxState, tradeQuoteStep.source, translate])
+  }, [
+    handleSignTx,
+    hopIndex,
+    isActive,
+    sellTxHash,
+    swapTxState,
+    activeTradeId,
+    tradeQuoteStep.source,
+    translate,
+  ])
 
   const description = useMemo(() => {
     const sellChainSymbol = getChainShortName(tradeQuoteStep.sellAsset.chainId as KnownChainIds)

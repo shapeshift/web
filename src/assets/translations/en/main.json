@@ -167,7 +167,8 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
-    "yes": "Yes"
+    "yes": "Yes",
+    "activeAccount": "Active Account"
   },
   "consentBanner": {
     "body": {
@@ -708,6 +709,7 @@
         "out": "Outbound Received",
         "refund": "Refund",
         "swapOut": "Swap Received",
+        "swap": "Trade",
         "swapRefund": "Swap Refund",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",

@@ -86,9 +86,11 @@ export const useIsApprovalInitiallyNeeded = () => {
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
+    if (!activeQuote?.id) return
 
     dispatch(
       tradeQuoteSlice.actions.setInitialApprovalRequirements({
+        id: activeQuote.id,
         firstHop: isApprovalInitiallyNeededForFirstHop ?? false,
         secondHop: isApprovalInitiallyNeededForSecondHop ?? false,
       }),
@@ -96,11 +98,13 @@ export const useIsApprovalInitiallyNeeded = () => {
 
     dispatch(
       tradeQuoteSlice.actions.setAllowanceResetRequirements({
+        id: activeQuote.id,
         firstHop: isAllowanceResetNeededForFirstHop ?? false,
         secondHop: isAllowanceResetNeededForSecondHop ?? false,
       }),
     )
   }, [
+    activeQuote?.id,
     dispatch,
     isAllowanceResetNeededForFirstHop,
     isAllowanceResetNeededForSecondHop,

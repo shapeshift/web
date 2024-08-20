@@ -10,7 +10,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -39,6 +39,7 @@ export type ApprovalStepProps = {
   isLastStep?: boolean
   isLoading?: boolean
   isAllowanceResetStep: boolean
+  activeTradeId: TradeQuote['id']
 }
 
 type ApprovalDescriptionProps = {
@@ -107,6 +108,7 @@ const ApprovalStepPending = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
   const {
     number: { toCrypto },
@@ -124,7 +126,7 @@ const ApprovalStepPending = ({
   const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopIndex),
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
   )
 
   const isAwaitingReset = useMemo(() => {
@@ -145,7 +147,7 @@ const ApprovalStepPending = ({
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, feeQueryEnabled)
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, feeQueryEnabled, activeTradeId)
 
   const isApprovalStep = useMemo(() => {
     return !isAllowanceResetStep && state === HopExecutionState.AwaitingApproval
@@ -369,10 +371,11 @@ const ApprovalStepComplete = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
   const translate = useTranslate()
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopIndex),
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
   )
 
   const stepIndicator = useMemo(() => {
@@ -448,8 +451,11 @@ export const ApprovalStep = ({
   isLastStep,
   isLoading,
   isAllowanceResetStep,
+  activeTradeId,
 }: ApprovalStepProps) => {
-  const { state } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
+  const { state } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
+  )
 
   const isComplete = useMemo(() => {
     switch (isAllowanceResetStep) {
@@ -473,6 +479,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
+      activeTradeId={activeTradeId}
     />
   ) : (
     <ApprovalStepPending
@@ -482,6 +489,7 @@ export const ApprovalStep = ({
       isLastStep={isLastStep}
       isLoading={isLoading}
       isAllowanceResetStep={isAllowanceResetStep}
+      activeTradeId={activeTradeId}
     />
   )
 }

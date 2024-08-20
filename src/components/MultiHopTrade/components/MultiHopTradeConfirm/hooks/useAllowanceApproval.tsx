@@ -1,5 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -22,6 +22,7 @@ export const useAllowanceApproval = (
   hopIndex: number,
   allowanceType: AllowanceType,
   feeQueryEnabled: boolean,
+  confirmedTradeId: TradeQuote['id'],
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
@@ -46,8 +47,8 @@ export const useAllowanceApproval = (
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex }))
-  }, [dispatch, hopIndex, isApprovalRequired])
+    dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex, id: confirmedTradeId }))
+  }, [dispatch, hopIndex, isApprovalRequired, confirmedTradeId])
 
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve({
@@ -61,18 +62,31 @@ export const useAllowanceApproval = (
       wallet,
     }),
     onMutate() {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex, isReset }))
+      dispatch(
+        tradeQuoteSlice.actions.setApprovalTxPending({ hopIndex, isReset, id: confirmedTradeId }),
+      )
     },
     async onSuccess(txHash) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxHash({ hopIndex, txHash, isReset }))
+      dispatch(
+        tradeQuoteSlice.actions.setApprovalTxHash({
+          hopIndex,
+          txHash,
+          isReset,
+          id: confirmedTradeId,
+        }),
+      )
 
       const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
-      dispatch(tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset }))
+      dispatch(
+        tradeQuoteSlice.actions.setApprovalTxComplete({ hopIndex, isReset, id: confirmedTradeId }),
+      )
     },
     onError(err) {
-      dispatch(tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset }))
+      dispatch(
+        tradeQuoteSlice.actions.setApprovalTxFailed({ hopIndex, isReset, id: confirmedTradeId }),
+      )
       showErrorToast(err)
     },
   })

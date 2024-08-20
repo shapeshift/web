@@ -1,5 +1,5 @@
 import { Flex, Heading, Stack } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -7,7 +7,7 @@ import { Display } from 'components/Display'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/selectors'
+import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useRFOXContext } from '../hooks/useRfoxContext'
@@ -25,14 +25,15 @@ export const RFOXHeader = () => {
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
   )
 
-  const activeAccountDropdown = useMemo(() => {
-    // Side-effect is useMemo isn't a mistake - reactivity is borked if trying to do an `useEffect` instead, see
-    // https://github.com/shapeshift/web/pull/7509#issuecomment-2297664261
+  useEffect(() => {
     if (accountIds.length === 1) {
       setStakingAssetAccountId(accountIds[0])
-      return null
     }
-    if (!(accountIds.length > 1)) return null
+  }, [accountIds, setStakingAssetAccountId])
+
+  const activeAccountDropdown = useMemo(() => {
+    if (accountIds.length <= 1) return null
+
     return (
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
@@ -44,19 +45,10 @@ export const RFOXHeader = () => {
           // dis already memoized
           // eslint-disable-next-line react-memo/require-usememo
           buttonProps={{ variant: 'solid', width: 'full' }}
-          showLabel={false}
         />
       </Flex>
     )
-    // We *do* want accountIds.length as an explicit dep
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    accountIds.length,
-    accountIds,
-    setStakingAssetAccountId,
-    stakingAssetAccountId,
-    stakingAssetId,
-  ])
+  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
 
   return (
     <>

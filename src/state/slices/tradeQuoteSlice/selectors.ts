@@ -237,6 +237,11 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
     },
   )
 
+export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefined> = createSelector(
+  selectConfirmedQuote,
+  confirmedQuote => confirmedQuote?.id,
+)
+
 export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
   selectActiveStepOrDefault,
   selectActiveQuote,
@@ -628,9 +633,13 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
   },
 )
 
-export const selectTradeExecutionState = createSelector(
+export const selectConfirmedTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
-  swappers => swappers.tradeExecution.state,
+  selectConfirmedQuoteTradeId,
+  (swappers, confirmedTradeId) => {
+    if (!confirmedTradeId) return
+    return swappers.tradeExecution[confirmedTradeId].state
+  },
 )
 
 // selects the account ID we're selling from for the given hop
@@ -645,9 +654,12 @@ export const selectHopSellAccountId = createSelector(
 
 export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
-  (swappers, hopIndex) => {
-    return hopIndex === 0 ? swappers.tradeExecution.firstHop : swappers.tradeExecution.secondHop
+  (_state: ReduxState, tradeId: TradeQuote['id']) => tradeId,
+  (_state: ReduxState, _tradeId: TradeQuote['id'], hopIndex: number) => hopIndex,
+  (swappers, tradeId, hopIndex) => {
+    return hopIndex === 0
+      ? swappers.tradeExecution[tradeId].firstHop
+      : swappers.tradeExecution[tradeId].secondHop
   },
 )
 

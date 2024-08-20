@@ -143,6 +143,15 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   }, [claimMutation, history])
 
   const confirmCopy = useMemo(() => {
+    if (claimMutation.isError) {
+      return translate('trade.errors.title')
+    }
+
+    if (evmFeesResult.isError) {
+      console.error(evmFeesResult.error)
+      return translate('trade.errors.networkFeeEstimateFailed')
+    }
+
     if (!hasEnoughDestinationFeeBalance) {
       return translate('common.insufficientAmountForGas', {
         assetSymbol: destinationFeeAsset?.symbol,
@@ -151,7 +160,7 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
     }
 
     return translate('bridge.confirmAndClaim')
-  }, [destinationFeeAsset, hasEnoughDestinationFeeBalance, translate])
+  }, [claimMutation, destinationFeeAsset, evmFeesResult, hasEnoughDestinationFeeBalance, translate])
 
   if (!asset) return null
 
@@ -213,7 +222,11 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
           <Button
             size='lg'
             mx={-2}
-            colorScheme={hasEnoughDestinationFeeBalance ? 'blue' : 'red'}
+            colorScheme={
+              !hasEnoughDestinationFeeBalance || claimMutation.isError || evmFeesResult.isError
+                ? 'red'
+                : 'blue'
+            }
             isDisabled={
               !evmFeesResult.isSuccess ||
               evmFeesResult.isPending ||

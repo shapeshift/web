@@ -8,6 +8,7 @@ import type { TxDetails } from 'hooks/useTxDetails/useTxDetails'
 import { getTxLink } from 'lib/getTxLink'
 import type { RewardDistributionWithMetadata } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { useLifetimeRewardDistributionsQuery } from 'pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { selectAssetById } from 'state/slices/selectors'
 import type { Tx, TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -20,7 +21,6 @@ type RewardsContentProps = {
 }
 
 type RewardsProps = {
-  stakingAssetAccountId: AccountId
   headerComponent: JSX.Element
 }
 
@@ -123,7 +123,11 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
   )
 }
 
-export const Rewards = ({ stakingAssetAccountId, headerComponent }: RewardsProps) => {
+export const Rewards = ({ headerComponent }: RewardsProps) => {
+  const { stakingAssetAccountId } = useRFOXContext()
+
+  if (!stakingAssetAccountId) return null
+
   return (
     <CardBody>
       {headerComponent}

@@ -1,6 +1,6 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { type AccountMetadata, HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
@@ -93,25 +93,50 @@ const selectTransactionTypesParamFromFilter = (_state: ReduxState, filter: TxHis
 const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHistoryPageFilter) =>
   filter?.matchingAssets
 
-const selectWalletTxsByAccountIdAssetId = createSelector(
+const selectWalletTxIdsByAccountIdAssetId = createSelector(
   selectWalletAccountIds,
   (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
 )
 
-export const selectArbitrumWithdrawTxs = createSelector(selectTxs, (txs): Tx[] => {
-  return Object.values(txs).filter(
-    tx =>
-      tx.data?.parser === 'arbitrumBridge' &&
-      ['outboundTransfer', 'withdrawEth'].includes(tx.data?.method ?? ''),
-  )
-})
+export const selectArbitrumWithdrawTxs = createSelector(
+  selectTxIds,
+  selectTxs,
+  selectWalletTxIdsByAccountIdAssetId,
+  (txIds, txs, data): Tx[] => {
+    const arbitrumData = pickBy(
+      data,
+      (_, accountId) => fromAccountId(accountId).chainId === arbitrumChainId,
+    )
+
+    const arbitrumTxIds = values(arbitrumData)
+      .flatMap(data => values(data).flat())
+      .filter(isSome)
+
+    const sortedArbitrumTxIds = uniq(arbitrumTxIds).sort(
+      (a, b) => txIds.indexOf(a) - txIds.indexOf(b),
+    )
+
+    return sortedArbitrumTxIds.reduce<Tx[]>((prev, txid) => {
+      const tx = txs[txid]
+
+      if (
+        tx.data?.parser === 'arbitrumBridge' &&
+        ['outboundTransfer', 'withdrawEth'].includes(tx.data?.method ?? '')
+      ) {
+        prev.push(tx)
+      }
+
+      return prev
+    }, [])
+  },
+)
 
 export const selectTxIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
-  selectWalletTxsByAccountIdAssetId,
+  selectWalletTxIdsByAccountIdAssetId,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
@@ -143,7 +168,7 @@ export const selectTxIdsByFilter = createCachedSelector(
 export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
   selectTxIds,
   selectTxs,
-  selectWalletTxsByAccountIdAssetId,
+  selectWalletTxIdsByAccountIdAssetId,
   selectAccountIdsParamFromFilter,
   selectFromParamFromFilter,
   selectAssetIdParamFromFilter,
@@ -263,7 +288,7 @@ export const selectTxStatusById = createCachedSelector(
  * are all separate accounts that share the same account number
  */
 export const selectMaybeNextAccountNumberByChainId = createCachedSelector(
-  selectWalletTxsByAccountIdAssetId,
+  selectWalletTxIdsByAccountIdAssetId,
   selectPortfolioAccountMetadata,
   selectChainIdParamFromFilter,
   (txIdsByAccountId, accountMetadata, chainId): [boolean, number | null] => {

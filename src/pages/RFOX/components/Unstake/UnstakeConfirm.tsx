@@ -19,6 +19,7 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -44,6 +45,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 }) => {
   const history = useHistory()
   const translate = useTranslate()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
@@ -114,10 +116,16 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   }, [stakingAsset, unstakingAmountCryptoPrecision, unstakingAmountUserCurrency])
 
   const handleSubmit = useCallback(async () => {
-    await handleUnstake()
+    if (!stakingAsset) return
+
+    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
+      .then(() => {
+        handleUnstake()
+      })
+      .catch(console.error)
 
     history.push(UnstakeRoutePaths.Status)
-  }, [handleUnstake, history])
+  }, [handleUnstake, history, stakingAsset, checkLedgerAppOpenIfLedgerConnected])
 
   return (
     <SlideTransition>

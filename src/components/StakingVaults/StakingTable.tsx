@@ -9,7 +9,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { EarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 import { makeDefiProviderDisplayName } from 'state/slices/opportunitiesSlice/utils'
-import { store } from 'state/store'
+import { selectAssets } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetCell } from './Cells'
 
@@ -25,6 +26,7 @@ const tagSize = { base: 'sm', md: 'md' }
 
 export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) => {
   const translate = useTranslate()
+  const assets = useAppSelector(selectAssets)
   const columns: Column<EarnOpportunityType>[] = useMemo(
     () => [
       {
@@ -57,7 +59,6 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         accessor: 'provider',
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ value, row }: { value: string; row: RowProps }) => {
-          const assets = store.getState().assets.byId
           const asset = assets[row.original.assetId]
           const assetName = asset?.name ?? ''
           const providerDisplayName = makeDefiProviderDisplayName({
@@ -133,7 +134,7 @@ export const StakingTable = ({ data, onClick, showTeaser }: StakingTableProps) =
         ),
       },
     ],
-    [showTeaser, translate],
+    [assets, showTeaser, translate],
   )
 
   const handleRowClick = useCallback(

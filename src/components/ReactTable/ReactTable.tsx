@@ -57,16 +57,15 @@ export const ReactTable = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
-  const tableColumns = useMemo(
-    () =>
-      isLoading
-        ? columns.map((column, index) => ({
-            ...column,
-            Cell: () => <Skeleton key={index} height='16px' />,
-          }))
-        : columns,
-    [columns, isLoading],
-  )
+  const tableColumns = useMemo(() => {
+    return isLoading
+      ? columns.map((column, index) => ({
+          ...column,
+          Cell: () => <Skeleton key={index} height='16px' />,
+        }))
+      : columns
+  }, [columns, isLoading])
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -85,12 +84,17 @@ export const ReactTable = <T extends {}>({
       columns: tableColumns,
       data,
       initialState,
+      // The following two options are needed to prevent the table from infinite render loop and crash
+      // https://github.com/TanStack/table/issues/2369#issuecomment-644481605
+      autoResetSortBy: false,
+      autoResetPage: false,
     },
     useSortBy,
     useExpanded,
     usePagination,
   )
-  const renderRows = useMemo(() => {
+
+  const renderedRows = useMemo(() => {
     return page.map(row => {
       prepareRow(row)
       return (
@@ -182,7 +186,7 @@ export const ReactTable = <T extends {}>({
           ))}
         </Thead>
       )}
-      <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
+      <Tbody {...getTableBodyProps()}>{renderedRows}</Tbody>
       {page.length === 0 && !isLoading && renderEmptyComponent && (
         <Tfoot>
           <Tr>

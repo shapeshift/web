@@ -60,7 +60,7 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
             const message = messages[0]
 
             const status = await message.status(l2Provider)
-            const block = await message.getFirstExecutableBlock(l2Provider)
+            const block = (await message.getFirstExecutableBlock(l2Provider))?.toNumber()
 
             const timeRemainingSeconds = await (async () => {
               if (!block) return
@@ -71,11 +71,11 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
               )
 
               const averageBlockTimeSeconds =
-                latestBlock.timestamp - historicalBlock.timestamp / AVERAGE_BLOCK_TIME_BLOCKS
+                (latestBlock.timestamp - historicalBlock.timestamp) / AVERAGE_BLOCK_TIME_BLOCKS
 
-              const remainingBlocks = block.sub(latestBlock.number)
+              const remainingBlocks = block - latestBlock.number
 
-              return remainingBlocks.mul(averageBlockTimeSeconds).toNumber()
+              return remainingBlocks * averageBlockTimeSeconds
             })()
 
             return {

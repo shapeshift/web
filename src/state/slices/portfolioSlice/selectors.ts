@@ -282,6 +282,7 @@ export const selectPortfolioAccountIdsByAssetIdFilter = createDeepEqualOutputSel
   selectAssetIdParamFromFilter,
   selectWalletId,
   (accountIds, assetId, walletId): AccountId[] => {
+    // early return for scenarios where assetId/walletId is not available yet
     if (!assetId) return []
     if (!walletId) return []
     const { chainId } = fromAssetId(assetId)

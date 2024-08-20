@@ -39,6 +39,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
         ) : (
           claimsByStatus.Available.map(claim => (
             <ClaimRow
+              key={claim.tx.txid}
               claim={claim}
               status={ClaimStatus.Available}
               onClaimClick={handleClaimClick}
@@ -54,6 +55,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
           claimsByStatus.Pending.map(claim => {
             return (
               <ClaimRow
+                key={claim.tx.txid}
                 claim={claim}
                 status={ClaimStatus.Pending}
                 onClaimClick={handleClaimClick}

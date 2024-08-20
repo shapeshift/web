@@ -167,7 +167,8 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
-    "yes": "Yes"
+    "yes": "Yes",
+    "activeAccount": "Active Account"
   },
   "consentBanner": {
     "body": {

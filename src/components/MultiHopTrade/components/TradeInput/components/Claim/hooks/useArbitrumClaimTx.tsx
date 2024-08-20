@@ -1,9 +1,11 @@
-import { ethChainId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { outboxAbi } from 'contracts/abis/Outbox'
+import { useMemo } from 'react'
 import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
@@ -22,6 +24,7 @@ const ARBITRUM_OUTBOX = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
 
 export const useArbitrumClaimTx = (
   claim: ClaimDetails,
+  destinationAccountId: AccountId | undefined,
   setClaimTxHash: (txHash: string) => void,
   setClaimTxStatus: (txStatus: TxStatus) => void,
 ) => {
@@ -29,6 +32,11 @@ export const useArbitrumClaimTx = (
   const queryClient = useQueryClient()
 
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+
+  const accountNumber = useMemo(() => {
+    if (!destinationAccountId) return
+    return Number(fromAccountId(destinationAccountId).account)
+  }, [destinationAccountId])
 
   const executeTransactionDataResult = useQuery({
     queryKey: ['executeTransactionData', { txid: claim.tx.txid }],
@@ -59,7 +67,7 @@ export const useArbitrumClaimTx = (
   })
 
   const evmFeesResult = useEvmFees({
-    accountNumber: 0,
+    accountNumber,
     chainId: ethChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
@@ -71,12 +79,13 @@ export const useArbitrumClaimTx = (
     mutationKey: ['claim', { txid: claim.tx.txid }],
     mutationFn: async () => {
       if (!wallet) return
+      if (!accountNumber) return
       if (!executeTransactionDataResult.data) return
 
       const adapter = assertGetEvmChainAdapter(ethChainId)
 
       const buildCustomTxInput = await createBuildCustomTxInput({
-        accountNumber: 0,
+        accountNumber,
         adapter,
         data: executeTransactionDataResult.data,
         to: ARBITRUM_OUTBOX,

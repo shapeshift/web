@@ -11,19 +11,27 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { firstFourLastFour, isToken } from 'lib/utils'
 import { selectRelatedAssetIdsByAssetId } from 'state/slices/related-assets-selectors'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectFirstAccountIdByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
@@ -49,12 +57,6 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
   }, [history])
-
-  const { evmFeesResult, claimMutation } = useArbitrumClaimTx(
-    activeClaim,
-    setClaimTxHash,
-    setClaimTxStatus,
-  )
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 
@@ -82,6 +84,26 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, destinationAssetId ?? ''),
   )
 
+  const destinationAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, activeClaim.destinationChainId),
+  )
+
+  const destinationFeeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, activeClaim.destinationChainId),
+  )
+
+  const destinationFeeAssetBalanceFilter = useMemo(
+    () => ({
+      accountId: destinationAccountId,
+      assetId: destinationFeeAsset?.assetId,
+    }),
+    [destinationAccountId, destinationFeeAsset],
+  )
+
+  const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, destinationFeeAssetBalanceFilter),
+  )
+
   const amountCryptoPrecision = useMemo(() => {
     return fromBaseUnit(activeClaim.amountCryptoBaseUnit, destinationAsset?.precision ?? 0)
   }, [activeClaim.amountCryptoBaseUnit, destinationAsset])
@@ -99,10 +121,37 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
     amountCryptoPrecision,
   ])
 
+  const { evmFeesResult, claimMutation } = useArbitrumClaimTx(
+    activeClaim,
+    destinationAccountId,
+    setClaimTxHash,
+    setClaimTxStatus,
+  )
+
+  const hasEnoughDestinationFeeBalance = useMemo(() => {
+    if (!destinationFeeAsset) return true
+    if (!evmFeesResult.data?.networkFeeCryptoBaseUnit) return true
+
+    return bnOrZero(evmFeesResult.data.networkFeeCryptoBaseUnit).lte(
+      toBaseUnit(destinationFeeAssetBalanceCryptoPrecision, destinationFeeAsset.precision),
+    )
+  }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult.data])
+
   const handleSubmit = useCallback(async () => {
     await claimMutation.mutateAsync()
     history.push(ClaimRoutePaths.Status)
   }, [claimMutation, history])
+
+  const confirmCopy = useMemo(() => {
+    if (!hasEnoughDestinationFeeBalance) {
+      return translate('common.insufficientAmountForGas', {
+        assetSymbol: destinationFeeAsset?.symbol,
+        chainSymbol: getChainShortName(destinationFeeAsset?.chainId as KnownChainIds),
+      })
+    }
+
+    return translate('bridge.confirmAndClaim')
+  }, [destinationFeeAsset, hasEnoughDestinationFeeBalance, translate])
 
   if (!asset) return null
 
@@ -164,16 +213,19 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
           <Button
             size='lg'
             mx={-2}
-            colorScheme='blue'
+            colorScheme={hasEnoughDestinationFeeBalance ? 'blue' : 'red'}
+            isDisabled={
+              !evmFeesResult.isSuccess ||
+              evmFeesResult.isPending ||
+              claimMutation.isPending ||
+              !hasEnoughDestinationFeeBalance
+            }
             isLoading={
               evmFeesResult.isLoading || evmFeesResult.isPending || claimMutation.isPending
             }
-            disabled={
-              !evmFeesResult.isSuccess || evmFeesResult.isPending || claimMutation.isPending
-            }
             onClick={handleSubmit}
           >
-            {translate('bridge.confirmAndClaim')}
+            {confirmCopy}
           </Button>
         </Stack>
       </CardFooter>

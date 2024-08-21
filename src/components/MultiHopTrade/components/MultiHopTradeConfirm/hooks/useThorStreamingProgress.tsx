@@ -68,9 +68,16 @@ export const useThorStreamingProgress = (
   const streamingSwapDataRef = useRef<ThornodeStreamingSwapResponseSuccess>()
   const { poll, cancelPolling } = usePoll<ThornodeStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: confirmedTradeId,
+      hopIndex,
+    }
+  }, [confirmedTradeId, hopIndex])
+
   const {
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, confirmedTradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   useEffect(() => {
     // don't start polling until we have a tx

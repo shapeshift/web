@@ -1,5 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, type AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  type AssetId,
+  ethAssetId,
+  ethChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
@@ -25,6 +31,7 @@ export interface TxMetadata extends BaseTxMetadata {
   parser: 'arbitrumBridge'
   assetId?: AssetId
   destinationAddress?: string
+  destinationAssetId?: AssetId
   value?: string
 }
 
@@ -103,6 +110,7 @@ export class Parser implements SubParser<Tx> {
               data: {
                 ...data,
                 destinationAddress: decoded.args.destination as string,
+                destinationAssetId: ethAssetId,
                 value: tx.value,
               },
             })
@@ -115,10 +123,19 @@ export class Parser implements SubParser<Tx> {
             'outboundTransfer(address,address,uint256,bytes)',
           )!.selector: {
             const amount = decoded.args._amount as BigInt
+            const l1Token = decoded.args._l1Token as string
+
+            const destinationAssetId = toAssetId({
+              chainId: ethChainId,
+              assetNamespace: 'erc20',
+              assetReference: l1Token,
+            })
+
             return await Promise.resolve({
               data: {
                 ...data,
                 destinationAddress: decoded.args._to as string,
+                destinationAssetId,
                 value: amount.toString(),
               },
             })

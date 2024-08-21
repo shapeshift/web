@@ -10,9 +10,9 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
+import { convertPrecision } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -23,8 +23,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { firstFourLastFour, isToken } from 'lib/utils'
-import { selectRelatedAssetIdsByAssetId } from 'state/slices/related-assets-selectors'
+import { firstFourLastFour } from 'lib/utils'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
@@ -64,24 +63,12 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, activeClaim.assetId),
   )
 
-  const relatedAssetIds = useAppSelector(state =>
-    selectRelatedAssetIdsByAssetId(state, { assetId: asset?.relatedAssetKey ?? '' }),
+  const destinationAsset = useAppSelector(state =>
+    selectAssetById(state, activeClaim.destinationAssetId),
   )
 
-  const destinationAssetId = useMemo(() => {
-    return relatedAssetIds.find(assetId => {
-      if (isToken(activeClaim.assetId)) {
-        return fromAssetId(assetId).chainId === activeClaim.destinationChainId && isToken(assetId)
-      } else {
-        return fromAssetId(assetId).chainId === activeClaim.destinationChainId && !isToken(assetId)
-      }
-    })
-  }, [activeClaim, relatedAssetIds])
-
-  const destinationAsset = useAppSelector(state => selectAssetById(state, destinationAssetId ?? ''))
-
   const destinationAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, destinationAssetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, activeClaim.destinationAssetId),
   )
 
   const destinationAccountId = useAppSelector(state =>

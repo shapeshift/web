@@ -1,4 +1,4 @@
-import { arbitrumAssetId, arbitrumChainId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -1127,6 +1127,7 @@ describe('parseTx', () => {
           method: 'outboundTransfer',
           parser: 'arbitrumBridge',
           destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
           value: '1000',
         },
         fee: {
@@ -1204,6 +1205,7 @@ describe('parseTx', () => {
           method: 'withdrawEth',
           parser: 'arbitrumBridge',
           destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: ethAssetId,
           value: '100000000000',
         },
         fee: {

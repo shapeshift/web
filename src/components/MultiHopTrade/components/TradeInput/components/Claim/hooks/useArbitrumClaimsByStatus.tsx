@@ -3,7 +3,7 @@ import type {
   L2ToL1MessageReader,
   L2ToL1TransactionEvent,
 } from '@arbitrum/sdk/dist/lib/message/L2ToL1Message'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -30,6 +30,7 @@ export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
   assetId: string
   description: string
   destinationAddress: string
+  destinationAssetId: AssetId
   destinationChainId: ChainId
   destinationExplorerTxLink: string
   tx: Tx
@@ -125,11 +126,13 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
         if (data.tx.data?.parser === 'arbitrumBridge') {
           if (!data.tx.data.value) return prev
           if (!data.tx.data.destinationAddress) return prev
+          if (!data.tx.data.destinationAssetId) return prev
 
           prev[data.claimStatus].push({
             tx: data.tx,
             amountCryptoBaseUnit: data.tx.data.value,
             destinationAddress: data.tx.data.destinationAddress,
+            destinationAssetId: data.tx.data.destinationAssetId,
             destinationChainId: ethChainId,
             destinationExplorerTxLink: ethAsset.explorerTxLink,
             assetId: data.tx.transfers[0].assetId,

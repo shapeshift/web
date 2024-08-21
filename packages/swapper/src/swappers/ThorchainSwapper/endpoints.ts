@@ -355,7 +355,7 @@ export const thorchainApi: SwapperApi = {
           buyTxHash: undefined,
         }
       } else if (transaction?.transactionHash) {
-        // Mutate with  the actual on-chain transaction work and let things work as-is
+        // Mutate with the actual on-chain transaction hash instead of using the safe transaction hash and continue with the normal status detection flow
         txHash = transaction.transactionHash
       }
 

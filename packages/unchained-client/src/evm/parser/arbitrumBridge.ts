@@ -1,10 +1,16 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, type AssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  type AssetId,
+  ethAssetId,
+  ethChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'
-import { txInteractsWithContract } from '.'
+import { getSigHash, txInteractsWithContract } from '.'
 import { ARB_PROXY_ABI } from './abi/ArbProxy'
 import { ARBITRUM_RETRYABLE_TX_ABI } from './abi/ArbRetryableTx'
 import { ARB_SYS_ABI } from './abi/ArbSys'
@@ -24,6 +30,8 @@ const L1_ORBIT_CUSTOM_GATEWAY_CONTRACT = '0x4Dbd4fc535Ac27206064B68FfCf827b0A60B
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'arbitrumBridge'
   assetId?: AssetId
+  destinationAddress?: string
+  destinationAssetId?: AssetId
   value?: string
 }
 
@@ -47,6 +55,8 @@ export class Parser implements SubParser<Tx> {
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
     if (!tx.inputData) return
+
+    const txSigHash = getSigHash(tx.inputData)
 
     const selectedAbi = (() => {
       if (txInteractsWithContract(tx, ARB_SYS_CONTRACT)) return this.arbSysAbi
@@ -92,6 +102,49 @@ export class Parser implements SubParser<Tx> {
       data.method = `${decoded.name}Deposit`
     }
 
-    return await Promise.resolve({ data })
+    switch (selectedAbi) {
+      case this.arbSysAbi:
+        switch (txSigHash) {
+          case this.arbSysAbi.getFunction('withdrawEth')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                destinationAddress: decoded.args.destination as string,
+                destinationAssetId: ethAssetId,
+                value: tx.value,
+              },
+            })
+          default:
+            return await Promise.resolve({ data })
+        }
+      case this.l2ArbitrumGatewayAbi:
+        switch (txSigHash) {
+          case this.l2ArbitrumGatewayAbi.getFunction(
+            'outboundTransfer(address,address,uint256,bytes)',
+          )!.selector: {
+            const amount = decoded.args._amount as BigInt
+            const l1Token = decoded.args._l1Token as string
+
+            const destinationAssetId = toAssetId({
+              chainId: ethChainId,
+              assetNamespace: 'erc20',
+              assetReference: l1Token,
+            })
+
+            return await Promise.resolve({
+              data: {
+                ...data,
+                destinationAddress: decoded.args._to as string,
+                destinationAssetId,
+                value: amount.toString(),
+              },
+            })
+          }
+          default:
+            return await Promise.resolve({ data })
+        }
+      default:
+        return await Promise.resolve({ data })
+    }
   }
 }

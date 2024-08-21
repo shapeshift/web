@@ -71,20 +71,32 @@ export const Hop = ({
     number: { toCrypto },
   } = useLocaleFormatter()
   const translate = useTranslate()
+  const hopTotalProtocolFeesFiatPrecisionFilter = useMemo(() => {
+    return {
+      hopIndex,
+    }
+  }, [hopIndex])
   const networkFeeFiatPrecision = useAppSelector(state =>
-    selectHopNetworkFeeUserCurrencyPrecision(state, hopIndex),
+    selectHopNetworkFeeUserCurrencyPrecision(state, hopTotalProtocolFeesFiatPrecisionFilter),
   )
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
+
   const {
     state: hopExecutionState,
     approval,
     swap,
     allowanceReset,
-  } = useAppSelector(state => selectHopExecutionMetadata(state, activeTradeId, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(
     () => [approval.state, swap.state].includes(TransactionExecutionState.Failed),

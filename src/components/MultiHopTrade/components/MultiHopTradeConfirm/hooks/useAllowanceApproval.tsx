@@ -27,7 +27,16 @@ export const useAllowanceApproval = (
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet ?? undefined
-  const sellAssetAccountId = useAppSelector(state => selectHopSellAccountId(state, hopIndex))
+
+  const hopSellAccountIdFilter = useMemo(() => {
+    return {
+      hopIndex,
+    }
+  }, [hopIndex])
+
+  const sellAssetAccountId = useAppSelector(state =>
+    selectHopSellAccountId(state, hopSellAccountIdFilter),
+  )
 
   const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
 

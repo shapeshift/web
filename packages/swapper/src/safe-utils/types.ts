@@ -54,5 +54,5 @@ export type SafeTransactionError = {
 
 export type FetchSafeTransactionArgs = {
   chainId: ChainId
-  maybeSafeTxHash: string
+  safeTxHash: string
 }

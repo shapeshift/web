@@ -180,7 +180,7 @@ export const checkEvmSwapStatus = async ({
   message: string | undefined
 }> => {
   try {
-    const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, maybeSafeTxHash: txHash })
+    const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
     const { isSafeTxHash, transaction } = safeTransactionInfo
 
     // No buyTxHash handling is correct - we mutate with the actual on-chain transaction, meaning the regular flow then takes over

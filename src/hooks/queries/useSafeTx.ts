@@ -16,7 +16,7 @@ export const useSafeTxQuery = ({
   return useQuery({
     queryKey: ['safeTransaction', { chainId, maybeSafeTxHash }],
     queryFn: maybeSafeTxHash
-      ? () => fetchSafeTransactionInfo({ chainId, maybeSafeTxHash })
+      ? () => fetchSafeTransactionInfo({ chainId, safeTxHash: maybeSafeTxHash })
       : skipToken,
   })
 }

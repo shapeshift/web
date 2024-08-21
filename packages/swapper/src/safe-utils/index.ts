@@ -11,7 +11,7 @@ import type {
 
 export const fetchSafeTransactionInfo = async ({
   chainId,
-  maybeSafeTxHash,
+  safeTxHash,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
   if (!isEvmChainId(chainId)) return { transaction: null, isSafeTxHash: false }
 
@@ -22,7 +22,7 @@ export const fetchSafeTransactionInfo = async ({
 
   try {
     const response = await axios.get<SafeMultisigTransactionSuccess | SafeTransactionError>(
-      `${baseUrl}/api/v1/multisig-transactions/${maybeSafeTxHash}/`,
+      `${baseUrl}/api/v1/multisig-transactions/${safeTxHash}/`,
     )
 
     if ('detail' in response.data) {

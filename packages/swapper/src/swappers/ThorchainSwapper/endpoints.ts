@@ -339,7 +339,7 @@ export const thorchainApi: SwapperApi = {
     try {
       const safeTransactionInfo = await fetchSafeTransactionInfo({
         chainId,
-        maybeSafeTxHash: txHash,
+        safeTxHash: txHash,
       })
       const { isSafeTxHash, transaction } = safeTransactionInfo
 

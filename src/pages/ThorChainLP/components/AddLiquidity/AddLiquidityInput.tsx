@@ -157,8 +157,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter()
   const history = useHistory()
-  const [runeIsFiat, toggleRuneIsFiat] = useToggle(false)
-  const [poolAssetIsFiat, togglePoolAssetIsFiat] = useToggle(false)
+  const [isFiat, toggleIsFiat] = useToggle(false)
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -471,17 +470,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (opportunityType === AsymSide.Asset) return walletSupportsAsset
   }, [opportunityType, walletSupportsAsset, walletSupportsRune, isDemoWallet])
 
-  const handleToggleRuneIsFiat = useCallback(
+  const handleToggleIsFiat = useCallback(
     (_isFiat: boolean) => {
-      toggleRuneIsFiat()
+      toggleIsFiat()
     },
-    [toggleRuneIsFiat],
-  )
-  const handleTogglePoolAssetIsFiat = useCallback(
-    (_isFiat: boolean) => {
-      togglePoolAssetIsFiat()
-    },
-    [togglePoolAssetIsFiat],
+    [toggleIsFiat],
   )
 
   const handleBackClick = useCallback(() => {
@@ -1153,8 +1146,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               rightComponent={ReadOnlyAsset}
               formControlProps={formControlProps}
               onChange={handleAddLiquidityInputChange}
-              onToggleIsFiat={isRune ? handleToggleRuneIsFiat : handleTogglePoolAssetIsFiat}
-              isFiat={isRune ? runeIsFiat : poolAssetIsFiat}
+              onToggleIsFiat={handleToggleIsFiat}
+              isFiat={isFiat}
               cryptoAmount={isNonEmptyString(cryptoAmount) ? cryptoAmount : '0'}
               fiatAmount={isNonEmptyString(fiatAmount) ? fiatAmount : '0'}
             />
@@ -1167,19 +1160,17 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     createHandleAddLiquidityInputChange,
     currentAccountIdByChainId,
     handleAccountIdChange,
-    handleTogglePoolAssetIsFiat,
-    handleToggleRuneIsFiat,
+    handleToggleIsFiat,
     incompleteSide,
     opportunityType,
     pairDivider,
     percentOptions,
     poolAsset,
-    poolAssetIsFiat,
+    isFiat,
     poolAssetMarketData,
     position,
     previousOpportunityId,
     runeAsset,
-    runeIsFiat,
     runeMarketData,
     virtualAssetDepositAmountCryptoPrecision,
     virtualAssetDepositAmountFiatUserCurrency,

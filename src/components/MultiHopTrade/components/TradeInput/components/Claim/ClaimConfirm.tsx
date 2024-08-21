@@ -92,8 +92,12 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   )
 
   const amountCryptoPrecision = useMemo(() => {
-    return fromBaseUnit(activeClaim.amountCryptoBaseUnit, destinationAsset?.precision ?? 0)
-  }, [activeClaim.amountCryptoBaseUnit, destinationAsset])
+    return convertPrecision({
+      value: fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0),
+      inputExponent: asset?.precision,
+      outputExponent: destinationAsset?.precision,
+    }).toFixed()
+  }, [activeClaim.amountCryptoBaseUnit, asset, destinationAsset])
 
   const amountUserCurrency = useMemo(() => {
     const price =

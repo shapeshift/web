@@ -4,8 +4,8 @@ import axios from 'axios'
 import { ChainIdToSafeBaseUrl } from './constants'
 import type {
   FetchSafeTransactionArgs,
+  SafeMultisigTransactionSuccess,
   SafeTransactionError,
-  SafeTransactionSuccess,
   SafeTxInfo,
 } from './types'
 
@@ -21,7 +21,7 @@ export const fetchSafeTransactionInfo = async ({
   }
 
   try {
-    const response = await axios.get<SafeTransactionSuccess | SafeTransactionError>(
+    const response = await axios.get<SafeMultisigTransactionSuccess | SafeTransactionError>(
       `${baseUrl}/api/v1/multisig-transactions/${maybeSafeTxHash}/`,
     )
 

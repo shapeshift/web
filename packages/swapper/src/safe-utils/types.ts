@@ -1,49 +1,51 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 
 export type SafeTxInfo = {
-  transaction: SafeTransactionSuccess | null
+  transaction: SafeMultisigTransactionSuccess | null
   isSafeTxHash: boolean
 }
 
-export type SafeTransactionSuccess = {
+type SafeMultisigConfirmationResponse = {
+  owner: string
+  submissionDate: string
+  transactionHash?: string
+  confirmationType?: string
+  signature: string
+  signatureType?: string
+}
+
+// https://github.com/safe-global/safe-core-sdk/blob/a9e595af13d1b8b8190c7088dcedd8d90b003c27/packages/safe-core-sdk-types/src/types.ts#L214
+export type SafeMultisigTransactionSuccess = {
   safe: string
   to: string
   value: string
-  data: string
+  data?: string
   operation: number
   gasToken: string
   safeTxGas: number
   baseGas: number
   gasPrice: string
-  refundReceiver: string
+  refundReceiver?: string
   nonce: number
-  executionDate: string | null
+  executionDate: string
   submissionDate: string
   modified: string
-  blockNumber: number | null
-  transactionHash: string | null
+  blockNumber?: number
+  transactionHash: string
   safeTxHash: string
+  executor?: string
   proposer: string
-  executor: string | null
   isExecuted: boolean
-  isSuccessful: boolean | null
-  ethGasPrice: string | null
-  maxFeePerGas: string | null
-  maxPriorityFeePerGas: string | null
-  gasUsed: number | null
-  fee: string | null
+  isSuccessful?: boolean
+  ethGasPrice?: string
+  gasUsed?: number
+  fee?: string
   origin: string
-  dataDecoded: any
+  dataDecoded?: string
   confirmationsRequired: number
-  confirmations: {
-    owner: string
-    submissionDate: string
-    transactionHash: string | null
-    signature: string
-    signatureType: string
-  }[]
+  confirmations?: SafeMultisigConfirmationResponse[]
   trusted: boolean
-  signatures: string | null
+  signatures?: string
 }
 
 export type SafeTransactionError = {

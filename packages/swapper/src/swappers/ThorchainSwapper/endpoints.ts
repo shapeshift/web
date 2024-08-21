@@ -343,7 +343,7 @@ export const thorchainApi: SwapperApi = {
       })
       const { isSafeTxHash, transaction } = safeTransactionInfo
 
-      // No buyTxHash handling is correct - we mutate with the actual on-chain transaction, meaning the regular flow then takes over
+      // Handle pending state for safe multi sig flow until all signatures are confirmed and the transaction is broadcast
       if (
         isSafeTxHash &&
         transaction?.confirmations &&

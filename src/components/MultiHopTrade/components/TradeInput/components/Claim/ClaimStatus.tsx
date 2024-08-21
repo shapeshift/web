@@ -1,7 +1,6 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -68,16 +67,10 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
 }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const queryClient = useQueryClient()
 
-  const handleGoBack = useCallback(async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ['claimStatus', { txid: activeClaim.tx.txid }],
-      refetchType: 'all',
-    })
-
+  const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
-  }, [activeClaim.tx.txid, history, queryClient])
+  }, [history])
 
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 

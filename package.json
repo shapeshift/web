@@ -109,7 +109,7 @@
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
-    "@tanstack/react-query": "^5.52.1",
+    "@tanstack/react-query": "^5.52.0",
     "@uniswap/sdk": "^3.0.3",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/v3-sdk": "^3.13.1",

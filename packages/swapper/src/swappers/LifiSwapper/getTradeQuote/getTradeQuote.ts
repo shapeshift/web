@@ -1,5 +1,5 @@
 import type { ChainKey, RoutesRequest } from '@lifi/sdk'
-import { getRoutes, LiFiError, LiFiErrorCode } from '@lifi/sdk'
+import { getRoutes, LiFiErrorCode, SDKError } from '@lifi/sdk'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import {
@@ -108,7 +108,7 @@ export async function getTradeQuote(
   // })
   const routesResponse = await getRoutes(routesRequest)
     .then(response => Ok(response))
-    .catch((e: LiFiError) => {
+    .catch((e: SDKError) => {
       const code = (() => {
         switch (e.code) {
           case LiFiErrorCode.ValidationError:
@@ -251,7 +251,7 @@ export async function getTradeQuote(
 
   if (promises.every(isRejected)) {
     for (const promise of promises) {
-      if (promise.reason instanceof LiFiError) {
+      if (promise.reason instanceof SDKError) {
         if (promise.reason.stack?.includes('Request failed with status code 429')) {
           return Err(
             makeSwapErrorRight({

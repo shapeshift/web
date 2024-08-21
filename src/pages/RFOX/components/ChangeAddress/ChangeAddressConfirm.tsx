@@ -184,7 +184,6 @@ export const ChangeAddressConfirm: React.FC<
     await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
       .then(async () => {
         await handleChangeAddress()
-
         history.push(ChangeAddressRoutePaths.Status)
       })
       .catch(console.error)

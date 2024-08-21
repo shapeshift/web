@@ -119,12 +119,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
     if (!stakingAsset) return
 
     await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(() => {
-        handleUnstake()
+      .then(async () => {
+        await handleUnstake()
+        history.push(UnstakeRoutePaths.Status)
       })
       .catch(console.error)
-
-    history.push(UnstakeRoutePaths.Status)
   }, [handleUnstake, history, stakingAsset, checkLedgerAppOpenIfLedgerConnected])
 
   return (

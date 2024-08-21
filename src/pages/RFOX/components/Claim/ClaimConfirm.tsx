@@ -219,11 +219,11 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     if (!stakingAsset) return
 
     await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(() => {
-        handleClaim()
+      .then(async () => {
+        await handleClaim()
+        history.push(ClaimRoutePaths.Status)
       })
       .catch(console.error)
-    history.push(ClaimRoutePaths.Status)
   }, [handleClaim, history, checkLedgerAppOpenIfLedgerConnected, stakingAsset])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))

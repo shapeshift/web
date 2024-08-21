@@ -273,11 +273,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     }
 
     await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(() => {
-        handleStake()
+      .then(async () => {
+        await handleStake()
+        history.push(StakeRoutePaths.Status)
       })
       .catch(console.error)
-    history.push(StakeRoutePaths.Status)
   }, [
     handleStake,
     history,

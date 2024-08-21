@@ -82,7 +82,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
   const asset = useAppSelector(state => selectAssetById(state, activeClaim.assetId))
 
   const amountCryptoPrecision = useMemo(() => {
-    return fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0, 8)
+    return fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0)
   }, [asset, activeClaim])
 
   const StatusBody = useMemo(() => {

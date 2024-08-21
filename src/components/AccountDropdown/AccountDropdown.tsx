@@ -324,7 +324,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             rightIcon={rightIcon}
             variant='ghost'
             color='text.base'
-            disabled={isDropdownDisabled}
+            isDisabled={isDropdownDisabled}
             {...buttonProps}
           >
             <Flex

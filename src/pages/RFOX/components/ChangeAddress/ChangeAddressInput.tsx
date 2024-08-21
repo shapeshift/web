@@ -1,6 +1,5 @@
 import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
@@ -22,12 +21,12 @@ import {
   isGetFeesWithWalletArgs,
 } from 'lib/utils/evm'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -36,15 +35,14 @@ import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 type ChangeAddressInputProps = {
-  stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void
 }
 
 export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
   headerComponent,
-  stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
 }) => {
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
@@ -57,11 +55,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const adapter = useMemo(
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
-  )
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const stakingAssetAccountAddress = useMemo(

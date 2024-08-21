@@ -37,7 +37,7 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
           min={0}
           max={totalSwapCount}
           value={attemptedSwapCount}
-          hasStripe
+          hasStripe={!isComplete}
           isAnimated={!isComplete}
           colorScheme={isComplete ? 'green' : 'blue'}
         />

@@ -90,8 +90,24 @@ export const useThorStreamingProgress = (
         // no payload at all - must be a failed request - return
         if (!updatedStreamingSwapData) return
 
-        // no valid data received so far and no valid data to update - return
-        if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) return
+        // We don't have a quantity in the streaming swap data, and we never have.
+        if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
+          // This is a special case where it _is_ a streaming swap, but it's optimized over a single block, and so doesn't actually stream.
+          // In this case we never get initial streaming metadata, only the default empty response because it's immediately complete.
+          // An empty response means the streaming swap is complete.
+          if (updatedStreamingSwapData.tx_id) {
+            dispatch(
+              tradeQuoteSlice.actions.setStreamingSwapMeta({
+                hopIndex,
+                streamingSwapMetadata: getStreamingSwapMetadata({
+                  tx_id: updatedStreamingSwapData.tx_id,
+                }),
+                id: confirmedTradeId,
+              }),
+            )
+          }
+          return
+        }
 
         // thornode returns a default empty response once the streaming is complete
         // set the count to the quantity so UI can display completed status

@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { getFees } from '@shapeshiftoss/utils/src/evm'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 

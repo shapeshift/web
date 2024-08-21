@@ -1,6 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { getFees } from '@shapeshiftoss/utils/src/evm'
+import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 

@@ -337,10 +337,7 @@ export const thorchainApi: SwapperApi = {
     message: string | undefined
   }> => {
     try {
-      const safeTransactionInfo = await fetchSafeTransactionInfo({
-        chainId,
-        safeTxHash: txHash,
-      })
+      const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
       const { isSafeTxHash, transaction } = safeTransactionInfo
 
       // Handle pending state for safe multi sig flow until all signatures are confirmed and the transaction is broadcast

@@ -28,12 +28,7 @@ export const useAllowanceApproval = (
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet ?? undefined
 
-  const hopSellAccountIdFilter = useMemo(
-    () => ({
-      hopIndex,
-    }),
-    [hopIndex],
-  )
+  const hopSellAccountIdFilter = useMemo(() => ({ hopIndex }), [hopIndex])
   const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )

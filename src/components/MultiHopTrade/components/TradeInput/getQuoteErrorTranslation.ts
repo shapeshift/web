@@ -14,8 +14,6 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.unsupportedTradePair'
       case SwapperTradeQuoteError.NoRouteFound:
         return 'trade.errors.noRouteFound'
-      case TradeQuoteValidationError.SmartContractWalletNotSupported:
-        return 'trade.errors.smartContractWalletNotSupported'
       case SwapperTradeQuoteError.TradingHalted:
         return 'trade.errors.tradingNotActiveNoAssetSymbol'
       case TradeQuoteValidationError.TradingInactiveOnSellChain:

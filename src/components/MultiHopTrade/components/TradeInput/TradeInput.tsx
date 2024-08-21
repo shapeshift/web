@@ -39,7 +39,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { Claims } from './components/Claims/Claims'
+import { Claim } from './components/Claim/Claim'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeInputBody } from './components/TradeInputBody'
@@ -292,12 +292,11 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                           <ConfirmSummary
                             isCompact={isCompact}
                             isLoading={isLoading}
-                            initialSellAssetAccountId={initialSellAssetAccountId}
                             receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
                           />
                         </Box>
                       )}
-                      {selectedTab === TradeInputTab.Claim && <Claims />}
+                      {selectedTab === TradeInputTab.Claim && <Claim />}
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>

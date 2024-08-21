@@ -148,9 +148,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
         if (!underlyingAssetsImages?.length) return { icon: asset?.icon }
 
         if (underlyingAssetsImages.length === 1) {
-          // We already have that asset in store, no-op
-          if (asset) return { icon: undefined }
-          return { icon: maybeTokenImage(token.image) }
+          return { icon: maybeTokenImage(token.image || underlyingAssetsImages[0]) }
         }
         // This is a multiple assets pool, populate icons array
         if (underlyingAssetsImages.length > 1)

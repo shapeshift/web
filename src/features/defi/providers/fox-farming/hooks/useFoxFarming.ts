@@ -1,6 +1,7 @@
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
 import { getOrCreateContractByAddress } from 'contracts/contractManager'
@@ -132,14 +133,23 @@ export const useFoxFarming = (
     [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, wallet, skip],
   )
 
-  const allowance = useCallback(async () => {
-    if (skip || !farmingAccountId) return
+  const userAddress = useMemo(
+    () => (farmingAccountId ? getAddress(fromAccountId(farmingAccountId).account) : undefined),
+    [farmingAccountId],
+  )
 
-    const userAddress = getAddress(fromAccountId(farmingAccountId).account)
+  const pubKey = useMemo(
+    () => (wallet && isLedger(wallet) && userAddress ? userAddress : undefined),
+    [userAddress, wallet],
+  )
+
+  const allowance = useCallback(async () => {
+    if (skip || !userAddress) return
+
     const _allowance = await uniV2LPContract.read.allowance([userAddress, contractAddress])
 
     return _allowance.toString()
-  }, [farmingAccountId, contractAddress, skip])
+  }, [skip, userAddress, contractAddress])
 
   const getApproveFees = useCallback(() => {
     if (!isValidAccountNumber(accountNumber) || !wallet) return
@@ -155,10 +165,11 @@ export const useFoxFarming = (
       adapter,
       data,
       to: uniV2LPContract.address,
+      pubKey,
       value: '0',
       wallet,
     })
-  }, [adapter, accountNumber, contractAddress, wallet])
+  }, [accountNumber, wallet, contractAddress, adapter, pubKey])
 
   const getStakeFees = useCallback(
     (lpAmount: string) => {
@@ -175,11 +186,21 @@ export const useFoxFarming = (
         adapter,
         data,
         to: contractAddress,
+        pubKey,
         value: '0',
         wallet,
       })
     },
-    [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, skip, wallet],
+    [
+      skip,
+      accountNumber,
+      wallet,
+      foxFarmingContract.abi,
+      lpAsset.precision,
+      adapter,
+      contractAddress,
+      pubKey,
+    ],
   )
 
   const getUnstakeFees = useCallback(
@@ -197,11 +218,21 @@ export const useFoxFarming = (
         adapter,
         data,
         to: contractAddress,
+        pubKey,
         value: '0',
         wallet,
       })
     },
-    [adapter, accountNumber, contractAddress, foxFarmingContract, lpAsset.precision, skip, wallet],
+    [
+      skip,
+      accountNumber,
+      wallet,
+      foxFarmingContract.abi,
+      lpAsset.precision,
+      adapter,
+      contractAddress,
+      pubKey,
+    ],
   )
 
   const getClaimFees = useCallback(

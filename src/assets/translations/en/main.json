@@ -167,7 +167,8 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
-    "yes": "Yes"
+    "yes": "Yes",
+    "activeAccount": "Active Account"
   },
   "consentBanner": {
     "body": {
@@ -708,6 +709,7 @@
         "out": "Outbound Received",
         "refund": "Refund",
         "swapOut": "Swap Received",
+        "swap": "Trade",
         "swapRefund": "Swap Refund",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
@@ -771,13 +773,20 @@
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "No supported assets in portfolio.",
     "arbitrum": {
+      "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
     },
-    "claims": "Claims",
+    "claim": "Claim",
+    "claimReceiveAddress": "Claim Receive Address",
+    "claimPending": "Awaiting your claim of",
+    "claimSuccess": "You have successfully claimed",
+    "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
-    "pendingClaims": "Pending"
+    "pendingClaims": "Pending",
+    "availableIn": "Available in %{time}",
+    "confirmAndClaim": "Confirm & Claim"
   },
   "trade": {
     "trade": "Trade",
@@ -918,7 +927,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
-    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
+    "disableThorNativeSmartContractReceive": "We've detected that you're sending to a smart contract address on %{chainName}. Due to THORChain limitations, receiving %{nativeAssetSymbol} to a smart contract address is not supported. Please enter another address",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",

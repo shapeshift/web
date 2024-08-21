@@ -1,10 +1,5 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import {
-  type ChainId,
-  foxAssetId,
-  foxOnArbitrumOneAssetId,
-  fromAccountId,
-} from '@shapeshiftoss/caip'
+import { type ChainId, foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,8 +11,9 @@ import { RawText, Text } from 'components/Text'
 import { fromBaseUnit } from 'lib/math'
 import { chainIdToChainDisplayName } from 'lib/utils'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { RfoxTabIndex } from 'pages/RFOX/Widget'
-import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/selectors'
+import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ClaimRow } from './ClaimRow'
@@ -86,14 +82,9 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
-  const stakingAssetId = foxOnArbitrumOneAssetId
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

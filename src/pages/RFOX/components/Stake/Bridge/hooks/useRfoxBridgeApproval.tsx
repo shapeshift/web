@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
@@ -114,11 +115,20 @@ export const useRfoxBridgeApproval = ({
     [isApprovalRequired],
   )
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet)
+        ? fromAccountId(confirmedQuote.sellAssetAccountId).account
+        : undefined,
+    [confirmedQuote.sellAssetAccountId, wallet],
+  )
+
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
       accountNumber: sellAssetAccountNumber,
       to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
+      pubKey,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       data: approvalCallData,
       chainId: fromAssetId(confirmedQuote.sellAssetId).chainId,
@@ -127,6 +137,7 @@ export const useRfoxBridgeApproval = ({
       approvalCallData,
       confirmedQuote.sellAssetAccountId,
       confirmedQuote.sellAssetId,
+      pubKey,
       sellAssetAccountNumber,
     ],
   )

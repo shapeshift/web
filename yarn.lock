@@ -10941,7 +10941,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/chain-adapters@workspace:*, @shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
+"@shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
@@ -11379,13 +11379,13 @@ __metadata:
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:*"
-    "@shapeshiftoss/types": "workspace:*"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@workspace:*, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
+"@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
   dependencies:

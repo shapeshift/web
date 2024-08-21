@@ -47,14 +47,14 @@ export const useTradeExecution = (
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
 
-  const selectHopSellAccountIdFilter = useMemo(() => {
+  const hopSellAccountIdFilter = useMemo(() => {
     return {
       hopIndex,
     }
   }, [hopIndex])
 
   const sellAssetAccountId = useAppSelector(state =>
-    selectHopSellAccountId(state, selectHopSellAccountIdFilter),
+    selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
   const accountMetadataFilter = useMemo(

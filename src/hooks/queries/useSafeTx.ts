@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper/dist/safe-utils'
-import type { SafeTxInfo } from '@shapeshiftoss/swapper/dist/safe-utils/types'
+import type { SafeTxInfo } from '@shapeshiftoss/swapper'
+import { fetchSafeTransactionInfo } from '@shapeshiftoss/swapper'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
 

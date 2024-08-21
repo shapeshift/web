@@ -35,3 +35,5 @@ export const fetchSafeTransactionInfo = async ({
     return { transaction: null, isSafeTxHash: false }
   }
 }
+
+export * from './types'

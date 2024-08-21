@@ -3,6 +3,7 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
@@ -123,6 +124,14 @@ export const useRfoxStake = ({
     })
   }, [amountCryptoBaseUnit, isValidStakingAmount, runeAddress, stakingAsset])
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet) && stakingAssetAccountId
+        ? fromAccountId(stakingAssetAccountId).account
+        : undefined,
+    [stakingAssetAccountId, wallet],
+  )
+
   const approvalCallData = useMemo(() => {
     if (!stakingAsset) return
 
@@ -160,12 +169,13 @@ export const useRfoxStake = ({
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
+      pubKey,
       accountNumber: stakingAssetAccountNumber,
       to: fromAssetId(stakingAssetId).assetReference,
       data: approvalCallData!,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [approvalCallData, stakingAssetAccountNumber, stakingAssetId],
+    [approvalCallData, pubKey, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const getApprovalFeesWithWalletInput = useMemo(
@@ -238,11 +248,12 @@ export const useRfoxStake = ({
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
       accountNumber: stakingAssetAccountNumber,
+      pubKey,
       data: stakeCallData,
       value: '0',
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [stakeCallData, stakingAssetAccountNumber, stakingAssetId],
+    [pubKey, stakeCallData, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const isGetStakeFeesEnabled = useMemo(

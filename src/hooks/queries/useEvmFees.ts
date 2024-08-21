@@ -15,6 +15,7 @@ import { useAppSelector } from 'state/store'
 
 type UseEvmFeesProps = {
   accountNumber: number | undefined
+  pubKey: string | undefined
   chainId: ChainId | undefined
   data: string | undefined
   enabled?: boolean
@@ -27,6 +28,7 @@ type UseEvmFeesProps = {
 
 export const useEvmFees = ({
   accountNumber,
+  pubKey,
   chainId,
   data,
   refetchInterval,
@@ -48,11 +50,12 @@ export const useEvmFees = ({
   )
 
   const getFeesWithWalletInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
-    return { accountNumber, adapter, data, to, value, wallet }
-  }, [accountNumber, adapter, data, to, value, wallet])
+    return { accountNumber, adapter, data, to, value, pubKey, wallet }
+  }, [accountNumber, adapter, data, pubKey, to, value, wallet])
 
   const query = useQuery({
-    queryKey: reactQueries.common.evmFees({ chainId, value, accountNumber, data, to }).queryKey,
+    queryKey: reactQueries.common.evmFees({ chainId, value, accountNumber, data, pubKey, to })
+      .queryKey,
     queryFn:
       isGetFeesWithWalletArgs(getFeesWithWalletInput) && enabled
         ? () => getFeesWithWallet(getFeesWithWalletInput)

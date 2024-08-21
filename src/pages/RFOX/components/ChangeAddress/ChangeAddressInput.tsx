@@ -1,5 +1,6 @@
 import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
@@ -125,16 +126,25 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     [currentRuneAddress, errors.manualRuneAddress, errors.newRuneAddress, newRuneAddress],
   )
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet) && stakingAssetAccountAddress
+        ? stakingAssetAccountAddress
+        : undefined,
+    [stakingAssetAccountAddress, wallet],
+  )
+
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      pubKey,
       from: stakingAssetAccountAddress ?? '',
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
+    [callData, pubKey, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const getFeesWithWalletInput = useMemo(

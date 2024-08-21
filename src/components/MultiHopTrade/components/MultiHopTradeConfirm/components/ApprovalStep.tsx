@@ -124,9 +124,15 @@ const ApprovalStepPending = ({
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
   const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
 
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const isAwaitingReset = useMemo(() => {
@@ -374,8 +380,14 @@ const ApprovalStepComplete = ({
   activeTradeId,
 }: ApprovalStepProps) => {
   const translate = useTranslate()
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
   const { state, allowanceReset, approval } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const stepIndicator = useMemo(() => {
@@ -453,8 +465,14 @@ export const ApprovalStep = ({
   isAllowanceResetStep,
   activeTradeId,
 }: ApprovalStepProps) => {
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
   const { state } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, activeTradeId, hopIndex),
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const isComplete = useMemo(() => {

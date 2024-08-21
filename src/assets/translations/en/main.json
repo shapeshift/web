@@ -920,7 +920,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
-    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
+    "disableThorNativeSmartContractReceive": "We've detected that you're sending to a smart contract address on %{chainName}. Due to THORChain limitations, receiving %{nativeAssetSymbol} to a smart contract address is not supported. Please enter another address",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",

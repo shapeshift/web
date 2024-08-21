@@ -3,7 +3,7 @@ import type { LiFiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/src/evm'
 import { getContract } from 'viem'
 
 import type { SwapperDeps } from '../../../../types'

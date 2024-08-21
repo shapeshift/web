@@ -20,6 +20,9 @@
     },
     {
       "path": "../chain-adapters",
+    },
+    {
+      "path": "../utils",
     }
   ]
 }

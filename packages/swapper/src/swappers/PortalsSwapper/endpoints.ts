@@ -1,7 +1,7 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { getFees } from '@shapeshiftoss/utils/src/evm'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 import { zeroAddress } from 'viem'

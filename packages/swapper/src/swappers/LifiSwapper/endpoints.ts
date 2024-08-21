@@ -3,7 +3,7 @@ import { getStepTransaction } from '@lifi/sdk'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { getFees } from '@shapeshiftoss/utils/src/evm'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 

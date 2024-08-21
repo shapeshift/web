@@ -1,4 +1,4 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -70,6 +70,7 @@ export const useArbitrumClaimTx = (
 
   const evmFeesResult = useEvmFees({
     accountNumber: bip44Params?.accountNumber,
+    pubKey: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
     chainId: claim.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,

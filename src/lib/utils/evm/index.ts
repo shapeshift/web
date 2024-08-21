@@ -78,11 +78,12 @@ type GetFeesCommonArgs = {
 export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   accountNumber: number
   wallet: HDWallet
+  pubKey: string | undefined
 }
 
 export type MaybeGetFeesWithWalletArgs = PartialFields<
   Omit<GetFeesWithWalletArgs, 'wallet'>,
-  'adapter' | 'accountNumber' | 'data' | 'to'
+  'adapter' | 'accountNumber' | 'data' | 'to' | 'pubKey'
 > & {
   wallet: HDWallet | null
 }
@@ -95,9 +96,9 @@ export const isGetFeesWithWalletArgs = (
   )
 
 export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
-  const { accountNumber, adapter, wallet, ...rest } = args
+  const { accountNumber, adapter, wallet, pubKey, ...rest } = args
 
-  const from = await adapter.getAddress({ accountNumber, wallet })
+  const from = await adapter.getAddress({ accountNumber, pubKey, wallet })
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
   return getFees({ ...rest, adapter, from, supportsEIP1559 })
@@ -106,7 +107,7 @@ export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fe
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
-  const fees = await getFeesWithWallet(args)
+  const fees = await getFeesWithWallet({ ...args, pubKey: undefined })
   return { ...args, ...fees }
 }
 

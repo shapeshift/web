@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -113,6 +114,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     })
   }, [stakingAsset, claimQuote.index])
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet) && stakingAssetAccountAddress
+        ? stakingAssetAccountAddress
+        : undefined,
+    [stakingAssetAccountAddress, wallet],
+  )
+
   const {
     mutateAsync: handleClaim,
     isIdle: isClaimMutationIdle,
@@ -153,12 +162,13 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const claimFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      pubKey,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, claimQuote.stakingAssetId, stakingAssetAccountNumber],
+    [callData, claimQuote.stakingAssetId, pubKey, stakingAssetAccountNumber],
   )
 
   const {

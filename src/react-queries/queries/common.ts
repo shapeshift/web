@@ -94,12 +94,13 @@ export const common = createQueryKeys('common', {
     to,
     value,
     chainId,
+    pubKey,
   }: PartialFields<
     Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter'>,
-    'accountNumber' | 'data' | 'to'
+    'accountNumber' | 'data' | 'to' | 'pubKey'
   > & {
     chainId: ChainId | undefined
   }) => ({
-    queryKey: ['evmFees', to, chainId, accountNumber, data, value],
+    queryKey: ['evmFees', to, chainId, accountNumber, data, value, pubKey],
   }),
 })

@@ -215,7 +215,7 @@ export const checkSafeTransactionStatus = async ({
     return {
       status,
       buyTxHash: transaction.transactionHash,
-      message: 'common.safeProposalQueued',
+      message: 'common.safeProposalExecuted',
     }
   }
 }

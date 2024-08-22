@@ -71,7 +71,7 @@ export const ChangeAddressConfirm: React.FC<
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
   )
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,

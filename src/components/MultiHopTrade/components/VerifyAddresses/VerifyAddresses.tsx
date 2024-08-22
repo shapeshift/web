@@ -220,7 +220,7 @@ export const VerifyAddresses = () => {
     ],
   )
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const handleBuyVerify = useCallback(async () => {
     // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened

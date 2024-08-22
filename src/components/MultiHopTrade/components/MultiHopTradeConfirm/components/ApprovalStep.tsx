@@ -123,7 +123,7 @@ const ApprovalStepPending = ({
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId,

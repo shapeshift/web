@@ -397,6 +397,7 @@
       "saversVaults": {
         "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
         "runePoolDescription": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
+        "runePoolOverviewDescription": "RUNEPool は、THORChain のすべての POL 対応流動性プールに RUNE を預けることで、RUNE の使用を最適化します。これらのプールに RUNE をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、RUNE インデックスとすべての THORChain POL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
         "haltedDepositTitle": "一時的に入金を停止しております。",
@@ -1232,6 +1233,7 @@
       },
       "withdrawTo": "出金先",
       "amountToDeposit": "入金額",
+      "amountDeposited": "預入金額",
       "amountToStake": "ステーク額",
       "amountToWithdraw": "出金額",
       "amountToClaim": "獲得額",
@@ -1868,7 +1870,8 @@
     }
   },
   "ledgerOpenApp": {
-    "title": "%{appName} アプリを開く"
+    "title": "%{appName} アプリを開く",
+    "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

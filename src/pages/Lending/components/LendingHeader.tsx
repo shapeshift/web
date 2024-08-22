@@ -13,7 +13,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { Display } from 'components/Display'
-import { DonutChart } from 'components/DonutChart/DonutChart'
+import { type ChartData, DonutChart } from 'components/DonutChart/DonutChart'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import type { TabItem } from 'components/TabMenu/TabMenu'
 import { TabMenu } from 'components/TabMenu/TabMenu'
@@ -52,6 +52,21 @@ export const LendingHeader = () => {
   const { isLoading, collateralValueUserCurrency, debtValueUserCurrency } =
     useAllLendingPositionsData()
   const ltv = bnOrZero(debtValueUserCurrency).div(collateralValueUserCurrency).toNumber()
+  const donutData: ChartData[] = useMemo(() => {
+    return [
+      {
+        name: 'Collateral',
+        value: bnOrZero(collateralValueUserCurrency).toNumber(),
+        color: 'green.200',
+      },
+      {
+        name: 'Debt',
+        value: bnOrZero(debtValueUserCurrency).toNumber(),
+        color: 'purple.300',
+      },
+    ]
+  }, [collateralValueUserCurrency, debtValueUserCurrency])
+
   return (
     <>
       <Display.Mobile>
@@ -108,7 +123,7 @@ export const LendingHeader = () => {
                 <Text color='text.subtle' fontWeight='medium' translation='lending.loanToValue' />
               </CardBody>
               <CardFooter>
-                <DonutChart width={45} height={45} />
+                <DonutChart width={45} height={45} data={donutData} />
               </CardFooter>
             </Card>
           </Flex>

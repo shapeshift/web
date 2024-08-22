@@ -12,7 +12,6 @@ import axios from 'axios'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
-import { fetchSafeTransactionInfo } from '../../safe-utils'
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
   CosmosSdkFeeData,
@@ -27,6 +26,7 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from '../../types'
+import { checkSafeTransactionStatus } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
@@ -331,29 +331,24 @@ export const thorchainApi: SwapperApi = {
     txHash,
     chainId,
     config,
+    assertGetEvmChainAdapter,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
     message: string | undefined
   }> => {
     try {
-      const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
-      const { isSafeTxHash, transaction } = safeTransactionInfo
+      const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+        txHash,
+        chainId,
+        assertGetEvmChainAdapter,
+      })
+      if (maybeSafeTransactionStatus) {
+        // JS only mutates objects at function scope - so the mutating we do inside checkSafeTransactionStatus has no effect here and we must reassign it
+        txHash = maybeSafeTransactionStatus.txHash
 
-      // Handle pending state for safe multi sig flow until all signatures are confirmed and the transaction is broadcast
-      if (
-        isSafeTxHash &&
-        transaction?.confirmations &&
-        Number(transaction.confirmations.length) < transaction.confirmationsRequired
-      ) {
-        return {
-          status: TxStatus.Pending,
-          message: `SAFE proposal submitted. ${transaction.confirmations.length} out of ${transaction.confirmationsRequired} signed.`,
-          buyTxHash: undefined,
-        }
-      } else if (transaction?.transactionHash) {
-        // Mutate with the actual on-chain transaction hash instead of using the safe transaction hash and continue with the normal status detection flow
-        txHash = transaction.transactionHash
+        // A buyTxHash means the initial Tx is confirmed, but the trade may not be confirmed - continue with regular Li.Fi status polling
+        if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
       }
 
       const thorTxHash = txHash.replace(/^0x/, '')
@@ -374,7 +369,10 @@ export const thorchainApi: SwapperApi = {
       const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
       const hasOutboundTx = latestOutTx?.chain !== 'THOR'
 
-      const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
+      const buyTxHash = parseThorBuyTxHash(
+        maybeSafeTransactionStatus?.buyTxHash || txHash,
+        latestOutTx,
+      )
 
       // if we have an outbound transaction (non rune) and associated buyTxHash, check if it's been confirmed on-chain
       if (hasOutboundTx && buyTxHash) {

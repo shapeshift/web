@@ -20,7 +20,11 @@ import {
   type TradeQuote,
   TradeQuoteError,
 } from '../../types'
-import { createDefaultStatusResponse, makeSwapErrorRight } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  createDefaultStatusResponse,
+  makeSwapErrorRight,
+} from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -128,6 +132,8 @@ export const lifiApi: SwapperApi = {
     quoteId,
     txHash,
     stepIndex,
+    chainId,
+    assertGetEvmChainAdapter,
   }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
@@ -143,6 +149,20 @@ export const lifiApi: SwapperApi = {
       action: { fromChainId, toChainId },
       tool,
     } = lifiRoute.steps[stepIndex]
+
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+
+    if (maybeSafeTransactionStatus) {
+      // JS only mutates objects at function scope - so the mutating we do inside checkSafeTransactionStatus has no effect here and we must reassign it
+      txHash = maybeSafeTransactionStatus.txHash
+
+      // A buyTxHash means the initial Tx is confirmed, but the trade may not be confirmed - continue with regular Li.Fi status polling
+      if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+    }
 
     // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
     // i.e don't do `await getLifi().getStatus(getStatusRequest)`

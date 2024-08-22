@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
+import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
 import type {
   SupportedTradeQuoteStepIndex,
   TradeQuote,
@@ -237,11 +237,7 @@ export const HopTransactionStep = ({
             fontWeight='bold'
           />
         )}
-        {message && (
-          <Tooltip label={translate(message)}>
-            <Text translation={message} color='text.subtle' />
-          </Tooltip>
-        )}
+        {message && <Text translation={message} color='text.subtle' />}
         {txLinks.map(({ txLink, txHash }) => (
           <Link isExternal color='text.link' href={txLink} key={txHash}>
             <MiddleEllipsis value={txHash} />
@@ -262,7 +258,6 @@ export const HopTransactionStep = ({
     tradeQuoteStep.sellAsset.chainId,
     tradeQuoteStep.sellAsset.precision,
     tradeQuoteStep.sellAsset.symbol,
-    translate,
     txLinks,
   ])
 

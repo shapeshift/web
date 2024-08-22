@@ -26,6 +26,7 @@ export const RFOXHeader = () => {
   )
 
   useEffect(() => {
+    if (!accountIds.length) setStakingAssetAccountId(undefined)
     if (accountIds.length === 1) {
       setStakingAssetAccountId(accountIds[0])
     }

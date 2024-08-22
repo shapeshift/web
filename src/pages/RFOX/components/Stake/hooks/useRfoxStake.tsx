@@ -3,7 +3,6 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
@@ -24,7 +23,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  isGetFeesWithWalletArgs,
+  isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
 import {
   selectAccountNumberByAccountId,
@@ -125,11 +124,8 @@ export const useRfoxStake = ({
   }, [amountCryptoBaseUnit, isValidStakingAmount, runeAddress, stakingAsset])
 
   const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet) && stakingAssetAccountId
-        ? fromAccountId(stakingAssetAccountId).account
-        : undefined,
-    [stakingAssetAccountId, wallet],
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
   )
 
   const approvalCallData = useMemo(() => {
@@ -145,7 +141,7 @@ export const useRfoxStake = ({
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
     spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+    pubKey: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {
@@ -186,7 +182,7 @@ export const useRfoxStake = ({
   const isGetApprovalFeesEnabled = useMemo(
     () =>
       Boolean(
-        isGetFeesWithWalletArgs(getApprovalFeesWithWalletInput) &&
+        isGetFeesWithWalletEIP1559SupportArgs(getApprovalFeesWithWalletInput) &&
           hasEnoughBalance &&
           isApprovalRequired &&
           !Boolean(errors?.manualRuneAddress),
@@ -213,6 +209,7 @@ export const useRfoxStake = ({
       if (
         !wallet ||
         stakingAssetAccountNumber === undefined ||
+        !pubKey ||
         !stakingAsset ||
         !adapter ||
         !stakeCallData ||
@@ -222,6 +219,7 @@ export const useRfoxStake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        pubKey,
         adapter,
         data: stakeCallData,
         value: '0',
@@ -295,6 +293,7 @@ export const useRfoxStake = ({
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
+      pubKey: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

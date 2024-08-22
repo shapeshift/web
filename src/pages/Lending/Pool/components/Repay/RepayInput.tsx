@@ -146,7 +146,7 @@ export const RepayInput = ({
   } = useApprove({
     assetId: repaymentAsset?.assetId,
     spender: inboundAddressData?.router,
-    from: userAddress,
+    pubKey: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
         ? toBaseUnit(

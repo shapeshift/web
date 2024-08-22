@@ -7,7 +7,6 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   MidgardActionsResponse,
   ThornodeStatusResponse,
@@ -191,7 +190,7 @@ export const getThorchainFromAddress = async ({
       accountNumber: bip44Params.accountNumber,
       accountType,
       index: 0,
-      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      pubKey: fromAccountId(accountId).account,
     })
     return firstReceiveAddress
   }

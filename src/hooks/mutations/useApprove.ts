@@ -1,6 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useMemo, useState } from 'react'
@@ -14,11 +13,10 @@ import { isToken } from 'lib/utils'
 import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
-  from?: string
   onSuccess?: (txHash: string) => void
 }
 
-export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApproveProps) => {
+export const useApprove = ({ onSuccess: handleSuccess, pubKey, ...input }: UseApproveProps) => {
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
 
@@ -40,13 +38,8 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
   }, [input.amountCryptoBaseUnit, input.spender])
 
   const maybeInputWithWallet = useMemo(
-    () => ({ ...input, wallet: wallet ?? undefined, data: approvalCallData }),
-    [approvalCallData, input, wallet],
-  )
-
-  const pubKey = useMemo(
-    () => (wallet && isLedger(wallet) && input.from ? input.from : undefined),
-    [input.from, wallet],
+    () => ({ ...input, wallet: wallet ?? undefined, data: approvalCallData, pubKey }),
+    [approvalCallData, input, pubKey, wallet],
   )
 
   const approvalFeesQueryInput = useMemo(
@@ -64,7 +57,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
   const allowanceDataQuery = useAllowance({
     assetId: input.assetId,
     spender: input.spender,
-    from: input.from,
+    pubKey,
   })
 
   const isApprovalRequired = useMemo(() => {
@@ -90,10 +83,10 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     ...reactQueries.mutations.approve(maybeInputWithWallet),
     onSuccess: (txHash: string) => {
       handleSuccess?.(txHash)
-      if (!(input.assetId && input.spender && input.from)) return
+      if (!(input.assetId && input.spender && pubKey)) return
 
       queryClient.invalidateQueries(
-        reactQueries.common.allowanceCryptoBaseUnit(input.assetId, input.spender, input.from),
+        reactQueries.common.allowanceCryptoBaseUnit(input.assetId, input.spender, pubKey),
       )
     },
   })

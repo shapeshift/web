@@ -6,7 +6,11 @@ import { reactQueries } from 'react-queries'
 import { selectEvmFees } from 'react-queries/selectors'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, getFeesWithWallet, isGetFeesWithWalletArgs } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  getFeesWithWalletEIP1559Support,
+  isGetFeesWithWalletEIP1559SupportArgs,
+} from 'lib/utils/evm'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
@@ -14,7 +18,6 @@ import {
 import { useAppSelector } from 'state/store'
 
 type UseEvmFeesProps = {
-  accountNumber: number | undefined
   pubKey: string | undefined
   chainId: ChainId | undefined
   data: string | undefined
@@ -27,7 +30,6 @@ type UseEvmFeesProps = {
 }
 
 export const useEvmFees = ({
-  accountNumber,
   pubKey,
   chainId,
   data,
@@ -49,16 +51,15 @@ export const useEvmFees = ({
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
-  const getFeesWithWalletInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
-    return { accountNumber, adapter, data, to, value, pubKey, wallet }
-  }, [accountNumber, adapter, data, pubKey, to, value, wallet])
+  const getFeesWithWalletEIP1559SupportInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
+    return { adapter, data, to, value, pubKey, wallet }
+  }, [adapter, data, pubKey, to, value, wallet])
 
   const query = useQuery({
-    queryKey: reactQueries.common.evmFees({ chainId, value, accountNumber, data, pubKey, to })
-      .queryKey,
+    queryKey: reactQueries.common.evmFees({ chainId, value, data, pubKey, to }).queryKey,
     queryFn:
-      isGetFeesWithWalletArgs(getFeesWithWalletInput) && enabled
-        ? () => getFeesWithWallet(getFeesWithWalletInput)
+      isGetFeesWithWalletEIP1559SupportArgs(getFeesWithWalletEIP1559SupportInput) && enabled
+        ? () => getFeesWithWalletEIP1559Support(getFeesWithWalletEIP1559SupportInput)
         : skipToken,
     select: feeAsset ? fees => selectEvmFees(fees, feeAsset, feeAssetMarketData) : undefined,
     staleTime,

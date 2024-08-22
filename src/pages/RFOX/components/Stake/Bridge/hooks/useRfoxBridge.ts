@@ -236,6 +236,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: sellAssetAccountNumber,
+        pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
         adapter,
         data: unsignedTx.data,
         value: unsignedTx.value,

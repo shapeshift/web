@@ -1,7 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
@@ -15,7 +14,7 @@ import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, isGetFeesWithWalletArgs } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
@@ -53,7 +52,7 @@ export const useRfoxBridgeApproval = ({
   const allowanceQuery = useAllowance({
     assetId: confirmedQuote.sellAssetId,
     spender: allowanceContract,
-    from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+    pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
   })
 
   const isApprovalRequired = useMemo(
@@ -77,6 +76,7 @@ export const useRfoxBridgeApproval = ({
       spender: allowanceContract!, // see handleApprove below
       amountCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet: wallet ?? undefined,
+      pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
     }),
     onSuccess: (txHash: string) => {
@@ -111,16 +111,8 @@ export const useRfoxBridgeApproval = ({
 
   const isGetApprovalFeesEnabled = useCallback(
     (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
-      Boolean(isApprovalRequired && isGetFeesWithWalletArgs(input)),
+      Boolean(isApprovalRequired && isGetFeesWithWalletEIP1559SupportArgs(input)),
     [isApprovalRequired],
-  )
-
-  const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet)
-        ? fromAccountId(confirmedQuote.sellAssetAccountId).account
-        : undefined,
-    [confirmedQuote.sellAssetAccountId, wallet],
   )
 
   const approvalFeesQueryInput = useMemo(
@@ -128,7 +120,7 @@ export const useRfoxBridgeApproval = ({
       value: '0',
       accountNumber: sellAssetAccountNumber,
       to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
-      pubKey,
+      pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       data: approvalCallData,
       chainId: fromAssetId(confirmedQuote.sellAssetId).chainId,
@@ -137,7 +129,6 @@ export const useRfoxBridgeApproval = ({
       approvalCallData,
       confirmedQuote.sellAssetAccountId,
       confirmedQuote.sellAssetId,
-      pubKey,
       sellAssetAccountNumber,
     ],
   )

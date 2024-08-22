@@ -1,9 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMemo } from 'react'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
@@ -17,9 +15,8 @@ export enum AllowanceType {
 }
 
 type UseApprovalFeesInput = {
-  accountNumber: number
   assetId: AssetId
-  from?: string
+  pubKey: string | undefined
   spender: string
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
@@ -27,17 +24,13 @@ type UseApprovalFeesInput = {
 }
 
 export const useApprovalFees = ({
-  accountNumber,
   assetId,
   amountCryptoBaseUnit,
-  from,
+  pubKey,
   allowanceType,
   spender,
   enabled,
 }: UseApprovalFeesInput) => {
-  const {
-    state: { wallet },
-  } = useWallet()
   const { assetReference: to, chainId } = useMemo(() => {
     return fromAssetId(assetId)
   }, [assetId])
@@ -45,7 +38,7 @@ export const useApprovalFees = ({
   const { allowanceCryptoBaseUnitResult, isApprovalRequired } = useIsApprovalRequired({
     amountCryptoBaseUnit,
     assetId,
-    from,
+    pubKey,
     spender,
   })
 
@@ -63,13 +56,7 @@ export const useApprovalFees = ({
     })
   }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
 
-  const pubKey = useMemo(
-    () => (wallet && isLedger(wallet) && from ? from : undefined),
-    [from, wallet],
-  )
-
   const evmFeesResult = useEvmFees({
-    accountNumber,
     to,
     pubKey,
     value: '0',

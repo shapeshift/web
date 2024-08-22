@@ -324,6 +324,7 @@ export const useSendThorTx = ({
 
           const buildCustomTxInput = await createBuildCustomTxInput({
             accountNumber,
+            pubKey: fromAccountId(accountId).account,
             adapter,
             data: depositWithExpiryInputData,
             value:

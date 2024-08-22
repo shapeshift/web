@@ -6,15 +6,15 @@ import { selectAllowanceCryptoBaseUnit } from './selectors'
 type UseAllowanceArgs = {
   assetId: string | undefined
   spender: string | undefined
-  from: string | undefined
+  pubKey: string | undefined
 }
 
-export const useAllowance = ({ assetId, spender, from }: UseAllowanceArgs) => {
+export const useAllowance = ({ assetId, spender, pubKey }: UseAllowanceArgs) => {
   const query = useQuery({
-    ...reactQueries.common.allowanceCryptoBaseUnit(assetId, spender, from),
+    ...reactQueries.common.allowanceCryptoBaseUnit(assetId, spender, pubKey),
     refetchOnMount: 'always',
     refetchInterval: 15_000,
-    enabled: Boolean(assetId && spender && from),
+    enabled: Boolean(assetId && spender && pubKey),
     select: selectAllowanceCryptoBaseUnit,
   })
 

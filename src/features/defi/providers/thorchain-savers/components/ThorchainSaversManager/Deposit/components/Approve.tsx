@@ -158,6 +158,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       const adapter = assertGetEvmChainAdapter(chainId)
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,
+        pubKey: fromAccountId(accountId).account,
         adapter,
         data,
         value: '0',

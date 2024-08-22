@@ -1,7 +1,6 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -32,7 +31,11 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  getErc20Allowance,
+  getFeesWithWalletEIP1559Support,
+} from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
@@ -296,11 +299,6 @@ export const Deposit: React.FC<DepositProps> = ({
   const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
     useIsSweepNeededQuery(isSweepNeededArgs)
 
-  const pubKey = useMemo(
-    () => (wallet && isLedger(wallet) && userAddress ? userAddress : undefined),
-    [userAddress, wallet],
-  )
-
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
       if (!feeAsset) return
@@ -348,12 +346,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
           const adapter = assertGetEvmChainAdapter(chainId)
 
-          return getFeesWithWallet({
-            accountNumber,
+          return getFeesWithWalletEIP1559Support({
             adapter,
             data,
             to: fromAssetId(assetId).assetReference,
-            pubKey,
+            pubKey: userAddress,
             value: '0',
             wallet,
           })
@@ -413,7 +410,6 @@ export const Deposit: React.FC<DepositProps> = ({
       wallet,
       asset.chainId,
       chainId,
-      pubKey,
       toast,
       translate,
     ],

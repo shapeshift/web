@@ -9,6 +9,7 @@ export const mutations = createMutationKeys('mutations', {
     amountCryptoBaseUnit,
     accountNumber,
     wallet,
+    pubKey,
   }: MaybeApproveInputWithWallet) => ({
     mutationKey: ['approve', { assetId, accountNumber, amountCryptoBaseUnit, spender }],
     mutationFn: (_: void) => {
@@ -17,8 +18,9 @@ export const mutations = createMutationKeys('mutations', {
       if (amountCryptoBaseUnit === undefined) throw new Error('non-undefined amount is required')
       if (!wallet) throw new Error('wallet is required')
       if (accountNumber === undefined) throw new Error('accountNumber is required')
+      if (!pubKey) throw new Error('pubKey is required')
 
-      return approve({ assetId, accountNumber, amountCryptoBaseUnit, spender, wallet })
+      return approve({ assetId, accountNumber, amountCryptoBaseUnit, spender, wallet, pubKey })
     },
   }),
 })

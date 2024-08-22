@@ -7,14 +7,17 @@ export const approveTrade = async ({
   tradeQuoteStep,
   wallet,
   allowanceType,
+  pubKey,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   wallet: HDWallet
+  pubKey: string
   allowanceType: AllowanceType
 }): Promise<string> => {
   const txHash = await approve({
     assetId: tradeQuoteStep.sellAsset.assetId,
     accountNumber: tradeQuoteStep.accountNumber,
+    pubKey,
     amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
       tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       allowanceType,

@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -212,7 +211,7 @@ export const useLendingQuoteOpenQuery = ({
     if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
 
     const deviceId = await wallet.getDeviceID()
-    const pubKey = isLedger(wallet) ? fromAccountId(_borrowAccountId).account : undefined
+    const pubKey = fromAccountId(_borrowAccountId).account
 
     return getReceiveAddress({
       asset: borrowAsset,

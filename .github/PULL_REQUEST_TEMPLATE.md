@@ -2,12 +2,6 @@
 
 <!-- Please describe your changes -->
 
-## Pull Request Type
-
-- [ ] :bug: Bug fix (Non-breaking Change: Fixes an issue)
-- [ ] :hammer_and_wrench: Chore (Non-breaking Change: Doc updates, pkg upgrades, typos, etc..)
-- [ ] :nail_care: New Feature (Breaking/Non-breaking Change)
-
 ## Issue (if applicable)
 
 <!-----------------------------------------------------------------------------
@@ -17,6 +11,7 @@ If applicable, please link to the github issue and put `closes #XXXX` in your co
 closes #
 
 ## Risk
+
 > High Risk PRs Require 2 approvals
 
 <!-----------------------------------------------------------------------------
@@ -30,6 +25,7 @@ E.g. an upgrade to `hdwallet` or core state management would be considered highe
 > What protocols, transaction types, wallets or contract interactions might be affected by this PR?
 
 ## Testing
+
 <!-----------------------------------------------------------------------------
 We treat every PR to be merged with the same scrutiny as if we were merging directly to production.
 
@@ -43,6 +39,7 @@ Include sufficient information here for an engineer to test your PR. This may in
 ------------------------------------------------------------------------------>
 
 ### Operations
+
 - [ ] :checkered_flag: My feature is behind a flag and doesn't require operations testing (yet)
 
 <!-----------------------------------------------------------------------------

@@ -252,8 +252,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Купить или продать криптовалюту",
     "titleMessage": "Вы можете %{action} %{asset}, используя:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Гора Пелерин",
     "onRamper": "OnRamper",
@@ -399,6 +397,7 @@
       "saversVaults": {
         "description": "Получайте доход от вашего %{asset} через хранилища THORChain. Время блокировки отсутствует, а вознаграждения накапливаются автоматически. Доходность THORChain складывается из комиссий за своп и вознаграждений за блокчейн. Односторонняя доходность ограничена половиной двусторонней доходности поставщиков ликвидности.",
         "runePoolDescription": "RUNEPool позволяет вам зарабатывать больше %{asset}, объединяя свои %{asset} с другими. Вам не нужно выбирать конкретные пулы, все участвуют в общей производительности.",
+        "runePoolOverviewDescription": "RUNEPool оптимизирует использование RUNE, размещая его во всех пулах ликвидности THORChain, поддерживающих пулы. Объединяя RUNE в этих пулах, участники зарабатывают совокупную APY, но подвергаются риску совокупных непостоянных потерь. Вместо того чтобы выбирать отдельные пулы, пользователи получают выгоду от общей производительности, эффективно инвестируя в индекс RUNE и все активы THORChain с поддержкой пулов. Это упрощает предоставление ликвидности и снижает индивидуальный риск.",
         "vaultCap": "Капитализация хранилища",
         "vaultCapTooltip": "Текущая максимальная вместимость данного хранилища",
         "haltedDepositTitle": "Вклады временно приостановлены.",
@@ -918,6 +917,7 @@
     "unknownGas": "(неизвестно)",
     "numHops": "Эта торговля включает  %{numHops} hops",
     "receiveAddress": "Адрес получателя",
+    "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
     "smartContractReceiveAddressDescription": "Мы обнаружили, что вы осуществляете обмен со смарт-контракта, адрес которого может отсутствовать в цепочке назначения. Пожалуйста, проверьте и вручную введите желаемый адрес получателя на %{chainName}",
     "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
@@ -1233,6 +1233,7 @@
       },
       "withdrawTo": "Вывести на",
       "amountToDeposit": "Сумма к пополнению",
+      "amountDeposited": "Сумма депозита",
       "amountToStake": "Сумма для стейкинга",
       "amountToWithdraw": "Сумма для вывода",
       "amountToClaim": "Сумма к выплате",
@@ -1869,7 +1870,8 @@
     }
   },
   "ledgerOpenApp": {
-    "title": "Открыть %{appName} апликацию"
+    "title": "Открыть %{appName} апликацию",
+    "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

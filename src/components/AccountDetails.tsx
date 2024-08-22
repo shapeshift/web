@@ -1,6 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Route } from 'Routes/helpers'
 import { MultiHopTrade } from 'components/MultiHopTrade/MultiHopTrade'
@@ -26,6 +27,10 @@ const displayMdBlock = { base: 'none', md: 'flex' }
 
 export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   const translate = useTranslate()
+
+  // When the asset is ETH, we want to use the built-in default buy asset (FOX)
+  const defaultBuyAssetId = useMemo(() => (assetId === ethAssetId ? undefined : assetId), [assetId])
+
   if (!accountId || !assetId) return null
   return (
     <Stack width='full' alignItems='flex-start' spacing={4} mx='auto' direction={directionXlRow}>
@@ -51,7 +56,7 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
         gap={4}
         display={displayMdBlock}
       >
-        <MultiHopTrade isCompact />
+        <MultiHopTrade isCompact defaultBuyAssetId={defaultBuyAssetId} />
       </Flex>
     </Stack>
   )

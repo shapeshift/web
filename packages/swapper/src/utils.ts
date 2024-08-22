@@ -178,47 +178,36 @@ export const checkSafeTransactionStatus = async ({
   | {
       status: TxStatus
       buyTxHash: string | undefined
-      txHash: string
       message: string | undefined
     }
   | undefined
 > => {
-  const safeTransactionInfo = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
-  const { isSafeTxHash, transaction } = safeTransactionInfo
+  const { transaction } = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
 
-  // Not a SAFE Tx hash, noop
-  if (!isSafeTxHash) return
-  // This should not happen, but...
   if (!transaction) return
 
   // SAFE proposal queued, but not executed on-chain yet
-  // Return as pending, with the SAFE internal hash as buyTxHash
   if (
-    isSafeTxHash &&
-    transaction?.confirmations &&
-    Number(transaction.confirmations.length) < transaction.confirmationsRequired
+    !transaction.transactionHash &&
+    transaction.confirmations &&
+    transaction.confirmations.length <= transaction.confirmationsRequired
   ) {
     return {
       status: TxStatus.Pending,
       message: `SAFE proposal queued. ${transaction.confirmations.length} out of ${transaction.confirmationsRequired} signed.`,
       buyTxHash: undefined,
-      txHash,
     }
   }
 
   // Transaction executed on-chain
   if (transaction.transactionHash) {
-    // Mutate with the actual on-chain transaction hash instead of using the safe transaction hash
-    txHash = transaction.transactionHash
-
     const adapter = assertGetEvmChainAdapter(chainId)
-    const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
     const status = getTxStatus(tx)
 
     return {
       status,
-      buyTxHash: txHash,
-      txHash,
+      buyTxHash: transaction.transactionHash,
       message: `SAFE proposal executed.`,
     }
   }

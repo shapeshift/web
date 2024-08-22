@@ -157,11 +157,12 @@ export const lifiApi: SwapperApi = {
     })
 
     if (maybeSafeTransactionStatus) {
-      // JS only mutates objects at function scope - so the mutating we do inside checkSafeTransactionStatus has no effect here and we must reassign it
-      txHash = maybeSafeTransactionStatus.txHash
-
-      // A buyTxHash means the initial Tx is confirmed, but the trade may not be confirmed - continue with regular Li.Fi status polling
+      // return any safe transaction status that has not yet executed on chain (no buyTxHash)
       if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+      // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+      // Mutate txHash and continue with regular status check flow.
+      txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
     // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling

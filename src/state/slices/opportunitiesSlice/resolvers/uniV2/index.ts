@@ -127,8 +127,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData.tokens?.[0].decimals!
-      token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
+      token0Decimals = bnOrZero(zapperAppBalanceData.tokens?.[0].decimals!).toNumber()
+      token1Decimals = bnOrZero(zapperAppBalanceData.tokens?.[1].decimals!).toNumber()
       token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
       token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
       token0Address = getAddress(zapperAppBalanceData?.tokens?.[0].address!)

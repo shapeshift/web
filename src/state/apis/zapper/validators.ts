@@ -140,7 +140,7 @@ type ZapperToken = {
   price?: number
   supply?: number
   symbol: string
-  decimals: number
+  decimals: string | number
   dataProps?: Infer<typeof ZapperDataPropsSchema>
   displayProps?: Infer<typeof ZapperDisplayPropsSchema>
   pricePerShare?: (string | number)[]
@@ -155,7 +155,7 @@ const ZapperTokenSchema: Type<ZapperToken> = z
     type: z.literals('base-token', 'app-token'),
     network: SupportedZapperNetworks,
     address: z.string(),
-    decimals: z.number(),
+    decimals: z.union([z.string(), z.number()]),
     symbol: z.string(),
     price: z.number(),
     metaType: z.literals('claimable', 'supplied', 'borrowed').optional(),

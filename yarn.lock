@@ -11400,6 +11400,8 @@ __metadata:
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
   languageName: unknown
   linkType: soft

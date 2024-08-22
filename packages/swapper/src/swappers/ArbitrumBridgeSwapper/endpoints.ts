@@ -8,6 +8,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
+import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   EvmTransactionRequest,
@@ -163,9 +164,13 @@ export const arbitrumBridgeApi: SwapperApi = {
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
-    const swapTxStatus = await checkEvmSwapStatus({ txHash, chainId, assertGetEvmChainAdapter })
+    const swapTxStatus = await checkEvmSwapStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
     const isWithdraw = chainId === arbitrumChainId
 
     if (isWithdraw) {

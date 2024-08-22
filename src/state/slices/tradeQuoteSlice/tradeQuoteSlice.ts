@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
@@ -136,7 +137,7 @@ export const tradeQuoteSlice = createSlice({
       action: PayloadAction<{
         id: TradeQuote['id']
         hopIndex: number
-        message: string | undefined
+        message: string | [string, InterpolationOptions] | undefined
       }>,
     ) => {
       const { hopIndex, message } = action.payload

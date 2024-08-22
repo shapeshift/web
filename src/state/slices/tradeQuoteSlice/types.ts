@@ -1,5 +1,6 @@
 import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import type { PartialRecord } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 export type ActiveQuoteMeta = { swapperName: SwapperName; identifier: string }
@@ -69,7 +70,7 @@ export type SwapExecutionMetadata = {
   sellTxHash?: string
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
-  message?: string
+  message?: string | [string, InterpolationOptions]
 }
 
 export type HopExecutionMetadata = {

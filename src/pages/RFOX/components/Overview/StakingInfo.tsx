@@ -59,8 +59,7 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
           amountCryptoBaseUnit={currentEpochRewardsCryptoBaseUnitResult.data?.toString()}
           isLoading={
             currentEpochRewardsCryptoBaseUnitResult.isLoading ||
-            currentEpochRewardsCryptoBaseUnitResult.isPaused ||
-            currentEpochRewardsCryptoBaseUnitResult.isPending
+            currentEpochRewardsCryptoBaseUnitResult.isPaused
           }
         />
         <StakingInfoItem
@@ -77,12 +76,8 @@ export const StakingInfo: React.FC<StakingInfoProps> = ({
         <StakingInfoItem
           informationDescription='RFOX.timeInPool'
           helperTranslation='RFOX.timeInPoolHelper'
-          value={timeInPoolHumanResult.data}
-          isLoading={
-            timeInPoolHumanResult.isLoading ||
-            timeInPoolHumanResult.isPaused ||
-            timeInPoolHumanResult.isPending
-          }
+          value={timeInPoolHumanResult.data || 'N/A'}
+          isLoading={timeInPoolHumanResult.isLoading || timeInPoolHumanResult.isPaused}
         />
       </SimpleGrid>
     </Box>

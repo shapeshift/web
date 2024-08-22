@@ -28,10 +28,13 @@ export const RFOXHeader = () => {
 
   useEffect(() => {
     if (!accountIds.length) setStakingAssetAccountId(undefined)
+    if (accountIds.length === 1) {
+      setStakingAssetAccountId(accountIds[0])
+    }
   }, [accountIds, setStakingAssetAccountId])
 
   const activeAccountDropdown = useMemo(() => {
-    if (!accountIds.length) return null
+    if (accountIds.length <= 1) return null
 
     return (
       <Flex alignItems='center' gap={2}>
@@ -47,7 +50,7 @@ export const RFOXHeader = () => {
         />
       </Flex>
     )
-  }, [accountIds, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
+  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
 
   return (
     <>

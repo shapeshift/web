@@ -1,6 +1,7 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -295,6 +296,11 @@ export const Deposit: React.FC<DepositProps> = ({
   const { data: isSweepNeeded, isLoading: isSweepNeededLoading } =
     useIsSweepNeededQuery(isSweepNeededArgs)
 
+  const pubKey = useMemo(
+    () => (wallet && isLedger(wallet) && userAddress ? userAddress : undefined),
+    [userAddress, wallet],
+  )
+
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
       if (!feeAsset) return
@@ -347,6 +353,7 @@ export const Deposit: React.FC<DepositProps> = ({
             adapter,
             data,
             to: fromAssetId(assetId).assetReference,
+            pubKey,
             value: '0',
             wallet,
           })
@@ -389,23 +396,24 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      userAddress,
-      opportunityData,
-      inputValues,
-      accountId,
-      contextDispatch,
       feeAsset,
-      chainId,
+      accountId,
+      userAddress,
+      inputValues,
+      opportunityData,
+      contextDispatch,
+      isApprovalRequired,
       estimatedFeesData,
       onNext,
       isSweepNeeded,
       assetId,
       assets,
-      isApprovalRequired,
       inboundAddress,
       accountNumber,
       wallet,
       asset.chainId,
+      chainId,
+      pubKey,
       toast,
       translate,
     ],

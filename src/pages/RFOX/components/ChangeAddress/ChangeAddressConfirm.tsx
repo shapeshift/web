@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -25,6 +26,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import {
@@ -69,6 +71,7 @@ export const ChangeAddressConfirm: React.FC<
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
   )
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
@@ -93,15 +96,24 @@ export const ChangeAddressConfirm: React.FC<
     })
   }, [confirmedQuote.newRuneAddress])
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet) && stakingAssetAccountAddress
+        ? stakingAssetAccountAddress
+        : undefined,
+    [stakingAssetAccountAddress, wallet],
+  )
+
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      pubKey,
       chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, confirmedQuote.stakingAssetId, stakingAssetAccountNumber],
+    [callData, confirmedQuote.stakingAssetId, pubKey, stakingAssetAccountNumber],
   )
 
   const {
@@ -167,10 +179,15 @@ export const ChangeAddressConfirm: React.FC<
   })
 
   const handleSubmit = useCallback(async () => {
-    await handleChangeAddress()
+    if (!stakingAsset) return
 
-    history.push(ChangeAddressRoutePaths.Status)
-  }, [history, handleChangeAddress])
+    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
+      .then(async () => {
+        await handleChangeAddress()
+        history.push(ChangeAddressRoutePaths.Status)
+      })
+      .catch(console.error)
+  }, [history, handleChangeAddress, stakingAsset, checkLedgerAppOpenIfLedgerConnected])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

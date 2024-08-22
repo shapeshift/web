@@ -29,7 +29,7 @@ export const Overview: React.FC = () => {
 
   const stakingBalanceCryptoBaseUnitLoading = useMemo(() => {
     return (
-      stakingBalanceCryptoBaseUnitResult.isLoading || stakingBalanceCryptoBaseUnitResult.isPaused
+      stakingBalanceCryptoBaseUnitResult.isLoading || stakingBalanceCryptoBaseUnitResult.isFetching
     )
   }, [stakingBalanceCryptoBaseUnitResult])
 

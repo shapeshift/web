@@ -14,9 +14,9 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useMemo, useRef } from 'react'
+import { Fragment, useCallback, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import type { Column, Row, TableState } from 'react-table'
+import type { Cell, Column, ColumnInstance, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
 import { RawText } from 'components/Text'
 
@@ -27,7 +27,7 @@ type ReactTableProps<T extends {}> = {
   rowDataTestKey?: keyof T
   rowDataTestPrefix?: string
   onRowClick?: (row: Row<T>) => void
-  initialState?: Partial<TableState<{}>>
+  initialState?: Partial<TableState<T>>
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
@@ -40,6 +40,79 @@ const tableSize = { base: 'sm', md: 'md' }
 
 const arrowBackIcon = <ArrowBackIcon />
 const arrowForwardIcon = <ArrowForwardIcon />
+
+const CellWrap = <T extends {}>({ cell }: { cell: Cell<T, unknown> }) => {
+  const cellProps = useMemo(() => cell.getCellProps(), [cell])
+  const dataLabel = useMemo(() => {
+    return typeof cell.column.Header === 'string' ? cell.column.Header : undefined
+  }, [cell.column.Header])
+
+  return (
+    <Td
+      {...cellProps}
+      data-label={dataLabel}
+      display={cell.column.display}
+      textAlign={cell.column.textAlign}
+      key={cell.column.id}
+    >
+      {cell.render('Cell')}
+    </Td>
+  )
+}
+
+const RowWrap = <T extends {}>({
+  row,
+  rowDataTestKey,
+  rowDataTestPrefix,
+  onRowClick,
+  renderSubComponent,
+  visibleColumns,
+}: {
+  row: Row<T>
+  rowDataTestKey: string | number | symbol | undefined
+  rowDataTestPrefix?: string
+  onRowClick?: (row: Row<T>) => void
+  renderSubComponent?: (row: Row<T>) => React.ReactNode
+  visibleColumns: ColumnInstance<T>[]
+}) => {
+  const handleClick = useCallback(() => {
+    onRowClick?.(row)
+  }, [onRowClick, row])
+
+  const rowProps = useMemo(() => row.getRowProps(), [row])
+
+  const dataTest = useMemo(() => {
+    if (!rowDataTestKey) return undefined
+    const value =
+      (row.original as Record<string, unknown> | undefined)?.[rowDataTestKey as string] ?? ''
+    return `${rowDataTestPrefix}-${String(value).split(' ').join('-').toLowerCase()}`
+  }, [row.original, rowDataTestKey, rowDataTestPrefix])
+
+  return (
+    <Fragment>
+      <Tr
+        {...rowProps}
+        key={row.id}
+        tabIndex={row.index}
+        onClick={handleClick}
+        className={row.isExpanded ? 'expanded' : ''}
+        data-test={dataTest}
+        cursor={onRowClick ? 'pointer' : undefined}
+      >
+        {row.cells.map(cell => (
+          <CellWrap key={cell.column.id} cell={cell} />
+        ))}
+      </Tr>
+      {!!renderSubComponent && row.isExpanded ? (
+        <Tr className='expanded-details'>
+          <Td colSpan={visibleColumns.length} style={tdStyle}>
+            {renderSubComponent(row)}
+          </Td>
+        </Tr>
+      ) : null}
+    </Fragment>
+  )
+}
 
 export const ReactTable = <T extends {}>({
   columns,
@@ -57,16 +130,15 @@ export const ReactTable = <T extends {}>({
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
-  const tableColumns = useMemo(
-    () =>
-      isLoading
-        ? columns.map((column, index) => ({
-            ...column,
-            Cell: () => <Skeleton key={index} height='16px' />,
-          }))
-        : columns,
-    [columns, isLoading],
-  )
+  const tableColumns = useMemo(() => {
+    return isLoading
+      ? columns.map((column, index) => ({
+          ...column,
+          Cell: () => <Skeleton key={index} height='16px' />,
+        }))
+      : columns
+  }, [columns, isLoading])
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -85,57 +157,29 @@ export const ReactTable = <T extends {}>({
       columns: tableColumns,
       data,
       initialState,
+      // The following two options are needed to prevent the table from infinite render loop and crash
+      // https://github.com/TanStack/table/issues/2369#issuecomment-644481605
+      autoResetSortBy: false,
+      autoResetPage: false,
     },
     useSortBy,
     useExpanded,
     usePagination,
   )
-  const renderRows = useMemo(() => {
+
+  const renderedRows = useMemo(() => {
     return page.map(row => {
       prepareRow(row)
       return (
-        <Fragment key={row.id}>
-          <Tr
-            {...row.getRowProps()}
-            key={row.id}
-            tabIndex={row.index}
-            // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
-            onClick={() => onRowClick?.(row)}
-            className={row.isExpanded ? 'expanded' : ''}
-            {...(rowDataTestKey
-              ? {
-                  'data-test': `${rowDataTestPrefix}-${String(row.original?.[rowDataTestKey] ?? '')
-                    .split(' ')
-                    .join('-')
-                    .toLowerCase()}`,
-                }
-              : {})}
-            cursor={onRowClick ? 'pointer' : undefined}
-          >
-            {row.cells.map(cell => (
-              <Td
-                {...cell.getCellProps()}
-                // Header can be () => null or a string, only use data-label if it's a string
-                {...(typeof cell.column.Header === 'string'
-                  ? { 'data-label': cell.column.Header }
-                  : undefined)}
-                display={cell.column.display}
-                textAlign={cell.column.textAlign}
-                key={cell.column.id}
-              >
-                {cell.render('Cell')}
-              </Td>
-            ))}
-          </Tr>
-          {!!renderSubComponent && row.isExpanded ? (
-            <Tr className='expanded-details'>
-              <Td colSpan={visibleColumns.length} style={tdStyle}>
-                {renderSubComponent(row)}
-              </Td>
-            </Tr>
-          ) : null}
-        </Fragment>
+        <RowWrap
+          key={row.id}
+          row={row}
+          rowDataTestKey={rowDataTestKey}
+          rowDataTestPrefix={rowDataTestPrefix}
+          onRowClick={onRowClick}
+          renderSubComponent={renderSubComponent}
+          visibleColumns={visibleColumns}
+        />
       )
     })
   }, [
@@ -145,11 +189,15 @@ export const ReactTable = <T extends {}>({
     rowDataTestPrefix,
     onRowClick,
     renderSubComponent,
-    visibleColumns.length,
+    visibleColumns,
   ])
 
+  const tableBodyProps = useMemo(() => getTableBodyProps(), [getTableBodyProps])
+  const tableProps = useMemo(() => getTableProps(), [getTableProps])
+  const emptyComponent = useMemo(() => renderEmptyComponent?.(), [renderEmptyComponent])
+
   return (
-    <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
+    <Table ref={tableRef} variant={variant} size={tableSize} {...tableProps}>
       {displayHeaders && (
         <Thead>
           {headerGroups.map(headerGroup => (
@@ -182,12 +230,12 @@ export const ReactTable = <T extends {}>({
           ))}
         </Thead>
       )}
-      <Tbody {...getTableBodyProps()}>{renderRows}</Tbody>
-      {page.length === 0 && !isLoading && renderEmptyComponent && (
+      <Tbody {...tableBodyProps}>{renderedRows}</Tbody>
+      {page.length === 0 && !isLoading && emptyComponent && (
         <Tfoot>
           <Tr>
             <Td colSpan={visibleColumns.length} py={0}>
-              {renderEmptyComponent()}
+              {emptyComponent}
             </Td>
           </Tr>
         </Tfoot>

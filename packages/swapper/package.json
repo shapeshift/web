@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^"
   }
 }

@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -25,6 +26,7 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -63,6 +65,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const history = useHistory()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
@@ -113,6 +116,14 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     })
   }, [stakingAsset, claimQuote.index])
 
+  const pubKey = useMemo(
+    () =>
+      wallet && isLedger(wallet) && stakingAssetAccountAddress
+        ? stakingAssetAccountAddress
+        : undefined,
+    [stakingAssetAccountAddress, wallet],
+  )
+
   const {
     mutateAsync: handleClaim,
     isIdle: isClaimMutationIdle,
@@ -153,12 +164,13 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const claimFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
+      pubKey,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, claimQuote.stakingAssetId, stakingAssetAccountNumber],
+    [callData, claimQuote.stakingAssetId, pubKey, stakingAssetAccountNumber],
   )
 
   const {
@@ -204,9 +216,15 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   }, [stakingAsset, stakingAmountCryptoPrecision, claimAmountUserCurrency])
 
   const handleSubmit = useCallback(async () => {
-    await handleClaim()
-    history.push(ClaimRoutePaths.Status)
-  }, [handleClaim, history])
+    if (!stakingAsset) return
+
+    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
+      .then(async () => {
+        await handleClaim()
+        history.push(ClaimRoutePaths.Status)
+      })
+      .catch(console.error)
+  }, [handleClaim, history, checkLedgerAppOpenIfLedgerConnected, stakingAsset])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
   const isClaimTxPending = useMemo(

@@ -1,6 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
@@ -125,11 +126,12 @@ export const useUniV2LiquidityPool = ({
         })
   }, [lpContractAddress, skip])
 
+  const accountAddress = useMemo(() => getAddress(fromAccountId(accountId).account), [accountId])
+
   const makeAddLiquidityData = useCallback(
     ({ token0Amount, token1Amount }: { token0Amount: string; token1Amount: string }) => {
       if (!uniswapRouterContract) throw new Error('Uniswap router contract instance is undefined')
       const deadline = Date.now() + 1000 * 60 * 10 // 10 minutes from now
-      const accountAddress = getAddress(fromAccountId(accountId).account)
 
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
         const ethAmount = (() => {
@@ -181,7 +183,7 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
-      accountId,
+      accountAddress,
       asset0,
       asset0ContractAddress,
       asset1,
@@ -410,32 +412,34 @@ export const useUniV2LiquidityPool = ({
   const asset0Allowance = useCallback(async () => {
     if (skip || !accountId || !asset0Contract) return
 
-    const accountAddress = getAddress(fromAccountId(accountId).account)
     const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
     const _allowance = await asset0Contract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
-  }, [skip, asset0Contract, accountId])
+  }, [skip, accountId, asset0Contract, accountAddress])
 
   const asset1Allowance = useCallback(async () => {
     if (skip || !accountId || !asset1Contract) return
 
-    const accountAddress = getAddress(fromAccountId(accountId).account)
     const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
     const _allowance = await asset1Contract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
-  }, [skip, asset1Contract, accountId])
+  }, [skip, accountId, asset1Contract, accountAddress])
 
   const lpAllowance = useCallback(async () => {
     if (skip || !accountId || !uniV2LPContract) return
 
-    const accountAddress = getAddress(fromAccountId(accountId).account)
     const contractAddress = getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference)
     const _allowance = await uniV2LPContract.read.allowance([accountAddress, contractAddress])
 
     return _allowance.toString()
-  }, [skip, uniV2LPContract, accountId])
+  }, [skip, accountId, uniV2LPContract, accountAddress])
+
+  const pubKey = useMemo(
+    () => (wallet && isLedger(wallet) ? accountAddress : undefined),
+    [wallet, accountAddress],
+  )
 
   const getApproveFees = useCallback(
     (contractAddress: Address) => {
@@ -460,11 +464,12 @@ export const useUniV2LiquidityPool = ({
         adapter,
         data,
         to: contract.address,
+        pubKey,
         value: '0',
         wallet,
       })
     },
-    [skip, accountNumber, adapter, wallet],
+    [skip, accountNumber, wallet, adapter, pubKey],
   )
 
   const getDepositFees = useCallback(
@@ -474,7 +479,6 @@ export const useUniV2LiquidityPool = ({
 
       // https://docs.uniswap.org/contracts/v2/reference/smart-contracts/router-02#addliquidityeth
       const deadline = Date.now() + 1200000 // 20 minutes from now
-      const accountAddress = getAddress(fromAccountId(accountId).account)
 
       // TODO(gomes): consolidate branching, surely we can do better
       if ([assetId0OrWeth, assetId1OrWeth].includes(wethAssetId)) {
@@ -505,6 +509,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          pubKey,
           value: toBaseUnit(ethAmount, weth.precision),
           wallet,
         })
@@ -532,6 +537,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+          pubKey,
           value: '0',
           wallet,
         })
@@ -542,6 +548,7 @@ export const useUniV2LiquidityPool = ({
       accountId,
       accountNumber,
       uniswapRouterContract,
+      wallet,
       assetId0OrWeth,
       assetId1OrWeth,
       asset1ContractAddress,
@@ -549,8 +556,9 @@ export const useUniV2LiquidityPool = ({
       asset1,
       asset0,
       weth.precision,
+      accountAddress,
       adapter,
-      wallet,
+      pubKey,
     ],
   )
 
@@ -571,6 +579,7 @@ export const useUniV2LiquidityPool = ({
         adapter,
         data,
         to: fromAssetId(uniswapV2Router02AssetId).assetReference,
+        pubKey,
         value: '0',
         wallet,
       })
@@ -579,11 +588,12 @@ export const useUniV2LiquidityPool = ({
       skip,
       accountNumber,
       uniswapRouterContract,
+      wallet,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
       adapter,
-      wallet,
+      pubKey,
     ],
   )
 

@@ -3,6 +3,7 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
+import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
@@ -17,7 +18,7 @@ import type {
   TradeQuote,
 } from '../../types'
 import { SwapperName } from '../../types'
-import { createDefaultStatusResponse, getHopByIndex } from '../../utils'
+import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type {
@@ -160,12 +161,20 @@ export const cowApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
+    assertGetEvmChainAdapter,
     config,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+    if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
+
     const maybeNetwork = getCowswapNetwork(chainId)
     if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
     const network = maybeNetwork.unwrap()

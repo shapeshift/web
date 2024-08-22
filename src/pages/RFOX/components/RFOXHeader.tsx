@@ -15,10 +15,11 @@ import { useRFOXContext } from '../hooks/useRfoxContext'
 export const RFOXHeader = () => {
   const translate = useTranslate()
   const history = useHistory()
+  const { stakingAssetId, setStakingAssetAccountId, stakingAssetAccountId } = useRFOXContext()
+
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
-  const { stakingAssetId, setStakingAssetAccountId, stakingAssetAccountId } = useRFOXContext()
 
   const accountIdsFilter = useMemo(() => ({ assetId: stakingAssetId }), [stakingAssetId])
   const accountIds = useAppSelector(state =>
@@ -26,13 +27,11 @@ export const RFOXHeader = () => {
   )
 
   useEffect(() => {
-    if (accountIds.length === 1) {
-      setStakingAssetAccountId(accountIds[0])
-    }
+    if (!accountIds.length) setStakingAssetAccountId(undefined)
   }, [accountIds, setStakingAssetAccountId])
 
   const activeAccountDropdown = useMemo(() => {
-    if (accountIds.length <= 1) return null
+    if (!accountIds.length) return null
 
     return (
       <Flex alignItems='center' gap={2}>
@@ -48,7 +47,7 @@ export const RFOXHeader = () => {
         />
       </Flex>
     )
-  }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
+  }, [accountIds, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])
 
   return (
     <>

@@ -1,4 +1,14 @@
-import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  CardBody,
+  CardFooter,
+  Collapse,
+  Flex,
+  Input,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
@@ -32,6 +42,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
@@ -213,6 +224,15 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
 
+  if (!stakingAssetAccountAddress)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
   if (!stakingAsset) return null
 
   return (

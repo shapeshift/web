@@ -22,6 +22,7 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { ethers as ethersV5 } from 'ethers5'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { Chain, PublicClient, Transport } from 'viem'
 
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -380,9 +381,11 @@ export type Swapper = {
 }
 
 export type SwapperApi = {
-  checkTradeStatus: (
-    input: CheckTradeStatusInput,
-  ) => Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }>
+  checkTradeStatus: (input: CheckTradeStatusInput) => Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
+  }>
   getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
@@ -435,7 +438,7 @@ export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHa
 export type StatusArgs = {
   stepIndex: number
   status: TxStatus
-  message?: string
+  message?: string | [string, InterpolationOptions]
   buyTxHash?: string
 }
 

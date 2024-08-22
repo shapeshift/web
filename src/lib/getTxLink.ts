@@ -18,7 +18,7 @@ type GetTxBaseUrl = {
 
 // An eip-3770 compliant mapping of ChainId to chain shortname
 // https://github.com/safe-global/safe-core-sdk/blob/ea0d5018a93f294dfd891e6c8963edcb96431876/packages/protocol-kit/src/utils/eip-3770/config.ts
-export const chainShortnameByChainId: Partial<Record<KnownChainIds, string>> = {
+export const safeChainShortNameByChainId: Partial<Record<KnownChainIds, string>> = {
   [KnownChainIds.EthereumMainnet]: 'eth',
   [KnownChainIds.AvalancheMainnet]: 'avax',
   [KnownChainIds.OptimismMainnet]: 'oeth',
@@ -71,7 +71,7 @@ export const getTxLink = ({
 
   if (isSafeTxHash && accountId) {
     const { chainId, account: safeAddress } = fromAccountId(accountId)
-    const shortname = chainShortnameByChainId[chainId as KnownChainIds]
+    const shortname = safeChainShortNameByChainId[chainId as KnownChainIds]
     if (!shortname) {
       throw new Error(`No chain shortname found for chainId: ${chainId}`)
     }

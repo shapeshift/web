@@ -26,6 +26,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import {
@@ -70,6 +71,7 @@ export const ChangeAddressConfirm: React.FC<
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
   )
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
 
   const stakingAssetAccountAddress = useMemo(
     () => fromAccountId(confirmedQuote.stakingAssetAccountId).account,
@@ -177,10 +179,15 @@ export const ChangeAddressConfirm: React.FC<
   })
 
   const handleSubmit = useCallback(async () => {
-    await handleChangeAddress()
+    if (!stakingAsset) return
 
-    history.push(ChangeAddressRoutePaths.Status)
-  }, [history, handleChangeAddress])
+    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
+      .then(async () => {
+        await handleChangeAddress()
+        history.push(ChangeAddressRoutePaths.Status)
+      })
+      .catch(console.error)
+  }, [history, handleChangeAddress, stakingAsset, checkLedgerAppOpenIfLedgerConnected])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

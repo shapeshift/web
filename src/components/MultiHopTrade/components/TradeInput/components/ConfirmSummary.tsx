@@ -1,7 +1,6 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { ArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,6 +11,7 @@ import { Text } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { isToken } from 'lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import {
   selectFeeAssetById,
@@ -194,12 +194,11 @@ export const ConfirmSummary = ({
 
   const nativeAssetBridgeWarning: string | [string, InterpolationOptions] | undefined =
     useMemo(() => {
-      if (!buyAssetFeeAsset) return
-      // TODO(gomes): Bring me in for all bridges?
-      const isArbitrumBridgeDeposit =
-        (activeQuote as ArbitrumBridgeTradeQuote)?.direction === 'deposit'
+      if (!(sellAsset && buyAsset && buyAssetFeeAsset)) return
 
-      if (isArbitrumBridgeDeposit)
+      const isTokenBridge = isToken(buyAsset.assetId) && sellAsset.chainId !== buyAsset.chainId
+
+      if (isTokenBridge)
         return [
           'bridge.nativeAssetWarning',
           {
@@ -207,7 +206,7 @@ export const ConfirmSummary = ({
             destinationChainName: buyAssetFeeAsset.networkName,
           },
         ]
-    }, [activeQuote, buyAssetFeeAsset])
+    }, [buyAsset, buyAssetFeeAsset, sellAsset])
 
   const manualAddressEntryDescription = useMemo(() => {
     if (disableThorNativeSmartContractReceive)

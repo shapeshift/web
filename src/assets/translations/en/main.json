@@ -75,6 +75,8 @@
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
+    "safeProposalQueued": "SAFE proposal queued. %{currentConfirmations} out of %{confirmationsRequired} signed.",
+    "safeProposalExecuted": "SAFE proposal executed.",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",

@@ -237,9 +237,9 @@ export const HopTransactionStep = ({
             fontWeight='bold'
           />
         )}
-        {Boolean(message) && (
-          <Tooltip label={message}>
-            <RawText color='text.subtle'>{message}</RawText>
+        {message && (
+          <Tooltip label={translate(message)}>
+            <Text translation={message} color='text.subtle' />
           </Tooltip>
         )}
         {txLinks.map(({ txLink, txHash }) => (
@@ -262,6 +262,7 @@ export const HopTransactionStep = ({
     tradeQuoteStep.sellAsset.chainId,
     tradeQuoteStep.sellAsset.precision,
     tradeQuoteStep.sellAsset.symbol,
+    translate,
     txLinks,
   ])
 

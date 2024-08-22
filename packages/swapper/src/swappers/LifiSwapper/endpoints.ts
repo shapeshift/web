@@ -6,6 +6,7 @@ import { bn } from '@shapeshiftoss/utils'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
+import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   EvmTransactionRequest,
@@ -134,7 +135,11 @@ export const lifiApi: SwapperApi = {
     stepIndex,
     chainId,
     assertGetEvmChainAdapter,
-  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
+  }): Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
+  }> => {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 

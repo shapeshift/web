@@ -9,6 +9,7 @@ import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
@@ -335,7 +336,7 @@ export const thorchainApi: SwapperApi = {
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
     try {
       const maybeSafeTransactionStatus = await checkSafeTransactionStatus({

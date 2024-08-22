@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import type { InterpolationOptions } from 'node-polyglot'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
@@ -178,7 +179,7 @@ export const checkSafeTransactionStatus = async ({
   | {
       status: TxStatus
       buyTxHash: string | undefined
-      message: string | undefined
+      message: string | [string, InterpolationOptions] | undefined
     }
   | undefined
 > => {
@@ -194,7 +195,13 @@ export const checkSafeTransactionStatus = async ({
   ) {
     return {
       status: TxStatus.Pending,
-      message: `SAFE proposal queued. ${transaction.confirmations.length} out of ${transaction.confirmationsRequired} signed.`,
+      message: [
+        'common.safeProposalQueued',
+        {
+          currentConfirmations: transaction.confirmations.length,
+          confirmationsRequired: transaction.confirmationsRequired,
+        },
+      ],
       buyTxHash: undefined,
     }
   }
@@ -208,7 +215,7 @@ export const checkSafeTransactionStatus = async ({
     return {
       status,
       buyTxHash: transaction.transactionHash,
-      message: `SAFE proposal executed.`,
+      message: 'common.safeProposalQueued',
     }
   }
 }
@@ -224,7 +231,7 @@ export const checkEvmSwapStatus = async ({
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
-  message: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
 }> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({

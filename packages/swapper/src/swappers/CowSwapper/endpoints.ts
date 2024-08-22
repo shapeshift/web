@@ -3,6 +3,7 @@ import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
+import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
@@ -165,7 +166,7 @@ export const cowApi: SwapperApi = {
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       txHash,

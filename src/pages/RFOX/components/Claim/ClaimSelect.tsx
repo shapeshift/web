@@ -110,7 +110,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       isUnstakingRequestPaused ||
       isUnstakingRequestRefetching
     )
-      return new Array(2).fill(null).map(() => <Skeleton height={16} my={2} />)
+      return new Array(2).fill(null).map((_, index) => <Skeleton key={index} height={16} my={2} />)
     if (isUnstakingRequestError || !unstakingRequestResponse.length)
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
 

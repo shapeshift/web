@@ -29,6 +29,9 @@
       "path": "./packages/utils"
     },
     {
+      "path": "./packages/contracts"
+    },
+    {
       "path": "./packages/swapper"
     },
   ]

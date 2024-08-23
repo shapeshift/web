@@ -1,6 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'

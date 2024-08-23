@@ -1,5 +1,5 @@
+import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'

@@ -1,5 +1,4 @@
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 

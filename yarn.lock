@@ -10990,6 +10990,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/contracts@workspace:packages/contracts":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/contracts@workspace:packages/contracts"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "@shapeshiftoss/errors@workspace:^, @shapeshiftoss/errors@workspace:packages/errors":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/errors@workspace:packages/errors"

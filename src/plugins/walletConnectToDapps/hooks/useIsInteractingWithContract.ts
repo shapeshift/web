@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { getEthersProvider } from '@shapeshiftoss/contracts'
 import { useEffect, useState } from 'react'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 
 export const useIsInteractingWithContract = ({
   evmChainId,

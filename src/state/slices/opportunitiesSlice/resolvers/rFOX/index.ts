@@ -5,9 +5,9 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'

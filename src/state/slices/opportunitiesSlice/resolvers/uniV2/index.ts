@@ -1,13 +1,16 @@
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ContractType,
+  fetchUniV2PairData,
+  getEthersProvider,
+  getOrCreateContractByType,
+  WETH_TOKEN_CONTRACT_ADDRESS,
+} from '@shapeshiftoss/contracts'
 import { KnownChainIds, type MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
-import { WETH_TOKEN_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import { getAddress } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { toBaseUnit } from 'lib/math'
 import { selectZapperFulfilled } from 'state/apis/zapper/selectors'
 import { zapperApi } from 'state/apis/zapper/zapperApi'

@@ -1,6 +1,6 @@
+import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { describe, expect, it, vi } from 'vitest'

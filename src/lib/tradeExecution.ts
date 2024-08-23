@@ -1,3 +1,4 @@
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -22,7 +23,6 @@ import { getConfig } from 'config'
 import EventEmitter from 'events'
 import { poll } from 'lib/poll/poll'
 
-import { getEthersV5Provider } from './ethersProviderSingleton'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetUtxoChainAdapter } from './utils/utxo'

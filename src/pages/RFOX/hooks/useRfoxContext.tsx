@@ -8,9 +8,7 @@ import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
-  selectFirstAccountIdByChainId,
 } from 'state/slices/portfolioSlice/selectors'
-import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type RFOXContextType = {
@@ -30,15 +28,7 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
 }) => {
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  // This is required for wallets not supporting BIP44 accounts
-  const defaultStakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
-
-  const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>(
-    defaultStakingAssetAccountId,
-  )
+  const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(
     () =>

@@ -277,22 +277,18 @@ export const selectFirstAccountIdByChainId = createCachedSelector(
  * e.g. we may be swapping into a new EVM account that does not necessarily contain FOX
  * but can contain it
  */
-export const selectPortfolioAccountIdsByAssetIdFilter = createCachedSelector(
+export const selectPortfolioAccountIdsByAssetIdFilter = createDeepEqualOutputSelector(
   selectWalletAccountIds,
   selectAssetIdParamFromFilter,
-  (accountIds, assetId): AccountId[] => {
-    // early return for scenarios where assetId is not available yet
+  selectWalletId,
+  (accountIds, assetId, walletId): AccountId[] => {
+    // early return for scenarios where assetId/walletId is not available yet
     if (!assetId) return []
+    if (!walletId) return []
     const { chainId } = fromAssetId(assetId)
     return accountIds.filter(accountId => fromAccountId(accountId).chainId === chainId)
   },
-)(
-  (state, paramFilter) =>
-    `${state.portfolio.connectedWallet?.id ?? 'connectedWallet.id'}-${
-      paramFilter?.assetId ?? 'assetId'
-    }`,
 )
-
 export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
   selectPortfolioAccounts,
   (accounts): Record<AssetId, AccountId[]> => {

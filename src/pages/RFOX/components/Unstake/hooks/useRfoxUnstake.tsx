@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
@@ -109,25 +108,16 @@ export const useRfoxUnstake = ({
     })
   }, [amountCryptoPrecision, hasEnteredValue, stakingAsset?.precision])
 
-  const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet) && stakingAssetAccountId
-        ? fromAccountId(stakingAssetAccountId).account
-        : undefined,
-    [stakingAssetAccountId, wallet],
-  )
-
   const unstakeFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
-      pubKey,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [callData, pubKey, stakingAssetAccountId, stakingAssetAccountNumber, stakingAssetId],
+    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const unstakeMutation = useMutation({
@@ -136,6 +126,7 @@ export const useRfoxUnstake = ({
         !wallet ||
         stakingAssetAccountNumber === undefined ||
         !stakingAssetAccountId ||
+        !stakingAssetAccountAddress ||
         !stakingAsset ||
         !callData ||
         !adapter
@@ -144,6 +135,7 @@ export const useRfoxUnstake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

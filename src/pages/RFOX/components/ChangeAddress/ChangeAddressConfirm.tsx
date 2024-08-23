@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -96,24 +95,21 @@ export const ChangeAddressConfirm: React.FC<
     })
   }, [confirmedQuote.newRuneAddress])
 
-  const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet) && stakingAssetAccountAddress
-        ? stakingAssetAccountAddress
-        : undefined,
-    [stakingAssetAccountAddress, wallet],
-  )
-
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey,
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, confirmedQuote.stakingAssetId, pubKey, stakingAssetAccountNumber],
+    [
+      callData,
+      confirmedQuote.stakingAssetId,
+      stakingAssetAccountAddress,
+      stakingAssetAccountNumber,
+    ],
   )
 
   const {
@@ -156,6 +152,7 @@ export const ChangeAddressConfirm: React.FC<
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

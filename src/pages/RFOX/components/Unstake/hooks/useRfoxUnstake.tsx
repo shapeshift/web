@@ -133,6 +133,7 @@ export const useRfoxUnstake = ({
         !wallet ||
         stakingAssetAccountNumber === undefined ||
         !stakingAssetAccountId ||
+        !stakingAssetAccountAddress ||
         !stakingAsset ||
         !callData ||
         !adapter
@@ -141,7 +142,7 @@ export const useRfoxUnstake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: fromAccountId(stakingAssetAccountId).account,
+        pubKey: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

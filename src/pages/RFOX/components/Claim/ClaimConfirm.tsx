@@ -128,7 +128,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: fromAccountId(claimQuote.stakingAssetAccountId).account,
+        pubKey: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

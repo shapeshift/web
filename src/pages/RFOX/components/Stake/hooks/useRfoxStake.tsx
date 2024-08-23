@@ -123,11 +123,6 @@ export const useRfoxStake = ({
     })
   }, [amountCryptoBaseUnit, isValidStakingAmount, runeAddress, stakingAsset])
 
-  const pubKey = useMemo(
-    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
-    [stakingAssetAccountId],
-  )
-
   const approvalCallData = useMemo(() => {
     if (!stakingAsset) return
 
@@ -141,7 +136,7 @@ export const useRfoxStake = ({
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
     spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+    from: stakingAssetAccountAddress,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {
@@ -165,13 +160,13 @@ export const useRfoxStake = ({
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
-      pubKey,
+      pubKey: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       to: fromAssetId(stakingAssetId).assetReference,
       data: approvalCallData!,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [approvalCallData, pubKey, stakingAssetAccountNumber, stakingAssetId],
+    [approvalCallData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const getApprovalFeesWithWalletInput = useMemo(
@@ -209,7 +204,7 @@ export const useRfoxStake = ({
       if (
         !wallet ||
         stakingAssetAccountNumber === undefined ||
-        !pubKey ||
+        !stakingAssetAccountAddress ||
         !stakingAsset ||
         !adapter ||
         !stakeCallData ||
@@ -219,7 +214,7 @@ export const useRfoxStake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey,
+        pubKey: stakingAssetAccountAddress,
         adapter,
         data: stakeCallData,
         value: '0',
@@ -246,12 +241,12 @@ export const useRfoxStake = ({
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
       accountNumber: stakingAssetAccountNumber,
-      pubKey,
+      pubKey: stakingAssetAccountAddress,
       data: stakeCallData,
       value: '0',
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [pubKey, stakeCallData, stakingAssetAccountNumber, stakingAssetId],
+    [stakeCallData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const isGetStakeFeesEnabled = useMemo(
@@ -293,7 +288,7 @@ export const useRfoxStake = ({
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

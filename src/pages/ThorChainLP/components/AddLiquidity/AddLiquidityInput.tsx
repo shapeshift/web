@@ -18,7 +18,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   assetIdToPoolAssetId,
@@ -602,7 +602,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         BigNumber.ROUND_UP,
       ),
       wallet: wallet ?? undefined,
-      from: poolAssetAccountAddress,
+      from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

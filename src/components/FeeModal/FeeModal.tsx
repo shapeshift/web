@@ -1,5 +1,6 @@
 import {
   Modal,
+  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
@@ -35,26 +36,28 @@ export const FeeModal = ({
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
-        <Tabs variant='button'>
-          <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
-            <Tab color='text.subtle'>{translate('foxDiscounts.feeSummary')}</Tab>
-            <Tab color='text.subtle'>{translate('foxDiscounts.simulateFee')}</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel p={0}>
-              <FeeBreakdown feeModel={feeModel} inputAmountUsd={inputAmountUsd} />
-            </TabPanel>
-            <TabPanel px={0} py={0}>
-              <FeeExplainer
-                inputAmountUsd={inputAmountUsd}
-                borderRadius='none'
-                bg='transparent'
-                boxShadow='none'
-                feeModel={feeModel}
-              />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <ModalBody>
+          <Tabs variant='button'>
+            <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
+              <Tab color='text.subtle'>{translate('foxDiscounts.feeSummary')}</Tab>
+              <Tab color='text.subtle'>{translate('foxDiscounts.simulateFee')}</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel p={0}>
+                <FeeBreakdown feeModel={feeModel} inputAmountUsd={inputAmountUsd} />
+              </TabPanel>
+              <TabPanel px={0} py={0}>
+                <FeeExplainer
+                  inputAmountUsd={inputAmountUsd}
+                  borderRadius='none'
+                  bg='transparent'
+                  boxShadow='none'
+                  feeModel={feeModel}
+                />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </ModalBody>
       </ModalContent>
     </Modal>
   )

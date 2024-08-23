@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Modal,
   ModalBody,
@@ -57,9 +58,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenA
               })}
             </RawText>
             {isSigning ? (
-              <RawText color='whiteAlpha.600' textAlign='center'>
-                {translate('ledgerOpenApp.signingDescription')}
-              </RawText>
+              <Alert status='warning'>{translate('ledgerOpenApp.signingDescription')}</Alert>
             ) : null}
             <Spinner mt={4} size='lg' />
           </VStack>

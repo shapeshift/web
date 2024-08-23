@@ -10,6 +10,7 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectFiatRampBuyAssetsWithMarketData } from 'state/apis/fiatRamps/selectors'
 
 import { PageContainer } from './components/PageContainer'
@@ -26,6 +27,8 @@ export const TopAssets: React.FC = () => {
   const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
+
+  useFetchFiatAssetMarketData()
 
   const columns: Column<AssetWithMarketData>[] = useMemo(
     () => [

@@ -111,20 +111,13 @@ export const useRfoxUnstake = ({
   const unstakeFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
-      pubKey: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [
-      callData,
-      stakingAssetAccountAddress,
-      stakingAssetAccountId,
-      stakingAssetAccountNumber,
-      stakingAssetId,
-    ],
+    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const unstakeMutation = useMutation({

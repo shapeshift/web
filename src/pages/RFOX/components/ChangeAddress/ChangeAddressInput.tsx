@@ -128,8 +128,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey: stakingAssetAccountAddress,
-      from: stakingAssetAccountAddress ?? '',
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,

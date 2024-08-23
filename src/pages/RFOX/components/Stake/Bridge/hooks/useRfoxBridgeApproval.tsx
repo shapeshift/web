@@ -120,7 +120,6 @@ export const useRfoxBridgeApproval = ({
       value: '0',
       accountNumber: sellAssetAccountNumber,
       to: fromAssetId(confirmedQuote.sellAssetId).assetReference,
-      pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       data: approvalCallData,
       chainId: fromAssetId(confirmedQuote.sellAssetId).chainId,

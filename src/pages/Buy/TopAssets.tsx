@@ -1,5 +1,6 @@
 import { Box, Button, Heading } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { Column, Row } from 'react-table'
@@ -27,8 +28,9 @@ export const TopAssets: React.FC = () => {
   const fiatRamps = useModal('fiatRamps')
   const translate = useTranslate()
   const fiatRampBuyAssetsWithMarketData = useSelector(selectFiatRampBuyAssetsWithMarketData)
+  const [pageAssetIds, setPageAssetIds] = useState<AssetId[]>([])
 
-  useFetchFiatAssetMarketData()
+  useFetchFiatAssetMarketData(pageAssetIds)
 
   const columns: Column<AssetWithMarketData>[] = useMemo(
     () => [
@@ -93,6 +95,11 @@ export const TopAssets: React.FC = () => {
     [fiatRamps],
   )
 
+  const handlePageChange = useCallback((page: Row<AssetWithMarketData>[]) => {
+    const assetIds = page.map(row => row.original.assetId)
+    setPageAssetIds(assetIds)
+  }, [])
+
   return (
     <Box>
       <PageContainer
@@ -111,6 +118,7 @@ export const TopAssets: React.FC = () => {
           data={fiatRampBuyAssetsWithMarketData}
           initialState={reactTableInitialState}
           onRowClick={handleClick}
+          onPageChange={handlePageChange}
           rowDataTestKey='name'
           rowDataTestPrefix='fiat-ramp'
         />

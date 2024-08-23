@@ -35,8 +35,8 @@ export const FeeModal = ({
     <Modal isOpen={isOpen} onClose={handleClose} size='lg'>
       <ModalOverlay />
       <ModalContent>
-        <ModalCloseButton />
-        <ModalBody>
+        <ModalCloseButton zIndex='1' />
+        <ModalBody p={0}>
           <Tabs variant='button'>
             <TabList px={6} py={4} borderBottomWidth={1} borderColor='border.base'>
               <Tab color='text.subtle'>{translate('foxDiscounts.feeSummary')}</Tab>

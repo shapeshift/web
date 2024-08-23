@@ -154,32 +154,15 @@ export const marketApi = createApi({
         }
       },
     }),
-    findByAssetIds: build.query<null, AssetId[]>({
+    findByAssetId: build.query<null, AssetId>({
       // named function for profiling+debugging purposes
-      queryFn: async function findByAssetIds(assetIds: AssetId[], { dispatch }) {
-        if (assetIds.length === 0) return { data: null }
+      queryFn: async function findByAssetId(assetId: AssetId, { dispatch }) {
+        const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
 
-        const responseData = await Promise.all(
-          assetIds.map(async assetId => {
-            try {
-              const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
-              return { assetId, currentMarketData }
-            } catch (e) {
-              console.error(e)
-              return { assetId, currentMarketData: null }
-            }
-          }),
-        )
-
-        const payload = responseData.reduce<MarketCapResult>(
-          (acc, { assetId, currentMarketData }) => {
-            if (currentMarketData) acc[assetId] = currentMarketData
-            return acc
-          },
-          {},
-        )
-
-        dispatch(marketData.actions.setCryptoMarketData(payload))
+        if (currentMarketData) {
+          const payload = { [assetId]: currentMarketData }
+          dispatch(marketData.actions.setCryptoMarketData(payload))
+        }
 
         return { data: null }
       },
@@ -251,7 +234,6 @@ export const marketApi = createApi({
 })
 
 export const {
-  useFindByAssetIdsQuery,
   useFindAllQuery,
   useFindByFiatSymbolQuery,
   useFindPriceHistoryByFiatSymbolQuery,

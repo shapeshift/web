@@ -246,11 +246,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useQuery({
     queryKey: ['marketData', {}],
     queryFn: async () => {
-      await dispatch(
-        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIds, {
-          // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-          forceRefetch: true,
-        }),
+      await Promise.all(
+        portfolioAssetIds.map(assetId =>
+          dispatch(
+            marketApi.endpoints.findByAssetId.initiate(assetId, {
+              // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+              forceRefetch: true,
+            }),
+          ),
+        ),
       )
 
       // used to trigger mixpanel init after load of market data
@@ -308,7 +312,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([routeAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render

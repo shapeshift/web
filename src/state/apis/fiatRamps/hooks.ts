@@ -12,8 +12,8 @@ export const useFetchFiatAssetMarketData = (assetIds: AssetId[]): void => {
     if (assetIds.length > 0) {
       assetIds.forEach(assetId => {
         dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
+        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
       })
-      dispatch(marketApi.endpoints.findByAssetIds.initiate(assetIds))
     }
   }, [assetIds, dispatch])
 }

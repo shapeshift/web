@@ -152,7 +152,7 @@ export const ChangeAddressConfirm: React.FC<
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        from: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

@@ -1,6 +1,5 @@
 import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
@@ -15,12 +14,11 @@ import { RawText, Text } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
-import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import {
-  assertGetEvmChainAdapter,
-  type GetFeesWithWalletArgs,
-  isGetFeesWithWalletArgs,
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -116,9 +114,9 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   }, [newRuneAddress])
 
   const isGetChangeAddressFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+    (input: MaybeGetFeesWithWalletEip1559Args): input is GetFeesWithWalletEip1559SupportArgs =>
       Boolean(
-        isGetFeesWithWalletArgs(input) &&
+        isGetFeesWithWalletEIP1559SupportArgs(input) &&
           currentRuneAddress &&
           newRuneAddress &&
           !Boolean(errors.manualRuneAddress || errors.newRuneAddress),
@@ -126,25 +124,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     [currentRuneAddress, errors.manualRuneAddress, errors.newRuneAddress, newRuneAddress],
   )
 
-  const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet) && stakingAssetAccountAddress
-        ? stakingAssetAccountAddress
-        : undefined,
-    [stakingAssetAccountAddress, wallet],
-  )
-
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey,
-      from: stakingAssetAccountAddress ?? '',
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, pubKey, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
+    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const getFeesWithWalletInput = useMemo(

@@ -56,13 +56,13 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
 
   const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
     stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
   })
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
     stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
   })
 

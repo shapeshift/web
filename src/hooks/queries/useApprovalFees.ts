@@ -16,7 +16,7 @@ export enum AllowanceType {
 
 type UseApprovalFeesInput = {
   assetId: AssetId
-  pubKey: string | undefined
+  from: string | undefined
   spender: string
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
@@ -26,7 +26,7 @@ type UseApprovalFeesInput = {
 export const useApprovalFees = ({
   assetId,
   amountCryptoBaseUnit,
-  pubKey,
+  from,
   allowanceType,
   spender,
   enabled,
@@ -38,7 +38,7 @@ export const useApprovalFees = ({
   const { allowanceCryptoBaseUnitResult, isApprovalRequired } = useIsApprovalRequired({
     amountCryptoBaseUnit,
     assetId,
-    pubKey,
+    from,
     spender,
   })
 
@@ -58,7 +58,7 @@ export const useApprovalFees = ({
 
   const evmFeesResult = useEvmFees({
     to,
-    pubKey,
+    pubKey: from,
     value: '0',
     chainId,
     data: approveContractData,

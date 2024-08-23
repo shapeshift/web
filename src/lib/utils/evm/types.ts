@@ -7,7 +7,7 @@ type ApproveInput = {
   spender: string
   amountCryptoBaseUnit: string
   accountNumber: number
-  pubKey: string
+  from: string
 }
 
 export type MaybeApproveInput = MaybeUndefinedFields<ApproveInput>

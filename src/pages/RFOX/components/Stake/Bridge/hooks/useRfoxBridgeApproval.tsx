@@ -52,7 +52,7 @@ export const useRfoxBridgeApproval = ({
   const allowanceQuery = useAllowance({
     assetId: confirmedQuote.sellAssetId,
     spender: allowanceContract,
-    pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+    from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
   })
 
   const isApprovalRequired = useMemo(
@@ -76,7 +76,7 @@ export const useRfoxBridgeApproval = ({
       spender: allowanceContract!, // see handleApprove below
       amountCryptoBaseUnit: confirmedQuote.bridgeAmountCryptoBaseUnit,
       wallet: wallet ?? undefined,
-      pubKey: fromAccountId(confirmedQuote.sellAssetAccountId).account,
+      from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
     }),
     onSuccess: (txHash: string) => {

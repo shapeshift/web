@@ -141,7 +141,7 @@ export const useRfoxStake = ({
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
     spender: RFOX_PROXY_CONTRACT_ADDRESS,
-    pubKey: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+    from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
   })
 
   const allowanceCryptoPrecision = useMemo(() => {
@@ -293,7 +293,7 @@ export const useRfoxStake = ({
       spender: RFOX_PROXY_CONTRACT_ADDRESS,
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
-      pubKey: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
+      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined,
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {

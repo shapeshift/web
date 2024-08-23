@@ -10,7 +10,7 @@ import { useAppSelector } from 'state/store'
 
 type UseIsApprovalRequired = {
   assetId: AssetId
-  pubKey: string
+  from: string
   spender: string
   amountCryptoBaseUnit: string
 }
@@ -18,7 +18,7 @@ type UseIsApprovalRequired = {
 export const useIsApprovalRequired = ({
   assetId,
   amountCryptoBaseUnit,
-  pubKey,
+  from,
   spender,
 }: Partial<UseIsApprovalRequired>) => {
   const relatedAssetIdsFilter = useMemo(() => ({ assetId: usdtAssetId }), [])
@@ -27,7 +27,7 @@ export const useIsApprovalRequired = ({
   )
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
 
-  const allowanceCryptoBaseUnitResult = useAllowance({ assetId, pubKey, spender })
+  const allowanceCryptoBaseUnitResult = useAllowance({ assetId, from, spender })
 
   const isApprovalRequired = useMemo(() => {
     if (!allowanceCryptoBaseUnitResult.data || !amountCryptoBaseUnit) return

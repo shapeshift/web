@@ -602,7 +602,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         BigNumber.ROUND_UP,
       ),
       wallet: wallet ?? undefined,
-      pubKey: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
+      from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
@@ -642,7 +642,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
     assetId: poolAsset?.assetId,
     spender: poolAssetInboundAddress,
-    pubKey: poolAssetAccountAddress,
+    from: poolAssetAccountAddress,
   })
 
   const _isApprovalRequired = useMemo(() => {

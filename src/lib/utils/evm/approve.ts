@@ -15,7 +15,7 @@ export const approve = async ({
   amountCryptoBaseUnit,
   wallet,
   accountNumber,
-  pubKey,
+  from,
 }: ApproveInputWithWallet) => {
   const { assetReference: to, chainId } = fromAssetId(assetId)
 
@@ -30,7 +30,7 @@ export const approve = async ({
 
   const buildCustomTxInput = await createBuildCustomTxInput({
     accountNumber,
-    pubKey,
+    pubKey: from,
     adapter,
     data,
     to,

@@ -25,7 +25,7 @@ const useIsApprovalInitiallyNeededForHop = (
     useIsApprovalRequired({
       amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       assetId: tradeQuoteStep?.sellAsset.assetId,
-      pubKey: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
     })
 

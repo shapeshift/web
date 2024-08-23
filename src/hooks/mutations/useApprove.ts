@@ -16,7 +16,7 @@ type UseApproveProps = MaybeApproveInput & {
   onSuccess?: (txHash: string) => void
 }
 
-export const useApprove = ({ onSuccess: handleSuccess, pubKey, ...input }: UseApproveProps) => {
+export const useApprove = ({ onSuccess: handleSuccess, from, ...input }: UseApproveProps) => {
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
 
@@ -38,26 +38,26 @@ export const useApprove = ({ onSuccess: handleSuccess, pubKey, ...input }: UseAp
   }, [input.amountCryptoBaseUnit, input.spender])
 
   const maybeInputWithWallet = useMemo(
-    () => ({ ...input, wallet: wallet ?? undefined, data: approvalCallData, pubKey }),
-    [approvalCallData, input, pubKey, wallet],
+    () => ({ ...input, wallet: wallet ?? undefined, data: approvalCallData, from }),
+    [approvalCallData, input, from, wallet],
   )
 
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
-      pubKey,
+      pubKey: from,
       accountNumber: input.accountNumber,
       to: input.assetId ? fromAssetId(input.assetId).assetReference : undefined,
       data: approvalCallData,
       chainId,
     }),
-    [approvalCallData, chainId, input.accountNumber, input.assetId, pubKey],
+    [approvalCallData, chainId, input.accountNumber, input.assetId, from],
   )
 
   const allowanceDataQuery = useAllowance({
     assetId: input.assetId,
     spender: input.spender,
-    pubKey,
+    from,
   })
 
   const isApprovalRequired = useMemo(() => {
@@ -83,10 +83,10 @@ export const useApprove = ({ onSuccess: handleSuccess, pubKey, ...input }: UseAp
     ...reactQueries.mutations.approve(maybeInputWithWallet),
     onSuccess: (txHash: string) => {
       handleSuccess?.(txHash)
-      if (!(input.assetId && input.spender && pubKey)) return
+      if (!(input.assetId && input.spender && from)) return
 
       queryClient.invalidateQueries(
-        reactQueries.common.allowanceCryptoBaseUnit(input.assetId, input.spender, pubKey),
+        reactQueries.common.allowanceCryptoBaseUnit(input.assetId, input.spender, from),
       )
     },
   })

@@ -38,7 +38,7 @@ export const useAllowanceApproval = (
   const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
-    pubKey: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+    from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
     allowanceType,
     spender: tradeQuoteStep.allowanceContract,
     enabled: feeQueryEnabled,
@@ -62,7 +62,7 @@ export const useAllowanceApproval = (
       ),
       assetId: tradeQuoteStep.sellAsset.assetId,
       spender: tradeQuoteStep.allowanceContract,
-      pubKey: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,
     }),
     onMutate() {

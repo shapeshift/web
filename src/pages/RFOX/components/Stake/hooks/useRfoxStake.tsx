@@ -160,7 +160,7 @@ export const useRfoxStake = ({
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
-      pubKey: stakingAssetAccountAddress,
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       to: fromAssetId(stakingAssetId).assetReference,
       data: approvalCallData!,
@@ -214,7 +214,7 @@ export const useRfoxStake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: stakingAssetAccountAddress,
+        from: stakingAssetAccountAddress,
         adapter,
         data: stakeCallData,
         value: '0',
@@ -241,7 +241,7 @@ export const useRfoxStake = ({
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
       accountNumber: stakingAssetAccountNumber,
-      pubKey: stakingAssetAccountAddress,
+      from: stakingAssetAccountAddress,
       data: stakeCallData,
       value: '0',
       chainId: fromAssetId(stakingAssetId).chainId,

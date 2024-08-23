@@ -350,7 +350,7 @@ export const Deposit: React.FC<DepositProps> = ({
             adapter,
             data,
             to: fromAssetId(assetId).assetReference,
-            pubKey: userAddress,
+            from: userAddress,
             value: '0',
             wallet,
           })

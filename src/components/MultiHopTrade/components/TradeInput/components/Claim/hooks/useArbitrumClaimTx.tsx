@@ -69,7 +69,7 @@ export const useArbitrumClaimTx = (
   })
 
   const evmFeesResult = useEvmFees({
-    pubKey: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
+    from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
     chainId: claim.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
@@ -89,7 +89,7 @@ export const useArbitrumClaimTx = (
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: bip44Params.accountNumber,
-        pubKey: fromAccountId(destinationAccountId).account,
+        from: fromAccountId(destinationAccountId).account,
         adapter,
         data: executeTransactionDataResult.data,
         to: ARBITRUM_OUTBOX,

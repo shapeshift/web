@@ -128,7 +128,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: stakingAssetAccountAddress,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',
@@ -156,7 +156,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const claimFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey: stakingAssetAccountAddress,
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,

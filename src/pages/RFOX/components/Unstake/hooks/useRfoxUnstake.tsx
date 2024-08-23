@@ -142,7 +142,7 @@ export const useRfoxUnstake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: stakingAssetAccountAddress,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

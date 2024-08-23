@@ -44,7 +44,7 @@ type BuildAndBroadcastArgs = BuildArgs &
 
 type CreateBuildCustomTxInputArgs = {
   accountNumber: number
-  pubKey: string
+  from: string
   adapter: EvmChainAdapter
   to: string
   data: string
@@ -78,12 +78,12 @@ type GetFeesCommonArgs = {
 
 export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
   wallet: HDWallet
-  pubKey: string
+  from: string
 }
 
 export type MaybeGetFeesWithWalletArgs = PartialFields<
   Omit<GetFeesWithWalletArgs, 'wallet'>,
-  'adapter' | 'data' | 'to' | 'pubKey'
+  'adapter' | 'data' | 'to' | 'from'
 > & {
   wallet: HDWallet | null
 }
@@ -91,17 +91,16 @@ export type MaybeGetFeesWithWalletArgs = PartialFields<
 export const isGetFeesWithWalletEIP1559SupportArgs = (
   input: MaybeGetFeesWithWalletArgs,
 ): input is GetFeesWithWalletArgs =>
-  Boolean(input.adapter && input.wallet && input.data && input.to && input.pubKey)
+  Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletArgs,
 ): Promise<Fees> => {
-  const { adapter, wallet, pubKey, ...rest } = args
+  const { wallet, ...rest } = args
 
-  const from = pubKey
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFees({ ...rest, adapter, from, supportsEIP1559 })
+  return getFees({ ...rest, supportsEIP1559 })
 }
 
 export const createBuildCustomTxInput = async (

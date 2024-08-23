@@ -58,7 +58,7 @@ export const useApprovalFees = ({
 
   const evmFeesResult = useEvmFees({
     to,
-    pubKey: from,
+    from,
     value: '0',
     chainId,
     data: approveContractData,

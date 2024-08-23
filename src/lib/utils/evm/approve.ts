@@ -30,7 +30,7 @@ export const approve = async ({
 
   const buildCustomTxInput = await createBuildCustomTxInput({
     accountNumber,
-    pubKey: from,
+    from,
     adapter,
     data,
     to,

@@ -74,7 +74,7 @@ export const useFoxFarming = (
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
-          pubKey: userAddress,
+          from: userAddress,
           adapter,
           data,
           to: contractAddress,
@@ -118,7 +118,7 @@ export const useFoxFarming = (
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
-          pubKey: userAddress,
+          from: userAddress,
           adapter,
           data,
           to: contractAddress,
@@ -170,7 +170,7 @@ export const useFoxFarming = (
       adapter,
       data,
       to: uniV2LPContract.address,
-      pubKey: userAddress,
+      from: userAddress,
       value: '0',
       wallet,
     })
@@ -190,7 +190,7 @@ export const useFoxFarming = (
         adapter,
         data,
         to: contractAddress,
-        pubKey: userAddress,
+        from: userAddress,
         value: '0',
         wallet,
       })
@@ -221,7 +221,7 @@ export const useFoxFarming = (
         adapter,
         data,
         to: contractAddress,
-        pubKey: userAddress,
+        from: userAddress,
         value: '0',
         wallet,
       })
@@ -297,7 +297,7 @@ export const useFoxFarming = (
 
     const buildCustomTxInput = await createBuildCustomTxInput({
       accountNumber,
-      pubKey: userAddress,
+      from: userAddress,
       adapter,
       data,
       to: contractAddress,

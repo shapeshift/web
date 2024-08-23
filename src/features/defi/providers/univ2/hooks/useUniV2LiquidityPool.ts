@@ -207,7 +207,7 @@ export const useUniV2LiquidityPool = ({
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
-          pubKey: accountAddress,
+          from: accountAddress,
           adapter,
           data: makeAddLiquidityData({ token0Amount, token1Amount }),
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
@@ -332,7 +332,7 @@ export const useUniV2LiquidityPool = ({
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
-          pubKey: accountAddress,
+          from: accountAddress,
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
@@ -461,7 +461,7 @@ export const useUniV2LiquidityPool = ({
         adapter,
         data,
         to: contract.address,
-        pubKey: accountAddress,
+        from: accountAddress,
         value: '0',
         wallet,
       })
@@ -505,7 +505,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-          pubKey: accountAddress,
+          from: accountAddress,
           value: toBaseUnit(ethAmount, weth.precision),
           wallet,
         })
@@ -532,7 +532,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-          pubKey: accountAddress,
+          from: accountAddress,
           value: '0',
           wallet,
         })
@@ -572,7 +572,7 @@ export const useUniV2LiquidityPool = ({
         adapter,
         data,
         to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-        pubKey: accountAddress,
+        from: accountAddress,
         value: '0',
         wallet,
       })

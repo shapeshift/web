@@ -98,7 +98,7 @@ export const ChangeAddressConfirm: React.FC<
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey: stakingAssetAccountAddress,
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
@@ -152,7 +152,7 @@ export const ChangeAddressConfirm: React.FC<
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
-        pubKey: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
+        from: fromAccountId(confirmedQuote.stakingAssetAccountId).account,
         adapter,
         data: callData,
         value: '0',

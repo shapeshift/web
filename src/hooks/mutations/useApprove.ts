@@ -45,7 +45,7 @@ export const useApprove = ({ onSuccess: handleSuccess, from, ...input }: UseAppr
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
-      pubKey: from,
+      from,
       accountNumber: input.accountNumber,
       to: input.assetId ? fromAssetId(input.assetId).assetReference : undefined,
       data: approvalCallData,

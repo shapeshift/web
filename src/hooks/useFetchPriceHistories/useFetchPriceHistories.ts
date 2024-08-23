@@ -7,7 +7,7 @@ import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSl
 import { selectPortfolioLoadingStatus, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-const { findPriceHistoryByAssetIds, findPriceHistoryByFiatSymbol } = marketApi.endpoints
+const { findPriceHistoryByFiatSymbol } = marketApi.endpoints
 
 const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
 
@@ -16,7 +16,9 @@ export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTi
   const symbol = useAppSelector(selectSelectedCurrency)
 
   useEffect(() => {
-    dispatch(findPriceHistoryByAssetIds.initiate({ assetIds, timeframe }))
+    assetIds.forEach(assetId => {
+      dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
+    })
   }, [assetIds, dispatch, timeframe])
 
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
@@ -29,18 +31,20 @@ export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTi
       // const opts = { subscriptionOptions: { pollingInterval: marketDataPollingInterval } }
       const timeframe = DEFAULT_HISTORY_TIMEFRAME
 
-      await Promise.all([
-        dispatch(
-          marketApi.endpoints.findPriceHistoryByAssetIds.initiate(
-            {
-              timeframe,
-              assetIds,
-            },
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            { forceRefetch: true },
+      await Promise.all(
+        assetIds.map(assetId =>
+          dispatch(
+            marketApi.endpoints.findPriceHistoryByAssetId.initiate(
+              {
+                timeframe,
+                assetId,
+              },
+              // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+              { forceRefetch: true },
+            ),
           ),
         ),
-      ])
+      )
 
       // used to trigger mixpanel init after load of market data
       dispatch(marketData.actions.setMarketDataLoaded())

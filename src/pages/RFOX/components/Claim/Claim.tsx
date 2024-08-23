@@ -4,7 +4,6 @@ import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getAddress } from 'viem'
 import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 

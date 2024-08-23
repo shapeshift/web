@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectEvmFees } from 'react-queries/selectors'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import type { MaybeGetFeesWithWalletEip1559Args } from 'lib/utils/evm'
 import {
   assertGetEvmChainAdapter,
   getFeesWithWalletEIP1559Support,
@@ -51,7 +51,7 @@ export const useEvmFees = ({
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
-  const getFeesWithWalletEIP1559SupportInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
+  const getFeesWithWalletEIP1559SupportInput: MaybeGetFeesWithWalletEip1559Args = useMemo(() => {
     return { adapter, data, to, value, from, wallet }
   }, [adapter, data, from, to, value, wallet])
 

@@ -74,27 +74,27 @@ type GetFeesCommonArgs = {
   data: string
   to: string
   value: string
-}
-
-export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
-  wallet: HDWallet
   from: string
 }
 
-export type MaybeGetFeesWithWalletArgs = PartialFields<
-  Omit<GetFeesWithWalletArgs, 'wallet'>,
+export type GetFeesWithWalletEip1559SupportArgs = GetFeesCommonArgs & {
+  wallet: HDWallet
+}
+
+export type MaybeGetFeesWithWalletEip1559Args = PartialFields<
+  Omit<GetFeesWithWalletEip1559SupportArgs, 'wallet'>,
   'adapter' | 'data' | 'to' | 'from'
 > & {
   wallet: HDWallet | null
 }
 
 export const isGetFeesWithWalletEIP1559SupportArgs = (
-  input: MaybeGetFeesWithWalletArgs,
-): input is GetFeesWithWalletArgs =>
+  input: MaybeGetFeesWithWalletEip1559Args,
+): input is GetFeesWithWalletEip1559SupportArgs =>
   Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
 export const getFeesWithWalletEIP1559Support = async (
-  args: GetFeesWithWalletArgs,
+  args: GetFeesWithWalletEip1559SupportArgs,
 ): Promise<Fees> => {
   const { wallet, ...rest } = args
 

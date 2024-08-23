@@ -13,7 +13,10 @@ import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import type { GetFeesWithWalletArgs, MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
+} from 'lib/utils/evm'
 import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectTxById } from 'state/slices/selectors'
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -110,7 +113,7 @@ export const useRfoxBridgeApproval = ({
   }, [approvalTxHash, confirmedQuote.sellAssetAccountId])
 
   const isGetApprovalFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+    (input: MaybeGetFeesWithWalletEip1559Args): input is GetFeesWithWalletEip1559SupportArgs =>
       Boolean(isApprovalRequired && isGetFeesWithWalletEIP1559SupportArgs(input)),
     [isApprovalRequired],
   )

@@ -14,12 +14,11 @@ import { RawText, Text } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
-import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import {
-  assertGetEvmChainAdapter,
-  type GetFeesWithWalletArgs,
-  isGetFeesWithWalletEIP1559SupportArgs,
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -115,7 +114,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   }, [newRuneAddress])
 
   const isGetChangeAddressFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+    (input: MaybeGetFeesWithWalletEip1559Args): input is GetFeesWithWalletEip1559SupportArgs =>
       Boolean(
         isGetFeesWithWalletEIP1559SupportArgs(input) &&
           currentRuneAddress &&

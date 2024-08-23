@@ -9,7 +9,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { PartialFields } from 'lib/types'
 import { assertGetChainAdapter } from 'lib/utils'
-import type { GetFeesWithWalletArgs } from 'lib/utils/evm'
+import type { GetFeesWithWalletEip1559SupportArgs } from 'lib/utils/evm'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { getThorchainFromAddress } from 'lib/utils/thorchain'
 import type { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
@@ -90,17 +90,16 @@ export const common = createQueryKeys('common', {
   }),
   evmFees: ({
     data,
-    accountNumber,
     to,
     value,
     chainId,
-    pubKey,
+    from,
   }: PartialFields<
-    Omit<GetFeesWithWalletArgs, 'wallet' | 'adapter'>,
-    'accountNumber' | 'data' | 'to' | 'pubKey'
+    Omit<GetFeesWithWalletEip1559SupportArgs, 'wallet' | 'adapter'>,
+    'data' | 'to' | 'from'
   > & {
     chainId: ChainId | undefined
   }) => ({
-    queryKey: ['evmFees', to, chainId, accountNumber, data, value, pubKey],
+    queryKey: ['evmFees', to, chainId, data, value, from],
   }),
 })

@@ -1,20 +1,17 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppDispatch } from 'state/store'
 
-import { fiatRampApi } from './fiatRamps'
-
-export const useFetchFiatAssetMarketData = (): void => {
-  const { data } = useAppSelector(fiatRampApi.endpoints.getFiatRamps.select())
+export const useFetchFiatAssetMarketData = (assetIds: AssetId[]): void => {
   const dispatch = useAppDispatch()
   useEffect(() => {
     const timeframe = HistoryTimeframe.DAY
-    const assetIds = Object.keys(data?.byAssetId ?? {})
 
     if (assetIds.length > 0) {
       dispatch(marketApi.endpoints.findPriceHistoryByAssetIds.initiate({ assetIds, timeframe }))
       dispatch(marketApi.endpoints.findByAssetIds.initiate(assetIds))
     }
-  }, [data, dispatch])
+  }, [assetIds, dispatch])
 }

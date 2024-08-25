@@ -14,7 +14,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
-import { Fragment, useCallback, useMemo, useRef } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Cell, Column, ColumnInstance, Row, TableState } from 'react-table'
 import { useExpanded, usePagination, useSortBy, useTable } from 'react-table'
@@ -32,6 +32,7 @@ type ReactTableProps<T extends {}> = {
   renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
   variant?: TableProps['variant']
+  onPageChange?: (page: Row<T>[]) => void
 }
 
 const tdStyle = { padding: 0 }
@@ -126,6 +127,7 @@ export const ReactTable = <T extends {}>({
   renderEmptyComponent,
   isLoading = false,
   variant = 'default',
+  onPageChange,
 }: ReactTableProps<T>) => {
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
@@ -166,6 +168,12 @@ export const ReactTable = <T extends {}>({
     useExpanded,
     usePagination,
   )
+
+  useEffect(() => {
+    if (!onPageChange) return
+
+    onPageChange(page)
+  }, [onPageChange, page])
 
   const renderedRows = useMemo(() => {
     return page.map(row => {

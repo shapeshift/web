@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { useMutation } from '@tanstack/react-query'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
@@ -65,7 +64,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const history = useHistory()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
@@ -116,14 +115,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     })
   }, [stakingAsset, claimQuote.index])
 
-  const pubKey = useMemo(
-    () =>
-      wallet && isLedger(wallet) && stakingAssetAccountAddress
-        ? stakingAssetAccountAddress
-        : undefined,
-    [stakingAssetAccountAddress, wallet],
-  )
-
   const {
     mutateAsync: handleClaim,
     isIdle: isClaimMutationIdle,
@@ -137,6 +128,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',
@@ -164,13 +156,13 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const claimFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      pubKey,
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
     }),
-    [callData, claimQuote.stakingAssetId, pubKey, stakingAssetAccountNumber],
+    [callData, claimQuote.stakingAssetId, stakingAssetAccountAddress, stakingAssetAccountNumber],
   )
 
   const {

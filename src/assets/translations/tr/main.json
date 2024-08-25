@@ -252,8 +252,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Kripto Al veya Sat",
     "titleMessage": "Şunları kullanarak %{action} %{asset} yapabilirsiniz:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -399,7 +397,7 @@
       "saversVaults": {
         "description": "THORChain Saver Vaults aracılığıyla %{asset} üzerinden getiri kazanın. Kilitlenme süresi yoktur ve ödüller otomatik olarak biriktirilir. THORChain'de getiri, takas ücretleri ve blok ödüllerinden gelir. Tek taraflı getiri, likidite sağlayıcılarının çift taraflı getirisinin yarısı ile sınırlandırılmıştır.",
         "runePoolDescription": "RUNEPool, %{asset}'inizi başkalarıyla birleştirerek daha fazla %{asset} kazanmanızı sağlar. Belirli havuzları seçmenize gerek yok, herkes genel performanstan pay alır.",
-        "runePoolOverviewDescription": "RUNEPool, %{asset} kullanımını THORChain'deki tüm POL etkinleştirilmiş likidite havuzlarına yatırarak optimize eder. Katılımcılar, %{asset}'i bu havuzlar arasında birleştirerek, birleşik APY kazanır ancak toplam geçici kayba maruz kalır. Kullanıcılar, bireysel havuzları seçmek yerine genel performanstan yararlanır ve etkili bir şekilde bir %{asset} endeksine ve tüm THORChain PoL etkinleştirilmiş varlıklara yatırım yapar. Bu, likidite sağlamayı basitleştirir ve bireysel riski azaltır.",
+        "runePoolOverviewDescription": "RUNEPool, RUNE kullanımını THORChain'deki tüm POL-enabled likidite havuzlarına yatırarak optimize eder. RUNE'yi bu havuzlar arasında bir araya getirerek, katılımcılar birleşik APY'yi kazanır ancak toplam geçici kayba maruz kalır. Kullanıcılar, bireysel havuzları seçmek yerine genel performanstan yararlanır ve etkili bir şekilde bir RUNE endeksine ve tüm THORChain POL-enabled varlıklara yatırım yapar. Bu, likidite sağlamayı basitleştirir ve bireysel riski azaltır.",
         "vaultCap": "Kasa Üst Limiti",
         "vaultCapTooltip": "Bu kasa için mevcut maksimum kapasite",
         "haltedDepositTitle": "Para yatırma işlemleri geçici olarak durdurulmuştur.",
@@ -919,7 +917,7 @@
     "unknownGas": "(Bilinmeyen)",
     "numHops": "Bu takas %{numHops} atlama içerir",
     "receiveAddress": "Alıcı Adresi",
-    "receiveAddressDescription": "Bağlı cüzdanda %{chainName} adresi bulunamadı. Manuel olarak bir adres girin veya",
+    "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
     "smartContractReceiveAddressDescription": "Adresi hedef zincirinde bulunmayan bir akıllı sözleşmeden geçiş yaptığınızı tespit ettik. Lütfen %{chainName} üzerinde istenen alıcı adresini doğrulayın ve manuel olarak girin",
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
@@ -1235,6 +1233,7 @@
       },
       "withdrawTo": "Şuraya Çek",
       "amountToDeposit": "Yatırılacak Tutar",
+      "amountDeposited": "Yatırılan Tutar",
       "amountToStake": "Stake Miktarı",
       "amountToWithdraw": "Çekilecek Tutar",
       "amountToClaim": "Talep Edilecek Tutar",
@@ -1871,7 +1870,8 @@
     }
   },
   "ledgerOpenApp": {
-    "title": "%{appName} Uygulamasını açın"
+    "title": "%{appName} Uygulamasını açın",
+    "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

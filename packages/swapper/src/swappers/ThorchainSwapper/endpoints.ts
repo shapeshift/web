@@ -9,6 +9,7 @@ import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 import { encodeFunctionData, parseAbiItem } from 'viem'
 
@@ -26,6 +27,7 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from '../../types'
+import { checkSafeTransactionStatus } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
@@ -328,13 +330,30 @@ export const thorchainApi: SwapperApi = {
 
   checkTradeStatus: async ({
     txHash,
+    chainId,
     config,
+    assertGetEvmChainAdapter,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
-    message: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
   }> => {
     try {
+      const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+        txHash,
+        chainId,
+        assertGetEvmChainAdapter,
+      })
+
+      if (maybeSafeTransactionStatus) {
+        // return any safe transaction status that has not yet executed on chain (no buyTxHash)
+        if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+        // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+        // Mutate txHash and continue with regular status check flow.
+        txHash = maybeSafeTransactionStatus.buyTxHash
+      }
+
       const thorTxHash = txHash.replace(/^0x/, '')
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context

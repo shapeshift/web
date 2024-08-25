@@ -44,7 +44,7 @@ const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='me
 export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confirmedQuote }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const {
     sellAsset,

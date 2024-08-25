@@ -6,6 +6,7 @@ import { bn } from '@shapeshiftoss/utils'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
+import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   EvmTransactionRequest,
@@ -20,7 +21,11 @@ import {
   type TradeQuote,
   TradeQuoteError,
 } from '../../types'
-import { createDefaultStatusResponse, makeSwapErrorRight } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  createDefaultStatusResponse,
+  makeSwapErrorRight,
+} from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
@@ -128,7 +133,13 @@ export const lifiApi: SwapperApi = {
     quoteId,
     txHash,
     stepIndex,
-  }): Promise<{ status: TxStatus; buyTxHash: string | undefined; message: string | undefined }> => {
+    chainId,
+    assertGetEvmChainAdapter,
+  }): Promise<{
+    status: TxStatus
+    buyTxHash: string | undefined
+    message: string | [string, InterpolationOptions] | undefined
+  }> => {
     const lifiRoute = tradeQuoteMetadata.get(quoteId)
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
 
@@ -143,6 +154,21 @@ export const lifiApi: SwapperApi = {
       action: { fromChainId, toChainId },
       tool,
     } = lifiRoute.steps[stepIndex]
+
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+
+    if (maybeSafeTransactionStatus) {
+      // return any safe transaction status that has not yet executed on chain (no buyTxHash)
+      if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+
+      // The safe buyTxHash is the on chain transaction hash (not the safe transaction hash).
+      // Mutate txHash and continue with regular status check flow.
+      txHash = maybeSafeTransactionStatus.buyTxHash
+    }
 
     // don't use lifi sdk here because all status responses are cached, negating the usefulness of polling
     // i.e don't do `await getLifi().getStatus(getStatusRequest)`

@@ -45,7 +45,7 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),

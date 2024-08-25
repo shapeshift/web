@@ -252,8 +252,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Купити або продати криптовалюту",
     "titleMessage": "Ви можете %{action} %{asset} за допомогою:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -399,7 +397,7 @@
       "saversVaults": {
         "description": "Отримуйте дохід від вашого %{asset} через Сховища заощаджень THORChain. Час блокування відсутній, а винагороди накопичуються автоматично. Прибутковість THORChain складається з комісійних за свопи та винагороди за блокчейн. Одностороння дохідність обмежена половиною двосторонньої дохідності постачальників ліквідності.",
         "runePoolDescription": "RUNEPool дозволяє вам заробляти більше %{asset}, об'єднуючи свій %{asset} з іншими. Вам не потрібно обирати конкретні пули, всі беруть участь у загальній продуктивності.",
-        "runePoolOverviewDescription": "RUNEPool оптимізує використання %{asset}, вкладаючи його в усі пули ліквідності з підтримкою POL в THORChain. Об'єднуючи %{asset} в цих пулах, учасники заробляють комбінований APY, але наражаються на ризик сукупних непостійних втрат. Замість того, щоб обирати окремі пули, користувачі отримують вигоду від загальної ефективності, ефективно інвестуючи в індекс %{asset} та всі активи з підтримкою THORChain PoL. Це спрощує забезпечення ліквідності та зменшує індивідуальний ризик.",
+        "runePoolOverviewDescription": "RUNEPool оптимізує використання RUNE, розміщуючи його в усіх пулах ліквідності THORChain з підтримкою пулів. Об'єднуючи RUNE в цих пулах, учасники заробляють комбінований APY, але наражаються на ризик сукупних непостійних втрат. Замість того, щоб обирати окремі пули, користувачі отримують вигоду від загальної ефективності, ефективно інвестуючи в індекс RUNE і всі активи THORChain з підтримкою пулів. RUNEPool оптимізує використання RUNE, вкладаючи його в усі пули ліквідності з підтримкою пулів в THORChain. Об'єднуючи RUNE в цих пулах, учасники заробляють комбінований APY, але наражаються на ризик сукупних непостійних втрат. Замість того, щоб обирати окремі пули, користувачі отримують вигоду від загальної ефективності, ефективно інвестуючи в індекс RUNE і всі активи THORChain з підтримкою POL. Це спрощує забезпечення ліквідності та знижує індивідуальний ризик.",
         "vaultCap": "Капіталізація Сховища",
         "vaultCapTooltip": "Поточна максимальна місткість цього сховища",
         "haltedDepositTitle": "Вклади тимчасово зупинені.",
@@ -919,7 +917,7 @@
     "unknownGas": "(невідомо)",
     "numHops": "Ця торгівля включає %{numHops} hops",
     "receiveAddress": "Адреса отримувача",
-    "receiveAddressDescription": "Не знайдено адресу %{chainName} з підключеного гаманця. Введіть адресу вручну або",
+    "receiveAddressDescription": "Не знайдено адресу %%{chainName} з підключеного гаманця. Введіть адресу вручну",
     "smartContractReceiveAddressDescription": "Ми виявили, що ви виконуєте обмін зі смарт-контракту, адреса якого може не існувати в ланцюжку одержувачів. Будь ласка, перевірте і введіть вручну бажану адресу одержувача в %{chainName}.",
     "toContinue": "щоб продовжити",
     "addressPlaceholder": "%{chainName} адреса",
@@ -1235,6 +1233,7 @@
       },
       "withdrawTo": "Вивести на",
       "amountToDeposit": "Сума до внесення",
+      "amountDeposited": "Сума поповнення",
       "amountToStake": "Сума до стейкінгу",
       "amountToWithdraw": "Сума до виведення",
       "amountToClaim": "Сума до зняття винагороди",
@@ -1871,7 +1870,8 @@
     }
   },
   "ledgerOpenApp": {
-    "title": "Відкрити %{appName} додаток"
+    "title": "Відкрити %{appName} додаток",
+    "description": "Щоб продовжити, вам потрібно відкрити додаток %{appName} на вашому пристрої Ledger."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

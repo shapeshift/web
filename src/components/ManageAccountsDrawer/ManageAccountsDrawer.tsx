@@ -25,7 +25,7 @@ export const ManageAccountsDrawer = ({
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: false })
 
   const handleClose = useCallback(() => {
     setStep('selectChain')

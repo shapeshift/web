@@ -56,7 +56,7 @@ export const HopTransactionStep = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {

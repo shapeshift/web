@@ -172,7 +172,6 @@ export const fetchArbitrumBridgeSwap = async ({
 
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
         erc20ParentAddress,
         from: sendAddress ?? '',
         destinationAddress: receiveAddress,

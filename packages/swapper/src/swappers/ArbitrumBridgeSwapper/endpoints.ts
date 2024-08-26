@@ -1,5 +1,5 @@
-import type { L1ToL2MessageReader, L1ToL2MessageReaderClassic } from '@arbitrum/sdk'
-import { L1ToL2MessageStatus, L1TransactionReceipt } from '@arbitrum/sdk'
+import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
+import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
@@ -41,7 +41,7 @@ export const getL1ToL2MessageDataFromL1TxHash = async ({
 }): Promise<
   | {
       isClassic?: boolean
-      l1ToL2Msg?: L1ToL2MessageReaderClassic | L1ToL2MessageReader
+      l1ToL2Msg?: ParentToChildMessageReaderClassic | ParentToChildMessageReader
     }
   | undefined
 > => {
@@ -49,11 +49,11 @@ export const getL1ToL2MessageDataFromL1TxHash = async ({
   const depositTxReceipt = await l1Provider.getTransactionReceipt(depositTxId)
   if (!depositTxReceipt) return
 
-  const l1TxReceipt = new L1TransactionReceipt(depositTxReceipt)
+  const l1TxReceipt = new ParentTransactionReceipt(depositTxReceipt)
 
   // classic (pre-nitro) handling
   const getClassicDepositMessage = async () => {
-    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2MessagesClassic(l2Provider)
+    const [l1ToL2Msg] = await l1TxReceipt.getParentToChildMessagesClassic(l2Provider)
     return {
       isClassic: true,
       l1ToL2Msg,
@@ -62,7 +62,7 @@ export const getL1ToL2MessageDataFromL1TxHash = async ({
 
   // post-nitro handling
   const getNitroDepositMessage = async () => {
-    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2Messages(l2Provider)
+    const [l1ToL2Msg] = await l1TxReceipt.getParentToChildMessages(l2Provider)
     return {
       isClassic: false,
       l1ToL2Msg,
@@ -205,15 +205,15 @@ export const arbitrumBridgeApi: SwapperApi = {
       if (!maybeL1ToL2Msg) return
 
       if (maybeL1ToL2MessageData?.isClassic) {
-        const msg = maybeL1ToL2Msg as L1ToL2MessageReaderClassic
+        const msg = maybeL1ToL2Msg as ParentToChildMessageReaderClassic
         const receipt = await msg.getRetryableCreationReceipt()
-        if (receipt?.status !== L1ToL2MessageStatus.REDEEMED) return
+        if (receipt?.status !== ParentToChildMessageStatus.REDEEMED) return
         return receipt.transactionHash
       } else {
-        const msg = maybeL1ToL2Msg as L1ToL2MessageReader
+        const msg = maybeL1ToL2Msg as ParentToChildMessageReader
         const successfulRedeem = await msg.getSuccessfulRedeem()
-        if (successfulRedeem.status !== L1ToL2MessageStatus.REDEEMED) return
-        return successfulRedeem.l2TxReceipt.transactionHash
+        if (successfulRedeem.status !== ParentToChildMessageStatus.REDEEMED) return
+        return successfulRedeem.childTxReceipt.transactionHash
       }
     })()
 

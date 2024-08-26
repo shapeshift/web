@@ -14,6 +14,7 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { Confirm as ReusableConfirm } from 'features/defi/components/Confirm/Confirm'
 import { Summary } from 'features/defi/components/Summary'
@@ -197,10 +198,58 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     return null
   }, [isRunePool, quoteData?.quote.memo])
 
-  const { executeTransaction, isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
+  const { isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
     amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
+    action: isRunePool ? 'depositRunepool' : 'depositSavers',
+    memo,
+    fromAddress: fromAddress ?? null,
+  })
+
+  const { amountCryptoBaseUnitMinusFees, amountCryptoHumanMinusFees } = useMemo(() => {
+    if (!estimatedFeesData)
+      return {
+        amountCryptoBaseUnitMinusFees: undefined,
+        amountCryptoHumanMinusFees: undefined,
+      }
+
+    if (
+      state?.deposit.sendMax &&
+      estimatedFeesData &&
+      !isUtxoChainId(feeAsset.chainId) &&
+      feeAsset.assetId === asset.assetId
+    ) {
+      return {
+        amountCryptoBaseUnitMinusFees: bn(
+          toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
+        ).minus(estimatedFeesData.txFeeCryptoBaseUnit),
+        amountCryptoHumanMinusFees: fromBaseUnit(
+          bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)).minus(
+            estimatedFeesData.txFeeCryptoBaseUnit,
+          ),
+          asset.precision,
+        ),
+      }
+    }
+
+    return {
+      amountCryptoBaseUnitMinusFees: bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)),
+      amountCryptoHumanMinusFees: state?.deposit.cryptoAmount,
+    }
+  }, [
+    state?.deposit.cryptoAmount,
+    asset.precision,
+    feeAsset,
+    asset.assetId,
+    estimatedFeesData,
+    state?.deposit.sendMax,
+  ])
+
+  const { executeTransaction } = useSendThorTx({
+    accountId: accountId ?? null,
+    assetId,
+    amountCryptoBaseUnit: amountCryptoBaseUnitMinusFees?.toFixed() ?? null,
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
@@ -387,7 +436,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         disableSmartContractDeposit ||
         isTradingActive === false
       }
-      loading={state.loading || !fromAddress || isAddressByteCodeLoading}
+      loading={
+        state.loading || !amountCryptoBaseUnitMinusFees || !fromAddress || isAddressByteCodeLoading
+      }
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
     >
@@ -402,7 +453,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Amount.Crypto value={state.deposit.cryptoAmount} symbol={asset.symbol} />
+              <Skeleton isLoaded={!!amountCryptoHumanMinusFees}>
+                <Amount.Crypto value={amountCryptoHumanMinusFees} symbol={asset.symbol} />
+              </Skeleton>
             </Row.Value>
           </Row>
         </Row>

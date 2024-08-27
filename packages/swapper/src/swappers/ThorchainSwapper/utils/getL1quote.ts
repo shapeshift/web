@@ -504,7 +504,5 @@ export const getL1quote = async (
 
     default:
       assertUnreachable(chainNamespace)
-      // Dummy return to appease TypeScript
-      return Err(makeSwapErrorRight({ message: 'Unknown chain namespace' }))
   }
 }

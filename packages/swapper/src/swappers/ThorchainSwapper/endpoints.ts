@@ -199,15 +199,6 @@ export const thorchainApi: SwapperApi = {
         throw Error(`Unsupported trade type: ${TradeType}`)
       default:
         assertUnreachable(tradeType)
-        // Dummy return to appease TypeScript
-        return {
-          chainId: 0,
-          data: '0x',
-          from: '0x',
-          to: '0x',
-          value: '0',
-          gasLimit: '0',
-        }
     }
   },
 

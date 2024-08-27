@@ -190,7 +190,5 @@ export const fetchArbitrumBridgeSwap = async ({
     }
     default:
       assertUnreachable(bridgeType)
-      // Dummy return to appease TypeScript
-      return { request: undefined, networkFeeCryptoBaseUnit: '0', allowanceContract: '0x0' }
   }
 }

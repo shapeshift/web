@@ -117,7 +117,5 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       assertUnreachable(swapperName)
-      // Dummy return to appease TypeScript
-      return ''
   }
 }

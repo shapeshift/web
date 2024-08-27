@@ -128,7 +128,5 @@ export const getThorTradeQuote = async (
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
       assertUnreachable(tradeType)
-      // Dummy return to appease TypeScript
-      return Err(makeSwapErrorRight({ message: 'Unknown trade type' }))
   }
 }

@@ -22,4 +22,4 @@ export type MarketDataState = {
   isMarketDataLoaded: boolean
 }
 
-export type FindPriceHistoryByAssetIdArgs = { assetIds: AssetId[]; timeframe: HistoryTimeframe }
+export type FindPriceHistoryByAssetIdArgs = { assetId: AssetId; timeframe: HistoryTimeframe }

@@ -170,7 +170,7 @@ export const marketApi = createApi({
     }),
     findPriceHistoryByAssetId: build.query<null, FindPriceHistoryByAssetIdArgs>({
       // named function for profiling+debugging purposes
-      queryFn: async function findPriceHistoryByAssetIdd(args, { dispatch }) {
+      queryFn: async function findPriceHistoryByAssetId(args, { dispatch }) {
         const { assetId, timeframe } = args
 
         const historyDataByAssetId = await getMarketServiceManager()

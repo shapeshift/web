@@ -12,6 +12,7 @@ import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -27,6 +28,7 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const { poll } = usePoll()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
@@ -99,7 +101,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         foxyApi &&
         dispatch &&
         bip44Params &&
-        state
+        state &&
+        feeAsset
       )
     )
       return
@@ -108,6 +111,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleApprove: wallet does not support ethereum`)
+
+      await checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
 
       await foxyApi.approve({
         tokenContractAddress: assetReference,
@@ -163,6 +168,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     dispatch,
     bip44Params,
     state,
+    feeAsset,
+    checkLedgerAppOpenIfLedgerConnected,
     contractAddress,
     asset.precision,
     poll,

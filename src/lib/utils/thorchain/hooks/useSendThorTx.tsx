@@ -15,6 +15,7 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -75,6 +76,7 @@ export const useSendThorTx = ({
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const wallet = useWallet().state.wallet
   const toast = useToast()
   const translate = useTranslate()
@@ -333,6 +335,8 @@ export const useSendThorTx = ({
             wallet,
           })
 
+          await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+
           const _txId = await buildAndBroadcast({
             adapter,
             buildCustomTxInput,
@@ -408,22 +412,23 @@ export const useSendThorTx = ({
 
     return _txId
   }, [
-    accountId,
-    accountNumber,
-    amountOrDustCryptoBaseUnit,
-    asset,
-    depositWithExpiryInputData,
-    estimateFeesArgs,
-    fromAddress,
-    inboundAddressData,
     memo,
-    selectedCurrency,
-    shouldUseDustAmount,
-    toast,
-    transactionType,
-    translate,
+    asset,
     wallet,
+    accountId,
+    transactionType,
+    estimateFeesArgs,
+    accountNumber,
+    inboundAddressData,
     action,
+    shouldUseDustAmount,
+    amountOrDustCryptoBaseUnit,
+    toast,
+    translate,
+    depositWithExpiryInputData,
+    checkLedgerAppOpenIfLedgerConnected,
+    fromAddress,
+    selectedCurrency,
   ])
 
   return {

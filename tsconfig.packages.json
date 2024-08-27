@@ -14,19 +14,19 @@
       "path": "./packages/caip"
     },
     {
-      "path": "./packages/types" // depends on caip
+      "path": "./packages/types"
     },
     {
-      "path": "./packages/utils" // depends on caip, types
+      "path": "./packages/utils"
     },
     {
-      "path": "./packages/contracts" // depends on caip, types, utils
+      "path": "./packages/contracts"
     },
     {
-      "path": "./packages/unchained-client" // depends on caip, contracts
+      "path": "./packages/unchained-client"
     },
     {
-      "path": "./packages/chain-adapters" // depends on caip, types, unchained-client
+      "path": "./packages/chain-adapters"
     },
     {
       "path": "./packages/errors"

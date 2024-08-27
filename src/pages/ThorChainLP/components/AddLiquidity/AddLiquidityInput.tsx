@@ -51,6 +51,7 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -148,6 +149,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
+
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
@@ -873,7 +876,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeTxFeeCryptoBaseUnit,
   ])
 
-  const handleApprove = useCallback(() => mutate(undefined), [mutate])
+  const handleApprove = useCallback(async () => {
+    if (!assetId) return
+    await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId).chainId)
+    mutate(undefined)
+  }, [assetId, checkLedgerAppOpenIfLedgerConnected, mutate])
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) return handleApprove()

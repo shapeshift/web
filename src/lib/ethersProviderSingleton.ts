@@ -5,8 +5,6 @@ import { getConfig } from 'config'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 
-import { assertUnreachable } from './utils'
-
 export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   switch (chainId) {
     case KnownChainIds.AvalancheMainnet:
@@ -28,7 +26,7 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
     case KnownChainIds.BaseMainnet:
       return getConfig().REACT_APP_BASE_NODE_URL
     default:
-      assertUnreachable(chainId)
+      return chainId satisfies never
   }
 }
 

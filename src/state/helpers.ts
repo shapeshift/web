@@ -1,6 +1,5 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
 
-import { assertUnreachable } from '../lib/utils'
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
@@ -17,7 +16,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
-      assertUnreachable(swapperName)
+      return swapperName satisfies never
   }
 }
 

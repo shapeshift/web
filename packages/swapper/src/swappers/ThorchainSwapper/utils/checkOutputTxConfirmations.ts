@@ -1,5 +1,4 @@
 import type { StandardTx } from '@shapeshiftoss/unchained-client'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type { SwapperConfig } from '../../../types'
@@ -45,7 +44,7 @@ export const checkOutboundTxConfirmations = async (
       case ThorchainChain.BSC:
         throw Error(`${latestOutTx.chain} not supported`)
       default:
-        assertUnreachable(latestOutTx.chain)
+        return latestOutTx.chain satisfies never
     }
   })()
 

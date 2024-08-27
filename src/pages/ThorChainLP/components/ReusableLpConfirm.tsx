@@ -27,7 +27,6 @@ import { RawText } from 'components/Text'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable } from 'lib/utils'
 import type { LpConfirmedWithdrawalQuote } from 'lib/utils/thorchain/lp/types'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import {
@@ -130,7 +129,7 @@ export const ReusableLpConfirm: React.FC<ReusableLpConfirmProps> = ({
         case 'sym':
           return [baseAsset, poolAsset]
         default:
-          assertUnreachable(actionSide)
+          return actionSide satisfies never
       }
     })()
 

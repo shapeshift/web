@@ -19,7 +19,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
-import { assertUnreachable, isToken } from 'lib/utils'
+import { isToken } from 'lib/utils'
 import { assertGetThorchainChainAdapter } from 'lib/utils/cosmosSdk'
 import {
   assertGetEvmChainAdapter,
@@ -127,7 +127,7 @@ export const useSendThorTx = ({
       case 'Send':
         return inboundAddressData?.address
       default:
-        assertUnreachable(transactionType)
+        return transactionType satisfies never
     }
   }, [inboundAddressData, transactionType])
 
@@ -227,7 +227,7 @@ export const useSendThorTx = ({
         }
       }
       default:
-        assertUnreachable(transactionType)
+        return transactionType satisfies never
     }
   }, [
     accountId,
@@ -378,7 +378,7 @@ export const useSendThorTx = ({
           }
         }
         default:
-          assertUnreachable(transactionType)
+          return transactionType satisfies never
       }
     })()
 

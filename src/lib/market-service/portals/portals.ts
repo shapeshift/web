@@ -17,7 +17,7 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
+import { getTimeFrameBounds, isToken } from 'lib/utils'
 
 import generatedAssetData from '../../asset-service/service/generatedAssetData.json'
 import type { MarketService } from '../api'
@@ -190,7 +190,7 @@ export class PortalsMarketService implements MarketService {
         case HistoryTimeframe.ALL:
           return '1d'
         default:
-          assertUnreachable(timeframe)
+          return timeframe satisfies never
       }
     })()
 

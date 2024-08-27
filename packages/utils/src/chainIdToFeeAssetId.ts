@@ -18,8 +18,6 @@ import {
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from './assertUnreachable'
-
 export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
   const chainId = _chainId as KnownChainIds
   switch (chainId) {
@@ -54,8 +52,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
     case KnownChainIds.ThorchainMainnet:
       return thorchainAssetId
     default:
-      assertUnreachable(chainId)
+      return chainId satisfies never
   }
-
-  throw Error(`Unsupported chainId: ${chainId}`)
 }

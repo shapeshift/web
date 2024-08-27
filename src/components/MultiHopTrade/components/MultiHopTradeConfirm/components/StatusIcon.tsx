@@ -4,7 +4,6 @@ import { useMemo } from 'react'
 import { FaThumbsUp } from 'react-icons/fa'
 import { FaRotateRight } from 'react-icons/fa6'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { assertUnreachable } from 'lib/utils'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 
 export const StatusIcon = ({
@@ -37,7 +36,7 @@ export const StatusIcon = ({
     case TransactionExecutionState.AwaitingConfirmation:
       return <Circle size={8}>{defaultIcon}</Circle>
     default:
-      assertUnreachable(txStatus)
+      return txStatus satisfies never
   }
 }
 
@@ -71,7 +70,7 @@ export const ApprovalStatusIcon = ({
       case HopExecutionState.Complete:
         return TransactionExecutionState.Complete
       default:
-        assertUnreachable(hopExecutionState)
+        return hopExecutionState satisfies never
     }
   }, [hopExecutionState, approvalTxState, isAllowanceResetStep])
   return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />

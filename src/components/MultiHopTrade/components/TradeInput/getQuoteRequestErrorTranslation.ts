@@ -1,5 +1,4 @@
 import type { InterpolationOptions } from 'node-polyglot'
-import { assertUnreachable } from 'lib/utils'
 import type { ErrorWithMeta } from 'state/apis/swapper/types'
 import { TradeQuoteRequestError } from 'state/apis/swapper/types'
 
@@ -22,7 +21,7 @@ export const getQuoteRequestErrorTranslation = (
       case TradeQuoteRequestError.NoReceiveAddress:
         return 'trade.errors.noReceiveAddress'
       default:
-        assertUnreachable(error)
+        return error satisfies never
     }
   })()
 

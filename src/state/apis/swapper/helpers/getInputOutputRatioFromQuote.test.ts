@@ -5,7 +5,6 @@ import { ethereum } from 'test/mocks/assets'
 import { mockMarketData } from 'test/mocks/marketData'
 import { mockStore } from 'test/mocks/store'
 import { describe, expect, it, vi } from 'vitest'
-import { assertUnreachable } from 'lib/utils'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import {
   cowQuote,
@@ -29,7 +28,7 @@ vi.mock('state/slices/assetsSlice/selectors', async importActual => {
         case foxAssetId:
           return ethereum
         default:
-          assertUnreachable(assetId as never)
+          return assetId as never satisfies never
       }
     }),
   }
@@ -53,7 +52,7 @@ vi.mock('state/slices/marketDataSlice/selectors', async importActual => {
         case usdcAssetId:
           return '1'
         default:
-          assertUnreachable(assetId as never)
+          return assetId as never satisfies never
       }
     }),
   }

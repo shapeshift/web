@@ -11,7 +11,7 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
 import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
+import { assertGetChainAdapter, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import {
   selectPortfolioAccountBalancesBaseUnit,
@@ -104,7 +104,7 @@ export const validateTradeQuote = (
           // We didn't recognize the error, use a generic error message
           return { error: SwapperTradeQuoteError.UnknownError }
         default:
-          assertUnreachable(errorCode)
+          return errorCode satisfies never
       }
     })()
 

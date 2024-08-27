@@ -12,7 +12,7 @@ import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import omit from 'lodash/omit'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, getTimeFrameBounds } from 'lib/utils'
+import { getTimeFrameBounds } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -116,7 +116,7 @@ export class CoinCapMarketService implements MarketService {
         case HistoryTimeframe.ALL:
           return 'd1'
         default:
-          assertUnreachable(timeframe)
+          return timeframe satisfies never
       }
     })()
 

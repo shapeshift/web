@@ -6,7 +6,6 @@ import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { Asset, UtxoAccountType } from '@shapeshiftoss/types'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
-import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -120,6 +119,6 @@ export const getTradeQuoteInput = async ({
       }
     }
     default:
-      assertUnreachable(chainNamespace)
+      return chainNamespace satisfies never
   }
 }

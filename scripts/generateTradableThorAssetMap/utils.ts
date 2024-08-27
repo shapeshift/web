@@ -56,10 +56,6 @@ const ChainToChainIdMap: Map<ThorchainChain, ChainId> = new Map([
   [ThorchainChain.BSC, bscChainId],
 ])
 
-function assertUnreachable(x: never): never {
-  throw Error(`unhandled case: ${x}`)
-}
-
 export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | undefined => {
   switch (chain) {
     case ThorchainChain.BTC:
@@ -83,7 +79,7 @@ export const getFeeAssetFromThorchainChain = (chain: ThorchainChain): AssetId | 
     case ThorchainChain.BSC:
       return bscAssetId
     default:
-      assertUnreachable(chain)
+      return chain satisfies never
   }
 }
 

@@ -49,7 +49,6 @@ import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertUnreachable } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -212,7 +211,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case AsymSide.Rune:
         return '0'
       default:
-        assertUnreachable(withdrawType)
+        return withdrawType satisfies never
     }
   }, [withdrawType, virtualAssetWithdrawAmountCryptoPrecision])
 
@@ -228,7 +227,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case AsymSide.Asset:
         return '0'
       default:
-        assertUnreachable(withdrawType)
+        return withdrawType satisfies never
     }
   }, [withdrawType, virtualRuneWithdrawAmountCryptoPrecision])
 
@@ -244,7 +243,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case AsymSide.Rune:
         return '0'
       default:
-        assertUnreachable(withdrawType)
+        return withdrawType satisfies never
     }
   }, [withdrawType, virtualAssetWithdrawAmountFiatUserCurrency])
 
@@ -260,7 +259,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case AsymSide.Asset:
         return '0'
       default:
-        assertUnreachable(withdrawType)
+        return withdrawType satisfies never
     }
   }, [withdrawType, virtualRuneWithdrawAmountFiatUserCurrency])
 
@@ -292,7 +291,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       case AsymSide.Asset:
         return bnOrZero(virtualAssetWithdrawAmountCryptoPrecision).gt(0)
       default:
-        assertUnreachable(withdrawType)
+        return withdrawType satisfies never
     }
   }, [
     incompleteSide,
@@ -726,7 +725,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         case 'sym':
           return [poolAsset, runeAsset]
         default:
-          assertUnreachable(withdrawType)
+          return withdrawType satisfies never
       }
     })()
 

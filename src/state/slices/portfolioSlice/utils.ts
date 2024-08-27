@@ -45,7 +45,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, firstFourLastFour } from 'lib/utils'
+import { firstFourLastFour } from 'lib/utils'
 import { isSpammyNftText } from 'state/apis/nft/constants'
 import type { NftCollectionType } from 'state/apis/nft/types'
 
@@ -227,7 +227,7 @@ export const accountToPortfolio: AccountToPortfolio = ({
         break
       }
       default:
-        assertUnreachable(chainNamespace)
+        return chainNamespace satisfies never
     }
   })
 
@@ -268,7 +268,7 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
       return hasActivity
     }
     default:
-      assertUnreachable(chainNamespace)
+      return chainNamespace satisfies never
   }
 }
 

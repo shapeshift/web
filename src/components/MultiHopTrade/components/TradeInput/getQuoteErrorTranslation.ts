@@ -1,6 +1,5 @@
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
-import { assertUnreachable } from 'lib/utils'
 import type { ErrorWithMeta } from 'state/apis/swapper/types'
 import { type TradeQuoteError, TradeQuoteValidationError } from 'state/apis/swapper/types'
 
@@ -52,7 +51,7 @@ export const getQuoteErrorTranslation = (
       case TradeQuoteValidationError.QuoteSellAmountInvalid:
         return 'trade.errors.quoteError'
       default:
-        assertUnreachable(error)
+        return error satisfies never
     }
   })()
 

@@ -1,5 +1,3 @@
-import { assertUnreachable } from '@shapeshiftoss/utils'
-
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
@@ -116,6 +114,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.ArbitrumBridge:
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
-      assertUnreachable(swapperName)
+      return swapperName satisfies never
   }
 }

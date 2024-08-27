@@ -7,7 +7,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, bn } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { ethers as ethersV5 } from 'ethers5'
 import { BigNumber } from 'ethers5'
@@ -189,6 +189,6 @@ export const fetchArbitrumBridgeSwap = async ({
       return { request, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
     default:
-      assertUnreachable(bridgeType)
+      return bridgeType satisfies never
   }
 }

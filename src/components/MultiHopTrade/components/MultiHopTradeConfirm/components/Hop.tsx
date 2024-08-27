@@ -27,7 +27,6 @@ import { SlippageIcon } from 'components/Icons/Slippage'
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
-import { assertUnreachable } from 'lib/utils'
 import {
   selectHopExecutionMetadata,
   selectHopNetworkFeeUserCurrencyPrecision,
@@ -154,7 +153,7 @@ export const Hop = ({
       case HopExecutionState.Complete:
         return Infinity
       default:
-        assertUnreachable(hopExecutionState)
+        return hopExecutionState satisfies never
     }
   }, [hopExecutionState, hopIndex])
 

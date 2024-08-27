@@ -1,5 +1,4 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import prettyMilliseconds from 'pretty-ms'
 
 import type { ThorNodeStatusResponseSuccess } from '../types'
@@ -104,7 +103,7 @@ export const getLatestThorTxStatusMessage = (
         }
       }
       default:
-        assertUnreachable(key)
+        return key satisfies never
     }
   }
 

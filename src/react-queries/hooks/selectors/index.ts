@@ -1,6 +1,5 @@
 import type { Result } from '@sniptt/monads'
 import { GetAllowanceErr } from 'react-queries/types'
-import { assertUnreachable } from 'lib/utils'
 
 export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceErr>) => {
   if (data.isErr()) {
@@ -19,7 +18,7 @@ export const selectAllowanceCryptoBaseUnit = (data: Result<string, GetAllowanceE
         // - magic chain-level transfers for which we use 0x0 as a placeholder
         return undefined
       default:
-        assertUnreachable(error)
+        return error satisfies never
     }
   }
 

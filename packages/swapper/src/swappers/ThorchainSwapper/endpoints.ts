@@ -4,7 +4,7 @@ import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shap
 import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
-import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { type Result } from '@sniptt/monads/build'
 import assert from 'assert'
@@ -198,7 +198,7 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToLongTail:
         throw Error(`Unsupported trade type: ${TradeType}`)
       default:
-        assertUnreachable(tradeType)
+        return tradeType satisfies never
     }
   },
 

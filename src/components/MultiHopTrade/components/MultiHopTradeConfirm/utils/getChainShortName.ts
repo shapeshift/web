@@ -1,5 +1,4 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from 'lib/utils'
 
 export const getChainShortName = (chainId: KnownChainIds) => {
   switch (chainId) {
@@ -34,7 +33,7 @@ export const getChainShortName = (chainId: KnownChainIds) => {
     case KnownChainIds.LitecoinMainnet:
       return 'LTC'
     default: {
-      assertUnreachable(chainId)
+      return chainId satisfies never
     }
   }
 }

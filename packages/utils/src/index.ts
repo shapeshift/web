@@ -1,7 +1,6 @@
 import { isNull, isUndefined } from 'lodash'
 
 export * from './makeAsset/makeAsset'
-export * from './assertUnreachable'
 export * from './sha256'
 export * from './chainIdToFeeAsset'
 export * from './chainIdToFeeAssetId'

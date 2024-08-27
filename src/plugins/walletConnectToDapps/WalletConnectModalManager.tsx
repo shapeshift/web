@@ -37,7 +37,6 @@ import { type Dispatch, type FC, useCallback, useMemo, useRef } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 
@@ -163,7 +162,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case undefined:
         break
       default:
-        assertUnreachable(activeModal)
+        return activeModal satisfies never
     }
 
     handleClose()
@@ -235,7 +234,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           />
         )
       default:
-        assertUnreachable(activeModal)
+        return activeModal satisfies never
     }
   }, [
     activeModal,

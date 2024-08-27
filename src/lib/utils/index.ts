@@ -174,10 +174,6 @@ export const isResolvedErr = <U, V, T extends Result<U, V>>(
 export const setTimeoutAsync = (waitMs: number) =>
   new Promise(resolve => setTimeout(resolve, waitMs))
 
-export function assertUnreachable(x: never): never {
-  throw Error(`unhandled case: ${x}`)
-}
-
 export function assertIsDefined<T>(x: T | undefined | null): asserts x is T {
   if (x === undefined || x === null) throw Error(`unexpected undefined or null`)
 }
@@ -277,7 +273,7 @@ export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs;
     case HistoryTimeframe.ALL:
       return { end, start: end.subtract(20, 'years') }
     default:
-      assertUnreachable(timeframe)
+      return timeframe satisfies never
   }
 }
 

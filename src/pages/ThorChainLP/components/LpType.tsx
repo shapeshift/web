@@ -8,7 +8,6 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetSymbol } from 'components/AssetSymbol'
 import { RawText } from 'components/Text'
-import { assertUnreachable } from 'lib/utils'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -149,7 +148,7 @@ export const LpType = ({
         case 'sym':
           return [assetId, thorchainAssetId]
         default:
-          assertUnreachable(value)
+          return value satisfies never
       }
     },
     [assetId],

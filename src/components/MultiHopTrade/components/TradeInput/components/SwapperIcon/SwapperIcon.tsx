@@ -2,7 +2,6 @@ import type { AvatarProps } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
-import { assertUnreachable } from 'lib/utils'
 
 import ZrxIcon from './0x-icon.png'
 import OneInchIcon from './1inch-icon.png'
@@ -38,7 +37,7 @@ export const SwapperIcon = ({
       case SwapperName.Test:
         return ''
       default:
-        assertUnreachable(swapperName)
+        return swapperName satisfies never
     }
   }, [swapperName])
 

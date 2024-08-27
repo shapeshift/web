@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMemo } from 'react'
-import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
 import { useEvmFees } from './useEvmFees'
@@ -87,6 +86,6 @@ export const getApprovalAmountCryptoBaseUnit = (
     case AllowanceType.Reset:
       return '0'
     default:
-      assertUnreachable(allowanceType)
+      return allowanceType satisfies never
   }
 }

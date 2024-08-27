@@ -26,7 +26,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { assertUnreachable } from 'lib/utils'
 import type {
   LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
@@ -76,7 +75,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(actionSide)
+        return actionSide satisfies never
     }
   }, [poolAsset, baseAsset, actionSide])
 
@@ -91,7 +90,7 @@ export const ReusableLpStatus: React.FC<ReusableLpStatusProps> = ({
       case AsymSide.Asset:
         return [poolAsset]
       default:
-        assertUnreachable(actionSide)
+        return actionSide satisfies never
     }
   }, [poolAsset, baseAsset, actionSide, action])
 

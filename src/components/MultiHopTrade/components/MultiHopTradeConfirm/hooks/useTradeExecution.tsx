@@ -19,7 +19,6 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
-import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -353,7 +352,7 @@ export const useTradeExecution = (
           return
         }
         default:
-          assertUnreachable(stepSellAssetChainNamespace)
+          return stepSellAssetChainNamespace satisfies never
       }
     })
   }, [

@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
@@ -24,7 +23,7 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
     case KnownChainIds.BaseMainnet:
       return 'https://0x.shapeshift.com/base/'
     default:
-      assertUnreachable(chainId)
+      return chainId satisfies never
   }
 }
 

@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
-  assertUnreachable,
   baseUnitToPrecision,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
@@ -503,6 +502,6 @@ export const getL1quote = async (
     }
 
     default:
-      assertUnreachable(chainNamespace)
+      return chainNamespace satisfies never
   }
 }

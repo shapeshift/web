@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertUnreachable } from 'lib/utils'
 
 import { DrawerWrapper } from './components/DrawerWrapper'
 import { ImportAccounts } from './components/ImportAccounts'
@@ -42,7 +41,7 @@ export const ManageAccountsDrawer = ({
         handleClose()
         break
       default:
-        assertUnreachable(step)
+        return step satisfies never
     }
   }, [wallet, step, handleClose])
 
@@ -86,7 +85,7 @@ export const ManageAccountsDrawer = ({
         if (!selectedChainId) return null
         return <ImportAccounts chainId={selectedChainId} onClose={handleClose} />
       default:
-        assertUnreachable(step)
+        return step satisfies never
     }
   }, [step, handleSelectChainId, handleClose, selectedChainId])
 

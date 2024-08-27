@@ -1,6 +1,5 @@
 import { CardHeader, Flex, Heading, useMediaQuery } from '@chakra-ui/react'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
@@ -83,7 +82,7 @@ export const TradeInputHeader = ({
         case TradeInputTab.Claim:
           return null
         default:
-          assertUnreachable(selectedTab)
+          return selectedTab satisfies never
       }
     })()
   }, [selectedTab, isLoading, isCompact])

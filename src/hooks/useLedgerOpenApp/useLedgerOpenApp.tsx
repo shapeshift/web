@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { slip44Table } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -46,7 +45,7 @@ export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined
     case KnownChainIds.CosmosMainnet:
       return 'Atom'
     default:
-      assertUnreachable(knownChainId)
+      return knownChainId satisfies never
   }
 }
 

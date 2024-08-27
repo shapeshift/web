@@ -1,4 +1,4 @@
-import { assertUnreachable, bn } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
@@ -127,6 +127,6 @@ export const getThorTradeQuote = async (
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
-      assertUnreachable(tradeType)
+      return tradeType satisfies never
   }
 }

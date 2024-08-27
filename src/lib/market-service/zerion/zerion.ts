@@ -21,7 +21,7 @@ import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { assertUnreachable, isToken } from 'lib/utils'
+import { isToken } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
@@ -84,7 +84,7 @@ export class ZerionMarketService implements MarketService {
         case HistoryTimeframe.ALL:
           return 'max'
         default:
-          assertUnreachable(timeframe)
+          return timeframe satisfies never
       }
     })()
 

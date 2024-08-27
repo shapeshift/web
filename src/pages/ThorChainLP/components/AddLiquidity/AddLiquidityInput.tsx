@@ -61,13 +61,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import {
-  assertUnreachable,
-  chainIdToChainDisplayName,
-  isNonEmptyString,
-  isSome,
-  isToken,
-} from 'lib/utils'
+import { chainIdToChainDisplayName, isNonEmptyString, isSome, isToken } from 'lib/utils'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -863,7 +857,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         return poolAssetGasFeeFiatUserCurrency.plus(runeGasFeeFiatUserCurrency)
       }
       default:
-        assertUnreachable(opportunityType)
+        return opportunityType satisfies never
     }
   }, [
     opportunityType,
@@ -1092,7 +1086,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         case 'sym':
           return [poolAsset, runeAsset]
         default:
-          assertUnreachable(opportunityType)
+          return opportunityType satisfies never
       }
     })()
 

@@ -8,7 +8,6 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
-import { assertUnreachable } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
@@ -93,7 +92,7 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
                 case ChildToParentMessageStatus.UNCONFIRMED:
                   return ClaimStatus.Pending
                 default:
-                  assertUnreachable(status)
+                  return status satisfies never
               }
             })()
 

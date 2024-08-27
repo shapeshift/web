@@ -14,7 +14,7 @@ vi.mock('@arbitrum/sdk', () => ({
   getArbitrumNetwork: vi.fn().mockResolvedValue({ chainID: 42161 }),
 }))
 
-vi.mock('@shapeshiftoss/utils/dist/evm', () => ({
+vi.mock('@shapeshiftoss/chain-adapters/dist/evm/utils', () => ({
   getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
 }))
 

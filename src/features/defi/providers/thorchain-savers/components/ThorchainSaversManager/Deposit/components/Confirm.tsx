@@ -207,11 +207,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     fromAddress: fromAddress ?? null,
   })
 
-  const { amountCryptoBaseUnitMinusFees, amountCryptoHumanMinusFees } = useMemo(() => {
+  const { amountMinusFeesCryptoBaseUnit, amountMinusFeesCryptoPrecision } = useMemo(() => {
+    if (isUtxoChainId(feeAsset.chainId)) {
+      return {
+        amountMinusFeesCryptoBaseUnit: bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)),
+        amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
+      }
+    }
+
     if (!estimatedFeesData)
       return {
-        amountCryptoBaseUnitMinusFees: undefined,
-        amountCryptoHumanMinusFees: undefined,
+        amountMinusFeesCryptoBaseUnit: undefined,
+        amountMinusFeesCryptoPrecision: undefined,
       }
 
     if (
@@ -221,10 +228,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       feeAsset.assetId === asset.assetId
     ) {
       return {
-        amountCryptoBaseUnitMinusFees: bn(
+        amountMinusFeesCryptoBaseUnit: bn(
           toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
         ).minus(estimatedFeesData.txFeeCryptoBaseUnit),
-        amountCryptoHumanMinusFees: fromBaseUnit(
+        amountMinusFeesCryptoPrecision: fromBaseUnit(
           bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)).minus(
             estimatedFeesData.txFeeCryptoBaseUnit,
           ),
@@ -234,8 +241,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     }
 
     return {
-      amountCryptoBaseUnitMinusFees: bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)),
-      amountCryptoHumanMinusFees: state?.deposit.cryptoAmount,
+      amountMinusFeesCryptoBaseUnit: bn(toBaseUnit(state?.deposit.cryptoAmount, asset.precision)),
+      amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
     }
   }, [
     state?.deposit.cryptoAmount,
@@ -249,10 +256,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { executeTransaction } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: amountCryptoBaseUnitMinusFees?.toFixed() ?? null,
+    amountCryptoBaseUnit: amountMinusFeesCryptoBaseUnit?.toFixed() ?? null,
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
+    enableEstimateFees: Boolean(
+      !state?.deposit.sendMax ||
+        isUtxoChainId(feeAsset.chainId) ||
+        feeAsset.assetId !== asset.assetId,
+    ),
   })
 
   const estimatedGasCryptoPrecision = useMemo(() => {
@@ -437,7 +449,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         isTradingActive === false
       }
       loading={
-        state.loading || !amountCryptoBaseUnitMinusFees || !fromAddress || isAddressByteCodeLoading
+        state.loading || !amountMinusFeesCryptoBaseUnit || !fromAddress || isAddressByteCodeLoading
       }
       loadingText={translate('common.confirm')}
       headerText='modals.confirm.deposit.header'
@@ -453,8 +465,8 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <RawText>{asset.name}</RawText>
             </Stack>
             <Row.Value>
-              <Skeleton isLoaded={!!amountCryptoHumanMinusFees}>
-                <Amount.Crypto value={amountCryptoHumanMinusFees} symbol={asset.symbol} />
+              <Skeleton isLoaded={!!amountMinusFeesCryptoPrecision}>
+                <Amount.Crypto value={amountMinusFeesCryptoPrecision} symbol={asset.symbol} />
               </Skeleton>
             </Row.Value>
           </Row>

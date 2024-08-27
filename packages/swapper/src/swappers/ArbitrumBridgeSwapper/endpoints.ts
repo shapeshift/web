@@ -3,10 +3,10 @@ import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 

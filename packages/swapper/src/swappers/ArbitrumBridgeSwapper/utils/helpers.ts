@@ -1,6 +1,6 @@
 import { Erc20Bridger, getArbitrumNetwork } from '@arbitrum/sdk'
 import { arbitrumAssetId, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'

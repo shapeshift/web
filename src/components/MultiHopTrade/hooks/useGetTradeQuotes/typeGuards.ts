@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { CosmosSdkChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 
 export const isUtxoSwap = (chainId: ChainId): chainId is UtxoChainId => {
   const { chainNamespace } = fromChainId(chainId)

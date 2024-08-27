@@ -28,6 +28,17 @@ export enum KnownChainIds {
   ThorchainMainnet = 'cosmos:thorchain-mainnet-v1',
 }
 
+export type EvmChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.OptimismMainnet
+  | KnownChainIds.BnbSmartChainMainnet
+  | KnownChainIds.PolygonMainnet
+  | KnownChainIds.GnosisMainnet
+  | KnownChainIds.ArbitrumMainnet
+  | KnownChainIds.ArbitrumNovaMainnet
+  | KnownChainIds.BaseMainnet
+
 export enum WithdrawType {
   DELAYED,
   INSTANT,

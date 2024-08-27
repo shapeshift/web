@@ -3,7 +3,6 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { erc20ABI } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,6 +13,7 @@ import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
+  EvmFees,
   GetFeesWithWalletEip1559SupportArgs,
   MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'

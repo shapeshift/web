@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'

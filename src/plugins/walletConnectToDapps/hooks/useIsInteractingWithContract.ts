@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersProvider } from '@shapeshiftoss/contracts'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 
 export const useIsInteractingWithContract = ({

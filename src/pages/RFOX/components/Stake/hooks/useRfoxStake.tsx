@@ -4,7 +4,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { erc20ABI, foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
-import type { EvmFees } from '@shapeshiftoss/utils/dist/evm'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -17,6 +16,7 @@ import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
+import type { EvmFees } from 'lib/utils/evm'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,

@@ -1,4 +1,4 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { useEffect, useState } from 'react'
 import { assertGetViemClient } from 'lib/viem-client'
 

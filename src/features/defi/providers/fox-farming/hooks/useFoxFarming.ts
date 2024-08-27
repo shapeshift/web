@@ -1,12 +1,12 @@
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   getOrCreateContractByAddress,
 } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'

@@ -3,16 +3,15 @@ import type {
   ContractInteraction,
   evm,
   EvmChainAdapter,
-  EvmChainId,
   SignTx,
 } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { GetFeesReturn } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Fees } from '@shapeshiftoss/utils/dist/evm'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { PartialFields } from 'lib/types'
@@ -92,9 +91,15 @@ export const isGetFeesWithWalletEIP1559SupportArgs = (
 ): input is GetFeesWithWalletEip1559SupportArgs =>
   Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
+export type EvmFees = {
+  fees: GetFeesReturn
+  txFeeFiat: string
+  networkFeeCryptoBaseUnit: string
+}
+
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletEip1559SupportArgs,
-): Promise<Fees> => {
+): Promise<GetFeesReturn> => {
   const { wallet, ...rest } = args
 
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

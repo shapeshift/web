@@ -1,6 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import { addBasisPointAmount, convertBasisPointsToPercentage } from '@shapeshiftoss/utils'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'

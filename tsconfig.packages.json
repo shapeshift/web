@@ -14,22 +14,22 @@
       "path": "./packages/caip"
     },
     {
-      "path": "./packages/chain-adapters"
+      "path": "./packages/types" // depends on caip
+    },
+    {
+      "path": "./packages/utils" // depends on caip, types
+    },
+    {
+      "path": "./packages/contracts" // depends on caip, types, utils
+    },
+    {
+      "path": "./packages/unchained-client" // depends on caip, contracts
+    },
+    {
+      "path": "./packages/chain-adapters" // depends on caip, types, unchained-client
     },
     {
       "path": "./packages/errors"
-    },
-    {
-      "path": "./packages/types"
-    },
-    {
-      "path": "./packages/unchained-client"
-    },
-    {
-      "path": "./packages/utils"
-    },
-    {
-      "path": "./packages/contracts"
     },
     {
       "path": "./packages/swapper"

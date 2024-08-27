@@ -2,7 +2,6 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type {
   CosmosSdkChainId,
-  EvmChainId,
   FeeData,
   FeeDataEstimate,
   GetFeeDataInput,
@@ -11,7 +10,7 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,

@@ -1,5 +1,4 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
@@ -97,7 +96,7 @@ export const viemBaseClient = createPublicClient({
   ]),
 }) as PublicClient
 
-export const viemClientByChainId: Record<EvmChainId, PublicClient> = {
+export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
   [KnownChainIds.AvalancheMainnet]: viemAvalancheClient,
@@ -126,7 +125,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {
-  const publicClient = viemClientByChainId[chainId as EvmChainId]
+  const publicClient = viemClientByChainId[chainId]
   assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
   return publicClient
 }

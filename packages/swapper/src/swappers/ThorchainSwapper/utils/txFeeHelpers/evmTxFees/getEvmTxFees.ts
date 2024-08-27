@@ -1,5 +1,5 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 
 import { THOR_EVM_GAS_LIMIT } from '../../constants'
 

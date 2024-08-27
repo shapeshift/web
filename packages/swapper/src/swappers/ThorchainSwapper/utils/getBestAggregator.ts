@@ -1,5 +1,4 @@
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
 import type { FeeAmount } from '@uniswap/v3-sdk'

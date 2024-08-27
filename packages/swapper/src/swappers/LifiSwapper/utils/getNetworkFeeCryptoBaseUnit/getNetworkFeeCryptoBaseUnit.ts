@@ -1,9 +1,8 @@
 import { getStepTransaction } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/utils/dist/evm'
+import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { getContract } from 'viem'
 
 import type { SwapperDeps } from '../../../../types'

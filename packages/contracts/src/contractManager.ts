@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Token } from '@uniswap/sdk'
@@ -68,7 +67,7 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
     return definedContract as unknown as KnownContractByType<A, T>
   }
 
-  const publicClient = viemClientByChainId[chainId as EvmChainId]
+  const publicClient = viemClientByChainId[chainId]
   assert(publicClient !== undefined, `no public client found for chainId '${chainId}'`)
 
   const contract = getContract({

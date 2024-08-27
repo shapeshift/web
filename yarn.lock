@@ -10990,12 +10990,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/contracts@workspace:packages/contracts":
+"@shapeshiftoss/contracts@workspace:^, @shapeshiftoss/contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/contracts@workspace:packages/contracts"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
   languageName: unknown
@@ -11439,6 +11438,7 @@ __metadata:
     "@openapitools/openapi-generator-cli": ^2.5.1
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^9.3.0
+    "@shapeshiftoss/contracts": "workspace:^"
     isomorphic-ws: ^4.0.1
     ws: ^8.17.1
   languageName: unknown

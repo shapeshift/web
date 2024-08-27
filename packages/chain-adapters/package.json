@@ -19,6 +19,7 @@
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "bech32": "^2.0.0",
     "coinselect": "^3.1.13",

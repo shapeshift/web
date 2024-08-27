@@ -49,13 +49,13 @@ export const ETH_FOX_POOL_CONTRACT_ADDRESS = '0x470e8de2eBaef52014A47Cb5E6aF8688
 export const UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS =
   '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' as const
 
-// Checksummed addresses - used to check against unchained Txs
-
 export const THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM = '0xd37bbe5744d730a1d98d8dc97c42f0ca46ad7146'
 
 // RFOX on Arbitrum ERC1967Proxy contract address
-export const RFOX_PROXY_CONTRACT_ADDRESS: Address = (process.env
-  .REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS ?? '0x') as Address
+// Uncomment me if you want to test RFOX with a shorter cooldown period
+// export const RFOX_PROXY_CONTRACT_ADDRESS: Address = '0x1094c4a99fce60e69ffe75849309408f1262d304'
+export const RFOX_PROXY_CONTRACT_ADDRESS: Address = '0xac2a4fd70bcd8bab0662960455c363735f0e2b56'
+
 export const RFOX_REWARD_RATE = 1n * 10n ** 27n
 export const RFOX_WAD = 1n * 10n ** 18n
 

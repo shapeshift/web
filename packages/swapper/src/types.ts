@@ -5,7 +5,6 @@ import type {
   CosmosSdkChainAdapter,
   CosmosSdkChainId,
   EvmChainAdapter,
-  EvmChainId,
   UtxoChainAdapter,
   UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
@@ -14,6 +13,7 @@ import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  EvmChainId,
   KnownChainIds,
   PartialRecord,
   UtxoAccountType,

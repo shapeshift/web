@@ -11,6 +11,7 @@ import {
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
@@ -34,6 +35,7 @@ type StakingInput = {
 
 export const useStakingAction = () => {
   const chainAdapterManager = getChainAdapterManager()
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const {
     state: { wallet },
   } = useWallet()
@@ -68,8 +70,10 @@ export const useStakingAction = () => {
       const memo = shapeshiftValidators.includes(validator) ? 'Delegated with ShapeShift' : ''
 
       const { accountNumber } = bip44Params
+
+      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+      const address = await adapter.getAddress({ accountNumber, wallet })
       const { txToSign, receiverAddress } = await (async () => {
-        const address = await adapter.getAddress({ accountNumber, wallet })
         switch (action) {
           case StakingAction.Claim:
             return {
@@ -116,9 +120,8 @@ export const useStakingAction = () => {
             throw new Error(`unsupported staking action: ${action}`)
         }
       })()
-      const senderAddress = await adapter.getAddress({ accountNumber, wallet })
       return adapter.signAndBroadcastTransaction({
-        senderAddress,
+        senderAddress: address,
         receiverAddress,
         signTxInput: { txToSign, wallet },
       })

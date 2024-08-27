@@ -30,7 +30,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
@@ -112,11 +111,6 @@ export const FoxyWithdraw: React.FC<{
           <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
       },
-      [DefiStep.Approve]: {
-        label: translate('defi.steps.approve.title'),
-        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
-        props: { contractAddress: foxyStakingContractAddress },
-      },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),
         component: ownProps => <Confirm {...ownProps} accountId={accountId} />,
@@ -126,7 +120,7 @@ export const FoxyWithdraw: React.FC<{
         component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
-  }, [accountId, handleAccountIdChange, foxyStakingContractAddress, translate, stakingAsset.symbol])
+  }, [accountId, handleAccountIdChange, translate, stakingAsset.symbol])
 
   const handleBack = useCallback(() => {
     history.push({

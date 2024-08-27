@@ -25,7 +25,6 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { Approve } from './components/Approve'
 import { Confirm } from './components/Confirm'
 import { Status } from './components/Status'
 import { Withdraw } from './components/Withdraw'
@@ -90,10 +89,6 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
         component: ownProps => (
           <Withdraw {...ownProps} accountId={accountId} onAccountIdChange={handleAccountIdChange} />
         ),
-      },
-      [DefiStep.Approve]: {
-        label: translate('defi.steps.approve.title'),
-        component: ownProps => <Approve {...ownProps} accountId={accountId} />,
       },
       [DefiStep.Confirm]: {
         label: translate('defi.steps.confirm.title'),

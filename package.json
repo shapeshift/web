@@ -66,7 +66,7 @@
     }
   },
   "dependencies": {
-    "@arbitrum/sdk": "^3.7.0",
+    "@arbitrum/sdk": "^4.0.1",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@chakra-ui/system": "^2.6.2",

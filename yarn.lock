@@ -90,16 +90,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arbitrum/sdk@npm:^3.7.0":
-  version: 3.7.0
-  resolution: "@arbitrum/sdk@npm:3.7.0"
+"@arbitrum/sdk@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@arbitrum/sdk@npm:4.0.1"
   dependencies:
     "@ethersproject/address": ^5.0.8
     "@ethersproject/bignumber": ^5.1.1
     "@ethersproject/bytes": ^5.0.8
     async-mutex: ^0.4.0
     ethers: ^5.1.0
-  checksum: 267fe79be610f844c0334e9cb38202a7348df4d8765c3c6161fc643ea95f9a1ee6f1a4ed7caf553ced83c5f8bc633724e08d7295a32f50f9574637170747dcef
+  checksum: 7404c019563538c078f24b9f965d99ca5080435cd681628ac0f7aef2f7777806ec10ffcb3b31ccb9b44d951572ed219cfc1bde8f5a3f0878b7cbd9af4b4b334d
   languageName: node
   linkType: hard
 
@@ -11465,7 +11465,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/web@workspace:."
   dependencies:
-    "@arbitrum/sdk": ^3.7.0
+    "@arbitrum/sdk": ^4.0.1
     "@chakra-ui/icons": ^2.1.1
     "@chakra-ui/react": ^2.8.2
     "@chakra-ui/system": ^2.6.2

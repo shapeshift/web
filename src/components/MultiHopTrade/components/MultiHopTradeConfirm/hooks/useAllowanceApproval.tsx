@@ -36,7 +36,6 @@ export const useAllowanceApproval = (
   const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
 
   const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
-    accountNumber: tradeQuoteStep.accountNumber,
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
@@ -63,6 +62,7 @@ export const useAllowanceApproval = (
       ),
       assetId: tradeQuoteStep.sellAsset.assetId,
       spender: tradeQuoteStep.allowanceContract,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,
     }),
     onMutate() {

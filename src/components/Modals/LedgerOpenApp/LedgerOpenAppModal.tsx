@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Modal,
   ModalBody,
@@ -21,9 +22,10 @@ import { useLedgerAppDetails } from './hooks/useLedgerAppDetails'
 export type LedgerOpenAppModalProps = {
   chainId: ChainId
   onCancel: () => void
+  isSigning: boolean
 }
 
-export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProps) => {
+export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenAppModalProps) => {
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
   const translate = useTranslate()
 
@@ -50,12 +52,15 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
         </ModalHeader>
         <ModalBody>
           <VStack spacing={2}>
-            <RawText color='whiteAlpha.600'>
+            <RawText color='whiteAlpha.600' textAlign='center'>
               {translate('ledgerOpenApp.description', {
                 appName,
               })}
             </RawText>
-            <Spinner size='lg' />
+            {isSigning ? (
+              <Alert status='warning'>{translate('ledgerOpenApp.signingDescription')}</Alert>
+            ) : null}
+            <Spinner mt={4} size='lg' />
           </VStack>
         </ModalBody>
         <ModalFooter justifyContent='center' pb={6}>

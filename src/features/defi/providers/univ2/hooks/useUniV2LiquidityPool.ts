@@ -1,7 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import {
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
@@ -20,7 +19,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
-  getFeesWithWallet,
+  getFeesWithWalletEIP1559Support,
 } from 'lib/utils/evm'
 import { uniswapV2Router02AssetId } from 'state/slices/opportunitiesSlice/constants'
 import {
@@ -208,6 +207,7 @@ export const useUniV2LiquidityPool = ({
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
+          from: accountAddress,
           adapter,
           data: makeAddLiquidityData({ token0Amount, token1Amount }),
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
@@ -227,6 +227,7 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
+      accountAddress,
       accountNumber,
       adapter,
       assetId0OrWeth,
@@ -235,7 +236,7 @@ export const useUniV2LiquidityPool = ({
       skip,
       uniswapRouterContract,
       wallet,
-      weth,
+      weth.precision,
     ],
   )
 
@@ -331,6 +332,7 @@ export const useUniV2LiquidityPool = ({
 
         const buildCustomTxInput = await createBuildCustomTxInput({
           accountNumber,
+          from: accountAddress,
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
@@ -350,7 +352,6 @@ export const useUniV2LiquidityPool = ({
       }
     },
     [
-      adapter,
       skip,
       accountNumber,
       uniswapRouterContract,
@@ -358,6 +359,8 @@ export const useUniV2LiquidityPool = ({
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
+      accountAddress,
+      adapter,
     ],
   )
 
@@ -436,11 +439,6 @@ export const useUniV2LiquidityPool = ({
     return _allowance.toString()
   }, [skip, accountId, uniV2LPContract, accountAddress])
 
-  const pubKey = useMemo(
-    () => (wallet && isLedger(wallet) ? accountAddress : undefined),
-    [wallet, accountAddress],
-  )
-
   const getApproveFees = useCallback(
     (contractAddress: Address) => {
       if (skip || !isNumber(accountNumber) || !wallet) return
@@ -459,17 +457,16 @@ export const useUniV2LiquidityPool = ({
         args: [getAddress(fromAssetId(uniswapV2Router02AssetId).assetReference), maxUint256],
       })
 
-      return getFeesWithWallet({
-        accountNumber,
+      return getFeesWithWalletEIP1559Support({
         adapter,
         data,
         to: contract.address,
-        pubKey,
+        from: accountAddress,
         value: '0',
         wallet,
       })
     },
-    [skip, accountNumber, wallet, adapter, pubKey],
+    [skip, accountNumber, wallet, adapter, accountAddress],
   )
 
   const getDepositFees = useCallback(
@@ -504,12 +501,11 @@ export const useUniV2LiquidityPool = ({
           ],
         })
 
-        return getFeesWithWallet({
-          accountNumber,
+        return getFeesWithWalletEIP1559Support({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-          pubKey,
+          from: accountAddress,
           value: toBaseUnit(ethAmount, weth.precision),
           wallet,
         })
@@ -532,12 +528,11 @@ export const useUniV2LiquidityPool = ({
           ],
         })
 
-        return getFeesWithWallet({
-          accountNumber,
+        return getFeesWithWalletEIP1559Support({
           adapter,
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-          pubKey,
+          from: accountAddress,
           value: '0',
           wallet,
         })
@@ -558,7 +553,6 @@ export const useUniV2LiquidityPool = ({
       weth.precision,
       accountAddress,
       adapter,
-      pubKey,
     ],
   )
 
@@ -574,12 +568,11 @@ export const useUniV2LiquidityPool = ({
         asset1ContractAddress,
       })
 
-      return getFeesWithWallet({
-        accountNumber,
+      return getFeesWithWalletEIP1559Support({
         adapter,
         data,
         to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-        pubKey,
+        from: accountAddress,
         value: '0',
         wallet,
       })
@@ -593,7 +586,7 @@ export const useUniV2LiquidityPool = ({
       asset0ContractAddress,
       asset1ContractAddress,
       adapter,
-      pubKey,
+      accountAddress,
     ],
   )
 

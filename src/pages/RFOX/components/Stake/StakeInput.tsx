@@ -1,6 +1,11 @@
-import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -35,6 +40,7 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
@@ -206,6 +212,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setStakeTxid: undefined,
     methods,
   })
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
 
@@ -408,6 +419,16 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   }, [isChainSupportedByWallet, translate])
 
   if (!selectedAsset) return null
+
+  if (!stakingAssetAccountAddress)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   return (
     <SlideTransition>

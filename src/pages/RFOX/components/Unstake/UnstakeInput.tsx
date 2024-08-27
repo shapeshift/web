@@ -1,4 +1,4 @@
-import { CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -30,6 +30,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { UnstakeSummary } from './components/UnstakeSummary'
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
@@ -294,6 +295,16 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     if (isChainSupportedByWallet) return
     return translate('trade.errors.quoteUnsupportedChain')
   }, [isChainSupportedByWallet, translate])
+
+  if (!stakingAssetAccountAddress)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   if (!stakingAsset) return null
 

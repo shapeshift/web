@@ -119,7 +119,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [dogeChainId]: 'DOGE',
   [avalancheChainId]: 'AVAX-C', // note - the AVAX-C chain is not the same as the AVAX "ticker" on the banxa side
   [optimismChainId]: 'OPTIMISM',
-  [polygonChainId]: 'MATIC',
+  [polygonChainId]: 'MATIC', // TODO: check that Banxa update this to POL upstream
   [arbitrumChainId]: 'ARB',
   [baseChainId]: 'BASE',
   [thorchainChainId]: 'THORCHAIN',

@@ -30,7 +30,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -79,7 +79,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -151,7 +151,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -208,7 +208,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -248,7 +248,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -301,7 +301,7 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
     ],
   },
   "enabledAccountIds": {},
-  "isAccountLoading": false,
+  "isAccountsLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],

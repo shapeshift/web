@@ -100,7 +100,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Initial account and portfolio fetch for non-ledger wallets
   useEffect(() => {
-    dispatch(portfolio.actions.setIsAccountLoading(true))
+    dispatch(portfolio.actions.setIsAccountsLoading(true))
 
     const hasManagedAccounts = (() => {
       // MM without snap doesn't allow account management - if the user just installed the snap, we know they don't have managed accounts
@@ -122,12 +122,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           )
         })
 
-        dispatch(portfolio.actions.setIsAccountLoading(false))
+        dispatch(portfolio.actions.setIsAccountsLoading(false))
         return
       }
 
       if (!wallet) {
-        dispatch(portfolio.actions.setIsAccountLoading(false))
+        dispatch(portfolio.actions.setIsAccountsLoading(false))
 
         return
       }
@@ -218,7 +218,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       for (const accountId of Object.keys(accountMetadataByAccountId)) {
         dispatch(portfolio.actions.enableAccountId(accountId))
       }
-      dispatch(portfolio.actions.setIsAccountLoading(false))
+      dispatch(portfolio.actions.setIsAccountsLoading(false))
     })()
   }, [
     dispatch,

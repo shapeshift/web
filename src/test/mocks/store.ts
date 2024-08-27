@@ -42,7 +42,7 @@ export const mockStore: ReduxState = {
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
   portfolio: {
-    isAccountLoading: false,
+    isAccountsLoading: false,
     accounts: {
       byId: {},
       ids: [],

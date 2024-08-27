@@ -337,8 +337,6 @@ export const useSendThorTx = ({
             wallet,
           })
 
-          await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
-
           const _txId = await buildAndBroadcast({
             adapter,
             buildCustomTxInput,

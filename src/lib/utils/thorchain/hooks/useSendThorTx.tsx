@@ -280,6 +280,8 @@ export const useSendThorTx = ({
     )
       throw new Error('invalid amount specified')
 
+    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+
     const { account } = fromAccountId(accountId)
 
     const { _txId, _serializedTxIndex } = await (async () => {
@@ -334,8 +336,6 @@ export const useSendThorTx = ({
             to: inboundAddressData.router,
             wallet,
           })
-
-          await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
 
           const _txId = await buildAndBroadcast({
             adapter,

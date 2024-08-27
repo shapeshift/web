@@ -25,6 +25,8 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
       return 'https://0x.shapeshift.com/base/'
     default:
       assertUnreachable(chainId)
+      // Dummy return to appease TypeScript
+      return ''
   }
 }
 

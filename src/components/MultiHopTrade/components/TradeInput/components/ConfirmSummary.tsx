@@ -18,6 +18,7 @@ import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
+  selectIsAccountLoading,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
@@ -89,6 +90,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
+  const isAccountLoading = useAppSelector(selectIsAccountLoading)
 
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
@@ -162,6 +164,8 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
+      case isAccountLoading:
+        return 'common.loadingAccounts'
       case !isAnyTradeQuoteLoaded:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
@@ -185,6 +189,7 @@ export const ConfirmSummary = ({
     hasUserEnteredAmount,
     isConnected,
     isDemoWallet,
+    isAccountLoading,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {
@@ -280,7 +285,11 @@ export const ConfirmSummary = ({
           component={RecipientAddress}
         />
         <WithLazyMount
-          shouldUse={!walletSupportsBuyAssetChain || disableThorNativeSmartContractReceive === true}
+          shouldUse={
+            Boolean(
+              !walletSupportsBuyAssetChain || disableThorNativeSmartContractReceive === true,
+            ) && !isAccountLoading
+          }
           shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}

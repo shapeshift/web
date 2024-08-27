@@ -1107,3 +1107,5 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
     ).map(({ chainId }) => chainId)
   },
 )
+
+export const selectIsAccountLoading = (state: ReduxState) => state.portfolio.isAccountLoading

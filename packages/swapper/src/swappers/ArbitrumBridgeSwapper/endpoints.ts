@@ -1,5 +1,5 @@
-import type { L1ToL2MessageReader, L1ToL2MessageReaderClassic } from '@arbitrum/sdk'
-import { L1ToL2MessageStatus, L1TransactionReceipt } from '@arbitrum/sdk'
+import type { ParentToChildMessageReader, ParentToChildMessageReaderClassic } from '@arbitrum/sdk'
+import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/sdk'
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
@@ -28,49 +28,49 @@ import { assertValidTrade } from './utils/helpers'
 const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/deposits/helpers.ts#L268
-export const getL1ToL2MessageDataFromL1TxHash = async ({
+export const getParentToChildMessageDataFromParentTxHash = async ({
   depositTxId,
-  l1Provider,
-  l2Provider,
+  parentProvider,
+  childProvider,
   isClassic, // optional: if we already know if tx is classic (eg. through subgraph) then no need to re-check in this fn
 }: {
   depositTxId: string
-  l1Provider: Provider
-  l2Provider: Provider
+  parentProvider: Provider
+  childProvider: Provider
   isClassic?: boolean
 }): Promise<
   | {
       isClassic?: boolean
-      l1ToL2Msg?: L1ToL2MessageReaderClassic | L1ToL2MessageReader
+      parentToChildMsg?: ParentToChildMessageReaderClassic | ParentToChildMessageReader
     }
   | undefined
 > => {
-  // fetch L1 transaction receipt
-  const depositTxReceipt = await l1Provider.getTransactionReceipt(depositTxId)
+  // fetch Parent transaction receipt
+  const depositTxReceipt = await parentProvider.getTransactionReceipt(depositTxId)
   if (!depositTxReceipt) return
 
-  const l1TxReceipt = new L1TransactionReceipt(depositTxReceipt)
+  const parentTxReceipt = new ParentTransactionReceipt(depositTxReceipt)
 
   // classic (pre-nitro) handling
   const getClassicDepositMessage = async () => {
-    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2MessagesClassic(l2Provider)
+    const [parentToChildMsg] = await parentTxReceipt.getParentToChildMessagesClassic(childProvider)
     return {
       isClassic: true,
-      l1ToL2Msg,
+      parentToChildMsg,
     }
   }
 
   // post-nitro handling
   const getNitroDepositMessage = async () => {
-    const [l1ToL2Msg] = await l1TxReceipt.getL1ToL2Messages(l2Provider)
+    const [parentToChildMsg] = await parentTxReceipt.getParentToChildMessages(childProvider)
     return {
       isClassic: false,
-      l1ToL2Msg,
+      parentToChildMsg,
     }
   }
 
   // if it is unknown whether the transaction isClassic or not, fetch the result
-  const safeIsClassic = isClassic ?? (await l1TxReceipt.isClassic(l2Provider))
+  const safeIsClassic = isClassic ?? (await parentTxReceipt.isClassic(childProvider))
 
   if (safeIsClassic) {
     // classic (pre-nitro) deposit - both eth + token
@@ -174,8 +174,8 @@ export const arbitrumBridgeApi: SwapperApi = {
     const isWithdraw = chainId === arbitrumChainId
 
     if (isWithdraw) {
-      // We don't want to be polling for 7 days for Arb L2 -> L1, that's not very realistic for users.
-      // We simply return success when the L2 Tx is confirmed, meaning the trade will show "complete" almost instantly
+      // We don't want to be polling for 7 days for Arb Child -> Parent, that's not very realistic for users.
+      // We simply return success when the Child Tx is confirmed, meaning the trade will show "complete" almost instantly
       // and will handle the whole 7 days thing (that the user should've already been warned about with an ack before previewing)
       // at confirm step
       return {
@@ -189,31 +189,31 @@ export const arbitrumBridgeApi: SwapperApi = {
       return {
         status: TxStatus.Pending,
         buyTxHash: undefined,
-        message: 'L1 Tx Pending',
+        message: 'Parent Tx Pending',
       }
     }
 
-    const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
-    const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
-    const maybeL1ToL2MessageData = await getL1ToL2MessageDataFromL1TxHash({
+    const parentProvider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+    const childProvider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+    const maybeParentToChildMessageData = await getParentToChildMessageDataFromParentTxHash({
       depositTxId: txHash,
-      l1Provider,
-      l2Provider,
+      parentProvider,
+      childProvider,
     })
-    const maybeL1ToL2Msg = maybeL1ToL2MessageData?.l1ToL2Msg
+    const maybeParentToChildMsg = maybeParentToChildMessageData?.parentToChildMsg
     const maybeBuyTxHash = await (async () => {
-      if (!maybeL1ToL2Msg) return
+      if (!maybeParentToChildMsg) return
 
-      if (maybeL1ToL2MessageData?.isClassic) {
-        const msg = maybeL1ToL2Msg as L1ToL2MessageReaderClassic
+      if (maybeParentToChildMessageData?.isClassic) {
+        const msg = maybeParentToChildMsg as ParentToChildMessageReaderClassic
         const receipt = await msg.getRetryableCreationReceipt()
-        if (receipt?.status !== L1ToL2MessageStatus.REDEEMED) return
+        if (receipt?.status !== ParentToChildMessageStatus.REDEEMED) return
         return receipt.transactionHash
       } else {
-        const msg = maybeL1ToL2Msg as L1ToL2MessageReader
+        const msg = maybeParentToChildMsg as ParentToChildMessageReader
         const successfulRedeem = await msg.getSuccessfulRedeem()
-        if (successfulRedeem.status !== L1ToL2MessageStatus.REDEEMED) return
-        return successfulRedeem.l2TxReceipt.transactionHash
+        if (successfulRedeem.status !== ParentToChildMessageStatus.REDEEMED) return
+        return successfulRedeem.childTxReceipt.transactionHash
       }
     })()
 
@@ -221,22 +221,22 @@ export const arbitrumBridgeApi: SwapperApi = {
       return {
         status: TxStatus.Pending,
         buyTxHash: maybeBuyTxHash,
-        message: 'L1 Tx confirmed, waiting for L2',
+        message: 'Parent Tx confirmed, waiting for Child',
       }
     }
 
-    const l2TxStatus = await checkEvmSwapStatus({
+    const childTxStatus = await checkEvmSwapStatus({
       txHash: maybeBuyTxHash,
       chainId: arbitrumChainId,
       assertGetEvmChainAdapter,
     })
 
-    // i.e Unknown is perfectly valid since ETH deposits L2 Txids are available immediately deterministically, but will only be in the mempool after ~10mn
-    if (l2TxStatus.status === TxStatus.Pending || l2TxStatus.status === TxStatus.Unknown) {
+    // i.e Unknown is perfectly valid since ETH deposits Child Txids are available immediately deterministically, but will only be in the mempool after ~10mn
+    if (childTxStatus.status === TxStatus.Pending || childTxStatus.status === TxStatus.Unknown) {
       return {
         status: TxStatus.Pending,
         buyTxHash: maybeBuyTxHash,
-        message: 'L2 Tx Pending',
+        message: 'Child Tx Pending',
       }
     }
 

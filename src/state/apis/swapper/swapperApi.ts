@@ -61,9 +61,10 @@ export const swapperApi = createApi({
         if (!isSwapperEnabled) return { data: {} }
 
         // hydrate crypto market data for buy and sell assets
-        await dispatch(
-          marketApi.endpoints.findByAssetIds.initiate([sellAsset.assetId, buyAsset.assetId]),
-        )
+        await Promise.all([
+          dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
+          dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId)),
+        ])
 
         const swapperDeps: SwapperDeps = {
           assetsById: selectAssets(state),

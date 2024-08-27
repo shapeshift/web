@@ -237,8 +237,18 @@ const reactAppRewireConfig = {
                           ([k]) =>
                             // Keep only REACT_APP_* env var entries we are using in packages. We *cannot* remove these, else
                             // consuming them in packages will result in these being undefined
-                            ['REACT_APP_FEATURE_NFT_METADATA'].includes(k) ||
-                            !k.startsWith('REACT_APP_'),
+                            [
+                              'REACT_APP_FEATURE_NFT_METADATA',
+                              'REACT_APP_AVALANCHE_NODE_URL',
+                              'REACT_APP_OPTIMISM_NODE_URL',
+                              'REACT_APP_BNBSMARTCHAIN_NODE_URL',
+                              'REACT_APP_POLYGON_NODE_URL',
+                              'REACT_APP_GNOSIS_NODE_URL',
+                              'REACT_APP_ETHEREUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NOVA_NODE_URL',
+                              'REACT_APP_BASE_NODE_URL',
+                            ].includes(k) || !k.startsWith('REACT_APP_'),
                         )
                         .sort((a, b) => {
                           if (a[0] < b[0]) return -1

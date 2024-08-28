@@ -150,7 +150,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   useEffect(() => {
     // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([stakingAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
   }, [dispatch, selectedAssetId, stakingAssetId])
   useEffect(() => {
     // Only set this once, never collapse out

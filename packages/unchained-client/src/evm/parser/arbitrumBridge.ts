@@ -144,11 +144,11 @@ export class Parser implements SubParser<Tx> {
             return await Promise.resolve({
               data: {
                 ...data,
-                // A finalized inbound transfer on the Arb side is an Eth -> Arb deposit, on the Eth side it's an Arb -> Eth withdrawal
+                // `finalizeInboundTransfer` on the Ethereum side (i.e withdraw request) is internal to the bridge, and only releases fundus safu
+                // https://docs.arbitrum.io/build-decentralized-apps/token-bridging/token-bridge-erc20
+                // however, on the Arbitrum side, it's an effective deposit
                 method:
-                  this.chainId === ethChainId
-                    ? 'finalizeInboundTransferWithdraw'
-                    : 'finalizeInboundTransferDeposit',
+                  this.chainId === arbitrumChainId ? 'finalizeInboundTransferDeposit' : data.method,
               },
             })
           default:

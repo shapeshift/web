@@ -31,7 +31,6 @@ export enum Method {
   Exit = 'exit',
   ExitPool = 'exit_pool',
   FinalizeInboundTransferDeposit = 'finalizeInboundTransferDeposit',
-  FinalizeInboundTransferWithdraw = 'finalizeInboundTransferWithdraw',
   InstantUnstake = 'instantUnstake',
   JoinPool = 'join_pool',
   LoanOpen = 'loanOpen',

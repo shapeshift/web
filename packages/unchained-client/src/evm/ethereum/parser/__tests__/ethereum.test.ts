@@ -5,7 +5,9 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { Trade } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { Api } from '../../..'
+import { arbitrumBridgeErc20Claim } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeErc20Claim'
 import { arbitrumBridgeErc20DepositTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeErc20DepositTx'
+import { arbitrumBridgeNativeClaim } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeNativeClaim'
 import { arbitrumBridgeNativeCreateRetryableTicketTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeNativeCreateRetryableTicketTx'
 import { arbitrumBridgeNativeDepositTx } from '../../../arbitrum/parser/__tests__/mockData/arbitrumBridgeNativeDepositTx'
 import type { ParsedTx } from '../../../parser'
@@ -3233,6 +3235,105 @@ describe('parseTx', () => {
           },
         ],
         txid: '0x75f20f8f2caead042ac63c3175f34e505bc9a388a10b4c4e64a55831ef4d33cf',
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+    it('should be able to parse erc20 claim', async () => {
+      const tx = arbitrumBridgeErc20Claim
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+
+      const expected = {
+        address: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
+        blockHash: '0x224eec4d01a99b1cd011bc5e89fd6ddd468e5b9ad1c9658b6ca852e487ee4d2b',
+        blockHeight: 20627282,
+        blockTime: 1724850443,
+        chainId: 'eip155:1',
+        confirmations: 918,
+        data: {
+          assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          method: 'executeTransaction',
+          parser: 'arbitrumBridge',
+          value: '0',
+        },
+        fee: {
+          assetId: 'eip155:1/slip44:60',
+          value: '572048472071840',
+        },
+        status: 'Confirmed',
+        trade: undefined,
+        transfers: [
+          {
+            assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
+            components: [
+              {
+                value: '1000000000000000000',
+              },
+            ],
+            from: '0xa3A7B6F88361F48403514059F1F16C8E78d60EeC',
+            id: undefined,
+            to: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
+            token: {
+              contract: '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d',
+              decimals: 18,
+              name: 'FOX',
+              symbol: 'FOX',
+            },
+            totalValue: '1000000000000000000',
+            type: 'Receive',
+          },
+        ],
+        txid: '0x48bd40a3cac5d25b21d2ae31375f6c273a3fe37f78cfca385e05a948038a1c57',
+      }
+
+      const txParser = await makeTxParser()
+      const actual = await txParser.parse(tx, address)
+
+      expect(actual).toEqual(expected)
+    })
+    it('should be able to parse ETH claim', async () => {
+      const tx = arbitrumBridgeNativeClaim
+      const address = '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986'
+
+      const expected = {
+        address: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
+        blockHash: '0x22ec673c7bc57087312a368b26abfd183ddb0c19fb225c7c86d15d7d2f3da047',
+        blockHeight: 20627308,
+        blockTime: 1724850755,
+        chainId: 'eip155:1',
+        confirmations: 892,
+        data: {
+          assetId: undefined,
+          method: 'executeTransaction',
+          parser: 'arbitrumBridge',
+          value: '1000000000000000',
+        },
+        fee: {
+          assetId: 'eip155:1/slip44:60',
+          value: '369113082579370',
+        },
+        status: 'Confirmed',
+        trade: undefined,
+        transfers: [
+          {
+            assetId: 'eip155:1/slip44:60',
+            components: [
+              {
+                value: '1000000000000000',
+              },
+            ],
+            from: '0x8315177aB297bA92A06054cE80a67Ed4DBd7ed3a',
+            id: undefined,
+            to: '0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986',
+            token: undefined,
+            totalValue: '1000000000000000',
+            type: 'Receive',
+          },
+        ],
+        txid: '0x88d984a81220fe9d45ec0cdc07c56ad22cb31439ac6d5abfe32c069990d86f56',
       }
 
       const txParser = await makeTxParser()

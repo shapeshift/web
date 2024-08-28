@@ -16,7 +16,7 @@ import {
  * Selects all related assetIds, inclusive of the asset being queried.
  *
  * Excludes assetIds on chains that are not connected on the wallet.
- * Excludes assetIds that are not in the assets store.
+ * Excludes assetIds that are not in the assets slice.
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,

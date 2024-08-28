@@ -4,6 +4,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
+import { getLedgerAppName } from 'components/Modals/LedgerOpenApp/hooks/useLedgerAppDetails'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -98,6 +99,10 @@ export const useLedgerOpenApp = ({ isSigning }: UseLedgerOpenAppProps) => {
           resolve()
           return
         }
+
+        // Prompt the "open app" notification on the device so users can open the correct app with 1 click
+        const ledgerWallet = wallet && isLedger(wallet) ? wallet : undefined
+        ledgerWallet?.openApp(getLedgerAppName(chainId))
 
         // Poll the Ledger every second to see if the correct app is open
         const intervalId = setInterval(async () => {

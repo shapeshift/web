@@ -92,6 +92,15 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
   )
 
   const amountCryptoPrecision = useMemo(() => {
+    const _amountCryptoPrecision = fromBaseUnit(
+      activeClaim.amountCryptoBaseUnit,
+      asset?.precision ?? 0,
+    )
+    if (asset?.precision === destinationAsset?.precision) {
+      return _amountCryptoPrecision
+    }
+
+    // Precision shouldn't be different between an asset and its bridge flavour but...
     return convertPrecision({
       value: fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0),
       inputExponent: asset?.precision,

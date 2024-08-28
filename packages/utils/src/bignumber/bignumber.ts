@@ -1,7 +1,5 @@
 import BigNumber from 'bignumber.js'
 
-import { fromBaseUnit } from '../baseUnits/baseUnits'
-
 export * from 'bignumber.js'
 
 export type BN = BigNumber
@@ -30,16 +28,4 @@ export const convertPrecision = ({
   return bnOrZero(value)
     .dividedBy(bn(10).exponentiatedBy(inputExponent))
     .multipliedBy(bn(10).exponentiatedBy(outputExponent))
-}
-
-export const baseUnitToHuman = ({
-  value,
-  inputExponent,
-}: {
-  value: BigNumber.Value
-  inputExponent: number
-}) => {
-  const precisionAmount = bn(fromBaseUnit(value, inputExponent))
-  // trimming to 6 decimals is what we call "human amount"
-  return precisionAmount.decimalPlaces(6)
 }

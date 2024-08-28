@@ -1,4 +1,3 @@
-import { fromBaseUnit } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 
 export * from 'bignumber.js'
@@ -29,16 +28,4 @@ export const convertPrecision = ({
   return bnOrZero(value)
     .dividedBy(bn(10).exponentiatedBy(inputExponent))
     .multipliedBy(bn(10).exponentiatedBy(outputExponent))
-}
-
-export const baseUnitToHuman = ({
-  value,
-  inputExponent,
-}: {
-  value: BigNumber.Value
-  inputExponent: number
-}) => {
-  const amountCryptoPrecision = bn(fromBaseUnit(value, inputExponent))
-  // trimming to 6 decimals is what we call "human amount"
-  return amountCryptoPrecision.decimalPlaces(6)
 }

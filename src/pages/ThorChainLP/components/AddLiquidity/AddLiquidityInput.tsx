@@ -608,6 +608,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
+    onMutate: async () => {
+      if (!poolAsset) return
+      await checkLedgerAppOpenIfLedgerConnected(poolAsset.chainId)
+    },
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
     },
@@ -876,11 +880,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeTxFeeCryptoBaseUnit,
   ])
 
-  const handleApprove = useCallback(async () => {
-    if (!assetId) return
-    await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId).chainId)
-    mutate(undefined)
-  }, [assetId, checkLedgerAppOpenIfLedgerConnected, mutate])
+  const handleApprove = useCallback(() => mutate(undefined), [mutate])
 
   const handleSubmit = useCallback(() => {
     if (isApprovalRequired) return handleApprove()

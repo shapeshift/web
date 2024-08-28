@@ -9,7 +9,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
@@ -18,7 +18,9 @@ import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
+  selectMarketDataByAssetIdUserCurrency,
   selectOpportunityApiPending,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -56,10 +58,39 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
   )
   const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
-  const underlyingAssetId = opportunity?.underlyingAssetId
-  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? ''))
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    opportunity?.userStakingId
+      ? selectUnderlyingStakingAssetsWithBalancesAndIcons(state, {
+          userStakingId: opportunity.userStakingId,
+        })
+      : undefined,
+  )
+
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
+
+  const { cryptoAmountPrecision, fiatAmount } = useMemo(() => {
+    if (!opportunity || !asset || !assetMarketData)
+      return {
+        cryptoAmountPrecision: bnOrZero(0),
+        fiatAmount: bnOrZero(0),
+      }
+
+    const underlyingAssetBalance = underlyingAssetsWithBalancesAndIcons?.find(
+      ({ assetId: balanceAssetId }) => assetId === balanceAssetId,
+    )
+
+    return {
+      cryptoAmountPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision),
+      fiatAmount: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).times(
+        assetMarketData.price,
+      ),
+    }
+  }, [opportunity, assetId, asset, underlyingAssetsWithBalancesAndIcons, assetMarketData])
 
   const handleClick = useCallback(() => {
     if (!opportunity) return
@@ -110,7 +141,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     <EquityRow
       accountId={accountId}
       onClick={handleClick}
-      fiatAmount={opportunity.fiatAmount}
+      fiatAmount={fiatAmount.toFixed()}
       totalFiatBalance={totalFiatBalance}
       color={color}
       icon={getMetadataForProvider(opportunity.provider)?.icon}
@@ -119,9 +150,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       apy={opportunity.apy}
       isLoading={isLoading}
-      cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
-        .div(bn(10).pow(underlyingAsset?.precision ?? asset.precision))
-        .toFixed(underlyingAsset?.precision ?? asset.precision)}
+      cryptoBalancePrecision={cryptoAmountPrecision.toFixed()}
     />
   )
 }

@@ -57,7 +57,7 @@ export const Status = () => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} justifyContent='center' />,
           statusText: StatusTextEnum.pending,
           statusBody: translate('modals.deposit.status.pending'),
           statusBg: 'transparent',

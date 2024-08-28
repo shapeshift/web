@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -50,7 +50,10 @@ export const VerifyAddresses = () => {
   const [isSellVerifying, setIsSellVerifying] = useState(false)
   const [isBuyVerifying, setIsBuyVerifying] = useState(false)
 
-  const [verifiedAddresses, setVerifiedAddresses] = useState(new Set<string>())
+  const [buyStatus, setBuyStatus] = useState('pending')
+  const [sellStatus, setSellStatus] = useState('pending')
+  const [buyErrorMessage, setBuyErrorMessage] = useState<string | undefined>()
+  const [sellErrorMessage, setSellErrorMessage] = useState<string | undefined>()
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -105,19 +108,11 @@ export const VerifyAddresses = () => {
     ],
   )
 
-  const isAddressVerified = useCallback(
-    (address: string) => verifiedAddresses.has(address.toLowerCase()),
-    [verifiedAddresses],
-  )
-  const sellVerified = useMemo(
-    () => isAddressVerified(sellAddress ?? ''),
-    [isAddressVerified, sellAddress],
-  )
-  const buyVerified = useMemo(
-    () => Boolean(maybeManualReceiveAddress) || isAddressVerified(buyAddress ?? ''),
-
-    [buyAddress, isAddressVerified, maybeManualReceiveAddress],
-  )
+  useEffect(() => {
+    if (!shouldVerifyBuyAddress) {
+      setBuyStatus('notRequired')
+    }
+  }, [shouldVerifyBuyAddress])
 
   const handleContinue = useCallback(() => {
     history.push({ pathname: TradeRoutePaths.Confirm })
@@ -163,13 +158,64 @@ export const VerifyAddresses = () => {
     fetchAddresses()
   }, [fetchAddresses])
 
+  const isVerifying = useMemo(
+    () => isSellVerifying || isBuyVerifying,
+    [isSellVerifying, isBuyVerifying],
+  )
+
+  const setIsVerifying = useCallback(
+    (type: 'sell' | 'buy', isVerifying: boolean) => {
+      if (type === 'sell') {
+        setIsSellVerifying(isVerifying)
+      } else if (type === 'buy') {
+        setIsBuyVerifying(isVerifying)
+      }
+    },
+    [setIsSellVerifying, setIsBuyVerifying],
+  )
+
+  const setErrorMessage = useCallback((type: 'sell' | 'buy', errorMessage: string) => {
+    if (type === 'sell') {
+      setSellErrorMessage(errorMessage)
+    } else if (type === 'buy') {
+      setBuyErrorMessage(errorMessage)
+    }
+  }, [])
+
+  const clearErrorMessage = useCallback((type: 'sell' | 'buy') => {
+    if (type === 'sell') {
+      setSellErrorMessage(undefined)
+    } else if (type === 'buy') {
+      setBuyErrorMessage(undefined)
+    }
+  }, [])
+
+  const setStatus = useCallback(
+    (type: 'sell' | 'buy', status: 'pending' | 'verified' | 'error' | 'notRequired') => {
+      // if the sell and buy addresses are the same, we can skip the verification for the other address
+      console.log('sellAddress', sellAddress)
+      console.log('buyAddress', buyAddress)
+      if (status === 'verified' && sellAddress === buyAddress) {
+        setBuyStatus('verified')
+        setSellStatus('verified')
+        return
+      }
+
+      if (type === 'sell') {
+        setSellStatus(status)
+      } else if (type === 'buy') {
+        setBuyStatus(status)
+      }
+    },
+    [sellAddress, buyAddress],
+  )
+
   const handleVerify = useCallback(
     async (type: 'sell' | 'buy') => {
-      if (type === 'sell') {
-        setIsSellVerifying(true)
-      } else if (type === 'buy') {
-        setIsBuyVerifying(true)
-      }
+      if (isVerifying) return
+
+      setIsVerifying(type, true)
+      clearErrorMessage(type)
 
       try {
         const asset = type === 'sell' ? sellAsset : buyAsset
@@ -196,20 +242,21 @@ export const VerifyAddresses = () => {
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
-          setVerifiedAddresses(new Set([...verifiedAddresses, _address.toLowerCase()]))
+          setStatus(type, 'verified')
+        } else {
+          setStatus(type, 'error')
+          setErrorMessage(type, translate('walletProvider.ledger.verify.addressMismatch'))
         }
       } catch (e) {
         console.error(e)
       } finally {
-        if (type === 'sell') {
-          setIsSellVerifying(false)
-        } else if (type === 'buy') {
-          setIsBuyVerifying(false)
-        }
+        setIsVerifying(type, false)
       }
     },
     [
-      verifiedAddresses,
+      isVerifying,
+      setIsVerifying,
+      clearErrorMessage,
       sellAsset,
       buyAsset,
       sellAccountMetadata,
@@ -217,6 +264,9 @@ export const VerifyAddresses = () => {
       sellAddress,
       buyAddress,
       wallet,
+      setStatus,
+      setErrorMessage,
+      translate,
     ],
   )
 
@@ -258,13 +308,14 @@ export const VerifyAddresses = () => {
   )
 
   const renderButton = useMemo(() => {
-    if (!buyVerified) {
+    if (buyStatus === 'pending' || buyStatus === 'error') {
       return (
         <Button
           size='lg-multiline'
           colorScheme='blue'
           onClick={handleBuyVerify}
           isLoading={isBuyVerifying}
+          isDisabled={isBuyVerifying}
           loadingText={translate('walletProvider.ledger.verify.confirmOnDevice')}
         >
           <Text translation={verifyBuyAssetTranslation} />
@@ -272,41 +323,36 @@ export const VerifyAddresses = () => {
       )
     }
 
-    if (!sellVerified) {
+    if (sellStatus === 'pending' || sellStatus === 'error') {
       return (
         <Button
           size='lg-multiline'
           colorScheme='blue'
           onClick={handleSellVerify}
           isLoading={isSellVerifying}
+          isDisabled={isBuyVerifying}
           loadingText={translate('walletProvider.ledger.verify.confirmOnDevice')}
         >
           <Text translation={verifySellAssetTranslation} />
         </Button>
       )
     }
+
     return (
-      <Button
-        onClick={handleContinue}
-        size='lg'
-        colorScheme='blue'
-        isDisabled={Boolean(!sellVerified || (shouldVerifyBuyAddress && !buyVerified))}
-        width='full'
-      >
+      <Button onClick={handleContinue} size='lg' colorScheme='blue' width='full'>
         <Text translation='common.continue' />
       </Button>
     )
   }, [
-    buyVerified,
-    handleBuyVerify,
+    buyStatus,
+    sellStatus,
     handleContinue,
-    handleSellVerify,
+    handleBuyVerify,
     isBuyVerifying,
-    isSellVerifying,
-    sellVerified,
-    shouldVerifyBuyAddress,
     translate,
     verifyBuyAssetTranslation,
+    handleSellVerify,
+    isSellVerifying,
     verifySellAssetTranslation,
   ])
 
@@ -316,7 +362,7 @@ export const VerifyAddresses = () => {
 
   return (
     <SlideTransition>
-      <Card>
+      <Card width='min-content'>
         <CardHeader>
           <WithBackButton onBack={handleBack}>
             <Heading as='h5' textAlign='center'>
@@ -341,7 +387,12 @@ export const VerifyAddresses = () => {
                       </Skeleton>
                     </Flex>
                     {isBuyVerifying && <Spinner boxSize={5} />}
-                    {buyVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
+                    {buyStatus === 'verified' && (
+                      <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />
+                    )}
+                    {buyStatus === 'error' && (
+                      <WarningIcon ml='auto' boxSize={5} color='text.error' />
+                    )}
                   </Flex>
                 </Stack>
               </CardBody>
@@ -361,7 +412,12 @@ export const VerifyAddresses = () => {
                     </Skeleton>
                   </Flex>
                   {isSellVerifying && <Spinner boxSize={5} />}
-                  {sellVerified && <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />}
+                  {sellStatus === 'verified' && (
+                    <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />
+                  )}
+                  {sellStatus === 'error' && (
+                    <WarningIcon ml='auto' boxSize={5} color='text.error' />
+                  )}
                 </Flex>
               </Stack>
             </CardBody>
@@ -371,7 +427,11 @@ export const VerifyAddresses = () => {
           <Alert status='warning'>
             <AlertIcon />
             <AlertDescription>
-              <Text translation='trade.verifyAddressMessage' />
+              {Boolean(buyErrorMessage || sellErrorMessage) ? (
+                <RawText>{buyErrorMessage ?? sellErrorMessage}</RawText>
+              ) : (
+                <Text translation='trade.verifyAddressMessage' />
+              )}
             </AlertDescription>
           </Alert>
           {renderButton}

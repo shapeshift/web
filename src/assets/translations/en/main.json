@@ -1469,7 +1469,8 @@
         "connect": "Connect"
       },
       "verify": {
-        "confirmOnDevice": "Confirm on device"
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
       },
       "success": {
         "header": "Ledger Connected",

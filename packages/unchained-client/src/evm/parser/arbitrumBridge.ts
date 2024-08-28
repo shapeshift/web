@@ -140,6 +140,17 @@ export class Parser implements SubParser<Tx> {
               },
             })
           }
+          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                // A finalized inbound transfer on the Arb side is an Eth -> Arb deposit, on the Eth side it's an Arb -> Eth withdrawal
+                method:
+                  this.chainId === ethChainId
+                    ? 'finalizeInboundTransferWithdraw'
+                    : 'finalizeInboundTransferDeposit',
+              },
+            })
           default:
             return await Promise.resolve({ data })
         }

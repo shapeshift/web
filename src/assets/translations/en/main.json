@@ -660,7 +660,8 @@
         "withdrawEth": "Withdraw Initated",
         "submitRetryable": "Deposit Received",
         "createRetryableTicket": "Deposit Initiated",
-        "finalizeInboundTransfer": "Withdraw Received",
+        "finalizeInboundTransferDeposit": "Deposit Received",
+        "finalizeInboundTransferWithdraw": "Withdraw Received",
         "depositEth": "Deposit Initiated"
       },
       "rfox": {

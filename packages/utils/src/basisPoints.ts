@@ -1,7 +1,5 @@
-import { bn } from '@shapeshiftoss/chain-adapters'
-import type BigNumber from 'bignumber.js'
-
-import { bnOrZero } from './bignumber/bignumber'
+import type { BigNumber } from './bignumber/bignumber'
+import { bn, bnOrZero } from './bignumber/bignumber'
 
 export const convertBasisPointsToDecimalPercentage = (basisPoints: BigNumber.Value) =>
   bnOrZero(basisPoints).div(10000)

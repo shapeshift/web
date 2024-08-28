@@ -20,7 +20,6 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     selectRelatedAssetIds(state, relatedAssetIdsFilter),
   )
   const assets = useAppSelector(selectAssets)
-
   const history = useHistory()
 
   const columns: Column<AssetId>[] = useMemo(

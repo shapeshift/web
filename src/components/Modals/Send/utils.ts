@@ -98,15 +98,21 @@ export const estimateFees = ({
 export const handleSend = async ({
   sendInput,
   wallet,
+  checkLedgerAppOpenIfLedgerConnected,
 }: {
   sendInput: SendInput
   wallet: HDWallet
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }): Promise<string> => {
-  const supportedEvmChainIds = getSupportedEvmChainIds()
-
   const state = store.getState()
   const asset = selectAssetById(state, sendInput.assetId ?? '')
   if (!asset) return ''
+
+  const chainId = asset.chainId
+  // The double check here and in broadcastTXID isn't a mistake - getAddress() does on-device address derivation
+  await checkLedgerAppOpenIfLedgerConnected(chainId)
+  const supportedEvmChainIds = getSupportedEvmChainIds()
+
   const acccountMetadataFilter = { accountId: sendInput.accountId }
   const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
   const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
@@ -125,8 +131,6 @@ export const handleSend = async ({
   const value = bnOrZero(sendInput.amountCryptoPrecision)
     .times(bn(10).exponentiatedBy(asset.precision))
     .toFixed(0)
-
-  const chainId = asset.chainId
 
   const { estimatedFees, feeType, to, memo, from } = sendInput
 

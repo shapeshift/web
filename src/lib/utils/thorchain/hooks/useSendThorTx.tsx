@@ -374,6 +374,7 @@ export const useSendThorTx = ({
           const _txId = await handleSend({
             sendInput,
             wallet,
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           return {

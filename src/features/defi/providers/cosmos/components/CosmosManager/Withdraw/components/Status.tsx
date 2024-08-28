@@ -126,7 +126,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         }
       default:
         return {
-          statusIcon: <AssetIcon size='xs' src={asset?.icon} />,
+          statusIcon: <AssetIcon size='xs' src={asset?.icon} justifyContent='center' />,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),

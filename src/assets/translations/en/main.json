@@ -155,7 +155,7 @@
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "import": "Import",
-    "accountsLoading": "Accounts are currently loading",
+    "accountsLoading": "Loading Accounts",
     "carousel": {
       "next": "Next",
       "prev": "Previous",

@@ -33,7 +33,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectIsAccountsLoading,
+  selectIsAccountMetadataLoading,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -84,7 +84,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
 
-  const isAccountsLoading = useAppSelector(selectIsAccountsLoading)
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -421,7 +421,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   }, [isChainSupportedByWallet, translate])
 
   const submitButtonText = useMemo(() => {
-    if (isAccountsLoading) return translate('common.accountsLoading')
+    if (isAccountMetadataLoading) return translate('common.accountsLoading')
 
     return (
       errors.amountFieldInput?.message ||
@@ -434,12 +434,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     errors.amountFieldInput,
     errors.manualRuneAddress,
     translate,
-    isAccountsLoading,
+    isAccountMetadataLoading,
   ])
 
   if (!selectedAsset) return null
 
-  if (!stakingAssetAccountAddress && !isAccountsLoading)
+  if (!stakingAssetAccountAddress && !isAccountMetadataLoading)
     return (
       <SlideTransition>
         <Stack>{headerComponent}</Stack>
@@ -536,13 +536,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet && !isAccountsLoading)}
+              isValidWallet={Boolean(isChainSupportedByWallet || isAccountMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
                   !runeAddress ||
                   !isValidStakingAmount ||
                   !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                  isAccountsLoading ||
+                  isAccountMetadataLoading ||
                   !cooldownPeriod,
               )}
               size='lg'
@@ -550,7 +550,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onClick={handleWarning}
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
               colorScheme={
-                Boolean(errors.amountFieldInput || errors.manualRuneAddress) && !isAccountsLoading
+                Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
+                !isAccountMetadataLoading
                   ? 'red'
                   : 'blue'
               }

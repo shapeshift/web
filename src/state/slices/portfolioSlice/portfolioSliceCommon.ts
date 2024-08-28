@@ -54,11 +54,7 @@ export type ConnectWallet = {
 }
 
 export type Portfolio = {
-  /**
-   * The app can run account discovery taking a lot of time and slowing down the portfolio initialization,
-   * we use this key to gracefully handle this state in any part of the app
-   */
-  isAccountsLoading: boolean
+  isAccountMetadataLoading: boolean
   /**
    * lookup of accountId -> accountMetadata
    */
@@ -78,7 +74,7 @@ export type Portfolio = {
 }
 
 export const initialState: Portfolio = {
-  isAccountsLoading: false,
+  isAccountMetadataLoading: false,
   accounts: {
     byId: {},
     ids: [],

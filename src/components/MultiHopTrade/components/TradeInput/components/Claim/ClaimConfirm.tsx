@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { convertPrecision } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -91,13 +90,10 @@ export const ClaimConfirm: React.FC<ClaimConfirmProps> = ({
     selectPortfolioCryptoPrecisionBalanceByFilter(state, destinationFeeAssetBalanceFilter),
   )
 
-  const amountCryptoPrecision = useMemo(() => {
-    return convertPrecision({
-      value: fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0),
-      inputExponent: asset?.precision,
-      outputExponent: destinationAsset?.precision,
-    }).toFixed()
-  }, [activeClaim.amountCryptoBaseUnit, asset, destinationAsset])
+  const amountCryptoPrecision = useMemo(
+    () => fromBaseUnit(activeClaim.amountCryptoBaseUnit, asset?.precision ?? 0),
+    [activeClaim.amountCryptoBaseUnit, asset],
+  )
 
   const amountUserCurrency = useMemo(() => {
     const price =

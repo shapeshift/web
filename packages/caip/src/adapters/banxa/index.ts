@@ -42,7 +42,7 @@ const AssetIdToBanxaTickerMap = {
   [optimismAssetId]: 'eth',
   [arbitrumAssetId]: 'eth',
   [baseAssetId]: 'eth',
-  [polygonAssetId]: 'matic',
+  [polygonAssetId]: 'matic', // TODO: check that Banxa update this to POL upstream
   [thorchainAssetId]: 'rune',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',

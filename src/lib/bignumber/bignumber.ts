@@ -1,5 +1,5 @@
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
-import { fromBaseUnit } from 'lib/math'
 
 export * from 'bignumber.js'
 

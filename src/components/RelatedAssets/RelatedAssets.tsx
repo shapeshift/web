@@ -20,9 +20,6 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     selectRelatedAssetIds(state, relatedAssetIdsFilter),
   )
   const assets = useAppSelector(selectAssets)
-  const knownRelatedAssetIds = useMemo(() => {
-    return relatedAssetIds.filter(id => assets[id])
-  }, [assets, relatedAssetIds])
 
   const history = useHistory()
 
@@ -52,7 +49,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
     [history],
   )
 
-  if (!knownRelatedAssetIds.length) return null
+  if (!relatedAssetIds.length) return null
 
   return (
     <Card variant='dashboard'>
@@ -64,7 +61,7 @@ export const RelatedAssets: React.FC<RelatedAssetsProps> = ({ assetId }) => {
       <CardBody px={2} pt={0}>
         <ReactTable
           columns={columns}
-          data={knownRelatedAssetIds}
+          data={relatedAssetIds}
           onRowClick={handleRowClick}
           variant='clickable'
         />

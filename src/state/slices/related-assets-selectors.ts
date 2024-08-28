@@ -6,7 +6,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import type { ReduxState } from 'state/reducer'
 import { selectOnlyConnectedChainsParamFromFilter } from 'state/selectors'
 
-import { selectAssetByFilter } from './assetsSlice/selectors'
+import { selectAssetByFilter, selectAssets } from './assetsSlice/selectors'
 import {
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
@@ -16,19 +16,23 @@ import {
  * Selects all related assetIds, inclusive of the asset being queried.
  *
  * Excludes assetIds on chains that are not connected on the wallet.
+ * Excludes assetIds that are not in the assets store.
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
   (state: ReduxState) => state.assets.relatedAssetIndex,
   selectAssetByFilter,
   selectWalletConnectedChainIds,
   selectOnlyConnectedChainsParamFromFilter,
-  (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains): AssetId[] => {
+  selectAssets,
+  (relatedAssetIndex, asset, walletConnectedChainIds, onlyConnectedChains, assets): AssetId[] => {
     if (!asset) return []
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
-    const relatedAssetIdsInclusive = [relatedAssetKey].concat(
-      relatedAssetIndex[relatedAssetKey] ?? [],
-    )
+
+    const relatedAssetIdsInclusive = [relatedAssetKey]
+      .concat(relatedAssetIndex[relatedAssetKey] ?? [])
+      // Filter out assetIds that are not in the assets store
+      .filter(assetId => assets?.[assetId])
 
     if (!onlyConnectedChains) return relatedAssetIdsInclusive
 

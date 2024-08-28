@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  baseUnitToHuman,
-  baseUnitToPrecision,
-  BigNumber,
-  bn,
-  bnOrZero,
-  convertPrecision,
-} from './bignumber'
+import { baseUnitToHuman, BigNumber, bn, bnOrZero, convertPrecision } from './bignumber'
 
 describe('bignumber', () => {
   describe('bnOrZero', () => {
@@ -116,70 +109,5 @@ describe('bignumber', () => {
 
       expect(result.toFixed()).toBe('0.12346')
     })
-  })
-
-  describe('baseUnitToPrecision', () => {
-    it('converts BigNumber value with inputExponent 8 to a precision amount', () => {
-      const value = '123456789012345'
-      const inputExponent = 8
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('1234567.89012345')
-    })
-
-    it('converts BigNumber value with inputExponent 6 to a precision amount', () => {
-      const value = '12345000000'
-      const inputExponent = 6
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('12345')
-    })
-
-    it('converts BigNumber value with inputExponent 18 to a precision amount', () => {
-      const value = '100000000000000000000'
-      const inputExponent = 18
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('100')
-    })
-
-    it('converts BigNumber value with decimals and inputExponent 6 to a precision amount', () => {
-      const value = '1234567890123456'
-      const inputExponent = 6
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('1234567890.123456')
-    })
-
-    it('converts small BigNumber value with inputExponent 8 to a precision amount', () => {
-      const value = '123456789'
-      const inputExponent = 8
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('1.23456789')
-    })
-
-    it('converts small BigNumber value with inputExponent 6 to a precision amount', () => {
-      const value = '100'
-      const inputExponent = 6
-      const result = baseUnitToPrecision({ value, inputExponent })
-
-      expect(result.toFixed()).toBe('0.0001')
-    })
-  })
-  it('does not round up when converting value with maximum decimals and inputExponent 8', () => {
-    const value = '123456789012345678'
-    const inputExponent = 8
-    const result = baseUnitToPrecision({ value, inputExponent })
-
-    expect(result.toFixed(8)).toBe('1234567890.12345678')
-  })
-
-  it('does not round down when converting value with maximum decimals and inputExponent 18', () => {
-    const value = '123456789012345678901234567890123456'
-    const inputExponent = 18
-    const result = baseUnitToPrecision({ value, inputExponent })
-
-    expect(result.toFixed(18)).toBe('123456789012345678.901234567890123456')
   })
 })

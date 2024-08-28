@@ -3,7 +3,6 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
-  baseUnitToPrecision,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   fromBaseUnit,
@@ -158,10 +157,7 @@ export const getL1quote = async (
   }
 
   const getRouteRate = (expectedAmountOutThorBaseUnit: string) => {
-    const sellAmountCryptoPrecision = baseUnitToPrecision({
-      value: sellAmountCryptoBaseUnit,
-      inputExponent: sellAsset.precision,
-    })
+    const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
     // All thorchain pool amounts are base 8 regardless of token precision
     const sellAmountCryptoThorBaseUnit = bn(toBaseUnit(sellAmountCryptoPrecision, THOR_PRECISION))
 

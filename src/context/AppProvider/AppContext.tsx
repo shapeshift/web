@@ -2,7 +2,7 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import React, { useEffect } from 'react'
@@ -243,31 +243,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
-  useQuery({
-    queryKey: ['marketData', {}],
-    queryFn: async () => {
-      await dispatch(
-        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIds, {
-          // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-          forceRefetch: true,
-        }),
-      )
+  useQueries({
+    queries: portfolioAssetIds.map(assetId => ({
+      queryKey: ['marketData', assetId],
+      queryFn: async () => {
+        await dispatch(
+          marketApi.endpoints.findByAssetId.initiate(assetId, {
+            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+            forceRefetch: true,
+          }),
+        )
 
-      // used to trigger mixpanel init after load of market data
-      dispatch(marketData.actions.setMarketDataLoaded())
+        // used to trigger mixpanel init after load of market data
+        dispatch(marketData.actions.setMarketDataLoaded())
 
-      // We *have* to return a value other than undefined from react-query queries, see
-      // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
-      return null
-    },
-    // once the portfolio is loaded, fetch market data for all portfolio assets
-    // and start refetch timer to keep market data up to date
-    enabled: portfolioLoadingStatus !== 'loading',
-    refetchInterval: marketDataPollingInterval,
-    // Do NOT refetch market data in background to avoid spamming coingecko
-    refetchIntervalInBackground: false,
-    // Do NOT refetch market data on window focus to avoid spamming coingecko
-    refetchOnWindowFocus: false,
+        // We *have* to return a value other than undefined from react-query queries, see
+        // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
+        return null
+      },
+      // once the portfolio is loaded, fetch market data for all portfolio assets
+      // and start refetch timer to keep market data up to date
+      enabled: portfolioLoadingStatus !== 'loading',
+      refetchInterval: marketDataPollingInterval,
+      // Do NOT refetch market data in background to avoid spamming coingecko
+      refetchIntervalInBackground: false,
+      // Do NOT refetch market data on window focus to avoid spamming coingecko
+      refetchOnWindowFocus: false,
+    })),
   })
 
   /**
@@ -308,7 +310,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([routeAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render

@@ -270,10 +270,10 @@ export const useSendThorTx = ({
     if (!accountId) return
     if (!transactionType) return
     if (!estimateFeesArgs) return
+    if (accountNumber === undefined) return
     if (isToken(asset.assetId) && !inboundAddressData) return
 
     await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
-    if (accountNumber === undefined) return
 
     if (
       action !== 'withdrawRunepool' &&

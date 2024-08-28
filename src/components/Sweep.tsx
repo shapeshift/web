@@ -4,6 +4,7 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { sleep } from 'lib/poll/poll'
@@ -35,6 +36,8 @@ export const Sweep = ({
 }: SweepProps) => {
   const [isSweepPending, setIsSweepPending] = useState(false)
   const [txId, setTxId] = useState<string | null>(null)
+
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const {
     state: { wallet },
@@ -83,12 +86,19 @@ export const Sweep = ({
         fiatSymbol: '',
       }
 
-      const txId = await handleSend({ wallet, sendInput })
+      const txId = await handleSend({ wallet, sendInput, checkLedgerAppOpenIfLedgerConnected })
       setTxId(txId)
     } catch (e) {
       console.error(e)
     }
-  }, [accountId, assetId, estimatedFeesData, fromAddress, wallet])
+  }, [
+    accountId,
+    assetId,
+    checkLedgerAppOpenIfLedgerConnected,
+    estimatedFeesData,
+    fromAddress,
+    wallet,
+  ])
 
   const adapter = assertGetUtxoChainAdapter(fromAssetId(assetId).chainId)
 

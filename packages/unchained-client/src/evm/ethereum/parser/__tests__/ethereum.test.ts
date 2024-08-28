@@ -3257,7 +3257,6 @@ describe('parseTx', () => {
           assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
           method: 'executeTransaction',
           parser: 'arbitrumBridge',
-          value: '0',
         },
         fee: {
           assetId: 'eip155:1/slip44:60',
@@ -3309,7 +3308,6 @@ describe('parseTx', () => {
           assetId: undefined,
           method: 'executeTransaction',
           parser: 'arbitrumBridge',
-          value: '1000000000000000',
         },
         fee: {
           assetId: 'eip155:1/slip44:60',

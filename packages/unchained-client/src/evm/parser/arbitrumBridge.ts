@@ -107,20 +107,6 @@ export class Parser implements SubParser<Tx> {
     }
 
     switch (selectedAbi) {
-      case this.arbOutboxAbi:
-        switch (txSigHash) {
-          case this.arbOutboxAbi.getFunction('executeTransaction')!.selector:
-            const amount = decoded.args.value as BigInt
-
-            return await Promise.resolve({
-              data: {
-                ...data,
-                value: amount.toString(),
-              },
-            })
-          default:
-            return await Promise.resolve({ data })
-        }
       case this.arbSysAbi:
         switch (txSigHash) {
           case this.arbSysAbi.getFunction('withdrawEth')!.selector:

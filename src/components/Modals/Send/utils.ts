@@ -109,7 +109,6 @@ export const handleSend = async ({
   if (!asset) return ''
 
   const chainId = asset.chainId
-  // The double check here and in broadcastTXID isn't a mistake - getAddress() does on-device address derivation
   await checkLedgerAppOpenIfLedgerConnected(chainId)
   const supportedEvmChainIds = getSupportedEvmChainIds()
 

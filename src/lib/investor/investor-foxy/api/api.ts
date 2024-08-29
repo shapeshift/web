@@ -140,13 +140,13 @@ export class FoxyApi {
       data: payload.data,
       accountNumber: payload.bip44Params.accountNumber,
       ...(shouldUseEIP1559Fees ? { maxFeePerGas, maxPriorityFeePerGas } : { gasPrice }),
-      checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      checkLedgerAppOpenIfLedgerConnected,
     })
 
     const senderAddress = await this.adapter.getAddress({
       accountNumber: payload.bip44Params.accountNumber,
       wallet,
-      checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      checkLedgerAppOpenIfLedgerConnected,
     })
 
     if (wallet.supportsOfflineSigning()) {

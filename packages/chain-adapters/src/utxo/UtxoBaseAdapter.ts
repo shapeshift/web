@@ -431,12 +431,18 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     } as FeeDataEstimate<T>
   }
 
-  async signTransaction({ txToSign, wallet }: SignTxInput<SignTx<T>>): Promise<string> {
+  async signTransaction({
+    checkLedgerAppOpenIfLedgerConnected,
+    chainId,
+    txToSign,
+    wallet,
+  }: SignTxInput<SignTx<T>>): Promise<string> {
     try {
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
+      await checkLedgerAppOpenIfLedgerConnected(chainId)
       const signedTx = await wallet.btcSignTx(txToSign)
 
       if (!signedTx?.serializedTx) throw new Error('UtxoBaseAdapter: error signing tx')

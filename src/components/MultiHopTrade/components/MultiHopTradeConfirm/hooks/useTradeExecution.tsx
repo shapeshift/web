@@ -16,6 +16,7 @@ import type { TypedData } from 'eip-712'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
@@ -46,6 +47,7 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorHandler()
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -265,6 +267,8 @@ export const useTradeExecution = (
                 wallet,
                 senderAddress: from,
                 receiverAddress,
+                checkLedgerAppOpenIfLedgerConnected,
+                chainId: stepSellAssetChainId,
               })
 
               trackMixpanelEventOnExecute()
@@ -295,6 +299,8 @@ export const useTradeExecution = (
               const signedTx = await adapter.signTransaction({
                 txToSign,
                 wallet,
+                checkLedgerAppOpenIfLedgerConnected,
+                chainId: stepSellAssetChainId,
               })
 
               const output = await adapter.broadcastTransaction({
@@ -338,6 +344,8 @@ export const useTradeExecution = (
               const signedTx = await adapter.signTransaction({
                 txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
+                checkLedgerAppOpenIfLedgerConnected,
+                chainId: stepSellAssetChainId,
               })
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
@@ -370,6 +378,7 @@ export const useTradeExecution = (
     translate,
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
+    checkLedgerAppOpenIfLedgerConnected,
   ])
 
   return executeTrade

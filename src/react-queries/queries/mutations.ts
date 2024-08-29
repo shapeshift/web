@@ -10,6 +10,7 @@ export const mutations = createMutationKeys('mutations', {
     accountNumber,
     wallet,
     from,
+    checkLedgerAppOpenIfLedgerConnected,
   }: MaybeApproveInputWithWallet) => ({
     mutationKey: ['approve', { assetId, accountNumber, amountCryptoBaseUnit, spender }],
     mutationFn: (_: void) => {
@@ -19,6 +20,8 @@ export const mutations = createMutationKeys('mutations', {
       if (!wallet) throw new Error('wallet is required')
       if (accountNumber === undefined) throw new Error('accountNumber is required')
       if (!from) throw new Error('from is required')
+      if (!checkLedgerAppOpenIfLedgerConnected)
+        throw new Error('checkLedgerAppOpenIfLedgerConnected is required')
 
       return approve({
         assetId,
@@ -27,6 +30,7 @@ export const mutations = createMutationKeys('mutations', {
         spender,
         wallet,
         from,
+        checkLedgerAppOpenIfLedgerConnected,
       })
     },
   }),

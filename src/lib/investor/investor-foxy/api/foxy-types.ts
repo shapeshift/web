@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
@@ -28,6 +29,7 @@ export type ApproveInput = {
   contractAddress: string
   userAddress: string
   wallet: ETHWallet
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export type EstimateApproveFeesInput = Pick<
@@ -43,6 +45,7 @@ export type TxInput = {
   contractAddress: string
   wallet: ETHWallet
   amountDesired: BigNumber
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export type TxInputWithoutAmount = Pick<TxInput, Exclude<keyof TxInput, 'amountDesired'>>
@@ -57,7 +60,10 @@ export type WithdrawInput = Omit<TxInput, 'amountDesired'> & {
   amountDesired?: BigNumber
 }
 
-export type EstimateWithdrawFeesInput = Omit<WithdrawInput, 'wallet'>
+export type EstimateWithdrawFeesInput = Omit<
+  WithdrawInput,
+  'wallet' | 'checkLedgerAppOpenIfLedgerConnected'
+>
 
 export type FoxyOpportunityInputData = {
   tvl: BigNumber
@@ -112,6 +118,7 @@ export type SignAndBroadcastTx = {
   wallet: ETHWallet
   dryRun: boolean
   receiverAddress: string | ContractInteraction
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export type Signature = {

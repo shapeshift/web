@@ -123,7 +123,12 @@ export const useStakingAction = () => {
       return adapter.signAndBroadcastTransaction({
         senderAddress: address,
         receiverAddress,
-        signTxInput: { txToSign, wallet },
+        signTxInput: {
+          txToSign,
+          wallet,
+          chainId: asset.chainId,
+          checkLedgerAppOpenIfLedgerConnected,
+        },
       })
     } catch (error) {
       console.error(error)

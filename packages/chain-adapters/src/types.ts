@@ -233,6 +233,8 @@ export type BuildLPRemoveTxInput<T extends ChainId> = BuildLPTxInput<T> & {
 export type SignTxInput<TxType> = {
   txToSign: TxType
   wallet: HDWallet
+  chainId: ChainId
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export type SignMessageInput<MessageType> = {

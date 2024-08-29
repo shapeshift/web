@@ -10,6 +10,7 @@ import {
   useApprovalFees,
 } from 'hooks/queries/useApprovalFees'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetViemClient } from 'lib/viem-client'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
@@ -24,6 +25,7 @@ export const useAllowanceApproval = (
   feeQueryEnabled: boolean,
   confirmedTradeId: TradeQuote['id'],
 ) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()
   const wallet = useWallet().state.wallet ?? undefined
@@ -64,6 +66,7 @@ export const useAllowanceApproval = (
       spender: tradeQuoteStep.allowanceContract,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     }),
     onMutate() {
       dispatch(

@@ -607,6 +607,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       wallet: wallet ?? undefined,
       from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
+      checkLedgerAppOpenIfLedgerConnected,
     }),
     onMutate: async () => {
       if (!poolAsset) return

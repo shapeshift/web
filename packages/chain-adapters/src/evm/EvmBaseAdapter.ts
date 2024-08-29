@@ -407,10 +407,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async signTransaction(signTxInput: SignTxInput<ETHSignTx>): Promise<string> {
     try {
-      const { txToSign, wallet } = signTxInput
+      const { chainId, checkLedgerAppOpenIfLedgerConnected, txToSign, wallet } = signTxInput
 
       if (!this.supportsChain(wallet, txToSign.chainId))
         throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
+
+      await checkLedgerAppOpenIfLedgerConnected(chainId)
 
       const signedTx = await wallet.ethSignTx(txToSign)
 

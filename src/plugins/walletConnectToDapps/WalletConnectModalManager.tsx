@@ -36,6 +36,7 @@ import { approveEIP155Request } from 'plugins/walletConnectToDapps/utils/EIP155R
 import { type Dispatch, type FC, useCallback, useMemo, useRef } from 'react'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -76,6 +77,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   const { wallet, isConnected } = useWallet().state
   const sessionProposalRef = useRef<SessionProposalRef>(null)
   const { chainId, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const { activeModal, web3wallet } = state
 
@@ -101,6 +103,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         accountMetadata,
         customTransactionData,
         accountId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -108,7 +111,17 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
       handleClose()
     },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
+    [
+      accountId,
+      accountMetadata,
+      chainId,
+      checkLedgerAppOpenIfLedgerConnected,
+      handleClose,
+      requestEvent,
+      topic,
+      wallet,
+      web3wallet,
+    ],
   )
 
   const handleConfirmCosmosRequest = useCallback(
@@ -126,6 +139,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         accountMetadata,
         customTransactionData,
         accountId,
+        checkLedgerAppOpenIfLedgerConnected,
+        chainId,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -133,7 +148,17 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
       handleClose()
     },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
+    [
+      accountId,
+      accountMetadata,
+      chainId,
+      checkLedgerAppOpenIfLedgerConnected,
+      handleClose,
+      requestEvent,
+      topic,
+      wallet,
+      web3wallet,
+    ],
   )
 
   const handleRejectRequest = useCallback(async () => {

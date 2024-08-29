@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swapper'
 import { swapper } from 'react-queries/queries/swapper'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { fromBaseUnit } from 'lib/math'
@@ -69,6 +70,7 @@ const isTradeQuoteQueryEnabled = (
   )
 
 export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBridgeReturn => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const [l1TxHash, setL1TxHash] = useState<string>()
   const [l2TxHash, setL2TxHash] = useState<string>()
 
@@ -248,6 +250,8 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+        chainId: sellAsset.chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       return txId

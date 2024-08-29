@@ -125,6 +125,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             .integerValue(),
         ).toFixed(),
         bip44Params,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       await poll({
         fn: () =>

@@ -10,6 +10,7 @@ import { useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import { encodeFunctionData } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -60,6 +61,7 @@ export const useRfoxUnstake = ({
 }: UseRfoxUnstakeProps): UseRfoxUnstakeReturn => {
   const wallet = useWallet().state.wallet
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
     return {
@@ -92,9 +94,7 @@ export const useRfoxUnstake = ({
 
   const adapter = useMemo(
     () =>
-      stakingAssetFeeAsset
-        ? assertGetEvmChainAdapter(fromAssetId(stakingAssetFeeAsset.assetId).chainId)
-        : undefined,
+      stakingAssetFeeAsset ? assertGetEvmChainAdapter(stakingAssetFeeAsset.chainId) : undefined,
     [stakingAssetFeeAsset],
   )
 
@@ -128,6 +128,7 @@ export const useRfoxUnstake = ({
         !stakingAssetAccountId ||
         !stakingAssetAccountAddress ||
         !stakingAsset ||
+        !stakingAssetFeeAsset ||
         !callData ||
         !adapter
       )
@@ -147,6 +148,8 @@ export const useRfoxUnstake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+        chainId: stakingAssetFeeAsset.chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       return txId

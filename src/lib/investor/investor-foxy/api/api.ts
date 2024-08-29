@@ -122,7 +122,7 @@ export class FoxyApi {
 
   // TODO(gomes): This is rank and should really belong in web for sanity sake.
   private async signAndBroadcastTx(input: SignAndBroadcastTx): Promise<string> {
-    const { payload, wallet, dryRun, receiverAddress } = input
+    const { checkLedgerAppOpenIfLedgerConnected, payload, wallet, dryRun, receiverAddress } = input
 
     const {
       chainSpecific: { gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas },
@@ -148,7 +148,12 @@ export class FoxyApi {
     })
 
     if (wallet.supportsOfflineSigning()) {
-      const signedTx = await this.adapter.signTransaction({ txToSign, wallet })
+      const signedTx = await this.adapter.signTransaction({
+        txToSign,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+        chainId: KnownChainIds.EthereumMainnet,
+      })
       if (dryRun) return signedTx
       try {
         if (this.providerUrl.includes('localhost') || this.providerUrl.includes('127.0.0.1')) {
@@ -170,7 +175,12 @@ export class FoxyApi {
       return this.adapter.signAndBroadcastTransaction({
         senderAddress,
         receiverAddress,
-        signTxInput: { txToSign, wallet },
+        signTxInput: {
+          txToSign,
+          wallet,
+          checkLedgerAppOpenIfLedgerConnected,
+          chainId: KnownChainIds.EthereumMainnet,
+        },
       })
     } else {
       throw new Error('Invalid HDWallet configuration ')
@@ -514,6 +524,7 @@ export class FoxyApi {
       userAddress,
       wallet,
       contractAddress,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     this.verifyAddresses([userAddress, contractAddress, tokenContractAddress])
     if (!wallet) throw new Error('Missing inputs')
@@ -539,6 +550,7 @@ export class FoxyApi {
       wallet,
       dryRun,
       receiverAddress: CONTRACT_INTERACTION,
+      checkLedgerAppOpenIfLedgerConnected,
     })
   }
 
@@ -564,6 +576,7 @@ export class FoxyApi {
       contractAddress,
       userAddress,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -592,6 +605,7 @@ export class FoxyApi {
       wallet,
       dryRun,
       receiverAddress: CONTRACT_INTERACTION,
+      checkLedgerAppOpenIfLedgerConnected,
     })
   }
 
@@ -604,6 +618,7 @@ export class FoxyApi {
       userAddress,
       type,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet) throw new Error('Missing inputs')
@@ -631,7 +646,13 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: userAddress,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
   }
 
   async canClaimWithdraw(input: CanClaimWithdrawParams): Promise<boolean> {
@@ -733,6 +754,7 @@ export class FoxyApi {
       userAddress,
       claimAddress,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     const addressToClaim = claimAddress ?? userAddress
     this.verifyAddresses([userAddress, contractAddress, addressToClaim])
@@ -758,7 +780,13 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: userAddress,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
   }
 
   async canSendWithdrawalRequest(input: StakingContract): Promise<boolean> {
@@ -838,7 +866,14 @@ export class FoxyApi {
   }
 
   async sendWithdrawalRequests(input: TxInputWithoutAmount): Promise<string> {
-    const { bip44Params, dryRun = false, contractAddress, userAddress, wallet } = input
+    const {
+      checkLedgerAppOpenIfLedgerConnected,
+      bip44Params,
+      dryRun = false,
+      contractAddress,
+      userAddress,
+      wallet,
+    } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!wallet || !contractAddress) throw new Error('Missing inputs')
 
@@ -859,7 +894,13 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: userAddress,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
   }
 
   // not a user facing function
@@ -872,6 +913,7 @@ export class FoxyApi {
       contractAddress,
       userAddress,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -899,6 +941,7 @@ export class FoxyApi {
       wallet,
       dryRun,
       receiverAddress: CONTRACT_INTERACTION,
+      checkLedgerAppOpenIfLedgerConnected,
     })
   }
 
@@ -912,6 +955,7 @@ export class FoxyApi {
       contractAddress,
       userAddress,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     } = input
     this.verifyAddresses([userAddress, contractAddress])
     if (!amountDesired.gt(0)) throw new Error('Must send valid amount')
@@ -934,11 +978,19 @@ export class FoxyApi {
       to: contractAddress,
       value: '0',
     }
-    return this.signAndBroadcastTx({ payload, wallet, dryRun, receiverAddress: userAddress })
+    return this.signAndBroadcastTx({
+      payload,
+      wallet,
+      dryRun,
+      receiverAddress: userAddress,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
   }
 
   // returns time when the users withdraw request is claimable
-  async getTimeUntilClaimable(input: TxInputWithoutAmountAndWallet): Promise<string> {
+  async getTimeUntilClaimable(
+    input: Omit<TxInputWithoutAmountAndWallet, 'checkLedgerAppOpenIfLedgerConnected'>,
+  ): Promise<string> {
     const { contractAddress, userAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
 
@@ -1052,7 +1104,9 @@ export class FoxyApi {
     }
   }
 
-  async getWithdrawInfo(input: TxInputWithoutAmountAndWallet): Promise<WithdrawInfo> {
+  async getWithdrawInfo(
+    input: Omit<TxInputWithoutAmountAndWallet, 'checkLedgerAppOpenIfLedgerConnected'>,
+  ): Promise<WithdrawInfo> {
     const { contractAddress, userAddress } = input
     this.verifyAddresses([userAddress, contractAddress])
     const stakingContract = this.getStakingContract(contractAddress)

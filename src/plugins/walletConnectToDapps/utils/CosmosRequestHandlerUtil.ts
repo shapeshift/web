@@ -1,6 +1,6 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, CosmosSdkChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -20,6 +20,8 @@ type ApproveCosmosRequestArgs = {
   accountMetadata?: AccountMetadata
   customTransactionData?: CustomTransactionData
   accountId?: AccountId
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
+  chainId: ChainId
 }
 
 export const approveCosmosRequest = async ({
@@ -28,6 +30,8 @@ export const approveCosmosRequest = async ({
   chainAdapter,
   accountMetadata,
   customTransactionData,
+  chainId,
+  checkLedgerAppOpenIfLedgerConnected,
 }: ApproveCosmosRequestArgs): Promise<JsonRpcResult<string>> => {
   const { params, id } = requestEvent
   const { request } = params
@@ -59,6 +63,8 @@ export const approveCosmosRequest = async ({
       const signedMessage = await chainAdapter.signTransaction({
         txToSign,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+        chainId,
       })
       return formatJsonRpcResult(id, signedMessage)
 

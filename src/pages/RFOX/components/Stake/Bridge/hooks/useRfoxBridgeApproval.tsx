@@ -11,6 +11,7 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
@@ -40,6 +41,7 @@ type UseRfoxBridgeApprovalReturn = {
 export const useRfoxBridgeApproval = ({
   confirmedQuote,
 }: UseRfoxBridgeApprovalProps): UseRfoxBridgeApprovalReturn => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const queryClient = useQueryClient()
   const toast = useToast()
   const translate = useTranslate()
@@ -81,6 +83,7 @@ export const useRfoxBridgeApproval = ({
       wallet: wallet ?? undefined,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
+      checkLedgerAppOpenIfLedgerConnected,
     }),
     onSuccess: (txHash: string) => {
       setApprovalTxHash(txHash)

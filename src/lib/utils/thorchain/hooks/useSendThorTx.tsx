@@ -303,7 +303,12 @@ export const useSendThorTx = ({
             },
           })
 
-          const signedTx = await adapter.signTransaction({ txToSign, wallet })
+          const signedTx = await adapter.signTransaction({
+            chainId: asset.chainId,
+            checkLedgerAppOpenIfLedgerConnected,
+            txToSign,
+            wallet,
+          })
 
           const _txId = await adapter.broadcastTransaction({
             senderAddress: account,
@@ -341,6 +346,8 @@ export const useSendThorTx = ({
             adapter,
             buildCustomTxInput,
             receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+            chainId: asset.chainId,
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           return {

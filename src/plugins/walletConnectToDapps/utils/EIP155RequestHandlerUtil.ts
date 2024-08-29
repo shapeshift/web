@@ -1,6 +1,6 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmBaseAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
@@ -29,6 +29,7 @@ type ApproveEIP155RequestArgs = {
   accountMetadata?: AccountMetadata
   customTransactionData?: CustomTransactionData
   accountId?: AccountId
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 function assertSupportsEthSignTypedData(
@@ -45,6 +46,7 @@ export const approveEIP155Request = async ({
   accountMetadata,
   customTransactionData,
   accountId,
+  checkLedgerAppOpenIfLedgerConnected,
 }: ApproveEIP155RequestArgs): Promise<JsonRpcResult<ETHSignedTypedData | string>> => {
   const { params, id } = requestEvent
   const { request } = params
@@ -112,6 +114,8 @@ export const approveEIP155Request = async ({
       const signedTx = await chainAdapter.signTransaction({
         txToSign,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+        chainId: fromAccountId(accountId).chainId,
       })
       const txHash = await chainAdapter.broadcastTransaction({
         senderAddress,
@@ -147,6 +151,8 @@ export const approveEIP155Request = async ({
           value: signTransaction.value ?? convertNumberToHex(0),
           ...gasData,
         },
+        chainId: fromAccountId(accountId).chainId,
+        checkLedgerAppOpenIfLedgerConnected,
         wallet,
       })
       return formatJsonRpcResult(id, signature)

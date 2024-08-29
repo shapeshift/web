@@ -310,6 +310,8 @@ describe('BitcoinCashChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign,
+        chainId: KnownChainIds.BitcoinCashMainnet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 
       expect(signedTx).toEqual(

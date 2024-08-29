@@ -232,6 +232,8 @@ export const handleSend = async ({
       const signedTx = await adapter.signTransaction({
         txToSign,
         wallet,
+        chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       return adapter.broadcastTransaction({
         senderAddress,
@@ -249,7 +251,7 @@ export const handleSend = async ({
       return adapter.signAndBroadcastTransaction({
         senderAddress,
         receiverAddress: to,
-        signTxInput: { txToSign, wallet },
+        signTxInput: { txToSign, wallet, chainId, checkLedgerAppOpenIfLedgerConnected },
       })
     } else {
       throw new Error('Bad hdwallet config')

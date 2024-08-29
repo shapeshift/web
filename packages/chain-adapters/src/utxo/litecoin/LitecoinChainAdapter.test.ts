@@ -297,6 +297,8 @@ describe('LitecoinChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign,
+        chainId: KnownChainIds.LitecoinMainnet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 
       expect(signedTx).toEqual(

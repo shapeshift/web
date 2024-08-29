@@ -7,6 +7,7 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isToken } from 'lib/utils'
@@ -17,6 +18,7 @@ type UseApproveProps = MaybeApproveInput & {
 }
 
 export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApproveProps) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const queryClient = useQueryClient()
   const wallet = useWallet().state.wallet
 
@@ -38,8 +40,13 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
   }, [input.amountCryptoBaseUnit, input.spender])
 
   const maybeInputWithWallet = useMemo(
-    () => ({ ...input, wallet: wallet ?? undefined, data: approvalCallData }),
-    [approvalCallData, input, wallet],
+    () => ({
+      ...input,
+      wallet: wallet ?? undefined,
+      data: approvalCallData,
+      checkLedgerAppOpenIfLedgerConnected,
+    }),
+    [approvalCallData, checkLedgerAppOpenIfLedgerConnected, input, wallet],
   )
 
   const approvalFeesQueryInput = useMemo(

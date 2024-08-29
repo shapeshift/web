@@ -16,6 +16,7 @@ import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -68,6 +69,7 @@ export const useRfoxStake = ({
   hasEnoughBalance,
   setStakeTxid,
 }: UseRfoxStakeProps): UseRfoxStakeReturn => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const toast = useToast()
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
@@ -226,6 +228,8 @@ export const useRfoxStake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+        chainId: fromAssetId(stakingAssetId).chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       return txId
@@ -290,6 +294,7 @@ export const useRfoxStake = ({
       wallet: wallet ?? undefined,
       from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
+      checkLedgerAppOpenIfLedgerConnected,
     }),
     onSuccess: (txId: string) => {
       setApprovalTxHash(txId)

@@ -102,6 +102,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
           .decimalPlaces(0),
         type: state.withdraw.withdrawType,
         bip44Params,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       dispatch({ type: FoxyWithdrawActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)

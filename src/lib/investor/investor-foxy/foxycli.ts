@@ -116,6 +116,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('approve', response)
     } catch (e) {
@@ -136,6 +137,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('stake', response)
     } catch (e) {
@@ -157,6 +159,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('unstake', response)
     } catch (e) {
@@ -177,6 +180,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('instantUnstake', response)
     } catch (e) {
@@ -197,6 +201,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('claimWithdraw', response)
     } catch (e) {
@@ -217,6 +222,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('addLiquidity', response)
     } catch (e) {
@@ -237,6 +243,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info('removeLiquidity', response)
     } catch (e) {

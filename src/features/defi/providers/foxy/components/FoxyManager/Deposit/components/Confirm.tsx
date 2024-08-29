@@ -97,6 +97,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         contractAddress,
         wallet: walletState.wallet,
         bip44Params,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       dispatch({ type: FoxyDepositActionType.SET_TXID, payload: txid })
       onNext(DefiStep.Status)

@@ -23,6 +23,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
@@ -56,6 +57,7 @@ export const ClaimConfirm = ({
   chainId,
   onBack,
 }: ClaimConfirmProps) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const [userAddress, setUserAddress] = useState<string>('')
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
@@ -140,6 +142,7 @@ export const ClaimConfirm = ({
         wallet: walletState.wallet,
         contractAddress,
         bip44Params,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       history.push('/status', {
         txid,
@@ -161,25 +164,26 @@ export const ClaimConfirm = ({
       setLoading(false)
     }
   }, [
-    amount,
-    stakingAssetId,
-    bip44Params,
-    chainId,
+    walletState.wallet,
     contractAddress,
-    estimatedGas,
+    userAddress,
     foxyApi,
+    bip44Params,
+    checkLedgerAppOpenIfLedgerConnected,
     history,
+    stakingAssetId,
+    amount,
+    estimatedGas,
+    chainId,
     toast,
     translate,
-    userAddress,
-    walletState?.wallet,
   ])
 
   useEffect(() => {
     if (!bip44Params) return
     ;(async () => {
       try {
-        const chainAdapter = await chainAdapterManager.get(KnownChainIds.EthereumMainnet)
+        const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
         if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter)) return
         if (!supportsETH(walletState.wallet))
           throw new Error(`ClaimConfirm::useEffect: wallet does not support ethereum`)
@@ -196,6 +200,7 @@ export const ClaimConfirm = ({
           contractAddress,
           wallet: walletState.wallet,
           bip44Params,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         const {
@@ -212,6 +217,7 @@ export const ClaimConfirm = ({
   }, [
     bip44Params,
     chainAdapterManager,
+    checkLedgerAppOpenIfLedgerConnected,
     contractAddress,
     feeAsset.precision,
     feeMarketData.price,

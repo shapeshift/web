@@ -37,6 +37,8 @@ type BroadcastArgs = {
   adapter: EvmChainAdapter
   txToSign: SignTx<EvmChainId>
   wallet: HDWallet
+  chainId: ChainId
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 type BuildAndBroadcastArgs = BuildArgs &
@@ -122,15 +124,20 @@ export const buildAndBroadcast = async ({
   adapter,
   buildCustomTxInput,
   receiverAddress,
+  chainId,
+  checkLedgerAppOpenIfLedgerConnected,
 }: BuildAndBroadcastArgs) => {
   const senderAddress = await adapter.getAddress(buildCustomTxInput)
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
+
   return signAndBroadcast({
     adapter,
     txToSign,
     wallet: buildCustomTxInput.wallet,
     senderAddress,
     receiverAddress,
+    chainId,
+    checkLedgerAppOpenIfLedgerConnected,
   })
 }
 
@@ -140,11 +147,18 @@ export const signAndBroadcast = async ({
   wallet,
   senderAddress,
   receiverAddress,
+  chainId,
+  checkLedgerAppOpenIfLedgerConnected,
 }: BroadcastArgs) => {
   if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
 
   if (wallet.supportsOfflineSigning()) {
-    const signedTx = await adapter.signTransaction({ txToSign, wallet })
+    const signedTx = await adapter.signTransaction({
+      txToSign,
+      wallet,
+      chainId,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
     const txid = await adapter.broadcastTransaction({
       senderAddress,
       receiverAddress,
@@ -159,7 +173,7 @@ export const signAndBroadcast = async ({
     const txid = await adapter.signAndBroadcastTransaction({
       senderAddress,
       receiverAddress,
-      signTxInput: { txToSign, wallet },
+      signTxInput: { txToSign, wallet, chainId, checkLedgerAppOpenIfLedgerConnected },
     })
     return txid
   }

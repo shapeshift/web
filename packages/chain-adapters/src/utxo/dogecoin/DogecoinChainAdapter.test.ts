@@ -298,6 +298,8 @@ describe('DogecoinChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign,
+        chainId: KnownChainIds.DogecoinMainnet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 
       expect(signedTx).toEqual(

@@ -8,11 +8,13 @@ export const approveTrade = async ({
   wallet,
   allowanceType,
   from,
+  checkLedgerAppOpenIfLedgerConnected,
 }: {
   tradeQuoteStep: TradeQuote['steps'][number]
   wallet: HDWallet
   from: string
   allowanceType: AllowanceType
+  checkLedgerAppOpenIfLedgerConnected: (chainId: string) => Promise<void>
 }): Promise<string> => {
   const txHash = await approve({
     assetId: tradeQuoteStep.sellAsset.assetId,
@@ -24,6 +26,7 @@ export const approveTrade = async ({
     ),
     spender: tradeQuoteStep.allowanceContract,
     wallet,
+    checkLedgerAppOpenIfLedgerConnected,
   })
 
   return txHash

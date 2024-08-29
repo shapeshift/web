@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import {
@@ -29,6 +30,7 @@ export const useArbitrumClaimTx = (
   setClaimTxHash: (txHash: string) => void,
   setClaimTxStatus: (txStatus: TxStatus) => void,
 ) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const wallet = useWallet().state.wallet
   const queryClient = useQueryClient()
 
@@ -101,6 +103,8 @@ export const useArbitrumClaimTx = (
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION,
+        chainId: fromAccountId(destinationAccountId).chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       return txHash

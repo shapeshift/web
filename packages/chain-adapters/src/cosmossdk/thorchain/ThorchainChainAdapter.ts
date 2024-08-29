@@ -134,8 +134,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   async signTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
     try {
-      const { txToSign, wallet } = signTxInput
+      const { checkLedgerAppOpenIfLedgerConnected, chainId, txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
+        await checkLedgerAppOpenIfLedgerConnected(chainId)
         const signedTx = await wallet.thorchainSignTx(txToSign)
 
         if (!signedTx?.serialized) throw new Error('Error signing tx')

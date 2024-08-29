@@ -175,6 +175,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
+        chainId,
+        checkLedgerAppOpenIfLedgerConnected,
       })
       await poll({
         fn: () =>

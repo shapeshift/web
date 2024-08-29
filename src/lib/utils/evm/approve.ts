@@ -16,6 +16,7 @@ export const approve = async ({
   wallet,
   accountNumber,
   from,
+  checkLedgerAppOpenIfLedgerConnected,
 }: ApproveInputWithWallet) => {
   const { assetReference: to, chainId } = fromAssetId(assetId)
 
@@ -42,6 +43,8 @@ export const approve = async ({
     adapter,
     buildCustomTxInput,
     receiverAddress: CONTRACT_INTERACTION,
+    chainId,
+    checkLedgerAppOpenIfLedgerConnected,
   })
 
   return txHash

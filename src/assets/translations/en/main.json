@@ -663,6 +663,7 @@
         "createRetryableTicket": "Deposit Initiated",
         "finalizeInboundTransferDeposit": "Deposit Received",
         "depositEth": "Deposit Initiated"
+        "executeTransaction": "Claim"
       },
       "rfox": {
         "stake": "Stake",

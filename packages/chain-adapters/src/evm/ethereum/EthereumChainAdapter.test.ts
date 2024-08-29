@@ -307,7 +307,7 @@ describe('EthereumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -319,9 +319,10 @@ describe('EthereumChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      await expect(adapter.signTransaction(input)).resolves.toEqual(
         '0xf86c808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000025a04db6f6d27b6e7de2a627d7a7a213915db14d0d811e97357f1b4e3b3b25584dfaa07e4e329f23f33e1b21b3f443a80fad3255b2c968820d02b57752b4c91a9345c5',
       )
     })
@@ -335,7 +336,7 @@ describe('EthereumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new ethereum.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -347,9 +348,10 @@ describe('EthereumChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(input)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -462,14 +464,15 @@ describe('EthereumChainAdapter', () => {
         .fn()
         .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      const tx = {
+      const input = {
         accountNumber: 0,
         wallet,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
       )
     })
@@ -492,15 +495,16 @@ describe('EthereumChainAdapter', () => {
         .fn()
         .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      const tx = {
+      const input = {
         accountNumber,
         wallet,
         to: ENS_NAME,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         /a provider or signer is needed to resolve ENS names/,
       )
     })
@@ -513,14 +517,15 @@ describe('EthereumChainAdapter', () => {
         .fn()
         .mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      const tx = {
+      const input = {
         accountNumber: 0,
         wallet,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
       )
     })
@@ -536,15 +541,16 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
       const accountNumber = 0
 
-      const tx = {
+      const input = {
         accountNumber,
         wallet: await getWallet(),
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -573,15 +579,16 @@ describe('EthereumChainAdapter', () => {
       const adapter = new ethereum.ChainAdapter(args)
       const accountNumber = 0
 
-      const tx = {
+      const input = {
         accountNumber,
         wallet: await getWallet(),
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.EthereumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),

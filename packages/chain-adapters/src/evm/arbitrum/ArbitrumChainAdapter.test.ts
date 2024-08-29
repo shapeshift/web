@@ -270,7 +270,7 @@ describe('ArbitrumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new arbitrum.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -282,9 +282,10 @@ describe('ArbitrumChainAdapter', () => {
           gasPrice: '0x12a05f200',
           gasLimit: '0x5208',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      await expect(adapter.signTransaction(input)).resolves.toEqual(
         '0xf8688085012a05f20082520894d8da6bf26964af9d7eed9e03e53415d37aa9604581f08083014986a03da7ef162db219372d35641028fb5f7ee126e5b41ac1b15483436835bdd5e035a03e59a740ed391048fde0b8c3975c226d123c394bf9e7215a3d609dc1582ee89c',
       )
     })
@@ -299,7 +300,7 @@ describe('ArbitrumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new arbitrum.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -311,9 +312,10 @@ describe('ArbitrumChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(input)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -423,14 +425,15 @@ describe('ArbitrumChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new arbitrum.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
       )
     })
@@ -438,14 +441,15 @@ describe('ArbitrumChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new arbitrum.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
       )
     })
@@ -463,15 +467,16 @@ describe('ArbitrumChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = async () => await Promise.resolve(ZERO_ADDRESS)
 
-      const tx = {
+      const input = {
         wallet,
         accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(arbitrumChainId).chainReference),
@@ -499,15 +504,16 @@ describe('ArbitrumChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new arbitrum.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.ArbitrumMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(arbitrumChainId).chainReference),

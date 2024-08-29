@@ -227,7 +227,11 @@ describe('OptimismChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      await adapter.getAddress({ accountNumber, wallet, checkLedgerAppOpenIfLedgerConnected: fn })
+      await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
@@ -273,7 +277,7 @@ describe('OptimismChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -285,9 +289,10 @@ describe('OptimismChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      await expect(adapter.signTransaction(input)).resolves.toEqual(
         '0xf86c808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000038a01ff661b204766e56722f945c5fb5c8ba53b29938dc1bd6a0cb756d5f35a6b958a0432b008d8b23db1b6fd25434a4bd5f512c93e3c125364a87ed0f8c785cf29dee',
       )
     })
@@ -302,7 +307,7 @@ describe('OptimismChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -314,9 +319,10 @@ describe('OptimismChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(input)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -426,14 +432,15 @@ describe('OptimismChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new optimism.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
       )
     })
@@ -441,14 +448,15 @@ describe('OptimismChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new optimism.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
       )
     })
@@ -466,15 +474,16 @@ describe('OptimismChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = async () => await Promise.resolve(ZERO_ADDRESS)
 
-      const tx = {
+      const input = {
         wallet,
         accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(optimismChainId).chainReference),
@@ -502,15 +511,16 @@ describe('OptimismChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new optimism.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.OptimismMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(optimismChainId).chainReference),

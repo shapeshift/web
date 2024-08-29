@@ -227,7 +227,11 @@ describe('BaseChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      await adapter.getAddress({ accountNumber, wallet, checkLedgerAppOpenIfLedgerConnected: fn })
+      await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: vi.fn().mockResolvedValue(true),
+      })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
@@ -273,7 +277,7 @@ describe('BaseChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new base.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -285,9 +289,10 @@ describe('BaseChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      await expect(adapter.signTransaction(input)).resolves.toEqual(
         '0xf86e808529d41057e082c9df94d8da6bf26964af9d7eed9e03e53415d37aa960458088000000000000000082422da01b2d6d459afc4a2136a148ed97e7cd1a23d4bb01cc8b60694bdea4d7e96f6b4da071df3ab44ab7d72830352e1b58ba95324add26740be45368f1d0c67445ed2bb5',
       )
     })
@@ -302,7 +307,7 @@ describe('BaseChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new base.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -314,9 +319,10 @@ describe('BaseChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(input)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -325,7 +331,7 @@ describe('BaseChainAdapter', () => {
       const adapter = new base.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () => await Promise.resolve(null)
+      wallet.ethSendTx = vi.fn().mockResolvedValueOnce(null)
 
       const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -342,10 +348,9 @@ describe('BaseChainAdapter', () => {
       const adapter = new base.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSendTx = async () =>
-        await Promise.resolve({
-          hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
-        })
+      wallet.ethSendTx = vi.fn().mockResolvedValue({
+        hash: '0xe670ec64341771606e55d6b4ca35a1a6b75ee3d5145a99d05921026d1527331',
+      })
 
       const signTxInput = { wallet, txToSign: {} } as unknown as SignTxInput<ETHSignTx>
 
@@ -381,7 +386,7 @@ describe('BaseChainAdapter', () => {
       const adapter = new base.ChainAdapter(makeChainAdapterArgs())
       const wallet = await getWallet()
 
-      wallet.ethSignMessage = async () => await Promise.resolve(null)
+      wallet.ethSignMessage = vi.fn().mockResolvedValueOnce(null)
 
       const message: SignMessageInput<ETHSignMessage> = {
         wallet,
@@ -426,14 +431,15 @@ describe('BaseChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new base.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as BuildSendTxInput<KnownChainIds.BaseMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
       )
     })
@@ -441,14 +447,15 @@ describe('BaseChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new base.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as BuildSendTxInput<KnownChainIds.BaseMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
       )
     })
@@ -464,17 +471,18 @@ describe('BaseChainAdapter', () => {
       const adapter = new base.ChainAdapter(args)
 
       const wallet = await getWallet()
-      wallet.ethGetAddress = async () => await Promise.resolve(ZERO_ADDRESS)
+      wallet.ethGetAddress = vi.fn().mockResolvedValueOnce(ZERO_ADDRESS)
 
-      const tx = {
+      const input = {
         wallet,
         accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as BuildSendTxInput<KnownChainIds.BaseMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(baseChainId).chainReference),
@@ -502,15 +510,16 @@ describe('BaseChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new base.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       } as unknown as BuildSendTxInput<KnownChainIds.BaseMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(baseChainId).chainReference),

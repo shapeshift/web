@@ -203,7 +203,11 @@ describe('BscChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      await adapter.getAddress({ accountNumber, wallet, checkLedgerAppOpenIfLedgerConnected: fn })
+      await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
@@ -249,7 +253,7 @@ describe('BscChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new bsc.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -261,9 +265,10 @@ describe('BscChainAdapter', () => {
           gasPrice: '0x12a05f200',
           gasLimit: '0x5208',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).resolves.toEqual(
+      await expect(adapter.signTransaction(input)).resolves.toEqual(
         '0xf8668085012a05f20082520894d8da6bf26964af9d7eed9e03e53415d37aa9604581f0808193a024e66cc183b9b3e72267ed5db7072789419300d2cb58ccb5f69fc5209f440feaa079cf9b1f0ffb0320d74f809504ced656b064680976ab332bc7a9fb9e4473c8d4',
       )
     })
@@ -278,7 +283,7 @@ describe('BscChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new bsc.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
@@ -290,9 +295,10 @@ describe('BscChainAdapter', () => {
           gasPrice: '0x29d41057e0',
           gasLimit: '0xc9df',
         },
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as SignTxInput<ETHSignTx>
 
-      await expect(adapter.signTransaction(tx)).rejects.toThrow(/invalid hexlify value/)
+      await expect(adapter.signTransaction(input)).rejects.toThrow(/invalid hexlify value/)
     })
   })
 
@@ -402,14 +408,15 @@ describe('BscChainAdapter', () => {
     it('should throw if passed tx has no "to" property', async () => {
       const adapter = new bsc.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: to is required`,
       )
     })
@@ -417,14 +424,15 @@ describe('BscChainAdapter', () => {
     it('should throw if passed tx has no "value" property', async () => {
       const adapter = new bsc.ChainAdapter(makeChainAdapterArgs())
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: EOA_ADDRESS,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
+      await expect(adapter.buildSendTransaction(input)).rejects.toThrow(
         `${adapter.getName()}ChainAdapter: value is required`,
       )
     })
@@ -442,15 +450,16 @@ describe('BscChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = async () => await Promise.resolve(ZERO_ADDRESS)
 
-      const tx = {
+      const input = {
         wallet,
         accountNumber,
         to: EOA_ADDRESS,
         value,
         chainSpecific: makeChainSpecific(),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(bscChainId).chainReference),
@@ -478,15 +487,16 @@ describe('BscChainAdapter', () => {
       const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
       const adapter = new bsc.ChainAdapter(args)
 
-      const tx = {
+      const input = {
         wallet: await getWallet(),
         accountNumber,
         to: ZERO_ADDRESS,
         value,
         chainSpecific: makeChainSpecific({ contractAddress }),
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
+      await expect(adapter.buildSendTransaction(input)).resolves.toStrictEqual({
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(bscChainId).chainReference),

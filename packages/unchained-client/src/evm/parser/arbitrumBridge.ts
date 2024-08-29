@@ -144,6 +144,17 @@ export class Parser implements SubParser<Tx> {
               },
             })
           }
+          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                // `finalizeInboundTransfer` on the Ethereum side (i.e withdraw request) is internal to the bridge, and only releases fundus safu
+                // https://docs.arbitrum.io/build-decentralized-apps/token-bridging/token-bridge-erc20
+                // however, on the Arbitrum side, it's an effective deposit
+                method:
+                  this.chainId === arbitrumChainId ? 'finalizeInboundTransferDeposit' : data.method,
+              },
+            })
           default:
             return await Promise.resolve({ data })
         }

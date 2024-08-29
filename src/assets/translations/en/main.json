@@ -661,7 +661,7 @@
         "withdrawEth": "Withdraw Initated",
         "submitRetryable": "Deposit Received",
         "createRetryableTicket": "Deposit Initiated",
-        "finalizeInboundTransfer": "Withdraw Received",
+        "finalizeInboundTransferDeposit": "Deposit Received",
         "depositEth": "Deposit Initiated",
         "executeTransaction": "Claim"
       },

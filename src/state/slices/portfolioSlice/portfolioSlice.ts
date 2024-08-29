@@ -36,6 +36,9 @@ export const portfolio = createSlice({
     clear: () => {
       return initialState
     },
+    setIsAccountMetadataLoading: (state, { payload }: { payload: boolean }) => {
+      state.isAccountMetadataLoading = payload
+    },
     setWalletMeta: (
       state,
       { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChainIds'> | undefined },

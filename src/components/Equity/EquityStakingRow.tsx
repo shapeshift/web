@@ -1,5 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
 import {
   DefiAction,
   DefiTypeDisplayName,
@@ -58,6 +59,8 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     selectAllEarnUserStakingOpportunitiesByFilter(state, filter),
   )
   const opportunity = stakingOpportunities.find(opportunity => opportunity.id === opportunityId)
+  const underlyingAssetId = opportunity?.underlyingAssetId
+  const underlyingAsset = useAppSelector(state => selectAssetById(state, underlyingAssetId ?? ''))
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -76,21 +79,36 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
   const { cryptoAmountPrecision, fiatAmount } = useMemo(() => {
     if (!opportunity || !asset || !assetMarketData)
       return {
-        cryptoAmountPrecision: bnOrZero(0),
-        fiatAmount: bnOrZero(0),
+        cryptoAmountPrecision: '0',
+        fiatAmount: '0',
       }
 
     const underlyingAssetBalance = underlyingAssetsWithBalancesAndIcons?.find(
       ({ assetId: balanceAssetId }) => assetId === balanceAssetId,
     )
 
+    if (!underlyingAssetBalance && underlyingAsset)
+      return {
+        cryptoAmountPrecision: bnOrZero(opportunity.cryptoAmountBaseUnit)
+          .div(bn(10).pow(underlyingAsset?.precision ?? asset.precision))
+          .toFixed(underlyingAsset?.precision ?? asset.precision),
+        fiatAmount: opportunity.fiatAmount,
+      }
+
     return {
-      cryptoAmountPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision),
-      fiatAmount: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).times(
-        assetMarketData.price,
-      ),
+      cryptoAmountPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).toFixed(),
+      fiatAmount: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision)
+        .times(assetMarketData.price)
+        .toFixed(),
     }
-  }, [opportunity, assetId, asset, underlyingAssetsWithBalancesAndIcons, assetMarketData])
+  }, [
+    opportunity,
+    assetId,
+    asset,
+    underlyingAssetsWithBalancesAndIcons,
+    underlyingAsset,
+    assetMarketData,
+  ])
 
   const handleClick = useCallback(() => {
     if (!opportunity) return
@@ -141,7 +159,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     <EquityRow
       accountId={accountId}
       onClick={handleClick}
-      fiatAmount={fiatAmount.toFixed()}
+      fiatAmount={fiatAmount}
       totalFiatBalance={totalFiatBalance}
       color={color}
       icon={getMetadataForProvider(opportunity.provider)?.icon}
@@ -150,7 +168,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       apy={opportunity.apy}
       isLoading={isLoading}
-      cryptoBalancePrecision={cryptoAmountPrecision.toFixed()}
+      cryptoBalancePrecision={cryptoAmountPrecision}
     />
   )
 }

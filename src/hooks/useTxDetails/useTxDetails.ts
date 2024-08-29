@@ -28,6 +28,7 @@ export enum Method {
   DepositEth = 'depositEth',
   DepositRefund = 'depositRefund',
   DepositRefundNative = 'depositRefundNative',
+  ExecuteTransaction = 'executeTransaction',
   Exit = 'exit',
   ExitPool = 'exit_pool',
   FinalizeInboundTransfer = 'finalizeInboundTransfer',

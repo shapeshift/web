@@ -18,7 +18,7 @@ import values from 'lodash/values'
 import { createCachedSelector } from 're-reselect'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from 'lib/bignumber/bignumber'
-import { bn, bnOrZero, convertPrecision } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isMobile } from 'lib/globals'
 import { fromBaseUnit } from 'lib/math'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -986,23 +986,50 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       }
     })
     const staking = stakingOpportunities.map(stakingOpportunity => {
-      // Because the underlying assets can have different precisions
-      // We need to convert it to the asset we are viewing to get correct amounts to sum together.
-      const underlyingAssetPrecision =
-        assets[stakingOpportunity.assetId]?.precision ?? asset?.precision
-      const cryptoAmountBaseUnit = convertPrecision({
-        value: bnOrZero(stakingOpportunity.cryptoAmountBaseUnit),
-        inputExponent: underlyingAssetPrecision,
-        outputExponent: asset?.precision ?? 0,
-      }).toString()
-      const amountCryptoPrecision = fromBaseUnit(
-        bnOrZero(cryptoAmountBaseUnit),
-        asset?.precision ?? 0,
-      )
+      const { amountCryptoPrecision, fiatAmount } = (() => {
+        const underlyingAssetIndex = stakingOpportunity.underlyingAssetIds.findIndex(
+          assetId => assetId === asset?.assetId,
+        )
+        const underlyingAssetPrecision =
+          assets[stakingOpportunity.assetId]?.precision ?? asset?.precision
+
+        const totalCryptoAmountPrecision = fromBaseUnit(
+          bnOrZero(stakingOpportunity.cryptoAmountBaseUnit),
+          underlyingAssetPrecision ?? 0,
+        )
+
+        const amountCryptoBaseUnit = bnOrZero(totalCryptoAmountPrecision)
+          .multipliedBy(stakingOpportunity.underlyingAssetRatiosBaseUnit[underlyingAssetIndex])
+          .toFixed()
+
+        const amountCryptoPrecision = fromBaseUnit(
+          bnOrZero(amountCryptoBaseUnit),
+          asset?.precision ?? 0,
+        )
+
+        if (!stakingOpportunity.underlyingAssetWeightPercentageDecimal) {
+          return {
+            amountCryptoPrecision,
+            fiatAmount: stakingOpportunity.fiatAmount,
+          }
+        }
+
+        return {
+          amountCryptoPrecision,
+          fiatAmount: bnOrZero(stakingOpportunity.fiatAmount)
+            .multipliedBy(
+              stakingOpportunity.underlyingAssetWeightPercentageDecimal[underlyingAssetIndex],
+            )
+            .toFixed(),
+        }
+      })()
+
+      console.log({ amountCryptoPrecision, fiatAmount })
+
       return {
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,
-        fiatAmount: stakingOpportunity.fiatAmount,
+        fiatAmount,
         amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,

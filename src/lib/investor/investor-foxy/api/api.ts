@@ -152,7 +152,6 @@ export class FoxyApi {
         txToSign,
         wallet,
         checkLedgerAppOpenIfLedgerConnected,
-        chainId: KnownChainIds.EthereumMainnet,
       })
       if (dryRun) return signedTx
       try {
@@ -179,7 +178,6 @@ export class FoxyApi {
           txToSign,
           wallet,
           checkLedgerAppOpenIfLedgerConnected,
-          chainId: KnownChainIds.EthereumMainnet,
         },
       })
     } else {

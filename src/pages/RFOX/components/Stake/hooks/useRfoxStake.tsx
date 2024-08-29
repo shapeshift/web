@@ -228,7 +228,6 @@ export const useRfoxStake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        chainId: fromAssetId(stakingAssetId).chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

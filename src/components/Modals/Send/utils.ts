@@ -170,6 +170,7 @@ export const handleSend = async ({
         },
         sendMax: sendInput.sendMax,
         customNonce: sendInput.customNonce,
+        checkLedgerAppOpenIfLedgerConnected,
       })
     }
 
@@ -195,6 +196,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
+        checkLedgerAppOpenIfLedgerConnected,
       })
     }
 
@@ -209,6 +211,7 @@ export const handleSend = async ({
         accountNumber,
         chainSpecific: { gas: fees.chainSpecific.gasLimit, fee: fees.txFee },
         sendMax: sendInput.sendMax,
+        checkLedgerAppOpenIfLedgerConnected,
       }
       const adapter = assertGetCosmosSdkChainAdapter(chainId)
       return adapter.buildSendTransaction(params)
@@ -232,7 +235,6 @@ export const handleSend = async ({
       const signedTx = await adapter.signTransaction({
         txToSign,
         wallet,
-        chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
       return adapter.broadcastTransaction({
@@ -251,7 +253,7 @@ export const handleSend = async ({
       return adapter.signAndBroadcastTransaction({
         senderAddress,
         receiverAddress: to,
-        signTxInput: { txToSign, wallet, chainId, checkLedgerAppOpenIfLedgerConnected },
+        signTxInput: { txToSign, wallet, checkLedgerAppOpenIfLedgerConnected },
       })
     } else {
       throw new Error('Bad hdwallet config')

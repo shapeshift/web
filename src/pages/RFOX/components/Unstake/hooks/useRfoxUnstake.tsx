@@ -148,7 +148,6 @@ export const useRfoxUnstake = ({
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        chainId: stakingAssetFeeAsset.chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

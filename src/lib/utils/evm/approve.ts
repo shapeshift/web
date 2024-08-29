@@ -43,7 +43,6 @@ export const approve = async ({
     adapter,
     buildCustomTxInput,
     receiverAddress: CONTRACT_INTERACTION,
-    chainId,
     checkLedgerAppOpenIfLedgerConnected,
   })
 

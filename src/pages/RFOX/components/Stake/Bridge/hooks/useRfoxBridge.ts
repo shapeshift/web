@@ -250,7 +250,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        chainId: sellAsset.chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

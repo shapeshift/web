@@ -268,7 +268,6 @@ export const useTradeExecution = (
                 senderAddress: from,
                 receiverAddress,
                 checkLedgerAppOpenIfLedgerConnected,
-                chainId: stepSellAssetChainId,
               })
 
               trackMixpanelEventOnExecute()
@@ -300,7 +299,6 @@ export const useTradeExecution = (
                 txToSign,
                 wallet,
                 checkLedgerAppOpenIfLedgerConnected,
-                chainId: stepSellAssetChainId,
               })
 
               const output = await adapter.broadcastTransaction({
@@ -345,7 +343,6 @@ export const useTradeExecution = (
                 txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
                 checkLedgerAppOpenIfLedgerConnected,
-                chainId: stepSellAssetChainId,
               })
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,

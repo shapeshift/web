@@ -103,7 +103,6 @@ export const useArbitrumClaimTx = (
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION,
-        chainId: fromAccountId(destinationAccountId).chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

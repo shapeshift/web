@@ -84,6 +84,7 @@ export const useStakingAction = () => {
                   validator,
                   chainSpecific,
                   memo,
+                  checkLedgerAppOpenIfLedgerConnected,
                 })
               ).txToSign,
               receiverAddress: address,
@@ -98,6 +99,7 @@ export const useStakingAction = () => {
                   value,
                   chainSpecific,
                   memo,
+                  checkLedgerAppOpenIfLedgerConnected,
                 })
               ).txToSign,
               receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
@@ -112,6 +114,7 @@ export const useStakingAction = () => {
                   value,
                   chainSpecific,
                   memo,
+                  checkLedgerAppOpenIfLedgerConnected,
                 })
               ).txToSign,
               receiverAddress: address,
@@ -126,7 +129,6 @@ export const useStakingAction = () => {
         signTxInput: {
           txToSign,
           wallet,
-          chainId: asset.chainId,
           checkLedgerAppOpenIfLedgerConnected,
         },
       })

@@ -301,10 +301,10 @@ export const useSendThorTx = ({
               gas: fast.chainSpecific.gasLimit,
               fee: fast.txFee,
             },
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           const signedTx = await adapter.signTransaction({
-            chainId: asset.chainId,
             checkLedgerAppOpenIfLedgerConnected,
             txToSign,
             wallet,
@@ -346,7 +346,6 @@ export const useSendThorTx = ({
             adapter,
             buildCustomTxInput,
             receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-            chainId: asset.chainId,
             checkLedgerAppOpenIfLedgerConnected,
           })
 

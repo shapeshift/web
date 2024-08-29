@@ -91,7 +91,6 @@ export const useFoxFarming = (
           adapter,
           buildCustomTxInput,
           receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-          chainId: lpAsset.chainId,
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -107,7 +106,6 @@ export const useFoxFarming = (
       userAddress,
       foxFarmingContract.abi,
       lpAsset.precision,
-      lpAsset.chainId,
       adapter,
       contractAddress,
       checkLedgerAppOpenIfLedgerConnected,
@@ -141,7 +139,6 @@ export const useFoxFarming = (
           adapter,
           buildCustomTxInput,
           receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
-          chainId: lpAsset.chainId,
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -157,7 +154,6 @@ export const useFoxFarming = (
       userAddress,
       foxFarmingContract.abi,
       lpAsset.precision,
-      lpAsset.chainId,
       adapter,
       contractAddress,
       checkLedgerAppOpenIfLedgerConnected,
@@ -299,7 +295,6 @@ export const useFoxFarming = (
         wallet,
         ...fees,
       },
-      chainId: lpAsset.chainId,
       checkLedgerAppOpenIfLedgerConnected,
     })
 
@@ -310,7 +305,6 @@ export const useFoxFarming = (
     checkLedgerAppOpenIfLedgerConnected,
     contractAddress,
     getApproveFees,
-    lpAsset.chainId,
     wallet,
   ])
 
@@ -338,7 +332,6 @@ export const useFoxFarming = (
       adapter,
       buildCustomTxInput,
       receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
-      chainId: lpAsset.chainId,
       checkLedgerAppOpenIfLedgerConnected,
     })
 
@@ -349,7 +342,6 @@ export const useFoxFarming = (
     checkLedgerAppOpenIfLedgerConnected,
     contractAddress,
     foxFarmingContract.abi,
-    lpAsset.chainId,
     skip,
     userAddress,
     wallet,

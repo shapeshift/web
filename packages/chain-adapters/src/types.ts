@@ -171,7 +171,10 @@ export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput
   from: string
 }
 
-export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
+export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<
+  BuildSendTxInput<T>,
+  'wallet' | 'checkLedgerAppOpenIfLedgerConnected'
+> & {
   xpub: string
   /** Explicit skip of `to` address validation. Use with extreme care (ex. thorchain vault address) */
   skipToAddressValidation?: boolean

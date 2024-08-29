@@ -21,7 +21,6 @@ type ApproveCosmosRequestArgs = {
   customTransactionData?: CustomTransactionData
   accountId?: AccountId
   checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
-  chainId: ChainId
 }
 
 export const approveCosmosRequest = async ({
@@ -30,7 +29,6 @@ export const approveCosmosRequest = async ({
   chainAdapter,
   accountMetadata,
   customTransactionData,
-  chainId,
   checkLedgerAppOpenIfLedgerConnected,
 }: ApproveCosmosRequestArgs): Promise<JsonRpcResult<string>> => {
   const { params, id } = requestEvent
@@ -64,7 +62,6 @@ export const approveCosmosRequest = async ({
         txToSign,
         wallet,
         checkLedgerAppOpenIfLedgerConnected,
-        chainId,
       })
       return formatJsonRpcResult(id, signedMessage)
 

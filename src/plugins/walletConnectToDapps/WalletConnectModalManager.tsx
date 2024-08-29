@@ -140,7 +140,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         customTransactionData,
         accountId,
         checkLedgerAppOpenIfLedgerConnected,
-        chainId,
       })
       await web3wallet.respondSessionRequest({
         topic,

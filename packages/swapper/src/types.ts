@@ -165,7 +165,6 @@ export type EvmSwapperDeps = {
 }
 export type UtxoSwapperDeps = {
   assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
-  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter

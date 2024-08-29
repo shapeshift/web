@@ -115,7 +115,6 @@ export const approveEIP155Request = async ({
         txToSign,
         wallet,
         checkLedgerAppOpenIfLedgerConnected,
-        chainId: fromAccountId(accountId).chainId,
       })
       const txHash = await chainAdapter.broadcastTransaction({
         senderAddress,
@@ -151,7 +150,6 @@ export const approveEIP155Request = async ({
           value: signTransaction.value ?? convertNumberToHex(0),
           ...gasData,
         },
-        chainId: fromAccountId(accountId).chainId,
         checkLedgerAppOpenIfLedgerConnected,
         wallet,
       })

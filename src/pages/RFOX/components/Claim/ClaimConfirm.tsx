@@ -140,7 +140,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

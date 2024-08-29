@@ -207,7 +207,6 @@ export const thorchainApi: SwapperApi = {
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
-    checkLedgerAppOpenIfLedgerConnected,
     config,
   }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
@@ -235,7 +234,6 @@ export const thorchainApi: SwapperApi = {
         // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
         satoshiPerByte: (feeData.chainSpecific as UtxoFeeData).satsPerByte,
       },
-      checkLedgerAppOpenIfLedgerConnected,
     })
   },
 

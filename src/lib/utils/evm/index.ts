@@ -37,7 +37,6 @@ type BroadcastArgs = {
   adapter: EvmChainAdapter
   txToSign: SignTx<EvmChainId>
   wallet: HDWallet
-  chainId: ChainId
   checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
@@ -124,7 +123,6 @@ export const buildAndBroadcast = async ({
   adapter,
   buildCustomTxInput,
   receiverAddress,
-  chainId,
   checkLedgerAppOpenIfLedgerConnected,
 }: BuildAndBroadcastArgs) => {
   const senderAddress = await adapter.getAddress(buildCustomTxInput)
@@ -136,7 +134,6 @@ export const buildAndBroadcast = async ({
     wallet: buildCustomTxInput.wallet,
     senderAddress,
     receiverAddress,
-    chainId,
     checkLedgerAppOpenIfLedgerConnected,
   })
 }
@@ -147,7 +144,6 @@ export const signAndBroadcast = async ({
   wallet,
   senderAddress,
   receiverAddress,
-  chainId,
   checkLedgerAppOpenIfLedgerConnected,
 }: BroadcastArgs) => {
   if (!wallet) throw new Error('Wallet is required to broadcast EVM Txs')
@@ -156,7 +152,6 @@ export const signAndBroadcast = async ({
     const signedTx = await adapter.signTransaction({
       txToSign,
       wallet,
-      chainId,
       checkLedgerAppOpenIfLedgerConnected,
     })
     const txid = await adapter.broadcastTransaction({
@@ -173,7 +168,7 @@ export const signAndBroadcast = async ({
     const txid = await adapter.signAndBroadcastTransaction({
       senderAddress,
       receiverAddress,
-      signTxInput: { txToSign, wallet, chainId, checkLedgerAppOpenIfLedgerConnected },
+      signTxInput: { txToSign, wallet, checkLedgerAppOpenIfLedgerConnected },
     })
     return txid
   }

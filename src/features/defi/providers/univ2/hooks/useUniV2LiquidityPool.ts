@@ -224,7 +224,6 @@ export const useUniV2LiquidityPool = ({
           adapter,
           buildCustomTxInput,
           receiverAddress: CONTRACT_INTERACTION, // no receiver
-          chainId: fromAssetId(assetId0OrWeth).chainId,
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -354,7 +353,6 @@ export const useUniV2LiquidityPool = ({
           adapter,
           buildCustomTxInput,
           receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
-          chainId: fromAssetId(assetId0OrWeth).chainId,
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -640,21 +638,12 @@ export const useUniV2LiquidityPool = ({
           wallet,
           ...fees,
         },
-        chainId: fromAssetId(assetId0OrWeth).chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 
       return txid
     },
-    [
-      accountNumber,
-      adapter,
-      assetId0OrWeth,
-      checkLedgerAppOpenIfLedgerConnected,
-      getApproveFees,
-      skip,
-      wallet,
-    ],
+    [accountNumber, adapter, checkLedgerAppOpenIfLedgerConnected, getApproveFees, skip, wallet],
   )
 
   return {

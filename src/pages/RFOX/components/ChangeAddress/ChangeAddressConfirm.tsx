@@ -164,7 +164,6 @@ export const ChangeAddressConfirm: React.FC<
         adapter,
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
-        chainId: stakingAsset.chainId,
         checkLedgerAppOpenIfLedgerConnected,
       })
 

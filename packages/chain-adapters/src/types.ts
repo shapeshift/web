@@ -243,11 +243,13 @@ export type SignTxInput<TxType> = {
 export type SignMessageInput<MessageType> = {
   messageToSign: MessageType
   wallet: HDWallet
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export type SignTypedDataInput<TypedDataType> = {
   typedDataToSign: TypedDataType
   wallet: HDWallet
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 export interface TxHistoryInput {

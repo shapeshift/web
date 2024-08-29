@@ -59,7 +59,7 @@ export const approveEIP155Request = async ({
     case EIP155_SigningMethod.ETH_SIGN: {
       const message = getSignParamsMessage(request.params, false)
       const messageToSign = { addressNList, message }
-      const input = { messageToSign, wallet }
+      const input = { messageToSign, wallet, checkLedgerAppOpenIfLedgerConnected }
       const signedMessage = await chainAdapter.signMessage(input)
       if (!signedMessage) throw new Error('approveEIP155Request: signMessage failed')
       return formatJsonRpcResult(id, signedMessage)
@@ -72,10 +72,14 @@ export const approveEIP155Request = async ({
 
       const payloadString = request.params[1]
       const typedData = JSON.parse(payloadString)
-      const messageToSign = { addressNList, typedData }
-      const signedData = await wallet.ethSignTypedData(messageToSign)
+      const messageToSign = {
+        typedDataToSign: typedData,
+        checkLedgerAppOpenIfLedgerConnected,
+        wallet,
+      }
+      const signedData = await chainAdapter.signTypedData(messageToSign)
       if (!signedData) throw new Error('approveEIP155Request: signMessage failed')
-      return formatJsonRpcResult(id, signedData.signature)
+      return formatJsonRpcResult(id, signedData)
     }
 
     case EIP155_SigningMethod.ETH_SEND_TRANSACTION: {

@@ -225,6 +225,7 @@ export const useTradeExecution = (
             const signTypedDataInput: SignTypedDataInput<ETHSignTypedData> = {
               typedDataToSign,
               wallet,
+              checkLedgerAppOpenIfLedgerConnected,
             }
 
             const output = await adapter.signTypedData(signTypedDataInput)

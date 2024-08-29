@@ -467,10 +467,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {
     try {
-      const { messageToSign, wallet } = signMessageInput
+      const { checkLedgerAppOpenIfLedgerConnected, messageToSign, wallet } = signMessageInput
 
       if (!this.supportsChain(wallet))
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
+
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
 
       await this.assertSwitchChain(wallet)
 
@@ -486,7 +488,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async signTypedData(input: SignTypedDataInput<ETHSignTypedData>): Promise<string> {
     try {
-      const { typedDataToSign, wallet } = input
+      const { checkLedgerAppOpenIfLedgerConnected, typedDataToSign, wallet } = input
 
       if (!this.supportsChain(wallet)) {
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
@@ -495,6 +497,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!wallet.ethSignTypedData) {
         throw new Error('wallet does not support signing typed data')
       }
+
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
 
       await this.assertSwitchChain(wallet)
 

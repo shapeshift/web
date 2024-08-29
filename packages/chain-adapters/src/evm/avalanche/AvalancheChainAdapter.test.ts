@@ -375,6 +375,7 @@ describe('AvalancheChainAdapter', () => {
           message: 'Hello world 111',
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       await expect(adapter.signMessage(message)).resolves.toEqual(
@@ -394,6 +395,7 @@ describe('AvalancheChainAdapter', () => {
           message: 'Hello world 111',
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(

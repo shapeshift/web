@@ -379,6 +379,7 @@ describe('BaseChainAdapter', () => {
           message: 'Hello world 111',
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       await expect(adapter.signMessage(message)).resolves.toEqual(
@@ -398,6 +399,7 @@ describe('BaseChainAdapter', () => {
           message: 'Hello world 111',
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
         },
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       await expect(adapter.signMessage(message)).rejects.toThrow(

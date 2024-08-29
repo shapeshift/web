@@ -163,7 +163,10 @@ export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
-export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
+export type UtxoSwapperDeps = {
+  assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
+}
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }

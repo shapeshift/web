@@ -220,6 +220,7 @@ describe('BitcoinCashChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.BitcoinCashMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: address,
         value: '400',
@@ -310,7 +311,6 @@ describe('BitcoinCashChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign,
-        chainId: KnownChainIds.BitcoinCashMainnet,
         checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 

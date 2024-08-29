@@ -372,12 +372,13 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber, chainSpecific } = input
+      const { checkLedgerAppOpenIfLedgerConnected, wallet, accountNumber, chainSpecific } = input
 
       if (!supportsBTC(wallet)) {
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
       const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
       const txToSign = await this.buildSendApiTransaction({ ...input, xpub })
 
@@ -433,7 +434,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async signTransaction({
     checkLedgerAppOpenIfLedgerConnected,
-    chainId,
     txToSign,
     wallet,
   }: SignTxInput<SignTx<T>>): Promise<string> {
@@ -442,7 +442,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
-      await checkLedgerAppOpenIfLedgerConnected(chainId)
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
       const signedTx = await wallet.btcSignTx(txToSign)
 
       if (!signedTx?.serializedTx) throw new Error('UtxoBaseAdapter: error signing tx')

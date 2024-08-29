@@ -221,6 +221,7 @@ describe('DogecoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.DogecoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
         value: '400',
@@ -283,6 +284,7 @@ describe('DogecoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.DogecoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: 'DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp',
         value: '400000000',
@@ -298,7 +300,6 @@ describe('DogecoinChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign,
-        chainId: KnownChainIds.DogecoinMainnet,
         checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 

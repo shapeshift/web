@@ -164,6 +164,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   sendMax?: boolean
   memo?: string
   customNonce?: string
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 } & ChainSpecificBuildTxData<T>
 
 export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
@@ -233,7 +234,6 @@ export type BuildLPRemoveTxInput<T extends ChainId> = BuildLPTxInput<T> & {
 export type SignTxInput<TxType> = {
   txToSign: TxType
   wallet: HDWallet
-  chainId: ChainId
   checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 

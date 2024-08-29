@@ -134,9 +134,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
   async signTransaction(signTxInput: SignTxInput<ThorchainSignTx>): Promise<string> {
     try {
-      const { checkLedgerAppOpenIfLedgerConnected, chainId, txToSign, wallet } = signTxInput
+      const { checkLedgerAppOpenIfLedgerConnected, txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
-        await checkLedgerAppOpenIfLedgerConnected(chainId)
+        await checkLedgerAppOpenIfLedgerConnected(this.chainId)
         const signedTx = await wallet.thorchainSignTx(txToSign)
 
         if (!signedTx?.serialized) throw new Error('Error signing tx')
@@ -186,7 +186,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   async buildSendTransaction(
     input: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
-    const { accountNumber, wallet } = input
+    const { checkLedgerAppOpenIfLedgerConnected, accountNumber, wallet } = input
+    await checkLedgerAppOpenIfLedgerConnected(this.chainId)
     const from = await this.getAddress({ accountNumber, wallet })
     return this.buildSendApiTransaction({ ...input, from })
   }

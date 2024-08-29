@@ -218,6 +218,7 @@ describe('LitecoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.LitecoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: pubkey,
         value: '400',
@@ -281,6 +282,7 @@ describe('LitecoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.LitecoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: pubkey,
         value: '400000000',
@@ -297,7 +299,6 @@ describe('LitecoinChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign,
-        chainId: KnownChainIds.LitecoinMainnet,
         checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 

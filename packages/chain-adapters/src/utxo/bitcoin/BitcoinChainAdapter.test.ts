@@ -1085,6 +1085,7 @@ describe('BitcoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.BitcoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
@@ -1147,6 +1148,7 @@ describe('BitcoinChainAdapter', () => {
       const accountNumber = 0
 
       const txInput: BuildSendTxInput<KnownChainIds.BitcoinMainnet> = {
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
         accountNumber,
         to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
         value: '400',
@@ -1162,7 +1164,6 @@ describe('BitcoinChainAdapter', () => {
       const signedTx = await adapter.signTransaction({
         wallet,
         txToSign: unsignedTx?.txToSign,
-        chainId: KnownChainIds.BitcoinMainnet,
         checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 

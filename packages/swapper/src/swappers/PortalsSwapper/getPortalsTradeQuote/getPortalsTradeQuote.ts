@@ -8,7 +8,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -79,10 +78,6 @@ export async function getPortalsTradeQuote(
     .times(100)
     .toNumber()
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals)
-
   try {
     if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
@@ -114,7 +109,7 @@ export async function getPortalsTradeQuote(
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+      slippageTolerancePercentage: undefined, // Use auto slippage,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
@@ -137,7 +132,7 @@ export async function getPortalsTradeQuote(
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
         inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
-        slippageTolerancePercentage: 10, // hardcoded high slippage tolerance for the dummy quote, the actual one will use the correct one
+        slippageTolerancePercentage: undefined, // Use auto slippage,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: true,
@@ -154,7 +149,7 @@ export async function getPortalsTradeQuote(
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+        slippageTolerancePercentage: undefined, // Use auto slippage,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,

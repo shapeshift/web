@@ -36,6 +36,10 @@ const gasLimit = '42000'
 const contractAddress = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 const value = 400
 
+vi.mock('../../utils/validateAddress', () => ({
+  assertAddressNotSanctioned: vi.fn(),
+}))
+
 const makeChainSpecific = (chainSpecificAdditionalProps?: { contractAddress: string }) =>
   merge({ gasPrice, gasLimit }, chainSpecificAdditionalProps)
 

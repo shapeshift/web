@@ -186,6 +186,7 @@ export const getThorchainFromAddress = async ({
 
     const chainAdapter = getChainAdapterManager().get(chainId)!
 
+    // @ts-ignore this is one of the rare cases where we want to actually bypass on-device derivation, but for Ledger only
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,
       accountNumber: bip44Params.accountNumber,

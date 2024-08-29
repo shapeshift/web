@@ -212,7 +212,11 @@ describe('ArbitrumNovaChainAdapter', () => {
 
     it('should return a valid address', async () => {
       const wallet = await getWallet()
-      const res = await adapter.getAddress({ accountNumber, wallet })
+      const res = await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
 
       expect(res).toEqual('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
     })
@@ -221,7 +225,11 @@ describe('ArbitrumNovaChainAdapter', () => {
       const wallet = await getWallet()
       wallet.ethGetAddress = fn.mockResolvedValueOnce('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
-      await adapter.getAddress({ accountNumber, wallet })
+      await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],

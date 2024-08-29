@@ -51,6 +51,7 @@ type CreateBuildCustomTxInputArgs = {
   data: string
   value: string
   wallet: HDWallet
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }
 
 type CreateBuildCustomApiTxInputArgs = {
@@ -123,9 +124,7 @@ export const buildAndBroadcast = async ({
   adapter,
   buildCustomTxInput,
   receiverAddress,
-  checkLedgerAppOpenIfLedgerConnected,
 }: BuildAndBroadcastArgs) => {
-  await checkLedgerAppOpenIfLedgerConnected(adapter.getChainId())
   const senderAddress = await adapter.getAddress(buildCustomTxInput)
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
 
@@ -135,7 +134,7 @@ export const buildAndBroadcast = async ({
     wallet: buildCustomTxInput.wallet,
     senderAddress,
     receiverAddress,
-    checkLedgerAppOpenIfLedgerConnected,
+    checkLedgerAppOpenIfLedgerConnected: buildCustomTxInput.checkLedgerAppOpenIfLedgerConnected,
   })
 }
 

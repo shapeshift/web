@@ -216,6 +216,7 @@ export const useUniV2LiquidityPool = ({
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: toBaseUnit(maybeEthAmount, weth.precision),
           wallet,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         const txid = await buildAndBroadcast({
@@ -343,12 +344,17 @@ export const useUniV2LiquidityPool = ({
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: '0',
           wallet,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+          receiverAddress: await adapter.getAddress({
+            accountNumber,
+            wallet,
+            checkLedgerAppOpenIfLedgerConnected,
+          }),
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -629,6 +635,7 @@ export const useUniV2LiquidityPool = ({
           data,
           wallet,
           ...fees,
+          checkLedgerAppOpenIfLedgerConnected,
         },
         checkLedgerAppOpenIfLedgerConnected,
       })

@@ -59,7 +59,11 @@ const main = async (): Promise<void> => {
   })
 
   const accountNumber = 0
-  const userAddress = await api.adapter.getAddress({ accountNumber, wallet })
+  const userAddress = await api.adapter.getAddress({
+    accountNumber,
+    wallet,
+    checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+  })
   console.info('current user address ', userAddress)
 
   const circulatingSupply = async () => {

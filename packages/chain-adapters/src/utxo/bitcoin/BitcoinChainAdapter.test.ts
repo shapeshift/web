@@ -1228,6 +1228,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM')
     })
@@ -1243,6 +1244,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('1Jxtem176sCXHnK7QCShoafF5VtWvMa7eq')
     })
@@ -1260,6 +1262,7 @@ describe('BitcoinChainAdapter', () => {
         accountType: UtxoAccountType.P2pkh,
         isChange,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('13ZD8S4qR6h4GvkAZ2ht7rpr15TFXYxGCx')
     })
@@ -1275,6 +1278,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('1K2oFer6nGoXSPspeB5Qvt4htJvw3y31XW')
     })
@@ -1290,6 +1294,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.SegwitNative,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bc1qkkr2uvry034tsj4p52za2pg42ug4pxg5qfxyfa')
     })
@@ -1305,6 +1310,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.SegwitNative,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bc1qpszctuml70ulzf7f0zy5r4sg9nm65qfpgcw0uy')
     })
@@ -1322,6 +1328,7 @@ describe('BitcoinChainAdapter', () => {
         accountType: UtxoAccountType.SegwitNative,
         isChange,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bc1qhazdhyg6ukkvnnlucxamjc3dmkj2zyfte0lqa9')
     })
@@ -1337,6 +1344,7 @@ describe('BitcoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.SegwitNative,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bc1qgawuludfvrdxfq0x55k26ydtg2hrx64jp3u6am')
     })
@@ -1354,6 +1362,7 @@ describe('BitcoinChainAdapter', () => {
         wallet,
         accountType: UtxoAccountType.SegwitNative,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
 
       expect(wallet.btcGetAddress).toHaveBeenCalledWith({

@@ -142,6 +142,7 @@ export const useRfoxUnstake = ({
         value: '0',
         to: RFOX_PROXY_CONTRACT_ADDRESS,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       const txId = await buildAndBroadcast({

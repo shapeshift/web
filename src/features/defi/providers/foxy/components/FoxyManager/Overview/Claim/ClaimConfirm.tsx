@@ -9,7 +9,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
@@ -184,7 +184,7 @@ export const ClaimConfirm = ({
     ;(async () => {
       try {
         const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
-        if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter)) return
+        if (!(walletState.wallet && contractAddress && foxyApi && chainAdapter && accountId)) return
         if (!supportsETH(walletState.wallet))
           throw new Error(`ClaimConfirm::useEffect: wallet does not support ethereum`)
 
@@ -192,6 +192,8 @@ export const ClaimConfirm = ({
         const userAddress = await chainAdapter.getAddress({
           wallet: walletState.wallet,
           accountNumber,
+          // Unsafe useEffect IIAFE, we skip on-device derivation here to avoid unpredictable ledger ack popping up
+          pubKey: fromAccountId(accountId).account,
         })
         setUserAddress(userAddress)
         const feeDataEstimate = await foxyApi.estimateClaimWithdrawFees({
@@ -215,6 +217,7 @@ export const ClaimConfirm = ({
       }
     })()
   }, [
+    accountId,
     bip44Params,
     chainAdapterManager,
     checkLedgerAppOpenIfLedgerConnected,

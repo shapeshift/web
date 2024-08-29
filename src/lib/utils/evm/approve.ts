@@ -37,6 +37,7 @@ export const approve = async ({
     to,
     value: '0',
     wallet,
+    checkLedgerAppOpenIfLedgerConnected,
   })
 
   const txHash = await buildAndBroadcast({

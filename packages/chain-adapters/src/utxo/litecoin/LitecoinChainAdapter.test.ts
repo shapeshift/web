@@ -363,6 +363,7 @@ describe('LitecoinChainAdapter', () => {
         wallet,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ')
     })
@@ -378,6 +379,7 @@ describe('LitecoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('LgCD3vmz2TkYGbaDDy1YRyT4JwL95XpYPw')
     })
@@ -395,6 +397,7 @@ describe('LitecoinChainAdapter', () => {
         accountType: UtxoAccountType.P2pkh,
         isChange,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('LfYSvfC3L9XyFGL42zjodCiwTSoh772XD9')
     })
@@ -410,6 +413,7 @@ describe('LitecoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('LeRfQnpXQDe8nth9EWkduPnfkYuD1ASwAb')
     })

@@ -57,8 +57,16 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     const adapter = assertGetEvmChainAdapter(chainId)
     const bip44Params = adapter.getBIP44Params({ accountNumber })
 
-    // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
-    address = address || (await adapter.getAddress({ accountNumber, wallet }))
+    // use first found EVM address for that account number if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
+    address =
+      address ||
+      (await adapter.getAddress({
+        accountNumber,
+        wallet,
+        // This method should really only ever do on-device derivation, and, in the case of Ledger, be called at accounts management time
+        // so we don't want nor need to spew Ledger open app check intervals
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      }))
     if (!address) continue
 
     const accountId = toAccountId({ chainId, account: address })

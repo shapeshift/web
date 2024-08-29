@@ -28,7 +28,13 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
       }
 
       const bip44Params = adapter.getBIP44Params({ accountNumber })
-      const pubkey = await adapter.getAddress({ accountNumber, wallet })
+      const pubkey = await adapter.getAddress({
+        accountNumber,
+        wallet,
+        // This method should really only ever do on-device derivation, and, in the case of Ledger, be called at accounts management time
+        // so we don't want nor need to spew Ledger open app check intervals
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
       if (!pubkey) continue
       const accountId = toAccountId({ chainId, account: pubkey })
       acc[accountId] = { bip44Params }

@@ -29,6 +29,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -81,6 +82,7 @@ export const Overview: React.FC<OverviewProps> = ({
   address,
   vanityAddress,
 }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: false })
   const [fiatRampAction, setFiatRampAction] = useState<FiatRampAction>(defaultAction)
   const selectedCurrency = useAppSelector(selectSelectedCurrency)
   const [fiatCurrency, setFiatCurrency] = useState<CommonFiatCurrencies>(selectedCurrency)
@@ -156,13 +158,19 @@ export const Overview: React.FC<OverviewProps> = ({
     const { accountType, bip44Params } = accountMetadata
     const showOnDevice = true
     const { accountNumber } = bip44Params
-    const payload = { accountType, accountNumber, wallet, showOnDevice }
+    const payload = {
+      accountType,
+      accountNumber,
+      wallet,
+      showOnDevice,
+      checkLedgerAppOpenIfLedgerConnected,
+    }
     const verifiedAddress = await getChainAdapterManager()
       .get(fromAccountId(accountId).chainId)!
       .getAddress(payload)
     const shownOnDisplay = verifiedAddress === address
     setShownOnDisplay(shownOnDisplay)
-  }, [accountId, accountMetadata, address, wallet])
+  }, [accountId, accountMetadata, address, checkLedgerAppOpenIfLedgerConnected, wallet])
 
   const handlePopupClick = useCallback(
     ({ rampId, address }: { rampId: FiatRamp; address: string }) => {

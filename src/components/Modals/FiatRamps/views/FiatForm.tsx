@@ -1,6 +1,5 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -104,7 +103,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
             accountType,
             accountNumber,
             wallet,
-            pubKey: isLedger(wallet) ? fromAccountId(accountId).account : undefined,
+            pubKey: fromAccountId(accountId).account,
           }
           const { chainId } = fromAccountId(accountId)
           const maybeAdapter = getChainAdapterManager().get(chainId)

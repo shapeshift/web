@@ -41,6 +41,7 @@ import { useAppSelector } from 'state/store'
 import { WithBackButton } from '../WithBackButton'
 
 export const VerifyAddresses = () => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const wallet = useWallet().state.wallet
   const history = useHistory()
   const translate = useTranslate()
@@ -193,6 +194,7 @@ export const VerifyAddresses = () => {
           showOnDevice: true,
           accountType: accountMetadata.accountType,
           accountNumber: bip44Params.accountNumber,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
@@ -209,7 +211,6 @@ export const VerifyAddresses = () => {
       }
     },
     [
-      verifiedAddresses,
       sellAsset,
       buyAsset,
       sellAccountMetadata,
@@ -217,10 +218,10 @@ export const VerifyAddresses = () => {
       sellAddress,
       buyAddress,
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
+      verifiedAddresses,
     ],
   )
-
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const handleBuyVerify = useCallback(async () => {
     // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened

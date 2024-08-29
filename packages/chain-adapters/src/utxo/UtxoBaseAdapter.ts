@@ -218,6 +218,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     isChange = false,
     showOnDevice = false,
     pubKey,
+    checkLedgerAppOpenIfLedgerConnected,
   }: GetAddressInput): Promise<string> {
     try {
       this.assertIsAccountTypeSupported(accountType)
@@ -227,6 +228,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
+
+      if (!pubKey && checkLedgerAppOpenIfLedgerConnected)
+        await checkLedgerAppOpenIfLedgerConnected(this.chainId)
 
       const account = await (async () => {
         if (pubKey || bip44Params.index === undefined) {

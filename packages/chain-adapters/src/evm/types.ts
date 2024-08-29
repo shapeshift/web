@@ -23,9 +23,13 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
+  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 } & Fees
 
-export type BuildCustomApiTxInput = Omit<BuildCustomTxInput, 'wallet'> & { from: string }
+export type BuildCustomApiTxInput = Omit<
+  BuildCustomTxInput,
+  'wallet' | 'checkLedgerAppOpenIfLedgerConnected'
+> & { from: string }
 
 export type BuildTxInput = {
   gasLimit: string

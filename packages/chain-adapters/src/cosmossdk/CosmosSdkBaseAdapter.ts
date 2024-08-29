@@ -363,7 +363,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     const { pubKey, accountNumber, wallet } = input
 
     const bip44Params = this.getBIP44Params({ accountNumber })
-    const address = await this.getAddress({ accountNumber, wallet, pubKey })
+    const address = await this.getAddress({ accountNumber, wallet, pubKey: pubKey as string })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(

@@ -204,7 +204,11 @@ export const useTradeExecution = (
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-        const from = await adapter.getAddress({ accountNumber, wallet })
+        const from = await adapter.getAddress({
+          accountNumber,
+          wallet,
+          checkLedgerAppOpenIfLedgerConnected,
+        })
 
         const output = await execution.execEvmMessage({
           swapperName,
@@ -244,7 +248,11 @@ export const useTradeExecution = (
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            checkLedgerAppOpenIfLedgerConnected,
+          })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
           const output = await execution.execEvmTransaction({
@@ -259,6 +267,7 @@ export const useTradeExecution = (
                 ...transactionRequest,
                 wallet,
                 accountNumber,
+                checkLedgerAppOpenIfLedgerConnected,
               } as BuildCustomTxInput)
 
               const output = await signAndBroadcast({
@@ -281,7 +290,12 @@ export const useTradeExecution = (
           if (accountType === undefined) throw Error('Missing UTXO account type')
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
+          const _senderAddress = await adapter.getAddress({
+            accountNumber,
+            accountType,
+            wallet,
+            checkLedgerAppOpenIfLedgerConnected,
+          })
           const senderAddress =
             stepSellAssetAssetId === bchAssetId
               ? _senderAddress.replace('bitcoincash:', '')
@@ -316,7 +330,11 @@ export const useTradeExecution = (
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            checkLedgerAppOpenIfLedgerConnected,
+          })
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
             tradeQuote,

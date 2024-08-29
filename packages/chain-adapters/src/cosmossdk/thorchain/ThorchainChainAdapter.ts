@@ -89,10 +89,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { wallet, accountNumber, showOnDevice = false } = input
+    const {
+      wallet,
+      checkLedgerAppOpenIfLedgerConnected,
+      accountNumber,
+      showOnDevice = false,
+    } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
 
     if (input.pubKey) return input.pubKey
+    else if (checkLedgerAppOpenIfLedgerConnected)
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
 
     try {
       if (supportsThorchain(wallet)) {
@@ -187,8 +194,12 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     input: BuildSendTxInput<KnownChainIds.ThorchainMainnet>,
   ): Promise<{ txToSign: ThorchainSignTx }> {
     const { checkLedgerAppOpenIfLedgerConnected, accountNumber, wallet } = input
-    await checkLedgerAppOpenIfLedgerConnected(this.chainId)
-    const from = await this.getAddress({ accountNumber, wallet })
+
+    const from = await this.getAddress({
+      accountNumber,
+      wallet,
+      checkLedgerAppOpenIfLedgerConnected,
+    })
     return this.buildSendApiTransaction({ ...input, from })
   }
 

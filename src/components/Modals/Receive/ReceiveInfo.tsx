@@ -36,6 +36,7 @@ import { QRCode } from 'components/QRCode/QRCode'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { viemEthMainnetClient } from 'lib/viem-client'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -54,6 +55,7 @@ const receiveAddressActive = { color: 'blue.800' }
 const circleGroupHover = { bg: 'background.button.secondary.hover', color: 'white' }
 
 export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: false })
   const { state } = useWallet()
   const [receiveAddress, setReceiveAddress] = useState<string | undefined>()
   const [ensName, setEnsName] = useState<string | null>('')
@@ -114,12 +116,21 @@ export const ReceiveInfo = ({ asset, accountId }: ReceivePropsType) => {
       showOnDevice: true,
       accountType,
       accountNumber,
+      checkLedgerAppOpenIfLedgerConnected,
     })
 
     setVerified(
       Boolean(deviceAddress) && deviceAddress.toLowerCase() === receiveAddress.toLowerCase(),
     )
-  }, [accountType, asset.chainId, bip44Params, chainAdapter, receiveAddress, wallet])
+  }, [
+    accountType,
+    asset.chainId,
+    bip44Params,
+    chainAdapter,
+    checkLedgerAppOpenIfLedgerConnected,
+    receiveAddress,
+    wallet,
+  ])
 
   const translate = useTranslate()
   const toast = useToast()

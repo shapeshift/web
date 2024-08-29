@@ -338,6 +338,7 @@ export const useSendThorTx = ({
               !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           const _txId = await buildAndBroadcast({

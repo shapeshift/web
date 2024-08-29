@@ -212,7 +212,11 @@ describe('EthereumChainAdapter', () => {
     it('should return a valid address', async () => {
       const wallet = await getWallet()
       const accountNumber = 0
-      const res = await adapter.getAddress({ accountNumber, wallet })
+      const res = await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: fn,
+      })
 
       expect(res).toEqual('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
     })
@@ -222,7 +226,7 @@ describe('EthereumChainAdapter', () => {
       wallet.ethGetAddress = fn.mockResolvedValue('0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
 
       const accountNumber = 0
-      await adapter.getAddress({ accountNumber, wallet })
+      await adapter.getAddress({ accountNumber, wallet, checkLedgerAppOpenIfLedgerConnected: fn })
 
       expect(wallet.ethGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483708, 2147483648, 0, 0],
@@ -616,6 +620,7 @@ describe('EthereumChainAdapter', () => {
         gasPrice: '123',
         gasLimit: '456',
         networkFeeCryptoBaseUnit: '424242424242',
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       const output = await adapter.buildCustomTx(txArgs)
@@ -658,6 +663,7 @@ describe('EthereumChainAdapter', () => {
         maxFeePerGas: '421',
         maxPriorityFeePerGas: '422',
         networkFeeCryptoBaseUnit: '424242424242',
+        checkLedgerAppOpenIfLedgerConnected: vi.fn(),
       }
 
       const output = await adapter.buildCustomTx(txArgs)

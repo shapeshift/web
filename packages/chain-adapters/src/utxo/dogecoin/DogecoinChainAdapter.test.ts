@@ -364,6 +364,7 @@ describe('DogecoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       console.info(`addr: ${addr}`)
       expect(addr).toStrictEqual('DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp')
@@ -380,6 +381,7 @@ describe('DogecoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('DAytULhYbMroCHtPvPzTqVktkpnk9RmXNo')
     })
@@ -397,6 +399,7 @@ describe('DogecoinChainAdapter', () => {
         accountType: UtxoAccountType.P2pkh,
         isChange,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('DPCPWrTEMLXhP8o57jH3i6ZbwAQwNHNFdq')
     })
@@ -412,6 +415,7 @@ describe('DogecoinChainAdapter', () => {
         accountNumber,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('DSpBqkDV8g7C2MwpT2xmeyvsB89P5qmCbq')
     })

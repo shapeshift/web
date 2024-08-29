@@ -167,6 +167,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         value: '0',
         to: fromAssetId(assetId).assetReference,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       await buildAndBroadcast({

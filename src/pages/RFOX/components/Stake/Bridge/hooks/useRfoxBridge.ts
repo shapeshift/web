@@ -244,6 +244,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         value: unsignedTx.value,
         to: unsignedTx.to,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       const txId = await buildAndBroadcast({

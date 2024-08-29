@@ -227,6 +227,7 @@ export const handleSend = async ({
     accountNumber: accountMetadata.bip44Params.accountNumber,
     accountType: accountMetadata.accountType,
     wallet,
+    checkLedgerAppOpenIfLedgerConnected,
   })
 
   const broadcastTXID = await (async () => {

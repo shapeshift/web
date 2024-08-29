@@ -83,6 +83,7 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         const txid = await buildAndBroadcast({
@@ -129,12 +130,17 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          checkLedgerAppOpenIfLedgerConnected,
         })
 
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+          receiverAddress: await adapter.getAddress({
+            accountNumber,
+            wallet,
+            checkLedgerAppOpenIfLedgerConnected,
+          }),
           checkLedgerAppOpenIfLedgerConnected,
         })
 
@@ -287,6 +293,7 @@ export const useFoxFarming = (
         value: '0',
         data,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
         ...fees,
       },
       checkLedgerAppOpenIfLedgerConnected,
@@ -318,12 +325,17 @@ export const useFoxFarming = (
       to: contractAddress,
       value: '0',
       wallet,
+      checkLedgerAppOpenIfLedgerConnected,
     })
 
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+      receiverAddress: await adapter.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+      }),
       checkLedgerAppOpenIfLedgerConnected,
     })
 

@@ -89,9 +89,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { accountNumber, pubKey, wallet, showOnDevice = false } = input
+    const {
+      accountNumber,
+      pubKey,
+      checkLedgerAppOpenIfLedgerConnected,
+      wallet,
+      showOnDevice = false,
+    } = input
 
     if (pubKey) return pubKey
+    else if (checkLedgerAppOpenIfLedgerConnected)
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
 
     try {
       if (supportsCosmos(wallet)) {
@@ -144,7 +152,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   ): Promise<{ txToSign: CosmosSignTx }> {
     const { checkLedgerAppOpenIfLedgerConnected, accountNumber, wallet } = input
     await checkLedgerAppOpenIfLedgerConnected(this.chainId)
-    const from = await this.getAddress({ accountNumber, wallet })
+    const from = await this.getAddress({
+      accountNumber,
+      wallet,
+      checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+    })
     return this.buildSendApiTransaction({ ...input, from })
   }
 
@@ -159,7 +171,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'delegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -190,7 +206,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: validator, type: 'undelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -223,7 +243,11 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       assertIsValidatorAddress(toValidator, this.getType())
       assertIsValidatorAddress(fromValidator, this.getType())
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
       const account = await this.getAccount(from)
       const validatorAction: ValidatorAction = { address: fromValidator, type: 'redelegate' }
       const amount = this.getAmount({ account, value, fee, sendMax, validatorAction })
@@ -245,14 +269,18 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async buildClaimRewardsTransaction(
-    tx: BuildClaimRewardsTxInput<KnownChainIds.CosmosMainnet>,
+    input: BuildClaimRewardsTxInput<KnownChainIds.CosmosMainnet>,
   ): Promise<{ txToSign: CosmosSignTx }> {
     try {
-      const { accountNumber, validator, wallet } = tx
+      const { checkLedgerAppOpenIfLedgerConnected, accountNumber, validator, wallet } = input
 
       assertIsValidatorAddress(validator, this.getType())
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+      })
       const account = await this.getAccount(from)
 
       const msg: CosmosSdkMsgWithdrawDelegationReward = {
@@ -263,7 +291,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
         },
       }
 
-      return this.buildTransaction({ ...tx, account, msg })
+      return this.buildTransaction({ ...input, account, msg })
     } catch (err) {
       return ErrorHandler(err)
     }

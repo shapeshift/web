@@ -510,11 +510,19 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { accountNumber, wallet, showOnDevice = false } = input
+    const {
+      checkLedgerAppOpenIfLedgerConnected,
+      pubKey,
+      accountNumber,
+      wallet,
+      showOnDevice = false,
+    } = input
     const bip44Params = this.getBIP44Params({ accountNumber })
 
-    if (input.pubKey) {
+    if (pubKey) {
       return input.pubKey
+    } else if (checkLedgerAppOpenIfLedgerConnected) {
+      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
     }
 
     const address = await (wallet as ETHWallet).ethGetAddress({
@@ -541,7 +549,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   ): Promise<void> {
     const { pubKey, accountNumber, wallet } = input
 
-    const address = await this.getAddress({ accountNumber, wallet, pubKey })
+    const address = await this.getAddress({ accountNumber, wallet, pubKey: pubKey as string })
     const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
@@ -602,7 +610,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber } = input
+      const { checkLedgerAppOpenIfLedgerConnected, wallet, accountNumber } = input
 
       if (!this.supportsChain(wallet)) {
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
@@ -610,7 +618,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       await this.assertSwitchChain(wallet)
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({
+        accountNumber,
+        wallet,
+        checkLedgerAppOpenIfLedgerConnected,
+      })
       const txToSign = await this.buildCustomApiTx({ ...input, from })
 
       return { txToSign }

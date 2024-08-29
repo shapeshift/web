@@ -24,7 +24,12 @@ export const getReceiveAddress = async ({
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!(chainAdapter && wallet)) return
   const { accountNumber } = bip44Params
-  const address = await chainAdapter.getAddress({ wallet, accountNumber, accountType, pubKey })
+  const address = await chainAdapter.getAddress({
+    wallet,
+    accountNumber,
+    accountType,
+    pubKey: pubKey!,
+  })
   return address
 }
 

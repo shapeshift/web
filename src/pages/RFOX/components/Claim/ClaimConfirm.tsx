@@ -134,6 +134,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         value: '0',
         to: RFOX_PROXY_CONTRACT_ADDRESS,
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       const txId = await buildAndBroadcast({

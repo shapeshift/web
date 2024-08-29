@@ -375,6 +375,7 @@ describe('BitcoinCashChainAdapter', () => {
         wallet,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bitcoincash:qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp')
     })
@@ -390,6 +391,7 @@ describe('BitcoinCashChainAdapter', () => {
         wallet,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bitcoincash:qrglksfd2ay0zren2ssj7y6dff8kfsgdmg27fwz79p')
     })
@@ -407,6 +409,7 @@ describe('BitcoinCashChainAdapter', () => {
         accountType: UtxoAccountType.P2pkh,
         isChange,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bitcoincash:qzh9hc7v8qa2dgx59pylharhp02ps96rputhg7w79h')
     })
@@ -422,6 +425,7 @@ describe('BitcoinCashChainAdapter', () => {
         wallet,
         accountType: UtxoAccountType.P2pkh,
         index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
       })
       expect(addr).toStrictEqual('bitcoincash:qz62eyfnv6lec8wwd3zg2ml4cvm4wr4caq4n3kdz56')
     })
@@ -434,7 +438,13 @@ describe('BitcoinCashChainAdapter', () => {
       const accountNumber = 1
       const index = 0
 
-      await adapter.getAddress({ accountNumber, wallet, accountType: UtxoAccountType.P2pkh, index })
+      await adapter.getAddress({
+        accountNumber,
+        wallet,
+        accountType: UtxoAccountType.P2pkh,
+        index,
+        checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve(),
+      })
 
       expect(wallet.btcGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483793, 2147483649, 0, 0],

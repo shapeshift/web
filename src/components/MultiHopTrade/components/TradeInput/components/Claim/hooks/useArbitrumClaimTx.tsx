@@ -97,6 +97,7 @@ export const useArbitrumClaimTx = (
         to: ARBITRUM_OUTBOX,
         value: '0',
         wallet,
+        checkLedgerAppOpenIfLedgerConnected,
       })
 
       const txHash = await buildAndBroadcast({

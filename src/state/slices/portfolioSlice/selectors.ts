@@ -1024,8 +1024,6 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         }
       })()
 
-      console.log({ amountCryptoPrecision, fiatAmount })
-
       return {
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,

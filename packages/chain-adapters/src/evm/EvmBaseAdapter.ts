@@ -321,14 +321,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     txToSign: SignTx<T>
   }> {
     try {
-      const { checkLedgerAppOpenIfLedgerConnected, wallet } = input
+      const { wallet } = input
       if (!this.supportsChain(wallet)) {
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
       }
 
       await this.assertSwitchChain(wallet)
 
-      await checkLedgerAppOpenIfLedgerConnected(this.chainId)
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 

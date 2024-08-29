@@ -89,7 +89,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     )
 
     if (provider === DefiProvider.rFOX) {
-      history.push('/rfox')
+      return history.push('/rfox')
     }
 
     history.push({

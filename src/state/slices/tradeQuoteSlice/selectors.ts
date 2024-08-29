@@ -241,6 +241,23 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
     },
   )
 
+export const selectQuoteSlippageTolerancePercentageDecimal: Selector<
+  ReduxState,
+  string | undefined
+> = createSelector(
+  selectActiveQuote,
+  activeQuote => activeQuote?.slippageTolerancePercentageDecimal,
+)
+
+export const selectQuoteSlippageTolerancePercentage: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectQuoteSlippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal =>
+      slippageTolerancePercentageDecimal
+        ? bn(slippageTolerancePercentageDecimal).times(100).toString()
+        : undefined,
+  )
+
 export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefined> = createSelector(
   selectConfirmedQuote,
   confirmedQuote => confirmedQuote?.id,
@@ -514,10 +531,12 @@ export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = cre
 
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
   selectActiveSwapperName,
+  selectQuoteSlippageTolerancePercentageDecimal,
   selectUserSlippagePercentageDecimal,
-  (activeSwapperName, slippagePreferencePercentage) => {
+  (activeSwapperName, quoteSlippageTolerancePercentage, slippagePreferencePercentage) => {
     return (
       slippagePreferencePercentage ??
+      quoteSlippageTolerancePercentage ??
       getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
     )
   },

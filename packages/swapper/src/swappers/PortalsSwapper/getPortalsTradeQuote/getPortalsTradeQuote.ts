@@ -78,6 +78,10 @@ export async function getPortalsTradeQuote(
     .times(100)
     .toNumber()
 
+  const maybeSlippageTolerancePercentageOverride = input.slippageTolerancePercentageDecimal
+    ? Number(input.slippageTolerancePercentageDecimal) * 100
+    : undefined // Use auto slippage if no override provided
+
   try {
     if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
@@ -109,7 +113,7 @@ export async function getPortalsTradeQuote(
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: undefined, // Use auto slippage,
+      slippageTolerancePercentage: maybeSlippageTolerancePercentageOverride,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
@@ -132,7 +136,7 @@ export async function getPortalsTradeQuote(
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
         inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
-        slippageTolerancePercentage: undefined, // Use auto slippage,
+        slippageTolerancePercentage: maybeSlippageTolerancePercentageOverride,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: true,
@@ -149,7 +153,7 @@ export async function getPortalsTradeQuote(
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage: undefined, // Use auto slippage,
+        slippageTolerancePercentage: maybeSlippageTolerancePercentageOverride,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,

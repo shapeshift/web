@@ -788,7 +788,9 @@
     "claimSuccess": "You have successfully claimed",
     "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
+    "noAvailableClaims": "No claims available",
     "pendingClaims": "Pending",
+    "noPendingClaims": "No claims pending",
     "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim"
   },

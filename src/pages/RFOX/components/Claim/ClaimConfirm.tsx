@@ -211,13 +211,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
 
-    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(async () => {
-        await handleClaim()
-        history.push(ClaimRoutePaths.Status)
-      })
-      .catch(console.error)
-  }, [handleClaim, history, checkLedgerAppOpenIfLedgerConnected, stakingAsset])
+    await handleClaim()
+    history.push(ClaimRoutePaths.Status)
+  }, [handleClaim, history, stakingAsset])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
   const isClaimTxPending = useMemo(

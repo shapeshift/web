@@ -179,13 +179,9 @@ export const ChangeAddressConfirm: React.FC<
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
 
-    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(async () => {
-        await handleChangeAddress()
-        history.push(ChangeAddressRoutePaths.Status)
-      })
-      .catch(console.error)
-  }, [history, handleChangeAddress, stakingAsset, checkLedgerAppOpenIfLedgerConnected])
+    await handleChangeAddress()
+    history.push(ChangeAddressRoutePaths.Status)
+  }, [history, handleChangeAddress, stakingAsset])
 
   const changeAddressTx = useAppSelector(gs => selectTxById(gs, serializedChangeAddressTxIndex))
   const isChangeAddressTxPending = useMemo(

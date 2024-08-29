@@ -109,7 +109,6 @@ export const handleSend = async ({
   if (!asset) return ''
 
   const chainId = asset.chainId
-  await checkLedgerAppOpenIfLedgerConnected(chainId)
   const supportedEvmChainIds = getSupportedEvmChainIds()
 
   const acccountMetadataFilter = { accountId: sendInput.accountId }

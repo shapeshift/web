@@ -266,12 +266,23 @@ export type GetAddressInputBase = {
    * Request that the address be shown to the user by the device, if supported
    */
   showOnDevice?: boolean
-  /**
-   * An optional public key to be passed, which will bypass the HD wallet derivation
-   * and instead use unchained to "derive" the address from the public key
-   */
-  pubKey?: string
-}
+} & (
+  | {
+      /**
+       * An optional public key to be passed, which will bypass the HD wallet derivation
+       * and instead use unchained to "derive" the address from the public key
+       */
+      pubKey: string
+      checkLedgerAppOpenIfLedgerConnected?: never
+    }
+  | {
+      /**
+       * If no pubKey is passed, check if the Ledger device app is open before deriving the address on-device
+       */
+      checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
+      pubKey?: never
+    }
+)
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
 

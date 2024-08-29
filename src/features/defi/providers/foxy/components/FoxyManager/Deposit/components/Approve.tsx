@@ -112,8 +112,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleApprove: wallet does not support ethereum`)
 
-      await checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
-
       await foxyApi.approve({
         tokenContractAddress: assetReference,
         contractAddress,

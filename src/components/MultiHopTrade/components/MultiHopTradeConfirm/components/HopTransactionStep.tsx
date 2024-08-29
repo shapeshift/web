@@ -16,7 +16,6 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
@@ -56,8 +55,6 @@ export const HopTransactionStep = ({
   } = useLocaleFormatter()
   const translate = useTranslate()
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId,
@@ -73,23 +70,14 @@ export const HopTransactionStep = ({
 
   const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
-  const handleSignTx = useCallback(async () => {
+  const handleSignTx = useCallback(() => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
       console.error('attempted to execute in-progress swap')
       return
     }
 
-    // Only proceed to execute the trade if the promise is resolved, i.e the user has opened the
-    // Ledger app without cancelling
-    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
-      .then(() => executeTrade())
-      .catch(console.error)
-  }, [
-    checkLedgerAppOpenIfLedgerConnected,
-    executeTrade,
-    swapTxState,
-    tradeQuoteStep.sellAsset.chainId,
-  ])
+    return executeTrade()
+  }, [executeTrade, swapTxState])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,

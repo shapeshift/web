@@ -86,8 +86,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleDeposit: wallet does not support ethereum`)
 
-      await checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
-
       const txid = await foxyApi.deposit({
         amountDesired: bnOrZero(state?.deposit.cryptoAmount)
           .times(bn(10).pow(asset.precision))

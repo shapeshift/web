@@ -21,7 +21,6 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from 'state/slices/selectors'
@@ -44,7 +43,6 @@ const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='me
 export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confirmedQuote }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const {
     sellAsset,
@@ -109,26 +107,15 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     history.push(StakeRoutePaths.Input)
   }, [history])
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!feeAsset) return
 
     if (isApprovalRequired) {
-      return checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
-        .then(() => {
-          handleApprove()
-        })
-        .catch(console.error)
+      await handleApprove()
     }
 
     history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
-  }, [
-    confirmedQuote,
-    history,
-    feeAsset,
-    checkLedgerAppOpenIfLedgerConnected,
-    handleApprove,
-    isApprovalRequired,
-  ])
+  }, [confirmedQuote, history, feeAsset, handleApprove, isApprovalRequired])
 
   const bridgeCard = useMemo(() => {
     if (!(sellAsset && buyAsset)) return null

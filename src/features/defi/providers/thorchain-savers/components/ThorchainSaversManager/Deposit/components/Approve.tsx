@@ -159,8 +159,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
       const adapter = assertGetEvmChainAdapter(chainId)
 
-      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
-
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,
         from: fromAccountId(accountId).account,

@@ -85,8 +85,6 @@ export const useFoxFarming = (
           wallet,
         })
 
-        await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
@@ -132,8 +130,6 @@ export const useFoxFarming = (
           value: '0',
           wallet,
         })
-
-        await checkLedgerAppOpenIfLedgerConnected(ethChainId)
 
         const txid = await buildAndBroadcast({
           adapter,
@@ -282,8 +278,6 @@ export const useFoxFarming = (
     const fees = await getApproveFees()
     if (!fees) return
 
-    await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
     const txid = await buildAndBroadcast({
       adapter,
       receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
@@ -325,8 +319,6 @@ export const useFoxFarming = (
       value: '0',
       wallet,
     })
-
-    await checkLedgerAppOpenIfLedgerConnected(ethChainId)
 
     const txid = await buildAndBroadcast({
       adapter,

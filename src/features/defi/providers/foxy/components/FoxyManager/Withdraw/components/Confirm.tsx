@@ -90,8 +90,6 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleConfirm: wallet does not support ethereum`)
 
-      await checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
-
       const txid = await foxyApi.withdraw({
         tokenContractAddress: rewardId,
         userAddress: accountAddress,

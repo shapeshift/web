@@ -71,7 +71,6 @@ export const useStakingAction = () => {
 
       const { accountNumber } = bip44Params
 
-      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
       const address = await adapter.getAddress({ accountNumber, wallet })
       const { txToSign, receiverAddress } = await (async () => {
         switch (action) {

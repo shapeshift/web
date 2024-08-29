@@ -609,10 +609,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       accountNumber: poolAssetAccountNumber,
       checkLedgerAppOpenIfLedgerConnected,
     }),
-    onMutate: async () => {
-      if (!poolAsset) return
-      await checkLedgerAppOpenIfLedgerConnected(poolAsset.chainId)
-    },
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
     },

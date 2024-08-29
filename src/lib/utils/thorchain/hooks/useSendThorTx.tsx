@@ -273,8 +273,6 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(asset.assetId) && !inboundAddressData) return
 
-    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
-
     if (
       action !== 'withdrawRunepool' &&
       !shouldUseDustAmount &&

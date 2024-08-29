@@ -19,7 +19,6 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { fromBaseUnit } from 'lib/math'
@@ -123,7 +122,6 @@ const ApprovalStepPending = ({
   // Default to exact allowance for LiFi due to contract vulnerabilities
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(isLifiStep ? true : false)
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId,
@@ -160,10 +158,7 @@ const ApprovalStepPending = ({
   }, [isAllowanceResetStep, state])
 
   const handleSignAllowanceApproval = useCallback(async () => {
-    // Only proceed to execute the approval if the promise is resolved, i.e the user has opened the
-    // Ledger app without cancelling
     try {
-      await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
       setFeeQueryEnabled(false)
       await approveMutation.mutateAsync()
     } catch (error) {
@@ -171,7 +166,7 @@ const ApprovalStepPending = ({
     } finally {
       setFeeQueryEnabled(true)
     }
-  }, [approveMutation, checkLedgerAppOpenIfLedgerConnected, tradeQuoteStep.sellAsset.chainId])
+  }, [approveMutation])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId),

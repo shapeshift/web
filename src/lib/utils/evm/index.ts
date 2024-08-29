@@ -125,6 +125,7 @@ export const buildAndBroadcast = async ({
   receiverAddress,
   checkLedgerAppOpenIfLedgerConnected,
 }: BuildAndBroadcastArgs) => {
+  await checkLedgerAppOpenIfLedgerConnected(adapter.getChainId())
   const senderAddress = await adapter.getAddress(buildCustomTxInput)
   const { txToSign } = await adapter.buildCustomTx(buildCustomTxInput)
 

@@ -202,8 +202,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId0OrWeth).chainId)
-
         const maybeEthAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
           if (assetId1OrWeth === wethAssetId) return token1Amount
@@ -329,8 +327,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId0OrWeth).chainId)
-
         const data = makeRemoveLiquidityData({
           asset0ContractAddress,
           asset1ContractAddress,
@@ -367,7 +363,6 @@ export const useUniV2LiquidityPool = ({
       uniswapRouterContract,
       wallet,
       checkLedgerAppOpenIfLedgerConnected,
-      assetId0OrWeth,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
@@ -605,9 +600,6 @@ export const useUniV2LiquidityPool = ({
   const approveAsset = useCallback(
     async (contractAddress: Address) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
-
-      // UNI-V2 is hardcoded to Ethereum Mainnet
-      await checkLedgerAppOpenIfLedgerConnected(ethChainId)
 
       const contract = getOrCreateContractByType({
         address: contractAddress,

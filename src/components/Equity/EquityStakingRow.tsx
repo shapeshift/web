@@ -12,7 +12,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, type OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
@@ -87,6 +87,10 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       },
       assets,
     )
+
+    if (provider === DefiProvider.rFOX) {
+      return history.push('/rfox')
+    }
 
     history.push({
       pathname: location.pathname,

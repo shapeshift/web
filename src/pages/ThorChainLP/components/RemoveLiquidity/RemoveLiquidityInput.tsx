@@ -825,9 +825,9 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [isSnapInstalled, runeAccountIds, wallet],
   )
 
-  const isUnsupportedSymWithdraw = useMemo(
-    () => withdrawType === 'sym' && !walletSupportsRune,
-    [withdrawType, walletSupportsRune],
+  const isUnsupportedWithdraw = useMemo(
+    () => currentAccountIdByChainId[thorchainChainId] && !walletSupportsRune,
+    [currentAccountIdByChainId, walletSupportsRune],
   )
 
   const hasEnoughPoolAssetFeeAssetBalanceForTx = useMemo(() => {
@@ -901,7 +901,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   ])
 
   const errorCopy = useMemo(() => {
-    if (isUnsupportedSymWithdraw) return translate('common.unsupportedNetwork')
+    if (isUnsupportedWithdraw) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
@@ -918,7 +918,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     hasEnoughRuneBalanceForTx,
     isThorchainLpWithdrawEnabled,
     isTradingActive,
-    isUnsupportedSymWithdraw,
+    isUnsupportedWithdraw,
     poolAssetFeeAsset,
     runeAsset,
     translate,
@@ -926,7 +926,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
     if (!poolAsset || !runeAsset) return null
-    if (!isUnsupportedSymWithdraw) return null
+    if (!isUnsupportedWithdraw) return null
 
     return (
       <Alert status='error' mx={-2} width='auto'>
@@ -936,7 +936,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
         </AlertDescription>
       </Alert>
     )
-  }, [isUnsupportedSymWithdraw, poolAsset, runeAsset, translate])
+  }, [isUnsupportedWithdraw, poolAsset, runeAsset, translate])
 
   const confirmCopy = useMemo(() => {
     if (errorCopy) return errorCopy
@@ -1074,7 +1074,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
             colorScheme={errorCopy ? 'red' : 'blue'}
             onClick={handleSubmitIntent}
             isDisabled={
-              isUnsupportedSymWithdraw ||
+              isUnsupportedWithdraw ||
               isTradingActive === false ||
               !isThorchainLpWithdrawEnabled ||
               !hasEnoughPoolAssetFeeAssetBalanceForTx ||

@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import {
   DefiAction,
   DefiTypeDisplayName,
@@ -76,11 +76,11 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, assetId),
   )
 
-  const { cryptoAmountPrecision, fiatAmount } = useMemo(() => {
+  const { amountCryptoPrecision, amountUserCurrency } = useMemo(() => {
     if (!opportunity || !asset || !assetMarketData)
       return {
-        cryptoAmountPrecision: '0',
-        fiatAmount: '0',
+        amountCryptoPrecision: '0',
+        amountUserCurrency: '0',
       }
 
     const underlyingAssetBalance = underlyingAssetsWithBalancesAndIcons?.find(
@@ -89,15 +89,16 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
 
     if (!underlyingAssetBalance && underlyingAsset)
       return {
-        cryptoAmountPrecision: bnOrZero(opportunity.cryptoAmountBaseUnit)
-          .div(bn(10).pow(underlyingAsset?.precision ?? asset.precision))
-          .toFixed(underlyingAsset?.precision ?? asset.precision),
-        fiatAmount: opportunity.fiatAmount,
+        amountCryptoPrecision: fromBaseUnit(
+          opportunity.cryptoAmountBaseUnit,
+          underlyingAsset.precision,
+        ),
+        amountUserCurrency: opportunity.fiatAmount,
       }
 
     return {
-      cryptoAmountPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).toFixed(),
-      fiatAmount: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision)
+      amountCryptoPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).toFixed(),
+      amountUserCurrency: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision)
         .times(assetMarketData.price)
         .toFixed(),
     }
@@ -159,7 +160,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     <EquityRow
       accountId={accountId}
       onClick={handleClick}
-      fiatAmount={fiatAmount}
+      fiatAmount={amountUserCurrency}
       totalFiatBalance={totalFiatBalance}
       color={color}
       icon={getMetadataForProvider(opportunity.provider)?.icon}
@@ -168,7 +169,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       apy={opportunity.apy}
       isLoading={isLoading}
-      cryptoBalancePrecision={cryptoAmountPrecision}
+      cryptoBalancePrecision={amountCryptoPrecision}
     />
   )
 }

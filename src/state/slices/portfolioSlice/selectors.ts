@@ -966,7 +966,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     if (!assetId) return []
     const asset = assets[assetId]
     const accounts = accountIds.map(accountId => {
-      const userCurrencyAmount = bnOrZero(
+      const amountUserCurrency = bnOrZero(
         portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
       const cryptoAmountBaseUnit = bnOrZero(
@@ -979,14 +979,14 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       return {
         id: accountId,
         type: AssetEquityType.Account,
-        fiatAmount: userCurrencyAmount,
+        amountUserCurrency,
         provider: 'wallet',
         amountCryptoPrecision,
         color: asset?.color,
       }
     })
     const staking = stakingOpportunities.map(stakingOpportunity => {
-      const { amountCryptoPrecision, fiatAmount } = (() => {
+      const { amountCryptoPrecision, amountUserCurrency } = (() => {
         const underlyingAssetIndex = stakingOpportunity.underlyingAssetIds.findIndex(
           assetId => assetId === asset?.assetId,
         )
@@ -998,25 +998,25 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
           underlyingAssetPrecision ?? 0,
         )
 
-        const amountCryptoBaseUnit = bnOrZero(totalCryptoAmountPrecision)
+        const underlyingAssetAmountCryptobaseUnit = bnOrZero(totalCryptoAmountPrecision)
           .multipliedBy(stakingOpportunity.underlyingAssetRatiosBaseUnit[underlyingAssetIndex])
           .toFixed()
 
-        const amountCryptoPrecision = fromBaseUnit(
-          bnOrZero(amountCryptoBaseUnit),
+        const underlyingAssetAmountCryptoPrecision = fromBaseUnit(
+          bnOrZero(underlyingAssetAmountCryptobaseUnit),
           asset?.precision ?? 0,
         )
 
         if (!stakingOpportunity.underlyingAssetWeightPercentageDecimal) {
           return {
-            amountCryptoPrecision,
-            fiatAmount: stakingOpportunity.fiatAmount,
+            amountCryptoPrecision: underlyingAssetAmountCryptoPrecision,
+            amountUserCurrency: stakingOpportunity.fiatAmount,
           }
         }
 
         return {
-          amountCryptoPrecision,
-          fiatAmount: bnOrZero(stakingOpportunity.fiatAmount)
+          amountCryptoPrecision: underlyingAssetAmountCryptoPrecision,
+          amountUserCurrency: bnOrZero(stakingOpportunity.fiatAmount)
             .multipliedBy(
               stakingOpportunity.underlyingAssetWeightPercentageDecimal[underlyingAssetIndex],
             )
@@ -1027,7 +1027,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       return {
         id: stakingOpportunity.id,
         type: AssetEquityType.Staking,
-        fiatAmount,
+        amountUserCurrency,
         amountCryptoPrecision,
         underlyingAssetId: stakingOpportunity.underlyingAssetId,
         provider: stakingOpportunity.provider,
@@ -1050,7 +1050,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       return {
         id: lpOpportunity.id,
         type: AssetEquityType.LP,
-        fiatAmount: underlyingBalances[assetId].fiatAmount,
+        amountUserCurrency: underlyingBalances[assetId].fiatAmount,
         amountCryptoPrecision: underlyingBalances[assetId].cryptoBalancePrecision,
         provider: lpOpportunity.provider,
         color:
@@ -1062,7 +1062,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
     return accounts
       .concat(lp)
       .concat(staking)
-      .sort((a, b) => bnOrZero(b.fiatAmount).minus(a.fiatAmount).toNumber())
+      .sort((a, b) => bnOrZero(b.amountUserCurrency).minus(a.amountUserCurrency).toNumber())
   },
 )
 
@@ -1075,7 +1075,7 @@ export const selectEquityTotalBalance = createDeepEqualOutputSelector(
     }
     return assetEquities.reduce(
       (sum, item) => ({
-        fiatAmount: bnOrZero(item.fiatAmount).plus(bnOrZero(sum.fiatAmount)).toString(),
+        fiatAmount: bnOrZero(item.amountUserCurrency).plus(bnOrZero(sum.fiatAmount)).toString(),
         amountCryptoPrecision: bnOrZero(item.amountCryptoPrecision)
           .plus(bnOrZero(sum.amountCryptoPrecision))
           .toString(),

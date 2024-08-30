@@ -200,7 +200,7 @@ export async function getPortalsTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: bnOrZero(slippageTolerancePercentage).div(100).toString(),
+      slippageTolerancePercentageDecimal: bnOrZero(slippageTolerancePercentage).div(100).toFixed(2), // Portals API allows for maximum 2 decimal places
       steps: [
         {
           accountNumber,

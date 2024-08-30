@@ -273,14 +273,14 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(asset.assetId) && !inboundAddressData) return
 
+    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+
     if (
       action !== 'withdrawRunepool' &&
       !shouldUseDustAmount &&
       !bn(amountOrDustCryptoBaseUnit).gt(0)
     )
       throw new Error('invalid amount specified')
-
-    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
 
     const { account } = fromAccountId(accountId)
 
@@ -374,6 +374,7 @@ export const useSendThorTx = ({
           const _txId = await handleSend({
             sendInput,
             wallet,
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           return {

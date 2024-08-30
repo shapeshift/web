@@ -18,6 +18,7 @@ import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
+  selectIsAccountMetadataLoading,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
@@ -89,6 +90,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
 
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
@@ -115,6 +117,15 @@ export const ConfirmSummary = ({
     buyAsset.chainId,
     buyAsset.assetId,
   ])
+
+  const displayManualAddressEntry = useMemo(() => {
+    if (isAccountMetadataLoading) return false
+    if (!walletSupportsBuyAssetChain) return true
+    if (disableThorNativeSmartContractReceive) return true
+
+    return false
+  }, [walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive, isAccountMetadataLoading])
+
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
@@ -126,6 +137,7 @@ export const ConfirmSummary = ({
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
+      isAccountMetadataLoading ||
       // don't allow executing a quote with errors
       quoteHasError ||
       // don't execute trades while address is validating
@@ -155,6 +167,7 @@ export const ConfirmSummary = ({
     hasUserEnteredAmount,
     activeSwapperName,
     isTradeQuoteApiQueryPending,
+    isAccountMetadataLoading,
   ])
 
   const quoteStatusTranslation = useMemo(() => {
@@ -162,6 +175,8 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
+      case isAccountMetadataLoading:
+        return 'common.accountsLoading'
       case !isAnyTradeQuoteLoaded:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
@@ -185,6 +200,7 @@ export const ConfirmSummary = ({
     hasUserEnteredAmount,
     isConnected,
     isDemoWallet,
+    isAccountMetadataLoading,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {
@@ -280,7 +296,7 @@ export const ConfirmSummary = ({
           component={RecipientAddress}
         />
         <WithLazyMount
-          shouldUse={!walletSupportsBuyAssetChain || disableThorNativeSmartContractReceive === true}
+          shouldUse={displayManualAddressEntry}
           shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}

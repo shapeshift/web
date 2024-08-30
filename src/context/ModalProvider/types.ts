@@ -41,18 +41,21 @@ export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModal
 
 export type OpenModalType<T extends keyof Modals> = {
   type: typeof OPEN_MODAL
+  key: T
   props: ModalProps<T>
 }
 
 export type CloseModalType = {
   type: typeof CLOSE_MODAL
+  key: keyof Modals
 }
-
 export type ModalProps<T extends keyof Modals> = React.ComponentProps<Modals[T]>
 
-export type ModalState<T extends keyof Modals> = {
-  props?: ModalProps<T>
-  isOpen: boolean
+export type ModalState = {
+  [K in keyof Modals]: {
+    isOpen: boolean
+    props?: ModalProps<K>
+  }
 }
 
 export type BaseProps<T extends keyof Modals> = {
@@ -62,4 +65,8 @@ export type BaseProps<T extends keyof Modals> = {
   close: () => void
 }
 
-export type ModalContext = { [key in keyof Modals]: React.Context<BaseProps<key>> }
+export type ModalContextType = {
+  state: ModalState
+  openModal: <T extends keyof Modals>(key: T, props: ModalProps<T>) => void
+  closeModal: (key: keyof Modals) => void
+}

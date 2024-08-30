@@ -70,7 +70,11 @@ export const rFOXStakingMetadataResolver = async ({
         type: DefiType.Staking,
         underlyingAssetId: foxOnArbitrumOneAssetId,
         underlyingAssetIds,
-        underlyingAssetRatiosBaseUnit: ['1'] as const,
+        underlyingAssetRatiosBaseUnit: [
+          bn(1)
+            .times(bn(10).pow(stakingAsset?.precision ?? 0))
+            .toString(),
+        ] as const,
         expired: false,
         name: 'rFOX',
         apy: undefined,

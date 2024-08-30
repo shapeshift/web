@@ -529,6 +529,7 @@ export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = cre
     bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)).times(100).toString(),
 )
 
+// Returns the trade slippage in priority order: user preference (override), quote derived, default
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
   selectActiveSwapperName,
   selectQuoteSlippageTolerancePercentageDecimal,

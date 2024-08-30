@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
@@ -30,6 +31,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isNonEmptyString } from 'lib/utils'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -155,7 +157,11 @@ export const Confirm = () => {
             <Row.Label>
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
-            <Row.Value>{vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}</Row.Value>
+            <Row.Value>
+              <InlineCopyButton value={isNonEmptyString(vanityAddress) ? vanityAddress : to}>
+                {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
+              </InlineCopyButton>
+            </Row.Value>
           </Row>
           {allowCustomSendNonce && (
             <Row>

@@ -5,6 +5,7 @@ import { CopyButton } from 'plugins/walletConnectToDapps/components/modals/CopyB
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SanitizedHtml } from 'components/SanitizedHtml/SanitizedHtml'
@@ -66,26 +67,28 @@ export const NftOverview: React.FC<NftOverviewProps> = ({ nftItem }) => {
             <Row>
               <Row.Label>{translate('nft.address')}</Row.Label>
               <Row.Value>
-                <Button
-                  as={Link}
-                  isExternal
-                  href={maybeCollectionLink}
-                  variant='ghost'
-                  colorScheme='blue'
-                  bg='transparent'
-                  fontWeight='normal'
-                  fontFamily='monospace'
-                  onClick={handlellipsisAddressClick}
-                  mt={1}
-                  p={0}
-                  height='auto'
-                  fontSize='inherit'
-                  _hover={ellipsisAddressHover}
-                  display='flex'
-                  alignItems='center'
-                >
-                  <MiddleEllipsis value={address} />
-                </Button>
+                <InlineCopyButton value={address}>
+                  <Button
+                    as={Link}
+                    isExternal
+                    href={maybeCollectionLink}
+                    variant='ghost'
+                    colorScheme='blue'
+                    bg='transparent'
+                    fontWeight='normal'
+                    fontFamily='monospace'
+                    onClick={handlellipsisAddressClick}
+                    mt={1}
+                    p={0}
+                    height='auto'
+                    fontSize='inherit'
+                    _hover={ellipsisAddressHover}
+                    display='flex'
+                    alignItems='center'
+                  >
+                    <MiddleEllipsis value={address} />
+                  </Button>
+                </InlineCopyButton>
               </Row.Value>
             </Row>
           )}

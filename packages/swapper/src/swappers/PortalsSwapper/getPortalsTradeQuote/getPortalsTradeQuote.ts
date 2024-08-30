@@ -131,7 +131,7 @@ export async function getPortalsTradeQuote(
       const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
       const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
 
-      const maybeGasLimit = await fetchPortalsTradeOrder({
+      const dummyOrderResponse = await fetchPortalsTradeOrder({
         sender: dummyQuoteParams.accountAddress,
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
@@ -142,7 +142,10 @@ export async function getPortalsTradeQuote(
         validate: true,
         swapperConfig,
       })
-        .then(({ context }) => context.gasLimit)
+        .then(({ context }) => ({
+          maybeGasLimit: context.gasLimit,
+          autoSlippageTolerancePercentage: context.slippageTolerancePercentage,
+        }))
         .catch(e => {
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
           return undefined
@@ -153,14 +156,17 @@ export async function getPortalsTradeQuote(
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage: maybeSlippageTolerancePercentageOverride,
+        slippageTolerancePercentage:
+          maybeSlippageTolerancePercentageOverride ??
+          dummyOrderResponse?.autoSlippageTolerancePercentage,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,
         swapperConfig,
       })
 
-      if (maybeGasLimit) order.context.gasLimit = maybeGasLimit
+      if (dummyOrderResponse?.maybeGasLimit)
+        order.context.gasLimit = dummyOrderResponse.maybeGasLimit
       return order
     })
 
@@ -194,13 +200,17 @@ export async function getPortalsTradeQuote(
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
 
+    const slippageTolerancePercentageDecimal = bnOrZero(slippageTolerancePercentage)
+      .div(100)
+      .toString()
+
     const tradeQuote: TradeQuote = {
       id: orderId,
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: bnOrZero(slippageTolerancePercentage).div(100).toFixed(2), // Portals API allows for maximum 2 decimal places
+      slippageTolerancePercentageDecimal,
       steps: [
         {
           accountNumber,

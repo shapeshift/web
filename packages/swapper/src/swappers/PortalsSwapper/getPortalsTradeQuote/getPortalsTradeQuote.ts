@@ -200,7 +200,7 @@ export async function getPortalsTradeQuote(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: (slippageTolerancePercentage / 100).toString(),
+      slippageTolerancePercentageDecimal: bnOrZero(slippageTolerancePercentage).div(100).toString(),
       steps: [
         {
           accountNumber,

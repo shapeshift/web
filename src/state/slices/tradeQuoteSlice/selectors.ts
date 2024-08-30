@@ -244,18 +244,18 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
 export const selectQuoteSlippageTolerancePercentageDecimal: Selector<
   ReduxState,
   string | undefined
-> = createSelector(
-  selectActiveQuote,
-  activeQuote => activeQuote?.slippageTolerancePercentageDecimal,
-)
+> = createSelector(selectActiveQuote, activeQuote => {
+  return activeQuote?.slippageTolerancePercentageDecimal
+})
 
 export const selectQuoteSlippageTolerancePercentage: Selector<ReduxState, string | undefined> =
   createSelector(
     selectQuoteSlippageTolerancePercentageDecimal,
-    slippageTolerancePercentageDecimal =>
-      slippageTolerancePercentageDecimal
+    slippageTolerancePercentageDecimal => {
+      return slippageTolerancePercentageDecimal
         ? bn(slippageTolerancePercentageDecimal).times(100).toString()
-        : undefined,
+        : undefined
+    },
   )
 
 export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefined> = createSelector(

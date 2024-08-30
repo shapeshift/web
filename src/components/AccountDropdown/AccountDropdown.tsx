@@ -29,6 +29,7 @@ import sortBy from 'lodash/sortBy'
 import React, { type FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
@@ -315,6 +316,30 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!isValidAccountNumber(accountNumber)) return null
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
+
+    if (isDropdownDisabled) {
+      return (
+        <Flex width='full' alignItems='center' justifyContent='space-between' fontSize='sm'>
+          {label ? (
+            label
+          ) : (
+            <>
+              <RawText fontWeight='medium'>
+                {translate('accounts.accountNumber', { accountNumber })}
+              </RawText>
+              {showLabel && (
+                // @TODO: Need to get the full address here
+                <InlineCopyButton value={accountLabel}>
+                  <Text fontWeight='medium' color='text.subtle'>
+                    {accountLabel}
+                  </Text>
+                </InlineCopyButton>
+              )}
+            </>
+          )}
+        </Flex>
+      )
+    }
 
     return (
       <Box px={2} my={2} {...boxProps}>

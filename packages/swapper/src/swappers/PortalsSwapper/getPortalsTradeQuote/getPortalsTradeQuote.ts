@@ -215,7 +215,7 @@ export async function getPortalsTradeQuote(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit,
-            // Protocol fees are always denominated in buy asset here, this is the downside on the swap
+            // Protocol fees are always denominated in sell asset here
             protocolFees: {
               [sellAsset.assetId]: {
                 amountCryptoBaseUnit: feeAmount,

@@ -1,12 +1,6 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import {
-  fromAccountId,
-  fromAssetId,
-  thorchainAssetId,
-  toAssetId,
-  usdtAssetId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -30,6 +24,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
+import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -37,11 +32,7 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import {
-  assertGetEvmChainAdapter,
-  getErc20Allowance,
-  getFeesWithWalletEIP1559Support,
-} from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
@@ -84,19 +75,14 @@ type DepositProps = StepComponentProps & {
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
 
-enum APPROVAL_REQUIRED_TYPE {
-  APPROVE = 'APPROVE',
-  RESET = 'RESET',
-}
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
   fromAddress,
   onNext,
 }) => {
-  const [isApprovalRequired, setIsApprovalRequired] = useState<APPROVAL_REQUIRED_TYPE | false>(
-    false,
-  )
+  // Redeclared here as state field because of chicken-and-egg issues
+  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean | undefined>(false)
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
 
   const toast = useToast()
@@ -216,43 +202,18 @@ export const Deposit: React.FC<DepositProps> = ({
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
+  const { isAllowanceResetRequired, isApprovalRequired: _isApprovalRequired } =
+    useIsApprovalRequired({
+      assetId,
+      // TODO(gomes): consolidate
+      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
+      spender: inboundAddress,
+      from: accountId ? fromAccountId(accountId).account : undefined,
+    })
+
   useEffect(() => {
-    if (!accountId) return
-    ;(async () => {
-      const approvalRequiredType = await (async () => {
-        // Router contract address is only set in case we're depositting a token, not a native asset
-        if (!inboundAddress) return false
-        // Do not try to get allowance for native assets, including non-EVM ones.
-        if (!isTokenDeposit) return false
-
-        const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
-          address: fromAssetId(assetId).assetReference,
-          spender: inboundAddress,
-          from: fromAccountId(accountId).account,
-          chainId: asset.chainId,
-        })
-
-        const cryptoAmountBaseUnit = toBaseUnit(inputValues?.cryptoAmount, asset.precision)
-
-        if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return APPROVAL_REQUIRED_TYPE.APPROVE
-        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit))
-          return assetId === usdtAssetId
-            ? APPROVAL_REQUIRED_TYPE.RESET
-            : APPROVAL_REQUIRED_TYPE.APPROVE
-
-        return false
-      })()
-      setIsApprovalRequired(approvalRequiredType)
-    })()
-  }, [
-    accountId,
-    asset.chainId,
-    asset.precision,
-    assetId,
-    inputValues,
-    inboundAddress,
-    isTokenDeposit,
-  ])
+    setIsApprovalRequired(_isApprovalRequired)
+  }, [_isApprovalRequired, setIsApprovalRequired])
 
   // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
   // the current workaround is to not do fee deduction for non-UTXO chains,
@@ -343,7 +304,12 @@ export const Deposit: React.FC<DepositProps> = ({
         }
 
         const approvalFees = await (() => {
-          if (!isApprovalRequired || !inboundAddress || accountNumber === undefined || !wallet)
+          if (
+            !(isApprovalRequired || isAllowanceResetRequired) ||
+            !inboundAddress ||
+            accountNumber === undefined ||
+            !wallet
+          )
             return undefined
 
           const contract = getOrCreateContractByType({
@@ -356,10 +322,7 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [
-              getAddress(inboundAddress),
-              isApprovalRequired === APPROVAL_REQUIRED_TYPE.APPROVE ? maxUint256 : 0n,
-            ],
+            args: [getAddress(inboundAddress), isAllowanceResetRequired ? 0n : maxUint256],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)
@@ -384,11 +347,7 @@ export const Deposit: React.FC<DepositProps> = ({
             },
           })
 
-          onNext(
-            isApprovalRequired === APPROVAL_REQUIRED_TYPE.APPROVE
-              ? DefiStep.Approve
-              : DefiStep.AllowanceReset,
-          )
+          onNext(isAllowanceResetRequired ? DefiStep.AllowanceReset : DefiStep.Approve)
           return
         }
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)
@@ -427,6 +386,7 @@ export const Deposit: React.FC<DepositProps> = ({
       isSweepNeeded,
       assetId,
       assets,
+      isAllowanceResetRequired,
       inboundAddress,
       accountNumber,
       wallet,

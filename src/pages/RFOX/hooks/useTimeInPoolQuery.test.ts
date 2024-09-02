@@ -1,8 +1,8 @@
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import type { GetBlockReturnType } from 'viem'
 import { arbitrum } from 'viem/chains'
 import { describe, expect, it, vi } from 'vitest'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import type { RFOXAccountLog } from '../types'
 import { getTimeInPoolSeconds } from './useTimeInPoolQuery'

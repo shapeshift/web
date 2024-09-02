@@ -1,4 +1,8 @@
-import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import {
+  foxStakingV1Abi,
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { useMemo } from 'react'
@@ -7,7 +11,6 @@ import { getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 type GetUnstakingRequestCountQueryKey = ReadContractQueryKey<
   typeof foxStakingV1Abi,

@@ -1,7 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
@@ -20,7 +19,6 @@ import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
@@ -72,8 +70,6 @@ export const swapperApi = createApi({
           assertGetEvmChainAdapter,
           assertGetUtxoChainAdapter,
           assertGetCosmosSdkChainAdapter,
-          getEthersV5Provider,
-          viemClientByChainId,
           config: getConfig(),
         }
 

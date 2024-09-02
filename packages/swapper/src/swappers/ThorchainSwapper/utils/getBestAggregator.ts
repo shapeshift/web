@@ -1,3 +1,4 @@
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
@@ -6,7 +7,6 @@ import assert from 'assert'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 
-import type { SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import {
@@ -23,13 +23,12 @@ import {
 } from './longTailHelpers'
 
 export const getBestAggregator = async (
-  deps: SwapperDeps,
   buyAsset: Asset,
   sellToken: Token,
   buyToken: Token,
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string,
 ) => {
-  const publicClient = deps.viemClientByChainId[buyAsset.chainId as EvmChainId]
+  const publicClient = viemClientByChainId[buyAsset.chainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${buyAsset.chainId}'`)
 
   const poolAddresses: Map<

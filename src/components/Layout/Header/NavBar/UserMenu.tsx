@@ -12,6 +12,7 @@ import {
   MenuList,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
@@ -26,7 +27,6 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { viemEthMainnetClient } from 'lib/viem-client'
 
 export const entries = [WalletConnectedRoutes.Connected]
 

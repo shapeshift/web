@@ -1,4 +1,5 @@
 import { ethChainId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -54,11 +55,10 @@ export const getLongtailToL1Quote = async (
   }
 
   // TODO: use more than just UniswapV3, and also consider trianglar routes.
-  const publicClient = deps.viemClientByChainId[sellChainId as EvmChainId]
+  const publicClient = viemClientByChainId[sellChainId as EvmChainId]
   assert(publicClient !== undefined, `no public client found for chainId '${sellChainId}'`)
 
   const maybeBestAggregator = await getBestAggregator(
-    deps,
     buyAssetFeeAsset,
     getTokenFromAsset(sellAsset),
     getWrappedToken(buyAssetFeeAsset),

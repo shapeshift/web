@@ -2,6 +2,7 @@ import { getStepTransaction } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { getContract } from 'viem'
 
@@ -37,7 +38,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       throw new Error('getStepTransaction failed')
     }
 
-    const publicClient = deps.viemClientByChainId[chainId as EvmChainId]
+    const publicClient = viemClientByChainId[chainId as EvmChainId]
 
     const abi = [
       {

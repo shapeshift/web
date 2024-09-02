@@ -1,10 +1,10 @@
 import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getContract } from 'viem'
 import { describe, expect, it, vi } from 'vitest'
-import { viemEthMainnetClient } from 'lib/viem-client'
 import { TRADING_FEE_RATE } from 'state/slices/opportunitiesSlice/resolvers/uniV2/constants'
 import {
   calculateAPRFromToken0,

@@ -7,10 +7,9 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
-import type { EvmChainId } from '@shapeshiftoss/types'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable, bn } from '@shapeshiftoss/utils'
-import type { ethers as ethersV5 } from 'ethers5'
 import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
@@ -25,7 +24,6 @@ export type FetchArbitrumBridgeSwapInput = {
   sellAsset: Asset
   sendAddress: string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
@@ -42,7 +40,6 @@ export const fetchArbitrumBridgeSwap = async ({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-  getEthersV5Provider,
 }: FetchArbitrumBridgeSwapInput): Promise<{
   request:
     | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>

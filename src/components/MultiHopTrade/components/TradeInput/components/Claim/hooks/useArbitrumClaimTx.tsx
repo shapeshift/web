@@ -1,6 +1,6 @@
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { getEthersV5Provider, outboxAbi } from '@shapeshiftoss/contracts'
+import { assertGetViemClient, getEthersV5Provider, outboxAbi } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -14,7 +14,6 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { assertGetViemClient } from 'lib/viem-client'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

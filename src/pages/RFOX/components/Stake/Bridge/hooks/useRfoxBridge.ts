@@ -1,7 +1,7 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero, CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { getEthersV5Provider } from '@shapeshiftoss/contracts'
+import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
@@ -27,7 +27,6 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

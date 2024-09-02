@@ -1,4 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -11,7 +12,6 @@ import {
 } from 'hooks/queries/useApprovalFees'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetViemClient } from 'lib/viem-client'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'

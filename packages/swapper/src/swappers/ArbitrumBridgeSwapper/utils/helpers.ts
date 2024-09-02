@@ -1,10 +1,9 @@
 import { Erc20Bridger, getArbitrumNetwork } from '@arbitrum/sdk'
 import { arbitrumAssetId, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/types'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { Err, Ok } from '@sniptt/monads/build'
-import type { ethers as ethersV5 } from 'ethers5'
 import { getAddress, isAddressEqual } from 'viem'
 import { arbitrum } from 'viem/chains'
 
@@ -17,11 +16,9 @@ import { arbitrumBridgeSupportedChainIds } from './types'
 export const assertValidTrade = async ({
   buyAsset,
   sellAsset,
-  getEthersV5Provider,
 }: {
   buyAsset: Asset
   sellAsset: Asset
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }): Promise<Result<boolean, SwapErrorRight>> => {
   if (
     !arbitrumBridgeSupportedChainIds.includes(

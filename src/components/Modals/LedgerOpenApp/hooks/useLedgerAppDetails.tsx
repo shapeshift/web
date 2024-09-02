@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
@@ -50,7 +50,7 @@ export const useLedgerAppDetails = (chainId: ChainId) => {
     return getLedgerAppName(chainId)
   }, [chainId])
   const appAsset = useMemo(() => {
-    if (isEvmChainId(chainId)) return ethAsset
+    if (evm.isEvmChainId(chainId)) return ethAsset
     return feeAsset
   }, [feeAsset, chainId, ethAsset])
 

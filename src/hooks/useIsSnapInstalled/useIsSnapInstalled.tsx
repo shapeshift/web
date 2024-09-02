@@ -1,7 +1,7 @@
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
@@ -187,7 +187,7 @@ export const canAddMetaMaskAccount = ({
   // MM doesn't support multi-account for EVM chains, regardless of snap installation
   // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
   // Trying to derive an account 0+ will always return the 0th account
-  if (isEvmChainId(chainId)) return false
+  if (evm.isEvmChainId(chainId)) return false
 
   if (
     // Cosmos SDK chains account derivation > 0 is rugged for snaps and always return the 0th account, similar to the rug for EVM chains above

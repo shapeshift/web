@@ -1,5 +1,5 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
@@ -104,7 +104,7 @@ export const ConfirmSummary = ({
     if (
       activeSwapperName === SwapperName.Thorchain &&
       _isSmartContractReceiveAddress &&
-      isEvmChainId(buyAsset.chainId) &&
+      evm.isEvmChainId(buyAsset.chainId) &&
       buyAsset.assetId === buyAssetFeeAsset?.assetId
     )
       return true

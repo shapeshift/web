@@ -1,5 +1,5 @@
 import { CHAIN_NAMESPACE, type ChainId, isChainReference, toChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -26,7 +26,7 @@ export const useEvm = () => {
       return (
         chainId !== undefined &&
         supportedEvmChainIds.includes(chainId as KnownChainIds) &&
-        isEvmChainId(chainId)
+        evm.isEvmChainId(chainId)
       )
     },
     [supportedEvmChainIds],

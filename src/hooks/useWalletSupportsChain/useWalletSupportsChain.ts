@@ -16,7 +16,7 @@ import {
   polygonChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -63,7 +63,7 @@ export const walletSupportsChain = ({
   // e.g MM without snaps installed
   const hasRuntimeSupport = (() => {
     // Non-EVM ChainIds are only supported with the MM multichain snap installed
-    if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
+    if (isMetaMask(wallet) && !isSnapInstalled && !evm.isEvmChainId(chainId)) return false
 
     // We are now sure we have runtime support for the chain.
     // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or

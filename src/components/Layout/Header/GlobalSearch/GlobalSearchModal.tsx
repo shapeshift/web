@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { generatePath, useHistory } from 'react-router'
@@ -89,7 +89,7 @@ export const GlobalSearchModal = memo(
         switch (item.type) {
           case GlobalSearchResultType.Send: {
             // We don't want to pre-select the asset for EVM ChainIds
-            const assetId = !isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
+            const assetId = !evm.isEvmChainId(fromAssetId(item.id).chainId) ? item.id : undefined
             send.open({ assetId, input: searchQuery })
             onToggle()
             break

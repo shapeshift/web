@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -43,7 +43,7 @@ export const useEvmFees = ({
   const wallet = useWallet().state.wallet
 
   const adapter = useMemo(() => {
-    return chainId && isEvmChainId(chainId) ? assertGetEvmChainAdapter(chainId) : undefined
+    return chainId && evm.isEvmChainId(chainId) ? assertGetEvmChainAdapter(chainId) : undefined
   }, [chainId])
 
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId ?? ''))

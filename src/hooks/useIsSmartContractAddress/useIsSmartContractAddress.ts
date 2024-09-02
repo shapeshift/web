@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { isSmartContractAddress } from 'lib/address/utils'
@@ -17,7 +17,7 @@ export const useIsSmartContractAddress = (address: string, chainId: ChainId) => 
       },
     ],
     queryFn:
-      isEvmChainId(chainId) && Boolean(userAddress.length)
+      evm.isEvmChainId(chainId) && Boolean(userAddress.length)
         ? () => isSmartContractAddress(userAddress, chainId)
         : skipToken,
   })

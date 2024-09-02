@@ -3,7 +3,7 @@ import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -136,7 +136,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       txRequest: { data, value, to },
     } = request
 
-    const feeData = await getFees({
+    const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,

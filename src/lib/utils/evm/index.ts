@@ -1,11 +1,6 @@
 import { CHAIN_NAMESPACE, type ChainId } from '@shapeshiftoss/caip'
-import type {
-  ContractInteraction,
-  evm,
-  EvmChainAdapter,
-  SignTx,
-} from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Fees } from '@shapeshiftoss/chain-adapters/dist/evm/types'
 import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
@@ -208,7 +203,7 @@ export const getErc20Allowance = async ({
 }
 
 export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
-  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
+  return evm.evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
 }
 
 export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {

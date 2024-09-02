@@ -1,5 +1,5 @@
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 
 import { getInboundAddressDataForChain } from '../../../thorchain-utils'
@@ -45,7 +45,7 @@ export const useRouterContractAddress = ({
   config: SwapperConfig
 }) => {
   const { chainId } = fromAssetId(assetId)
-  const isEvmChain = isEvmChainId(chainId)
+  const isEvmChain = evm.isEvmChainId(chainId)
 
   const { data: routerContractAddress, isLoading } = useQuery({
     queryKey: ['routerContractAddress', assetId, excludeHalted],

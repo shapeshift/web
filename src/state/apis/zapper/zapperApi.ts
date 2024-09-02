@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
@@ -325,7 +325,7 @@ export const zapper = createApi({
             }
 
           const assets = selectAssets(state)
-          const evmNetworks = evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
+          const evmNetworks = evm.evmChainIds.map(chainIdToZapperNetwork).filter(isSome)
 
           // Get unique addresses set from EVM AccountIds
           const addresses = accountIdsToEvmAddresses(evmAccountIds)

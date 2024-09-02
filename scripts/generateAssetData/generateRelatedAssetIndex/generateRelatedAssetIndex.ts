@@ -10,7 +10,7 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
@@ -114,7 +114,7 @@ const getRelatedAssetIds = async (
 
   const { chainId, assetReference } = fromAssetId(assetId)
 
-  if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return
+  if (!evm.isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return
 
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'

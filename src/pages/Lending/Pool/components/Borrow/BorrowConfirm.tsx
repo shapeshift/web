@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { FeeDataKey, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -390,7 +390,7 @@ export const BorrowConfirm = ({
     const chain = (() => {
       if (!chainAdapter) return ''
       // All EVM chains are managed using the Ethereum app on Ledger
-      if (isEvmChainId(fromAssetId(collateralAssetId).chainId)) return 'Ethereum'
+      if (evm.isEvmChainId(fromAssetId(collateralAssetId).chainId)) return 'Ethereum'
       return chainAdapter?.getDisplayName()
     })()
 

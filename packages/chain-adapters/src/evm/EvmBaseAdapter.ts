@@ -67,8 +67,8 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
-  NetworkFees,
   GasFeeDataEstimate,
+  NetworkFees,
 } from './types'
 import { getErc20Data } from './utils'
 

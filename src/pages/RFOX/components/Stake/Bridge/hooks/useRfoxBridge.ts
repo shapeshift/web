@@ -1,6 +1,6 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero, CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
@@ -9,6 +9,7 @@ import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dis
 import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
@@ -94,7 +95,8 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   const wallet = useWallet().state.wallet
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
-    () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
+    () =>
+      sellAsset?.chainId && evm.isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined,
     [sellAsset],
   )
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))

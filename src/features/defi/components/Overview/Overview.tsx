@@ -127,7 +127,7 @@ export const Overview: React.FC<OverviewProps> = ({
                   {icons ? (
                     <PairIcons icons={icons} iconBoxSize='6' h='46px' p={1} borderRadius={8} />
                   ) : (
-                    <AssetIcon src={asset.icon} size='md' />
+                    <AssetIcon assetId={asset.assetId} size='md' />
                   )}
                   <Stack spacing={0}>
                     <RawText fontSize='lg' lineHeight='shorter'>

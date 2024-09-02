@@ -1,6 +1,12 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  fromAccountId,
+  fromAssetId,
+  thorchainAssetId,
+  toAssetId,
+  usdtAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { getOrCreateContractByType } from 'contracts/contractManager'
@@ -230,7 +236,9 @@ export const Deposit: React.FC<DepositProps> = ({
 
         if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return APPROVAL_REQUIRED_TYPE.APPROVE
         if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit))
-          return APPROVAL_REQUIRED_TYPE.RESET
+          return assetId === usdtAssetId
+            ? APPROVAL_REQUIRED_TYPE.RESET
+            : APPROVAL_REQUIRED_TYPE.APPROVE
 
         return false
       })()

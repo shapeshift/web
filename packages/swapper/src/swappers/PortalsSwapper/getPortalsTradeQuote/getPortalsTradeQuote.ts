@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -144,7 +145,6 @@ export async function getPortalsTradeQuote(
       })
         .then(({ context }) => ({
           maybeGasLimit: context.gasLimit,
-          autoSlippageTolerancePercentage: context.slippageTolerancePercentage,
         }))
         .catch(e => {
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
@@ -158,7 +158,9 @@ export async function getPortalsTradeQuote(
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage:
           maybeSlippageTolerancePercentageOverride ??
-          dummyOrderResponse?.autoSlippageTolerancePercentage,
+          bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+            .times(100)
+            .toNumber(),
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,

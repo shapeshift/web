@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -172,7 +173,10 @@ export async function getPortalsTradeQuote(
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage:
           userSlippageTolerancePercentageDecimalOrDefault ??
-          quoteEstimateResponse?.context.slippageTolerancePercentage,
+          quoteEstimateResponse?.context.slippageTolerancePercentage ??
+          bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+            .times(100)
+            .toNumber(),
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,

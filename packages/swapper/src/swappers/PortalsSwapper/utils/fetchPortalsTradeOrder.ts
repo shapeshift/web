@@ -67,7 +67,7 @@ type PortalsTradeOrderEstimateResponse = {
     outputAmount: string
     outputAmountUsd: number
     minOutputAmountUsd: number
-    sender: string
+    sender?: string
   }
 }
 

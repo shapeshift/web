@@ -6,13 +6,17 @@ import type {
   HDWallet,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import type { ChainSpecific, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type {
+  ChainSpecific,
+  KnownChainIds,
+  UtxoAccountType,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
 import * as cosmossdk from './cosmossdk/types'
 import * as evm from './evm/types'
-import type { UtxoChainId } from './utxo'
 import * as utxo from './utxo/types'
 
 export { cosmossdk, evm, utxo }

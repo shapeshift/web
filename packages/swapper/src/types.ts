@@ -3,20 +3,20 @@ import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
-  CosmosSdkChainId,
   EvmChainAdapter,
   UtxoChainAdapter,
-  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  CosmosSdkChainId,
   EvmChainId,
   KnownChainIds,
   PartialRecord,
   UtxoAccountType,
+  UtxoChainId,
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'

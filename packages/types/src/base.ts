@@ -39,6 +39,14 @@ export type EvmChainId =
   | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
 
+export type CosmosSdkChainId = KnownChainIds.CosmosMainnet | KnownChainIds.ThorchainMainnet
+
+export type UtxoChainId =
+  | KnownChainIds.BitcoinMainnet
+  | KnownChainIds.BitcoinCashMainnet
+  | KnownChainIds.DogecoinMainnet
+  | KnownChainIds.LitecoinMainnet
+
 export enum WithdrawType {
   DELAYED,
   INSTANT,

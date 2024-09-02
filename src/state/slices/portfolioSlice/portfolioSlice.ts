@@ -256,6 +256,12 @@ export const fetchPortalsAccount = async (
   }
 }
 
+const maybeTokenImage = (image: string | undefined) => {
+  if (!image) return
+  if (image === 'missing_large.png') return
+  return image
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
@@ -288,7 +294,7 @@ export const portfolioApi = createApi({
                     return isSpammyTokenText(text)
                   })
                   if (state.assets.byId[token.assetId] || isSpam) return prev
-                  const minimalAsset: MinimalAsset = token
+                  let minimalAsset: MinimalAsset = token
                   const maybePortalsAsset = maybePortalsAccounts[token.assetId]
                   if (maybePortalsAsset) {
                     const isPool = Boolean(
@@ -337,9 +343,52 @@ export const portfolioApi = createApi({
                       return `${platform.name} ${assetSymbols.join('/')} Pool`
                     })()
 
-                    // TODO(gomes): same name format as in assets gen
-                    minimalAsset.name = name
-                    minimalAsset.isPool = isPool
+                    const images = maybePortalsAsset.images ?? []
+                    const [, ...underlyingAssetsImages] = images
+                    const iconOrIcons = (() => {
+                      // There are no underlying tokens' images, return asset icon if it exists
+                      if (!underlyingAssetsImages?.length)
+                        return { icon: state.assets.byId[token.assetId]?.icon }
+
+                      if (underlyingAssetsImages.length === 1) {
+                        return {
+                          icon: maybeTokenImage(
+                            maybePortalsAsset.image || underlyingAssetsImages[0],
+                          ),
+                        }
+                      }
+                      // This is a multiple assets pool, populate icons array
+                      if (underlyingAssetsImages.length > 1)
+                        return {
+                          icons: underlyingAssetsImages.map((underlyingAssetsImage, i) => {
+                            // No token at that index, but this isn't reliable as we've found out, it may be missing in tokens but present in images
+                            // However, this has to be an early return and we can't use our own flavour of that asset... because we have no idea which asset it is.
+                            if (!maybePortalsAsset.tokens[i])
+                              return maybeTokenImage(underlyingAssetsImage)
+
+                            const underlyingAssetId = toAssetId({
+                              chainId,
+                              assetNamespace:
+                                chainId === bscChainId
+                                  ? ASSET_NAMESPACE.bep20
+                                  : ASSET_NAMESPACE.erc20,
+                              assetReference: maybePortalsAsset.tokens[i],
+                            })
+                            const underlyingAsset = state.assets.byId[underlyingAssetId]
+                            // Prioritise our own flavour of icons for that asset if available, else use upstream if present
+                            return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
+                          }),
+                          icon: undefined,
+                        }
+                    })()
+
+                    // @ts-ignore this is the best we can do, some icons *may* be missing
+                    minimalAsset = {
+                      ...minimalAsset,
+                      name,
+                      isPool,
+                      ...iconOrIcons,
+                    }
                   }
                   prev.byId[token.assetId] = makeAsset(state.assets.byId, minimalAsset)
                   prev.ids.push(token.assetId)

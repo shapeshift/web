@@ -33,6 +33,7 @@ import { InlineCopyButton } from 'components/InlineCopyButton'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { type ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
@@ -164,7 +165,6 @@ const MenuOptions = ({
             <AccountSegment
               title={translate('accounts.accountNumber', { accountNumber })}
               subtitle={subtitle}
-              address={fromAccountId(firstAccountId).account}
             />
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption
@@ -176,6 +176,7 @@ const MenuOptions = ({
                   asset?.precision ?? 0,
                 )}
                 symbol={asset?.symbol ?? ''}
+                chainId={asset?.chainId ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
                 onOptionClick={onClick}
                 isDisabled={disabled}
@@ -330,7 +331,10 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
                 {translate('accounts.accountNumber', { accountNumber })}
               </RawText>
               {showLabel && (
-                <InlineCopyButton value={fromAccountId(selectedAccountId).account}>
+                <InlineCopyButton
+                  isDisabled={isUtxoAccountId(selectedAccountId)}
+                  value={fromAccountId(selectedAccountId).account}
+                >
                   <Text fontWeight='medium' color='text.subtle'>
                     {accountLabel}
                   </Text>

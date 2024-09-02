@@ -52,12 +52,7 @@ export type GetFeesArgs = {
   supportsEIP1559: boolean
 }
 
-export type GetFeesReturn = Fees & {
-  gasLimit: string
-  networkFeeCryptoBaseUnit: string
-}
-
-export const getFees = async (args: GetFeesArgs): Promise<GetFeesReturn> => {
+export const getFees = async (args: GetFeesArgs): Promise<Fees> => {
   const { adapter, data, to, value, from, supportsEIP1559 } = args
 
   const {

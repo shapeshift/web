@@ -6,7 +6,7 @@ import type {
   SignTx,
 } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { GetFeesReturn } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import type { Fees } from '@shapeshiftoss/chain-adapters/dist/evm/types'
 import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -92,14 +92,14 @@ export const isGetFeesWithWalletEIP1559SupportArgs = (
   Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
 export type EvmFees = {
-  fees: GetFeesReturn
+  fees: Fees
   txFeeFiat: string
   networkFeeCryptoBaseUnit: string
 }
 
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletEip1559SupportArgs,
-): Promise<GetFeesReturn> => {
+): Promise<Fees> => {
   const { wallet, ...rest } = args
 
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())

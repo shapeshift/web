@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { GetFeesReturn } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import type { Fees } from '@shapeshiftoss/chain-adapters/dist/evm/types'
 import type { SwapErrorRight } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { InboundAddressResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
@@ -65,7 +65,7 @@ export const selectIsTradingActive = ({
 }
 
 export const selectEvmFees = (
-  fees: GetFeesReturn,
+  fees: Fees,
   feeAsset: Asset,
   feeAssetMarketData: MarketData,
 ): EvmFees => {

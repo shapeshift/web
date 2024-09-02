@@ -67,7 +67,7 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
-  Fees,
+  NetworkFees,
   GasFeeDataEstimate,
 } from './types'
 import { getErc20Data } from './utils'
@@ -282,7 +282,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const isTokenSend = !!contractAddress
 
-      const fees = ((): Fees => {
+      const fees = ((): NetworkFees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
           return {
             maxFeePerGas: toHex(BigInt(maxFeePerGas)),
@@ -568,7 +568,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const account = await this.getAccount(from)
 
-      const fees: Fees =
+      const fees: NetworkFees =
         maxFeePerGas && maxPriorityFeePerGas
           ? {
               maxFeePerGas: toHex(BigInt(maxFeePerGas)),

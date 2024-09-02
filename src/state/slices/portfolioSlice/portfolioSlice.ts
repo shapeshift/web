@@ -1,25 +1,16 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, fromAccountId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { makeAsset } from '@shapeshiftoss/utils'
-import axios from 'axios'
-import { getConfig } from 'config'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
-import type {
-  GetBalancesResponse,
-  GetPlatformsResponse,
-  PlatformsById,
-  TokenInfo,
-} from 'lib/market-service/portals/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -32,6 +23,7 @@ import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
+import { fetchPortalsAccount, fetchPortalsPlatforms } from './utils/portals'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -187,73 +179,6 @@ export const portfolio = createSlice({
 type GetAccountArgs = {
   accountId: AccountId
   upsertOnFetch?: boolean
-}
-
-const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
-  const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/platforms`
-
-  try {
-    const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
-      headers: {
-        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
-      },
-    })
-
-    const byId = platforms.reduce<PlatformsById>((acc, platform) => {
-      acc[platform.platform] = platform
-      return acc
-    }, {})
-
-    return byId
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(`Failed to fetch Portals platforms: ${error.message}`)
-    }
-    console.error(`Failed to fetch Portals platforms: ${error}`)
-
-    return {}
-  }
-}
-
-// TODO(gomes): temp, better home
-export const fetchPortalsAccount = async (
-  chainId: ChainId,
-  owner: string,
-): Promise<Record<AssetId, TokenInfo>> => {
-  const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/account`
-
-  const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
-
-  if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
-
-  try {
-    const { data } = await axios.get<GetBalancesResponse>(url, {
-      params: {
-        networks: [network],
-        owner,
-      },
-      headers: {
-        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
-      },
-    })
-
-    return data.balances.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
-      const assetId = toAssetId({
-        chainId,
-        assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-        assetReference: token.address,
-      })
-      acc[assetId] = token
-      return acc
-    }, {})
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(`Failed to fetch Portals account: ${error.message}`)
-    } else {
-      console.error(error)
-    }
-    return {}
-  }
 }
 
 const maybeTokenImage = (image: string | undefined) => {

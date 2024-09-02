@@ -224,10 +224,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approve')}
       preFooter={preFooter}
       providerIcon={getMetadataForProvider(lpOpportunity.provider)?.icon ?? ''}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}

@@ -78,13 +78,19 @@ type DepositProps = StepComponentProps & {
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
 
+enum APPROVAL_REQUIRED_TYPE {
+  APPROVE = 'APPROVE',
+  RESET = 'RESET',
+}
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
   fromAddress,
   onNext,
 }) => {
-  const [isApprovalRequired, setIsApprovalRequired] = useState(false)
+  const [isApprovalRequired, setIsApprovalRequired] = useState<APPROVAL_REQUIRED_TYPE | false>(
+    false,
+  )
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
 
   const toast = useToast()
@@ -207,7 +213,7 @@ export const Deposit: React.FC<DepositProps> = ({
   useEffect(() => {
     if (!accountId) return
     ;(async () => {
-      const isApprovalRequired = await (async () => {
+      const approvalRequiredType = await (async () => {
         // Router contract address is only set in case we're depositting a token, not a native asset
         if (!inboundAddress) return false
         // Do not try to get allowance for native assets, including non-EVM ones.
@@ -222,12 +228,13 @@ export const Deposit: React.FC<DepositProps> = ({
 
         const cryptoAmountBaseUnit = toBaseUnit(inputValues?.cryptoAmount, asset.precision)
 
-        if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return true
-        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit)) return true
+        if (bnOrZero(allowanceOnChainCryptoBaseUnit).eq(0)) return APPROVAL_REQUIRED_TYPE.APPROVE
+        if (bn(cryptoAmountBaseUnit).gt(allowanceOnChainCryptoBaseUnit))
+          return APPROVAL_REQUIRED_TYPE.RESET
 
         return false
       })()
-      setIsApprovalRequired(isApprovalRequired)
+      setIsApprovalRequired(approvalRequiredType)
     })()
   }, [
     accountId,
@@ -341,7 +348,10 @@ export const Deposit: React.FC<DepositProps> = ({
           const data = encodeFunctionData({
             abi: contract.abi,
             functionName: 'approve',
-            args: [getAddress(inboundAddress), maxUint256],
+            args: [
+              getAddress(inboundAddress),
+              isApprovalRequired === APPROVAL_REQUIRED_TYPE.APPROVE ? maxUint256 : 0n,
+            ],
           })
 
           const adapter = assertGetEvmChainAdapter(chainId)
@@ -366,7 +376,11 @@ export const Deposit: React.FC<DepositProps> = ({
             },
           })
 
-          onNext(DefiStep.Approve)
+          onNext(
+            isApprovalRequired === APPROVAL_REQUIRED_TYPE.APPROVE
+              ? DefiStep.Approve
+              : DefiStep.AllowanceReset,
+          )
           return
         }
         onNext(isSweepNeeded ? DefiStep.Sweep : DefiStep.Confirm)

@@ -1,6 +1,6 @@
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId, toAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
@@ -175,6 +175,15 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           />
         ),
       },
+      ...(assetId === usdtAssetId
+        ? {
+            [DefiStep.AllowanceReset]: {
+              label: translate('trade.resetAllowance'),
+              component: ownProps => <Approve {...ownProps} accountId={accountId} isReset />,
+              props: {},
+            },
+          }
+        : {}),
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: ownProps => <Approve {...ownProps} accountId={accountId} />,

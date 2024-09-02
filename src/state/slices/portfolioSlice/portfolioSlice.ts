@@ -1,15 +1,25 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, fromAccountId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
+import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { makeAsset } from '@shapeshiftoss/utils'
+import axios from 'axios'
+import { getConfig } from 'config'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
+import type {
+  GetBalancesResponse,
+  GetPlatformsResponse,
+  PlatformsById,
+  TokenInfo,
+} from 'lib/market-service/portals/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
@@ -179,6 +189,73 @@ type GetAccountArgs = {
   upsertOnFetch?: boolean
 }
 
+const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
+  const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/platforms`
+
+  try {
+    const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
+      headers: {
+        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
+      },
+    })
+
+    const byId = platforms.reduce<PlatformsById>((acc, platform) => {
+      acc[platform.platform] = platform
+      return acc
+    }, {})
+
+    return byId
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Failed to fetch Portals platforms: ${error.message}`)
+    }
+    console.error(`Failed to fetch Portals platforms: ${error}`)
+
+    return {}
+  }
+}
+
+// TODO(gomes): temp, better home
+export const fetchPortalsAccount = async (
+  chainId: ChainId,
+  owner: string,
+): Promise<Record<AssetId, TokenInfo>> => {
+  const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/account`
+
+  const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
+
+  if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
+
+  try {
+    const { data } = await axios.get<GetBalancesResponse>(url, {
+      params: {
+        networks: [network],
+        owner,
+      },
+      headers: {
+        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
+      },
+    })
+
+    return data.balances.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
+      const assetId = toAssetId({
+        chainId,
+        assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+        assetReference: token.address,
+      })
+      acc[assetId] = token
+      return acc
+    }, {})
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Failed to fetch Portals account: ${error.message}`)
+    } else {
+      console.error(error)
+    }
+    return {}
+  }
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
@@ -196,6 +273,9 @@ export const portfolioApi = createApi({
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const nftCollectionsById = selectNftCollections(state)
 
+          const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
+          const maybePortalsPlatforms = await fetchPortalsPlatforms()
+
           const data = ((): Portfolio => {
             // add placeholder non spam assets for evm chains
             if (evmChainIds.includes(chainId as EvmChainId)) {
@@ -208,7 +288,60 @@ export const portfolioApi = createApi({
                     return isSpammyTokenText(text)
                   })
                   if (state.assets.byId[token.assetId] || isSpam) return prev
-                  prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+                  const minimalAsset: MinimalAsset = token
+                  const maybePortalsAsset = maybePortalsAccounts[token.assetId]
+                  if (maybePortalsAsset) {
+                    const isPool = Boolean(
+                      maybePortalsAsset.platform && maybePortalsAsset.tokens?.length,
+                    )
+                    const platform = maybePortalsPlatforms[maybePortalsAsset.platform]
+
+                    const name = (() => {
+                      // For single assets, just use the token name
+                      if (!isPool) return maybePortalsAsset.name
+                      // For pools, create a name in the format of "<platform> <assets> Pool"
+                      // e.g "UniswapV2 ETH/FOX Pool"
+                      const assetSymbols =
+                        maybePortalsAsset.tokens?.map(underlyingToken => {
+                          const assetId = toAssetId({
+                            chainId,
+                            assetNamespace:
+                              chainId === bscChainId
+                                ? ASSET_NAMESPACE.bep20
+                                : ASSET_NAMESPACE.erc20,
+                            assetReference: underlyingToken,
+                          })
+                          const underlyingAsset = state.assets.byId[assetId]
+                          if (!underlyingAsset) return undefined
+
+                          // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
+                          // We could potentially use related assets for this and use primary implementation, though we'd have to remove BTC from there as WBTC and BTC are very
+                          // much different assets on diff networks, i.e can't deposit BTC instead of WBTC automagically like you would with ETH instead of WETH
+                          switch (underlyingAsset.symbol) {
+                            case 'WETH':
+                              return 'ETH'
+                            case 'WBNB':
+                              return 'BNB'
+                            case 'WMATIC':
+                              return 'MATIC'
+                            case 'WAVAX':
+                              return 'AVAX'
+                            default:
+                              return underlyingAsset.symbol
+                          }
+                        }) ?? []
+
+                      // Our best effort to contruct sane name using the native asset -> asset naming hack failed, but thankfully, upstream name is very close e.g
+                      // for "UniswapV2 LP TRUST/WETH", we just have to append "Pool" to that and we're gucci
+                      if (assetSymbols.some(symbol => !symbol)) return `${token.name} Pool`
+                      return `${platform.name} ${assetSymbols.join('/')} Pool`
+                    })()
+
+                    // TODO(gomes): same name format as in assets gen
+                    minimalAsset.name = name
+                    minimalAsset.isPool = isPool
+                  }
+                  prev.byId[token.assetId] = makeAsset(state.assets.byId, minimalAsset)
                   prev.ids.push(token.assetId)
                   return prev
                 },

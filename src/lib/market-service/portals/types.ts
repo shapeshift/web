@@ -29,6 +29,11 @@ export type PlatformsById = Record<string, Platform>
 
 export type GetPlatformsResponse = Platform[]
 
+export type GetBalancesResponse = {
+  // Not strictly true, this has additional fields, but we're only interested in the token info part
+  balances: TokenInfo[]
+}
+
 export type GetTokensResponse = {
   totalItems: number
   pageItems: number

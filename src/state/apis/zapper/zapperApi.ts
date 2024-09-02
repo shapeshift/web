@@ -1,6 +1,13 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  bscChainId,
+  ethChainId,
+  fromAssetId,
+  toAccountId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { makeAsset } from '@shapeshiftoss/utils'
 import type { AxiosRequestConfig } from 'axios'
@@ -461,10 +468,21 @@ export const zapper = createApi({
                   const defiType = DefiType.Staking
 
                   const topLevelAsset = (() => {
-                    const maybeLpAsset = asset.tokens.find(
+                    const chainId = zapperNetworkToChainId(asset.network)
+                    if (!chainId) throw new Error('chainIs is required')
+
+                    const maybeTopLevelLpAssetId = toAssetId({
+                      chainId,
+                      assetNamespace:
+                        chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+                      assetReference: asset.address,
+                    })
+                    const maybeTopLevelLpAsset = assets[maybeTopLevelLpAssetId]
+                    if (maybeTopLevelLpAsset?.isPool) return asset
+                    const maybeUnderlyingLpAsset = asset.tokens.find(
                       token => token.metaType === 'supplied' || token.metaType === 'borrowed',
                     )
-                    if (maybeLpAsset) return maybeLpAsset
+                    if (maybeUnderlyingLpAsset) return maybeUnderlyingLpAsset
                     return asset
                   })()
 

@@ -17,6 +17,8 @@ type PortalsTradeOrderParams = {
   swapperConfig: SwapperConfig
 }
 
+type PortalsTradeOrderEstimateParams = Omit<PortalsTradeOrderParams, 'partner' | 'validate'>
+
 type PortalsTradeOrderResponse = {
   context: {
     orderId: string
@@ -50,6 +52,25 @@ type PortalsTradeOrderResponse = {
     gasLimit: string
   }
 }
+
+type PortalsTradeOrderEstimateResponse = {
+  outputAmount: string
+  minOutputAmount: string
+  outputToken: string
+  outputTokenDecimals: number
+  context: {
+    slippageTolerancePercentage: number
+    inputAmount: string
+    inputAmountUsd: number
+    inputToken: string
+    outputToken: string
+    outputAmount: string
+    outputAmountUsd: number
+    minOutputAmountUsd: number
+    sender: string
+  }
+}
+
 export const fetchPortalsTradeOrder = async ({
   sender,
   inputToken,
@@ -86,6 +107,38 @@ export const fetchPortalsTradeOrder = async ({
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(`Failed to fetch Portals trade order: ${error.message}`)
+    }
+    throw error
+  }
+}
+
+export const fetchPortalsTradeEstimate = async ({
+  sender,
+  inputToken,
+  inputAmount,
+  outputToken,
+  slippageTolerancePercentage,
+  swapperConfig,
+}: PortalsTradeOrderEstimateParams): Promise<PortalsTradeOrderEstimateResponse> => {
+  const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal/estimate`
+
+  const params = new URLSearchParams({
+    sender,
+    inputToken,
+    inputAmount,
+    outputToken,
+  })
+
+  if (slippageTolerancePercentage !== undefined) {
+    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+  }
+
+  try {
+    const response = await axios.get<PortalsTradeOrderEstimateResponse>(url, { params })
+    return response.data
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(`Failed to fetch Portals trade estimate: ${error.message}`)
     }
     throw error
   }

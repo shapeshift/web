@@ -8,7 +8,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -21,7 +20,7 @@ import {
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getDummyQuoteParams, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
@@ -120,10 +119,24 @@ export async function getPortalsTradeQuote(
       validate: true,
       swapperConfig,
     }).catch(async e => {
-      // If validation fails, fire two more quotes:
-      // 1. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
-      // 2. another quote with validation disabled, to get an actual quote
+      // If validation fails, fire 3 more quotes:
+      // 1. a quote estimate (does not require approval) to get the optimal slippage tolerance
+      // 2. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
+      // 3. another quote with validation disabled, to get an actual quote (using the user slippage, or the optimal from the estimate)
       console.info('failed to get Portals quote with validation enabled', e)
+
+      // Use the quote estimate endpoint to get the optimal slippage tolerance
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        sender: sendAddress,
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        swapperConfig,
+      }).catch(e => {
+        console.info('failed to get Portals quote estimate', e)
+        return undefined
+      })
+
       const dummyQuoteParams = getDummyQuoteParams(sellAsset.chainId)
 
       const dummySellAssetAddress = fromAssetId(dummyQuoteParams.sellAssetId).assetReference
@@ -132,6 +145,7 @@ export async function getPortalsTradeQuote(
       const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
       const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
 
+      // Use a dummy request to the portal endpoint to get a rough gasLimit estimate
       const dummyOrderResponse = await fetchPortalsTradeOrder({
         sender: dummyQuoteParams.accountAddress,
         inputToken: dummyInputToken,
@@ -158,9 +172,7 @@ export async function getPortalsTradeQuote(
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage:
           userSlippageTolerancePercentageDecimalOrDefault ??
-          bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
-            .times(100)
-            .toNumber(),
+          quoteEstimateResponse?.context.slippageTolerancePercentage,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,

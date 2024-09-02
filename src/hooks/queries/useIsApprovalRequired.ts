@@ -35,8 +35,8 @@ export const useIsApprovalRequired = ({
 
     if (fromAssetId(assetId).chainId !== ethChainId) return false
     const hasAllowance = bnOrZero(allowanceCryptoBaseUnitResult.data).gt(0)
-    const isUsdt = assetId === usdtAssetId
-    return isUsdtApprovalResetEnabled && hasAllowance && isApprovalRequired && isUsdt
+    const isUsdtOnEthereum = assetId === usdtAssetId
+    return isUsdtApprovalResetEnabled && hasAllowance && isApprovalRequired && isUsdtOnEthereum
   }, [allowanceCryptoBaseUnitResult, assetId, isApprovalRequired, isUsdtApprovalResetEnabled])
 
   return {

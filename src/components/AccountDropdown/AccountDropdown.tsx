@@ -164,6 +164,7 @@ const MenuOptions = ({
             <AccountSegment
               title={translate('accounts.accountNumber', { accountNumber })}
               subtitle={subtitle}
+              address={fromAccountId(firstAccountId).account}
             />
             {sortedAccountIds.map((iterAccountId, index) => (
               <AccountChildOption
@@ -316,6 +317,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!isValidAccountNumber(accountNumber)) return null
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
+    if (!selectedAccountId) return null
 
     if (isDropdownDisabled) {
       return (
@@ -328,8 +330,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
                 {translate('accounts.accountNumber', { accountNumber })}
               </RawText>
               {showLabel && (
-                // @TODO: Need to get the full address here
-                <InlineCopyButton value={accountLabel}>
+                <InlineCopyButton value={fromAccountId(selectedAccountId).account}>
                   <Text fontWeight='medium' color='text.subtle'>
                     {accountLabel}
                   </Text>

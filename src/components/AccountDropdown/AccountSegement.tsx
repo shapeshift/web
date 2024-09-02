@@ -6,9 +6,10 @@ import { RawText } from 'components/Text'
 type AccountGroupProps = {
   title: string
   subtitle?: string
+  address: string
 }
 
-export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
+export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle, address }) => (
   <Stack
     direction='row'
     px={4}
@@ -20,8 +21,7 @@ export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
   >
     <RawText>{title}</RawText>
     {subtitle && (
-      // @TODO: Get full account address
-      <InlineCopyButton value={subtitle}>
+      <InlineCopyButton value={address}>
         <RawText fontFamily='monospace' fontWeight='bold'>
           {subtitle}
         </RawText>

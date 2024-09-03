@@ -12,6 +12,7 @@ import {
   Tag,
   useStyleConfig,
 } from '@chakra-ui/react'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
@@ -39,10 +40,13 @@ const LastStepTag = () => {
 
   return (
     <Tag size='md' colorScheme='blue'>
-      <MiddleEllipsis value={receiveAddress} />
+      <InlineCopyButton value={receiveAddress}>
+        <MiddleEllipsis value={receiveAddress} />
+      </InlineCopyButton>
     </Tag>
   )
 }
+
 export const StepperStep = ({
   title,
   stepIndicator,

@@ -1,5 +1,8 @@
-import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
-import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import {
+  foxStakingV1Abi,
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
 

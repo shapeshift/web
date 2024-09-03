@@ -5,14 +5,14 @@ export * from './utils'
 export * from './types'
 export * from './utxo'
 export * from './cosmossdk'
-export { 
+export {
   arbitrum,
   arbitrumNova,
   avalanche,
   base,
   bnbsmartchain,
   ethereum,
-  EvmBaseAdapter, 
+  EvmBaseAdapter,
   gnosis,
   optimism,
   polygon,

@@ -1,8 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
-import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
-import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
+import {
+  ContractType,
+  getOrCreateContractByType,
+  viemEthMainnetClient,
+} from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'

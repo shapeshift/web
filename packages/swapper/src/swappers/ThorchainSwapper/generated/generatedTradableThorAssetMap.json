@@ -37,5 +37,5 @@
   "ETH.YFI-0X0BC529C00C6401AEF6D220BE8C6EA1667F6AD93E": "eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e",
   "GAIA.ATOM": "cosmos:cosmoshub-4/slip44:118",
   "LTC.LTC": "bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2",
-  "THOR.RUNE": "cosmos:thorchain-mainnet-v2/slip44:931"
+  "THOR.RUNE": "cosmos:thorchain-1/slip44:931"
 }

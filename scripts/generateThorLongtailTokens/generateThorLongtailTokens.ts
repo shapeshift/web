@@ -1,5 +1,5 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, CHAIN_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, CHAIN_NAMESPACE, toAssetId, VALID_CHAIN_IDS } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import fs from 'fs'
 import path from 'path'
@@ -73,22 +73,26 @@ export const generateThorLongtailTokens = async () => {
 
   const erc20Tokens = [...ethData.tokens, ...avaxData.tokens]
   const bep20Tokens = bscData.tokens
-  const erc20AssetIds = erc20Tokens.map(token =>
-    toAssetId({
-      chainNamespace: CHAIN_NAMESPACE.Evm,
-      chainReference: String(token.chainId) as ChainReference,
-      assetNamespace: ASSET_NAMESPACE.erc20,
-      assetReference: token.address,
-    }),
-  )
-  const bep20AssetIds = bep20Tokens.map(token =>
-    toAssetId({
-      chainNamespace: CHAIN_NAMESPACE.Evm,
-      chainReference: String(token.chainId) as ChainReference,
-      assetNamespace: ASSET_NAMESPACE.bep20,
-      assetReference: token.address,
-    }),
-  )
+  const erc20AssetIds = erc20Tokens
+    .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
+    .map(token =>
+      toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: String(token.chainId) as ChainReference,
+        assetNamespace: ASSET_NAMESPACE.erc20,
+        assetReference: token.address,
+      }),
+    )
+  const bep20AssetIds = bep20Tokens
+    .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
+    .map(token =>
+      toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: String(token.chainId) as ChainReference,
+        assetNamespace: ASSET_NAMESPACE.bep20,
+        assetReference: token.address,
+      }),
+    )
 
   const assetIds = [...erc20AssetIds, ...bep20AssetIds]
 

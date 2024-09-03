@@ -95,8 +95,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   const wallet = useWallet().state.wallet
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
-    () =>
-      sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined,
+    () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
     [sellAsset],
   )
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))

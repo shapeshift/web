@@ -8,6 +8,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip/dist/assetId/assetId'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -32,6 +33,7 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isNonEmptyString } from 'lib/utils'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -144,13 +146,18 @@ export const Confirm = () => {
               <Text translation='modals.send.confirm.sendFrom' />
             </Row.Label>
             <Row.Value display='flex' alignItems='center'>
-              <AccountDropdown
-                onChange={handleAccountChange}
-                assetId={asset.assetId}
-                defaultAccountId={accountId}
-                buttonProps={accountDropdownButtonProps}
-                disabled
-              />
+              <InlineCopyButton
+                isDisabled={!accountId || isUtxoAccountId(accountId)}
+                value={fromAccountId(accountId ?? '').account}
+              >
+                <AccountDropdown
+                  onChange={handleAccountChange}
+                  assetId={asset.assetId}
+                  defaultAccountId={accountId}
+                  buttonProps={accountDropdownButtonProps}
+                  disabled
+                />
+              </InlineCopyButton>
             </Row.Value>
           </Row>
           <Row>

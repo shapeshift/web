@@ -315,7 +315,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!isValidAccountNumber(accountNumber)) return null
     if (!Object.keys(accountIdsByNumberAndType).length) return null
     if (!accountLabel) return null
-    if (!selectedAccountId) return null
 
     return (
       <Box px={2} my={2} {...boxProps}>

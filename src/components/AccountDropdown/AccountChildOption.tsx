@@ -5,7 +5,7 @@ import {
   Stack,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { type AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { RawText } from 'components/Text'

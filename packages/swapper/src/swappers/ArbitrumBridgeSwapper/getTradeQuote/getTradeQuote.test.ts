@@ -14,9 +14,16 @@ vi.mock('@arbitrum/sdk', () => ({
   getArbitrumNetwork: vi.fn().mockResolvedValue({ chainID: 42161 }),
 }))
 
-vi.mock('@shapeshiftoss/chain-adapters/dist/evm/utils', () => ({
-  getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
-}))
+vi.mock('@shapeshiftoss/chain-adapters', async () => {
+  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
+
+  return {
+    ...actual,
+    evm: {
+      getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
+    },
+  }
+})
 
 describe('getTradeQuote', () => {
   const mockAdapter = {

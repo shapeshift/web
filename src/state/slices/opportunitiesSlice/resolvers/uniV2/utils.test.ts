@@ -16,8 +16,11 @@ const mockAmount0Out = '97000000000000000000000'
 const mockAmount0In = '23000000000000000000000'
 const blockNumber = 5000000
 
-vi.mock('lib/viem-client', () => {
+vi.mock('@shapeshiftoss/contracts', async () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
+
+  const actual = await vi.importActual('@shapeshiftoss/contracts')
+
   const viemEthMainnetClient = {
     createEventFilter: vi.fn(() => ({})),
     getLogs: () =>
@@ -39,6 +42,7 @@ vi.mock('lib/viem-client', () => {
       }),
   }
   return {
+    ...actual,
     viemEthMainnetClient,
     viemClientByChainId: {
       [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,

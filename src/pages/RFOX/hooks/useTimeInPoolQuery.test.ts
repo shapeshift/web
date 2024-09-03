@@ -7,8 +7,13 @@ import { describe, expect, it, vi } from 'vitest'
 import type { RFOXAccountLog } from '../types'
 import { getTimeInPoolSeconds } from './useTimeInPoolQuery'
 
-vi.mock('lib/viem-client', () => {
+vi.mock('@shapeshiftoss/contracts', async () => {
+  const { arbitrum } = require('viem/chains')
+
+  const actual = await vi.importActual('@shapeshiftoss/contracts')
+
   return {
+    ...actual,
     viemClientByNetworkId: {
       [arbitrum.id]: {
         getBlock: vi.fn(),

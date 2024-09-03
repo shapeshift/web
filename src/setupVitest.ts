@@ -14,6 +14,7 @@ moduleAlias.addAlias('ethers', (fromPath: string) => {
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_MIXPANEL', 'false')
+  vi.stubEnv('REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL', 'http://mock.com')
 })
 
 beforeAll(() => {

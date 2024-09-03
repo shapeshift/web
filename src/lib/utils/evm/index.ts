@@ -84,12 +84,6 @@ export const isGetFeesWithWalletEIP1559SupportArgs = (
 ): input is GetFeesWithWalletEip1559SupportArgs =>
   Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
-export type EvmFees = {
-  fees: evm.Fees
-  txFeeFiat: string
-  networkFeeCryptoBaseUnit: string
-}
-
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletEip1559SupportArgs,
 ): Promise<evm.Fees> => {

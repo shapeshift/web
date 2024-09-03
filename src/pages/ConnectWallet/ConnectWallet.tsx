@@ -11,7 +11,7 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -82,7 +82,7 @@ export const ConnectWallet = () => {
 
   const evmChains = useMemo(() => {
     return knownChainIds
-      .filter(evm.isEvmChainId)
+      .filter(isEvmChainId)
       .map(knownChainId => {
         const assetId = getChainAdapterManager().get(knownChainId)?.getFeeAssetId()!
         const asset = selectAssetById(store.getState(), assetId)

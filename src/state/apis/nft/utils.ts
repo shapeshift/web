@@ -11,7 +11,7 @@ import {
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import cloneDeep from 'lodash/cloneDeep'
 import invert from 'lodash/invert'
 import { getAlchemyInstanceByChainId } from 'lib/alchemySdkInstance'
@@ -29,7 +29,7 @@ export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
     new Set(
       accountIds
         .map(fromAccountId)
-        .filter(({ chainId }) => evm.isEvmChainId(chainId))
+        .filter(({ chainId }) => isEvmChainId(chainId))
         .map(({ account }) => account),
     ),
   )

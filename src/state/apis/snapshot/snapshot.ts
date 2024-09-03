@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import { PURGE } from 'redux-persist'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -101,7 +101,7 @@ export const snapshotApi = createApi({
           const evmAddresses = Array.from(
             accountIds.reduce<Set<string>>((acc, accountId) => {
               const { account, chainId } = fromAccountId(accountId)
-              evm.isEvmChainId(chainId) && acc.add(account)
+              isEvmChainId(chainId) && acc.add(account)
               return acc
             }, new Set()),
           )

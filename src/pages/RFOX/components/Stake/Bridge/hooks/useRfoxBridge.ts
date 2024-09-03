@@ -1,6 +1,6 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
@@ -96,7 +96,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
     () =>
-      sellAsset?.chainId && evm.isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined,
+      sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined,
     [sellAsset],
   )
   const buyAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.buyAssetId))

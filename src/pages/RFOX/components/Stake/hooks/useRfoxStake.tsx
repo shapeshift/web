@@ -12,11 +12,11 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData } from 'viem'
+import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { EvmFees } from 'lib/utils/evm'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,

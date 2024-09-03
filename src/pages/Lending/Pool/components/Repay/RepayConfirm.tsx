@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -383,7 +383,7 @@ export const RepayConfirm = ({
     const chain = (() => {
       if (!chainAdapter) return ''
       // All EVM chains are managed using the Ethereum app on Ledger
-      if (evm.isEvmChainId(fromAssetId(repaymentAsset?.assetId ?? '').chainId)) return 'Ethereum'
+      if (isEvmChainId(fromAssetId(repaymentAsset?.assetId ?? '').chainId)) return 'Ethereum'
       return chainAdapter?.getDisplayName()
     })()
 

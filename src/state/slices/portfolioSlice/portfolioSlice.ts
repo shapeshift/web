@@ -2,7 +2,8 @@ import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import { type Account, evm } from '@shapeshiftoss/chain-adapters'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById, EvmChainId } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
@@ -198,7 +199,7 @@ export const portfolioApi = createApi({
 
           const data = ((): Portfolio => {
             // add placeholder non spam assets for evm chains
-            if (evm.evmChainIds.includes(chainId as EvmChainId)) {
+            if (evmChainIds.includes(chainId as EvmChainId)) {
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { erc20ABI } from '@shapeshiftoss/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -62,7 +62,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
 
   const isApprovalRequired = useMemo(() => {
     if (!(input.assetId && input.amountCryptoBaseUnit && chainId)) return false
-    if (!(evm.isEvmChainId(chainId) && isToken(input.assetId))) return false
+    if (!(isEvmChainId(chainId) && isToken(input.assetId))) return false
 
     if (!allowanceDataQuery?.data) return
 

@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
@@ -50,7 +50,7 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
 
 export const selectEvmAccountIds = createDeepEqualOutputSelector(
   selectWalletAccountIds,
-  accountIds => accountIds.filter(accountId => evm.isEvmChainId(fromAccountId(accountId).chainId)),
+  accountIds => accountIds.filter(accountId => isEvmChainId(fromAccountId(accountId).chainId)),
 )
 
 export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(

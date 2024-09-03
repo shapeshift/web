@@ -1,5 +1,5 @@
 import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero, makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
@@ -43,7 +43,7 @@ export const SearchTermAssetList = ({
     () => (activeChainId === 'All' ? walletConnectedChainIds : [activeChainId]),
     [activeChainId, walletConnectedChainIds],
   )
-  const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(evm.isEvmChainId), [chainIds])
+  const walletSupportedEvmChainIds = useMemo(() => chainIds.filter(isEvmChainId), [chainIds])
   const customTokenSupportedChainIds = useMemo(
     () =>
       walletSupportedEvmChainIds.filter(chainId => ALCHEMY_SUPPORTED_CHAIN_IDS.includes(chainId)),

@@ -7,9 +7,9 @@ import { isRune } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/ut
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { Err, Ok, type Result } from '@sniptt/monads'
+import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { EvmFees } from 'lib/utils/evm'
 
 export const selectInboundAddressData = (
   data: Result<InboundAddressResponse[], SwapErrorRight>,

@@ -9,11 +9,11 @@ import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { encodeFunctionData, getAddress } from 'viem'
+import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type {
-  EvmFees,
   GetFeesWithWalletEip1559SupportArgs,
   MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'

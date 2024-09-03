@@ -80,3 +80,9 @@ export const fetchPortalsAccount = async (
     return {}
   }
 }
+
+export const maybeTokenImage = (image: string | undefined) => {
+  if (!image) return
+  if (image === 'missing_large.png') return
+  return image
+}

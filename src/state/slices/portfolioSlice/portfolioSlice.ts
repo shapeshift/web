@@ -23,7 +23,7 @@ import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
-import { fetchPortalsAccount, fetchPortalsPlatforms } from './utils/portals'
+import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from './utils/portals'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -179,12 +179,6 @@ export const portfolio = createSlice({
 type GetAccountArgs = {
   accountId: AccountId
   upsertOnFetch?: boolean
-}
-
-const maybeTokenImage = (image: string | undefined) => {
-  if (!image) return
-  if (image === 'missing_large.png') return
-  return image
 }
 
 export const portfolioApi = createApi({

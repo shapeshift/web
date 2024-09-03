@@ -48,6 +48,7 @@ export const ClaimRow = ({
         height='auto'
         width='100%'
         variant='unstyled'
+        whiteSpace='normal'
         as={Button}
         isDisabled={isDisabled}
         onClick={onClaimClick}

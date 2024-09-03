@@ -104,7 +104,7 @@ export enum AssetEquityType {
 export type AssetEquityItem = {
   id: string
   type: AssetEquityType
-  fiatAmount: string
+  amountUserCurrency: string
   amountCryptoPrecision: string
   provider: string
   color?: string

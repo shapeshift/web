@@ -2,6 +2,7 @@ import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { DefiModalHeader } from 'features/defi/components/DefiModal/DefiModalHeader'
@@ -105,8 +106,8 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   }, [opportunityData])
 
   const underlyingAssetId = useMemo(
-    () => opportunityData?.underlyingAssetIds[0] ?? '',
-    [opportunityData?.underlyingAssetIds],
+    () => opportunityData?.underlyingAssetId ?? '',
+    [opportunityData?.underlyingAssetId],
   )
   const underlyingAsset: Asset | undefined = useAppSelector(state =>
     selectAssetById(state, underlyingAssetId),
@@ -163,18 +164,22 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
           />
         ),
       },
-      [DefiStep.Sweep]: {
-        label: translate('modals.send.consolidate.consolidateFunds'),
-        component: ({ onNext }) => (
-          <Sweep
-            accountId={accountId}
-            fromAddress={fromAddress ?? null}
-            assetId={assetId}
-            onBack={makeHandleSweepBack(onNext)}
-            onSweepSeen={makeHandleSweepSeen(onNext)}
-          />
-        ),
-      },
+      ...(isUtxoChainId(chainId)
+        ? {
+            [DefiStep.Sweep]: {
+              label: translate('modals.send.consolidate.consolidateFunds'),
+              component: ({ onNext }) => (
+                <Sweep
+                  accountId={accountId}
+                  fromAddress={fromAddress ?? null}
+                  assetId={assetId}
+                  onBack={makeHandleSweepBack(onNext)}
+                  onSweepSeen={makeHandleSweepSeen(onNext)}
+                />
+              ),
+            },
+          }
+        : {}),
       [DefiStep.Approve]: {
         label: translate('defi.steps.approve.title'),
         component: ownProps => <Approve {...ownProps} accountId={accountId} />,
@@ -192,6 +197,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   }, [
     translate,
     underlyingAsset?.symbol,
+    chainId,
     accountId,
     fromAddress,
     handleAccountIdChange,

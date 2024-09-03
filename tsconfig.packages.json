@@ -5,6 +5,7 @@
     "declaration": true,
     "noEmit": false,
     "module": "commonjs",
+    "noImplicitReturns": false,
   },
   "include": [],
   "exclude": [],

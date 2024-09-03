@@ -1,7 +1,7 @@
-import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
+import { Erc20Bridger, EthBridger, getArbitrumNetwork } from '@arbitrum/sdk'
 import type {
-  L1ToL2TransactionRequest,
-  L2ToL1TransactionRequest,
+  ChildToParentTransactionRequest,
+  ParentToChildTransactionRequest,
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
@@ -43,13 +43,15 @@ export const fetchArbitrumBridgeSwap = async ({
   assertGetEvmChainAdapter,
   getEthersV5Provider,
 }: FetchArbitrumBridgeSwapInput): Promise<{
-  request: Omit<L1ToL2TransactionRequest | L2ToL1TransactionRequest, 'retryableData'> | undefined
+  request:
+    | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
+    | undefined
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  const l2Network = await getL2Network(arbitrum.id)
+  const l2Network = await getArbitrumNetwork(arbitrum.id)
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
@@ -60,16 +62,16 @@ export const fetchArbitrumBridgeSwap = async ({
     return isEthBridge ? BRIDGE_TYPE.ETH_WITHDRAWAL : BRIDGE_TYPE.ERC20_WITHDRAWAL
   })()
 
-  const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
-  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+  const parentProvider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+  const childProvider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   switch (bridgeType) {
     case BRIDGE_TYPE.ETH_DEPOSIT: {
       const bridger = new EthBridger(l2Network)
 
       const request = await bridger.getDepositToRequest({
-        l1Provider,
-        l2Provider,
+        parentProvider,
+        childProvider,
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from: sendAddress ?? '',
         destinationAddress: receiveAddress,
@@ -108,15 +110,18 @@ export const fetchArbitrumBridgeSwap = async ({
     }
     case BRIDGE_TYPE.ERC20_DEPOSIT: {
       const bridger = new Erc20Bridger(l2Network)
-      const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
-      const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
+      const erc20ParentAddress = fromAssetId(sellAsset.assetId).assetReference
+      const allowanceContract = await bridger.getParentGatewayAddress(
+        erc20ParentAddress,
+        parentProvider,
+      )
 
       const maybeRequest = await bridger
         .getDepositRequest({
           amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-          l1Provider,
-          l2Provider,
-          erc20L1Address,
+          parentProvider,
+          childProvider,
+          erc20ParentAddress,
           from: sendAddress ?? '',
           destinationAddress: receiveAddress,
           retryableGasOverrides: {
@@ -163,12 +168,11 @@ export const fetchArbitrumBridgeSwap = async ({
     }
     case BRIDGE_TYPE.ERC20_WITHDRAWAL: {
       const bridger = new Erc20Bridger(l2Network)
-      const erc20L1Address = fromAssetId(buyAsset.assetId).assetReference
+      const erc20ParentAddress = fromAssetId(buyAsset.assetId).assetReference
 
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
-        erc20l1Address: erc20L1Address,
+        erc20ParentAddress,
         from: sendAddress ?? '',
         destinationAddress: receiveAddress,
       })

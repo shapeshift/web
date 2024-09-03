@@ -8,14 +8,22 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { validateAddress } from 'lib/address/address'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
+} from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
+import { selectRuneAddress } from '../helpers'
+import { useRFOXContext } from '../hooks/useRfoxContext'
+import { useStakingInfoQuery } from '../hooks/useStakingInfoQuery'
 import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
@@ -57,6 +65,14 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   const register = methods?.register ?? _methods.register
   const formState = methods?.formState ?? _methods.formState
   const { errors } = formState
+
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
+  const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetAccountAddress: stakingAssetAccountId
+      ? fromAccountId(stakingAssetAccountId).account
+      : undefined,
+    select: selectRuneAddress,
+  })
 
   const [isManualAddress, setIsManualAddress] = useState(false)
 
@@ -133,18 +149,50 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     )
   }, [handleRuneAddressChange, isManualAddress, register, translate, validateIsNewAddress])
 
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdByAccountNumberAndChainId,
+  )
+
+  const stakingAssetAccountNumberFilter = useMemo(
+    () =>
+      stakingAssetAccountId && stakingAssetId
+        ? { assetId: stakingAssetId, accountId: stakingAssetAccountId }
+        : undefined,
+    [stakingAssetAccountId, stakingAssetId],
+  )
+  const stakingAssetAccountNumber = useAppSelector(state =>
+    stakingAssetAccountNumberFilter
+      ? selectAccountNumberByAccountId(state, stakingAssetAccountNumberFilter)
+      : undefined,
+  )
+
+  const maybeMatchingRuneAccountId = useMemo(() => {
+    if (stakingAssetAccountNumber === undefined) return
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
+    const runeAccountId = accountNumberAccountIds?.[thorchainChainId]
+    return runeAccountId
+  }, [accountIdsByAccountNumberAndChainId, stakingAssetAccountNumber])
+
+  const maybeDefaultRuneAccountId = useMemo(() => {
+    if (currentRuneAddress)
+      return toAccountId({ account: currentRuneAddress, chainId: thorchainChainId })
+    if (maybeMatchingRuneAccountId) return maybeMatchingRuneAccountId
+    return undefined
+  }, [currentRuneAddress, maybeMatchingRuneAccountId])
+
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
 
     return (
       <AccountDropdown
+        defaultAccountId={maybeDefaultRuneAccountId}
         assetId={thorchainAssetId}
         onChange={handleAccountIdChange}
         boxProps={boxProps}
         buttonProps={buttonProps}
       />
     )
-  }, [handleAccountIdChange, isManualAddress])
+  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId])
 
   const addressSelectionLabel = useMemo(
     () =>

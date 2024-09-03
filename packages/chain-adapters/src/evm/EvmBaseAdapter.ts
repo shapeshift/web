@@ -469,6 +469,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!this.supportsChain(wallet))
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
 
+      await this.assertSwitchChain(wallet)
+
       const signedMessage = await wallet.ethSignMessage(messageToSign)
 
       if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
@@ -490,6 +492,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!wallet.ethSignTypedData) {
         throw new Error('wallet does not support signing typed data')
       }
+
+      await this.assertSwitchChain(wallet)
 
       const result = await wallet.ethSignTypedData(typedDataToSign)
 

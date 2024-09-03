@@ -127,8 +127,8 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
         }
       }
 
-      token0Decimals = zapperAppBalanceData.tokens?.[0].decimals!
-      token1Decimals = zapperAppBalanceData.tokens?.[1].decimals!
+      token0Decimals = bnOrZero(zapperAppBalanceData.tokens?.[0].decimals!).toNumber()
+      token1Decimals = bnOrZero(zapperAppBalanceData.tokens?.[1].decimals!).toNumber()
       token0Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[0])!
       token1Reserves = bnOrZero(zapperAppBalanceData.dataProps?.reserves?.[1])!
       token0Address = getAddress(zapperAppBalanceData?.tokens?.[0].address!)
@@ -175,7 +175,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
             assetReference: token1Address,
             chainId,
           })
-    const underlyingAssetIds = [assetId0, assetId1] as const
+    const underlyingAssetIds = [assetId0, assetId1]
     const underlyingAsset0 = assets.byId[underlyingAssetIds[0]]
     const underlyingAsset1 = assets.byId[underlyingAssetIds[1]]
     const lpAsset = assets.byId[opportunityId]

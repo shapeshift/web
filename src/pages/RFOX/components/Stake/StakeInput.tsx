@@ -1,7 +1,13 @@
-import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
+import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -22,11 +28,12 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
+  selectIsAccountMetadataLoading,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -34,6 +41,7 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
@@ -73,7 +81,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
 }) => {
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
-  const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
+  const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
+    useRFOXContext()
+
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -109,14 +120,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
   )
 
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const selectedAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, selectedAsset?.chainId ?? ''),
-  )
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
-  )
-
   const selectedAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, selectedAsset?.assetId ?? ''),
   )
@@ -147,7 +150,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   useEffect(() => {
     // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([stakingAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
   }, [dispatch, selectedAssetId, stakingAssetId])
   useEffect(() => {
     // Only set this once, never collapse out
@@ -212,9 +215,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     methods,
   })
 
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
+
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
-  // TODO(gomes): implement me when we have multi-account here
-  const handleAccountIdChange = useCallback(() => {}, [])
 
   const handleRuneAddressChange = useCallback(
     (address: string | undefined) => {
@@ -275,7 +281,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     history,
     selectedAssetId,
   ])
-
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
@@ -286,9 +291,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       title: 'common.selectAsset',
       assets: [stakingAsset, l1Asset],
     })
-  }, [stakingAsset, l1Asset, buyAssetSearch])
+  }, [stakingAsset, l1Asset, buyAssetSearch, setSelectedAssetId])
 
-  const handleAssetChange = useCallback((asset: Asset) => setSelectedAssetId(asset.assetId), [])
+  const handleAssetChange = useCallback(
+    (asset: Asset) => setSelectedAssetId(asset.assetId),
+    [setSelectedAssetId],
+  )
 
   const assetSelectComponent = useMemo(() => {
     return (
@@ -412,7 +420,34 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return translate('RFOX.chainNotSupportedByWallet')
   }, [isChainSupportedByWallet, translate])
 
+  const submitButtonText = useMemo(() => {
+    if (isAccountMetadataLoading) return translate('common.accountsLoading')
+
+    return (
+      errors.amountFieldInput?.message ||
+      errors.manualRuneAddress?.message ||
+      chainNotSupportedByWalletCopy ||
+      translate('RFOX.stake')
+    )
+  }, [
+    chainNotSupportedByWalletCopy,
+    errors.amountFieldInput,
+    errors.manualRuneAddress,
+    translate,
+    isAccountMetadataLoading,
+  ])
+
   if (!selectedAsset) return null
+
+  if (!stakingAssetAccountAddress && !isAccountMetadataLoading)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   return (
     <SlideTransition>
@@ -433,9 +468,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               assetSymbol={selectedAsset?.symbol ?? ''}
               assetIcon={selectedAsset?.icon ?? ''}
               percentOptions={percentOptions}
-              onAccountIdChange={handleAccountIdChange}
-              // TODO: remove me when implementing multi-account
-              isAccountSelectionDisabled={true}
+              isAccountSelectionDisabled
+              // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
+              // this *is* effectively disabled, however, onAccountIdChange *needs* to be a noop, or else the top-level
+              // dropdown will break, as this component calls onAccountIdChange once on first render - regardless of whether account selection is disabled or not
+              onAccountIdChange={noop}
               onToggleIsFiat={handleToggleIsFiat}
               onChange={handleAmountChange}
               isFiat={isFiat}
@@ -499,12 +536,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
+              isValidWallet={Boolean(isChainSupportedByWallet || isAccountMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
                   !runeAddress ||
                   !isValidStakingAmount ||
                   !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                  isAccountMetadataLoading ||
                   !cooldownPeriod,
               )}
               size='lg'
@@ -512,13 +550,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onClick={handleWarning}
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
               colorScheme={
-                Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
+                Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
+                !isAccountMetadataLoading
+                  ? 'red'
+                  : 'blue'
               }
             >
-              {errors.amountFieldInput?.message ||
-                errors.manualRuneAddress?.message ||
-                chainNotSupportedByWalletCopy ||
-                translate('RFOX.stake')}
+              {submitButtonText}
             </ButtonWalletPredicate>
           </CardFooter>
         </FormProvider>

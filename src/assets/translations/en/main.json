@@ -75,6 +75,8 @@
     "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
+    "safeProposalQueued": "SAFE proposal queued. %{currentConfirmations} out of %{confirmationsRequired} signed.",
+    "safeProposalExecuted": "SAFE proposal executed.",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
@@ -153,6 +155,7 @@
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "import": "Import",
+    "accountsLoading": "Loading Accounts",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -167,7 +170,8 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
-    "yes": "Yes"
+    "yes": "Yes",
+    "activeAccount": "Active Account"
   },
   "consentBanner": {
     "body": {
@@ -252,8 +256,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "Buy or Sell Crypto",
     "titleMessage": "You can %{action} %{asset} using:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -399,7 +401,7 @@
       "saversVaults": {
         "description": "Earn yield on your %{asset} through the THORChain Savers Vaults. There is no lock up time, and rewards are accumulated automatically. Yield on THORChain comes from swap fees and block rewards. Single-sided yield is capped at half the double-sided yield of liquidity providers.",
         "runePoolDescription": "RUNEPool lets you earn more %{asset} by pooling your %{asset} with others. You don't have to pick specific pools, everyone shares in the overall performance.",
-        "runePoolOverviewDescription": "RUNEPool optimizes RUNE usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling RUNE across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a RUNE index and all THORChain PoL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
+        "runePoolOverviewDescription": "RUNEPool optimizes RUNE usage by depositing it into all POL-enabled liquidity pools in THORChain. By pooling RUNE across these pools, participants earn the combined APY but face exposure to the aggregate impermanent loss. Instead of choosing individual pools, users benefit from the overall performance, effectively investing in a RUNE index and all THORChain POL-enabled assets. This simplifies liquidity provision and reduces individual risk.",
         "vaultCap": "Vault Cap",
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedDepositTitle": "Deposits are temporarily halted.",
@@ -659,14 +661,15 @@
         "withdrawEth": "Withdraw Initated",
         "submitRetryable": "Deposit Received",
         "createRetryableTicket": "Deposit Initiated",
-        "finalizeInboundTransfer": "Withdraw Received",
-        "depositEth": "Deposit Initiated"
+        "finalizeInboundTransferDeposit": "Deposit Received",
+        "depositEth": "Deposit Initiated",
+        "executeTransaction": "Claim"
       },
       "rfox": {
         "stake": "Stake",
         "withdraw": "Withdraw",
         "unstakeRequest": "Unstake Request",
-        "setRuneAddress": "Set Rune Address",
+        "setRuneAddress": "Set RUNE Address",
         "reward": "Reward Distribution"
       },
       "weth": {
@@ -710,6 +713,7 @@
         "out": "Outbound Received",
         "refund": "Refund",
         "swapOut": "Swap Received",
+        "swap": "Trade",
         "swapRefund": "Swap Refund",
         "withdraw": "Withdraw Requested",
         "withdrawNative": "Withdraw",
@@ -773,13 +777,22 @@
     "waitTimeValue": "~5-10 minutes",
     "noSupportedAssets": "No supported assets in portfolio.",
     "arbitrum": {
+      "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
     },
-    "claims": "Claims",
+    "claim": "Claim",
+    "claimReceiveAddress": "Claim Receive Address",
+    "claimPending": "Awaiting your claim of",
+    "claimSuccess": "You have successfully claimed",
+    "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
-    "pendingClaims": "Pending"
+    "noAvailableClaims": "No claims available",
+    "pendingClaims": "Pending",
+    "noPendingClaims": "No claims pending",
+    "availableIn": "Available in %{time}",
+    "confirmAndClaim": "Confirm & Claim"
   },
   "trade": {
     "trade": "Trade",
@@ -920,7 +933,7 @@
     "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
-    "smartContractReceiveAddressDescription": "We detected you are swapping from a smart contract whose address may not exist on the destination chain. Please verify and manually enter desired recipient address on %{chainName}",
+    "disableThorNativeSmartContractReceive": "We've detected that you're sending to a smart contract address on %{chainName}. Due to THORChain limitations, receiving %{nativeAssetSymbol} to a smart contract address is not supported. Please enter another address",
     "toContinue": "to continue.",
     "addressPlaceholder": "%{chainName} address",
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
@@ -1235,6 +1248,7 @@
       },
       "withdrawTo": "Withdraw To",
       "amountToDeposit": "Amount To Deposit",
+      "amountDeposited": "Amount Deposited",
       "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
       "amountToClaim": "Amount To Claim",
@@ -1868,11 +1882,12 @@
       "description": "Select the accounts you would like to import from the list below.",
       "import": "Import",
       "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
-    },
-    "ledgerOpenApp": {
-      "title": "Open the %{appName} App",
-      "description": "To connect this chain, you will need to open the Ledger app on your device."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Open the %{appName} App",
+    "description": "To continue, you will need to open the %{appName} app on your Ledger device.",
+    "signingDescription": "Signing prompt will automatically pop-up in your device after opening the app"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

@@ -4,7 +4,6 @@ import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { MarketData } from '@shapeshiftoss/types'
-import type { QueryObserverOptions } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
@@ -35,6 +34,7 @@ type UseLendingQuoteQueryProps = {
   collateralAccountId: AccountId | null
   borrowAssetId: AssetId
   depositAmountCryptoPrecision: string
+  enabled?: boolean
 }
 
 type UseLendingQuoteQueryKey = UseLendingQuoteQueryProps & { borrowAssetReceiveAddress: string }
@@ -153,7 +153,7 @@ export const useLendingQuoteOpenQuery = ({
   borrowAssetId: _borrowAssetId,
   depositAmountCryptoPrecision: _depositAmountCryptoPrecision,
   enabled = true,
-}: UseLendingQuoteQueryProps & Pick<QueryObserverOptions, 'enabled'>) => {
+}: UseLendingQuoteQueryProps) => {
   const [_borrowAssetReceiveAddress, setBorrowAssetReceiveAddress] = useState<string | null>(null)
 
   const wallet = useWallet().state.wallet

@@ -24,6 +24,7 @@
     "claimable": "獲得可能",
     "comingSoon": "近日公開 ...",
     "approve": "承認する",
+    "reset": "リセット",
     "confirm": "確認する",
     "seeDetails": "詳細",
     "activity": "アクティビティ",
@@ -251,8 +252,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "暗号通貨の売買",
     "titleMessage": " %{action}で%{asset} を利用できます",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -397,12 +396,15 @@
       },
       "saversVaults": {
         "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
+        "runePoolDescription": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
+        "runePoolOverviewDescription": "RUNEPool は、THORChain のすべての POL 対応流動性プールに RUNE を預けることで、RUNE の使用を最適化します。これらのプールに RUNE をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、RUNE インデックスとすべての THORChain POL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
         "haltedDepositTitle": "一時的に入金を停止しております。",
         "disabledDepositTitle": "デポジットは一時的に無効になります。",
         "haltedWithdrawTitle": "出金を一時停止しております。",
         "disabledWithdrawTitle": "引き出しは一時的に無効になっています。",
+        "runePoolWithdrawLockedTitle": "引き出すには%{timeHuman}待つ必要があります。",
         "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
         "protocolFee": "プロトコル手数料",
         "fee": "手数料",
@@ -412,10 +414,12 @@
         "sendDust": "少額を送る",
         "addressToSendTo": "送信先アドレス",
         "introducingSaversVaults": "Savers Vaultについて",
+        "introducingRunePool": "RUNEPoolの説明",
         "risksBody": {
           "1": "参照する",
           "2": "この記事",
-          "3": "Savers Vaultに伴うリスクについて。"
+          "3": "Savers Vaultに伴うリスクについて。",
+          "runePool": "RUNEPool に伴うリスクについて。"
         },
         "understand": "同意する",
         "days": "%{amount} 日",
@@ -426,7 +430,10 @@
         },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
-        "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。"
+        "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
+        "agreeRunePool": {
+          "1": "RUNEPool には、最低 90 日間のロックアップ期間があることと、一時的な損失のリスクが高まっていることを理解しました。"
+        }
       }
     },
     "memoNote": {
@@ -657,7 +664,8 @@
         "stake": "ステーク",
         "withdraw": "引き出す",
         "unstakeRequest": "ステーク解除リクエスト",
-        "setRuneAddress": "ルーンアドレスの設定"
+        "setRuneAddress": "RUNEアドレスの設定",
+        "reward": "報酬の分配"
       },
       "weth": {
         "deposit": "入金する",
@@ -773,12 +781,14 @@
   },
   "trade": {
     "trade": "取引",
+    "resetAllowance": "手当をリセット",
     "allowance": "手当",
     "verifyAddresses": "アドレスの確認",
     "assetAddress": "%{asset} アドレス",
     "verifyAsset": "%{asset} を確認してください",
     "verifyAddressMessage": "続行する前に、アドレスが正しいことを確認してください。",
     "slippageInfo": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",
+    "resetAllowanceTooltip": "このトークンに残っている許容量がゼロ以外の場合、最終許容量を承認する前に、まず許容量を 0 にリセットする必要があります。",
     "allowanceTooltip": "スマートコントラクトの使用許可を与える金額。",
     "searchingRate": "フェッチ率...",
     "noRateAvailable": "利用可能なレートはありません。",
@@ -907,7 +917,7 @@
     "unknownGas": "(unknown)",
     "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
-    "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力するか、",
+    "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
     "smartContractReceiveAddressDescription": "宛先チェーンに存在しないアドレスのスマートコントラクトからスワップしようとしていることが検出されました。%{chainName} で希望の受信者アドレスを確認し、手動で入力してください。",
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",
@@ -915,7 +925,11 @@
     "enableMetaMaskSnap": "マルチチェーンスナップを使用する",
     "connectChain": "%{chainName} を接続する",
     "approvalGasFee": "承認ガス手数料 %{fee}",
+    "approvalGasFeeLoading": "承認ガス料金読み込み中...",
+    "approvalResetGasFee": "承認リセットガス料金 %{fee}",
+    "approvalResetGasFeeLoading": "承認リセットガス料金読み込み中...",
     "approvalFailed": "手当の承認中に問題が発生しました",
+    "approvalResetFailed": "手当のリセット中に問題が発生しました",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
     "doAnotherTrade": "別の取引をする",
     "showDetails": "詳細",
@@ -937,7 +951,8 @@
       "swap": "%{swapperName} 経由で %{sellChainName} でスワップします"
     },
     "approvalTitle": "トークン割り当ての承認",
-    "assetSummaryDescription": "%{chainName} の %{amountFiatFormatted}",
+    "resetTitle": "トークン許容量のリセット",
+    "fiatAmountOnChain": "%{chainName} の %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
       "slippage": "スリッページ: %{ SlippageFormatted}"
@@ -1218,6 +1233,7 @@
       },
       "withdrawTo": "出金先",
       "amountToDeposit": "入金額",
+      "amountDeposited": "預入金額",
       "amountToStake": "ステーク額",
       "amountToWithdraw": "出金額",
       "amountToClaim": "獲得額",
@@ -1768,6 +1784,7 @@
         "SegwitNativeTooltip": "ほとんどのユーザーに推奨されます。他のアドレスは、その目的がわかっている場合にのみ使用してください",
         "btcFormat": "BTC形式",
         "assetUnavailable": "このアセットの市場データはまだ入手できません。現在取り組んでいますので、少々お待ちください！",
+        "customAsset": "これはカスタムインポートされた資産です。市場データは正確ではない可能性があります。",
         "loading": "価格履歴を取得しています。しばらくお待ちください...",
         "maxTotalSupply": "最大総供給量",
         "availableSupply": "利用可能な供給量",
@@ -1850,11 +1867,11 @@
       "description": "以下のリストからインポートするアカウントを選択してください。",
       "import": "インポート",
       "loadMoreDisabled": "このウォレットは、このチェーンの複数のアカウントをサポートしていません。"
-    },
-    "ledgerOpenApp": {
-      "title": "%{appName} アプリを開く",
-      "description": "このチェーンを接続するには、デバイスで台帳アプリを開く必要があります。"
     }
+  },
+  "ledgerOpenApp": {
+    "title": "%{appName} アプリを開く",
+    "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2322,6 +2339,7 @@
     "pricePerAsset": "%{from}/%{to}",
     "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
     "symAfterRuneAlert": "THOR ネットワークの仕組み上、等価値でない RUNEの 入金の後に、等価値の入金を行うことはできません。",
+    "withdrawTypeNotAvailable": "この引き出しタイプはこのプールでは利用できません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedDemoWalletExplainer": "デモ ウォレットはサポートされていません。この機能を使用するには、ウォレットに接続してください。",
@@ -2347,6 +2365,10 @@
     "confirmAndWithdraw": "確認して引き出す",
     "removeAmounts": "削除額",
     "stagedTooltip": "段階的プールは流動性を受け入れる新しいプールですが、利用可能になるまで収益は発生しません。",
+    "newPosition": "新しいポジション",
+    "newPositionTooltip": "これにより、既存の LP ポジションに追加されるのではなく、新しい LP ポジションが作成されます。",
+    "notSupported": "不可能",
+    "notSupportedTooltip": "既存の Asymmetric Rune ポジションのため、両方の資産をこのプールに入金することはできません。両方の資産で新しい LP を作成する場合は、現在のポジションから出金してください。",
     "yourPositions": {
       "yourPositions": "あなたのポジション",
       "emptyTitle": "アクティブなポジションはありません",
@@ -2529,6 +2551,7 @@
     "totalFeesCollected": "徴収された合計手数料（このエポック中で）",
     "emissionsPool": "発行プール（このエポック中で）",
     "emissionsPoolHelper": "発行プール（このエポック中で）",
-    "foxBurnAmount": "FOX のバーン量"
+    "foxBurnAmount": "FOX バーン量 (このエポック中の)",
+    "pendingDistribution": "配布保留中"
   }
 }

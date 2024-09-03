@@ -1,10 +1,11 @@
 import { Card, CardBody, CardHeader, Flex, Skeleton } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { fromBaseUnit } from 'lib/math'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -12,12 +13,8 @@ import { useAppSelector } from 'state/store'
 import { StakingInfo } from './StakingInfo'
 import { Stats } from './Stats'
 
-type OverviewProps = {
-  stakingAssetId: AssetId
-  stakingAssetAccountId: AccountId | undefined
-}
-
-export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAssetAccountId }) => {
+export const Overview: React.FC = () => {
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const stakingAssetAccountAddress = useMemo(
@@ -32,9 +29,7 @@ export const Overview: React.FC<OverviewProps> = ({ stakingAssetId, stakingAsset
 
   const stakingBalanceCryptoBaseUnitLoading = useMemo(() => {
     return (
-      stakingBalanceCryptoBaseUnitResult.isLoading ||
-      stakingBalanceCryptoBaseUnitResult.isPaused ||
-      stakingBalanceCryptoBaseUnitResult.isPending
+      stakingBalanceCryptoBaseUnitResult.isLoading || stakingBalanceCryptoBaseUnitResult.isFetching
     )
   }, [stakingBalanceCryptoBaseUnitResult])
 

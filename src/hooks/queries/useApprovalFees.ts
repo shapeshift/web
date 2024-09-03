@@ -15,21 +15,21 @@ export enum AllowanceType {
 }
 
 type UseApprovalFeesInput = {
-  accountNumber: number
   assetId: AssetId
-  from?: string
+  from: string | undefined
   spender: string
   amountCryptoBaseUnit: string
   allowanceType: AllowanceType
+  enabled: boolean
 }
 
 export const useApprovalFees = ({
-  accountNumber,
   assetId,
   amountCryptoBaseUnit,
   from,
   allowanceType,
   spender,
+  enabled,
 }: UseApprovalFeesInput) => {
   const { assetReference: to, chainId } = useMemo(() => {
     return fromAssetId(assetId)
@@ -57,12 +57,12 @@ export const useApprovalFees = ({
   }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
 
   const evmFeesResult = useEvmFees({
-    accountNumber,
     to,
+    from,
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(isApprovalRequired),
+    enabled: Boolean(isApprovalRequired && enabled),
     refetchIntervalInBackground: true,
     refetchInterval: isApprovalRequired ? 15_000 : false,
   })

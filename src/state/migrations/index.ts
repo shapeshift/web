@@ -5,6 +5,7 @@ import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
 import { clearTxHistory } from './clearTxHistory'
+import { clearWalletConnectWalletsMetadata } from './clearWalletConnectWalletsMetadata'
 
 export const migrations = {
   0: clearOpportunities,
@@ -94,5 +95,16 @@ export const migrations = {
   84: clearAssets,
   85: clearAssets,
   86: clearAssets,
-  87: clearAssets,
+  87: clearWalletConnectWalletsMetadata,
+  88: clearAssets,
+  89: clearAssets,
+  90: clearAssets,
+  91: clearAssets,
+  92: clearTxHistory,
+  93: clearAssets,
+  94: clearAssets,
+  95: clearTxHistory,
+  96: clearTxHistory,
+  97: clearAssets,
+  98: clearAssets,
 }

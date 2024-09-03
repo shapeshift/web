@@ -59,6 +59,8 @@ export const rFOXStakingMetadataResolver = async ({
     .times(stakingAssetMarketData.price)
     .toFixed(2)
 
+  const underlyingAssetIds = [foxOnArbitrumOneAssetId]
+
   const data = {
     byId: {
       [opportunityId]: {
@@ -67,8 +69,12 @@ export const rFOXStakingMetadataResolver = async ({
         provider: DefiProvider.rFOX,
         type: DefiType.Staking,
         underlyingAssetId: foxOnArbitrumOneAssetId,
-        underlyingAssetIds: [foxOnArbitrumOneAssetId],
-        underlyingAssetRatiosBaseUnit: ['1'] as const,
+        underlyingAssetIds,
+        underlyingAssetRatiosBaseUnit: [
+          bn(1)
+            .times(bn(10).pow(stakingAsset?.precision ?? 0))
+            .toString(),
+        ] as const,
         expired: false,
         name: 'rFOX',
         apy: undefined,

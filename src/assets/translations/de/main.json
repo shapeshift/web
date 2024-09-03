@@ -24,6 +24,7 @@
     "claimable": "Beanspruchbar",
     "comingSoon": "Demnächst ...",
     "approve": "Genehmigen",
+    "reset": "Zurücksetzen",
     "confirm": "Bestätigen",
     "seeDetails": "Siehe Details",
     "activity": "Aktivität",
@@ -251,8 +252,6 @@
     "routeTitleForGem": "Gem Einzahlung",
     "title": "Krypto kaufen oder verkaufen",
     "titleMessage": "Sie können %{action} %{asset} verwenden, für:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -397,12 +396,15 @@
       },
       "saversVaults": {
         "description": "Verdienen Sie Rendite auf Ihr %{asset} durch die THORChain Savers Vaults. Es gibt keine Sperrzeit und Belohnungen werden automatisch angesammelt. Die Rendite auf THORChain ergibt sich aus Swap-Gebühren und Blockbelohnungen. Die einseitige Rendite ist auf die Hälfte der doppelseitigen Rendite der Liquiditätsanbieter begrenzt.",
+        "runePoolDescription": "Mit RUNEPool können Sie mehr %{asset} verdienen, indem Sie Ihr %{asset} mit anderen bündeln. Sie müssen keine bestimmten Pools auswählen, alle sind an der Gesamtleistung beteiligt.",
+        "runePoolOverviewDescription": "RUNEPool optimiert die RUNE Nutzung, indem es in alle POL-fähigen Liquiditätspools in THORChain eingezahlt wird. Durch das Pooling von RUNE in diesen Pools verdienen die Teilnehmer den kombinierten APY, sind jedoch dem gesamten vorübergehenden Verlust ausgesetzt. Anstatt einzelne Pools auszuwählen, profitieren Benutzer von der Gesamtleistung und investieren effektiv in einen RUNE-Index und alle POL-fähigen THORChain-Vermögenswerte. Dies vereinfacht die Liquiditätsbereitstellung und reduziert das individuelle Risiko.",
         "vaultCap": "Tresorobergrenze",
         "vaultCapTooltip": "Akt. max. Kapazität für diesen Tresor",
         "haltedDepositTitle": "Einzahlungen sind vorübergehend gestoppt.",
         "disabledDepositTitle": "Einzahlungen sind vorübergehend deaktiviert.",
         "haltedWithdrawTitle": "Auszahlungen sind vorübergehend gestoppt.",
         "disabledWithdrawTitle": "Auszahlungen sind vorübergehend deaktiviert.",
+        "runePoolWithdrawLockedTitle": "Sie müssen %{timeHuman} warten, um abzuheben.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",
@@ -412,10 +414,12 @@
         "sendDust": "Sende Kleinbetrag",
         "addressToSendTo": "an diese Adresse senden",
         "introducingSaversVaults": "Einführung von Savers Vaults",
+        "introducingRunePool": "Einführung in RUNEPool",
         "risksBody": {
           "1": "In Bezug auf",
           "2": "diesen Artikel",
-          "3": "für Risiken im Zusammenhang mit Savers Vaults."
+          "3": "für Risiken im Zusammenhang mit Savers Vaults.",
+          "runePool": "für die mit RUNEPool verbundenen Risiken."
         },
         "understand": "Ich verstehe",
         "days": "%{amount} Tage",
@@ -426,7 +430,10 @@
         },
         "cannotDepositWhilePendingTx": "Kann nicht einzahlen, während Txs ausstehen",
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
-        "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben."
+        "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben.",
+        "agreeRunePool": {
+          "1": "Mir ist bewusst, dass RUNEPool eine Mindestsperrfrist von 90 Tagen hat und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
+        }
       }
     },
     "memoNote": {
@@ -657,7 +664,8 @@
         "stake": "Stake",
         "withdraw": "Abheben",
         "unstakeRequest": "Anfrage zur Aufhebung von Staking",
-        "setRuneAddress": "Rune Adresse festlegen"
+        "setRuneAddress": "RUNE Adresse festlegen",
+        "reward": "Belohnungsverteilung"
       },
       "weth": {
         "deposit": "Einzahlung",
@@ -773,12 +781,14 @@
   },
   "trade": {
     "trade": "Handeln",
+    "resetAllowance": "Kontingent zurücksetzen",
     "allowance": "Genehmigung",
     "verifyAddresses": "Adressen überprüfen",
     "assetAddress": "%{asset} Adresse",
     "verifyAsset": "überprüfe %{asset}",
     "verifyAddressMessage": "Stellen Sie sicher, dass Ihre Adressen korrekt sind, bevor Sie fortfahren.",
     "slippageInfo": "Ihre Transaktion wird rückgängig gemacht, wenn sich der Preis um mehr als diesen Prozentsatz ungünstig ändert.",
+    "resetAllowanceTooltip": "Wenn für diesen Token ein von Null abweichendes Guthaben übrig ist, muss das Guthaben vor der Genehmigung des endgültigen Guthabens zunächst auf 0 zurückgesetzt werden.",
     "allowanceTooltip": "Der Betrag, den Sie dem Smart Contract zur Nutzung in Ihrem Namen erteilen.",
     "searchingRate": "Auf der Suche nach dem besten Preis...",
     "noRateAvailable": "Kein Wechselkurs verfügbar.",
@@ -907,7 +917,7 @@
     "unknownGas": "(unbekannt)",
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
-    "receiveAddressDescription": "Keine %{chainName} Adresse der verbundenen Wallet gefunden. Geben Sie manuell eine Adresse ein oder",
+    "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
     "smartContractReceiveAddressDescription": "Wir haben festgestellt, dass Sie von einem Smart Contract wechseln, dessen Adresse möglicherweise nicht in der Zielkette vorhanden ist. Bitte überprüfen Sie die gewünschte Empfängeradresse und geben Sie sie manuell unter %{chainName} ein.",
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",
@@ -915,7 +925,11 @@
     "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap",
     "connectChain": "verbinde %{chainName}",
     "approvalGasFee": "Genehmigungsgasgebühr %{fee}",
+    "approvalGasFeeLoading": "Gasgebühr für Genehmigung wird geladen...",
+    "approvalResetGasFee": "Gasgebühr %{fee} zum Zurücksetzen der Genehmigung",
+    "approvalResetGasFeeLoading": "Gasgebühr zum Zurücksetzen der Genehmigung wird geladen …",
     "approvalFailed": "Bei der Genehmigung ist ein Problem aufgetreten",
+    "approvalResetFailed": "Beim Zurücksetzen der Genehmigung ist ein Problem aufgetreten",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
     "showDetails": "Zeige Details",
@@ -937,7 +951,8 @@
       "swap": "Tauschen Sie %{sellChainName} über %{swapperName}"
     },
     "approvalTitle": "Genehmigung der Token-Zulage",
-    "assetSummaryDescription": "%{amountFiatFormatted} auf %{chainName}",
+    "resetTitle": "Token Kontingent zurücksetzen",
+    "fiatAmountOnChain": "%{amountFiatFormatted} auf %{chainName}",
     "quote": {
       "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
       "slippage": "Slippage: %{slippageFormatted}"
@@ -1218,6 +1233,7 @@
       },
       "withdrawTo": "Abheben nach",
       "amountToDeposit": "Einzuzahlender Betrag",
+      "amountDeposited": "Eingezahlter Betrag",
       "amountToStake": "Betrag für Staking",
       "amountToWithdraw": "Abzuhebender Betrag",
       "amountToClaim": "Forderungsbetrag",
@@ -1768,6 +1784,7 @@
         "SegwitNativeTooltip": "Empfohlen für die meisten Benutzer. Verwenden Sie die anderen Adressen nur, wenn Sie wissen, wofür sie sind",
         "btcFormat": "BTC Format",
         "assetUnavailable": "Marktdaten für diesen Vermögenswert sind noch nicht verfügbar. Wir arbeiten daran, bleiben Sie dran!",
+        "customAsset": "Dies ist ein benutzerdefiniert importiertes Asset. Marktdaten sind möglicherweise nicht genau.",
         "loading": "Abrufen der Preisentwicklung, bitte warten...",
         "maxTotalSupply": "Maximales Gesamtangebot",
         "availableSupply": "Verfügbares Angebot",
@@ -1850,11 +1867,11 @@
       "description": "Wählen Sie aus der Liste unten die Konten aus, die Sie importieren möchten.",
       "import": "Importieren",
       "loadMoreDisabled": "Diese Wallet unterstützt keine Mehrfachkonten für diese Kette."
-    },
-    "ledgerOpenApp": {
-      "title": "Öffnen Sie die %{appName} App",
-      "description": "Um diese Kette zu verbinden, müssen Sie die Ledger-App auf Ihrem Gerät öffnen."
     }
+  },
+  "ledgerOpenApp": {
+    "title": "Öffnen Sie die %{appName} App",
+    "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2322,6 +2339,7 @@
     "pricePerAsset": "%{from} pro %{to}",
     "symAlert": "Ihr %{from} wird beim Eintritt in den Pool in ein 50:50-Engagement für %{to} und %{from} aufgeteilt.",
     "symAfterRuneAlert": "Aufgrund der Funktionsweise des THOR-Netzwerks sind symmetrische Einzahlungen nach einer asymmetrischen RUNE-Einzahlung nicht möglich.",
+    "withdrawTypeNotAvailable": "Diese Auszahlungsart ist für diesen Pool nicht verfügbar.",
     "incompletePositionDepositAlert": "Diese Position ist unvollständig. Bitte zahlen Sie den entsprechenden Betrag von %{asset} ein, um diese Position abzuschließen.",
     "incompletePositionWithdrawAlert": "Diese Position ist unvollständig. Bitte stornieren Sie die Position, indem Sie 100 % der Liquidität entfernen. Sie können die Position auch über „Liquidität hinzufügen“ abschließen.",
     "unsupportedDemoWalletExplainer": "Die Demo-Wallet wird nicht unterstützt. Bitte stellen Sie eine Verbindung zu einer echten Wallet her, um diese Funktion zu nutzen.",
@@ -2347,6 +2365,10 @@
     "confirmAndWithdraw": "Bestätigen und Abheben",
     "removeAmounts": "Betrag(e) entfernen",
     "stagedTooltip": "Gestaffelte Pools sind neue Pools, die Liquidität annehmen, aber bis zur Verfügbarkeit keine Einnahmen erzielen",
+    "newPosition": "Neue Position",
+    "newPositionTooltip": "Dadurch wird eine neue LP-Position erstellt, anstatt eine vorhandene hinzuzufügen.",
+    "notSupported": "Nicht möglich",
+    "notSupportedTooltip": "Aufgrund Ihrer bestehenden Position bei Asymmetric Rune ist eine Einzahlung in diesen Pool mit beiden Vermögenswerten nicht möglich. Bitte ziehen Sie Ihre aktuelle Position zurück, wenn Sie mit beiden Vermögenswerten ein neues LP erstellen möchten.",
     "yourPositions": {
       "yourPositions": "Ihre Positionen",
       "emptyTitle": "Keine aktiven Positionen",
@@ -2529,6 +2551,7 @@
     "totalFeesCollected": "Gesamte eingenommene Gebühren (in dieser Epoche)",
     "emissionsPool": "Emissionspool (diese Epoche)",
     "emissionsPoolHelper": "Emissionspool (diese Epoche)",
-    "foxBurnAmount": "Verbrannte FOX Menge"
+    "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
+    "pendingDistribution": "Ausstehende Verteilung"
   }
 }

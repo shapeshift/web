@@ -2,6 +2,7 @@ import { HStack, Link, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { isSome } from 'lib/utils'
@@ -18,9 +19,11 @@ const AddressLink = ({ feeAssetId, accountId }: { feeAssetId: AssetId; accountId
   const { account: address } = fromAccountId(accountId)
   if (!feeAsset) return null
   return (
-    <Link href={`${feeAsset.explorerAddressLink}${address}`} isExternal color='text.info'>
-      <MiddleEllipsis value={address} />
-    </Link>
+    <InlineCopyButton value={address}>
+      <Link href={`${feeAsset.explorerAddressLink}${address}`} isExternal color='text.info'>
+        <MiddleEllipsis value={address} />
+      </Link>
+    </InlineCopyButton>
   )
 }
 

@@ -111,13 +111,13 @@ export const useRfoxUnstake = ({
   const unstakeFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : '',
+      from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
       value: '0',
       chainId: fromAssetId(stakingAssetId).chainId,
     }),
-    [callData, stakingAssetAccountId, stakingAssetAccountNumber, stakingAssetId],
+    [callData, stakingAssetAccountAddress, stakingAssetAccountNumber, stakingAssetId],
   )
 
   const unstakeMutation = useMutation({
@@ -125,6 +125,8 @@ export const useRfoxUnstake = ({
       if (
         !wallet ||
         stakingAssetAccountNumber === undefined ||
+        !stakingAssetAccountId ||
+        !stakingAssetAccountAddress ||
         !stakingAsset ||
         !callData ||
         !adapter
@@ -133,6 +135,7 @@ export const useRfoxUnstake = ({
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: stakingAssetAccountNumber,
+        from: stakingAssetAccountAddress,
         adapter,
         data: callData,
         value: '0',

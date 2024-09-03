@@ -1,5 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import {
   DefiAction,
   DefiTypeDisplayName,
@@ -9,16 +10,18 @@ import React, { useCallback, useMemo } from 'react'
 import { useHistory, useLocation } from 'react-router'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import type { OpportunityId } from 'state/slices/opportunitiesSlice/types'
+import { DefiProvider, type OpportunityId } from 'state/slices/opportunitiesSlice/types'
 import { getMetadataForProvider } from 'state/slices/opportunitiesSlice/utils/getMetadataForProvider'
 import {
   selectAllEarnUserStakingOpportunitiesByFilter,
   selectAssetById,
   selectAssets,
+  selectMarketDataByAssetIdUserCurrency,
   selectOpportunityApiPending,
+  selectUnderlyingStakingAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -61,6 +64,53 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const underlyingAssetsWithBalancesAndIcons = useAppSelector(state =>
+    opportunity?.userStakingId
+      ? selectUnderlyingStakingAssetsWithBalancesAndIcons(state, {
+          userStakingId: opportunity.userStakingId,
+        })
+      : undefined,
+  )
+
+  const assetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, assetId),
+  )
+
+  const { amountCryptoPrecision, amountUserCurrency } = useMemo(() => {
+    if (!opportunity || !asset || !assetMarketData)
+      return {
+        amountCryptoPrecision: '0',
+        amountUserCurrency: '0',
+      }
+
+    const underlyingAssetBalance = underlyingAssetsWithBalancesAndIcons?.find(
+      ({ assetId: balanceAssetId }) => assetId === balanceAssetId,
+    )
+
+    if (!underlyingAssetBalance && underlyingAsset)
+      return {
+        amountCryptoPrecision: fromBaseUnit(
+          opportunity.cryptoAmountBaseUnit,
+          underlyingAsset.precision,
+        ),
+        amountUserCurrency: opportunity.fiatAmount,
+      }
+
+    return {
+      amountCryptoPrecision: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision).toFixed(),
+      amountUserCurrency: bnOrZero(underlyingAssetBalance?.cryptoBalancePrecision)
+        .times(assetMarketData.price)
+        .toFixed(),
+    }
+  }, [
+    opportunity,
+    assetId,
+    asset,
+    underlyingAssetsWithBalancesAndIcons,
+    underlyingAsset,
+    assetMarketData,
+  ])
+
   const handleClick = useCallback(() => {
     if (!opportunity) return
     const {
@@ -88,6 +138,10 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       assets,
     )
 
+    if (provider === DefiProvider.rFOX) {
+      return history.push('/rfox')
+    }
+
     history.push({
       pathname: location.pathname,
       search: qs.stringify({
@@ -110,7 +164,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
     <EquityRow
       accountId={accountId}
       onClick={handleClick}
-      fiatAmount={opportunity.fiatAmount}
+      fiatAmount={amountUserCurrency}
       totalFiatBalance={totalFiatBalance}
       color={color}
       icon={getMetadataForProvider(opportunity.provider)?.icon}
@@ -119,9 +173,7 @@ export const EquityStakingRow: React.FC<EquityStakingRowProps> = ({
       subText={opportunity.version ?? DefiTypeDisplayName[opportunity.type]}
       apy={opportunity.apy}
       isLoading={isLoading}
-      cryptoBalancePrecision={bnOrZero(opportunity.cryptoAmountBaseUnit)
-        .div(bn(10).pow(underlyingAsset?.precision ?? asset.precision))
-        .toFixed(underlyingAsset?.precision ?? asset.precision)}
+      cryptoBalancePrecision={amountCryptoPrecision}
     />
   )
 }

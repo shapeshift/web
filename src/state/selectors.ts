@@ -2,6 +2,7 @@
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
@@ -52,6 +53,8 @@ type ParamFilter = Partial<{
   feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
+  hopIndex: number
+  tradeId: TradeQuote['id']
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -65,6 +68,13 @@ export const selectParamFromFilter = <T extends ParamFilterKey>(param: T) =>
     (_state: ReduxState, filter: Pick<ParamFilter, T> | null) =>
       `${param}-${filter?.[param] ?? param}`,
   )
+
+export const selectRequiredParamFromFilter = <T extends ParamFilterKey>(param: T) =>
+  createCachedSelector(
+    (_state: ReduxState, filter: Required<Pick<ParamFilter, T>>): NonNullable<ParamFilter[T]> =>
+      filter[param] as NonNullable<ParamFilter[T]>,
+    (paramValue: NonNullable<ParamFilter[T]>): NonNullable<ParamFilter[T]> => paramValue,
+  )((_state: ReduxState, filter: Required<Pick<ParamFilter, T>>) => `${param}-${filter[param]}`)
 
 export const selectAccountIdParamFromFilter = selectParamFromFilter('accountId')
 export const selectAccountIdsParamFromFilter = selectParamFromFilter('accountIds')
@@ -88,3 +98,6 @@ export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+
+export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
+export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

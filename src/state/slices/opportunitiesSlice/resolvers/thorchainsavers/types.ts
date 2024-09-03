@@ -128,3 +128,22 @@ export type ThorchainRunepoolProviderResponseSuccess = {
   last_deposit_height: number
   last_withdraw_height: number
 }
+
+export type ThorchainRunepoolReservePositionsResponse = {
+  pools: {
+    assetAdded: string
+    assetAddress: string
+    assetDeposit: string
+    assetPending: string
+    assetWithdrawn: string
+    dateFirstAdded: string
+    dateLastAdded: string
+    liquidityUnits: string
+    pool: string
+    runeAdded: string
+    runeAddress: string
+    runeDeposit: string
+    runePending: string
+    runeWithdrawn: string
+  }[]
+}

@@ -411,7 +411,7 @@ export const zapper = createApi({
                         symbol: token.symbol,
                         // No dice here, there's no name property
                         name: token.symbol,
-                        precision: token.decimals,
+                        precision: bnOrZero(token.decimals).toNumber(),
                         icon: token.displayProps?.images[i] ?? '',
                       })
                       acc.ids = acc.ids.concat(rewardAssetId)
@@ -488,7 +488,7 @@ export const zapper = createApi({
                   const underlyingAssetIds = asset.tokens.map(token => {
                     const underlyingAssetId = zapperAssetToMaybeAssetId(token)
                     return underlyingAssetId!
-                  }) as unknown as AssetIdsTuple
+                  })
 
                   const assetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
                   const assetPrice =
@@ -545,7 +545,7 @@ export const zapper = createApi({
                         symbol: asset.tokens[i].symbol,
                         // No dice here, there's no name property
                         name: asset.tokens[i].symbol,
-                        precision: asset.tokens[i].decimals,
+                        precision: bnOrZero(asset.tokens[i].decimals).toNumber(),
                         icon: asset.displayProps?.images[i] ?? '',
                       })
                       acc.ids = acc.ids.concat(underlyingAssetId)
@@ -580,7 +580,10 @@ export const zapper = createApi({
                         ? bn(reserveBaseUnit).div(totalSupplyBaseUnit).toString()
                         : undefined
                       if (bnOrZero(tokenPoolRatio).isZero()) return '0'
-                      const ratio = toBaseUnit(tokenPoolRatio, asset.tokens[i].decimals)
+                      const ratio = toBaseUnit(
+                        tokenPoolRatio,
+                        bnOrZero(asset.tokens[i].decimals).toNumber(),
+                      )
                       return ratio
                     },
                   )

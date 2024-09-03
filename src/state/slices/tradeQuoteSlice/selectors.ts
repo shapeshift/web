@@ -23,6 +23,10 @@ import { TradeQuoteRequestError, TradeQuoteWarning } from 'state/apis/swapper/ty
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
+import {
+  selectHopIndexParamFromRequiredFilter,
+  selectTradeIdParamFromRequiredFilter,
+} from 'state/selectors'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import {
   selectFirstHopSellAccountId,
@@ -236,6 +240,26 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
       return response?.quote
     },
   )
+
+const selectQuoteSlippageTolerancePercentageDecimal: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveQuote, activeQuote => {
+    return activeQuote?.slippageTolerancePercentageDecimal
+  })
+
+export const selectQuoteSlippageTolerancePercentage: Selector<ReduxState, string | undefined> =
+  createSelector(
+    selectQuoteSlippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal => {
+      return slippageTolerancePercentageDecimal
+        ? bn(slippageTolerancePercentageDecimal).times(100).toString()
+        : undefined
+    },
+  )
+
+export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefined> = createSelector(
+  selectConfirmedQuote,
+  confirmedQuote => confirmedQuote?.id,
+)
 
 export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
   selectActiveStepOrDefault,
@@ -479,7 +503,7 @@ export const selectSecondHopNetworkFeeUserCurrencyPrecision: Selector<
 export const selectHopNetworkFeeUserCurrencyPrecision = createDeepEqualOutputSelector(
   selectFirstHopNetworkFeeUserCurrencyPrecision,
   selectSecondHopNetworkFeeUserCurrencyPrecision,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
+  selectHopIndexParamFromRequiredFilter,
   (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision, hopIndex) => {
     return hopIndex === 0
       ? firstHopNetworkFeeUserCurrencyPrecision
@@ -503,12 +527,15 @@ export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = cre
     bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)).times(100).toString(),
 )
 
+// Returns the trade slippage in priority order: user preference, quote derived, default
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(
   selectActiveSwapperName,
+  selectQuoteSlippageTolerancePercentageDecimal,
   selectUserSlippagePercentageDecimal,
-  (activeSwapperName, slippagePreferencePercentage) => {
+  (activeSwapperName, quoteSlippageTolerancePercentage, slippagePreferencePercentage) => {
     return (
       slippagePreferencePercentage ??
+      quoteSlippageTolerancePercentage ??
       getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
     )
   },
@@ -628,16 +655,20 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
   },
 )
 
-export const selectTradeExecutionState = createSelector(
+export const selectConfirmedTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
-  swappers => swappers.tradeExecution.state,
+  selectConfirmedQuoteTradeId,
+  (swappers, confirmedTradeId) => {
+    if (!confirmedTradeId) return
+    return swappers.tradeExecution[confirmedTradeId].state
+  },
 )
 
 // selects the account ID we're selling from for the given hop
 export const selectHopSellAccountId = createSelector(
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
+  selectHopIndexParamFromRequiredFilter,
   (firstHopSellAccountId, secondHopSellAccountId, hopIndex) => {
     return hopIndex === 0 ? firstHopSellAccountId : secondHopSellAccountId
   },
@@ -645,9 +676,12 @@ export const selectHopSellAccountId = createSelector(
 
 export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
-  (_state: ReduxState, hopIndex: number) => hopIndex,
-  (swappers, hopIndex) => {
-    return hopIndex === 0 ? swappers.tradeExecution.firstHop : swappers.tradeExecution.secondHop
+  selectTradeIdParamFromRequiredFilter,
+  selectHopIndexParamFromRequiredFilter,
+  (swappers, tradeId, hopIndex) => {
+    return hopIndex === 0
+      ? swappers.tradeExecution[tradeId].firstHop
+      : swappers.tradeExecution[tradeId].secondHop
   },
 )
 

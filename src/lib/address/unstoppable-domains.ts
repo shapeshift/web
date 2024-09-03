@@ -49,18 +49,19 @@ const chainIdToUDTicker: Record<string, string> = {
 }
 
 // resolve
-export const resolveUnstoppableDomain: ResolveVanityAddress = args => {
+export const resolveUnstoppableDomain: ResolveVanityAddress = async args => {
   const { chainId, maybeAddress: value } = args
   const ticker = chainIdToUDTicker[chainId]
   if (!ticker) {
     console.error('cannot resolve: unsupported chainId', { args })
-    return Promise.resolve('')
+    return ''
   }
   try {
-    return getResolution().addr(value, ticker)
+    const result = await getResolution().addr(value, ticker)
+    return result ?? ''
   } catch (e) {
     console.error(e)
-    return Promise.resolve('')
+    return ''
   }
 }
 

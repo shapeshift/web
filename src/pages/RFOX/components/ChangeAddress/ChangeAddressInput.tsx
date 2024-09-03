@@ -1,6 +1,15 @@
-import { Box, Button, CardFooter, Collapse, Flex, Input, Skeleton, Stack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  Box,
+  Button,
+  CardBody,
+  CardFooter,
+  Collapse,
+  Flex,
+  Input,
+  Skeleton,
+  Stack,
+} from '@chakra-ui/react'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
 import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
@@ -15,36 +24,35 @@ import { RawText, Text } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
-import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import {
-  assertGetEvmChainAdapter,
-  type GetFeesWithWalletArgs,
-  isGetFeesWithWalletArgs,
+import type {
+  GetFeesWithWalletEip1559SupportArgs,
+  MaybeGetFeesWithWalletEip1559Args,
 } from 'lib/utils/evm'
+import { assertGetEvmChainAdapter, isGetFeesWithWalletEIP1559SupportArgs } from 'lib/utils/evm'
 import { selectRuneAddress } from 'pages/RFOX/helpers'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
   selectFeeAssetByChainId,
-  selectFirstAccountIdByChainId,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
 type ChangeAddressInputProps = {
-  stakingAssetId?: AssetId
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void
 }
 
 export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInputProps> = ({
   headerComponent,
-  stakingAssetId = foxOnArbitrumOneAssetId,
   setConfirmedQuote,
 }) => {
+  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
   const history = useHistory()
@@ -57,11 +65,6 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const adapter = useMemo(
     () => (feeAsset ? assertGetEvmChainAdapter(fromAssetId(feeAsset.assetId).chainId) : undefined),
     [feeAsset],
-  )
-
-  // TODO(gomes): make this programmatic when we implement multi-account
-  const stakingAssetAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, stakingAsset?.chainId ?? ''),
   )
 
   const stakingAssetAccountAddress = useMemo(
@@ -122,9 +125,9 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   }, [newRuneAddress])
 
   const isGetChangeAddressFeesEnabled = useCallback(
-    (input: MaybeGetFeesWithWalletArgs): input is GetFeesWithWalletArgs =>
+    (input: MaybeGetFeesWithWalletEip1559Args): input is GetFeesWithWalletEip1559SupportArgs =>
       Boolean(
-        isGetFeesWithWalletArgs(input) &&
+        isGetFeesWithWalletEIP1559SupportArgs(input) &&
           currentRuneAddress &&
           newRuneAddress &&
           !Boolean(errors.manualRuneAddress || errors.newRuneAddress),
@@ -135,7 +138,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const changeAddressFeesQueryInput = useMemo(
     () => ({
       to: RFOX_PROXY_CONTRACT_ADDRESS,
-      from: stakingAssetAccountAddress ?? '',
+      from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
@@ -210,6 +213,15 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
 
+  if (!stakingAssetAccountAddress)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
   if (!stakingAsset) return null
 
   return (

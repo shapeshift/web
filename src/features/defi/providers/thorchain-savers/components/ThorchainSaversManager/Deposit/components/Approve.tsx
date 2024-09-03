@@ -21,6 +21,7 @@ import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -54,6 +55,7 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
@@ -99,7 +101,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter),
   )
 
-  const isTokenDeposit = isToken(assetReference)
+  const isTokenDeposit = isToken(assetId)
 
   const feeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
@@ -156,8 +158,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       const adapter = assertGetEvmChainAdapter(chainId)
+
+      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,
+        from: fromAccountId(accountId).account,
         adapter,
         data,
         value: '0',
@@ -204,10 +210,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     accountNumber,
-    asset,
+    asset.assetId,
+    asset.chainId,
+    asset.precision,
     assetId,
     assets,
     chainId,
+    checkLedgerAppOpenIfLedgerConnected,
     dispatch,
     inboundAddress,
     onNext,

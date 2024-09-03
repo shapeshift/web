@@ -1,4 +1,4 @@
-import { arbitrumAssetId, arbitrumChainId } from '@shapeshiftoss/caip'
+import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -1054,7 +1054,7 @@ describe('parseTx', () => {
         confirmations: 1114870,
         data: {
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',
@@ -1079,7 +1079,7 @@ describe('parseTx', () => {
         confirmations: 1180014,
         data: {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',
@@ -1126,6 +1126,9 @@ describe('parseTx', () => {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
           method: 'outboundTransfer',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+          value: '1000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',
@@ -1201,6 +1204,9 @@ describe('parseTx', () => {
           assetId: undefined,
           method: 'withdrawEth',
           parser: 'arbitrumBridge',
+          destinationAddress: '0x94a42DB1E578eFf403B1644FA163e523803241Fd',
+          destinationAssetId: ethAssetId,
+          value: '100000000000',
         },
         fee: {
           assetId: 'eip155:42161/slip44:60',

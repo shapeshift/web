@@ -55,7 +55,7 @@ export const AccountToken = () => {
         gap={4}
         display={multiHopTradeDisplay}
       >
-        <MultiHopTrade isCompact />
+        <MultiHopTrade isCompact defaultBuyAssetId={id} />
       </Flex>
     </Stack>
   )

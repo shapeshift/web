@@ -31,7 +31,11 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
-import { assertGetEvmChainAdapter, getErc20Allowance, getFeesWithWallet } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  getErc20Allowance,
+  getFeesWithWalletEIP1559Support,
+} from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
@@ -107,7 +111,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const isRunePool = assetId === thorchainAssetId
 
-  const isTokenDeposit = isToken(fromAssetId(assetId).assetReference)
+  const isTokenDeposit = isToken(assetId)
 
   const accountNumberFilter = useMemo(() => ({ accountId }), [accountId])
   const accountNumber = useAppSelector(state =>
@@ -342,11 +346,11 @@ export const Deposit: React.FC<DepositProps> = ({
 
           const adapter = assertGetEvmChainAdapter(chainId)
 
-          return getFeesWithWallet({
-            accountNumber,
+          return getFeesWithWalletEIP1559Support({
             adapter,
             data,
             to: fromAssetId(assetId).assetReference,
+            from: userAddress,
             value: '0',
             wallet,
           })
@@ -389,23 +393,23 @@ export const Deposit: React.FC<DepositProps> = ({
       }
     },
     [
-      userAddress,
-      opportunityData,
-      inputValues,
-      accountId,
-      contextDispatch,
       feeAsset,
-      chainId,
+      accountId,
+      userAddress,
+      inputValues,
+      opportunityData,
+      contextDispatch,
+      isApprovalRequired,
       estimatedFeesData,
       onNext,
       isSweepNeeded,
       assetId,
       assets,
-      isApprovalRequired,
       inboundAddress,
       accountNumber,
       wallet,
       asset.chainId,
+      chainId,
       toast,
       translate,
     ],

@@ -1,5 +1,9 @@
-import { Button, Card, CardBody, Link, Tooltip, VStack } from '@chakra-ui/react'
-import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { Button, Card, CardBody, Link, VStack } from '@chakra-ui/react'
+import type {
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
@@ -11,10 +15,15 @@ import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectHopExecutionMetadata,
+  selectHopSellAccountId,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
@@ -31,6 +40,7 @@ export type HopTransactionStepProps = {
   isActive: boolean
   hopIndex: SupportedTradeQuoteStepIndex
   isLastStep?: boolean
+  activeTradeId: TradeQuote['id']
 }
 
 export const HopTransactionStep = ({
@@ -39,19 +49,29 @@ export const HopTransactionStep = ({
   isActive,
   hopIndex,
   isLastStep,
+  activeTradeId,
 }: HopTransactionStepProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
   const translate = useTranslate()
 
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
+
   const {
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopIndex))
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
 
-  const executeTrade = useTradeExecution(hopIndex)
+  const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
   const handleSignTx = useCallback(async () => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -59,13 +79,37 @@ export const HopTransactionStep = ({
       return
     }
 
-    await executeTrade()
-  }, [executeTrade, swapTxState])
+    // Only proceed to execute the trade if the promise is resolved, i.e the user has opened the
+    // Ledger app without cancelling
+    await checkLedgerAppOpenIfLedgerConnected(tradeQuoteStep.sellAsset.chainId)
+      .then(() => executeTrade())
+      .catch(console.error)
+  }, [
+    checkLedgerAppOpenIfLedgerConnected,
+    executeTrade,
+    swapTxState,
+    tradeQuoteStep.sellAsset.chainId,
+  ])
 
   const isBridge = useMemo(
     () => tradeQuoteStep.buyAsset.chainId !== tradeQuoteStep.sellAsset.chainId,
     [tradeQuoteStep.buyAsset.chainId, tradeQuoteStep.sellAsset.chainId],
   )
+
+  const hopSellAccountIdFilter = useMemo(
+    () => ({
+      hopIndex,
+    }),
+    [hopIndex],
+  )
+  const sellAssetAccountId = useAppSelector(state =>
+    selectHopSellAccountId(state, hopSellAccountIdFilter),
+  )
+
+  const { data: safeTx } = useSafeTxQuery({
+    maybeSafeTxHash: sellTxHash,
+    chainId: tradeQuoteStep.sellAsset.chainId,
+  })
 
   const txLinks = useMemo(() => {
     const txLinks = []
@@ -75,6 +119,9 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           txId: buyTxHash,
+          // Assume buy TxHash can never be a user SAFE hash
+          isSafeTxHash: false,
+          accountId: sellAssetAccountId,
         }),
         txHash: buyTxHash,
       })
@@ -85,6 +132,8 @@ export const HopTransactionStep = ({
         txLink: getTxLink({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+          accountId: sellAssetAccountId,
+          isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
           ...(tradeQuoteStep.source === SwapperName.CowSwap
             ? {
                 tradeId: sellTxHash,
@@ -98,7 +147,15 @@ export const HopTransactionStep = ({
     }
 
     return txLinks
-  }, [buyTxHash, sellTxHash, tradeQuoteStep])
+  }, [
+    buyTxHash,
+    safeTx?.isSafeTxHash,
+    sellAssetAccountId,
+    sellTxHash,
+    tradeQuoteStep.buyAsset.explorerTxLink,
+    tradeQuoteStep.sellAsset.explorerTxLink,
+    tradeQuoteStep.source,
+  ])
 
   const stepIndicator = useMemo(() => {
     const defaultIcon = <SwapperIcon swapperName={swapperName} />
@@ -129,12 +186,21 @@ export const HopTransactionStep = ({
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap hopIndex={hopIndex} />
+            <StreamingSwap hopIndex={hopIndex} activeTradeId={activeTradeId} />
           </CardBody>
         </Card>
       )
     }
-  }, [handleSignTx, hopIndex, isActive, sellTxHash, swapTxState, tradeQuoteStep.source, translate])
+  }, [
+    handleSignTx,
+    hopIndex,
+    isActive,
+    sellTxHash,
+    swapTxState,
+    activeTradeId,
+    tradeQuoteStep.source,
+    translate,
+  ])
 
   const description = useMemo(() => {
     const sellChainSymbol = getChainShortName(tradeQuoteStep.sellAsset.chainId as KnownChainIds)
@@ -171,11 +237,7 @@ export const HopTransactionStep = ({
             fontWeight='bold'
           />
         )}
-        {Boolean(message) && (
-          <Tooltip label={message}>
-            <RawText color='text.subtle'>{message}</RawText>
-          </Tooltip>
-        )}
+        {message && <Text translation={message} color='text.subtle' />}
         {txLinks.map(({ txLink, txHash }) => (
           <Link isExternal color='text.link' href={txLink} key={txHash}>
             <MiddleEllipsis value={txHash} />

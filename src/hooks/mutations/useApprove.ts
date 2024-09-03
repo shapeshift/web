@@ -13,7 +13,6 @@ import { isToken } from 'lib/utils'
 import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
-  from?: string
   onSuccess?: (txHash: string) => void
 }
 
@@ -46,12 +45,13 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
+      from: input.from,
       accountNumber: input.accountNumber,
       to: input.assetId ? fromAssetId(input.assetId).assetReference : undefined,
       data: approvalCallData,
       chainId,
     }),
-    [approvalCallData, chainId, input.accountNumber, input.assetId],
+    [approvalCallData, chainId, input.accountNumber, input.assetId, input.from],
   )
 
   const allowanceDataQuery = useAllowance({
@@ -62,7 +62,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
 
   const isApprovalRequired = useMemo(() => {
     if (!(input.assetId && input.amountCryptoBaseUnit && chainId)) return false
-    if (!(isEvmChainId(chainId) && isToken(fromAssetId(input.assetId).assetReference))) return false
+    if (!(isEvmChainId(chainId) && isToken(input.assetId))) return false
 
     if (!allowanceDataQuery?.data) return
 

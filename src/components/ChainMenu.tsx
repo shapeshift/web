@@ -70,7 +70,7 @@ const ChainMenuItem = <T extends ChainId | 'All'>({
 
     return {
       chainName: adapter?.getDisplayName(),
-      assetIcon: <ChainIcon chainId={chainId} width='6' height='auto' />,
+      assetIcon: <ChainIcon chainId={chainId} boxSize='6' />,
     }
   }, [chainId])
 
@@ -116,7 +116,7 @@ const MenuIcon = <T extends ChainId | 'All'>({
     return translate('common.all')
   }
 
-  return <ChainIcon chainId={activeChainId} width='6' height='auto' />
+  return <ChainIcon chainId={activeChainId} boxSize='6' />
 }
 
 const GenericChainMenu = <T extends ChainId | 'All'>({

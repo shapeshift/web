@@ -27,7 +27,10 @@ import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectUserSlippagePercentage } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { selectDefaultSlippagePercentage } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectDefaultSlippagePercentage,
+  selectQuoteSlippageTolerancePercentage,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 enum SlippageType {
@@ -49,6 +52,8 @@ type SlippagePopoverProps = {
 export const SlippagePopover: FC<SlippagePopoverProps> = memo(
   ({ tooltipTranslation, isDisabled }) => {
     const defaultSlippagePercentage = useAppSelector(selectDefaultSlippagePercentage)
+    const quoteSlippagePercentage = useAppSelector(selectQuoteSlippageTolerancePercentage)
+
     const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
 
     const [slippageType, setSlippageType] = useState<SlippageType>(SlippageType.Auto)
@@ -68,11 +73,11 @@ export const SlippagePopover: FC<SlippagePopoverProps> = memo(
         setSlippageAmount(userSlippagePercentage)
       } else {
         setSlippageType(SlippageType.Auto)
-        setSlippageAmount(defaultSlippagePercentage)
+        setSlippageAmount(quoteSlippagePercentage ?? defaultSlippagePercentage)
       }
       // We only want this to run on mount, though not to be reactive to userSlippagePercentage
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [defaultSlippagePercentage])
+    }, [defaultSlippagePercentage, quoteSlippagePercentage])
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value

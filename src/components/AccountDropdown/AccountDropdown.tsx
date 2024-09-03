@@ -246,6 +246,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
         validatedAccountIdFromArgs ??
         (autoSelectHighestBalance ? highestUserCurrencyBalanceAccountId : undefined) ??
         firstAccountId
+      if (previousSelectedAccountId === preSelectedAccountId) return
       /**
        * assert asset the chainId of the accountId and assetId match
        */
@@ -261,6 +262,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       defaultAccountId,
       highestUserCurrencyBalanceAccountId,
       autoSelectHighestBalance,
+      previousSelectedAccountId,
     ])
 
     const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
@@ -324,7 +326,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
             rightIcon={rightIcon}
             variant='ghost'
             color='text.base'
-            disabled={isDropdownDisabled}
+            isDisabled={isDropdownDisabled}
             {...buttonProps}
           >
             <Flex

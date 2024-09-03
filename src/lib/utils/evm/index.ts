@@ -44,6 +44,7 @@ type BuildAndBroadcastArgs = BuildArgs &
 
 type CreateBuildCustomTxInputArgs = {
   accountNumber: number
+  from: string
   adapter: EvmChainAdapter
   to: string
   data: string
@@ -73,40 +74,39 @@ type GetFeesCommonArgs = {
   data: string
   to: string
   value: string
+  from: string
 }
 
-export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
-  accountNumber: number
+export type GetFeesWithWalletEip1559SupportArgs = GetFeesCommonArgs & {
   wallet: HDWallet
 }
 
-export type MaybeGetFeesWithWalletArgs = PartialFields<
-  Omit<GetFeesWithWalletArgs, 'wallet'>,
-  'adapter' | 'accountNumber' | 'data' | 'to'
+export type MaybeGetFeesWithWalletEip1559Args = PartialFields<
+  Omit<GetFeesWithWalletEip1559SupportArgs, 'wallet'>,
+  'adapter' | 'data' | 'to' | 'from'
 > & {
   wallet: HDWallet | null
 }
 
-export const isGetFeesWithWalletArgs = (
-  input: MaybeGetFeesWithWalletArgs,
-): input is GetFeesWithWalletArgs =>
-  Boolean(
-    input.adapter && input.accountNumber !== undefined && input.wallet && input.data && input.to,
-  )
+export const isGetFeesWithWalletEIP1559SupportArgs = (
+  input: MaybeGetFeesWithWalletEip1559Args,
+): input is GetFeesWithWalletEip1559SupportArgs =>
+  Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
-export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
-  const { accountNumber, adapter, wallet, ...rest } = args
+export const getFeesWithWalletEIP1559Support = async (
+  args: GetFeesWithWalletEip1559SupportArgs,
+): Promise<Fees> => {
+  const { wallet, ...rest } = args
 
-  const from = await adapter.getAddress({ accountNumber, wallet })
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFees({ ...rest, adapter, from, supportsEIP1559 })
+  return getFees({ ...rest, supportsEIP1559 })
 }
 
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
-  const fees = await getFeesWithWallet(args)
+  const fees = await getFeesWithWalletEIP1559Support(args)
   return { ...args, ...fees }
 }
 

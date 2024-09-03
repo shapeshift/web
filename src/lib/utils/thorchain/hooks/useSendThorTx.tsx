@@ -15,6 +15,7 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -75,6 +76,7 @@ export const useSendThorTx = ({
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const wallet = useWallet().state.wallet
   const toast = useToast()
   const translate = useTranslate()
@@ -150,7 +152,7 @@ export const useSendThorTx = ({
      * https://www.tdly.co/shared/simulation/6d23d42a-8dd6-4e3e-88a8-62da779a765d_
      */
     const assetAddress =
-      !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+      !isToken(assetId) || shouldUseDustAmount
         ? zeroAddress
         : getAddress(fromAssetId(assetId).assetReference)
 
@@ -195,7 +197,7 @@ export const useSendThorTx = ({
 
         return {
           amountCryptoPrecision:
-            !isToken(fromAssetId(assetId).assetReference) || shouldUseDustAmount
+            !isToken(assetId) || shouldUseDustAmount
               ? fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision)
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
@@ -269,7 +271,9 @@ export const useSendThorTx = ({
     if (!transactionType) return
     if (!estimateFeesArgs) return
     if (accountNumber === undefined) return
-    if (isToken(fromAssetId(asset.assetId).assetReference) && !inboundAddressData) return
+    if (isToken(asset.assetId) && !inboundAddressData) return
+
+    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
 
     if (
       action !== 'withdrawRunepool' &&
@@ -324,12 +328,11 @@ export const useSendThorTx = ({
 
           const buildCustomTxInput = await createBuildCustomTxInput({
             accountNumber,
+            from: account,
             adapter,
             data: depositWithExpiryInputData,
             value:
-              !isToken(fromAssetId(asset.assetId).assetReference) || shouldUseDustAmount
-                ? amountOrDustCryptoBaseUnit
-                : '0',
+              !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
           })
@@ -371,6 +374,7 @@ export const useSendThorTx = ({
           const _txId = await handleSend({
             sendInput,
             wallet,
+            checkLedgerAppOpenIfLedgerConnected,
           })
 
           return {
@@ -409,22 +413,23 @@ export const useSendThorTx = ({
 
     return _txId
   }, [
-    accountId,
-    accountNumber,
-    amountOrDustCryptoBaseUnit,
-    asset,
-    depositWithExpiryInputData,
-    estimateFeesArgs,
-    fromAddress,
-    inboundAddressData,
     memo,
-    selectedCurrency,
-    shouldUseDustAmount,
-    toast,
-    transactionType,
-    translate,
+    asset,
     wallet,
+    accountId,
+    transactionType,
+    estimateFeesArgs,
+    accountNumber,
+    inboundAddressData,
     action,
+    shouldUseDustAmount,
+    amountOrDustCryptoBaseUnit,
+    toast,
+    translate,
+    depositWithExpiryInputData,
+    checkLedgerAppOpenIfLedgerConnected,
+    fromAddress,
+    selectedCurrency,
   ])
 
   return {

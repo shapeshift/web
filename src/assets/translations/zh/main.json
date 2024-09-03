@@ -24,6 +24,7 @@
     "claimable": "可认领的",
     "comingSoon": "即将推出 ...",
     "approve": "授权",
+    "reset": "重置",
     "confirm": "确认",
     "seeDetails": "查看具体信息",
     "activity": "激活",
@@ -76,7 +77,6 @@
     "transactionFailedBody": "交易失败",
     "submitFeedback": "提交反馈",
     "send": "发送",
-    "sendAmountAsset": "发送 %{amount} %{asset}",
     "receive": "接收",
     "privacy": "隐私政策",
     "terms": "服务条款",
@@ -106,9 +106,11 @@
     "switchNetwork": "切换网络",
     "selectNetwork": "选择一个网络",
     "unsupportedNetwork": "不支持的网络",
+    "unsupportedWallet": "不支持的钱包",
     "chartUnavailable": "%{unavailableAssetNames} 的余额图表数据暂时不可用。",
     "search": "搜索",
     "searchAsset": "搜索资产",
+    "searchNameOrAddress": "按姓名或地址搜索",
     "enterAmount": "输入数量",
     "enterAddress": "输入地址",
     "pageNotFound": "找不到你要查找的页面",
@@ -150,6 +152,7 @@
     "prices": "价格",
     "symmetric": "对称",
     "asymmetric": "不对称 (%{assetSymbol})",
+    "import": "导入",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -163,7 +166,8 @@
       "sortedDesc": "降序排序",
       "expandRow": "展开行"
     },
-    "featureDisabled": "此功能暂时禁用。"
+    "featureDisabled": "此功能暂时禁用。",
+    "yes": "是的"
   },
   "consentBanner": {
     "body": {
@@ -248,8 +252,6 @@
     "routeTitleForGem": "Gem on Ramp",
     "title": "购买或出售加密货币",
     "titleMessage": "你可以使用以下方法%{action} %{asset}：",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -394,12 +396,15 @@
       },
       "saversVaults": {
         "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
+        "runePoolDescription": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
+        "runePoolOverviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有支持 POL 的流动性池来优化 RUNE 的使用。通过在这些池中汇集 RUNE，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资于 RUNE 指数和所有支持 THORChain POL 的资产。这简化了流动性提供并降低了个人风险。",
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
         "haltedDepositTitle": "充值暂时停止。",
         "disabledDepositTitle": "暂时禁止存款。",
         "haltedWithdrawTitle": "提款暂时停止。",
         "disabledWithdrawTitle": "暂时禁止提款。",
+        "runePoolWithdrawLockedTitle": "您必须等待 %{timeHuman} 才能提款。",
         "haltedDescription": "请 @THORChain 发推文以提高上限！",
         "protocolFee": "协议费",
         "fee": "费用",
@@ -409,10 +414,12 @@
         "sendDust": "发送 Dust",
         "addressToSendTo": "发送地址到",
         "introducingSaversVaults": "介绍储户金库",
+        "introducingRunePool": "介绍 RUNEPool",
         "risksBody": {
           "1": "参考",
           "2": "这篇文章",
-          "3": "与储户金库有关的风险。"
+          "3": "与储户金库有关的风险。",
+          "runePool": "与 RUNEPool 相关的风险。"
         },
         "understand": "我理解",
         "days": "%{amount} 天",
@@ -423,7 +430,10 @@
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
-        "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。"
+        "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。",
+        "agreeRunePool": {
+          "1": "我知道 RUNEPool 有 90 天的最低锁定期，并且存在较高的无常损失风险。"
+        }
       }
     },
     "memoNote": {
@@ -641,11 +651,21 @@
     "for": "对于",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
     "parser": {
+      "arbitrumBridge": {
+        "outboundTransfer": "提现已发起",
+        "outboundTransferDeposit": "充值已启动",
+        "withdrawEth": "提现已发起",
+        "submitRetryable": "充值到账",
+        "createRetryableTicket": "充值已启动",
+        "finalizeInboundTransfer": "提现已收到",
+        "depositEth": "充值已启动"
+      },
       "rfox": {
         "stake": "质押",
         "withdraw": "提现",
         "unstakeRequest": "取消质押请求",
-        "setRuneAddress": "设置符文地址"
+        "setRuneAddress": "设置 RUNE 地址",
+        "reward": "奖励分配"
       },
       "weth": {
         "deposit": "充值",
@@ -734,6 +754,7 @@
     }
   },
   "bridge": {
+    "nativeAssetWarning": "确保你的 %{destinationChainName} 账户中有 %{destinationSymbol}，你将需要它来进行交易",
     "confirm": "确认桥接",
     "selectChain": "选择链",
     "selectAsset": "选择资产",
@@ -748,16 +769,26 @@
     "route": "路径",
     "waitTimeLabel": "大约等待时间",
     "waitTimeValue": "~5-10 分钟",
-    "noSupportedAssets": "投资组合中没有受支持的资产。"
+    "noSupportedAssets": "投资组合中没有受支持的资产。",
+    "arbitrum": {
+      "waitWarning": "Arbitrum 的原生桥更安全，但可能需要长达一周的时间才能认领。",
+      "waitCta": "我知道我需要大约 7 天的时间才能在以太坊上领取资金",
+      "claimCta": "我理解领取资金后，我必须再发送一笔交易并支付费用"
+    },
+    "claims": "认领",
+    "availableClaims": "可用的",
+    "pendingClaims": "待确认"
   },
   "trade": {
     "trade": "交易",
+    "resetAllowance": "重置津贴",
     "allowance": "额度",
     "verifyAddresses": "验证地址",
     "assetAddress": "%{asset} 地址",
     "verifyAsset": "验证 %{asset}",
     "verifyAddressMessage": "在继续之前确保您的地址正确。",
     "slippageInfo": "如果价格不利变化超过此百分比，你的交易将恢复。",
+    "resetAllowanceTooltip": "当此代币剩余的配额非零时，必须先将配额重置为 0，然后才能批准最终配额。",
     "allowanceTooltip": "你授予智能合约允许使用的数量。",
     "searchingRate": "利率...",
     "noRateAvailable": "没有利率可用。",
@@ -886,14 +917,19 @@
     "unknownGas": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
-    "receiveAddressDescription": "从连接的钱包中没有找不到 %{chainName} 地址。请手动输入地址或",
+    "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
+    "smartContractReceiveAddressDescription": "我们检测到你正在从智能合约进行兑换，而该合约的地址可能不存在于目标链上。请验证并在 %{chainName} 上手动输入所需的收件人地址",
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
     "enableMetaMaskSnap": "使用多链 snap",
     "connectChain": "连接 %{chainName}",
     "approvalGasFee": "授权手续费 %{fee}",
+    "approvalGasFeeLoading": "批准gas费加载中...",
+    "approvalResetGasFee": "批准重置 gas 费用 %{fee}",
+    "approvalResetGasFeeLoading": "批准重置 gas 费加载中...",
     "approvalFailed": "额度审批过程中出现问题",
+    "approvalResetFailed": "重置配额时出现问题",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
     "doAnotherTrade": "进行另一笔交易",
     "showDetails": "显示详细资料",
@@ -915,7 +951,8 @@
       "swap": "通过 %{swapperName} 在 %{sellChainName} 上进行兑换"
     },
     "approvalTitle": "代币津贴批准",
-    "assetSummaryDescription": "%{chainName} 上的 %{amountFiatFormatted}",
+    "resetTitle": "代币限额重置",
+    "fiatAmountOnChain": "%{chainName} 上的 %{amountFiatFormatted}",
     "quote": {
       "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
       "slippage": "滑点：%{slippageFormatted}"
@@ -1196,6 +1233,7 @@
       },
       "withdrawTo": "提现到",
       "amountToDeposit": "充值数量",
+      "amountDeposited": "充值金额",
       "amountToStake": "质押数量",
       "amountToWithdraw": "提现数量",
       "amountToClaim": "认领数量",
@@ -1427,7 +1465,9 @@
         "connectFailure": "无法连接Ledger钱包",
         "unknown": "与 Ledger 钱包通信时发生意外错误",
         "appNotOpen": "%{app} 未在 Ledger 上打开",
-        "appNotOpenDescription": "请在你的设备上打开 %{app} 应用程序并重试。"
+        "appNotOpenDescription": "请在你的设备上打开 %{app} 应用程序并重试。",
+        "noDeviceConnected": "未连接 Ledger 设备",
+        "multipleDevicesConnected": "已连接多个 Ledger 设备。请断开除一个设备之外的所有设备。"
       },
       "connect": {
         "header": "匹配 Ledger",
@@ -1744,6 +1784,7 @@
         "SegwitNativeTooltip": "推荐给大多数用户。仅当你知道其他地址的用途时才使用它们",
         "btcFormat": "比特币钱包地址格式",
         "assetUnavailable": "该资产的市场数据尚不可用。我们正在努力，请稍等！",
+        "customAsset": "这是自定义导入的资产。市场数据可能不准确。",
         "loading": "正在获取价格历史记录，请稍等...",
         "maxTotalSupply": "最大总供应量",
         "availableSupply": "可用供应",
@@ -1826,11 +1867,11 @@
       "description": "从下面的列表中选择你想要导入的帐户。",
       "import": "导入",
       "loadMoreDisabled": "此钱包不支持此链的多个账户。"
-    },
-    "ledgerOpenApp": {
-      "title": "打开 %{appName} 应用",
-      "description": "要连接此链，你需要在设备上打开 Ledger 应用程序。"
     }
+  },
+  "ledgerOpenApp": {
+    "title": "打开 %{appName} 应用",
+    "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2165,10 +2206,14 @@
     "poolDepth": "池深度",
     "poolDepthDescription": "池的健康状况",
     "totalDebtBalance": "总债务余额",
+    "totalDebtBalanceDescription": "贷款池累计债务余额",
     "totalCollateral": "抵押品总额",
+    "totalCollateralDescription": "添加到借贷池的总抵押品",
     "estCollateralizationRatio": "预估抵押比例",
+    "estCollateralizationRatioDescription": "目前抵押率固定为200%，未来将根据市场情况，动态平衡抵押率的上限和下限。",
     "collateralizationRatio": "抵押比例",
     "totalBorrowers": "借款人总数",
+    "totalBorrowersDescription": "参与借款人数量",
     "myLoanInformation": "我的借贷信息",
     "loanInformation": "借贷概要",
     "poolInformation": "池信息",
@@ -2188,8 +2233,12 @@
     "switchAssets": "转换资产",
     "backToLending": "回到贷款",
     "outstandingDebt": "未尝债务",
+    "outstandingDebtDescription": "你借入的抵押品金额",
     "collateral": "抵押品",
     "debt": "债务",
+    "healthy": "深度最佳，贷款高效。",
+    "caution": "深度适中，预计借款会出现一些下滑",
+    "risky": "深度较低，借款滑点可能较高。",
     "confirmAndBorrow": "确认并借用",
     "confirmAndRepay": "确认并偿还",
     "borrowAgain": "再次借用",
@@ -2290,8 +2339,10 @@
     "pricePerAsset": "%{from} 每 %{to}",
     "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
     "symAfterRuneAlert": "由于 THOR 网络的工作方式，非对称 RUNE 存款之后无法进行对称存款。",
+    "withdrawTypeNotAvailable": "此提款类型不适用于此池。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
+    "unsupportedDemoWalletExplainer": "不支持演示钱包，请连接到钱包以使用此功能。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
     "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
     "shareOfPool": "池份额",
@@ -2314,6 +2365,10 @@
     "confirmAndWithdraw": "确认与提款",
     "removeAmounts": "删除数量",
     "stagedTooltip": "分阶段池是接受流动性的新池，但在可用之前不会产生任何收益",
+    "newPosition": "新的位置",
+    "newPositionTooltip": "这将创建一个新的 LP 位置，而不是添加到任何现有的位置。",
+    "notSupported": "不可能",
+    "notSupportedTooltip": "由于你现有的非对称符文仓位，无法将两种资产存入此池。如果你希望使用两种资产创建新的 LP，请撤回你当前的仓位。",
     "yourPositions": {
       "yourPositions": "你得仓位",
       "emptyTitle": "没有活跃得仓位",
@@ -2349,7 +2404,14 @@
     "highSlippageDeposit": "此存款的滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
     "highSlippageBorrow": "此借款滑点较高 (%{slippagePercentage}%)。请谨慎操作。",
     "highSlippageTrade": "此交易受价格变动影响 (%{slippagePercentage}%)。请谨慎操作。",
-    "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。"
+    "unsafeTrade": "此交易可能不安全或低于建议的最小规模，请谨慎进行。",
+    "customToken": "任何人都可以创建代币，包括假代币，因此需要谨慎。某些代币可能不适用于 ShapeShift。导入此代币即表示您接受风险。此代币不在美国主要交易所交易，也不在 ShapeShift 上频繁交换。交易前务必先进行研究。"
+  },
+  "streamingAcknowledgement": {
+    "description": "这是一个流式兑换，虽然你可以获得更优惠的价格，但最多可能需要 %{estimatedTimeHuman} 才能完成。"
+  },
+  "customTokenAcknowledgement": {
+    "understand": "我了解风险"
   },
   "watchlist": {
     "empty": {
@@ -2370,6 +2432,10 @@
     "lending": {
       "title": "借贷",
       "body": "用你的资产作为抵押进行借贷。"
+    },
+    "rfox": {
+      "title": "rFOX",
+      "body": "质押FOX可赚取RUNE。"
     }
   },
   "RFOX": {
@@ -2382,6 +2448,7 @@
     "claim": "认领",
     "rewards": "奖励",
     "claims": "认领",
+    "chainNotSupportedByWallet": "钱包不支持该链",
     "changeAddress": "更换地址",
     "sameAddressNotAllowed": "不允许使用相同地址",
     "stakingDetails": "质押详情",
@@ -2399,6 +2466,9 @@
     "rewardAddressHelper": "奖励将发送至此处",
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
+    "stakeWarning": "当你质押 FOX 代币时，请注意锁定期为 %{cooldownPeriod}。这意味着如果你决定取消质押你的代币，则需要等待 %{cooldownPeriod} 才能领取你的资金。",
+    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能质押。我们可以帮助你将资金桥接到 %{destinationNetwork}。你希望我们指导你完成整个过程吗？",
+    "unstakeWarning": "在你领取 FOX 之前，冷却期为 %{cooldownPeriod}。冷却期过后，你将能够领取未质押的金额。",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
       "unstakeAmount": "这是你将要赎回的 FOX 数量",
@@ -2413,6 +2483,7 @@
     "changeRewardAddressPending": "更改奖励地址...",
     "changeRewardAddressSuccess": "你已成功更改你的 THORChain 奖励地址。",
     "unstakePending": "请求提取 %{amount} %{symbol}",
+    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将更新下一个奖励周期。",
@@ -2426,17 +2497,23 @@
     "claimPending": "请求撤回",
     "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
     "claimReceiveAddress": "领取接收地址",
+    "noRewardsYet": "尚无奖励",
     "noClaimsAvailable": "沒有可认领",
     "errorFetchingClaims": "获取声明时出错",
     "noClaimsAvailableDescription": "您没有任何可认领",
+    "unstakeNow": "取消质押以领取 FOX",
     "bridgeAndConfirm": "桥接与确认",
     "noSupportedChains": "链不被支持",
     "noSupportedChainsDescription": "添加 %{chainLabel} 或连接到支持它的钱包。",
     "confirmAndBridge": "确认与桥接",
-    "myRewardBalance": "我的奖励余额",
-    "myRewardBalanceHelper": "我的奖励余额",
+    "myStakedBalance": "我的质押余额",
+    "myStakedBalanceHelper": "你质押的 FOX 数量",
+    "pendingRewardsBalance": "当前预计奖励余额",
+    "pendingRewardsBalanceHelper": "这只是根据历代迄今的收入估算的待定奖励。所有会计工作均在历代末进行，无法在月底之前准确计算",
     "lifetimeRewards": "终生奖励",
+    "lifetimeRewardsHelper": "终身奖励是质押 FOX 所获得的累积奖励",
     "timeInPool": "池的时间",
+    "timeInPoolHelper": "存入 rFOX 池的时间是存入 rFOX 的最长时间",
     "myPosition": "我的位置",
     "faq": {
       "title": "常见问题",
@@ -2474,6 +2551,7 @@
     "totalFeesCollected": "收取的费用总额（本期）",
     "emissionsPool": "排放池（本期）",
     "emissionsPoolHelper": "排放池（本期）",
-    "foxBurnAmount": "FOX 销毁数量"
+    "foxBurnAmount": "FOX 销毁量（本周期）",
+    "pendingDistribution": "等待分配"
   }
 }

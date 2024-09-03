@@ -109,7 +109,7 @@ export const TradeInputHeader = ({
               onClick={handleClickClaim}
               cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
             >
-              {translate('bridge.claims')}
+              {translate('bridge.claim')}
             </Heading>
           )}
         </Flex>

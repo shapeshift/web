@@ -85,6 +85,7 @@ export const LoanSummary: React.FC<LoanSummaryProps> = ({
   collateralAccountId,
   borrowAccountId,
   confirmedQuote,
+  collateralDecreaseAmountCryptoPrecision,
   ...rest
 }) => {
   const translate = useTranslate()

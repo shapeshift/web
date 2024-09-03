@@ -8,7 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type { SwapperConfig } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -21,7 +21,7 @@ import {
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getDummyQuoteParams, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
@@ -79,9 +79,9 @@ export async function getPortalsTradeQuote(
     .times(100)
     .toNumber()
 
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals)
+  const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
+    ? Number(input.slippageTolerancePercentageDecimal) * 100
+    : undefined // Use auto slippage if no user preference is provided
 
   try {
     if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
@@ -114,16 +114,30 @@ export async function getPortalsTradeQuote(
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
       swapperConfig,
     }).catch(async e => {
-      // If validation fails, fire two more quotes:
-      // 1. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
-      // 2. another quote with validation disabled, to get an actual quote
+      // If validation fails, fire 3 more quotes:
+      // 1. a quote estimate (does not require approval) to get the optimal slippage tolerance
+      // 2. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
+      // 3. another quote with validation disabled, to get an actual quote (using the user slippage, or the optimal from the estimate)
       console.info('failed to get Portals quote with validation enabled', e)
+
+      // Use the quote estimate endpoint to get the optimal slippage tolerance
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        sender: sendAddress,
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        swapperConfig,
+      }).catch(e => {
+        console.info('failed to get Portals quote estimate', e)
+        return undefined
+      })
+
       const dummyQuoteParams = getDummyQuoteParams(sellAsset.chainId)
 
       const dummySellAssetAddress = fromAssetId(dummyQuoteParams.sellAssetId).assetReference
@@ -132,18 +146,21 @@ export async function getPortalsTradeQuote(
       const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
       const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
 
-      const maybeGasLimit = await fetchPortalsTradeOrder({
+      // Use a dummy request to the portal endpoint to get a rough gasLimit estimate
+      const dummyOrderResponse = await fetchPortalsTradeOrder({
         sender: dummyQuoteParams.accountAddress,
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
         inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
-        slippageTolerancePercentage: 10, // hardcoded high slippage tolerance for the dummy quote, the actual one will use the correct one
+        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: true,
         swapperConfig,
       })
-        .then(({ context }) => context.gasLimit)
+        .then(({ context }) => ({
+          maybeGasLimit: context.gasLimit,
+        }))
         .catch(e => {
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
           return undefined
@@ -154,14 +171,20 @@ export async function getPortalsTradeQuote(
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage: Number(slippageTolerancePercentageDecimal) * 100,
+        slippageTolerancePercentage:
+          userSlippageTolerancePercentageDecimalOrDefault ??
+          quoteEstimateResponse?.context.slippageTolerancePercentage ??
+          bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+            .times(100)
+            .toNumber(),
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,
         swapperConfig,
       })
 
-      if (maybeGasLimit) order.context.gasLimit = maybeGasLimit
+      if (dummyOrderResponse?.maybeGasLimit)
+        order.context.gasLimit = dummyOrderResponse.maybeGasLimit
       return order
     })
 
@@ -195,13 +218,17 @@ export async function getPortalsTradeQuote(
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
 
+    const slippageTolerancePercentageDecimal = bnOrZero(slippageTolerancePercentage)
+      .div(100)
+      .toString()
+
     const tradeQuote: TradeQuote = {
       id: orderId,
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: (slippageTolerancePercentage / 100).toString(),
+      slippageTolerancePercentageDecimal,
       steps: [
         {
           accountNumber,
@@ -215,11 +242,11 @@ export async function getPortalsTradeQuote(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit,
-            // Protocol fees are always denominated in buy asset here, this is the downside on the swap
+            // Protocol fees are always denominated in sell asset here
             protocolFees: {
-              [buyAsset.assetId]: {
+              [sellAsset.assetId]: {
                 amountCryptoBaseUnit: feeAmount,
-                asset: buyAsset,
+                asset: sellAsset,
                 requiresBalance: false,
               },
             },

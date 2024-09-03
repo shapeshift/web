@@ -8,7 +8,9 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import type { InterpolationOptions } from 'node-polyglot'
 
+import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
@@ -165,6 +167,59 @@ export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   message: undefined,
 })
 
+export const checkSafeTransactionStatus = async ({
+  txHash,
+  chainId,
+  assertGetEvmChainAdapter,
+}: {
+  txHash: string
+  chainId: ChainId
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}): Promise<
+  | {
+      status: TxStatus
+      buyTxHash: string | undefined
+      message: string | [string, InterpolationOptions] | undefined
+    }
+  | undefined
+> => {
+  const { transaction } = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
+
+  if (!transaction) return
+
+  // SAFE proposal queued, but not executed on-chain yet
+  if (
+    !transaction.transactionHash &&
+    transaction.confirmations &&
+    transaction.confirmations.length <= transaction.confirmationsRequired
+  ) {
+    return {
+      status: TxStatus.Pending,
+      message: [
+        'common.safeProposalQueued',
+        {
+          currentConfirmations: transaction.confirmations.length,
+          confirmationsRequired: transaction.confirmationsRequired,
+        },
+      ],
+      buyTxHash: undefined,
+    }
+  }
+
+  // Transaction executed on-chain
+  if (transaction.transactionHash) {
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
+    const status = getTxStatus(tx)
+
+    return {
+      status,
+      buyTxHash: transaction.transactionHash,
+      message: 'common.safeProposalExecuted',
+    }
+  }
+}
+
 export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
@@ -176,9 +231,15 @@ export const checkEvmSwapStatus = async ({
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
-  message: string | undefined
+  message: string | [string, InterpolationOptions] | undefined
 }> => {
   try {
+    const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      txHash,
+      chainId,
+      assertGetEvmChainAdapter,
+    })
+    if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = getTxStatus(tx)

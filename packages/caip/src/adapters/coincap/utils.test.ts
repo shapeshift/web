@@ -140,8 +140,8 @@ describe('adapters:coincap:utils', () => {
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
         },
-        'cosmos:thorchain-mainnet-v2': {
-          'cosmos:thorchain-mainnet-v2/slip44:931': 'thorchain',
+        'cosmos:thorchain-1': {
+          'cosmos:thorchain-1/slip44:931': 'thorchain',
         },
         'eip155:1': {
           'eip155:1/slip44:60': 'ethereum',

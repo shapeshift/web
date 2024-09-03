@@ -26,7 +26,7 @@ export const foxatarAssetId: AssetId =
 export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
-export const thorchainAssetId: AssetId = 'cosmos:thorchain-mainnet-v2/slip44:931'
+export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
@@ -45,7 +45,7 @@ export const arbitrumNovaChainId: ChainId = 'eip155:42170'
 export const baseChainId: ChainId = 'eip155:8453'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
-export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v2'
+export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 
 export const CHAIN_NAMESPACE = {

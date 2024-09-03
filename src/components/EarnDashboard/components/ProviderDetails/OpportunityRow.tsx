@@ -86,9 +86,6 @@ export const OpportunityRow: React.FC<
 
   const handleClick = useCallback(
     (action: DefiAction) => {
-      if (asset?.isPool) {
-        return history.push(`/trade/${assetId}`)
-      }
       if (opportunity.isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
         url && window.open(url, '_blank')
@@ -96,7 +93,7 @@ export const OpportunityRow: React.FC<
       }
       onClick(opportunity, action)
     },
-    [asset?.isPool, assetId, history, onClick, opportunity],
+    [onClick, opportunity],
   )
 
   const handleClaimClick = useCallback(() => handleClick(DefiAction.Claim), [handleClick])

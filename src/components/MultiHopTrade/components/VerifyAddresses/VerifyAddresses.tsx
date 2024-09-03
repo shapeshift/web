@@ -40,12 +40,12 @@ import { useAppSelector } from 'state/store'
 
 import { WithBackButton } from '../WithBackButton'
 
-enum VerifyAccountType {
+enum AddressVerificationType {
   Sell = 'sell',
   Buy = 'buy',
 }
 
-enum VerifyAccountStatus {
+enum AddressVerificationStatus {
   Pending = 'pending',
   Verified = 'verified',
   Error = 'error',
@@ -62,10 +62,16 @@ export const VerifyAddresses = () => {
   const [isSellVerifying, setIsSellVerifying] = useState(false)
   const [isBuyVerifying, setIsBuyVerifying] = useState(false)
 
-  const [buyStatus, setBuyStatus] = useState<VerifyAccountStatus>(VerifyAccountStatus.Pending)
-  const [sellStatus, setSellStatus] = useState<VerifyAccountStatus>(VerifyAccountStatus.Pending)
-  const [buyErrorMessage, setBuyErrorMessage] = useState<string | undefined>()
-  const [sellErrorMessage, setSellErrorMessage] = useState<string | undefined>()
+  const [buyAddressVerificationStatus, setBuyAddressVerificationStatus] =
+    useState<AddressVerificationStatus>(AddressVerificationStatus.Pending)
+  const [sellAddressVerificationStatus, setSellAddressVerificationStatus] =
+    useState<AddressVerificationStatus>(AddressVerificationStatus.Pending)
+  const [buyAddressVerificationErrorMessage, setBuyAddressVerificationErrorMessage] = useState<
+    string | undefined
+  >()
+  const [sellAddressVerificationErrorMessage, setSellAddressVerificationErrorMessage] = useState<
+    string | undefined
+  >()
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -122,7 +128,7 @@ export const VerifyAddresses = () => {
 
   useEffect(() => {
     if (!shouldVerifyBuyAddress) {
-      setBuyStatus(VerifyAccountStatus.NotRequired)
+      setBuyAddressVerificationStatus(AddressVerificationStatus.NotRequired)
     }
   }, [shouldVerifyBuyAddress])
 
@@ -176,64 +182,62 @@ export const VerifyAddresses = () => {
   )
 
   const setIsVerifying = useCallback(
-    (type: VerifyAccountType, isVerifying: boolean) => {
-      if (type === VerifyAccountType.Sell) {
+    (type: AddressVerificationType, isVerifying: boolean) => {
+      if (type === AddressVerificationType.Sell) {
         setIsSellVerifying(isVerifying)
-      } else if (type === VerifyAccountType.Buy) {
+      } else if (type === AddressVerificationType.Buy) {
         setIsBuyVerifying(isVerifying)
       }
     },
     [setIsSellVerifying, setIsBuyVerifying],
   )
 
-  const setErrorMessage = useCallback((type: VerifyAccountType, errorMessage: string) => {
-    if (type === VerifyAccountType.Sell) {
-      setSellErrorMessage(errorMessage)
-    } else if (type === VerifyAccountType.Buy) {
-      setBuyErrorMessage(errorMessage)
+  const setErrorMessage = useCallback((type: AddressVerificationType, errorMessage: string) => {
+    if (type === AddressVerificationType.Sell) {
+      setSellAddressVerificationErrorMessage(errorMessage)
+    } else if (type === AddressVerificationType.Buy) {
+      setBuyAddressVerificationErrorMessage(errorMessage)
     }
   }, [])
 
-  const clearErrorMessage = useCallback((type: VerifyAccountType) => {
-    if (type === VerifyAccountType.Sell) {
-      setSellErrorMessage(undefined)
-    } else if (type === VerifyAccountType.Buy) {
-      setBuyErrorMessage(undefined)
+  const clearErrorMessage = useCallback((type: AddressVerificationType) => {
+    if (type === AddressVerificationType.Sell) {
+      setSellAddressVerificationErrorMessage(undefined)
+    } else if (type === AddressVerificationType.Buy) {
+      setBuyAddressVerificationErrorMessage(undefined)
     }
   }, [])
 
   const setStatus = useCallback(
-    (type: VerifyAccountType, status: VerifyAccountStatus) => {
+    (type: AddressVerificationType, status: AddressVerificationStatus) => {
       // if the sell and buy addresses are the same, we can skip the verification for the other address
-      console.log('sellAddress', sellAddress)
-      console.log('buyAddress', buyAddress)
-      if (status === VerifyAccountStatus.Verified && sellAddress === buyAddress) {
-        setBuyStatus(VerifyAccountStatus.Verified)
-        setSellStatus(VerifyAccountStatus.Verified)
+      if (status === AddressVerificationStatus.Verified && sellAddress === buyAddress) {
+        setBuyAddressVerificationStatus(AddressVerificationStatus.Verified)
+        setSellAddressVerificationStatus(AddressVerificationStatus.Verified)
         return
       }
 
-      if (type === VerifyAccountType.Sell) {
-        setSellStatus(status)
-      } else if (type === VerifyAccountType.Buy) {
-        setBuyStatus(status)
+      if (type === AddressVerificationType.Sell) {
+        setSellAddressVerificationStatus(status)
+      } else if (type === AddressVerificationType.Buy) {
+        setBuyAddressVerificationStatus(status)
       }
     },
     [sellAddress, buyAddress],
   )
 
   const handleVerify = useCallback(
-    async (type: VerifyAccountType) => {
+    async (type: AddressVerificationType) => {
       if (isVerifying) return
 
       setIsVerifying(type, true)
       clearErrorMessage(type)
 
       try {
-        const asset = type === VerifyAccountType.Sell ? sellAsset : buyAsset
+        const asset = type === AddressVerificationType.Sell ? sellAsset : buyAsset
         const accountMetadata =
-          type === VerifyAccountType.Sell ? sellAccountMetadata : buyAccountMetadata
-        const _address = type === VerifyAccountType.Sell ? sellAddress : buyAddress
+          type === AddressVerificationType.Sell ? sellAccountMetadata : buyAccountMetadata
+        const _address = type === AddressVerificationType.Sell ? sellAddress : buyAddress
 
         if (!asset || !accountMetadata || !_address || !wallet) return
 
@@ -255,9 +259,9 @@ export const VerifyAddresses = () => {
         })
 
         if (deviceAddress && deviceAddress.toLowerCase() === _address.toLowerCase()) {
-          setStatus(type, VerifyAccountStatus.Verified)
+          setStatus(type, AddressVerificationStatus.Verified)
         } else {
-          setStatus(type, VerifyAccountStatus.Error)
+          setStatus(type, AddressVerificationStatus.Error)
           setErrorMessage(type, translate('walletProvider.ledger.verify.addressMismatch'))
         }
       } catch (e) {
@@ -289,7 +293,7 @@ export const VerifyAddresses = () => {
     // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
     // the Ledger app without cancelling
     await checkLedgerAppOpenIfLedgerConnected(buyAsset.chainId)
-      .then(() => handleVerify(VerifyAccountType.Buy))
+      .then(() => handleVerify(AddressVerificationType.Buy))
       .catch(console.error)
   }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, buyAsset.chainId])
 
@@ -297,7 +301,7 @@ export const VerifyAddresses = () => {
     // Only proceed to verify the sell address if the promise is resolved, i.e the user has opened
     // the Ledger app without cancelling
     await checkLedgerAppOpenIfLedgerConnected(sellAsset.chainId)
-      .then(() => handleVerify(VerifyAccountType.Sell))
+      .then(() => handleVerify(AddressVerificationType.Sell))
       .catch(console.error)
   }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, sellAsset.chainId])
 
@@ -321,7 +325,10 @@ export const VerifyAddresses = () => {
   )
 
   const renderButton = useMemo(() => {
-    if (buyStatus === VerifyAccountStatus.Pending || buyStatus === VerifyAccountStatus.Error) {
+    if (
+      buyAddressVerificationStatus === AddressVerificationStatus.Pending ||
+      buyAddressVerificationStatus === AddressVerificationStatus.Error
+    ) {
       return (
         <Button
           size='lg-multiline'
@@ -336,7 +343,10 @@ export const VerifyAddresses = () => {
       )
     }
 
-    if (sellStatus === VerifyAccountStatus.Pending || sellStatus === VerifyAccountStatus.Error) {
+    if (
+      sellAddressVerificationStatus === AddressVerificationStatus.Pending ||
+      sellAddressVerificationStatus === AddressVerificationStatus.Error
+    ) {
       return (
         <Button
           size='lg-multiline'
@@ -357,8 +367,8 @@ export const VerifyAddresses = () => {
       </Button>
     )
   }, [
-    buyStatus,
-    sellStatus,
+    buyAddressVerificationStatus,
+    sellAddressVerificationStatus,
     handleContinue,
     handleBuyVerify,
     isBuyVerifying,
@@ -400,10 +410,10 @@ export const VerifyAddresses = () => {
                       </Skeleton>
                     </Flex>
                     {isBuyVerifying && <Spinner boxSize={5} />}
-                    {buyStatus === VerifyAccountStatus.Verified && (
+                    {buyAddressVerificationStatus === AddressVerificationStatus.Verified && (
                       <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />
                     )}
-                    {buyStatus === VerifyAccountStatus.Error && (
+                    {buyAddressVerificationStatus === AddressVerificationStatus.Error && (
                       <WarningIcon ml='auto' boxSize={5} color='text.error' />
                     )}
                   </Flex>
@@ -425,10 +435,10 @@ export const VerifyAddresses = () => {
                     </Skeleton>
                   </Flex>
                   {isSellVerifying && <Spinner boxSize={5} />}
-                  {sellStatus === 'verified' && (
+                  {sellAddressVerificationStatus === 'verified' && (
                     <CheckCircleIcon ml='auto' boxSize={5} color='text.success' />
                   )}
-                  {sellStatus === 'error' && (
+                  {sellAddressVerificationStatus === 'error' && (
                     <WarningIcon ml='auto' boxSize={5} color='text.error' />
                   )}
                 </Flex>
@@ -440,8 +450,12 @@ export const VerifyAddresses = () => {
           <Alert status='warning'>
             <AlertIcon />
             <AlertDescription>
-              {Boolean(buyErrorMessage || sellErrorMessage) ? (
-                <RawText>{buyErrorMessage ?? sellErrorMessage}</RawText>
+              {Boolean(
+                buyAddressVerificationErrorMessage || sellAddressVerificationErrorMessage,
+              ) ? (
+                <RawText>
+                  {buyAddressVerificationErrorMessage ?? sellAddressVerificationErrorMessage}
+                </RawText>
               ) : (
                 <Text translation='trade.verifyAddressMessage' />
               )}

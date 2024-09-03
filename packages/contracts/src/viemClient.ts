@@ -18,99 +18,90 @@ import {
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_ETHEREUM_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js
-      http('https://eth.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js
+    [process.env.REACT_APP_ETHEREUM_NODE_URL, 'https://eth.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemBscClient = createPublicClient({
   chain: bsc,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_BNBSMARTCHAIN_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L30
-      http('https://binance.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L30
+    [process.env.REACT_APP_BNBSMARTCHAIN_NODE_URL, 'https://binance.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_AVALANCHE_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L937
-      http('https://api.avax.network/ext/bc/C/rpc'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L937
+    [process.env.REACT_APP_AVALANCHE_NODE_URL, 'https://api.avax.network/ext/bc/C/rpc']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_ARBITRUM_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L63
-      http('https://arbitrum.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L63
+    [process.env.REACT_APP_ARBITRUM_NODE_URL, 'https://arbitrum.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemArbitrumNovaClient = createPublicClient({
   chain: arbitrumNova,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_ARBITRUM_NOVA_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1393
-      http('https://nova.arbitrum.io/rpc'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1393
+    [process.env.REACT_APP_ARBITRUM_NOVA_NODE_URL, 'https://nova.arbitrum.io/rpc']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemOptimismClient = createPublicClient({
   chain: optimism,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_OPTIMISM_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L41
-      http('https://optimism.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L41
+    [process.env.REACT_APP_OPTIMISM_NODE_URL, 'https://optimism.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemGnosisClient = createPublicClient({
   chain: gnosis,
   transport: fallback(
-    [
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
-      http(process.env.REACT_APP_GNOSIS_NODE_URL),
-      http('https://rpc.gnosischain.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/extraRpcs.js#L1978
+    [process.env.REACT_APP_GNOSIS_NODE_URL, 'https://rpc.gnosischain.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemPolygonClient = createPublicClient({
   chain: polygon,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_POLYGON_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L52
-      http('https://polygon.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L52
+    [process.env.REACT_APP_POLYGON_NODE_URL, 'https://polygon.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
 export const viemBaseClient = createPublicClient({
   chain: base,
   transport: fallback(
-    [
-      http(process.env.REACT_APP_BASE_NODE_URL),
-      // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-      http('https://base.llamarpc.com'),
-    ].filter(Boolean),
+    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
+    [process.env.REACT_APP_BASE_NODE_URL, 'https://base.llamarpc.com']
+      .filter(Boolean)
+      .map(url => http(url)),
   ),
 }) as PublicClient
 
@@ -122,8 +113,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ArbitrumNovaMainnet]: viemArbitrumNovaClient,
   [KnownChainIds.GnosisMainnet]: viemGnosisClient,
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
-  // cast required for these due to typescript shenanigans
-  // https://github.com/wagmi-dev/viem/issues/1018
   [KnownChainIds.OptimismMainnet]: viemOptimismClient,
   [KnownChainIds.BaseMainnet]: viemBaseClient,
 }
@@ -136,8 +125,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [arbitrumNova.id]: viemArbitrumNovaClient,
   [gnosis.id]: viemGnosisClient,
   [polygon.id]: viemPolygonClient,
-  // cast required for these due to typescript shenanigans
-  // https://github.com/wagmi-dev/viem/issues/1018
   [optimism.id]: viemOptimismClient,
   [base.id]: viemBaseClient,
 }

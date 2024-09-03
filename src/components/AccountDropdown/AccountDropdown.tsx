@@ -317,27 +317,6 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     if (!accountLabel) return null
     if (!selectedAccountId) return null
 
-    if (isDropdownDisabled) {
-      return (
-        <Flex width='full' alignItems='center' justifyContent='space-between' fontSize='sm'>
-          {label ? (
-            label
-          ) : (
-            <>
-              <RawText fontWeight='medium'>
-                {translate('accounts.accountNumber', { accountNumber })}
-              </RawText>
-              {showLabel && (
-                <Text fontWeight='medium' color='text.subtle'>
-                  {accountLabel}
-                </Text>
-              )}
-            </>
-          )}
-        </Flex>
-      )
-    }
-
     return (
       <Box px={2} my={2} {...boxProps}>
         <Menu isLazy closeOnSelect={true} autoSelect={false} flip>

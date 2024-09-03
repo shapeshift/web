@@ -165,7 +165,7 @@ export const Confirm = () => {
               <Text translation={'modals.send.confirm.sendTo'} />
             </Row.Label>
             <Row.Value>
-              <InlineCopyButton value={isNonEmptyString(vanityAddress) ? vanityAddress : to}>
+              <InlineCopyButton value={to}>
                 {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
               </InlineCopyButton>
             </Row.Value>

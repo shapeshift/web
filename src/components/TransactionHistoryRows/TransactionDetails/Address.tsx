@@ -19,7 +19,7 @@ export const Address = ({
     [],
   )
   return explorerAddressLink ? (
-    <InlineCopyButton value={ens ?? address}>
+    <InlineCopyButton value={address}>
       <Button
         as={Link}
         href={`${explorerAddressLink}${ens || address}`}
@@ -39,7 +39,7 @@ export const Address = ({
       </Button>
     </InlineCopyButton>
   ) : (
-    <InlineCopyButton value={ens ?? address}>
+    <InlineCopyButton value={address}>
       <MiddleEllipsis value={ens || address} />
     </InlineCopyButton>
   )

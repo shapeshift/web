@@ -6,7 +6,7 @@ import type {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable, bn } from '@shapeshiftoss/utils'
@@ -75,7 +75,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -95,7 +95,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -150,7 +150,7 @@ export const fetchArbitrumBridgeSwap = async ({
         }
 
         // Actual fees
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter,
           data: maybeRequest.txRequest.data.toString(),
           to: maybeRequest.txRequest.to,
@@ -175,7 +175,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,

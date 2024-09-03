@@ -1,8 +1,7 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { cosmossdk as cosmossdkChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
@@ -92,7 +91,7 @@ export const thorchainApi: SwapperApi = {
 
     switch (tradeType) {
       case TradeType.L1ToL1: {
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data,
           to: router,
@@ -145,7 +144,7 @@ export const thorchainApi: SwapperApi = {
           args: params,
         })
 
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data: swapInData,
           to: aggregator,
@@ -178,7 +177,7 @@ export const thorchainApi: SwapperApi = {
 
         assert(router, 'router required for l1 to thorchain longtail swaps')
 
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data: dataWithAmountOut,
           to: updatedRouter,

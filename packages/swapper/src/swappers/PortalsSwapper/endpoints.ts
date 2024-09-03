@@ -1,5 +1,5 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -89,7 +89,7 @@ export const portalsApi: SwapperApi = {
       gasLimit: estimatedGas,
     } = portalsTradeOrderResponse.tx
 
-    const { gasLimit, ...feeData } = await getFees({
+    const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data,
       to,

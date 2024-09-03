@@ -1,8 +1,6 @@
 import { CHAIN_NAMESPACE, type ChainId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import type { Fees } from '@shapeshiftoss/chain-adapters/dist/evm/types'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm, evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -87,19 +85,19 @@ export const isGetFeesWithWalletEIP1559SupportArgs = (
   Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
 export type EvmFees = {
-  fees: Fees
+  fees: evm.Fees
   txFeeFiat: string
   networkFeeCryptoBaseUnit: string
 }
 
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletEip1559SupportArgs,
-): Promise<Fees> => {
+): Promise<evm.Fees> => {
   const { wallet, ...rest } = args
 
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFees({ ...rest, supportsEIP1559 })
+  return evm.getFees({ ...rest, supportsEIP1559 })
 }
 
 export const createBuildCustomTxInput = async (
@@ -113,7 +111,7 @@ export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
 ): Promise<evm.BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await getFees({ ...rest, from, supportsEIP1559 })
+  const fees = await evm.getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 
@@ -203,7 +201,7 @@ export const getErc20Allowance = async ({
 }
 
 export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
-  return evm.evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
+  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
 }
 
 export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {

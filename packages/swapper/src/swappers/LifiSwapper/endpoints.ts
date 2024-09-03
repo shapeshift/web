@@ -1,7 +1,7 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -110,7 +110,7 @@ export const lifiApi: SwapperApi = {
       })
     }
 
-    const feeData = await getFees({
+    const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,

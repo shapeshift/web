@@ -1,7 +1,7 @@
 import { getStepTransaction } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/types'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { getContract } from 'viem'
@@ -75,7 +75,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
 
   if (!estimatedGasLimit) throw new Error('failed to get estimated gas limit')
 
-  const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
     gasLimit: estimatedGasLimit.toString(),

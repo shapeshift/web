@@ -1,5 +1,5 @@
 import { ethAssetId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/chain-adapters'
+import type { evm, EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { vi } from 'vitest'
@@ -12,7 +12,7 @@ const feeData = {
   },
 }
 
-export const mockEvmChainAdapter: evm.EvmChainAdapter = {
+export const mockEvmChainAdapter: EvmChainAdapter = {
   getAddress: vi.fn(() => Promise.resolve('0xthisIsMyAddress')),
   getFeeData: vi.fn(() => feeData),
   getFeeAssetId: vi.fn(() => ethAssetId),
@@ -36,4 +36,4 @@ export const mockEvmChainAdapter: evm.EvmChainAdapter = {
       },
     }),
   ),
-} as unknown as evm.EvmChainAdapter
+} as unknown as EvmChainAdapter

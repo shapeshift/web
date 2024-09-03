@@ -1,8 +1,8 @@
 export type { EvmChainAdapter } from './EvmBaseAdapter'
 export { isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBaseAdapter'
 
-export * from './types'
-export * from './utils'
+export * as evm from './evm'
+
 export * as ethereum from './ethereum'
 export * as avalanche from './avalanche'
 export * as optimism from './optimism'

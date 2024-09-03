@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -194,7 +194,7 @@ export async function getPortalsTradeQuote(
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
 
-    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559,
       // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a

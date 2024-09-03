@@ -1,4 +1,4 @@
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 
 import { ChainIdToSafeBaseUrl } from './constants'
@@ -13,7 +13,7 @@ export const fetchSafeTransactionInfo = async ({
   chainId,
   safeTxHash,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
-  if (!evm.isEvmChainId(chainId)) return { transaction: null, isSafeTxHash: false }
+  if (!isEvmChainId(chainId)) return { transaction: null, isSafeTxHash: false }
 
   const baseUrl = ChainIdToSafeBaseUrl[chainId]
   if (!baseUrl) {

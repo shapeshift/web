@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds } from '../../../types'
@@ -15,6 +15,6 @@ export const L1_FEE_CHAIN_IDS = [KnownChainIds.OptimismMainnet, KnownChainIds.Ba
 export const LIFI_INTEGRATOR_ID = 'shapeshift'
 
 export const LIFI_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
-  sell: evm.evmChainIds as unknown as ChainId[],
-  buy: evm.evmChainIds as unknown as ChainId[],
+  sell: evmChainIds as unknown as ChainId[],
+  buy: evmChainIds as unknown as ChainId[],
 }

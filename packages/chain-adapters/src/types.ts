@@ -15,11 +15,9 @@ import type {
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
-import * as cosmossdk from './cosmossdk/types'
-import * as evm from './evm/types'
-import * as utxo from './utxo/types'
-
-export { cosmossdk, evm, utxo }
+import type * as cosmossdk from './cosmossdk/types'
+import type * as evm from './evm/types'
+import type * as utxo from './utxo/types'
 
 // this placeholder forces us to be explicit about transactions not transferring funds to humans
 export type ContractInteraction = Nominal<'contract-interaction', 'ContractInteraction'>

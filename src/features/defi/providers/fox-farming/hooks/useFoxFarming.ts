@@ -1,6 +1,5 @@
 import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
@@ -258,7 +257,7 @@ export const useFoxFarming = (
         functionName: 'getReward',
       })
 
-      return getFees({
+      return evm.getFees({
         adapter,
         data,
         from: userAddress,

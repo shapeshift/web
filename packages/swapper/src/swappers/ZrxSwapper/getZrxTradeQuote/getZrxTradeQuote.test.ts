@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { btcChainId } from '@shapeshiftoss/caip'
-import type { evm } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -59,7 +59,7 @@ describe('getZrxTradeQuote', () => {
     ({
       getChainId: () => KnownChainIds.EthereumMainnet,
       getGasFeeData: () => Promise.resolve(gasFeeData),
-    }) as unknown as evm.EvmChainAdapter
+    }) as unknown as EvmChainAdapter
   const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum/' })
 
   it('returns quote with fee data', async () => {

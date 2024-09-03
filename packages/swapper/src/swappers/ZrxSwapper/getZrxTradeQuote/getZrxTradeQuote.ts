@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -102,7 +102,7 @@ export async function getZrxTradeQuote(
   try {
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
-    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559,
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations

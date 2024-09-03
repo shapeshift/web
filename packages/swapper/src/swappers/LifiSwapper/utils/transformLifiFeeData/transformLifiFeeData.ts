@@ -1,7 +1,7 @@
 import type { Token } from '@lifi/sdk'
 import type { LiFiStep } from '@lifi/types'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { ProtocolFee } from '../../../../types'
@@ -17,7 +17,7 @@ export const transformLifiStepFeeData = ({
   lifiStep: LiFiStep
   assets: Partial<Record<AssetId, Asset>>
 }): Record<AssetId, ProtocolFee> => {
-  if (!evm.isEvmChainId(chainId)) {
+  if (!isEvmChainId(chainId)) {
     throw Error("chainId isn't an EVM ChainId", {
       cause: { chainId },
     })

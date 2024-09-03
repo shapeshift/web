@@ -1,5 +1,5 @@
 import { arbitrumNovaChainId, type ChainId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput } from '../../../types'
@@ -11,12 +11,12 @@ const _filterEvmBuyAssetsBySellAssetId = (
   chainIdPredicate: ChainIdPredicate,
 ): Asset[] => {
   // evm only
-  if (!evm.isEvmChainId(sellAsset.chainId)) return []
+  if (!isEvmChainId(sellAsset.chainId)) return []
 
   return assets.filter(buyAsset => {
     // evm only AND chain id predicate with no arbitrum nova support for any swappers
     return (
-      evm.isEvmChainId(buyAsset.chainId) &&
+      isEvmChainId(buyAsset.chainId) &&
       chainIdPredicate(buyAsset.chainId, sellAsset.chainId) &&
       buyAsset.chainId !== arbitrumNovaChainId
     )

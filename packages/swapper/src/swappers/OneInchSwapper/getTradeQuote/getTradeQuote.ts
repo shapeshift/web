@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { calcNetworkFeeCryptoBaseUnit } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { addBasisPointAmount, convertBasisPointsToPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -89,7 +89,7 @@ export async function getTradeQuote(
     // assert get is allowed because we chain chainId is an EVM chainId above in assertValidTrade
     const adapter = deps.assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
-    const networkFeeCryptoBaseUnit = calcNetworkFeeCryptoBaseUnit({
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559,
       gasLimit: quote.estimatedGas,

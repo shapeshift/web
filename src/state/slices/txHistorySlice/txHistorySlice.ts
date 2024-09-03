@@ -284,7 +284,7 @@ export const txHistoryApi = createApi({
             }
 
             if (chainId === thorchainChainId) {
-              // fetch transaction history for both thorchain-mainnet-v2 and thorchain-mainnet-v1
+              // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
               await fetch([
                 adapter.getTxHistory.bind(adapter),
                 (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),

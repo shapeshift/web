@@ -1,6 +1,7 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { type AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -19,7 +20,7 @@ import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 type BodyContent = {
   key: TxStatus
-  title: string
+  title: string | [string, InterpolationOptions]
   body: TextPropTypes['translation']
   element: JSX.Element
 }
@@ -28,6 +29,7 @@ type ClaimStatusProps = {
   confirmedQuote: RfoxClaimQuote
   accountId: AccountId
   txId: string
+  setClaimTxid: (txId: string) => void
   onTxConfirmed: () => Promise<void>
 }
 
@@ -35,6 +37,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   confirmedQuote,
   accountId,
   txId,
+  setClaimTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
@@ -55,8 +58,42 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     onTxStatusConfirmed: handleTxConfirmed,
   })
 
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId: confirmedQuote.stakingAssetAccountId,
+  })
+
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!claimAsset) return null
+
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    ) {
+      return {
+        key: TxStatus.Pending,
+        title: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
+            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+          },
+        ],
+        body: [
+          'RFOX.claimPending',
+          { amount: bnOrZero(claimAmountCryptoPrecision).toFixed(8), symbol: claimAsset.symbol },
+        ],
+        element: <CircularProgress size='75px' />,
+      }
+    }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      setClaimTxid(maybeSafeTx.transaction.transactionHash)
+    }
 
     switch (txStatus) {
       case undefined:
@@ -93,7 +130,16 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       default:
         return null
     }
-  }, [claimAsset, txStatus, claimAmountCryptoPrecision])
+  }, [
+    claimAsset,
+    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx?.transaction?.transactionHash,
+    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    txStatus,
+    claimAmountCryptoPrecision,
+    setClaimTxid,
+  ])
 
   const { data: safeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,

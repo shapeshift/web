@@ -204,7 +204,6 @@ export const Deposit: React.FC<DepositProps> = ({
   const { isAllowanceResetRequired, isApprovalRequired: _isApprovalRequired } =
     useIsApprovalRequired({
       assetId,
-      // TODO(gomes): consolidate
       amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
       spender: inboundAddress,
       from: accountId ? fromAccountId(accountId).account : undefined,

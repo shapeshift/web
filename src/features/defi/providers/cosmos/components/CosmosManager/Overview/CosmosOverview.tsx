@@ -1,7 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { Overview } from 'features/defi/components/Overview/Overview'
 import type {
@@ -239,6 +239,7 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
+      positionAddress={accountId ? fromAccountId(accountId).account : undefined}
       asset={stakingAsset}
       name={opportunityData.name!}
       icons={makeOpportunityIcons({ assets, opportunity: opportunityData })}

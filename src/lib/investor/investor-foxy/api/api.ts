@@ -3,10 +3,10 @@ import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import {
   CONTRACT_INTERACTION,
   type EvmBaseAdapter,
-  type EvmChainId,
   type FeeDataEstimate,
   type GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
 import type { BigNumber } from 'bignumber.js'

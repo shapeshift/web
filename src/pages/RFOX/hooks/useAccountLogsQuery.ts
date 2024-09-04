@@ -1,9 +1,8 @@
+import { RFOX_PROXY_CONTRACT_ADDRESS, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
 import { getAddress } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from '../constants'
 import type { RFOXAccountLog } from '../types'

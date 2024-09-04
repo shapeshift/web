@@ -1,6 +1,6 @@
 import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/src/swappers/ThorchainSwapper/types'
 import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'

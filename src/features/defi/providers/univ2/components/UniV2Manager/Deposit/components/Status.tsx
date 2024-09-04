@@ -2,12 +2,14 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -18,6 +20,7 @@ import { RawText, Text } from 'components/Text'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -49,6 +52,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     maybeSafeTxHash: state?.txid ?? undefined,
     accountId,
   })
+
+  console.log({ maybeSafeTx })
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -95,19 +100,125 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.txid, accountAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        statusText: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
+            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+          },
+        ] as [string, InterpolationOptions],
+        status: TxStatus.Pending,
+        statusBody: translate('modals.deposit.status.pending'),
+        statusBg: 'transparent',
+      }
+
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.deposit.status.success', {
+          // This should never be undefined but might as well
+          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+        }),
+        statusBg: 'green.500',
+      }
+    }
+
+    switch (state?.deposit?.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.success', {
+            // This should never be undefined but might as well
+            opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+          }),
+          statusBg: 'green.500',
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.failed'),
+          statusBg: 'red.500',
+        }
+      default:
+        return {
+          statusIcon: null,
+          statusText: StatusTextEnum.pending,
+          status: TxStatus.Pending,
+          statusBody: translate('modals.deposit.status.pending'),
+          statusBg: 'transparent',
+        }
+    }
+  }, [
+    earnUserLpOpportunity?.name,
+    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
+    state?.deposit.txStatus,
+    translate,
+  ])
+
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (status !== TxStatus.Pending && dispatch) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (confirmedTransaction?.fee)
+          return fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
+        return '0'
+      })()
       dispatch({
         type: UniV2DepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
-            : '0',
+          txStatus: status === TxStatus.Confirmed ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision,
         },
       })
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    status,
+  ])
+
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return getTxLink({
+        txId: maybeSafeTx.transaction.transactionHash,
+        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+        accountId,
+        // on-chain Tx
+        isSafeTxHash: false,
+      })
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   const handleViewPosition = () => {
     browserHistory.push('/earn')
@@ -145,75 +256,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   if (!state) return null
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
-      return {
-        statusIcon: null,
-        statusText: StatusTextEnum.pending,
-        statusBody: translate('modals.deposit.status.pending'),
-        statusBg: 'transparent',
-      }
-
-    if (maybeSafeTx?.transaction?.transactionHash) {
-      return {
-        statusText: StatusTextEnum.success,
-        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-        statusBody: translate('modals.deposit.status.success', {
-          // This should never be undefined but might as well
-          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
-        }),
-        statusBg: 'green.500',
-      }
-    }
-
-    if (maybeSafeTx?.transaction?.transactionHash) {
-      return {
-        statusText: StatusTextEnum.success,
-        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-        statusBody: translate('modals.deposit.status.success', {
-          // This should never be undefined but might as well
-          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
-        }),
-        statusBg: 'green.500',
-      }
-    }
-
-    switch (state.deposit.txStatus) {
-      case 'success':
-        return {
-          statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.success', {
-            // This should never be undefined but might as well
-            opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
-          }),
-          statusBg: 'green.500',
-        }
-      case 'failed':
-        return {
-          statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.failed'),
-          statusBg: 'red.500',
-        }
-      default:
-        return {
-          statusIcon: null,
-          statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
-          statusBg: 'transparent',
-        }
-    }
-  })()
-
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
       onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
       loading={!['success', 'failed'].includes(state.deposit.txStatus)}
@@ -296,12 +340,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${asset0.explorerTxLink}${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

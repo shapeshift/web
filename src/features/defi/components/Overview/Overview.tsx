@@ -18,6 +18,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText, Text } from 'components/Text'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
@@ -35,6 +36,7 @@ export type AssetWithBalance = {
 type OverviewProps = {
   accountId?: AccountId | undefined
   onAccountIdChange?: (accountId: AccountId) => void
+  positionAddress?: string | undefined
   // The LP asset this opportunity represents
   lpAsset?: AssetWithBalance
   // The assets underlying the LP one
@@ -69,6 +71,7 @@ const accountDropdownBoxProps = { px: 0, my: 0, width: 'full' }
 export const Overview: React.FC<OverviewProps> = ({
   accountId,
   onAccountIdChange,
+  positionAddress,
   lpAsset,
   underlyingAssetsCryptoPrecision,
   rewardAssetsCryptoPrecision,
@@ -109,7 +112,7 @@ export const Overview: React.FC<OverviewProps> = ({
             <Flex flexDir='column' gap={3}>
               {onAccountIdChange && (
                 <>
-                  <Flex gap={4} alignItems='center' width='full' justifyContent='space-between'>
+                  <InlineCopyButton isDisabled={!positionAddress} value={positionAddress ?? ''}>
                     <AccountDropdown
                       {...(accountId ? { defaultAccountId: accountId } : {})}
                       assetId={asset.assetId}
@@ -117,7 +120,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       buttonProps={accountDropdownButtonProps}
                       boxProps={accountDropdownBoxProps}
                     />
-                  </Flex>
+                  </InlineCopyButton>
                   <Divider />
                 </>
               )}

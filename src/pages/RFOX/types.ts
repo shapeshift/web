@@ -1,4 +1,4 @@
-import type { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
+import type { foxStakingV1Abi } from '@shapeshiftoss/contracts'
 import type { Address, Log, ReadContractReturnType } from 'viem'
 import type { PartialFields } from 'lib/types'
 

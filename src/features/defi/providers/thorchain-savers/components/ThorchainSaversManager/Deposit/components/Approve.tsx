@@ -1,11 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import type { Asset } from '@shapeshiftoss/types'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -15,7 +14,6 @@ import type {
 import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
@@ -52,15 +50,14 @@ import { useAppSelector } from 'state/store'
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
+type ApproveProps = StepComponentProps & { accountId: AccountId | undefined; isReset?: boolean }
 
-export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) => {
   const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const history = useHistory()
-  const translate = useTranslate()
   const { showErrorToast } = useErrorHandler()
   const {
     state: { wallet },
@@ -137,7 +134,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: true })
 
     try {
-      const amountCryptoBaseUnit = toBaseUnit(state.deposit.cryptoAmount, asset.precision)
+      const amountCryptoBaseUnitOrZero = isReset
+        ? '0'
+        : toBaseUnit(state.deposit.cryptoAmount, asset.precision)
 
       const poolId = assetIdToPoolAssetId({ assetId: asset.assetId })
 
@@ -149,7 +148,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         chainId,
       })
 
-      const amountToApprove = state.isExactAllowance ? amountCryptoBaseUnit : MAX_ALLOWANCE
+      const amountToApprove =
+        state.isExactAllowance || isReset ? amountCryptoBaseUnitOrZero : MAX_ALLOWANCE
 
       const data = encodeFunctionData({
         abi: contract.abi,
@@ -185,7 +185,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             chainId: asset.chainId,
           }),
         validate: (allowanceCryptoBaseUnit: string) => {
-          return bnOrZero(allowanceCryptoBaseUnit).gte(amountCryptoBaseUnit)
+          if (isReset) return bnOrZero(allowanceCryptoBaseUnit).isZero()
+          return bnOrZero(allowanceCryptoBaseUnit).gte(amountCryptoBaseUnitOrZero)
         },
         interval: 15000,
         maxAttempts: 60,
@@ -201,7 +202,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         assets,
       )
 
-      onNext(DefiStep.Confirm)
+      onNext(isReset ? DefiStep.Approve : DefiStep.Confirm)
       dispatch({ type: ThorchainSaversDepositActionType.SET_LOADING, payload: false })
     } catch (error) {
       showErrorToast(error)
@@ -219,6 +220,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     checkLedgerAppOpenIfLedgerConnected,
     dispatch,
     inboundAddress,
+    isReset,
     onNext,
     opportunityData,
     poll,
@@ -276,9 +278,8 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoPrecision)
         .times(feeMarketData.price)
         .toFixed(2)}
+      isReset={isReset}
       loading={state.loading}
-      loadingText={translate('common.approve')}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={handleCancel}

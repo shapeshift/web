@@ -30,7 +30,6 @@ import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
-  vi.stubEnv('REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS', '0xac2a4fd70bcd8bab0662960455c363735f0e2b56')
 })
 
 const mockedApi = vi.mocked(new V1Api())

@@ -56,7 +56,6 @@ import {
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFirstAccountIdByChainId,
   selectHighestStakingBalanceAccountIdByStakingId,
-  selectHighestUserCurrencyBalanceAccountByAssetId,
   selectMarketDataByAssetIdUserCurrency,
   selectOpportunitiesApiQueriesByFilter,
   selectStakingOpportunityByFilter,
@@ -160,24 +159,6 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
   )
-
-  const hasStakedBalance = useMemo(() => {
-    return bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).gt(0)
-  }, [earnOpportunityData?.stakedAmountCryptoBaseUnit])
-
-  const highestAssetBalanceFilter = useMemo(
-    () => ({
-      assetId,
-    }),
-    [assetId],
-  )
-  const highestAssetBalanceAccountId = useAppSelector(state =>
-    selectHighestUserCurrencyBalanceAccountByAssetId(state, highestAssetBalanceFilter),
-  )
-
-  const highestStakedOrAssetBalanceAccountId = hasStakedBalance
-    ? maybeAccountId
-    : highestAssetBalanceAccountId
 
   const opportunityMetadataFilter = useMemo(() => ({ stakingId: assetId as StakingId }), [assetId])
   const opportunityMetadata = useAppSelector(state =>
@@ -436,11 +417,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const handleThorchainSaversEmptyClick = useCallback(() => setHideEmptyState(true), [])
 
-  if (
-    (!earnOpportunityData?.isLoaded && highestStakedOrAssetBalanceAccountId) ||
-    isTradingActiveLoading ||
-    isMockDepositQuoteLoading
-  ) {
+  if (!earnOpportunityData?.isLoaded || isTradingActiveLoading || isMockDepositQuoteLoading) {
     return (
       <Center minW='500px' minH='350px'>
         <CircularProgress />
@@ -452,14 +429,13 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     return <ThorchainSaversEmpty assetId={assetId} onClick={handleThorchainSaversEmptyClick} />
   }
 
-  if (!(highestStakedOrAssetBalanceAccountId && opportunityDataFilter)) return null
   if (!asset) return null
   if (!underlyingAssetsWithBalancesAndIcons) return null
   if (!earnOpportunityData) return null
 
   return (
     <Overview
-      accountId={highestStakedOrAssetBalanceAccountId}
+      accountId={maybeAccountId}
       onAccountIdChange={handleAccountIdChange}
       asset={asset}
       name={earnOpportunityData.name ?? ''}

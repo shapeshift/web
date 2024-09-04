@@ -9,7 +9,6 @@ import { InlineCopyButton } from 'components/InlineCopyButton'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
-import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectPortfolioAccountIdsByAssetIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -43,7 +42,7 @@ export const RFOXHeader = () => {
         <Text translation='common.activeAccount' fontWeight='medium' />
 
         <InlineCopyButton
-          isDisabled={!stakingAssetAccountId || isUtxoAccountId(stakingAssetAccountId)}
+          isDisabled={!stakingAssetAccountId}
           value={stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : ''}
         >
           <AccountDropdown

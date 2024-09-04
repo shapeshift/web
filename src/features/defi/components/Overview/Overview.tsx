@@ -109,11 +109,11 @@ export const Overview: React.FC<OverviewProps> = ({
         <Stack spacing={0}>
           <Stack p={8} spacing={6}>
             <Flex flexDir='column' gap={3}>
-              {onAccountIdChange && accountId && (
+              {onAccountIdChange && (
                 <>
                   <InlineCopyButton
-                    isDisabled={isUtxoAccountId(accountId)}
-                    value={fromAccountId(accountId).account}
+                    isDisabled={!accountId || (accountId && isUtxoAccountId(accountId))}
+                    value={accountId ? fromAccountId(accountId).account : ''}
                   >
                     <AccountDropdown
                       {...(accountId ? { defaultAccountId: accountId } : {})}

@@ -187,7 +187,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return (
       <InlineCopyButton
         isDisabled={!maybeDefaultRuneAccountId}
-        value={maybeDefaultRuneAccountId ?? ''}
+        value={maybeDefaultRuneAccountId ? fromAccountId(maybeDefaultRuneAccountId).account : ''}
       >
         <AccountDropdown
           defaultAccountId={maybeDefaultRuneAccountId}

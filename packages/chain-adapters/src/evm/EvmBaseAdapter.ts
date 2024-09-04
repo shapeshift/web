@@ -550,7 +550,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   ): Promise<void> {
     const { pubKey, accountNumber, wallet } = input
 
-    const address = await this.getAddress({ accountNumber, wallet, pubKey: pubKey as string })
+    // vitest is drunk, we can't use isLedger() here
+    const pubKeyOrCheckLedgerAppOpen =
+      (wallet as any)._isledger && pubKey
+        ? { pubKey }
+        : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
+
+    const address = await this.getAddress({ accountNumber, wallet, ...pubKeyOrCheckLedgerAppOpen })
     const bip44Params = this.getBIP44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 

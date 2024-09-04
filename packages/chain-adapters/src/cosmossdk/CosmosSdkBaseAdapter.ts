@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { BIP44Params, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -362,8 +361,9 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     const { pubKey, accountNumber, wallet } = input
 
     const bip44Params = this.getBIP44Params({ accountNumber })
+    // vitest is drunk, we can't use isLedger() here
     const pubKeyOrCheckLedgerAppOpen =
-      isLedger(wallet) && pubKey
+      (wallet as any)._isledger && pubKey
         ? { pubKey }
         : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
 

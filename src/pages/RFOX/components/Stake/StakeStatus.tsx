@@ -53,6 +53,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   )
 
   const bodyContent: BodyContent | null = useMemo(() => {
+    debugger
     if (!stakingAsset) return null
 
     switch (txStatus) {
@@ -116,5 +117,6 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     ],
   )
 
+  debugger
   return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />
 }

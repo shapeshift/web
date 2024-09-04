@@ -70,8 +70,6 @@ export const useRfoxStake = ({
 }: UseRfoxStakeProps): UseRfoxStakeReturn => {
   const toast = useToast()
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
-  const [maybeSafeStakeTxHash, setMaybeSafeStakeTxHash] = useState<string>()
-  const [maybeSafeApprovalTxHash, setMaybeSafeApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
   const translate = useTranslate()
@@ -235,7 +233,7 @@ export const useRfoxStake = ({
     onSuccess: (txId: string | undefined) => {
       if (!txId || !setStakeTxid) return
 
-      setMaybeSafeStakeTxHash(txId)
+      setStakeTxid(txId)
     },
   })
 
@@ -285,41 +283,9 @@ export const useRfoxStake = ({
   })
 
   const { data: maybeSafeApprovalTx } = useSafeTxQuery({
-    maybeSafeTxHash: maybeSafeApprovalTxHash ?? undefined,
+    maybeSafeTxHash: approvalTxHash ?? undefined,
     accountId: stakingAssetAccountId,
   })
-
-  const { data: maybeSafeStakeTx } = useSafeTxQuery({
-    // TODO(gomes): could refactor this and the above to use stakeMutation.data and avoid many many state fields
-    maybeSafeTxHash: maybeSafeStakeTxHash ?? undefined,
-    accountId: stakingAssetAccountId,
-  })
-
-  useEffect(() => {
-    if (maybeSafeApprovalTx && maybeSafeApprovalTxHash) {
-      if (maybeSafeApprovalTx.isSafeTxHash) {
-        setApprovalTxHash(
-          maybeSafeApprovalTx.transaction?.transactionHash
-            ? maybeSafeApprovalTx.transaction?.transactionHash
-            : maybeSafeApprovalTxHash,
-        )
-      }
-      setApprovalTxHash(maybeSafeApprovalTxHash)
-    }
-  }, [maybeSafeApprovalTx, maybeSafeApprovalTxHash])
-
-  useEffect(() => {
-    if (maybeSafeStakeTx && maybeSafeStakeTxHash) {
-      if (maybeSafeStakeTx.isSafeTxHash) {
-        setStakeTxid?.(
-          maybeSafeStakeTx.transaction?.transactionHash
-            ? maybeSafeStakeTx.transaction?.transactionHash
-            : maybeSafeStakeTxHash,
-        )
-      }
-      setStakeTxid?.(maybeSafeStakeTxHash)
-    }
-  }, [maybeSafeStakeTx, setStakeTxid, maybeSafeStakeTxHash])
 
   const approvalTxLink = useMemo(() => {
     if (!(maybeSafeApprovalTx && approvalTxHash && stakingAssetAccountId)) return
@@ -370,7 +336,7 @@ export const useRfoxStake = ({
       accountNumber: stakingAssetAccountNumber,
     }),
     onSuccess: (txId: string) => {
-      setMaybeSafeApprovalTxHash(txId)
+      setApprovalTxHash(txId)
     },
   })
 

@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, bscAssetId, bscChainId, fromChainId } from '@shapeshif
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -12,7 +12,6 @@ import { describe, expect, it, vi } from 'vitest'
 import type { BuildSendTxInput, GetFeeDataInput, SignMessageInput, SignTxInput } from '../../types'
 import { ValidAddressResultType } from '../../types'
 import { toAddressNList } from '../../utils'
-import type { EvmChainId } from '../EvmBaseAdapter'
 import * as bsc from './BscChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({

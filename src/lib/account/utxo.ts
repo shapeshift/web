@@ -1,5 +1,4 @@
 import { toAccountId } from '@shapeshiftoss/caip'
-import type { UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import {
   convertXpubVersion,
   toRootDerivationPath,
@@ -8,7 +7,7 @@ import {
 } from '@shapeshiftoss/chain-adapters'
 import { bip32ToAddressNList, supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
+import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 

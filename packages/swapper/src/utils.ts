@@ -1,8 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -210,7 +209,7 @@ export const checkSafeTransactionStatus = async ({
   if (transaction.transactionHash) {
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
-    const status = getTxStatus(tx)
+    const status = evm.getTxStatus(tx)
 
     return {
       status,
@@ -242,7 +241,7 @@ export const checkEvmSwapStatus = async ({
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-    const status = getTxStatus(tx)
+    const status = evm.getTxStatus(tx)
 
     return {
       status,

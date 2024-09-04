@@ -3,10 +3,11 @@ import { ParentToChildMessageStatus, ParentTransactionReceipt } from '@arbitrum/
 import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -106,7 +107,6 @@ export const arbitrumBridgeApi: SwapperApi = {
     tradeQuote,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-    getEthersV5Provider,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const step = getHopByIndex(tradeQuote, stepIndex)
     if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
@@ -114,7 +114,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
     const { receiveAddress } = tradeQuote
 
-    const assertion = await assertValidTrade({ buyAsset, sellAsset, getEthersV5Provider })
+    const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
     const swap = await fetchArbitrumBridgeSwap({
@@ -126,7 +126,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       sellAsset,
       sendAddress: from,
       assertGetEvmChainAdapter,
-      getEthersV5Provider,
     })
 
     const { request } = swap
@@ -137,7 +136,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       txRequest: { data, value, to },
     } = request
 
-    const feeData = await getFees({
+    const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
@@ -160,7 +159,6 @@ export const arbitrumBridgeApi: SwapperApi = {
     txHash,
     chainId,
     assertGetEvmChainAdapter,
-    getEthersV5Provider,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined

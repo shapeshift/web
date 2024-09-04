@@ -239,7 +239,15 @@ const reactAppRewireConfig = {
                             // consuming them in packages will result in these being undefined
                             [
                               'REACT_APP_FEATURE_NFT_METADATA',
-                              'REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS',
+                              'REACT_APP_AVALANCHE_NODE_URL',
+                              'REACT_APP_OPTIMISM_NODE_URL',
+                              'REACT_APP_BNBSMARTCHAIN_NODE_URL',
+                              'REACT_APP_POLYGON_NODE_URL',
+                              'REACT_APP_GNOSIS_NODE_URL',
+                              'REACT_APP_ETHEREUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NODE_URL',
+                              'REACT_APP_ARBITRUM_NOVA_NODE_URL',
+                              'REACT_APP_BASE_NODE_URL',
                             ].includes(k) || !k.startsWith('REACT_APP_'),
                         )
                         .sort((a, b) => {

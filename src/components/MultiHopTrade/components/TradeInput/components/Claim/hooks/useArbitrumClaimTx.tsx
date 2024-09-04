@@ -1,21 +1,19 @@
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { assertGetViemClient, getEthersV5Provider, outboxAbi } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { outboxAbi } from 'contracts/abis/Outbox'
 import { useMemo } from 'react'
 import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { assertGetViemClient } from 'lib/viem-client'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

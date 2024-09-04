@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const ARB_PROXY_ABI: InterfaceAbi = [
+export const ARB_PROXY_ABI = [
   {
     inputs: [
       { internalType: 'address', name: '_logic', type: 'address' },

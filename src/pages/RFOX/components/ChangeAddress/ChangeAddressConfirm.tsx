@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -86,7 +86,7 @@ export const ChangeAddressConfirm: React.FC<
 
   const callData = useMemo(() => {
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: FOX_STAKING_V1_ABI,
       functionName: 'setRuneAddress',
       args: [confirmedQuote.newRuneAddress],
     })

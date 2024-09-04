@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
+import type { UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
 import {
   ContractType,
   getOrCreateContractByType,
@@ -21,7 +21,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: GetContractReturnType<typeof IUniswapV2Pair, PublicClient, Address>
+  uniswapLPContract: GetContractReturnType<typeof UNISWAP_V2_PAIR_ABI, PublicClient, Address>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day

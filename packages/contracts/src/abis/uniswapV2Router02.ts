@@ -1,4 +1,4 @@
-export const IUniswapV2Router02 = [
+export const UNISWAP_V2_ROUTER_02_ABI = [
   {
     inputs: [],
     name: 'WETH',

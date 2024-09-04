@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const ARB_SYS_ABI: InterfaceAbi = [
+export const ARB_SYS_ABI = [
   {
     anonymous: false,
     inputs: [

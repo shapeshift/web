@@ -1,13 +1,16 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
+  ERC20_ABI,
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
   UNISWAP_V2_FACTORY_CONTRACT,
+  UNISWAP_V2_ROUTER_02_ABI,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  UNIV2_STAKING_REWARDS_ABI,
   WETH_TOKEN_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
 } from '@shapeshiftoss/contracts'
-import type { JsonRpcProvider } from 'ethers'
+import type { InterfaceAbi, JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -15,10 +18,6 @@ import type { BaseTxMetadata } from '../../../types'
 import { TransferType } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
-import { ERC20_ABI } from '../../parser/abi/erc20'
-import { UNIV2_ABI } from './abi/uniV2'
-import { UNIV2_STAKING_REWARDS_ABI } from './abi/uniV2StakingRewards'
-
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'uniV2'
 }
@@ -32,8 +31,8 @@ export class Parser implements SubParser<Tx> {
   provider: JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new Interface(UNIV2_ABI)
-  readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
+  readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI as InterfaceAbi)
+  readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI as InterfaceAbi)
 
   readonly supportedFunctions = {
     addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')!.selector,

@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { erc20ABI } from '@shapeshiftoss/contracts'
+import { ERC20_ABI } from '@shapeshiftoss/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
@@ -31,7 +31,7 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     if (!(input.spender && input.amountCryptoBaseUnit)) return
 
     return encodeFunctionData({
-      abi: erc20ABI,
+      abi: ERC20_ABI,
       functionName: 'approve',
       args: [getAddress(input.spender), BigInt(input.amountCryptoBaseUnit)],
     })

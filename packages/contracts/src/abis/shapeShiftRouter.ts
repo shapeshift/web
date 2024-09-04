@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const SHAPESHIFT_ROUTER_ABI: InterfaceAbi = [
+export const SHAPESHIFT_ROUTER_ABI = [
   {
     inputs: [
       {

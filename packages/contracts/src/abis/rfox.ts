@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const RFOX_ABI: InterfaceAbi = [
+export const RFOX_ABI = [
   { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   {
     type: 'function',

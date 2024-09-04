@@ -7,13 +7,20 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import {
+  ARB_OUTBOX_ABI,
   ARB_OUTBOX_CONTRACT,
+  ARB_PROXY_ABI,
   ARB_RETRYABLE_TX_CONTRACT,
+  ARB_SYS_ABI,
   ARB_SYS_CONTRACT,
   ARBITRUM_L2_ERC20_GATEWAY_PROXY,
+  ARBITRUM_RETRYABLE_TX_ABI,
+  L1_ARBITRUM_GATEWAY_ABI,
   L1_ARBITRUM_GATEWAY_CONTRACT,
+  L1_ORBIT_CUSTOM_GATEWAY_ABI,
   L1_ORBIT_CUSTOM_GATEWAY_CONTRACT,
   L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT,
+  L2_ARBITRUM_GATEWAY_ABI,
   L2_ARBITRUM_GATEWAY_CONTRACT,
 } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
@@ -21,13 +28,6 @@ import { ethers } from 'ethers'
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'
 import { getSigHash, txInteractsWithContract } from '.'
-import { ARB_OUTBOX_ABI } from './abi/ArbOutbox'
-import { ARB_PROXY_ABI } from './abi/ArbProxy'
-import { ARBITRUM_RETRYABLE_TX_ABI } from './abi/ArbRetryableTx'
-import { ARB_SYS_ABI } from './abi/ArbSys'
-import { L1_ARBITRUM_GATEWAY_ABI } from './abi/L1ArbitrumGateway'
-import { L1_ORBIT_CUSTOM_GATEWAY_ABI } from './abi/L1OrbitCustomGateway'
-import { L2_ARBITRUM_GATEWAY_ABI } from './abi/L2ArbitrumGateway'
 import type { Tx } from './types'
 
 export interface TxMetadata extends BaseTxMetadata {

@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -101,7 +101,7 @@ export const useRfoxUnstake = ({
     if (!hasEnteredValue) return
 
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: FOX_STAKING_V1_ABI,
       functionName: 'unstake',
       args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0))],
     })

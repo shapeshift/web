@@ -1,18 +1,18 @@
-import { FOXY_STAKING_CONTRACT } from '@shapeshiftoss/contracts'
+import { FOXY_STAKING_ABI, FOXY_STAKING_CONTRACT } from '@shapeshiftoss/contracts'
+import type { InterfaceAbi } from 'ethers'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
-import { FOXY_STAKING_ABI } from './abi/foxyStaking'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'foxy'
 }
 
 export class Parser implements SubParser<Tx> {
-  readonly abiInterface = new ethers.Interface(FOXY_STAKING_ABI)
+  readonly abiInterface = new ethers.Interface(FOXY_STAKING_ABI as InterfaceAbi)
 
   readonly supportedFunctions = {
     stakeSigHash: this.abiInterface.getFunction('stake(uint256,address)')!.selector,

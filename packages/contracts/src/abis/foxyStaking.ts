@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const FOXY_STAKING_ABI: InterfaceAbi = [
+export const FOXY_STAKING_ABI = [
   {
     inputs: [
       {

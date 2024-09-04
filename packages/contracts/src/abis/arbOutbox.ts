@@ -1,7 +1,5 @@
-import type { InterfaceAbi } from 'ethers'
-
 // https://etherscan.io/address/0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840
-export const ARB_OUTBOX_ABI: InterfaceAbi = [
+export const ARB_OUTBOX_ABI = [
   { inputs: [], name: 'AlreadyInit', type: 'error' },
   {
     inputs: [{ internalType: 'uint256', name: 'index', type: 'uint256' }],

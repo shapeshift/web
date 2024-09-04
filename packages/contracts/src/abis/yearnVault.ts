@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const YEARN_VAULT_ABI: InterfaceAbi = [
+export const YEARN_VAULT_ABI = [
   {
     name: 'Transfer',
     inputs: [
@@ -48,7 +46,6 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     type: 'event',
   },
   {
-    outputs: [],
     inputs: [
       { type: 'address', name: '_token' },
       { type: 'address', name: '_governance' },
@@ -65,7 +62,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'pure',
     type: 'function',
-    gas: '4489',
+    gas: 4489,
   },
   {
     name: 'setName',
@@ -73,7 +70,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'string', name: '_name' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '106987',
+    gas: 106987,
   },
   {
     name: 'setSymbol',
@@ -81,7 +78,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'string', name: '_symbol' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '71837',
+    gas: 71837,
   },
   {
     name: 'setGovernance',
@@ -89,7 +86,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_governance' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36308',
+    gas: 36308,
   },
   {
     name: 'acceptGovernance',
@@ -97,7 +94,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36234',
+    gas: 36234,
   },
   {
     name: 'setGuestList',
@@ -105,7 +102,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_guestList' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36368',
+    gas: 36368,
   },
   {
     name: 'setRewards',
@@ -113,7 +110,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_rewards' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36398',
+    gas: 36398,
   },
   {
     name: 'setDepositLimit',
@@ -121,7 +118,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'uint256', name: '_limit' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36328',
+    gas: 36328,
   },
   {
     name: 'setPerformanceFee',
@@ -129,7 +126,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'uint256', name: '_fee' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36358',
+    gas: 36358,
   },
   {
     name: 'setManagementFee',
@@ -137,7 +134,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'uint256', name: '_fee' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '36388',
+    gas: 36388,
   },
   {
     name: 'setGuardian',
@@ -145,7 +142,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_guardian' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '37745',
+    gas: 37745,
   },
   {
     name: 'setEmergencyShutdown',
@@ -153,7 +150,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'bool', name: '_active' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '37775',
+    gas: 37775,
   },
   {
     name: 'setWithdrawalQueue',
@@ -161,7 +158,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address[20]', name: '_queue' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '750044',
+    gas: 750044,
   },
   {
     name: 'transfer',
@@ -172,7 +169,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '76619',
+    gas: 76619,
   },
   {
     name: 'transferFrom',
@@ -184,7 +181,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '114054',
+    gas: 114054,
   },
   {
     name: 'approve',
@@ -195,7 +192,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '38184',
+    gas: 38184,
   },
   {
     name: 'increaseAllowance',
@@ -206,7 +203,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '40225',
+    gas: 40225,
   },
   {
     name: 'decreaseAllowance',
@@ -217,7 +214,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '40249',
+    gas: 40249,
   },
   {
     name: 'totalAssets',
@@ -225,7 +222,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3943',
+    gas: 3943,
   },
   {
     name: 'balanceSheetOfStrategy',
@@ -233,7 +230,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_strategy' }],
     stateMutability: 'view',
     type: 'function',
-    gas: '2448',
+    gas: 2448,
   },
   {
     name: 'totalBalanceSheet',
@@ -241,7 +238,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address[40]', name: '_strategies' }],
     stateMutability: 'view',
     type: 'function',
-    gas: '75836',
+    gas: 75836,
   },
   {
     name: 'deposit',
@@ -273,7 +270,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '356611',
+    gas: 356611,
   },
   {
     name: 'withdraw',
@@ -305,7 +302,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '11391',
+    gas: 11391,
   },
   {
     name: 'addStrategy',
@@ -318,7 +315,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '1445692',
+    gas: 1445692,
   },
   {
     name: 'updateStrategyDebtLimit',
@@ -329,7 +326,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '111466',
+    gas: 111466,
   },
   {
     name: 'updateStrategyRateLimit',
@@ -340,7 +337,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '38518',
+    gas: 38518,
   },
   {
     name: 'updateStrategyPerformanceFee',
@@ -351,7 +348,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '38542',
+    gas: 38542,
   },
   {
     name: 'migrateStrategy',
@@ -362,7 +359,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '1178388',
+    gas: 1178388,
   },
   {
     name: 'revokeStrategy',
@@ -384,7 +381,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_strategy' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '1195542',
+    gas: 1195542,
   },
   {
     name: 'removeStrategyFromQueue',
@@ -392,7 +389,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: '_strategy' }],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '23067618',
+    gas: 23067618,
   },
   {
     name: 'debtOutstanding',
@@ -453,7 +450,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'nonpayable',
     type: 'function',
-    gas: '920813',
+    gas: 920813,
   },
   {
     name: 'sweep',
@@ -478,7 +475,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '9023',
+    gas: 9023,
   },
   {
     name: 'symbol',
@@ -486,7 +483,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '8076',
+    gas: 8076,
   },
   {
     name: 'decimals',
@@ -494,7 +491,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2681',
+    gas: 2681,
   },
   {
     name: 'balanceOf',
@@ -502,7 +499,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: 'arg0' }],
     stateMutability: 'view',
     type: 'function',
-    gas: '2926',
+    gas: 2926,
   },
   {
     name: 'allowance',
@@ -513,7 +510,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     ],
     stateMutability: 'view',
     type: 'function',
-    gas: '3171',
+    gas: 3171,
   },
   {
     name: 'totalSupply',
@@ -521,7 +518,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2771',
+    gas: 2771,
   },
   {
     name: 'token',
@@ -529,7 +526,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2801',
+    gas: 2801,
   },
   {
     name: 'governance',
@@ -537,7 +534,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2831',
+    gas: 2831,
   },
   {
     name: 'guardian',
@@ -545,7 +542,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2861',
+    gas: 2861,
   },
   {
     name: 'guestList',
@@ -553,7 +550,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2891',
+    gas: 2891,
   },
   {
     name: 'strategies',
@@ -570,7 +567,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'address', name: 'arg0' }],
     stateMutability: 'view',
     type: 'function',
-    gas: '10262',
+    gas: 10262,
   },
   {
     name: 'withdrawalQueue',
@@ -578,7 +575,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [{ type: 'uint256', name: 'arg0' }],
     stateMutability: 'view',
     type: 'function',
-    gas: '3060',
+    gas: 3060,
   },
   {
     name: 'emergencyShutdown',
@@ -586,7 +583,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '2981',
+    gas: 2981,
   },
   {
     name: 'depositLimit',
@@ -601,7 +598,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3041',
+    gas: 3041,
   },
   {
     name: 'totalDebt',
@@ -609,7 +606,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3071',
+    gas: 3071,
   },
   {
     name: 'lastReport',
@@ -617,7 +614,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3101',
+    gas: 3101,
   },
   {
     name: 'rewards',
@@ -625,7 +622,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3131',
+    gas: 3131,
   },
   {
     name: 'managementFee',
@@ -633,7 +630,7 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3161',
+    gas: 3161,
   },
   {
     name: 'performanceFee',
@@ -641,6 +638,6 @@ export const YEARN_VAULT_ABI: InterfaceAbi = [
     inputs: [],
     stateMutability: 'view',
     type: 'function',
-    gas: '3191',
+    gas: 3191,
   },
 ]

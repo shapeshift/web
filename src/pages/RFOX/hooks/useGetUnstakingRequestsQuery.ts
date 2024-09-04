@@ -1,5 +1,5 @@
 import {
-  foxStakingV1Abi,
+  FOX_STAKING_V1_ABI,
   RFOX_PROXY_CONTRACT_ADDRESS,
   viemClientByNetworkId,
 } from '@shapeshiftoss/contracts'
@@ -21,7 +21,7 @@ const getContracts = (stakingAssetAccountAddress: string | undefined, count: big
         { length: Number(count) },
         (_, index) =>
           ({
-            abi: foxStakingV1Abi,
+            abi: FOX_STAKING_V1_ABI,
             address: RFOX_PROXY_CONTRACT_ADDRESS,
             functionName: 'getUnstakingRequest',
             args: [getAddress(stakingAssetAccountAddress), BigInt(index)],

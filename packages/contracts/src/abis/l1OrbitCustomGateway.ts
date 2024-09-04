@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const L1_ORBIT_CUSTOM_GATEWAY_ABI: InterfaceAbi = [
+export const L1_ORBIT_CUSTOM_GATEWAY_ABI = [
   {
     inputs: [
       { internalType: 'uint256', name: 'dataLength', type: 'uint256' },

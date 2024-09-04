@@ -1,4 +1,4 @@
-export const FarmingABI = [
+export const FARMING_ABI = [
   {
     inputs: [
       {

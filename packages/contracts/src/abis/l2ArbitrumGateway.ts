@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
+export const L2_ARBITRUM_GATEWAY_ABI = [
   {
     anonymous: false,
     inputs: [
@@ -34,16 +32,10 @@ export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
     inputs: [
       { indexed: true, internalType: 'address', name: '_from', type: 'address' },
       { indexed: true, internalType: 'address', name: '_to', type: 'address' },
-      { indexed: true, internalType: 'uint256', name: '_seqNum', type: 'uint256' },
+      { indexed: true, internalType: 'uint256', name: '_id', type: 'uint256' },
       { indexed: false, internalType: 'bytes', name: '_data', type: 'bytes' },
     ],
-    name: 'TxToL2',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [{ indexed: false, internalType: 'address', name: 'newSource', type: 'address' }],
-    name: 'WhitelistSourceUpdated',
+    name: 'TxToL1',
     type: 'event',
   },
   {
@@ -101,19 +93,9 @@ export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'inbox',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
-      { internalType: 'address', name: '_owner', type: 'address' },
-      { internalType: 'address', name: '_defaultGateway', type: 'address' },
-      { internalType: 'address', name: '', type: 'address' },
       { internalType: 'address', name: '_counterpartGateway', type: 'address' },
-      { internalType: 'address', name: '_inbox', type: 'address' },
+      { internalType: 'address', name: '_defaultGateway', type: 'address' },
     ],
     name: 'initialize',
     outputs: [],
@@ -125,6 +107,18 @@ export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
     name: 'l1TokenToGateway',
     outputs: [{ internalType: 'address', name: '', type: 'address' }],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: '_l1Token', type: 'address' },
+      { internalType: 'address', name: '_to', type: 'address' },
+      { internalType: 'uint256', name: '_amount', type: 'uint256' },
+      { internalType: 'bytes', name: '_data', type: 'bytes' },
+    ],
+    name: 'outboundTransfer',
+    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
+    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -142,28 +136,6 @@ export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: '_token', type: 'address' },
-      { internalType: 'address', name: '_refundTo', type: 'address' },
-      { internalType: 'address', name: '_to', type: 'address' },
-      { internalType: 'uint256', name: '_amount', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxGas', type: 'uint256' },
-      { internalType: 'uint256', name: '_gasPriceBid', type: 'uint256' },
-      { internalType: 'bytes', name: '_data', type: 'bytes' },
-    ],
-    name: 'outboundTransferCustomRefund',
-    outputs: [{ internalType: 'bytes', name: '', type: 'bytes' }],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'owner',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'postUpgradeInit',
     outputs: [],
@@ -178,81 +150,20 @@ export const L1_ARBITRUM_GATEWAY_ABI: InterfaceAbi = [
     type: 'function',
   },
   {
-    inputs: [
-      { internalType: 'address', name: 'newL1DefaultGateway', type: 'address' },
-      { internalType: 'uint256', name: '_maxGas', type: 'uint256' },
-      { internalType: 'uint256', name: '_gasPriceBid', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxSubmissionCost', type: 'uint256' },
-    ],
+    inputs: [{ internalType: 'address', name: 'newL2DefaultGateway', type: 'address' }],
     name: 'setDefaultGateway',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'payable',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [
-      { internalType: 'address', name: '_gateway', type: 'address' },
-      { internalType: 'uint256', name: '_maxGas', type: 'uint256' },
-      { internalType: 'uint256', name: '_gasPriceBid', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxSubmissionCost', type: 'uint256' },
-      { internalType: 'address', name: '_creditBackAddress', type: 'address' },
-    ],
-    name: 'setGateway',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address', name: '_gateway', type: 'address' },
-      { internalType: 'uint256', name: '_maxGas', type: 'uint256' },
-      { internalType: 'uint256', name: '_gasPriceBid', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxSubmissionCost', type: 'uint256' },
-    ],
-    name: 'setGateway',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      { internalType: 'address[]', name: '_token', type: 'address[]' },
+      { internalType: 'address[]', name: '_l1Token', type: 'address[]' },
       { internalType: 'address[]', name: '_gateway', type: 'address[]' },
-      { internalType: 'uint256', name: '_maxGas', type: 'uint256' },
-      { internalType: 'uint256', name: '_gasPriceBid', type: 'uint256' },
-      { internalType: 'uint256', name: '_maxSubmissionCost', type: 'uint256' },
     ],
-    name: 'setGateways',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
-    name: 'setOwner',
+    name: 'setGateway',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'bytes4', name: 'interfaceId', type: 'bytes4' }],
-    name: 'supportsInterface',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'address', name: 'newSource', type: 'address' }],
-    name: 'updateWhitelistSource',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'whitelist',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
     type: 'function',
   },
 ]

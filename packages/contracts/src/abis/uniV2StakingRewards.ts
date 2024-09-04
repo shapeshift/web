@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const UNIV2_STAKING_REWARDS_ABI: InterfaceAbi = [
+export const UNIV2_STAKING_REWARDS_ABI = [
   {
     inputs: [
       {

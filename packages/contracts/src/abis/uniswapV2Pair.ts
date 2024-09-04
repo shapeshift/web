@@ -1,4 +1,4 @@
-export const IUniswapV2Pair = [
+export const UNISWAP_V2_PAIR_ABI = [
   {
     anonymous: false,
     inputs: [

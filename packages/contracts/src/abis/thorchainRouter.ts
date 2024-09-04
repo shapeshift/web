@@ -1,4 +1,4 @@
-export const THORChain_RouterABI = [
+export const THORCHAIN_ROUTER_ABI = [
   {
     inputs: [
       {

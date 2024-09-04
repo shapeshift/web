@@ -1,9 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { ERC20_ABI } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../types'
-import { ERC20_ABI } from './abi/erc20'
 import type { SubParser, Tx, TxSpecific } from './types'
 import { getSigHash } from './utils'
 

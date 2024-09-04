@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const ARBITRUM_RETRYABLE_TX_ABI: InterfaceAbi = [
+export const ARBITRUM_RETRYABLE_TX_ABI = [
   { inputs: [], name: 'NoTicketWithID', type: 'error' },
   { inputs: [], name: 'NotCallable', type: 'error' },
   {

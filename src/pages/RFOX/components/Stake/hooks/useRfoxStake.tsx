@@ -3,7 +3,7 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { erc20ABI, foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { ERC20_ABI, FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -115,7 +115,7 @@ export const useRfoxStake = ({
     if (!(isValidStakingAmount && runeAddress && stakingAsset)) return
 
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: FOX_STAKING_V1_ABI,
       functionName: 'stake',
       args: [BigInt(amountCryptoBaseUnit), runeAddress],
     })
@@ -125,7 +125,7 @@ export const useRfoxStake = ({
     if (!stakingAsset) return
 
     return encodeFunctionData({
-      abi: erc20ABI,
+      abi: ERC20_ABI,
       functionName: 'approve',
       args: [RFOX_PROXY_CONTRACT_ADDRESS, BigInt(amountCryptoBaseUnit)],
     })

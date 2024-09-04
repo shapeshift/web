@@ -29,6 +29,7 @@ import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
+  selectedAddress: string | undefined
 } & (
   | {
       isNewAddress: boolean
@@ -55,6 +56,7 @@ const buttonProps = {
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
+  selectedAddress,
   validateIsNewAddress,
 }) => {
   const translate = useTranslate()
@@ -181,13 +183,20 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return undefined
   }, [currentRuneAddress, maybeMatchingRuneAccountId])
 
+  const maybeSelectedRuneAddress = useMemo(() => {
+    if (selectedAddress) return selectedAddress
+    if (maybeDefaultRuneAccountId) return fromAccountId(maybeDefaultRuneAccountId).account
+
+    return undefined
+  }, [maybeDefaultRuneAccountId, selectedAddress])
+
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
 
     return (
       <InlineCopyButton
-        isDisabled={!maybeDefaultRuneAccountId}
-        value={maybeDefaultRuneAccountId ? fromAccountId(maybeDefaultRuneAccountId).account : ''}
+        isDisabled={!maybeSelectedRuneAddress}
+        value={maybeSelectedRuneAddress ?? ''}
       >
         <AccountDropdown
           defaultAccountId={maybeDefaultRuneAccountId}
@@ -198,7 +207,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         />
       </InlineCopyButton>
     )
-  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId])
+  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId, maybeSelectedRuneAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

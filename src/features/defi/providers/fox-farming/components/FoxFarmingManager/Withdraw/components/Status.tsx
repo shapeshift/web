@@ -17,6 +17,7 @@ import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -47,6 +48,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const assets = useAppSelector(selectAssets)
 
@@ -137,6 +143,31 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!state || !dispatch || !opportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        statusText: StatusTextEnum.pending,
+        statusBody: translate('modals.withdraw.status.pending'),
+        statusBg: 'transparent',
+      }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: opportunity?.opportunityName,
+        }),
+        statusBg: 'green.500',
+      }
+
     switch (state.withdraw.txStatus) {
       case 'success':
         return {

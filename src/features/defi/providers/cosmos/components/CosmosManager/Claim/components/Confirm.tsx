@@ -14,6 +14,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -193,9 +194,15 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           </Row.Label>
           <Row.Value>
             <Skeleton minWidth='100px' isLoaded={!!userAddress && !!accountId}>
-              <Link isExternal color='blue.500' href={`${asset.explorerAddressLink}${userAddress}`}>
-                {userAddress && <MiddleEllipsis value={accountId ?? userAddress} />}
-              </Link>
+              <InlineCopyButton value={userAddress ?? ''}>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  href={`${asset.explorerAddressLink}${userAddress}`}
+                >
+                  {userAddress && <MiddleEllipsis value={accountId ?? userAddress} />}
+                </Link>
+              </InlineCopyButton>
             </Skeleton>
           </Row.Value>
         </Row>

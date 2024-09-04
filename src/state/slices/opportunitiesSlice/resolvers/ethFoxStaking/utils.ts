@@ -15,8 +15,9 @@ export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLP
 
 // Rate of FOX given per second for all staked addresses)
 const getRewardsRate = memoize(
-  async (farmingRewardsContract: GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>) =>
-    await farmingRewardsContract.read.rewardRate(),
+  async (
+    farmingRewardsContract: GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>,
+  ) => await farmingRewardsContract.read.rewardRate(),
 )
 
 const getTotalLpSupply = memoize(

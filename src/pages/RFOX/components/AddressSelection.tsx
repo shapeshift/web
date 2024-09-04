@@ -14,6 +14,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { validateAddress } from 'lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -184,13 +185,18 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     if (isManualAddress) return null
 
     return (
-      <AccountDropdown
-        defaultAccountId={maybeDefaultRuneAccountId}
-        assetId={thorchainAssetId}
-        onChange={handleAccountIdChange}
-        boxProps={boxProps}
-        buttonProps={buttonProps}
-      />
+      <InlineCopyButton
+        isDisabled={!maybeDefaultRuneAccountId}
+        value={maybeDefaultRuneAccountId ?? ''}
+      >
+        <AccountDropdown
+          defaultAccountId={maybeDefaultRuneAccountId}
+          assetId={thorchainAssetId}
+          onChange={handleAccountIdChange}
+          boxProps={boxProps}
+          buttonProps={buttonProps}
+        />
+      </InlineCopyButton>
     )
   }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId])
 

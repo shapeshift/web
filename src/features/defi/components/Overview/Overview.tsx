@@ -9,7 +9,7 @@ import {
   StatLabel,
   Tag,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
@@ -18,7 +18,9 @@ import { Amount } from 'components/Amount/Amount'
 import type { AssetDescriptionTeaserProps } from 'components/AssetDescriptionTeaser'
 import { AssetDescriptionTeaser } from 'components/AssetDescriptionTeaser'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { RawText, Text } from 'components/Text'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 
 import type { DefiActionButtonProps } from '../DefiActionButtons'
 import { DefiActionButtons } from '../DefiActionButtons'
@@ -107,9 +109,12 @@ export const Overview: React.FC<OverviewProps> = ({
         <Stack spacing={0}>
           <Stack p={8} spacing={6}>
             <Flex flexDir='column' gap={3}>
-              {onAccountIdChange && (
+              {onAccountIdChange && accountId && (
                 <>
-                  <Flex gap={4} alignItems='center' width='full' justifyContent='space-between'>
+                  <InlineCopyButton
+                    isDisabled={isUtxoAccountId(accountId)}
+                    value={fromAccountId(accountId).account}
+                  >
                     <AccountDropdown
                       {...(accountId ? { defaultAccountId: accountId } : {})}
                       assetId={asset.assetId}
@@ -117,7 +122,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       buttonProps={accountDropdownButtonProps}
                       boxProps={accountDropdownBoxProps}
                     />
-                  </Flex>
+                  </InlineCopyButton>
                   <Divider />
                 </>
               )}

@@ -100,16 +100,20 @@ export const FiatForm: React.FC<FiatFormProps> = ({
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
           const { accountNumber } = bip44Params
+
+          const pubKeyOrCheckLedgerAppOpen = isLedger(wallet)
+            ? { pubKey: fromAccountId(accountId).account }
+            : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
+
           const payload = {
             accountType,
             accountNumber,
             wallet,
-            pubKey: isLedger(wallet) ? fromAccountId(accountId).account : undefined,
+            ...pubKeyOrCheckLedgerAppOpen,
           }
           const { chainId } = fromAccountId(accountId)
           const maybeAdapter = getChainAdapterManager().get(chainId)
           if (!maybeAdapter) return Promise.resolve(`no chain adapter for ${chainId}`)
-          // @ts-ignore, we actually only want to bypass on-device derivation for Ledger here
           return maybeAdapter.getAddress(payload)
         }),
       )

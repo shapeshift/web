@@ -1,4 +1,3 @@
-import type { L2Network } from '@arbitrum/sdk'
 import { Erc20Bridger, EthBridger } from '@arbitrum/sdk'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import { type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -12,12 +11,19 @@ import { getTradeQuote } from './getTradeQuote'
 vi.mock('@arbitrum/sdk', () => ({
   Erc20Bridger: vi.fn(),
   EthBridger: vi.fn(),
-  getL2Network: vi.fn().mockResolvedValue({ chainID: 42161 } as L2Network),
+  getArbitrumNetwork: vi.fn().mockResolvedValue({ chainID: 42161 }),
 }))
 
-vi.mock('@shapeshiftoss/utils/dist/evm', () => ({
-  getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
-}))
+vi.mock('@shapeshiftoss/chain-adapters', async () => {
+  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
+
+  return {
+    ...actual,
+    evm: {
+      getFees: vi.fn().mockResolvedValue({ networkFeeCryptoBaseUnit: '42' }),
+    },
+  }
+})
 
 describe('getTradeQuote', () => {
   const mockAdapter = {
@@ -111,9 +117,13 @@ describe('getTradeQuote', () => {
           from: '0x',
         },
       }),
-      getL2ERC20Address: vi.fn().mockResolvedValue('0xf929de51d91c77e42f5090069e0ad7a09e513c73'),
-      getL1ERC20Address: vi.fn().mockResolvedValue('0xc770eefad204b5180df6a14ee197d99d808ee52d'),
-      getL1GatewayAddress: vi.fn().mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
+      getChildErc20Address: vi.fn().mockResolvedValue('0xf929de51d91c77e42f5090069e0ad7a09e513c73'),
+      getParentErc20Address: vi
+        .fn()
+        .mockResolvedValue('0xc770eefad204b5180df6a14ee197d99d808ee52d'),
+      getParentGatewayAddress: vi
+        .fn()
+        .mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
     }
     vi.mocked(Erc20Bridger).mockReturnValue(Erc20BridgerMock as unknown as Erc20Bridger)
 
@@ -146,9 +156,13 @@ describe('getTradeQuote', () => {
           from: '0x',
         },
       }),
-      getL2ERC20Address: vi.fn().mockResolvedValue('0xf929de51d91c77e42f5090069e0ad7a09e513c73'),
-      getL1ERC20Address: vi.fn().mockResolvedValue('0xc770eefad204b5180df6a14ee197d99d808ee52d'),
-      getL1GatewayAddress: vi.fn().mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
+      getChildErc20Address: vi.fn().mockResolvedValue('0xf929de51d91c77e42f5090069e0ad7a09e513c73'),
+      getParentErc20Address: vi
+        .fn()
+        .mockResolvedValue('0xc770eefad204b5180df6a14ee197d99d808ee52d'),
+      getParentGatewayAddress: vi
+        .fn()
+        .mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
     }
     vi.mocked(Erc20Bridger).mockReturnValue(Erc20BridgerMock as unknown as Erc20Bridger)
 

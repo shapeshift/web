@@ -1,5 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 
@@ -60,7 +60,7 @@ export const zrxApi: SwapperApi = {
 
     const { value, to, data, estimatedGas } = zrxQuoteResponse.unwrap()
 
-    const { gasLimit, ...feeData } = await getFees({
+    const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data,
       to,

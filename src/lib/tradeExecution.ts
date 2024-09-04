@@ -1,3 +1,4 @@
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -25,7 +26,6 @@ import { poll } from 'lib/poll/poll'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-import { getEthersV5Provider } from './ethersProviderSingleton'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
@@ -96,8 +96,8 @@ export class TradeExecution {
             accountId,
             stepIndex,
             config: getConfig(),
-            assertGetEvmChainAdapter,
             getEthersV5Provider,
+            assertGetEvmChainAdapter,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
             fetchIsSmartContractAddressQuery,

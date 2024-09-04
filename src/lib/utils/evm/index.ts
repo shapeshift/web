@@ -1,19 +1,10 @@
 import { CHAIN_NAMESPACE, type ChainId } from '@shapeshiftoss/caip'
-import type {
-  ContractInteraction,
-  evm,
-  EvmChainAdapter,
-  EvmChainId,
-  SignTx,
-} from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
+import { evm, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Fees } from '@shapeshiftoss/utils/dist/evm'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { PartialFields } from 'lib/types'
@@ -44,6 +35,7 @@ type BuildAndBroadcastArgs = BuildArgs &
 
 type CreateBuildCustomTxInputArgs = {
   accountNumber: number
+  from: string
   adapter: EvmChainAdapter
   to: string
   data: string
@@ -73,41 +65,39 @@ type GetFeesCommonArgs = {
   data: string
   to: string
   value: string
+  from: string
 }
 
-export type GetFeesWithWalletArgs = GetFeesCommonArgs & {
-  accountNumber: number
+export type GetFeesWithWalletEip1559SupportArgs = GetFeesCommonArgs & {
   wallet: HDWallet
-  pubKey: string | undefined
 }
 
-export type MaybeGetFeesWithWalletArgs = PartialFields<
-  Omit<GetFeesWithWalletArgs, 'wallet'>,
-  'adapter' | 'accountNumber' | 'data' | 'to' | 'pubKey'
+export type MaybeGetFeesWithWalletEip1559Args = PartialFields<
+  Omit<GetFeesWithWalletEip1559SupportArgs, 'wallet'>,
+  'adapter' | 'data' | 'to' | 'from'
 > & {
   wallet: HDWallet | null
 }
 
-export const isGetFeesWithWalletArgs = (
-  input: MaybeGetFeesWithWalletArgs,
-): input is GetFeesWithWalletArgs =>
-  Boolean(
-    input.adapter && input.accountNumber !== undefined && input.wallet && input.data && input.to,
-  )
+export const isGetFeesWithWalletEIP1559SupportArgs = (
+  input: MaybeGetFeesWithWalletEip1559Args,
+): input is GetFeesWithWalletEip1559SupportArgs =>
+  Boolean(input.adapter && input.wallet && input.data && input.to && input.from)
 
-export const getFeesWithWallet = async (args: GetFeesWithWalletArgs): Promise<Fees> => {
-  const { accountNumber, adapter, wallet, pubKey, ...rest } = args
+export const getFeesWithWalletEIP1559Support = async (
+  args: GetFeesWithWalletEip1559SupportArgs,
+): Promise<evm.Fees> => {
+  const { wallet, ...rest } = args
 
-  const from = await adapter.getAddress({ accountNumber, pubKey, wallet })
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFees({ ...rest, adapter, from, supportsEIP1559 })
+  return evm.getFees({ ...rest, supportsEIP1559 })
 }
 
 export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
-  const fees = await getFeesWithWallet({ ...args, pubKey: undefined })
+  const fees = await getFeesWithWalletEIP1559Support(args)
   return { ...args, ...fees }
 }
 
@@ -115,7 +105,7 @@ export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
 ): Promise<evm.BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await getFees({ ...rest, from, supportsEIP1559 })
+  const fees = await evm.getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 

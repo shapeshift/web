@@ -2,8 +2,9 @@ import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import { type Account, type EvmChainId, evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
+import type { Account } from '@shapeshiftoss/chain-adapters'
+import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { AccountMetadataById, EvmChainId } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
@@ -35,6 +36,9 @@ export const portfolio = createSlice({
   reducers: {
     clear: () => {
       return initialState
+    },
+    setIsAccountMetadataLoading: (state, { payload }: { payload: boolean }) => {
+      state.isAccountMetadataLoading = payload
     },
     setWalletMeta: (
       state,

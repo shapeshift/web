@@ -2,7 +2,7 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
-import { useQuery } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import React, { useEffect } from 'react'
@@ -108,107 +108,116 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
 
     ;(async () => {
-      // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
-      // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
-      if (hasManagedAccounts) {
-        requestedAccountIds.forEach(accountId => {
-          dispatch(
-            portfolioApi.endpoints.getAccount.initiate(
-              { accountId, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
+      try {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading(true))
+
+        // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
+        // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
+        if (hasManagedAccounts) {
+          requestedAccountIds.forEach(accountId => {
+            dispatch(
+              portfolioApi.endpoints.getAccount.initiate(
+                { accountId, upsertOnFetch: true },
+                { forceRefetch: true },
+              ),
+            )
+          })
+
+          return
+        }
+
+        if (!wallet) {
+          return
+        }
+
+        let chainIds = supportedChains.filter(chainId => {
+          return walletSupportsChain({
+            chainId,
+            wallet,
+            isSnapInstalled,
+            checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+          })
+        })
+
+        const accountMetadataByAccountId: AccountMetadataById = {}
+        const isMultiAccountWallet = wallet.supportsBip44Accounts()
+        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+        for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+          if (
+            accountNumber > 0 &&
+            // only some wallets support multi account
+            (!isMultiAccountWallet ||
+              // MM without snaps does not support non-EVM chains, hence no multi-account
+              // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
+              (isMetaMaskMultichainWallet && !isSnapInstalled))
           )
-        })
-        return
-      }
+            break
 
-      if (!wallet) return
+          const input = { accountNumber, chainIds, wallet, isSnapInstalled }
+          const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+          const accountIds = Object.keys(accountIdsAndMetadata)
 
-      let chainIds = supportedChains.filter(chainId => {
-        return walletSupportsChain({
-          chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
-        })
-      })
+          Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
-      const accountMetadataByAccountId: AccountMetadataById = {}
-      const isMultiAccountWallet = wallet.supportsBip44Accounts()
-      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-      for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        if (
-          accountNumber > 0 &&
-          // only some wallets support multi account
-          (!isMultiAccountWallet ||
-            // MM without snaps does not support non-EVM chains, hence no multi-account
-            // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
-            (isMetaMaskMultichainWallet && !isSnapInstalled))
+          const { getAccount } = portfolioApi.endpoints
+          const accountPromises = accountIds.map(accountId =>
+            dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
+          )
+
+          const accountResults = await Promise.allSettled(accountPromises)
+
+          let chainIdsWithActivity: string[] = []
+          accountResults.forEach((res, idx) => {
+            if (res.status === 'rejected') return
+
+            const { data: account } = res.value
+            if (!account) return
+
+            const accountId = accountIds[idx]
+            const { chainId } = fromAccountId(accountId)
+
+            const { hasActivity } = account.accounts.byId[accountId]
+
+            const accountNumberHasChainActivity = !isUtxoChainId(chainId)
+              ? hasActivity
+              : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+                // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
+                // being upserted for BTC and LTC
+                accountResults.some((res, _idx) => {
+                  if (res.status === 'rejected') return false
+                  const { data: account } = res.value
+                  if (!account) return false
+                  const accountId = accountIds[_idx]
+                  const { chainId: _chainId } = fromAccountId(accountId)
+                  if (chainId !== _chainId) return false
+                  return account.accounts.byId[accountId].hasActivity
+                })
+
+            // don't add accounts with no activity past account 0
+            if (accountNumber > 0 && !accountNumberHasChainActivity)
+              return delete accountMetadataByAccountId[accountId]
+
+            // unique set to handle utxo chains with multiple account types per account
+            chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+
+            dispatch(portfolio.actions.upsertPortfolio(account))
+          })
+
+          chainIds = chainIdsWithActivity
+        }
+
+        dispatch(
+          portfolio.actions.upsertAccountMetadata({
+            accountMetadataByAccountId,
+            walletId: await wallet.getDeviceID(),
+          }),
         )
-          break
 
-        const input = { accountNumber, chainIds, wallet, isSnapInstalled }
-        const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-        const accountIds = Object.keys(accountIdsAndMetadata)
-
-        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
-
-        const { getAccount } = portfolioApi.endpoints
-        const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
-        )
-
-        const accountResults = await Promise.allSettled(accountPromises)
-
-        let chainIdsWithActivity: string[] = []
-        accountResults.forEach((res, idx) => {
-          if (res.status === 'rejected') return
-
-          const { data: account } = res.value
-          if (!account) return
-
-          const accountId = accountIds[idx]
-          const { chainId } = fromAccountId(accountId)
-
-          const { hasActivity } = account.accounts.byId[accountId]
-
-          const accountNumberHasChainActivity = !isUtxoChainId(chainId)
-            ? hasActivity
-            : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-              // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
-              // being upserted for BTC and LTC
-              accountResults.some((res, _idx) => {
-                if (res.status === 'rejected') return false
-                const { data: account } = res.value
-                if (!account) return false
-                const accountId = accountIds[_idx]
-                const { chainId: _chainId } = fromAccountId(accountId)
-                if (chainId !== _chainId) return false
-                return account.accounts.byId[accountId].hasActivity
-              })
-
-          // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !accountNumberHasChainActivity)
-            return delete accountMetadataByAccountId[accountId]
-
-          // unique set to handle utxo chains with multiple account types per account
-          chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
-
-          dispatch(portfolio.actions.upsertPortfolio(account))
-        })
-
-        chainIds = chainIdsWithActivity
-      }
-
-      dispatch(
-        portfolio.actions.upsertAccountMetadata({
-          accountMetadataByAccountId,
-          walletId: await wallet.getDeviceID(),
-        }),
-      )
-
-      for (const accountId of Object.keys(accountMetadataByAccountId)) {
-        dispatch(portfolio.actions.enableAccountId(accountId))
+        for (const accountId of Object.keys(accountMetadataByAccountId)) {
+          dispatch(portfolio.actions.enableAccountId(accountId))
+        }
+      } finally {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading(false))
       }
     })()
   }, [
@@ -243,31 +252,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
-  useQuery({
-    queryKey: ['marketData', {}],
-    queryFn: async () => {
-      await dispatch(
-        marketApi.endpoints.findByAssetIds.initiate(portfolioAssetIds, {
-          // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-          forceRefetch: true,
-        }),
-      )
+  useQueries({
+    queries: portfolioAssetIds.map(assetId => ({
+      queryKey: ['marketData', assetId],
+      queryFn: async () => {
+        await dispatch(
+          marketApi.endpoints.findByAssetId.initiate(assetId, {
+            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
+            forceRefetch: true,
+          }),
+        )
 
-      // used to trigger mixpanel init after load of market data
-      dispatch(marketData.actions.setMarketDataLoaded())
+        // used to trigger mixpanel init after load of market data
+        dispatch(marketData.actions.setMarketDataLoaded())
 
-      // We *have* to return a value other than undefined from react-query queries, see
-      // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
-      return null
-    },
-    // once the portfolio is loaded, fetch market data for all portfolio assets
-    // and start refetch timer to keep market data up to date
-    enabled: portfolioLoadingStatus !== 'loading',
-    refetchInterval: marketDataPollingInterval,
-    // Do NOT refetch market data in background to avoid spamming coingecko
-    refetchIntervalInBackground: false,
-    // Do NOT refetch market data on window focus to avoid spamming coingecko
-    refetchOnWindowFocus: false,
+        // We *have* to return a value other than undefined from react-query queries, see
+        // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
+        return null
+      },
+      // once the portfolio is loaded, fetch market data for all portfolio assets
+      // and start refetch timer to keep market data up to date
+      enabled: portfolioLoadingStatus !== 'loading',
+      refetchInterval: marketDataPollingInterval,
+      // Do NOT refetch market data in background to avoid spamming coingecko
+      refetchIntervalInBackground: false,
+      // Do NOT refetch market data on window focus to avoid spamming coingecko
+      refetchOnWindowFocus: false,
+    })),
   })
 
   /**
@@ -308,7 +319,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // early return for routes that don't contain an assetId, no need to refetch marketData granularly
     if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([routeAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render

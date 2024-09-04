@@ -1,21 +1,19 @@
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { assertGetViemClient, getEthersV5Provider, outboxAbi } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { outboxAbi } from 'contracts/abis/Outbox'
 import { useMemo } from 'react'
 import type { Hash } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { assertGetViemClient } from 'lib/viem-client'
 import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -69,8 +67,7 @@ export const useArbitrumClaimTx = (
   })
 
   const evmFeesResult = useEvmFees({
-    accountNumber: bip44Params?.accountNumber,
-    pubKey: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
+    from: destinationAccountId ? fromAccountId(destinationAccountId).account : undefined,
     chainId: claim.destinationChainId,
     data: executeTransactionDataResult.data,
     refetchInterval: 15_000,
@@ -84,11 +81,13 @@ export const useArbitrumClaimTx = (
       if (!wallet) return
       if (!bip44Params) return
       if (!executeTransactionDataResult.data) return
+      if (!destinationAccountId) return
 
       const adapter = assertGetEvmChainAdapter(claim.destinationChainId)
 
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: bip44Params.accountNumber,
+        from: fromAccountId(destinationAccountId).account,
         adapter,
         data: executeTransactionDataResult.data,
         to: ARBITRUM_OUTBOX,

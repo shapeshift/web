@@ -1,16 +1,13 @@
-import { L2ToL1MessageStatus, L2TransactionReceipt } from '@arbitrum/sdk'
-import type {
-  L2ToL1MessageReader,
-  L2ToL1TransactionEvent,
-} from '@arbitrum/sdk/dist/lib/message/L2ToL1Message'
+import type { ChildToParentMessageReader, ChildToParentTransactionEvent } from '@arbitrum/sdk'
+import { ChildToParentMessageStatus, ChildTransactionReceipt } from '@arbitrum/sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ClaimStatus } from 'components/ClaimRow/types'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertUnreachable } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
@@ -19,9 +16,9 @@ import { useAppSelector } from 'state/store'
 const AVERAGE_BLOCK_TIME_BLOCKS = 1000
 
 type ClaimStatusResult = {
-  event: L2ToL1TransactionEvent
-  message: L2ToL1MessageReader
-  status: L2ToL1MessageStatus
+  event: ChildToParentTransactionEvent
+  message: ChildToParentMessageReader
+  status: ChildToParentMessageStatus
   timeRemainingSeconds: number | undefined
 }
 
@@ -53,9 +50,9 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
           queryKey: ['claimStatus', { txid: tx.txid }],
           queryFn: async () => {
             const receipt = await l2Provider.getTransactionReceipt(tx.txid)
-            const l2Receipt = new L2TransactionReceipt(receipt)
-            const events = l2Receipt.getL2ToL1Events()
-            const messages = await l2Receipt.getL2ToL1Messages(l1Provider)
+            const l2Receipt = new ChildTransactionReceipt(receipt)
+            const events = l2Receipt.getChildToParentEvents()
+            const messages = await l2Receipt.getChildToParentMessages(l1Provider)
 
             const event = events[0]
             const message = messages[0]
@@ -89,11 +86,11 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
           select: ({ event, message, status, timeRemainingSeconds }: ClaimStatusResult) => {
             const claimStatus = (() => {
               switch (status) {
-                case L2ToL1MessageStatus.CONFIRMED:
+                case ChildToParentMessageStatus.CONFIRMED:
                   return ClaimStatus.Available
-                case L2ToL1MessageStatus.EXECUTED:
+                case ChildToParentMessageStatus.EXECUTED:
                   return ClaimStatus.Complete
-                case L2ToL1MessageStatus.UNCONFIRMED:
+                case ChildToParentMessageStatus.UNCONFIRMED:
                   return ClaimStatus.Pending
                 default:
                   assertUnreachable(status)

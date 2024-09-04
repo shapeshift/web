@@ -252,8 +252,6 @@
     "routeTitleForGem": "Rampa de entrada Gem",
     "title": "Compra o Vende criptomonedas",
     "titleMessage": "Puede %{action} %{asset} usando:",
-    "gem": "GEM",
-    "junoPay": "JunoPay",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "Rampa de entrada",
@@ -399,7 +397,7 @@
       "saversVaults": {
         "description": "Obtenga rendimiento de su %{asset} a través de las bóvedas de ahorro de THORChain. No hay tiempo de bloqueo y las recompensas se acumulan automáticamente. El rendimiento en THORChain proviene de las tarifas de intercambio y las recompensas en bloque. El rendimiento unilateral tiene un tope de la mitad del rendimiento bilateral de los proveedores de liquidez.",
         "runePoolDescription": "RUNEPool permite ganar más %{asset} si agrupas tus %{asset} con otros. No tienes que elegir grupos específicos, todos comparten el rendimiento general.",
-        "runePoolOverviewDescription": "RUNEPool optimiza uso de %{asset} al depositar en todos los pools POL habilitados en THORChain. Al agrupar %{asset}, participantes obtienen APY combinado, pero enfrentan exposición agregada a pérdida impermanente. En lugar de pools individuales, usuarios se benefician de rendimiento general, invirtiendo efectivamente en un índice de %{asset} y todos los activos habilitados PoL THORChain. Simplifica provisión de liquidez y reduce riesgo individual.",
+        "runePoolOverviewDescription": "RUNEPool optimiza el uso de RUNE depositándolos en todos los pools de liquidez habilitados para POL en THORChain. Al agrupar RUNE, participantes obtienen APY combinado, pero enfrentan exposición agregada a pérdida impermanente. En lugar de elegir pools individuales, usuarios se benefician del rendimiento general, invirtiendo efectivamente en un índice RUNE y todos los activos habilitados para POL THORChain. Simplifica la provisión de liquidez y reduce  riesgo individual.",
         "vaultCap": "Límite de bóveda",
         "vaultCapTooltip": "Capacidad máxima actual para esta bóveda",
         "haltedDepositTitle": "Los depositos estan temporalmente detenidos.",
@@ -919,7 +917,7 @@
     "unknownGas": "(desconocido)",
     "numHops": "Esta operación incluye %{numHops} saltos",
     "receiveAddress": "Dirección de recepción",
-    "receiveAddressDescription": "No hay dirección %{chainName} en billetera conectada. Introduzca dirección ó",
+    "receiveAddressDescription": "No se encontró ninguna dirección %{chainName} en la billetera conectada. Ingrese manualmente una dirección",
     "smartContractReceiveAddressDescription": "Detectamos que realiza un intercambio desde un contrato inteligente cuya dirección puede no existir en la cadena destino. Verifique e ingrese manual la dirección del destinatario en %{chainName}",
     "toContinue": "para continuar.",
     "addressPlaceholder": "Dirección %{chainName}",
@@ -1235,6 +1233,7 @@
       },
       "withdrawTo": "Retirar A",
       "amountToDeposit": "Cantidad a Depositar",
+      "amountDeposited": "Monto Depositado",
       "amountToStake": "Cantidad a Stake",
       "amountToWithdraw": "Cantidad a Retirar",
       "amountToClaim": "Monto a Reclamar",
@@ -1871,7 +1870,8 @@
     }
   },
   "ledgerOpenApp": {
-    "title": "Abra la app %{appName}"
+    "title": "Abra la app %{appName}",
+    "description": "Para continuar, deberá abrir la aplicación %{appName} en su dispositivo Ledger."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

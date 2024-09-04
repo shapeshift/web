@@ -1,11 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import type { Asset } from '@shapeshiftoss/types'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -21,6 +20,7 @@ import { encodeFunctionData, getAddress } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -54,6 +54,7 @@ import { DepositContext } from '../DepositContext'
 type ApproveProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
@@ -156,8 +157,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       })
 
       const adapter = assertGetEvmChainAdapter(chainId)
+
+      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
+
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber,
+        from: fromAccountId(accountId).account,
         adapter,
         data,
         value: '0',
@@ -204,10 +209,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   }, [
     accountId,
     accountNumber,
-    asset,
+    asset.assetId,
+    asset.chainId,
+    asset.precision,
     assetId,
     assets,
     chainId,
+    checkLedgerAppOpenIfLedgerConnected,
     dispatch,
     inboundAddress,
     onNext,

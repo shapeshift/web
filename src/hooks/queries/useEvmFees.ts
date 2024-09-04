@@ -1,12 +1,17 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { selectEvmFees } from 'react-queries/selectors'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { MaybeGetFeesWithWalletArgs } from 'lib/utils/evm'
-import { assertGetEvmChainAdapter, getFeesWithWallet, isGetFeesWithWalletArgs } from 'lib/utils/evm'
+import type { MaybeGetFeesWithWalletEip1559Args } from 'lib/utils/evm'
+import {
+  assertGetEvmChainAdapter,
+  getFeesWithWalletEIP1559Support,
+  isGetFeesWithWalletEIP1559SupportArgs,
+} from 'lib/utils/evm'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
@@ -14,8 +19,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 type UseEvmFeesProps = {
-  accountNumber: number | undefined
-  pubKey: string | undefined
+  from: string | undefined
   chainId: ChainId | undefined
   data: string | undefined
   enabled?: boolean
@@ -26,9 +30,14 @@ type UseEvmFeesProps = {
   value: string
 }
 
+export type EvmFees = {
+  fees: evm.Fees
+  txFeeFiat: string
+  networkFeeCryptoBaseUnit: string
+}
+
 export const useEvmFees = ({
-  accountNumber,
-  pubKey,
+  from,
   chainId,
   data,
   refetchInterval,
@@ -49,16 +58,15 @@ export const useEvmFees = ({
     selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
-  const getFeesWithWalletInput: MaybeGetFeesWithWalletArgs = useMemo(() => {
-    return { accountNumber, adapter, data, to, value, pubKey, wallet }
-  }, [accountNumber, adapter, data, pubKey, to, value, wallet])
+  const getFeesWithWalletEIP1559SupportInput: MaybeGetFeesWithWalletEip1559Args = useMemo(() => {
+    return { adapter, data, to, value, from, wallet }
+  }, [adapter, data, from, to, value, wallet])
 
   const query = useQuery({
-    queryKey: reactQueries.common.evmFees({ chainId, value, accountNumber, data, pubKey, to })
-      .queryKey,
+    queryKey: reactQueries.common.evmFees({ chainId, value, data, from, to }).queryKey,
     queryFn:
-      isGetFeesWithWalletArgs(getFeesWithWalletInput) && enabled
-        ? () => getFeesWithWallet(getFeesWithWalletInput)
+      isGetFeesWithWalletEIP1559SupportArgs(getFeesWithWalletEIP1559SupportInput) && enabled
+        ? () => getFeesWithWalletEIP1559Support(getFeesWithWalletEIP1559SupportInput)
         : skipToken,
     select: feeAsset ? fees => selectEvmFees(fees, feeAsset, feeAssetMarketData) : undefined,
     staleTime,

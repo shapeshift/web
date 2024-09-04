@@ -1,8 +1,7 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getTxStatus } from '@shapeshiftoss/unchained-client/dist/evm'
+import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -168,13 +167,17 @@ export const createDefaultStatusResponse = (buyTxHash?: string) => ({
 })
 
 export const checkSafeTransactionStatus = async ({
+  accountId,
   txHash,
   chainId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
+  accountId: AccountId | undefined
   txHash: string
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<
   | {
       status: TxStatus
@@ -183,7 +186,11 @@ export const checkSafeTransactionStatus = async ({
     }
   | undefined
 > => {
-  const { transaction } = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
+  const { transaction } = await fetchSafeTransactionInfo({
+    accountId,
+    fetchIsSmartContractAddressQuery,
+    safeTxHash: txHash,
+  })
 
   if (!transaction) return
 
@@ -210,7 +217,7 @@ export const checkSafeTransactionStatus = async ({
   if (transaction.transactionHash) {
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
-    const status = getTxStatus(tx)
+    const status = evm.getTxStatus(tx)
 
     return {
       status,
@@ -240,14 +247,16 @@ export const checkEvmSwapStatus = async ({
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       accountId,
-      safeTxHash: txHash,
+      txHash,
       fetchIsSmartContractAddressQuery,
+      chainId,
+      assertGetEvmChainAdapter,
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-    const status = getTxStatus(tx)
+    const status = evm.getTxStatus(tx)
 
     return {
       status,

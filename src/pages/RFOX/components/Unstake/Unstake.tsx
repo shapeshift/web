@@ -1,11 +1,10 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
-import { getAddress } from 'viem'
 import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -63,7 +62,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const { queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
     stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
   })
 
@@ -74,13 +73,13 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
     stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
   })
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
     stakingAssetAccountAddress: confirmedQuote
-      ? getAddress(fromAccountId(confirmedQuote.stakingAssetAccountId).account)
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
   })
 

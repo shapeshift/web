@@ -1,6 +1,11 @@
-import { CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
+import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+  fromAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -28,6 +33,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
+  selectIsAccountMetadataLoading,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -35,6 +41,7 @@ import {
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
+import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
@@ -77,6 +84,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
 
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -142,7 +150,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   useEffect(() => {
     // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetIds.initiate([stakingAssetId]))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
   }, [dispatch, selectedAssetId, stakingAssetId])
   useEffect(() => {
     // Only set this once, never collapse out
@@ -206,6 +214,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setStakeTxid: undefined,
     methods,
   })
+
+  const stakingAssetAccountAddress = useMemo(
+    () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
+    [stakingAssetAccountId],
+  )
 
   const { data: cooldownPeriod } = useCooldownPeriodQuery()
 
@@ -407,7 +420,34 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return translate('RFOX.chainNotSupportedByWallet')
   }, [isChainSupportedByWallet, translate])
 
+  const submitButtonText = useMemo(() => {
+    if (isAccountMetadataLoading) return translate('common.accountsLoading')
+
+    return (
+      errors.amountFieldInput?.message ||
+      errors.manualRuneAddress?.message ||
+      chainNotSupportedByWalletCopy ||
+      translate('RFOX.stake')
+    )
+  }, [
+    chainNotSupportedByWalletCopy,
+    errors.amountFieldInput,
+    errors.manualRuneAddress,
+    translate,
+    isAccountMetadataLoading,
+  ])
+
   if (!selectedAsset) return null
+
+  if (!stakingAssetAccountAddress && !isAccountMetadataLoading)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ChainNotSupported chainId={stakingAsset?.chainId} />
+        </CardBody>
+      </SlideTransition>
+    )
 
   return (
     <SlideTransition>
@@ -496,12 +536,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
+              isValidWallet={Boolean(isChainSupportedByWallet || isAccountMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
                   !runeAddress ||
                   !isValidStakingAmount ||
                   !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                  isAccountMetadataLoading ||
                   !cooldownPeriod,
               )}
               size='lg'
@@ -509,13 +550,13 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               onClick={handleWarning}
               isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
               colorScheme={
-                Boolean(errors.amountFieldInput || errors.manualRuneAddress) ? 'red' : 'blue'
+                Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
+                !isAccountMetadataLoading
+                  ? 'red'
+                  : 'blue'
               }
             >
-              {errors.amountFieldInput?.message ||
-                errors.manualRuneAddress?.message ||
-                chainNotSupportedByWalletCopy ||
-                translate('RFOX.stake')}
+              {submitButtonText}
             </ButtonWalletPredicate>
           </CardFooter>
         </FormProvider>

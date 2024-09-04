@@ -9,7 +9,7 @@ import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/Thorch
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
-import { baseUnitToHuman, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
@@ -87,10 +87,7 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = baseUnitToHuman({
-            value: minAmountCryptoBaseUnit,
-            inputExponent: asset.precision,
-          })
+          const minAmountCryptoHuman = fromBaseUnit(minAmountCryptoBaseUnit, asset.precision)
           const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 

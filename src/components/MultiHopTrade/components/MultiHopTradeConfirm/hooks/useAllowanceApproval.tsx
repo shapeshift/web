@@ -1,4 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -11,7 +12,6 @@ import {
 } from 'hooks/queries/useApprovalFees'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { assertGetViemClient } from 'lib/viem-client'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -36,7 +36,6 @@ export const useAllowanceApproval = (
   const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
 
   const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
-    accountNumber: tradeQuoteStep.accountNumber,
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
@@ -63,6 +62,7 @@ export const useAllowanceApproval = (
       ),
       assetId: tradeQuoteStep.sellAsset.assetId,
       spender: tradeQuoteStep.allowanceContract,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,
     }),
     onMutate() {

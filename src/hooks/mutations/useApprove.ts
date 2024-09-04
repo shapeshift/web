@@ -1,8 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { erc20ABI } from '@shapeshiftoss/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { erc20ABI } from 'contracts/abis/ERC20ABI'
 import { useMemo, useState } from 'react'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
@@ -14,7 +13,6 @@ import { isToken } from 'lib/utils'
 import type { MaybeApproveInput } from 'lib/utils/evm/types'
 
 type UseApproveProps = MaybeApproveInput & {
-  from?: string
   onSuccess?: (txHash: string) => void
 }
 
@@ -44,21 +42,16 @@ export const useApprove = ({ onSuccess: handleSuccess, ...input }: UseApprovePro
     [approvalCallData, input, wallet],
   )
 
-  const pubKey = useMemo(
-    () => (wallet && isLedger(wallet) && input.from ? input.from : undefined),
-    [input.from, wallet],
-  )
-
   const approvalFeesQueryInput = useMemo(
     () => ({
       value: '0',
-      pubKey,
+      from: input.from,
       accountNumber: input.accountNumber,
       to: input.assetId ? fromAssetId(input.assetId).assetReference : undefined,
       data: approvalCallData,
       chainId,
     }),
-    [approvalCallData, chainId, input.accountNumber, input.assetId, pubKey],
+    [approvalCallData, chainId, input.accountNumber, input.assetId, input.from],
   )
 
   const allowanceDataQuery = useAllowance({

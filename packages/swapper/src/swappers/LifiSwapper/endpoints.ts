@@ -1,9 +1,9 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
 import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -110,7 +110,7 @@ export const lifiApi: SwapperApi = {
       })
     }
 
-    const feeData = await getFees({
+    const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
@@ -134,6 +134,8 @@ export const lifiApi: SwapperApi = {
     txHash,
     stepIndex,
     chainId,
+    accountId,
+    fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }): Promise<{
     status: TxStatus
@@ -159,6 +161,8 @@ export const lifiApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
+      accountId,
+      fetchIsSmartContractAddressQuery,
     })
 
     if (maybeSafeTransactionStatus) {

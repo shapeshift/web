@@ -1,15 +1,15 @@
-import { Erc20Bridger, EthBridger, getL2Network } from '@arbitrum/sdk'
+import { Erc20Bridger, EthBridger, getArbitrumNetwork } from '@arbitrum/sdk'
 import type {
-  L1ToL2TransactionRequest,
-  L2ToL1TransactionRequest,
+  ChildToParentTransactionRequest,
+  ParentToChildTransactionRequest,
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable, bn } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import type { ethers as ethersV5 } from 'ethers5'
 import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
@@ -24,7 +24,6 @@ export type FetchArbitrumBridgeSwapInput = {
   sellAsset: Asset
   sendAddress: string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
@@ -41,15 +40,16 @@ export const fetchArbitrumBridgeSwap = async ({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-  getEthersV5Provider,
 }: FetchArbitrumBridgeSwapInput): Promise<{
-  request: Omit<L1ToL2TransactionRequest | L2ToL1TransactionRequest, 'retryableData'> | undefined
+  request:
+    | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
+    | undefined
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  const l2Network = await getL2Network(arbitrum.id)
+  const l2Network = await getArbitrumNetwork(arbitrum.id)
   const isDeposit = sellAsset.chainId === ethChainId
   const isEthBridge = isDeposit ? sellAsset.assetId === ethAssetId : buyAsset.assetId === ethAssetId
 
@@ -60,22 +60,22 @@ export const fetchArbitrumBridgeSwap = async ({
     return isEthBridge ? BRIDGE_TYPE.ETH_WITHDRAWAL : BRIDGE_TYPE.ERC20_WITHDRAWAL
   })()
 
-  const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
-  const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
+  const parentProvider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
+  const childProvider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
   switch (bridgeType) {
     case BRIDGE_TYPE.ETH_DEPOSIT: {
       const bridger = new EthBridger(l2Network)
 
       const request = await bridger.getDepositToRequest({
-        l1Provider,
-        l2Provider,
+        parentProvider,
+        childProvider,
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from: sendAddress ?? '',
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -95,7 +95,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -108,15 +108,18 @@ export const fetchArbitrumBridgeSwap = async ({
     }
     case BRIDGE_TYPE.ERC20_DEPOSIT: {
       const bridger = new Erc20Bridger(l2Network)
-      const erc20L1Address = fromAssetId(sellAsset.assetId).assetReference
-      const allowanceContract = await bridger.getL1GatewayAddress(erc20L1Address, l1Provider)
+      const erc20ParentAddress = fromAssetId(sellAsset.assetId).assetReference
+      const allowanceContract = await bridger.getParentGatewayAddress(
+        erc20ParentAddress,
+        parentProvider,
+      )
 
       const maybeRequest = await bridger
         .getDepositRequest({
           amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-          l1Provider,
-          l2Provider,
-          erc20L1Address,
+          parentProvider,
+          childProvider,
+          erc20ParentAddress,
           from: sendAddress ?? '',
           destinationAddress: receiveAddress,
           retryableGasOverrides: {
@@ -147,7 +150,7 @@ export const fetchArbitrumBridgeSwap = async ({
         }
 
         // Actual fees
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter,
           data: maybeRequest.txRequest.data.toString(),
           to: maybeRequest.txRequest.to,
@@ -163,17 +166,16 @@ export const fetchArbitrumBridgeSwap = async ({
     }
     case BRIDGE_TYPE.ERC20_WITHDRAWAL: {
       const bridger = new Erc20Bridger(l2Network)
-      const erc20L1Address = fromAssetId(buyAsset.assetId).assetReference
+      const erc20ParentAddress = fromAssetId(buyAsset.assetId).assetReference
 
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        // This isn't a typo - https://github.com/OffchainLabs/arbitrum-sdk/pull/474
-        erc20l1Address: erc20L1Address,
+        erc20ParentAddress,
         from: sendAddress ?? '',
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,

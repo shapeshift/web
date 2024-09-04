@@ -30,7 +30,6 @@ import zrxTradeUsdcToWbtc from './mockData/zrxTradeUsdcToWbtc'
 
 vi.hoisted(() => {
   vi.stubEnv('REACT_APP_FEATURE_NFT_METADATA', 'true')
-  vi.stubEnv('REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS', '0xac2a4fd70bcd8bab0662960455c363735f0e2b56')
 })
 
 const mockedApi = vi.mocked(new V1Api())
@@ -1054,7 +1053,7 @@ describe('parseTx', () => {
         confirmations: 1114870,
         data: {
           assetId: 'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',
@@ -1079,7 +1078,7 @@ describe('parseTx', () => {
         confirmations: 1180014,
         data: {
           assetId: 'eip155:42161/erc20:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8',
-          method: 'finalizeInboundTransfer',
+          method: 'finalizeInboundTransferDeposit',
           parser: 'arbitrumBridge',
         },
         status: 'Confirmed',

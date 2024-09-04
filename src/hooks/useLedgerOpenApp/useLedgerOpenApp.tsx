@@ -4,6 +4,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
+import { getLedgerAppName } from 'components/Modals/LedgerOpenApp/hooks/useLedgerAppDetails'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
@@ -50,6 +51,10 @@ export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined
   }
 }
 
+type UseLedgerOpenAppProps = {
+  isSigning: boolean
+}
+
 /**
  * This hook provides a function that can be used to check if the Ledger app is open for the given chainId.
  *
@@ -57,7 +62,7 @@ export const getSlip44KeyFromChainId = (chainId: ChainId): Slip44Key | undefined
  *
  * The function will resolve when the app is open, or reject if the user cancels the request.
  */
-export const useLedgerOpenApp = () => {
+export const useLedgerOpenApp = ({ isSigning }: UseLedgerOpenAppProps) => {
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
 
   const wallet = useWallet().state.wallet
@@ -95,6 +100,10 @@ export const useLedgerOpenApp = () => {
           return
         }
 
+        // Prompt the "open app" notification on the device so users can open the correct app with 1 click
+        const ledgerWallet = wallet && isLedger(wallet) ? wallet : undefined
+        ledgerWallet?.openApp(getLedgerAppName(chainId))
+
         // Poll the Ledger every second to see if the correct app is open
         const intervalId = setInterval(async () => {
           const isValidApp = await checkIsCorrectAppOpen(chainId)
@@ -113,10 +122,10 @@ export const useLedgerOpenApp = () => {
         }
 
         // Display the request to open the Ledger app
-        openModal({ chainId, onCancel })
+        openModal({ chainId, onCancel, isSigning })
       })
     },
-    [checkIsCorrectAppOpen, closeModal, openModal, wallet],
+    [checkIsCorrectAppOpen, closeModal, openModal, wallet, isSigning],
   )
 
   return checkLedgerApp

@@ -16,6 +16,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -43,6 +44,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const lpAssetId = toAssetId({
     chainId,
@@ -88,21 +94,19 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!(state?.txid && accountAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, accountAddress)
   }, [state?.txid, accountAddress, accountId])
-  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
+  const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (tx && tx.status !== 'Pending' && dispatch) {
       dispatch({
         type: UniV2WithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? fromBaseUnit(confirmedTransaction.fee.value, lpAsset.precision)
-            : '0',
+          txStatus: tx.status === 'Confirmed' ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision: tx.fee ? fromBaseUnit(tx.fee.value, lpAsset.precision) : '0',
         },
       })
     }
-  }, [confirmedTransaction, dispatch, asset0.precision, lpAsset.precision])
+  }, [tx, dispatch, asset0.precision, lpAsset.precision])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')
@@ -146,6 +150,35 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!state || !lpOpportunity) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        statusText: StatusTextEnum.pending,
+        statusBg: 'transparent',
+        statusBody: translate('common.safeProposalQueued', {
+          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
+          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+        }),
+      }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBg: 'green.500',
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: lpAsset.symbol,
+        }),
+      }
+    }
+
     switch (state.withdraw.txStatus) {
       case 'success':
         return {

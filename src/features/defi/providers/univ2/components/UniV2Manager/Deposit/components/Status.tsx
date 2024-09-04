@@ -15,6 +15,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -43,6 +44,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -140,6 +146,44 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!state) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        statusText: StatusTextEnum.pending,
+        statusBody: translate('modals.deposit.status.pending'),
+        statusBg: 'transparent',
+      }
+
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.deposit.status.success', {
+          // This should never be undefined but might as well
+          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+        }),
+        statusBg: 'green.500',
+      }
+    }
+
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.deposit.status.success', {
+          // This should never be undefined but might as well
+          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+        }),
+        statusBg: 'green.500',
+      }
+    }
+
     switch (state.deposit.txStatus) {
       case 'success':
         return {

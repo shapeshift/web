@@ -1,16 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import {
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V3,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V8,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
-} from 'contracts/constants'
+import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
+import { foxEthStakingContractAddresses } from '@shapeshiftoss/contracts'
 import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
@@ -23,20 +14,6 @@ export const uniswapV2Router02AssetId: AssetId =
 export const foxEthPair = [ethAssetId, foxAssetId]
 export const foxEthLpAssetId: LpId = 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c'
 export const foxEthLpAssetIds = [foxEthLpAssetId] as const
-
-export const foxEthStakingContractAddresses = [
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V8,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V7,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V6,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V5,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V4,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V3,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V2,
-  ETH_FOX_STAKING_CONTRACT_ADDRESS_V1,
-] as const
-
-export type FoxEthStakingContractAddress = (typeof foxEthStakingContractAddresses)[number]
 
 const isFoxEthStakingContractAddress = (
   address: FoxEthStakingContractAddress | string,

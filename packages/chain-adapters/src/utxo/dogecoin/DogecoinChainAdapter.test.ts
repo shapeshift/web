@@ -1,12 +1,12 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Account, BuildSendTxInput, GetFeeDataInput } from '../../types'
-import type { ChainAdapterArgs, UtxoChainId } from '../UtxoBaseAdapter'
+import type { ChainAdapterArgs } from '../UtxoBaseAdapter'
 import * as dogecoin from './DogecoinChainAdapter'
 
 vi.mock('../../utils/validateAddress', () => ({

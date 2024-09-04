@@ -18,7 +18,7 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -67,8 +67,8 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
-  Fees,
   GasFeeDataEstimate,
+  NetworkFees,
 } from './types'
 import { getErc20Data } from './utils'
 
@@ -83,8 +83,6 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
 ] as const
-
-export type EvmChainId = (typeof evmChainIds)[number]
 
 export type EvmChainAdapter =
   | ethereum.ChainAdapter
@@ -284,7 +282,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const isTokenSend = !!contractAddress
 
-      const fees = ((): Fees => {
+      const fees = ((): NetworkFees => {
         if (maxFeePerGas && maxPriorityFeePerGas) {
           return {
             maxFeePerGas: toHex(BigInt(maxFeePerGas)),
@@ -585,7 +583,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const account = await this.getAccount(from)
 
-      const fees: Fees =
+      const fees: NetworkFees =
         maxFeePerGas && maxPriorityFeePerGas
           ? {
               maxFeePerGas: toHex(BigInt(maxFeePerGas)),

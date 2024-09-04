@@ -24,7 +24,7 @@ export type BuildCustomTxInput = {
   value: string
   gasLimit: string
   checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
-} & Fees
+} & NetworkFees
 
 export type BuildCustomApiTxInput = Omit<
   BuildCustomTxInput,
@@ -36,7 +36,7 @@ export type BuildTxInput = {
   contractAddress?: string
   data?: string
   sendmax?: never
-} & Fees &
+} & NetworkFees &
   L1FeeData
 
 export type EstimateFeeDataInput<T extends ChainId> = common.GetFeeDataInput<T> & {
@@ -62,7 +62,7 @@ export type FeeData = {
   maxPriorityFeePerGas?: string
 } & L1FeeData
 
-export type Fees =
+export type NetworkFees =
   | {
       gasPrice: string
       maxFeePerGas?: never
@@ -90,3 +90,8 @@ export type GetFeeDataInput = {
 }
 
 export type TransactionMetadata = unchained.evm.TxMetadata
+
+export type Fees = NetworkFees & {
+  gasLimit: string
+  networkFeeCryptoBaseUnit: string
+}

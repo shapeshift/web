@@ -1,9 +1,9 @@
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { arbitrum } from 'viem/chains'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import type { RFOXAccountLog } from '../types'
 import { getAccountLogsQueryFn, getAccountLogsQueryKey } from './useAccountLogsQuery'

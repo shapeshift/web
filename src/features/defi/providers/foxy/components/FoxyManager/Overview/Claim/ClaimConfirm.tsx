@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -257,13 +258,15 @@ export const ClaimConfirm = ({
             </Row.Label>
             <Row.Value>
               <Skeleton minWidth='100px' isLoaded={!!userAddress}>
-                <Link
-                  isExternal
-                  color='blue.500'
-                  href={`${stakingAsset?.explorerAddressLink}${userAddress}`}
-                >
-                  <MiddleEllipsis value={userAddress} />
-                </Link>
+                <InlineCopyButton value={userAddress}>
+                  <Link
+                    isExternal
+                    color='blue.500'
+                    href={`${stakingAsset?.explorerAddressLink}${userAddress}`}
+                  >
+                    <MiddleEllipsis value={userAddress} />
+                  </Link>
+                </InlineCopyButton>
               </Skeleton>
             </Row.Value>
           </Row>

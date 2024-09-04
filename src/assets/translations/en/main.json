@@ -788,7 +788,9 @@
     "claimSuccess": "You have successfully claimed",
     "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
+    "noAvailableClaims": "No claims available",
     "pendingClaims": "Pending",
+    "noPendingClaims": "No claims pending",
     "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim"
   },
@@ -1467,7 +1469,8 @@
         "connect": "Connect"
       },
       "verify": {
-        "confirmOnDevice": "Confirm on device"
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
       },
       "success": {
         "header": "Ledger Connected",

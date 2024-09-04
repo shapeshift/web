@@ -1,13 +1,14 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import {
+  ContractType,
+  getOrCreateContractByAddress,
+  getOrCreateContractByType,
   UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS,
-} from 'contracts/constants'
-import { getOrCreateContractByAddress, getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
+} from '@shapeshiftoss/contracts'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'

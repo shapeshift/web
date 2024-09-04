@@ -1,6 +1,7 @@
 import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { bnOrZero, CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
@@ -8,6 +9,7 @@ import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dis
 import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
@@ -18,7 +20,6 @@ import type { ArbitrumBridgeTradeQuoteInput } from 'react-queries/queries/swappe
 import { swapper } from 'react-queries/queries/swapper'
 import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -28,7 +29,6 @@ import {
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,

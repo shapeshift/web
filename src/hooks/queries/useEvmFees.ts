@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -27,6 +28,12 @@ type UseEvmFeesProps = {
   staleTime?: number
   to: string | undefined
   value: string
+}
+
+export type EvmFees = {
+  fees: evm.Fees
+  txFeeFiat: string
+  networkFeeCryptoBaseUnit: string
 }
 
 export const useEvmFees = ({

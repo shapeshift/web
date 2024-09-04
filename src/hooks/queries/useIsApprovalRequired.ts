@@ -1,4 +1,4 @@
-import { type AssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, ethChainId, fromAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
@@ -11,8 +11,6 @@ type UseIsApprovalRequired = {
   spender: string
   amountCryptoBaseUnit: string
 }
-
-const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 export const useIsApprovalRequired = ({
   assetId,

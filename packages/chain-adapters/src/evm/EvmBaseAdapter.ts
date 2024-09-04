@@ -219,8 +219,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         explorer: 'https://bscscan.com',
       },
       [KnownChainIds.PolygonMainnet]: {
-        name: 'Polygon',
-        symbol: 'MATIC',
+        name: 'Polygon Ecosystem Token',
+        symbol: 'POL',
         explorer: 'https://polygonscan.com/',
       },
       [KnownChainIds.GnosisMainnet]: {

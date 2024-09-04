@@ -25,5 +25,6 @@ export const useSafeTxQuery = ({
               fetchIsSmartContractAddressQuery,
             })
         : skipToken,
+    refetchInterval: 10000,
   })
 }

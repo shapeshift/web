@@ -24,11 +24,16 @@ export const getReceiveAddress = async ({
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!(chainAdapter && wallet)) return
   const { accountNumber } = bip44Params
+
+  const pubKeyOrCheckLedgerAppOpen = pubKey
+    ? { pubKey }
+    : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
+
   const address = await chainAdapter.getAddress({
     wallet,
     accountNumber,
     accountType,
-    pubKey: pubKey!,
+    ...pubKeyOrCheckLedgerAppOpen,
   })
   return address
 }

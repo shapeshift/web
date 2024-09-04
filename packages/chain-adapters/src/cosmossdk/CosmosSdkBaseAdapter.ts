@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { BIP44Params, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -361,7 +362,12 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     const { pubKey, accountNumber, wallet } = input
 
     const bip44Params = this.getBIP44Params({ accountNumber })
-    const address = await this.getAddress({ accountNumber, wallet, pubKey: pubKey as string })
+    const pubKeyOrCheckLedgerAppOpen =
+      isLedger(wallet) && pubKey
+        ? { pubKey }
+        : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
+
+    const address = await this.getAddress({ accountNumber, wallet, ...pubKeyOrCheckLedgerAppOpen })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(

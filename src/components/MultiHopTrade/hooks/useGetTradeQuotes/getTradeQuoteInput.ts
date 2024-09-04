@@ -1,6 +1,7 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type {
   Asset,
@@ -68,6 +69,11 @@ export const getTradeQuoteInput = async ({
 
   const { chainNamespace } = fromChainId(sellAsset.chainId)
 
+  const pubKeyOrCheckLedgerAppOpen =
+    isLedger(wallet) && pubKey
+      ? { pubKey }
+      : { checkLedgerAppOpenIfLedgerConnected: () => Promise.resolve() }
+
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -75,7 +81,7 @@ export const getTradeQuoteInput = async ({
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,
         wallet,
-        pubKey: pubKey as string,
+        ...pubKeyOrCheckLedgerAppOpen,
       })
       return {
         ...tradeQuoteInputCommonArgs,
@@ -91,7 +97,7 @@ export const getTradeQuoteInput = async ({
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,
         wallet,
-        pubKey: pubKey as string,
+        ...pubKeyOrCheckLedgerAppOpen,
       })
       return {
         ...tradeQuoteInputCommonArgs,
@@ -110,7 +116,7 @@ export const getTradeQuoteInput = async ({
         accountNumber: sellAccountNumber,
         wallet,
         accountType: sellAccountType,
-        pubKey: pubKey as string,
+        ...pubKeyOrCheckLedgerAppOpen,
       })
 
       const xpub =

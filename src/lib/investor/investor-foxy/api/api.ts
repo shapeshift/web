@@ -15,7 +15,7 @@ import { ethers } from 'ethers'
 import { toLower } from 'lodash'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { MAX_ALLOWANCE } from 'lib/investor/constants'
+import { MAX_ALLOWANCE } from 'lib/investor/constants/allowance'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
 import { erc20Abi } from '../abi/erc20-abi'

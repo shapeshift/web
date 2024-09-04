@@ -1,4 +1,3 @@
-export * from './arbOutbox'
 export * from './arbProxy'
 export * from './arbRetryableTx'
 export * from './arbSys'

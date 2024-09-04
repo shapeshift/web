@@ -7,7 +7,6 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import {
-  ARB_OUTBOX_ABI,
   ARB_OUTBOX_CONTRACT,
   ARB_PROXY_ABI,
   ARB_RETRYABLE_TX_CONTRACT,
@@ -22,6 +21,7 @@ import {
   L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT,
   L2_ARBITRUM_GATEWAY_ABI,
   L2_ARBITRUM_GATEWAY_CONTRACT,
+  OUTBOX_ABI,
 } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
@@ -47,7 +47,7 @@ export class Parser implements SubParser<Tx> {
 
   readonly arbProxyAbi = new ethers.Interface(ARB_PROXY_ABI)
   readonly arbSysAbi = new ethers.Interface(ARB_SYS_ABI)
-  readonly arbOutboxAbi = new ethers.Interface(ARB_OUTBOX_ABI)
+  readonly arbOutboxAbi = new ethers.Interface(OUTBOX_ABI)
   readonly arbRetryableTxAbi = new ethers.Interface(ARBITRUM_RETRYABLE_TX_ABI)
   readonly l2ArbitrumGatewayAbi = new ethers.Interface(L2_ARBITRUM_GATEWAY_ABI)
   readonly l1OrbitCustomGatewayAbi = new ethers.Interface(L1_ORBIT_CUSTOM_GATEWAY_ABI)

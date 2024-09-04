@@ -18,6 +18,7 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -32,6 +33,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
@@ -52,6 +58,33 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   if (!state || !dispatch) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='white' />,
+        statusBg: 'green.500',
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: `${stakingAsset.symbol} Vault`,
+        }),
+      }
+
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='white' />,
+        statusBg: 'green.500',
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: `${stakingAsset.symbol} Vault`,
+        }),
+      }
+    }
+
     switch (state.withdraw.txStatus) {
       case 'success':
         return {

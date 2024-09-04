@@ -1,5 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
@@ -12,9 +13,11 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -22,12 +25,19 @@ import { DepositContext } from '../DepositContext'
 
 const externalLinkIcon = <ExternalLinkIcon />
 
-export const Status = () => {
+type StatusProps = StepComponentProps & { accountId: AccountId | undefined }
+
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { state } = useContext(DepositContext)
   const history = useHistory()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset: asset, feeAsset, feeMarketData } = useFoxyQuery()
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')
@@ -38,6 +48,32 @@ export const Status = () => {
   if (!state) return null
 
   const { statusIcon, statusText, statusBg, statusBody } = (() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: <AssetIcon size='xs' src={asset?.icon} justifyContent='center' />,
+        statusText: StatusTextEnum.pending,
+        statusBody: translate('modals.deposit.status.pending'),
+        statusBg: 'transparent',
+      }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash) {
+      return {
+        statusText: StatusTextEnum.success,
+        statusIcon: <CheckIcon color='white' />,
+        statusBody: translate('modals.deposit.status.success', {
+          opportunity: `${asset.name} Vault`,
+        }),
+        statusBg: 'green.500',
+      }
+    }
+
     switch (state.deposit.txStatus) {
       case 'success':
         return {

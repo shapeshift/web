@@ -1,6 +1,6 @@
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { assertGetViemClient, getEthersV5Provider, OUTBOX_ABI } from '@shapeshiftoss/contracts'
+import { assertGetViemClient, getEthersV5Provider, ARB_OUTBOX_ABI } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -49,7 +49,7 @@ export const useArbitrumClaimTx = (
 
       // nitro transaction
       return encodeFunctionData({
-        abi: OUTBOX_ABI,
+        abi: ARB_OUTBOX_ABI,
         functionName: 'executeTransaction',
         args: [
           proof,

@@ -121,7 +121,6 @@ export const getL1ToLongtailQuote = async (
       const onlyStep = getHopByIndex(quote, 0)!
 
       const maybeBestAggregator = await getBestAggregator(
-        deps,
         buyAssetFeeAsset,
         getWrappedToken(buyAssetFeeAsset),
         getTokenFromAsset(buyAsset),

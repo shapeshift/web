@@ -41,9 +41,13 @@ vi.mock('../utils/helpers/helpers', async () => {
     baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
   }
 })
-vi.mock('@shapeshiftoss/chain-adapters', () => {
+vi.mock('@shapeshiftoss/chain-adapters', async () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
+
+  const actual = await vi.importActual('@shapeshiftoss/chain-adapters')
+
   return {
+    ...actual,
     isEvmChainId: vi.fn(() => true),
     evmChainIds: [KnownChainIds.EthereumMainnet],
     optimism: {

@@ -1,10 +1,9 @@
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {

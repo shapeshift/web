@@ -1,7 +1,7 @@
 import type { EvmBaseAdapter } from '@shapeshiftoss/chain-adapters'
+import { getEthersProvider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
-import { getEthersProvider } from 'lib/ethersProviderSingleton'
 import { foxyAddresses, FoxyApi } from 'lib/investor/investor-foxy'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 

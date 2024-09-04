@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -74,8 +74,6 @@ export const cosmosSdkChainIds = [
   KnownChainIds.CosmosMainnet,
   KnownChainIds.ThorchainMainnet,
 ] as const
-
-export type CosmosSdkChainId = (typeof cosmosSdkChainIds)[number]
 
 export type CosmosSdkChainAdapter = cosmos.ChainAdapter | thorchain.ChainAdapter
 

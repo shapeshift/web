@@ -1,13 +1,15 @@
+import {
+  foxStakingV1Abi,
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { useMemo } from 'react'
 import { getAddress, type MulticallReturnType } from 'viem'
 import { multicall } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import { serialize } from 'wagmi'
 import { isSome } from 'lib/utils'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 import { useGetUnstakingRequestCountQuery } from './useGetUnstakingRequestCountQuery'
 

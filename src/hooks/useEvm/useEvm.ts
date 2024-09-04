@@ -1,4 +1,5 @@
-import { CHAIN_NAMESPACE, type ChainId, isChainReference, toChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, isChainReference, toChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'

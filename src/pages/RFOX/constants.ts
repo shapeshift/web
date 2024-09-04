@@ -1,8 +1,10 @@
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import {
+  foxStakingV1Abi,
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 export const setRuneAddressEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'SetRuneAddress' })
 export const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })
@@ -11,7 +13,7 @@ export const withdrawEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Withdraw'
 
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'QmTr3pFd14d5RaYao7LrtFkrR5ABoa4KCQqffx9G73SA1T'
+export const CURRENT_EPOCH_IPFS_HASH = 'QmPYuHffJfCQuexWJYv4CpukhRAyw3YM8MJbCZ34ZGda3n'
 
 const client = viemClientByNetworkId[arbitrum.id]
 

@@ -1,7 +1,10 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  fetchUniV2PairData,
+  getOrCreateContractByAddress,
+} from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
-import { ETH_FOX_POOL_CONTRACT_ADDRESS } from 'contracts/constants'
-import { fetchUniV2PairData, getOrCreateContractByAddress } from 'contracts/contractManager'
 import dayjs from 'dayjs'
 import { getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'

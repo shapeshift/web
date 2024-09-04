@@ -120,6 +120,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     return (
       <UnstakeStatus
         txId={unstakeTxid}
+        setUnstakeTxid={setUnstakeTxid}
         onTxConfirmed={handleTxConfirmed}
         confirmedQuote={confirmedQuote}
         headerComponent={headerComponent}

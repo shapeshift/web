@@ -322,7 +322,7 @@ export const Overview: React.FC<OverviewProps> = ({
               mt='15px'
               mb='8px'
             />
-            {isConnected && accountId && !isDemoWallet ? (
+            {isConnected && !isDemoWallet ? (
               <>
                 {isUnsupportedAsset ? (
                   <Button
@@ -341,7 +341,7 @@ export const Overview: React.FC<OverviewProps> = ({
                       buttonProps={accountDropdownButtonProps}
                       boxProps={accountDropdownBoxProps}
                     />
-                    {!isUtxoAccountId(accountId) ? (
+                    {accountId && !isUtxoAccountId(accountId) ? (
                       <InputGroup size='md'>
                         <Input
                           pr='4.5rem'

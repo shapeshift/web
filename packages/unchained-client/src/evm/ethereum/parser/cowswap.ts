@@ -1,9 +1,10 @@
+import { COWSWAP_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
+
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'
 import { Dex, TradeType } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { txInteractsWithContract } from '../../parser'
-import { COWSWAP_CONTRACT_MAINNET } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'cowswap'

@@ -1,3 +1,4 @@
+import { FOXY_STAKING_CONTRACT } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -5,7 +6,6 @@ import type { BaseTxMetadata } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
 import { FOXY_STAKING_ABI } from './abi/foxyStaking'
-import { FOXY_STAKING_CONTRACT } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'foxy'

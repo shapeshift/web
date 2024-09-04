@@ -1,5 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
+  UNISWAP_V2_FACTORY_CONTRACT,
+  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  WETH_TOKEN_CONTRACT_ADDRESS,
+  WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
+} from '@shapeshiftoss/contracts'
 import type { JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 
@@ -11,12 +18,6 @@ import { getSigHash, txInteractsWithContract } from '../../parser'
 import { ERC20_ABI } from '../../parser/abi/erc20'
 import { UNIV2_ABI } from './abi/uniV2'
 import { UNIV2_STAKING_REWARDS_ABI } from './abi/uniV2StakingRewards'
-import {
-  UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
-  UNI_V2_ROUTER_CONTRACT,
-  WETH_CONTRACT_MAINNET,
-  WETH_CONTRACT_ROPSTEN,
-} from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'uniV2'
@@ -51,9 +52,9 @@ export class Parser implements SubParser<Tx> {
     this.wethContract = (() => {
       switch (args.chainId) {
         case 'eip155:1':
-          return WETH_CONTRACT_MAINNET
+          return WETH_TOKEN_CONTRACT_ADDRESS
         case 'eip155:3':
-          return WETH_CONTRACT_ROPSTEN
+          return WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN
         default:
           throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
       }
@@ -176,7 +177,8 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return await this.parseUniV2(tx)
+    if (txInteractsWithContract(tx, UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS))
+      return await this.parseUniV2(tx)
 
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
     const isFoxStakingRewards = UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract =>
@@ -188,9 +190,8 @@ export class Parser implements SubParser<Tx> {
 
   private static pairFor(tokenA: string, tokenB: string): string {
     const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
-    const factoryContract = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
     const salt = solidityPackedKeccak256(['address', 'address'], [token0, token1])
     const initCodeHash = '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // https://github.com/Uniswap/v2-periphery/blob/dda62473e2da448bc9cb8f4514dadda4aeede5f4/contracts/libraries/UniswapV2Library.sol#L24
-    return getCreate2Address(factoryContract, salt, initCodeHash)
+    return getCreate2Address(UNISWAP_V2_FACTORY_CONTRACT, salt, initCodeHash)
   }
 }

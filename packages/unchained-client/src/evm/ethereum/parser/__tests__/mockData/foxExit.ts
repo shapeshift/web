@@ -1,4 +1,5 @@
-import { UNI_V2_FOX_STAKING_REWARDS_V3 } from '../../constants'
+import { UNI_V2_FOX_STAKING_REWARDS_V3 } from '@shapeshiftoss/contracts'
+
 import { mempoolMock } from './mempoolMock'
 
 const foxExit = {

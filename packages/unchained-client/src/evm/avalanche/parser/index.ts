@@ -1,3 +1,5 @@
+import { ZRX_AVALANCHE_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+
 import type { Tx } from '../../../generated/avalanche'
 import type { BaseTransactionParserArgs } from '../../parser'
 import { BaseTransactionParser } from '../../parser'
@@ -5,8 +7,6 @@ import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as thorchain from '../../parser/thorchain'
 import * as zrx from '../../parser/zrx'
-
-export const ZRX_AVALANCHE_PROXY_CONTRACT = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF'
 
 export interface TransactionParserArgs extends BaseTransactionParserArgs {
   midgardUrl: string

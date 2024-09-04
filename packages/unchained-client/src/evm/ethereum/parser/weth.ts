@@ -1,5 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  WETH_TOKEN_CONTRACT_ADDRESS,
+  WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
+} from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -8,7 +12,6 @@ import { TransferType } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
 import { WETH_ABI } from './abi/weth'
-import { WETH_CONTRACT_MAINNET, WETH_CONTRACT_ROPSTEN } from './constants'
 
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'weth'
@@ -37,9 +40,9 @@ export class Parser implements SubParser<Tx> {
     this.wethContract = (() => {
       switch (args.chainId) {
         case 'eip155:1':
-          return WETH_CONTRACT_MAINNET
+          return WETH_TOKEN_CONTRACT_ADDRESS
         case 'eip155:3':
-          return WETH_CONTRACT_ROPSTEN
+          return WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN
         default:
           throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
       }

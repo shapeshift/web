@@ -1,5 +1,5 @@
 import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT_ADDRESS, ZRX_ARBITRUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/arbitrum'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -9,8 +9,6 @@ import * as erc20 from '../../parser/erc20'
 import * as nft from '../../parser/nft'
 import * as rfox from '../../parser/rfox'
 import * as zrx from '../../parser/zrx'
-
-export const ZRX_ARBITRUM_PROXY_CONTRACT = '0xDef1C0ded9bec7F1a1670819833240f027b25EfF'
 
 export class TransactionParser extends BaseTransactionParser<Tx> {
   constructor(args: BaseTransactionParserArgs) {

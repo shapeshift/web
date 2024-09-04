@@ -1,222 +1,48 @@
-import React, { lazy, memo } from 'react'
-import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { useCallback, useMemo, useReducer } from 'react'
 
-import { createModalProviderInner } from './ModalContainer'
-import type { Modals } from './types'
+import { CLOSE_MODAL, OPEN_MODAL } from './constants'
+import { ModalContext, modalReducer, MODALS } from './ModalContainer'
+import type { ModalContextType, ModalProps, Modals, ModalState } from './types'
 
-const ReceiveModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/Receive/Receive').then(({ ReceiveModal }) => ({
-      default: ReceiveModal,
-    })),
-  ),
-)
+export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const initialState: ModalState = Object.keys(MODALS).reduce((acc, key) => {
+    acc[key as keyof Modals] = { isOpen: false }
+    return acc
+  }, {} as ModalState)
 
-const QrCodeModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/QrCode/QrCode').then(({ QrCodeModal }) => ({
-      default: QrCodeModal,
-    })),
-  ),
-)
+  const [state, dispatch] = useReducer(modalReducer, initialState)
 
-const SendModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/Send/Send').then(({ SendModal }) => ({
-      default: SendModal,
-    })),
-  ),
-)
+  const openModal = useCallback(<T extends keyof Modals>(key: T, props: ModalProps<T>) => {
+    dispatch({ type: OPEN_MODAL, key, props })
+  }, [])
 
-const PopupWindowModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/PopupWindowModal').then(({ PopupWindowModal }) => ({
-      default: PopupWindowModal,
-    })),
-  ),
-)
+  const closeModal = useCallback((key: keyof Modals) => {
+    dispatch({ type: CLOSE_MODAL, key })
+  }, [])
 
-const FiatRampsModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/FiatRamps/FiatRampsModal').then(({ FiatRampsModal }) => ({
-      default: FiatRampsModal,
-    })),
-  ),
-)
+  const value = useMemo<ModalContextType>(
+    () => ({
+      state,
+      openModal,
+      closeModal,
+    }),
+    [state, openModal, closeModal],
+  )
 
-const SettingsModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/Settings/Settings').then(({ SettingsModal }) => ({
-      default: SettingsModal,
-    })),
-  ),
-)
-
-const WipeModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Layout/Header/NavBar/KeepKey/Modals/Wipe').then(({ WipeModal }) => ({
-      default: WipeModal,
-    })),
-  ),
-)
-
-const BackupPassphraseModal = makeSuspenseful(
-  lazy(() =>
-    import(
-      'components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
-    ).then(({ BackupPassphraseModal }) => ({
-      default: BackupPassphraseModal,
-    })),
-  ),
-)
-
-const MobileWelcomeModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/MobileWelcome/MobileWelcomeModal').then(({ MobileWelcomeModal }) => ({
-      default: MobileWelcomeModal,
-    })),
-  ),
-)
-
-const AddAccountModal = makeSuspenseful(
-  lazy(() =>
-    import('pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
-      default: AddAccountModal,
-    })),
-  ),
-)
-
-const AssetSearchModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
-      default: AssetSearchModal,
-    })),
-  ),
-)
-
-const BuyAssetSearchModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ BuyAssetSearchModal }) => ({
-      default: BuyAssetSearchModal,
-    })),
-  ),
-)
-
-const SellAssetSearchModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/AssetSearch/AssetSearchModal').then(({ SellAssetSearchModal }) => ({
-      default: SellAssetSearchModal,
-    })),
-  ),
-)
-
-const BuyTradeAssetSearchModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
-      ({ BuyTradeAssetSearchModal }) => ({
-        default: BuyTradeAssetSearchModal,
+  const modals = useMemo(
+    () =>
+      Object.entries(MODALS).map(([key, Component]) => {
+        const modalState = state[key as keyof Modals]
+        // @ts-ignore ts not smart enough to know React.ComponentProps<Modals[T]> are props for Modals[T]
+        return modalState.isOpen ? <Component key={key} {...modalState.props} /> : null
       }),
-    ),
-  ),
-)
+    [state],
+  )
 
-const SellTradeAssetSearchModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/TradeAssetSearch/TradeAssetSearchModal').then(
-      ({ SellTradeAssetSearchModal }) => ({
-        default: SellTradeAssetSearchModal,
-      }),
-    ),
-  ),
-)
-
-const NativeOnboarding = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/NativeOnboarding/NativeOnboarding').then(({ NativeOnboarding }) => ({
-      default: NativeOnboarding,
-    })),
-  ),
-)
-
-const NftModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/Nfts/NftModal').then(({ NftModal }) => ({
-      default: NftModal,
-    })),
-  ),
-)
-
-const FeedbackAndSupport = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/FeedbackSupport/FeedbackSupport').then(({ FeedbackAndSupport }) => ({
-      default: FeedbackAndSupport,
-    })),
-  ),
-)
-
-const Snaps = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/Snaps/Snaps').then(({ Snaps }) => ({
-      default: Snaps,
-    })),
-  ),
-)
-
-const ManageAccountsModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/ManageAccounts/ManageAccountsModal').then(
-      ({ ManageAccountsModal }) => ({
-        default: ManageAccountsModal,
-      }),
-    ),
-  ),
-)
-
-const LedgerOpenAppModal = makeSuspenseful(
-  lazy(() =>
-    import('components/Modals/LedgerOpenApp/LedgerOpenAppModal').then(({ LedgerOpenAppModal }) => ({
-      default: LedgerOpenAppModal,
-    })),
-  ),
-)
-
-const MODALS: Modals = {
-  receive: ReceiveModal,
-  qrCode: QrCodeModal,
-  send: SendModal,
-  popup: PopupWindowModal,
-  fiatRamps: FiatRampsModal,
-  settings: SettingsModal,
-  keepKeyWipe: WipeModal,
-  backupNativePassphrase: BackupPassphraseModal,
-  mobileWelcomeModal: MobileWelcomeModal,
-  addAccount: AddAccountModal,
-  assetSearch: AssetSearchModal,
-  buyAssetSearch: BuyAssetSearchModal,
-  sellAssetSearch: SellAssetSearchModal,
-  buyTradeAssetSearch: BuyTradeAssetSearchModal,
-  sellTradeAssetSearch: SellTradeAssetSearchModal,
-  nativeOnboard: NativeOnboarding,
-  nft: NftModal,
-  feedbackSupport: FeedbackAndSupport,
-  snaps: Snaps,
-  // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened
-  ledgerOpenApp: LedgerOpenAppModal,
-  manageAccounts: ManageAccountsModal,
-} as const
-
-export const createModalProvider = () => {
-  const providers = Object.entries(MODALS).map(([key, Component]) => {
-    return createModalProviderInner({ key: key as keyof Modals, Component })
-  })
-
-  return memo(({ children }: { children: React.ReactNode }) => (
-    <>
-      {providers.reduceRight((children, Provider, index) => {
-        return <Provider key={index}>{children}</Provider>
-      }, children)}
-    </>
-  ))
+  return (
+    <ModalContext.Provider value={value}>
+      {children}
+      {modals}
+    </ModalContext.Provider>
+  )
 }
-
-export const ModalProvider = createModalProvider()

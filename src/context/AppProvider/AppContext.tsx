@@ -108,107 +108,116 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     })()
 
     ;(async () => {
-      // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
-      // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
-      if (hasManagedAccounts) {
-        requestedAccountIds.forEach(accountId => {
-          dispatch(
-            portfolioApi.endpoints.getAccount.initiate(
-              { accountId, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
+      try {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading(true))
+
+        // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
+        // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
+        if (hasManagedAccounts) {
+          requestedAccountIds.forEach(accountId => {
+            dispatch(
+              portfolioApi.endpoints.getAccount.initiate(
+                { accountId, upsertOnFetch: true },
+                { forceRefetch: true },
+              ),
+            )
+          })
+
+          return
+        }
+
+        if (!wallet) {
+          return
+        }
+
+        let chainIds = supportedChains.filter(chainId => {
+          return walletSupportsChain({
+            chainId,
+            wallet,
+            isSnapInstalled,
+            checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+          })
+        })
+
+        const accountMetadataByAccountId: AccountMetadataById = {}
+        const isMultiAccountWallet = wallet.supportsBip44Accounts()
+        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+        for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+          if (
+            accountNumber > 0 &&
+            // only some wallets support multi account
+            (!isMultiAccountWallet ||
+              // MM without snaps does not support non-EVM chains, hence no multi-account
+              // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
+              (isMetaMaskMultichainWallet && !isSnapInstalled))
           )
-        })
-        return
-      }
+            break
 
-      if (!wallet) return
+          const input = { accountNumber, chainIds, wallet, isSnapInstalled }
+          const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
+          const accountIds = Object.keys(accountIdsAndMetadata)
 
-      let chainIds = supportedChains.filter(chainId => {
-        return walletSupportsChain({
-          chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
-        })
-      })
+          Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
-      const accountMetadataByAccountId: AccountMetadataById = {}
-      const isMultiAccountWallet = wallet.supportsBip44Accounts()
-      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-      for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
-        if (
-          accountNumber > 0 &&
-          // only some wallets support multi account
-          (!isMultiAccountWallet ||
-            // MM without snaps does not support non-EVM chains, hence no multi-account
-            // since EVM chains in MM use MetaMask's native JSON-RPC functionality which doesn't support multi-account
-            (isMetaMaskMultichainWallet && !isSnapInstalled))
+          const { getAccount } = portfolioApi.endpoints
+          const accountPromises = accountIds.map(accountId =>
+            dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
+          )
+
+          const accountResults = await Promise.allSettled(accountPromises)
+
+          let chainIdsWithActivity: string[] = []
+          accountResults.forEach((res, idx) => {
+            if (res.status === 'rejected') return
+
+            const { data: account } = res.value
+            if (!account) return
+
+            const accountId = accountIds[idx]
+            const { chainId } = fromAccountId(accountId)
+
+            const { hasActivity } = account.accounts.byId[accountId]
+
+            const accountNumberHasChainActivity = !isUtxoChainId(chainId)
+              ? hasActivity
+              : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+                // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
+                // being upserted for BTC and LTC
+                accountResults.some((res, _idx) => {
+                  if (res.status === 'rejected') return false
+                  const { data: account } = res.value
+                  if (!account) return false
+                  const accountId = accountIds[_idx]
+                  const { chainId: _chainId } = fromAccountId(accountId)
+                  if (chainId !== _chainId) return false
+                  return account.accounts.byId[accountId].hasActivity
+                })
+
+            // don't add accounts with no activity past account 0
+            if (accountNumber > 0 && !accountNumberHasChainActivity)
+              return delete accountMetadataByAccountId[accountId]
+
+            // unique set to handle utxo chains with multiple account types per account
+            chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+
+            dispatch(portfolio.actions.upsertPortfolio(account))
+          })
+
+          chainIds = chainIdsWithActivity
+        }
+
+        dispatch(
+          portfolio.actions.upsertAccountMetadata({
+            accountMetadataByAccountId,
+            walletId: await wallet.getDeviceID(),
+          }),
         )
-          break
 
-        const input = { accountNumber, chainIds, wallet, isSnapInstalled }
-        const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
-        const accountIds = Object.keys(accountIdsAndMetadata)
-
-        Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
-
-        const { getAccount } = portfolioApi.endpoints
-        const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
-        )
-
-        const accountResults = await Promise.allSettled(accountPromises)
-
-        let chainIdsWithActivity: string[] = []
-        accountResults.forEach((res, idx) => {
-          if (res.status === 'rejected') return
-
-          const { data: account } = res.value
-          if (!account) return
-
-          const accountId = accountIds[idx]
-          const { chainId } = fromAccountId(accountId)
-
-          const { hasActivity } = account.accounts.byId[accountId]
-
-          const accountNumberHasChainActivity = !isUtxoChainId(chainId)
-            ? hasActivity
-            : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-              // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
-              // being upserted for BTC and LTC
-              accountResults.some((res, _idx) => {
-                if (res.status === 'rejected') return false
-                const { data: account } = res.value
-                if (!account) return false
-                const accountId = accountIds[_idx]
-                const { chainId: _chainId } = fromAccountId(accountId)
-                if (chainId !== _chainId) return false
-                return account.accounts.byId[accountId].hasActivity
-              })
-
-          // don't add accounts with no activity past account 0
-          if (accountNumber > 0 && !accountNumberHasChainActivity)
-            return delete accountMetadataByAccountId[accountId]
-
-          // unique set to handle utxo chains with multiple account types per account
-          chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
-
-          dispatch(portfolio.actions.upsertPortfolio(account))
-        })
-
-        chainIds = chainIdsWithActivity
-      }
-
-      dispatch(
-        portfolio.actions.upsertAccountMetadata({
-          accountMetadataByAccountId,
-          walletId: await wallet.getDeviceID(),
-        }),
-      )
-
-      for (const accountId of Object.keys(accountMetadataByAccountId)) {
-        dispatch(portfolio.actions.enableAccountId(accountId))
+        for (const accountId of Object.keys(accountMetadataByAccountId)) {
+          dispatch(portfolio.actions.enableAccountId(accountId))
+        }
+      } finally {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading(false))
       }
     })()
   }, [

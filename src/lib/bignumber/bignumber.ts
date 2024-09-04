@@ -29,23 +29,3 @@ export const convertPrecision = ({
     .dividedBy(bn(10).exponentiatedBy(inputExponent))
     .multipliedBy(bn(10).exponentiatedBy(outputExponent))
 }
-
-export const baseUnitToPrecision = ({
-  value,
-  inputExponent,
-}: {
-  value: BigNumber.Value
-  inputExponent: number
-}): BigNumber => convertPrecision({ value, inputExponent })
-
-export const baseUnitToHuman = ({
-  value,
-  inputExponent,
-}: {
-  value: BigNumber.Value
-  inputExponent: number
-}) => {
-  const precisionAmount = baseUnitToPrecision({ value, inputExponent })
-  // trimming to 6 decimals is what we call "human amount"
-  return precisionAmount.decimalPlaces(6)
-}

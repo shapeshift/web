@@ -9,6 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { IconCircle } from 'components/IconCircle'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -203,13 +204,15 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('defi.modals.claim.claimToAddress')}</Row.Label>
             <Row.Value>
-              <Link
-                isExternal
-                color='blue.500'
-                href={`${asset?.explorerAddressLink}${userAddress}`}
-              >
-                <MiddleEllipsis value={userAddress} />
-              </Link>
+              <InlineCopyButton value={userAddress}>
+                <Link
+                  isExternal
+                  color='blue.500'
+                  href={`${asset?.explorerAddressLink}${userAddress}`}
+                >
+                  <MiddleEllipsis value={userAddress} />
+                </Link>
+              </InlineCopyButton>
             </Row.Value>
           </Row>
           <Row>

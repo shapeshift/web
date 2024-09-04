@@ -24,7 +24,7 @@ import {
   assetIdToPoolAssetId,
   poolAssetIdToAssetId,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
@@ -33,7 +33,6 @@ import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
 import { FaPlus } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
-import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { useIsTradingActive } from 'react-queries/hooks/useIsTradingActive'
 import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -47,10 +46,12 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -68,7 +69,6 @@ import {
   isSome,
   isToken,
 } from 'lib/utils'
-import { getSupportedEvmChainIds } from 'lib/utils/evm'
 import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
@@ -148,6 +148,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
+
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
@@ -178,7 +180,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const previousOpportunityId = usePrevious(activeOpportunityId)
 
   const [approvalTxId, setApprovalTxId] = useState<string | null>(null)
-  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean>(false)
+  const [isApprovalRequired, setIsApprovalRequired] = useState<boolean | undefined>(false)
   const [runeTxFeeCryptoBaseUnit, setRuneTxFeeCryptoBaseUnit] = useState<string | undefined>()
   const [poolAssetTxFeeCryptoBaseUnit, setPoolAssetTxFeeCryptoBaseUnit] = useState<
     string | undefined
@@ -555,10 +557,28 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     action: 'addLiquidity',
     enableEstimateFees: Boolean(
       bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        !isApprovalRequired &&
+        isApprovalRequired === false &&
         incompleteSide !== AsymSide.Rune,
     ),
   })
+
+  const {
+    allowanceCryptoBaseUnitResult,
+    isApprovalRequired: _isApprovalRequired,
+    isAllowanceResetRequired,
+  } = useIsApprovalRequired({
+    amountCryptoBaseUnit:
+      poolAsset && actualAssetDepositAmountCryptoPrecision
+        ? toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset.precision)
+        : undefined,
+    assetId: poolAsset?.assetId,
+    from: poolAssetAccountAddress,
+    spender: poolAssetInboundAddress,
+  })
+
+  useEffect(() => {
+    setIsApprovalRequired(_isApprovalRequired)
+  }, [_isApprovalRequired])
 
   const hasEnoughAssetBalance = useMemo(() => {
     if (incompleteSide === AsymSide.Rune) return true
@@ -597,7 +617,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       assetId: poolAsset?.assetId,
       spender: poolAssetInboundAddress,
       amountCryptoBaseUnit: toBaseUnit(
-        actualAssetDepositAmountCryptoPrecision,
+        isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
         poolAsset?.precision ?? 0,
         BigNumber.ROUND_UP,
       ),
@@ -605,6 +625,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
+    onMutate: async () => {
+      if (!poolAsset) return
+      await checkLedgerAppOpenIfLedgerConnected(poolAsset.chainId)
+    },
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
     },
@@ -638,34 +662,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     poolAssetAccountAddress,
     queryClient,
   ])
-
-  const { data: allowanceData, isLoading: isAllowanceDataLoading } = useAllowance({
-    assetId: poolAsset?.assetId,
-    spender: poolAssetInboundAddress,
-    from: poolAssetAccountAddress,
-  })
-
-  const _isApprovalRequired = useMemo(() => {
-    if (!confirmedQuote) return false
-    if (!poolAsset) return false
-    if (incompleteSide === AsymSide.Rune) return false
-    if (!isToken(poolAsset.assetId)) return false
-
-    const supportedEvmChainIds = getSupportedEvmChainIds()
-    if (!supportedEvmChainIds.includes(fromAssetId(poolAsset.assetId).chainId as KnownChainIds))
-      return false
-
-    const allowanceCryptoPrecision = fromBaseUnit(allowanceData ?? '0', poolAsset.precision)
-    return bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(allowanceCryptoPrecision)
-  }, [
-    actualAssetDepositAmountCryptoPrecision,
-    allowanceData,
-    confirmedQuote,
-    incompleteSide,
-    poolAsset,
-  ])
-
-  useEffect(() => setIsApprovalRequired(_isApprovalRequired), [_isApprovalRequired])
 
   // Pool asset fee/balance/sweep data and checks
 
@@ -1421,10 +1417,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const confirmCopy = useMemo(() => {
     if (errorCopy) return errorCopy
     if (poolAsset && isApprovalRequired)
-      return translate(`transactionRow.parser.erc20.approveSymbol`, { symbol: poolAsset.symbol })
+      return translate(
+        isAllowanceResetRequired
+          ? 'trade.resetAllowance'
+          : `transactionRow.parser.erc20.approveSymbol`,
+        { symbol: poolAsset.symbol },
+      )
 
     return translate('pools.addLiquidity')
-  }, [errorCopy, isApprovalRequired, poolAsset, translate])
+  }, [errorCopy, isAllowanceResetRequired, isApprovalRequired, poolAsset, translate])
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 
@@ -1597,7 +1598,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               isVotingPowerLoading ||
               isTradingActiveLoading ||
               isSmartContractAccountAddressLoading ||
-              isAllowanceDataLoading ||
+              allowanceCryptoBaseUnitResult.isLoading ||
               isApprovalTxPending ||
               (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
               (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading)

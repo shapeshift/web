@@ -10,8 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -268,6 +267,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
                 isNewAddress
                 onRuneAddressChange={handleRuneAddressChange}
                 validateIsNewAddress={validateIsNewAddress}
+                selectedAddress={newRuneAddress}
               />
             </Skeleton>
           </Box>

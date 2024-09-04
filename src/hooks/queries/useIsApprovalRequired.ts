@@ -1,12 +1,9 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, ethChainId, fromAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { usdtAssetId } from 'components/Modals/FiatRamps/config'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectRelatedAssetIdsInclusive } from 'state/slices/related-assets-selectors'
-import { useAppSelector } from 'state/store'
 
 type UseIsApprovalRequired = {
   assetId: AssetId
@@ -21,10 +18,6 @@ export const useIsApprovalRequired = ({
   from,
   spender,
 }: Partial<UseIsApprovalRequired>) => {
-  const relatedAssetIdsFilter = useMemo(() => ({ assetId: usdtAssetId }), [])
-  const usdtAssetIds = useAppSelector(state =>
-    selectRelatedAssetIdsInclusive(state, relatedAssetIdsFilter),
-  )
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
 
   const allowanceCryptoBaseUnitResult = useAllowance({ assetId, from, spender })
@@ -35,17 +28,14 @@ export const useIsApprovalRequired = ({
   }, [allowanceCryptoBaseUnitResult, amountCryptoBaseUnit])
 
   const isAllowanceResetRequired = useMemo(() => {
+    if (!assetId) return
     if (!allowanceCryptoBaseUnitResult.data) return
+
+    if (fromAssetId(assetId).chainId !== ethChainId) return false
     const hasAllowance = bnOrZero(allowanceCryptoBaseUnitResult.data).gt(0)
-    const isUsdt = usdtAssetIds.some(_assetId => _assetId === assetId)
-    return isUsdtApprovalResetEnabled && hasAllowance && isApprovalRequired && isUsdt
-  }, [
-    allowanceCryptoBaseUnitResult,
-    assetId,
-    isApprovalRequired,
-    isUsdtApprovalResetEnabled,
-    usdtAssetIds,
-  ])
+    const isUsdtOnEthereum = assetId === usdtAssetId
+    return isUsdtApprovalResetEnabled && hasAllowance && isApprovalRequired && isUsdtOnEthereum
+  }, [allowanceCryptoBaseUnitResult, assetId, isApprovalRequired, isUsdtApprovalResetEnabled])
 
   return {
     allowanceCryptoBaseUnitResult,

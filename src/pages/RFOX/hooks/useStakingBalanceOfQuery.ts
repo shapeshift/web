@@ -1,4 +1,5 @@
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'
 import { useMemo } from 'react'
@@ -7,7 +8,6 @@ import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 type StakingBalanceOfQueryKey = ReadContractQueryKey<
   typeof erc20Abi,

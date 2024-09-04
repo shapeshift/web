@@ -11,6 +11,7 @@ import { ethers } from 'ethers'
 import type { BaseTxMetadata } from '../../types'
 import type { SubParser, TxSpecific } from '.'
 import { getSigHash, txInteractsWithContract } from '.'
+import { ARB_OUTBOX_ABI } from './abi/ArbOutbox'
 import { ARB_PROXY_ABI } from './abi/ArbProxy'
 import { ARBITRUM_RETRYABLE_TX_ABI } from './abi/ArbRetryableTx'
 import { ARB_SYS_ABI } from './abi/ArbSys'
@@ -19,6 +20,7 @@ import { L1_ORBIT_CUSTOM_GATEWAY_ABI } from './abi/L1OrbitCustomGateway'
 import { L2_ARBITRUM_GATEWAY_ABI } from './abi/L2ArbitrumGateway'
 import type { Tx } from './types'
 
+const ARB_OUTBOX_CONTRACT = '0x0B9857ae2D4A3DBe74ffE1d7DF045bb7F96E4840'
 const ARB_SYS_CONTRACT = '0x0000000000000000000000000000000000000064'
 const ARBITRUM_L2_ERC20_GATEWAY_PROXY = '0x09e9222E96E7B4AE2a407B98d48e330053351EEe'
 const ARB_RETRYABLE_TX_CONTRACT = '0x000000000000000000000000000000000000006e'
@@ -44,6 +46,7 @@ export class Parser implements SubParser<Tx> {
 
   readonly arbProxyAbi = new ethers.Interface(ARB_PROXY_ABI)
   readonly arbSysAbi = new ethers.Interface(ARB_SYS_ABI)
+  readonly arbOutboxAbi = new ethers.Interface(ARB_OUTBOX_ABI)
   readonly arbRetryableTxAbi = new ethers.Interface(ARBITRUM_RETRYABLE_TX_ABI)
   readonly l2ArbitrumGatewayAbi = new ethers.Interface(L2_ARBITRUM_GATEWAY_ABI)
   readonly l1OrbitCustomGatewayAbi = new ethers.Interface(L1_ORBIT_CUSTOM_GATEWAY_ABI)
@@ -59,6 +62,7 @@ export class Parser implements SubParser<Tx> {
     const txSigHash = getSigHash(tx.inputData)
 
     const selectedAbi = (() => {
+      if (txInteractsWithContract(tx, ARB_OUTBOX_CONTRACT)) return this.arbOutboxAbi
       if (txInteractsWithContract(tx, ARB_SYS_CONTRACT)) return this.arbSysAbi
       if (txInteractsWithContract(tx, L2_ARBITRUM_GATEWAY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
@@ -140,6 +144,17 @@ export class Parser implements SubParser<Tx> {
               },
             })
           }
+          case this.l2ArbitrumGatewayAbi.getFunction('finalizeInboundTransfer')!.selector:
+            return await Promise.resolve({
+              data: {
+                ...data,
+                // `finalizeInboundTransfer` on the Ethereum side (i.e withdraw request) is internal to the bridge, and only releases fundus safu
+                // https://docs.arbitrum.io/build-decentralized-apps/token-bridging/token-bridge-erc20
+                // however, on the Arbitrum side, it's an effective deposit
+                method:
+                  this.chainId === arbitrumChainId ? 'finalizeInboundTransferDeposit' : data.method,
+              },
+            })
           default:
             return await Promise.resolve({ data })
         }

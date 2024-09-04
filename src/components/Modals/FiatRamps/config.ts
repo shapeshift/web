@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, btcAssetId, fromAssetId, gnosisChainId } from '@shapeshiftoss/caip'
+import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
 import banxaLogo from 'assets/banxa.png'
 import CoinbaseLogo from 'assets/coinbase-logo.svg'
 import MtPelerinLogo from 'assets/mtpelerin.png'
@@ -26,7 +26,6 @@ import {
 import type { CreateUrlProps } from './types'
 
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 export type FiatCurrencyItem = {
   symbol: string

@@ -14,6 +14,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { validateAddress } from 'lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -28,6 +29,7 @@ import type { AddressSelectionValues } from '../types'
 
 type AddressSelectionProps = {
   onRuneAddressChange: (address: string | undefined) => void
+  selectedAddress: string | undefined
 } & (
   | {
       isNewAddress: boolean
@@ -54,6 +56,7 @@ const buttonProps = {
 export const AddressSelection: FC<AddressSelectionProps> = ({
   onRuneAddressChange: handleRuneAddressChange,
   isNewAddress,
+  selectedAddress,
   validateIsNewAddress,
 }) => {
   const translate = useTranslate()
@@ -180,19 +183,31 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return undefined
   }, [currentRuneAddress, maybeMatchingRuneAccountId])
 
+  const maybeSelectedRuneAddress = useMemo(() => {
+    if (selectedAddress) return selectedAddress
+    if (maybeDefaultRuneAccountId) return fromAccountId(maybeDefaultRuneAccountId).account
+
+    return undefined
+  }, [maybeDefaultRuneAccountId, selectedAddress])
+
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
 
     return (
-      <AccountDropdown
-        defaultAccountId={maybeDefaultRuneAccountId}
-        assetId={thorchainAssetId}
-        onChange={handleAccountIdChange}
-        boxProps={boxProps}
-        buttonProps={buttonProps}
-      />
+      <InlineCopyButton
+        isDisabled={!maybeSelectedRuneAddress}
+        value={maybeSelectedRuneAddress ?? ''}
+      >
+        <AccountDropdown
+          defaultAccountId={maybeDefaultRuneAccountId}
+          assetId={thorchainAssetId}
+          onChange={handleAccountIdChange}
+          boxProps={boxProps}
+          buttonProps={buttonProps}
+        />
+      </InlineCopyButton>
     )
-  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId])
+  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId, maybeSelectedRuneAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

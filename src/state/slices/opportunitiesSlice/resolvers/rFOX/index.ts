@@ -5,13 +5,12 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
+import { RFOX_PROXY_CONTRACT_ADDRESS, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
 import { erc20Abi, getAddress } from 'viem'
 import { readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
-import { viemClientByNetworkId } from 'lib/viem-client'
 import { selectStakingBalance } from 'pages/RFOX/helpers'
 import { getStakingInfoQueryFn } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -70,7 +69,11 @@ export const rFOXStakingMetadataResolver = async ({
         type: DefiType.Staking,
         underlyingAssetId: foxOnArbitrumOneAssetId,
         underlyingAssetIds,
-        underlyingAssetRatiosBaseUnit: ['1'] as const,
+        underlyingAssetRatiosBaseUnit: [
+          bn(1)
+            .times(bn(10).pow(stakingAsset?.precision ?? 0))
+            .toString(),
+        ] as const,
         expired: false,
         name: 'rFOX',
         apy: undefined,

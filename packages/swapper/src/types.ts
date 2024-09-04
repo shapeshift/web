@@ -3,27 +3,25 @@ import type { AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
-  CosmosSdkChainId,
   EvmChainAdapter,
-  EvmChainId,
   UtxoChainAdapter,
-  UtxoChainId,
 } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
   AssetsByIdPartial,
+  CosmosSdkChainId,
+  EvmChainId,
   KnownChainIds,
   PartialRecord,
   UtxoAccountType,
+  UtxoChainId,
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
-import type { ethers as ethersV5 } from 'ethers5'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Chain, PublicClient, Transport } from 'viem'
 
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -161,7 +159,6 @@ export type GetTradeQuoteInput =
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
 export type CosmosSdkSwapperDeps = {
@@ -170,7 +167,6 @@ export type CosmosSdkSwapperDeps = {
 
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
-  viemClientByChainId: Record<EvmChainId, PublicClient<Transport, Chain>>
   config: SwapperConfig
   assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
 } & EvmSwapperDeps &

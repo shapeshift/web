@@ -155,6 +155,7 @@
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "import": "Import",
+    "accountsLoading": "Loading Accounts",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -660,8 +661,9 @@
         "withdrawEth": "Withdraw Initated",
         "submitRetryable": "Deposit Received",
         "createRetryableTicket": "Deposit Initiated",
-        "finalizeInboundTransfer": "Withdraw Received",
-        "depositEth": "Deposit Initiated"
+        "finalizeInboundTransferDeposit": "Deposit Received",
+        "depositEth": "Deposit Initiated",
+        "executeTransaction": "Claim"
       },
       "rfox": {
         "stake": "Stake",
@@ -786,7 +788,9 @@
     "claimSuccess": "You have successfully claimed",
     "claimFailed": "Error attempting to claim",
     "availableClaims": "Available",
+    "noAvailableClaims": "No claims available",
     "pendingClaims": "Pending",
+    "noPendingClaims": "No claims pending",
     "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim"
   },
@@ -836,7 +840,6 @@
     "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
-    "needPermission": "needs your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
     "receiveInclFee": "Receive (incl. fees)",
@@ -1223,6 +1226,7 @@
     },
     "approve": {
       "header": "Allow %{spenderName} to use your %{asset}",
+      "resetHeader": "Reset %{spenderName} allowance for %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
@@ -1465,7 +1469,8 @@
         "connect": "Connect"
       },
       "verify": {
-        "confirmOnDevice": "Confirm on device"
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
       },
       "success": {
         "header": "Ledger Connected",

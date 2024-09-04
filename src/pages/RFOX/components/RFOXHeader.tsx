@@ -1,9 +1,11 @@
 import { Flex, Heading, Stack } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Display } from 'components/Display'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { PageBackButton, PageHeader } from 'components/Layout/Header/PageHeader'
 import { SEO } from 'components/Layout/Seo'
 import { Text } from 'components/Text'
@@ -39,14 +41,19 @@ export const RFOXHeader = () => {
       <Flex alignItems='center' gap={2}>
         <Text translation='common.activeAccount' fontWeight='medium' />
 
-        <AccountDropdown
-          defaultAccountId={stakingAssetAccountId}
-          assetId={stakingAssetId}
-          onChange={setStakingAssetAccountId}
-          // dis already memoized
-          // eslint-disable-next-line react-memo/require-usememo
-          buttonProps={{ variant: 'solid', width: 'full' }}
-        />
+        <InlineCopyButton
+          isDisabled={!stakingAssetAccountId}
+          value={stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : ''}
+        >
+          <AccountDropdown
+            defaultAccountId={stakingAssetAccountId}
+            assetId={stakingAssetId}
+            onChange={setStakingAssetAccountId}
+            // dis already memoized
+            // eslint-disable-next-line react-memo/require-usememo
+            buttonProps={{ variant: 'solid', width: 'full' }}
+          />
+        </InlineCopyButton>
       </Flex>
     )
   }, [accountIds.length, setStakingAssetAccountId, stakingAssetAccountId, stakingAssetId])

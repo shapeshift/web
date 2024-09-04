@@ -1,6 +1,6 @@
 import { fromChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
 import { v4 as uuid } from 'uuid'
 
@@ -66,7 +66,7 @@ export const oneInchApi: SwapperApi = {
       config,
     })
 
-    const feeData = await getFees({
+    const feeData = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data,
       to,

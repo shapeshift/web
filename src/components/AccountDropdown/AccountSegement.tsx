@@ -14,6 +14,7 @@ export const AccountSegment: FC<AccountGroupProps> = ({ title, subtitle }) => (
     py={2}
     color='text.subtle'
     fontSize='sm'
+    alignItems='center'
     justifyContent='space-between'
   >
     <RawText>{title}</RawText>

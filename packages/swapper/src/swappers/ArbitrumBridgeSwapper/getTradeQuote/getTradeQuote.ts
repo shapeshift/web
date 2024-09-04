@@ -52,7 +52,7 @@ export const getTradeQuoteWithWallet = async (
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
-  { assertGetEvmChainAdapter, getEthersV5Provider }: SwapperDeps,
+  { assertGetEvmChainAdapter }: SwapperDeps,
 ): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
   const {
     chainId,
@@ -65,7 +65,7 @@ export async function getTradeQuote(
     sendAddress,
   } = input
 
-  const assertion = await assertValidTrade({ buyAsset, sellAsset, getEthersV5Provider })
+  const assertion = await assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
   const isDeposit = sellAsset.chainId === ethChainId
@@ -86,7 +86,6 @@ export async function getTradeQuote(
       sendAddress: sendAddress ?? '',
       receiveAddress,
       assertGetEvmChainAdapter,
-      getEthersV5Provider,
     })
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit

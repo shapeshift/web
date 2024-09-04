@@ -229,8 +229,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approve')}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       preFooter={preFooter}
       isExactAllowance={state.isExactAllowance}
       onCancel={handleCancel}

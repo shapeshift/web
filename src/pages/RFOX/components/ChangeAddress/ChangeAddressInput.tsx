@@ -267,6 +267,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
                 isNewAddress
                 onRuneAddressChange={handleRuneAddressChange}
                 validateIsNewAddress={validateIsNewAddress}
+                selectedAddress={newRuneAddress}
               />
             </Skeleton>
           </Box>

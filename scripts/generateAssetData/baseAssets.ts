@@ -158,9 +158,9 @@ export const bnbsmartchain: AssetWithNetworkName = {
 export const polygon: AssetWithNetworkName = {
   assetId: caip.polygonAssetId,
   chainId: caip.polygonChainId,
-  name: 'Polygon',
+  name: 'Polygon Ecosystem Token',
   networkName: 'Polygon',
-  symbol: 'MATIC',
+  symbol: 'POL',
   precision: 18,
   color: '#8f00ff',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/polygon/info/logo.png',

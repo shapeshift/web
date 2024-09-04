@@ -10969,6 +10969,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
     "@types/multicoin-address-validator": ^0.5.0
     bech32: ^2.0.0
     coinselect: ^3.1.13
@@ -10989,6 +10990,16 @@ __metadata:
   checksum: 2f0939dcc7e67e3c742ca5a2dc25eacce646742f7b26d8168583524e4711ae8b47efc2a28ede4aa74780a25d4629f581b4dd72d9b3d8d7ff6810891521c12efb
   languageName: node
   linkType: hard
+
+"@shapeshiftoss/contracts@workspace:^, @shapeshiftoss/contracts@workspace:packages/contracts":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/contracts@workspace:packages/contracts"
+  dependencies:
+    "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
+  languageName: unknown
+  linkType: soft
 
 "@shapeshiftoss/errors@workspace:^, @shapeshiftoss/errors@workspace:packages/errors":
   version: 0.0.0-use.local
@@ -11428,6 +11439,7 @@ __metadata:
     "@openapitools/openapi-generator-cli": ^2.5.1
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^9.3.0
+    "@shapeshiftoss/contracts": "workspace:^"
     isomorphic-ws: ^4.0.1
     ws: ^8.17.1
   languageName: unknown
@@ -11455,7 +11467,6 @@ __metadata:
   resolution: "@shapeshiftoss/utils@workspace:packages/utils"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     crypto-browserify: ^3.12.0
   languageName: unknown

@@ -1,5 +1,5 @@
 import { type AssetId, type ChainId, foxAssetId, toAccountId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { PortalsSupportedChainId } from '../types'

@@ -1,9 +1,14 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import type { Asset, UtxoAccountType } from '@shapeshiftoss/types'
+import type {
+  Asset,
+  CosmosSdkChainId,
+  EvmChainId,
+  UtxoAccountType,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'

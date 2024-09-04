@@ -5,11 +5,11 @@ import type {
 } from '@arbitrum/sdk/dist/lib/dataEntities/transactionRequest'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable, bn } from '@shapeshiftoss/utils'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import type { ethers as ethersV5 } from 'ethers5'
 import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
@@ -24,7 +24,6 @@ export type FetchArbitrumBridgeSwapInput = {
   sellAsset: Asset
   sendAddress: string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
@@ -41,7 +40,6 @@ export const fetchArbitrumBridgeSwap = async ({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-  getEthersV5Provider,
 }: FetchArbitrumBridgeSwapInput): Promise<{
   request:
     | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
@@ -77,7 +75,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -97,7 +95,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,
@@ -152,7 +150,7 @@ export const fetchArbitrumBridgeSwap = async ({
         }
 
         // Actual fees
-        const feeData = await getFees({
+        const feeData = await evm.getFees({
           adapter,
           data: maybeRequest.txRequest.data.toString(),
           to: maybeRequest.txRequest.to,
@@ -177,7 +175,7 @@ export const fetchArbitrumBridgeSwap = async ({
         destinationAddress: receiveAddress,
       })
 
-      const { networkFeeCryptoBaseUnit } = await getFees({
+      const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter,
         data: request.txRequest.data.toString(),
         to: request.txRequest.to,

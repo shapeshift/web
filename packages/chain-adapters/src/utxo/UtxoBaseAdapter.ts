@@ -10,7 +10,7 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
@@ -60,8 +60,6 @@ export const utxoChainIds = [
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.LitecoinMainnet,
 ] as const
-
-export type UtxoChainId = (typeof utxoChainIds)[number]
 
 export type UtxoChainAdapter =
   | bitcoin.ChainAdapter

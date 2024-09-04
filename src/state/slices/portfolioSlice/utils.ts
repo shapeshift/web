@@ -24,7 +24,7 @@ import {
   toAccountId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { Account, UtxoChainId } from '@shapeshiftoss/chain-adapters'
+import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
@@ -40,7 +40,7 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
 import type { BigNumber } from 'lib/bignumber/bignumber'

@@ -1,4 +1,4 @@
-import type { FarmingABI } from 'contracts/abis/farmingAbi'
+import type { FarmingABI } from '@shapeshiftoss/contracts'
 import { memoize } from 'lodash'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'

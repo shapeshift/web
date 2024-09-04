@@ -1,6 +1,6 @@
+import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import memoize from 'lodash/memoize'
 import type { Address } from 'viem'
-import { viemEthMainnetClient } from 'lib/viem-client'
 
 import type {
   ResolveVanityAddress,

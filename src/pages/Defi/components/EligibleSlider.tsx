@@ -1,5 +1,5 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from 'contracts/constants'
+import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'

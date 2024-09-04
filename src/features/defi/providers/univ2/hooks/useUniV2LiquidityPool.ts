@@ -5,7 +5,7 @@ import {
   ContractType,
   getOrCreateContractByAddress,
   getOrCreateContractByType,
-  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_MAINNET,
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -77,7 +77,7 @@ export const useUniV2LiquidityPool = ({
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS)),
+    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_MAINNET)),
     [skip],
   )
 

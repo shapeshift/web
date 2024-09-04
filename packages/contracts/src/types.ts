@@ -6,8 +6,8 @@ import type {
   ETH_FOX_POOL_CONTRACT_ADDRESS,
   FOX_TOKEN_CONTRACT_ADDRESS,
   foxEthStakingContractAddresses,
-  THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM,
-  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  THOR_ROUTER_CONTRACT_ADDRESS_MAINNET,
+  UNISWAP_V2_ROUTER_02_MAINNET,
 } from './constants'
 
 export enum ContractType {
@@ -37,8 +37,8 @@ export type KnownContractAddress =
   | typeof ETH_FOX_POOL_CONTRACT_ADDRESS
   | FoxEthStakingContractAddress
   | typeof FOX_TOKEN_CONTRACT_ADDRESS
-  | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
-  | typeof THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM
+  | typeof UNISWAP_V2_ROUTER_02_MAINNET
+  | typeof THOR_ROUTER_CONTRACT_ADDRESS_MAINNET
 
 export type DefinedContract = {
   contract: KnownContractByAddress<KnownContractAddress>

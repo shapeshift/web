@@ -1,12 +1,12 @@
 import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { UNISWAP_V3_QUOTER_ABI } from '@shapeshiftoss/contracts'
+import { UNISWAP_V3_POOL_ABI } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
 import type { GetContractReturnType } from 'viem'
 import { type Address, getAddress, getContract, type PublicClient } from 'viem'
 
-import { IUniswapV3PoolABI } from '../getThorTradeQuote/abis/IUniswapV3PoolAbi'
-import type { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'
 
@@ -127,7 +127,7 @@ export const getContractDataByPool = (
   Array.from(poolAddresses.entries()).forEach(
     ([address, { fee, token0Address, token1Address }]) => {
       const poolContract = getContract({
-        abi: IUniswapV3PoolABI,
+        abi: UNISWAP_V3_POOL_ABI,
         address,
         client: publicClient,
       })
@@ -148,7 +148,7 @@ export const getContractDataByPool = (
 export const getQuotedAmountOutByPool = async (
   poolContracts: Map<Address, ContractData>,
   sellAmount: bigint,
-  quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, Address>,
+  quoterContract: GetContractReturnType<typeof UNISWAP_V3_QUOTER_ABI, PublicClient, Address>,
 ): Promise<Map<Address, bigint>> => {
   const results = await Promise.allSettled(
     Array.from(poolContracts.entries()).map(async ([poolContract, data]) => {

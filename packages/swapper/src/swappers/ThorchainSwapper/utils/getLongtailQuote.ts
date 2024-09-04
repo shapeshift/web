@@ -1,5 +1,8 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
+import {
+  TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_MAINNET,
+  viemClientByChainId,
+} from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,7 +16,6 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
@@ -93,7 +95,7 @@ export const getLongtailToL1Quote = async (
         ...s,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         sellAsset,
-        allowanceContract: ALLOWANCE_CONTRACT,
+        allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_MAINNET,
       })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
       isLongtail: true,
       longtailData: {

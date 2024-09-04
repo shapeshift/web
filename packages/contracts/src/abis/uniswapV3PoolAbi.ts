@@ -1,4 +1,4 @@
-export const IUniswapV3PoolABI = [
+export const UNISWAP_V3_POOL_ABI = [
   {
     anonymous: false,
     inputs: [

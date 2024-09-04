@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethChainId } from '@shapeshiftoss/caip'
+import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_MAINNET } from '@shapeshiftoss/contracts'
 import {
   convertDecimalPercentageToBasisPoints,
   isFulfilled,
@@ -18,7 +19,6 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import { ALLOWANCE_CONTRACT } from '../constants'
 import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
@@ -157,7 +157,7 @@ export const getL1ToLongtailQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: quotedAmountOut.toString(),
           // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
-          allowanceContract: ALLOWANCE_CONTRACT,
+          allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_MAINNET,
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {

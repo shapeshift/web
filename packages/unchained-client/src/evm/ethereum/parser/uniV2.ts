@@ -3,9 +3,9 @@ import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
   ERC20_ABI,
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
-  UNISWAP_V2_FACTORY_CONTRACT,
+  UNISWAP_V2_FACTORY_MAINNET,
   UNISWAP_V2_ROUTER_02_ABI,
-  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_MAINNET,
   UNIV2_STAKING_REWARDS_ABI,
   WETH_TOKEN_CONTRACT_ADDRESS,
   WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
@@ -176,8 +176,7 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (txInteractsWithContract(tx, UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS))
-      return await this.parseUniV2(tx)
+    if (txInteractsWithContract(tx, UNISWAP_V2_ROUTER_02_MAINNET)) return await this.parseUniV2(tx)
 
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
     const isFoxStakingRewards = UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract =>
@@ -191,6 +190,6 @@ export class Parser implements SubParser<Tx> {
     const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
     const salt = solidityPackedKeccak256(['address', 'address'], [token0, token1])
     const initCodeHash = '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // https://github.com/Uniswap/v2-periphery/blob/dda62473e2da448bc9cb8f4514dadda4aeede5f4/contracts/libraries/UniswapV2Library.sol#L24
-    return getCreate2Address(UNISWAP_V2_FACTORY_CONTRACT, salt, initCodeHash)
+    return getCreate2Address(UNISWAP_V2_FACTORY_MAINNET, salt, initCodeHash)
   }
 }

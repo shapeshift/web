@@ -1,4 +1,4 @@
-export const QuoterAbi = [
+export const UNISWAP_V3_QUOTER_ABI = [
   {
     inputs: [
       {

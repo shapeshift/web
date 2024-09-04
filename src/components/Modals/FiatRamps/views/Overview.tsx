@@ -35,6 +35,7 @@ import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeepKeyHDWallet } from 'lib/utils'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { useGetFiatRampsQuery } from 'state/apis/fiatRamps/fiatRamps'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import {
@@ -321,7 +322,7 @@ export const Overview: React.FC<OverviewProps> = ({
               mt='15px'
               mb='8px'
             />
-            {isConnected && !isDemoWallet ? (
+            {isConnected && accountId && !isDemoWallet ? (
               <>
                 {isUnsupportedAsset ? (
                   <Button
@@ -340,46 +341,48 @@ export const Overview: React.FC<OverviewProps> = ({
                       buttonProps={accountDropdownButtonProps}
                       boxProps={accountDropdownBoxProps}
                     />
-                    <InputGroup size='md'>
-                      <Input
-                        pr='4.5rem'
-                        value={inputValue}
-                        readOnly
-                        placeholder={!address ? translate('common.loadingText') : ''}
-                      />
-                      {!address && <InputLeftElement children={spinner} />}
-                      {address && (
-                        <InputRightElement
-                          width={supportsAddressVerification ? '4.5rem' : undefined}
-                        >
-                          <IconButton
-                            icon={copyIcon}
-                            aria-label={translate('common.copy')}
-                            size='sm'
-                            isRound
-                            variant='ghost'
-                            onClick={handleCopyClick}
-                          />
-                          {supportsAddressVerification && address && (
+                    {!isUtxoAccountId(accountId) ? (
+                      <InputGroup size='md'>
+                        <Input
+                          pr='4.5rem'
+                          value={inputValue}
+                          readOnly
+                          placeholder={!address ? translate('common.loadingText') : ''}
+                        />
+                        {!address && <InputLeftElement children={spinner} />}
+                        {address && (
+                          <InputRightElement
+                            width={supportsAddressVerification ? '4.5rem' : undefined}
+                          >
                             <IconButton
-                              icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
-                              onClick={handleVerify}
-                              aria-label={translate('common.verify')}
+                              icon={copyIcon}
+                              aria-label={translate('common.copy')}
                               size='sm'
-                              color={
-                                shownOnDisplay
-                                  ? 'green.500'
-                                  : shownOnDisplay === false
-                                  ? 'red.500'
-                                  : 'text.subtle'
-                              }
                               isRound
                               variant='ghost'
+                              onClick={handleCopyClick}
                             />
-                          )}
-                        </InputRightElement>
-                      )}
-                    </InputGroup>
+                            {supportsAddressVerification && address && (
+                              <IconButton
+                                icon={shownOnDisplay ? <CheckIcon /> : <ViewIcon />}
+                                onClick={handleVerify}
+                                aria-label={translate('common.verify')}
+                                size='sm'
+                                color={
+                                  shownOnDisplay
+                                    ? 'green.500'
+                                    : shownOnDisplay === false
+                                    ? 'red.500'
+                                    : 'text.subtle'
+                                }
+                                isRound
+                                variant='ghost'
+                              />
+                            )}
+                          </InputRightElement>
+                        )}
+                      </InputGroup>
+                    ) : null}
                   </>
                 )}
               </>

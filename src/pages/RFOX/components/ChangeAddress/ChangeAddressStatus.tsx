@@ -46,11 +46,6 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
     selectAssetById(state, confirmedQuote.stakingAssetId),
   )
 
-  const txLink = useMemo(
-    () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
-    [stakingAsset?.explorerTxLink, txId],
-  )
-
   const handleGoBack = useCallback(() => {
     history.push(ChangeAddressRoutePaths.Input)
   }, [history])
@@ -59,6 +54,31 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
     maybeSafeTxHash: txId ?? undefined,
     accountId: confirmedQuote.stakingAssetAccountId,
   })
+
+  const txLink = useMemo(
+    () =>
+      maybeSafeTx?.transaction?.transactionHash
+        ? getTxLink({
+            txId: maybeSafeTx.transaction.transactionHash,
+            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+            accountId: confirmedQuote.stakingAssetAccountId,
+            // on-chain Tx
+            isSafeTxHash: false,
+          })
+        : getTxLink({
+            txId,
+            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+            accountId: confirmedQuote.stakingAssetAccountId,
+            isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+          }),
+    [
+      confirmedQuote.stakingAssetAccountId,
+      maybeSafeTx?.isSafeTxHash,
+      maybeSafeTx?.transaction?.transactionHash,
+      stakingAsset?.explorerTxLink,
+      txId,
+    ],
+  )
 
   const bodyContent: BodyContent | null = useMemo(() => {
     // Safe Pending Tx

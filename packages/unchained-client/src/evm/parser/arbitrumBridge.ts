@@ -7,6 +7,7 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import {
+  ARB_OUTBOX_ABI,
   ARB_OUTBOX_CONTRACT,
   ARB_PROXY_ABI,
   ARB_RETRYABLE_TX_CONTRACT,
@@ -21,7 +22,6 @@ import {
   L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT,
   L2_ARBITRUM_GATEWAY_ABI,
   L2_ARBITRUM_GATEWAY_CONTRACT,
-  ARB_OUTBOX_ABI,
 } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 

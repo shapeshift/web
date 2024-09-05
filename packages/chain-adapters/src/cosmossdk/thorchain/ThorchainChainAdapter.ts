@@ -20,7 +20,7 @@ import type {
   ValidAddressResult,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../../types'
-import { toAddressNList } from '../../utils'
+import { toAddressNList, verifyLedgerAppOpen } from '../../utils'
 import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
@@ -96,13 +96,17 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
     try {
       if (supportsThorchain(wallet)) {
+        await verifyLedgerAppOpen(this.chainId, wallet, false)
+
         const address = await wallet.thorchainGetAddress({
           addressNList: toAddressNList(bip44Params),
           showDisplay: showOnDevice,
         })
+
         if (!address) {
           throw new Error('Unable to generate Thorchain address.')
         }
+
         return address
       } else {
         throw new Error('Wallet does not support Thorchain.')
@@ -136,6 +140,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     try {
       const { txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
+        await verifyLedgerAppOpen(this.chainId, wallet, true)
+
         const signedTx = await wallet.thorchainSignTx(txToSign)
 
         if (!signedTx?.serialized) throw new Error('Error signing tx')

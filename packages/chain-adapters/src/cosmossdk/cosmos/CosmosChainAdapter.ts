@@ -21,7 +21,7 @@ import type {
   SignTxInput,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
-import { bnOrZero, toAddressNList } from '../../utils'
+import { bnOrZero, toAddressNList, verifyLedgerAppOpen } from '../../utils'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
@@ -95,14 +95,18 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
     try {
       if (supportsCosmos(wallet)) {
+        await verifyLedgerAppOpen(this.chainId, wallet, false)
+
         const bip44Params = this.getBIP44Params({ accountNumber })
         const cosmosAddress = await wallet.cosmosGetAddress({
           addressNList: toAddressNList(bip44Params),
           showDisplay: showOnDevice,
         })
+
         if (!cosmosAddress) {
           throw new Error('Unable to generate Cosmos address.')
         }
+
         return cosmosAddress
       } else {
         throw new Error('Wallet does not support Cosmos.')
@@ -272,6 +276,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     try {
       const { txToSign, wallet } = signTxInput
       if (supportsCosmos(wallet)) {
+        await verifyLedgerAppOpen(this.chainId, wallet, true)
+
         const signedTx = await wallet.cosmosSignTx(txToSign)
 
         if (!signedTx?.serialized) throw new Error('Error signing tx')

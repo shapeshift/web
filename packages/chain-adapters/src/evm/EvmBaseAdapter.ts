@@ -49,7 +49,12 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
-import { getAssetNamespace, toAddressNList, toRootDerivationPath } from '../utils'
+import {
+  getAssetNamespace,
+  toAddressNList,
+  toRootDerivationPath,
+  verifyLedgerAppOpen,
+} from '../utils'
 import { bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type {
@@ -323,8 +328,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
       }
 
-      await this.assertSwitchChain(input.wallet)
-
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
@@ -407,8 +410,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { txToSign, wallet } = signTxInput
 
-      if (!this.supportsChain(wallet, txToSign.chainId))
+      if (!this.supportsChain(wallet, txToSign.chainId)) {
         throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
+      }
+
+      await verifyLedgerAppOpen(this.chainId, wallet, true)
 
       const signedTx = await wallet.ethSignTx(txToSign)
 
@@ -468,6 +474,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
 
       await this.assertSwitchChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet, true)
 
       const signedMessage = await wallet.ethSignMessage(messageToSign)
 
@@ -492,6 +499,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       }
 
       await this.assertSwitchChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet, true)
 
       const result = await wallet.ethSignTypedData(typedDataToSign)
 
@@ -510,6 +518,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     if (input.pubKey) {
       return input.pubKey
     }
+
+    if (!this.supportsChain(wallet)) {
+      throw new Error(`wallet does not support ${this.getDisplayName()}`)
+    }
+
+    await this.assertSwitchChain(wallet)
+    await verifyLedgerAppOpen(this.chainId, wallet, false)
 
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),
@@ -601,8 +616,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (!this.supportsChain(wallet)) {
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
       }
-
-      await this.assertSwitchChain(wallet)
 
       const from = await this.getAddress({ accountNumber, wallet })
       const txToSign = await this.buildCustomApiTx({ ...input, from })

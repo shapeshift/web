@@ -78,13 +78,17 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
   }
 }
 
-export const checkLedgerApp = async (chainId: ChainId | KnownChainIds, wallet: HDWallet) => {
+export const verifyLedgerAppOpen = async (
+  chainId: ChainId | KnownChainIds,
+  wallet: HDWallet,
+  isSigning: boolean,
+) => {
   const coin = getCoin(chainId)
   const appName = getLedgerAppName(chainId)
 
   if (!isLedger(wallet)) return
 
-  const checkIsAppOpen = async () => {
+  const isAppOpen = async () => {
     try {
       await wallet.validateCurrentApp(coin)
       return true
@@ -93,29 +97,28 @@ export const checkLedgerApp = async (chainId: ChainId | KnownChainIds, wallet: H
     }
   }
 
-  if (await checkIsAppOpen()) return
+  if (await isAppOpen()) return
 
   let intervalId: NodeJS.Timer | undefined
-  const waitUntilAppIsOpened = new Promise<void>((resolve, reject) => {
-    // emit event to trigger modal open
-    const args: LedgerOpenAppEventArgs = { chainId, isSigning: false, reject }
-    emitter.emit('LedgerOpenApp', args)
-
-    // prompt user to open app on device
-    wallet.openApp(appName)
-
-    intervalId = setInterval(async () => {
-      if (!(await checkIsAppOpen())) return
-
-      // emit event to trigger modal close
-      emitter.emit('LedgerAppOpened')
-      clearInterval(intervalId)
-      resolve()
-    }, 1000)
-  })
 
   try {
-    await waitUntilAppIsOpened
+    await new Promise<void>((resolve, reject) => {
+      // emit event to trigger modal open
+      const args: LedgerOpenAppEventArgs = { chainId, isSigning, reject }
+      emitter.emit('LedgerOpenApp', args)
+
+      // prompt user to open app on device
+      wallet.openApp(appName)
+
+      intervalId = setInterval(async () => {
+        if (!(await isAppOpen())) return
+
+        // emit event to trigger modal close
+        emitter.emit('LedgerAppOpened')
+        clearInterval(intervalId)
+        resolve()
+      }, 1000)
+    })
   } catch {
     clearInterval(intervalId)
     throw new Error('Ledger app open cancelled')

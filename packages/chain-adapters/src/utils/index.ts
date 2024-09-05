@@ -5,6 +5,7 @@ export * from './bignumber'
 export * from './bip44'
 export * from './fees'
 export * from './utxoUtils'
+export * from './ledgerAppGate'
 
 export const getAssetNamespace = (type: string): AssetNamespace => {
   if (type === 'ERC20') return 'erc20'

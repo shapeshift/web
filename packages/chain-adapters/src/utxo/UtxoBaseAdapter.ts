@@ -46,6 +46,7 @@ import {
   convertXpubVersion,
   toAddressNList,
   toRootDerivationPath,
+  verifyLedgerAppOpen,
 } from '../utils'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
@@ -240,8 +241,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const targetIndex = bip44Params.index ?? nextIndex ?? 0
 
-      const address = await (() => {
+      const address = await (async () => {
         if (pubKey) return account?.chainSpecific.addresses?.[targetIndex]?.pubkey
+
+        await verifyLedgerAppOpen(this.chainId, wallet, false)
 
         return wallet.btcGetAddress({
           addressNList: toAddressNList({ ...bip44Params, index: targetIndex }),
@@ -435,6 +438,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
+      await verifyLedgerAppOpen(this.chainId, wallet, true)
+
       const signedTx = await wallet.btcSignTx(txToSign)
 
       if (!signedTx?.serializedTx) throw new Error('UtxoBaseAdapter: error signing tx')
@@ -548,6 +553,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     accountType: UtxoAccountType,
   ): Promise<PublicKey> {
     this.assertIsAccountTypeSupported(accountType)
+
+    await verifyLedgerAppOpen(this.chainId, wallet, false)
 
     const bip44Params = this.getBIP44Params({ accountNumber, accountType })
     const path = toRootDerivationPath(bip44Params)

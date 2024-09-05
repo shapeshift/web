@@ -82,19 +82,14 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
 
   const bodyContent: BodyContent | null = useMemo(() => {
     // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    ) {
+    if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,
         title: [
           'common.safeProposalQueued',
           {
-            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           },
         ],
         body: 'RFOX.changeRewardAddressPending',
@@ -102,8 +97,7 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
       }
     }
 
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash) {
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
       setChangeAddressTxid(maybeSafeTx.transaction.transactionHash)
     }
 
@@ -134,8 +128,9 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
         return null
     }
   }, [
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     maybeSafeTx?.transaction?.transactionHash,
     setChangeAddressTxid,

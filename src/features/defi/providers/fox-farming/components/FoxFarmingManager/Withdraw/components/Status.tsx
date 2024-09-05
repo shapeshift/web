@@ -108,13 +108,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
+    if (maybeSafeTx?.isQueuedSafeTx)
       return {
         statusIcon: null,
         status: TxStatus.Pending,
@@ -126,7 +120,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         statusBg: 'transparent',
       }
 
-    // Safe Success Tx
     if (maybeSafeTx?.transaction?.transactionHash)
       return {
         statusText: StatusTextEnum.success,

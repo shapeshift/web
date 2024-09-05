@@ -67,19 +67,14 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     if (!claimAsset) return null
 
     // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    ) {
+    if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,
         title: [
           'common.safeProposalQueued',
           {
-            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           },
         ],
         body: [
@@ -90,8 +85,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       }
     }
 
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash) {
+    if (maybeSafeTx.isExecutedSafeTx) {
       setClaimTxid(maybeSafeTx.transaction.transactionHash)
     }
 
@@ -132,10 +126,11 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
     }
   }, [
     claimAsset,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.transactionHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
     txStatus,
     claimAmountCryptoPrecision,
     setClaimTxid,

@@ -106,26 +106,19 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
+    if (maybeSafeTx?.isQueuedSafeTx)
       return {
         statusIcon: null,
         statusText: StatusTextEnum.pending,
         status: TxStatus.Pending,
         statusBody: translate('common.safeProposalQueued', {
-          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+          currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+          confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
         }),
         statusBg: 'transparent',
       }
 
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash)
+    if (maybeSafeTx?.isExecutedSafeTx)
       return {
         statusText: StatusTextEnum.success,
         status: TxStatus.Confirmed,
@@ -166,10 +159,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     }
   }, [
     foxFarmingOpportunity?.opportunityName,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
-    maybeSafeTx?.transaction?.transactionHash,
     state?.deposit.txStatus,
     translate,
   ])

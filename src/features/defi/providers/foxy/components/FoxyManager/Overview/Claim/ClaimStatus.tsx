@@ -87,15 +87,6 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     accountId,
   })
 
-  const isSafePendingTx = useMemo(() => {
-    return (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
-  }, [maybeSafeTx])
-
   // Asset Info
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
@@ -146,18 +137,18 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           refetchFoxyBalances()
         }
 
-        if (isSafePendingTx) {
+        if (maybeSafeTx?.isQueuedSafeTx) {
           return setState({
             ...state,
             txStatus: TxStatus.Pending,
           })
         }
 
-        if (maybeSafeTx?.transaction?.transactionHash) {
+        if (maybeSafeTx?.isExecutedSafeTx) {
           return setState({
             ...state,
             txStatus: TxStatus.Confirmed,
-            usedGasFeeCryptoBaseUnit: bnOrZero(maybeSafeTx.transaction.gasUsed).toString(),
+            usedGasFeeCryptoBaseUnit: bnOrZero(maybeSafeTx.transaction?.gasUsed).toString(),
           })
         }
 
@@ -186,9 +177,10 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     state,
     txid,
     poll,
-    isSafePendingTx,
     maybeSafeTx?.transaction?.transactionHash,
     maybeSafeTx?.transaction?.gasUsed,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
   ])
 
   const handleClose = useMemo(() => () => browserHistory.goBack(), [browserHistory])

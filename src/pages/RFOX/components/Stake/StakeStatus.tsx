@@ -64,19 +64,14 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     if (!stakingAsset) return null
 
     // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    ) {
+    if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,
         title: [
           'common.safeProposalQueued',
           {
-            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           },
         ],
         body: [
@@ -90,8 +85,7 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
       }
     }
 
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash) {
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
       setStakeTxid(maybeSafeTx.transaction.transactionHash)
     }
 
@@ -135,10 +129,11 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     }
   }, [
     stakingAsset,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.transactionHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
     txStatus,
     stakingAmountCryptoPrecision,
     setStakeTxid,

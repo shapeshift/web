@@ -64,20 +64,14 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null
 
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    ) {
+    if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,
         title: [
           'common.safeProposalQueued',
           {
-            currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-            confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
           },
         ],
         body: [
@@ -91,9 +85,8 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
       }
     }
 
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash) {
-      setUnstakeTxid(maybeSafeTx.transaction.transactionHash)
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      setUnstakeTxid(maybeSafeTx?.transaction?.transactionHash)
     }
 
     switch (txStatus) {
@@ -137,8 +130,9 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
     }
   }, [
     confirmedQuote.cooldownPeriod,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     maybeSafeTx?.transaction?.transactionHash,
     setUnstakeTxid,

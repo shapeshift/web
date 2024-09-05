@@ -60,24 +60,19 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
+    if (maybeSafeTx?.isQueuedSafeTx)
       return {
         statusIcon: <AssetIcon size='xs' src={underlyingAsset?.icon} justifyContent='center' />,
         status: TxStatus.Pending,
         statusBg: 'transparent',
         statusText: StatusTextEnum.pending,
         statusBody: translate('common.safeProposalQueued', {
-          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+          currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+          confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
         }),
       }
 
-    if (maybeSafeTx?.transaction?.transactionHash) {
+    if (maybeSafeTx?.isExecutedSafeTx) {
       return {
         statusText: StatusTextEnum.success,
         status: TxStatus.Confirmed,
@@ -118,10 +113,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         }
     }
   }, [
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
-    maybeSafeTx?.transaction?.transactionHash,
     stakingAsset.symbol,
     state?.withdraw.txStatus,
     translate,

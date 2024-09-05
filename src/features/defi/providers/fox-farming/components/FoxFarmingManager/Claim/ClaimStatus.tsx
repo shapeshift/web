@@ -91,15 +91,6 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     accountId,
   })
 
-  const isQueuedSafeTx = useMemo(
-    () =>
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired,
-    [maybeSafeTx],
-  )
-
   const assets = useAppSelector(selectAssets)
 
   // Get Opportunity
@@ -147,18 +138,16 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const status = useMemo(() => {
-    // SAFE Pending Tx
-    if (isQueuedSafeTx) {
+    if (maybeSafeTx?.isQueuedSafeTx) {
       return TxStatus.Pending
     }
 
-    // SAFE Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash) {
+    if (maybeSafeTx?.isExecutedSafeTx) {
       return TxStatus.Confirmed
     }
 
     return confirmedTransaction?.status
-  }, [confirmedTransaction?.status, isQueuedSafeTx, maybeSafeTx?.transaction?.transactionHash])
+  }, [confirmedTransaction?.status, maybeSafeTx?.isExecutedSafeTx, maybeSafeTx?.isQueuedSafeTx])
 
   useEffect(() => {
     if (status && status !== TxStatus.Pending) {
@@ -227,7 +216,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   ])
 
   const statusText = useMemo(() => {
-    if (isQueuedSafeTx)
+    if (maybeSafeTx?.isQueuedSafeTx)
       return translate('common.safeProposalQueued', {
         currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
         confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
@@ -239,7 +228,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         : 'defi.transactionComplete',
     )
   }, [
-    isQueuedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     state.txStatus,

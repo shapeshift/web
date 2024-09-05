@@ -11,7 +11,6 @@ import {
   checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from 'state/slices/opportunitiesSlice/resolvers/cosmosSdk/constants'
 
@@ -35,7 +34,6 @@ type StakingInput = {
 
 export const useStakingAction = () => {
   const chainAdapterManager = getChainAdapterManager()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const {
     state: { wallet },
   } = useWallet()
@@ -71,7 +69,6 @@ export const useStakingAction = () => {
 
       const { accountNumber } = bip44Params
 
-      await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
       const address = await adapter.getAddress({ accountNumber, wallet })
       const { txToSign, receiverAddress } = await (async () => {
         switch (action) {

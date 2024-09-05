@@ -51,7 +51,6 @@ import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -148,8 +147,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
@@ -625,10 +622,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       from: poolAssetAccountId ? fromAccountId(poolAssetAccountId).account : undefined,
       accountNumber: poolAssetAccountNumber,
     }),
-    onMutate: async () => {
-      if (!poolAsset) return
-      await checkLedgerAppOpenIfLedgerConnected(poolAsset.chainId)
-    },
     onSuccess: (txId: string) => {
       setApprovalTxId(txId)
     },

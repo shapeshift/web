@@ -59,21 +59,21 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
-        <PluginProvider>
-          <ColorModeScript storageKey='ss-theme' />
-          <ChatwootWidget />
-          <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-            <ToastContainer />
-            <PersistGate loading={splashScreen} persistor={persistor}>
-              <HashRouter basename='/'>
-                <ScrollToTop />
-                <BrowserRouterProvider>
-                  <I18nProvider>
-                    <WalletProvider>
-                      <WalletConnectV2Provider>
-                        <KeepKeyProvider>
-                          <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                            <QueryClientProvider>
+        <QueryClientProvider>
+          <PluginProvider>
+            <ColorModeScript storageKey='ss-theme' />
+            <ChatwootWidget />
+            <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+              <ToastContainer />
+              <PersistGate loading={splashScreen} persistor={persistor}>
+                <HashRouter basename='/'>
+                  <ScrollToTop />
+                  <BrowserRouterProvider>
+                    <I18nProvider>
+                      <WalletProvider>
+                        <WalletConnectV2Provider>
+                          <KeepKeyProvider>
+                            <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
                               <WagmiProvider config={wagmiConfig}>
                                 <ModalProvider>
                                   <TransactionsProvider>
@@ -85,17 +85,17 @@ export function AppProviders({ children }: ProvidersProps) {
                                   </TransactionsProvider>
                                 </ModalProvider>
                               </WagmiProvider>
-                            </QueryClientProvider>
-                          </ErrorBoundary>
-                        </KeepKeyProvider>
-                      </WalletConnectV2Provider>
-                    </WalletProvider>
-                  </I18nProvider>
-                </BrowserRouterProvider>
-              </HashRouter>
-            </PersistGate>
-          </ChakraProvider>
-        </PluginProvider>
+                            </ErrorBoundary>
+                          </KeepKeyProvider>
+                        </WalletConnectV2Provider>
+                      </WalletProvider>
+                    </I18nProvider>
+                  </BrowserRouterProvider>
+                </HashRouter>
+              </PersistGate>
+            </ChakraProvider>
+          </PluginProvider>
+        </QueryClientProvider>
       </ReduxProvider>
     </HelmetProvider>
   )

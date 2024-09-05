@@ -4,7 +4,6 @@ import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useHistory } from 'react-router-dom'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
@@ -24,7 +23,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import type { SendInput } from '../../Form'
-import { SendFormFields, SendRoutes } from '../../SendCommon'
+import { SendFormFields } from '../../SendCommon'
 
 type AmountFieldName = SendFormFields.FiatAmount | SendFormFields.AmountCryptoPrecision
 
@@ -32,7 +31,6 @@ type UseSendDetailsReturnType = {
   balancesLoading: boolean
   fieldName: AmountFieldName
   handleInputChange(inputValue: string): void
-  handleNextClick(): void
   handleSendMax(): Promise<void>
   isLoading: boolean
   toggleIsFiat(): void
@@ -44,7 +42,6 @@ type UseSendDetailsReturnType = {
 // i.e. you don't send from an asset, you send from an account containing an asset
 export const useSendDetails = (): UseSendDetailsReturnType => {
   const [fieldName, setFieldName] = useState<AmountFieldName>(SendFormFields.AmountCryptoPrecision)
-  const history = useHistory()
   const { setValue } = useFormContext<SendInput>()
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
     name: SendFormFields.AssetId,
@@ -328,8 +325,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     setValue(SendFormFields.EstimatedFees, estimatedFees)
   }, [estimatedFees, sendMax, setValue])
 
-  const handleNextClick = () => history.push(SendRoutes.Confirm)
-
   const handleSendMax = useCallback(async () => {
     setValue(SendFormFields.SendMax, true)
     // Clear existing amount errors.
@@ -412,7 +407,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance: userCurrencyBalance,
-    handleNextClick,
     handleSendMax,
     handleInputChange,
     isLoading: isEstimatedFormFeesLoading,

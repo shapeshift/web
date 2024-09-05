@@ -20,6 +20,7 @@ import { SendFormFields, SendRoutes } from './SendCommon'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
 import { Details } from './views/Details'
+import { Status } from './views/Status'
 
 export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.AccountId]: AccountId
@@ -37,6 +38,7 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.SendMax]: boolean
   [SendFormFields.VanityAddress]: string
   [SendFormFields.CustomNonce]?: string
+  [SendFormFields.TxHash]?: string
 }
 
 const formStyle = { height: '100%' }
@@ -67,8 +69,19 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       amountCryptoPrecision: '',
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
+      txHash: '',
     },
   })
+
+  const handleSubmit = useCallback(
+    async (data: SendInput) => {
+      const txHash = await handleFormSend(data)
+      if (!txHash) return
+      methods.setValue(SendFormFields.TxHash, txHash)
+      history.push(SendRoutes.Status)
+    },
+    [handleFormSend, history, methods],
+  )
 
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
@@ -141,7 +154,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <form
         style={formStyle}
-        onSubmit={methods.handleSubmit(handleFormSend)}
+        onSubmit={methods.handleSubmit(handleSubmit)}
         onKeyDown={checkKeyDown}
       >
         <AnimatePresence mode='wait' initial={false}>
@@ -164,6 +177,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             </Route>
             <Route path={SendRoutes.Confirm}>
               <Confirm />
+            </Route>
+            <Route path={SendRoutes.Status}>
+              <Status />
             </Route>
             <Redirect exact from='/' to={SendRoutes.Select} />
           </Switch>

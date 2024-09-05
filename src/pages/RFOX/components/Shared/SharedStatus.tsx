@@ -19,9 +19,10 @@ type SharedStatusProps = {
   body: SharedBodyContent | null
   txLink?: string
   onBack?: () => void
+  onClose?: () => void
 }
 
-export const SharedStatus: React.FC<SharedStatusProps> = ({ body, txLink, onBack }) => {
+export const SharedStatus: React.FC<SharedStatusProps> = ({ body, txLink, onBack, onClose }) => {
   const translate = useTranslate()
 
   return (
@@ -49,9 +50,16 @@ export const SharedStatus: React.FC<SharedStatusProps> = ({ body, txLink, onBack
         <Button as={Link} href={txLink} size='lg' variant='ghost' isExternal>
           {translate('trade.viewTransaction')}
         </Button>
-        <Button size='lg' colorScheme='blue' onClick={onBack}>
-          {translate('common.goBack')}
-        </Button>
+        {onBack && (
+          <Button size='lg' colorScheme='blue' onClick={onBack}>
+            {translate('common.goBack')}
+          </Button>
+        )}
+        {onClose && (
+          <Button size='lg' variant='outline' onClick={onClose}>
+            {translate('common.close')}
+          </Button>
+        )}
       </CardFooter>
     </SlideTransition>
   )

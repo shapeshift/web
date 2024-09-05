@@ -22,6 +22,7 @@ import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
+import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -176,18 +177,30 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   ])
 
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (status && status !== TxStatus.Pending && dispatch) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (confirmedTransaction?.fee)
+          return fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
+        return '0'
+      })()
+
       dispatch({
         type: FoxFarmingWithdrawActionType.SET_WITHDRAW,
         payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
-            : '0',
+          txStatus: status === TxStatus.Confirmed ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision,
         },
       })
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    status,
+  ])
 
   useEffect(() => {
     if (!opportunity) return

@@ -149,7 +149,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   const status = useMemo(() => {
     // SAFE Pending Tx
     if (isPendingSafeTx) {
-      return TxStatus.Confirmed
+      return TxStatus.Pending
     }
 
     // SAFE Success Tx

@@ -146,15 +146,24 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
 
   const txLink = useMemo(
     () =>
-      getTxLink({
-        txId,
-        defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
-        isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
-        accountId: confirmedQuote.stakingAssetAccountId,
-      }),
+      maybeSafeTx?.transaction?.transactionHash
+        ? getTxLink({
+            txId: maybeSafeTx.transaction.transactionHash,
+            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+            accountId: confirmedQuote.stakingAssetAccountId,
+            // on-chain Tx
+            isSafeTxHash: false,
+          })
+        : getTxLink({
+            txId,
+            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+            accountId: confirmedQuote.stakingAssetAccountId,
+            isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+          }),
     [
       confirmedQuote.stakingAssetAccountId,
       maybeSafeTx?.isSafeTxHash,
+      maybeSafeTx?.transaction?.transactionHash,
       stakingAsset?.explorerTxLink,
       txId,
     ],

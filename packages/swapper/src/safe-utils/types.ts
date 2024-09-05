@@ -3,6 +3,8 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 export type SafeTxInfo = {
   transaction: SafeMultisigTransactionSuccess | null
   isSafeTxHash: boolean
+  isQueuedSafeTx: boolean
+  isExecutedSafeTx: boolean
 }
 
 type SafeMultisigConfirmationResponse = {

@@ -91,7 +91,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     accountId,
   })
 
-  const isPendingSafeTx = useMemo(
+  const isQueuedSafeTx = useMemo(
     () =>
       maybeSafeTx?.isSafeTxHash &&
       !maybeSafeTx.transaction?.transactionHash &&
@@ -148,7 +148,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   const status = useMemo(() => {
     // SAFE Pending Tx
-    if (isPendingSafeTx) {
+    if (isQueuedSafeTx) {
       return TxStatus.Pending
     }
 
@@ -158,7 +158,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     }
 
     return confirmedTransaction?.status
-  }, [confirmedTransaction?.status, isPendingSafeTx, maybeSafeTx?.transaction?.transactionHash])
+  }, [confirmedTransaction?.status, isQueuedSafeTx, maybeSafeTx?.transaction?.transactionHash])
 
   useEffect(() => {
     if (status && status !== TxStatus.Pending) {
@@ -227,7 +227,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   ])
 
   const statusText = useMemo(() => {
-    if (isPendingSafeTx)
+    if (isQueuedSafeTx)
       return translate('common.safeProposalQueued', {
         currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
         confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
@@ -239,7 +239,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         : 'defi.transactionComplete',
     )
   }, [
-    isPendingSafeTx,
+    isQueuedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     state.txStatus,

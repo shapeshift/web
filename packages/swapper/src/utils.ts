@@ -186,7 +186,7 @@ export const checkSafeTransactionStatus = async ({
     }
   | undefined
 > => {
-  const { transaction } = await fetchSafeTransactionInfo({
+  const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
     accountId,
     fetchIsSmartContractAddressQuery,
     safeTxHash: txHash,
@@ -195,17 +195,13 @@ export const checkSafeTransactionStatus = async ({
   if (!transaction) return
 
   // SAFE proposal queued, but not executed on-chain yet
-  if (
-    !transaction.transactionHash &&
-    transaction.confirmations &&
-    transaction.confirmations.length <= transaction.confirmationsRequired
-  ) {
+  if (isQueuedSafeTx) {
     return {
       status: TxStatus.Pending,
       message: [
         'common.safeProposalQueued',
         {
-          currentConfirmations: transaction.confirmations.length,
+          currentConfirmations: transaction.confirmations?.length,
           confirmationsRequired: transaction.confirmationsRequired,
         },
       ],
@@ -214,7 +210,7 @@ export const checkSafeTransactionStatus = async ({
   }
 
   // Transaction executed on-chain
-  if (transaction.transactionHash) {
+  if (isExecutedSafeTx) {
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
     const status = evm.getTxStatus(tx)

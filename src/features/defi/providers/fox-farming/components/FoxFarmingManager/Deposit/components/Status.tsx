@@ -2,9 +2,10 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -20,6 +21,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -100,21 +102,102 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!(state?.txid && accountId && accountAddress)) return ''
     return serializeTxIndex(accountId, state.txid, accountAddress)
   }, [state?.txid, accountAddress, accountId])
+
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        statusText: StatusTextEnum.pending,
+        status: TxStatus.Pending,
+        statusBody: translate('common.safeProposalQueued', {
+          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
+          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+        }),
+        statusBg: 'transparent',
+      }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.deposit.status.success', {
+          opportunity: foxFarmingOpportunity?.opportunityName,
+        }),
+        statusBg: 'green.500',
+      }
+
+    switch (state?.deposit.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.success', {
+            opportunity: foxFarmingOpportunity?.opportunityName,
+          }),
+          statusBg: 'green.500',
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.failed'),
+          statusBg: 'red.500',
+        }
+      default:
+        return {
+          statusIcon: null,
+          statusText: StatusTextEnum.pending,
+          status: TxStatus.Pending,
+          statusBody: translate('modals.deposit.status.pending'),
+          statusBg: 'transparent',
+        }
+    }
+  }, [
+    foxFarmingOpportunity?.opportunityName,
+    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
+    state?.deposit.txStatus,
+    translate,
+  ])
+
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (status !== TxStatus.Pending && dispatch) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (confirmedTransaction?.fee)
+          return fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
+        return '0'
+      })()
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
-            : '0',
+          txStatus: status === TxStatus.Confirmed ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision,
         },
       })
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    status,
+  ])
 
   useEffect(() => {
     if (!foxFarmingOpportunity) return
@@ -140,66 +223,34 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     state?.deposit.txStatus,
   ])
 
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return getTxLink({
+        txId: maybeSafeTx.transaction.transactionHash,
+        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+        accountId,
+        // on-chain Tx
+        isSafeTxHash: false,
+      })
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
+
   if (!state || !dispatch || !foxFarmingOpportunity) return null
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
-      return {
-        statusIcon: null,
-        statusText: StatusTextEnum.pending,
-        statusBody: translate('modals.deposit.status.pending'),
-        statusBg: 'transparent',
-      }
-
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash)
-      return {
-        statusText: StatusTextEnum.success,
-        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-        statusBody: translate('modals.deposit.status.success', {
-          opportunity: foxFarmingOpportunity?.opportunityName,
-        }),
-        statusBg: 'green.500',
-      }
-
-    switch (state.deposit.txStatus) {
-      case 'success':
-        return {
-          statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.success', {
-            opportunity: foxFarmingOpportunity?.opportunityName,
-          }),
-          statusBg: 'green.500',
-        }
-      case 'failed':
-        return {
-          statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.failed'),
-          statusBg: 'red.500',
-        }
-      default:
-        return {
-          statusIcon: null,
-          statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
-          statusBg: 'transparent',
-        }
-    }
-  })()
-
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.deposit.txStatus)}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
+      loading={![TxStatus.Confirmed, TxStatus.Failed].includes(status)}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}
@@ -212,7 +263,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
+                status === TxStatus.Pending
                   ? 'modals.confirm.amountToDeposit'
                   : 'modals.confirm.amountDeposited'
               }
@@ -276,12 +327,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

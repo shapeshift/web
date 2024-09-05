@@ -52,7 +52,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     [serializedTxIndex],
   )
 
-  const { data: safeTx } = useSafeTxQuery({
+  const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
     accountId,
   })
@@ -63,10 +63,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       defaultExplorerBaseUrl: asset.explorerTxLink,
       tradeId: txId,
       name: SwapperName.ArbitrumBridge,
-      isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
       accountId: accountId ?? undefined,
     })
-  }, [accountId, asset, safeTx?.isSafeTxHash, txId])
+  }, [accountId, asset, maybeSafeTx?.isSafeTxHash, txId])
 
   const handleSignTx = useCallback(async () => {
     if (!isActionable) return

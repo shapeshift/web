@@ -309,7 +309,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 
-  const { data: safeTx } = useSafeTxQuery({
+  const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId ?? undefined,
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
   })
@@ -320,10 +320,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
         txId: txId ?? '',
         name: SwapperName.Thorchain,
-        isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+        isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
         accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
       }),
-    [isRuneTx, poolAssetAccountId, runeAccountId, safeTx?.isSafeTxHash, txId],
+    [isRuneTx, poolAssetAccountId, runeAccountId, maybeSafeTx?.isSafeTxHash, txId],
   )
 
   const handleSignTx = useCallback(async () => {

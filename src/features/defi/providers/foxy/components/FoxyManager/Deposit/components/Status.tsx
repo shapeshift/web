@@ -55,8 +55,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         status: TxStatus.Pending,
         statusText: StatusTextEnum.pending,
         statusBody: translate('common.safeProposalQueued', {
-          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
-          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+          currentConfirmations: maybeSafeTx.transaction?.confirmations?.length,
+          confirmationsRequired: maybeSafeTx.transaction?.confirmationsRequired,
         }),
         statusBg: 'transparent',
       }
@@ -104,8 +104,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [
     asset?.icon,
     asset.name,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     maybeSafeTx?.transaction?.transactionHash,
     state?.deposit.txStatus,

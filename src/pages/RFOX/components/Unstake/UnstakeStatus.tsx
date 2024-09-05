@@ -85,8 +85,8 @@ export const UnstakeStatus: React.FC<UnstakeRouteProps & UnstakeStatusProps> = (
       }
     }
 
-    if (maybeSafeTx?.isExecutedSafeTx) {
-      setUnstakeTxid(maybeSafeTx?.transaction?.transactionHash)
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
+      setUnstakeTxid(maybeSafeTx.transaction.transactionHash)
     }
 
     switch (txStatus) {

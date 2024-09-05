@@ -85,7 +85,7 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
       }
     }
 
-    if (maybeSafeTx.isExecutedSafeTx) {
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
       setClaimTxid(maybeSafeTx.transaction.transactionHash)
     }
 

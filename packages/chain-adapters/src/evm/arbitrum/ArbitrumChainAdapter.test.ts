@@ -467,7 +467,7 @@ describe('ArbitrumChainAdapter', () => {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(arbitrumChainId).chainReference),
-          data: '',
+          data: '0x',
           gasLimit: toHex(BigInt(gasLimit)),
           gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',

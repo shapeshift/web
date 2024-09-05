@@ -1147,6 +1147,9 @@
         "average": "Average",
         "fast": "Fast",
         "enterAmount": "Enter Amount"
+      },
+      "status": {
+        "pendingBody": "Sending %{amount} %{symbol}"
       }
     },
     "receive": {

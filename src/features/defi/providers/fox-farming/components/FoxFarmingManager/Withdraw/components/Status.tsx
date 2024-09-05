@@ -2,9 +2,10 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -20,6 +21,7 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -104,6 +106,75 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    // Safe Pending Tx
+    if (
+      maybeSafeTx?.isSafeTxHash &&
+      !maybeSafeTx.transaction?.transactionHash &&
+      maybeSafeTx.transaction?.confirmations &&
+      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
+    )
+      return {
+        statusIcon: null,
+        status: TxStatus.Pending,
+        statusText: StatusTextEnum.pending,
+        statusBody: translate('common.safeProposalQueued', {
+          currentConfirmations: maybeSafeTx.transaction.confirmations.length,
+          confirmationsRequired: maybeSafeTx.transaction.confirmationsRequired,
+        }),
+        statusBg: 'transparent',
+      }
+
+    // Safe Success Tx
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: opportunity?.opportunityName,
+        }),
+        statusBg: 'green.500',
+      }
+
+    switch (state?.withdraw.txStatus) {
+      case 'success':
+        return {
+          statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.withdraw.status.success', {
+            opportunity: opportunity?.opportunityName,
+          }),
+          statusBg: 'green.500',
+        }
+      case 'failed':
+        return {
+          statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.withdraw.status.failed'),
+          statusBg: 'red.500',
+        }
+      default:
+        return {
+          statusIcon: null,
+          status: TxStatus.Pending,
+          statusText: StatusTextEnum.pending,
+          statusBody: translate('modals.withdraw.status.pending'),
+          statusBg: 'transparent',
+        }
+    }
+  }, [
+    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx?.transaction?.transactionHash,
+    maybeSafeTx?.transaction?.confirmations,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    opportunity?.opportunityName,
+    state?.withdraw.txStatus,
+    translate,
+  ])
+
   useEffect(() => {
     if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
       dispatch({
@@ -140,66 +211,34 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     state?.withdraw.txStatus,
   ])
 
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    if (maybeSafeTx?.transaction?.transactionHash)
+      return getTxLink({
+        txId: maybeSafeTx.transaction.transactionHash,
+        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+        accountId,
+        // on-chain Tx
+        isSafeTxHash: false,
+      })
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
+
   if (!state || !dispatch || !opportunity) return null
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    // Safe Pending Tx
-    if (
-      maybeSafeTx?.isSafeTxHash &&
-      !maybeSafeTx.transaction?.transactionHash &&
-      maybeSafeTx.transaction?.confirmations &&
-      maybeSafeTx.transaction.confirmations.length <= maybeSafeTx.transaction.confirmationsRequired
-    )
-      return {
-        statusIcon: null,
-        statusText: StatusTextEnum.pending,
-        statusBody: translate('modals.withdraw.status.pending'),
-        statusBg: 'transparent',
-      }
-
-    // Safe Success Tx
-    if (maybeSafeTx?.transaction?.transactionHash)
-      return {
-        statusText: StatusTextEnum.success,
-        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-        statusBody: translate('modals.withdraw.status.success', {
-          opportunity: opportunity?.opportunityName,
-        }),
-        statusBg: 'green.500',
-      }
-
-    switch (state.withdraw.txStatus) {
-      case 'success':
-        return {
-          statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.withdraw.status.success', {
-            opportunity: opportunity?.opportunityName,
-          }),
-          statusBg: 'green.500',
-        }
-      case 'failed':
-        return {
-          statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.withdraw.status.failed'),
-          statusBg: 'red.500',
-        }
-      default:
-        return {
-          statusIcon: null,
-          statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.withdraw.status.pending'),
-          statusBg: 'transparent',
-        }
-    }
-  })()
-
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
+      loading={![TxStatus.Confirmed, TxStatus.Failed].includes(status)}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}
@@ -270,12 +309,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${asset.explorerTxLink}/${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

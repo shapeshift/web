@@ -2,6 +2,7 @@ import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -154,9 +155,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           return
         }
 
-        if (!wallet) {
-          return
-        }
+        if (!wallet || isLedger(wallet)) return
 
         let chainIds = supportedChains.filter(chainId => {
           return walletSupportsChain({

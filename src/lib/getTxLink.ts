@@ -90,19 +90,14 @@ export const getTxLink = ({
     return `https://app.safe.global/transactions/tx?id=multisig_${safeAddress}_${id}&safe=${shortname}:${safeAddress}`
   }
 
-  // Executed SAFE Tx, return good ol' Tx link
-  if (!isSafeTxHash) {
-    switch (name) {
-      case Dex.Thor:
-      case SwapperName.Thorchain:
-      case THORCHAIN_STREAM_SWAP_SOURCE:
-      case THORCHAIN_LONGTAIL_SWAP_SOURCE:
-      case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
-        return `${baseUrl}${id.replace(/^0x/, '')}`
-      default:
-        return `${baseUrl}${id}`
-    }
+  switch (name) {
+    case Dex.Thor:
+    case SwapperName.Thorchain:
+    case THORCHAIN_STREAM_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_SWAP_SOURCE:
+    case THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE:
+      return `${baseUrl}${(maybeSafeTx?.transaction?.transactionHash ?? '').replace(/^0x/, '')}`
+    default:
+      return `${baseUrl}${maybeSafeTx?.transaction?.transactionHash ?? ''}`
   }
-
-  return ''
 }

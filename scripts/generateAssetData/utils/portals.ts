@@ -202,6 +202,8 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
                 return 'BNB'
               case 'WMATIC':
                 return 'MATIC'
+              case 'WPOL':
+                return 'POL'
               case 'WAVAX':
                 return 'AVAX'
               default:

@@ -14,13 +14,11 @@ import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
 import { selectInboundAddressData, selectIsTradingActive } from 'react-queries/selectors'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { getEthersV5Provider } from 'lib/ethersProviderSingleton'
 import { assertGetChainAdapter } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { viemClientByChainId } from 'lib/viem-client'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
 import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
@@ -72,8 +70,6 @@ export const swapperApi = createApi({
           assertGetEvmChainAdapter,
           assertGetUtxoChainAdapter,
           assertGetCosmosSdkChainAdapter,
-          getEthersV5Provider,
-          viemClientByChainId,
           config: getConfig(),
         }
 

@@ -11,7 +11,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip/dist/constants'
 import isNil from 'lodash/isNil'
 import React, { useCallback, useEffect, useMemo } from 'react'
@@ -23,6 +23,7 @@ import { useHistory } from 'react-router-dom'
 import { AccountCard } from 'components/AccountCard'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { DialogBackButton } from 'components/Modal/components/DialogBackButton'
 import { DialogBody } from 'components/Modal/components/DialogBody'
 import { DialogFooter } from 'components/Modal/components/DialogFooter'
@@ -35,6 +36,7 @@ import { TokenRow } from 'components/TokenRow/TokenRow'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -54,7 +56,8 @@ const MAX_COSMOS_SDK_MEMO_LENGTH = 256
 const controllerRules = {
   required: true,
 }
-const accountDropdownButtonProps = { width: 'full', mb: 2, variant: 'solid' }
+const accountDropdownBoxProps = { width: '100%', my: 0, pl: 0 }
+const accountDropdownButtonProps = { width: 'full', variant: 'solid' }
 const formHelperTextHoverStyle = { color: 'gray.400', transition: '.2s color ease' }
 
 export const Details = () => {
@@ -220,12 +223,20 @@ export const Details = () => {
         </DialogTitle>
       </DialogHeader>
       <DialogBody>
-        <AccountDropdown
-          assetId={asset.assetId}
-          defaultAccountId={accountId}
-          onChange={handleAccountChange}
-          buttonProps={accountDropdownButtonProps}
-        />
+        <Box mb={4}>
+          <InlineCopyButton
+            isDisabled={!accountId || isUtxoAccountId(accountId)}
+            value={accountId ? fromAccountId(accountId).account : ''}
+          >
+            <AccountDropdown
+              assetId={asset.assetId}
+              defaultAccountId={accountId}
+              onChange={handleAccountChange}
+              boxProps={accountDropdownBoxProps}
+              buttonProps={accountDropdownButtonProps}
+            />
+          </InlineCopyButton>
+        </Box>
         <AccountCard
           asset={asset}
           isLoaded={!balancesLoading}

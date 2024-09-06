@@ -27,7 +27,7 @@ import {
  */
 const MtPelerinSymbolToAssetIds: Record<string, AssetId[]> = {
   ETH: [ethAssetId, optimismAssetId, arbitrumAssetId, baseAssetId],
-  MATIC: [polygonAssetId],
+  MATIC: [polygonAssetId], // TODO: check that MtPelerin updates this to POL upstream
   XDAI: [gnosisAssetId],
   BTC: [btcAssetId],
   BNB: [bscAssetId],

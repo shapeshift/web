@@ -206,6 +206,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     <Overview
       accountId={accountId}
       onAccountIdChange={handleAccountIdChange}
+      positionAddress={accountId ? fromAccountId(accountId).account : undefined}
       asset={rewardAsset}
       name='FOX Yieldy'
       opportunityFiatBalance={fiatAmountAvailable.toFixed(2)}

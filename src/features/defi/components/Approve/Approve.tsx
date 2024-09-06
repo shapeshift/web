@@ -36,9 +36,8 @@ type ApproveProps = {
   fiatEstimatedGasFee: string
   isExactAllowance?: boolean
   isApproved?: boolean
-  learnMoreLink?: string
   loading: boolean
-  loadingText?: string
+  isReset?: boolean
   spenderContractAddress: string
   preFooter?: React.ReactNode
   onToggle?(): void
@@ -59,9 +58,8 @@ export const Approve = ({
   icons,
   isApproved,
   isExactAllowance,
-  learnMoreLink,
   loading,
-  loadingText,
+  isReset,
   onCancel: handleCancel,
   onConfirm: handleConfirm,
   onToggle: handleToggle,
@@ -84,8 +82,25 @@ export const Approve = ({
   )
 
   const approveHeaderTranslation: TextPropTypes['translation'] = useMemo(
-    () => ['modals.approve.header', { asset: asset.name, spenderName }],
-    [asset.name, spenderName],
+    () => [
+      isReset ? 'modals.approve.resetHeader' : 'modals.approve.header',
+      { asset: asset.name, spenderName },
+    ],
+    [asset.name, isReset, spenderName],
+  )
+
+  const approveCopy = useMemo(() => {
+    if (isReset) return 'common.reset'
+    return !isApproved ? 'common.approve' : 'modals.approve.approved'
+  }, [isApproved, isReset])
+
+  const learnMoreLink = useMemo(
+    () =>
+      isReset
+        ? // See https://github.com/tethercoin/USDT/blob/c3e3caa95c30e74a0f4f0d616e13ff97daa02191/TetherToken.sol#L204
+          'https://docs.google.com/document/d/1YLPtQxZu1UAvO9cZ1O2RPXBbT0mooh4DYKjA_jp-RLM/'
+        : 'https://shapeshift.zendesk.com/hc/en-us/articles/360018501700',
+    [isReset],
   )
 
   const handleApproveClick = useCallback(
@@ -137,7 +152,7 @@ export const Approve = ({
         </Stack>
         {/* Because isExactAllowance is not used everywhere yet, we need to make it optional and
         check if it is defined because it's a boolean */}
-        {!isUndefined(isExactAllowance) && (
+        {!isUndefined(isExactAllowance) && !isReset && (
           <Row justifyContent='space-between'>
             <Row.Label display='flex' alignItems='center'>
               <Text color='text.subtle' translation='trade.allowance' />
@@ -171,9 +186,9 @@ export const Approve = ({
             width='full'
             data-test='defi-modal-approve-button'
             isLoading={loading}
-            loadingText={loadingText}
+            loadingText={translate(isReset ? 'common.reset' : 'common.approve')}
           >
-            {translate(!isApproved ? 'common.approve' : 'modals.approve.approved')}
+            {translate(approveCopy)}
           </Button>
           <Button
             onClick={handleCancel}

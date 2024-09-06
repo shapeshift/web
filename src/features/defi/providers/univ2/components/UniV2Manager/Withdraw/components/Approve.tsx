@@ -1,8 +1,8 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -224,10 +224,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
         .times(feeMarketData.price)
         .toFixed(2)}
       loading={state.loading}
-      loadingText={translate('common.approve')}
       preFooter={preFooter}
       providerIcon={getMetadataForProvider(lpOpportunity.provider)?.icon ?? ''}
-      learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
       onCancel={handleCancel}
       onConfirm={handleApprove}
       spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS}

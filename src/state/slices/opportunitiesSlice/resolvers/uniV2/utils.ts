@@ -1,16 +1,18 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
+import {
+  ContractType,
+  getOrCreateContractByType,
+  viemEthMainnetClient,
+} from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
-import type { IUniswapV2Pair } from 'contracts/abis/IUniswapV2Pair'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
 import memoize from 'lodash/memoize'
 import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { viemEthMainnetClient } from 'lib/viem-client'
 
 import { TRADING_FEE_RATE } from './constants'
 

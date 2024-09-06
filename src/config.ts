@@ -168,6 +168,7 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
+  REACT_APP_FEATURE_MARKETS: bool({ default: false }),
   REACT_APP_PORTALS_BASE_URL: url(),
   REACT_APP_ZERION_BASE_URL: url(),
 }

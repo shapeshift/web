@@ -75,6 +75,8 @@
     "retryQuestion": "Повторить?",
     "transactionFailed": "Ошибка транзакции",
     "transactionFailedBody": "Сбой транзакции",
+    "safeProposalQueued": "Предложение SAFE поставлено в очередь. Подписано %{currentConfirmations} из %{confirmationsRequired}.",
+    "safeProposalExecuted": "Выполнено предложение SAFE.",
     "submitFeedback": "Обратная связь",
     "send": "Отправить",
     "receive": "Получить",
@@ -153,6 +155,7 @@
     "symmetric": "Симметричный",
     "asymmetric": "Асимметричный  (%{assetSymbol})",
     "import": "Импорт",
+    "accountsLoading": "Загрузка аккаунтов",
     "carousel": {
       "next": "Далее",
       "prev": "Предыдущий",
@@ -167,7 +170,8 @@
       "expandRow": "Развернуть ряд"
     },
     "featureDisabled": "Эта функция временно отключена.",
-    "yes": "Да"
+    "yes": "Да",
+    "activeAccount": "Активный аккаунт"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "Вывод инициирован",
         "submitRetryable": "Депозит получен",
         "createRetryableTicket": "Депозит инициирован",
-        "finalizeInboundTransfer": "Вывод средств Получено",
-        "depositEth": "Депозит инициирован"
+        "finalizeInboundTransferDeposit": "Депозит получен",
+        "depositEth": "Депозит инициирован",
+        "executeTransaction": "Клейм"
       },
       "rfox": {
         "stake": "Стейкинг",
@@ -708,6 +713,7 @@
         "out": "Получено исходящих",
         "refund": "Возврат",
         "swapOut": "Полученный обмен",
+        "swap": "Обмен",
         "swapRefund": "Возврат обмена",
         "withdraw": "Вывод Запрошено",
         "withdrawNative": "Вывести",
@@ -771,13 +777,22 @@
     "waitTimeValue": "~5-10 минут",
     "noSupportedAssets": "В портфеле нет поддерживаемых активов.",
     "arbitrum": {
+      "description": "Перевести через Arbitrum",
       "waitWarning": "Нативный мост Arbitrum более надежен, но его использование может занять до недели.",
       "waitCta": "Я понимаю, что пройдет ~7 дней, прежде чем я смогу получить средства в Ethereum",
       "claimCta": "Я понимаю, что после получения средств мне придется отправить еще одну транзакцию с комиссией."
     },
-    "claims": "Клеймы",
+    "claim": "Клейм",
+    "claimReceiveAddress": "Адрес получения клейма",
+    "claimPending": "Жду вашего клейма о",
+    "claimSuccess": "Вы успешно заклеймили.",
+    "claimFailed": "Ошибка при попытке подачи клейма",
     "availableClaims": "Доступно",
-    "pendingClaims": "В ожидании"
+    "noAvailableClaims": "Нет доступных клеймов",
+    "pendingClaims": "В ожидании",
+    "noPendingClaims": "Нет клейма в ожидании ",
+    "availableIn": "Доступно в %{time}",
+    "confirmAndClaim": "Подтвердить и заклеймить"
   },
   "trade": {
     "trade": "Торговля",
@@ -918,7 +933,7 @@
     "numHops": "Эта торговля включает  %{numHops} hops",
     "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
-    "smartContractReceiveAddressDescription": "Мы обнаружили, что вы осуществляете обмен со смарт-контракта, адрес которого может отсутствовать в цепочке назначения. Пожалуйста, проверьте и вручную введите желаемый адрес получателя на %{chainName}",
+    "disableThorNativeSmartContractReceive": "Мы обнаружили, что вы отправляете на адрес смарт-контракта на %{chainName}. В связи с ограничениями THORChain получение %{nativeAssetSymbol} на адрес смарт-контракта не поддерживается. Пожалуйста, введите другой адрес",
     "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "Открыть %{appName} апликацию",
-    "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger."
+    "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger.",
+    "signingDescription": "После открытия приложения на вашем устройстве автоматически появится приглашение к подписи"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

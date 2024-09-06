@@ -1,4 +1,5 @@
-import type { evm, EvmChainId, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { evm, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 
 export const gasFeeData: evm.GasFeeDataEstimate = {
   fast: {

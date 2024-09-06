@@ -1,4 +1,4 @@
-import { RFOX_REWARD_RATE } from 'contracts/constants'
+import { RFOX_REWARD_RATE } from '@shapeshiftoss/contracts'
 import { bn } from 'lib/bignumber/bignumber'
 
 import type { AbiStakingInfo, CurrentEpochMetadata, StakingInfo } from '../types'

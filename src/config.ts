@@ -2,7 +2,6 @@ import * as envalid from 'envalid'
 import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
-import type { Address } from 'viem'
 
 import env from './env'
 
@@ -136,7 +135,6 @@ const validators = {
     default: 'https://api-shapeshift.1inch.io/v5.0',
   }),
   REACT_APP_SENTRY_DSN_URL: url(),
-  REACT_APP_RFOX_PROXY_CONTRACT_ADDRESS: str<Address>(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY: str(),
   REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY: str(),

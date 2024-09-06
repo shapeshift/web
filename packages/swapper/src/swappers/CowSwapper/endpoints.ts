@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'

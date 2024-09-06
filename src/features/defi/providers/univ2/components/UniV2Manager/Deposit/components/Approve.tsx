@@ -1,8 +1,8 @@
 import { Flex, Text, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS } from 'contracts/constants'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
 import type {
@@ -321,10 +321,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                   .toFixed(2)}
                 isApproved={isAsset0AllowanceGranted}
                 loading={approve0Loading}
-                loadingText={translate('common.approve')}
                 preFooter={preFooter}
                 providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
-                learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={handleApproveCancel}
                 // we need to pass an arg here, so we need an anonymous function wrapper
                 // eslint-disable-next-line react-memo/require-usememo
@@ -352,10 +350,8 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
                   .toFixed(2)}
                 isApproved={isAsset1AllowanceGranted}
                 loading={approve1Loading}
-                loadingText={translate('common.approve')}
                 preFooter={preFooter}
                 providerIcon={getMetadataForProvider(lpOpportunity!.provider)?.icon ?? ''}
-                learnMoreLink='https://shapeshift.zendesk.com/hc/en-us/articles/360018501700'
                 onCancel={handleApproveCancel}
                 // we need to pass an arg here, so we need an anonymous function wrapper
                 // eslint-disable-next-line react-memo/require-usememo
@@ -377,7 +373,6 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       hasEnoughBalanceForGas,
       feeMarketData.price,
       approve0Loading,
-      translate,
       preFooter,
       handleApproveCancel,
       asset1ContractAddress,

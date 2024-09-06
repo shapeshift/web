@@ -20,6 +20,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^",
     "bech32": "^2.0.0",
     "coinselect": "^3.1.13",
     "multicoin-address-validator": "^0.5.12",

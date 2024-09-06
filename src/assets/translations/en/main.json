@@ -840,7 +840,6 @@
     "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
-    "needPermission": "needs your permission to use your %{symbol}",
     "whyNeedThis": "Why do I need to do this?",
     "estimatedGasFee": "Estimated Gas Fee",
     "receiveInclFee": "Receive (incl. fees)",
@@ -1227,6 +1226,7 @@
     },
     "approve": {
       "header": "Allow %{spenderName} to use your %{asset}",
+      "resetHeader": "Reset %{spenderName} allowance for %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
@@ -1469,7 +1469,8 @@
         "connect": "Connect"
       },
       "verify": {
-        "confirmOnDevice": "Confirm on device"
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
       },
       "success": {
         "header": "Ledger Connected",

@@ -1,19 +1,10 @@
 import { CHAIN_NAMESPACE, type ChainId } from '@shapeshiftoss/caip'
-import type {
-  ContractInteraction,
-  evm,
-  EvmChainAdapter,
-  EvmChainId,
-  SignTx,
-} from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
+import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
+import { evm, evmChainIds } from '@shapeshiftoss/chain-adapters'
+import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { Fees } from '@shapeshiftoss/utils/dist/evm'
-import { getFees } from '@shapeshiftoss/utils/dist/evm'
-import { getOrCreateContractByType } from 'contracts/contractManager'
-import { ContractType } from 'contracts/types'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import type { PartialFields } from 'lib/types'
@@ -95,12 +86,12 @@ export const isGetFeesWithWalletEIP1559SupportArgs = (
 
 export const getFeesWithWalletEIP1559Support = async (
   args: GetFeesWithWalletEip1559SupportArgs,
-): Promise<Fees> => {
+): Promise<evm.Fees> => {
   const { wallet, ...rest } = args
 
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  return getFees({ ...rest, supportsEIP1559 })
+  return evm.getFees({ ...rest, supportsEIP1559 })
 }
 
 export const createBuildCustomTxInput = async (
@@ -114,7 +105,7 @@ export const createBuildCustomApiTxInput = async (
   args: CreateBuildCustomApiTxInputArgs,
 ): Promise<evm.BuildCustomApiTxInput> => {
   const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await getFees({ ...rest, from, supportsEIP1559 })
+  const fees = await evm.getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 

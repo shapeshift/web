@@ -485,7 +485,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               fiatAmount={amountUserCurrency}
             />
             <FormDivider />
-            <AddressSelection onRuneAddressChange={handleRuneAddressChange} />
+            <AddressSelection
+              selectedAddress={runeAddress}
+              onRuneAddressChange={handleRuneAddressChange}
+            />
             <Collapse in={collapseIn}>
               {stakingAssetAccountId && (
                 <StakeSummary

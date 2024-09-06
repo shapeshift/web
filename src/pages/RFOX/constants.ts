@@ -1,8 +1,10 @@
-import { foxStakingV1Abi } from 'contracts/abis/FoxStakingV1'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from 'contracts/constants'
+import {
+  foxStakingV1Abi,
+  RFOX_PROXY_CONTRACT_ADDRESS,
+  viemClientByNetworkId,
+} from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
-import { viemClientByNetworkId } from 'lib/viem-client'
 
 export const setRuneAddressEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'SetRuneAddress' })
 export const stakeEvent = getAbiItem({ abi: foxStakingV1Abi, name: 'Stake' })

@@ -6,7 +6,8 @@ import {
   fromAccountId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId, type Transaction } from '@shapeshiftoss/chain-adapters'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import React, { useCallback, useEffect, useState } from 'react'

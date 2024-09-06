@@ -81,7 +81,6 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
   )
 
   const bodyContent: BodyContent | null = useMemo(() => {
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,

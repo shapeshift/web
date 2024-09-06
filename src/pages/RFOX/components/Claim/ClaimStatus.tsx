@@ -66,7 +66,6 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!claimAsset) return null
 
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,

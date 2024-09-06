@@ -99,7 +99,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx)
       return {
         statusIcon: null,

@@ -63,7 +63,6 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null
 
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,

@@ -58,7 +58,6 @@ export const Status: React.FC = () => {
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!asset) return null
 
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx) {
       return {
         key: TxStatus.Pending,
@@ -78,6 +77,21 @@ export const Status: React.FC = () => {
         ],
 
         element: <CircularProgress size='75px' />,
+      }
+    }
+
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      return {
+        key: TxStatus.Confirmed,
+        title: 'common.success',
+        body: [
+          'modals.send.youHaveSent',
+          {
+            amount: amountCryptoPrecision,
+            symbol: asset.symbol,
+          },
+        ],
+        element: <CheckCircleIcon color='green.500' boxSize='75px' />,
       }
     }
 
@@ -122,6 +136,7 @@ export const Status: React.FC = () => {
   }, [
     asset,
     maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
     txStatus,

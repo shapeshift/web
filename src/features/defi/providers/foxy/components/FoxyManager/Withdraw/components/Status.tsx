@@ -59,7 +59,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [browserHistory])
 
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
-    // Safe Pending Tx
     if (maybeSafeTx?.isQueuedSafeTx)
       return {
         statusIcon: <AssetIcon size='xs' src={underlyingAsset?.icon} justifyContent='center' />,

@@ -20,7 +20,7 @@ export const useFormSend = () => {
   const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const handleFormSend = useCallback(
-    async (sendInput: SendInput): Promise<string> => {
+    async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
@@ -33,6 +33,8 @@ export const useFormSend = () => {
         })
 
         setTimeout(() => {
+          if (!toastOnBroadcast) return
+
           toast({
             title: translate('modals.send.sent', { asset: asset.name }),
             description: (

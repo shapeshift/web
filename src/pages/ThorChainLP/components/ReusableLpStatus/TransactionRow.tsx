@@ -314,17 +314,36 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
   })
 
-  const txIdLink = useMemo(
-    () =>
-      getTxLink({
+  const txIdLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!txId) return
+
+    if (!isRuneTx && maybeSafeTx?.transaction?.transactionHash)
+      return getTxLink({
+        txId: maybeSafeTx.transaction.transactionHash,
         defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-        txId: txId ?? '',
-        name: SwapperName.Thorchain,
-        isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
-        accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
-      }),
-    [isRuneTx, poolAssetAccountId, runeAccountId, maybeSafeTx?.isSafeTxHash, txId],
-  )
+        accountId: poolAssetAccountId,
+        // on-chain Tx
+        isSafeTxHash: false,
+      })
+
+    return getTxLink({
+      txId,
+      defaultExplorerBaseUrl: maybeSafeTx?.isSafeTxHash
+        ? feeAsset.explorerTxLink
+        : 'https://viewblock.io/thorchain/tx/',
+      accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
+      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+    })
+  }, [
+    feeAsset,
+    isRuneTx,
+    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx?.transaction?.transactionHash,
+    poolAssetAccountId,
+    runeAccountId,
+    txId,
+  ])
 
   const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)

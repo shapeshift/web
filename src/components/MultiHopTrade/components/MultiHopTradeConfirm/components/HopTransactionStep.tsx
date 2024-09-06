@@ -119,7 +119,8 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           txId: buyTxHash,
-          maybeSafeTx,
+          // Assume buy TxHash can never be a user SAFE hash
+          maybeSafeTx: undefined,
           accountId: sellAssetAccountId,
         }),
         txHash: buyTxHash,

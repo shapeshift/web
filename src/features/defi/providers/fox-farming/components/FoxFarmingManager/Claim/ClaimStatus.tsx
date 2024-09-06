@@ -192,28 +192,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     if (!feeAsset) return
     if (!txid) return
 
-    if (maybeSafeTx?.transaction?.transactionHash)
-      return getTxLink({
-        txId: maybeSafeTx.transaction.transactionHash,
-        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-        accountId,
-        // on-chain Tx
-        isSafeTxHash: false,
-      })
-
     return getTxLink({
       txId: txid,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       accountId,
-      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+      maybeSafeTx,
     })
-  }, [
-    accountId,
-    feeAsset,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.transactionHash,
-    txid,
-  ])
+  }, [accountId, feeAsset, maybeSafeTx, txid])
 
   const statusText = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)

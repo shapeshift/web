@@ -119,8 +119,7 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           txId: buyTxHash,
-          // Assume buy TxHash can never be a user SAFE hash
-          isSafeTxHash: false,
+          maybeSafeTx,
           accountId: sellAssetAccountId,
         }),
         txHash: buyTxHash,
@@ -133,7 +132,7 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           accountId: sellAssetAccountId,
-          isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+          maybeSafeTx,
           ...(tradeQuoteStep.source === SwapperName.CowSwap
             ? {
                 tradeId: sellTxHash,
@@ -149,7 +148,7 @@ export const HopTransactionStep = ({
     return txLinks
   }, [
     buyTxHash,
-    maybeSafeTx?.isSafeTxHash,
+    maybeSafeTx,
     sellAssetAccountId,
     sellTxHash,
     tradeQuoteStep.buyAsset.explorerTxLink,

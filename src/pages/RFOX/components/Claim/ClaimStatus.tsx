@@ -137,27 +137,13 @@ export const ClaimStatus: React.FC<Pick<ClaimRouteProps, 'headerComponent'> & Cl
 
   const txLink = useMemo(
     () =>
-      maybeSafeTx?.transaction?.transactionHash
-        ? getTxLink({
-            txId: maybeSafeTx.transaction.transactionHash,
-            defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '',
-            accountId,
-            // on-chain Tx
-            isSafeTxHash: false,
-          })
-        : getTxLink({
-            txId,
-            defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '',
-            accountId,
-            isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
-          }),
-    [
-      accountId,
-      claimAsset?.explorerTxLink,
-      maybeSafeTx?.isSafeTxHash,
-      maybeSafeTx?.transaction?.transactionHash,
-      txId,
-    ],
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: claimAsset?.explorerTxLink ?? '',
+        accountId,
+        maybeSafeTx,
+      }),
+    [accountId, claimAsset?.explorerTxLink, maybeSafeTx, txId],
   )
 
   return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />

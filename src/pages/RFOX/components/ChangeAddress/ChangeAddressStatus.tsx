@@ -57,27 +57,13 @@ export const ChangeAddressStatus: React.FC<ChangeAddressRouteProps & ChangeAddre
 
   const txLink = useMemo(
     () =>
-      maybeSafeTx?.transaction?.transactionHash
-        ? getTxLink({
-            txId: maybeSafeTx.transaction.transactionHash,
-            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
-            accountId: confirmedQuote.stakingAssetAccountId,
-            // on-chain Tx
-            isSafeTxHash: false,
-          })
-        : getTxLink({
-            txId,
-            defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
-            accountId: confirmedQuote.stakingAssetAccountId,
-            isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
-          }),
-    [
-      confirmedQuote.stakingAssetAccountId,
-      maybeSafeTx?.isSafeTxHash,
-      maybeSafeTx?.transaction?.transactionHash,
-      stakingAsset?.explorerTxLink,
-      txId,
-    ],
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+        accountId: confirmedQuote.stakingAssetAccountId,
+        maybeSafeTx,
+      }),
+    [confirmedQuote.stakingAssetAccountId, maybeSafeTx, stakingAsset?.explorerTxLink, txId],
   )
 
   const bodyContent: BodyContent | null = useMemo(() => {

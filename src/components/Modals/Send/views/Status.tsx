@@ -147,28 +147,13 @@ export const Status: React.FC = () => {
     if (!feeAsset) return
     if (!txHash) return
 
-    if (maybeSafeTx?.transaction?.transactionHash)
-      return getTxLink({
-        txId: maybeSafeTx.transaction.transactionHash,
-        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-        accountId,
-        // on-chain Tx
-        isSafeTxHash: false,
-      })
-
     return getTxLink({
       txId: txHash,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       accountId,
-      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+      maybeSafeTx,
     })
-  }, [
-    accountId,
-    feeAsset,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.transactionHash,
-    txHash,
-  ])
+  }, [accountId, feeAsset, maybeSafeTx, txHash])
 
   return (
     <Card width='full'>

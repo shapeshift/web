@@ -63,10 +63,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       defaultExplorerBaseUrl: asset.explorerTxLink,
       tradeId: txId,
       name: SwapperName.ArbitrumBridge,
-      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+      maybeSafeTx,
       accountId: accountId ?? undefined,
     })
-  }, [accountId, asset, maybeSafeTx?.isSafeTxHash, txId])
+  }, [accountId, asset, maybeSafeTx, txId])
 
   const handleSignTx = useCallback(async () => {
     if (!isActionable) return

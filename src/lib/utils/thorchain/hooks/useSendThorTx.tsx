@@ -4,7 +4,12 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { assertAndProcessMemo, depositWithExpiry, SwapperName } from '@shapeshiftoss/swapper'
+import {
+  assertAndProcessMemo,
+  depositWithExpiry,
+  fetchSafeTransactionInfo,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -15,6 +20,7 @@ import { selectInboundAddressData } from 'react-queries/selectors'
 import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -387,26 +393,36 @@ export const useSendThorTx = ({
       }
     })()
 
+    const maybeSafeTx = await fetchSafeTransactionInfo({
+      safeTxHash: _txId,
+      fetchIsSmartContractAddressQuery,
+      accountId,
+    })
+
     const _txIdLink = getTxLink({
       defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
       txId: _txId ?? '',
       name: SwapperName.Thorchain,
+      maybeSafeTx,
     })
 
-    toast({
-      title: translate('modals.send.transactionSent'),
-      description: _txId ? (
-        <Text>
-          <Link href={_txIdLink} isExternal>
-            {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
-          </Link>
-        </Text>
-      ) : undefined,
-      status: 'success',
-      duration: 9000,
-      isClosable: true,
-      position: 'top-right',
-    })
+    // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet
+    if (!maybeSafeTx?.isSafeTxHash) {
+      toast({
+        title: translate('modals.send.transactionSent'),
+        description: _txId ? (
+          <Text>
+            <Link href={_txIdLink} isExternal>
+              {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
+            </Link>
+          </Text>
+        ) : undefined,
+        status: 'success',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
+      })
+    }
 
     setTxId(_txId)
     setSerializedTxIndex(_serializedTxIndex)

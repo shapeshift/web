@@ -116,20 +116,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!feeAsset) return
     if (!state?.txid) return
 
-    if (maybeSafeTx?.transaction?.transactionHash)
-      return getTxLink({
-        txId: maybeSafeTx.transaction.transactionHash,
-        defaultExplorerBaseUrl: feeAsset.explorerTxLink,
-        accountId,
-        // on-chain Tx
-        isSafeTxHash: false,
-      })
-
     return getTxLink({
       txId: state?.txid ?? undefined,
       defaultExplorerBaseUrl: feeAsset.explorerTxLink,
       accountId,
-      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+      maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 

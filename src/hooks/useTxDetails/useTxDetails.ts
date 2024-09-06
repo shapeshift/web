@@ -2,11 +2,13 @@ import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { useMemo } from 'react'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
+import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 export type Transfer = TxTransfer & { asset: Asset }
@@ -110,6 +112,13 @@ export const useTxDetails = (txId: string): TxDetails => {
   // This should never happen, but if it does we should not continue
   if (!tx) throw Error('Transaction not found')
 
+  const accountId = useMemo(() => deserializeTxIndex(txId).accountId, [txId])
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId,
+    accountId,
+  })
+
   const transfers = useMemo(() => getTransfers(tx, assets), [tx, assets])
 
   const fee = useMemo(() => {
@@ -127,6 +136,7 @@ export const useTxDetails = (txId: string): TxDetails => {
     name: tx.trade?.dexName,
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
     txId: tx.txid,
+    maybeSafeTx,
   })
 
   return {

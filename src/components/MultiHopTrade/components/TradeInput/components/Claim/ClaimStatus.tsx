@@ -9,6 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { SlideTransition } from 'components/SlideTransition'
 import { SlideTransitionY } from 'components/SlideTransitionY'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { selectAssetById } from 'state/slices/selectors'
@@ -127,12 +128,18 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
     }
   }, [amountCryptoPrecision, asset, translate, claimTxStatus])
 
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: claimTxHash,
+    accountId: activeClaim.accountId,
+  })
+
   const txLink = useMemo(() => {
     return getTxLink({
       txId: claimTxHash,
       defaultExplorerBaseUrl: activeClaim.destinationExplorerTxLink,
+      maybeSafeTx,
     })
-  }, [activeClaim, claimTxHash])
+  }, [activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
 
   return (
     <SlideTransition>

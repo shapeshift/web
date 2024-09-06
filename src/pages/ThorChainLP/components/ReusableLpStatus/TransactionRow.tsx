@@ -318,32 +318,13 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (!feeAsset) return
     if (!txId) return
 
-    if (!isRuneTx && maybeSafeTx?.transaction?.transactionHash)
-      return getTxLink({
-        txId: maybeSafeTx.transaction.transactionHash,
-        defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
-        accountId: poolAssetAccountId,
-        // on-chain Tx
-        isSafeTxHash: false,
-      })
-
     return getTxLink({
       txId,
-      defaultExplorerBaseUrl: maybeSafeTx?.isSafeTxHash
-        ? feeAsset.explorerTxLink
-        : 'https://viewblock.io/thorchain/tx/',
+      defaultExplorerBaseUrl: 'https://viewblock.io/thorchain/tx/',
       accountId: isRuneTx ? runeAccountId : poolAssetAccountId,
-      isSafeTxHash: Boolean(maybeSafeTx?.isSafeTxHash),
+      maybeSafeTx,
     })
-  }, [
-    feeAsset,
-    isRuneTx,
-    maybeSafeTx?.isSafeTxHash,
-    maybeSafeTx?.transaction?.transactionHash,
-    poolAssetAccountId,
-    runeAccountId,
-    txId,
-  ])
+  }, [feeAsset, isRuneTx, maybeSafeTx, poolAssetAccountId, runeAccountId, txId])
 
   const handleSignTx = useCallback(async () => {
     setIsSubmitting(true)

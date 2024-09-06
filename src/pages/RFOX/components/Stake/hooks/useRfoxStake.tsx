@@ -294,9 +294,8 @@ export const useRfoxStake = ({
       name: undefined,
       defaultExplorerBaseUrl: stakingAssetFeeAsset?.explorerTxLink ?? '',
       txId: approvalTxHash,
-      // Assume buy TxHash can never be a user SAFE hash
-      isSafeTxHash: maybeSafeApprovalTx.isSafeTxHash,
       accountId: stakingAssetAccountId,
+      maybeSafeTx: maybeSafeApprovalTx,
     })
   }, [
     approvalTxHash,

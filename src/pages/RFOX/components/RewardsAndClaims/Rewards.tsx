@@ -100,7 +100,7 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         defaultExplorerBaseUrl: '',
         txId,
         // This can't be a SAFE Tx - it's a reward distribution on RUNE
-        isSafeTxHash: false,
+        maybeSafeTx: undefined,
         accountId: undefined,
       })
 

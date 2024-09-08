@@ -75,6 +75,8 @@
     "retryQuestion": "Wiederholen?",
     "transactionFailed": "Transaktion fehlgeschlagen",
     "transactionFailedBody": "Transaktion fehlgeschlagen",
+    "safeProposalQueued": "SAFE-Vorschlag in der Warteschlange. %{currentConfirmations} von %{confirmationsRequired} unterzeichnet.",
+    "safeProposalExecuted": "SAFE-Vorschlag ausgeführt.",
     "submitFeedback": "Feedback senden",
     "send": "Senden",
     "receive": "Empfangen ",
@@ -153,6 +155,7 @@
     "symmetric": "Symmetrische",
     "asymmetric": "Asymmetrische (%{assetSymbol})",
     "import": "Importieren",
+    "accountsLoading": "Lade Konten",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -167,7 +170,8 @@
       "expandRow": "Zeile erweitern"
     },
     "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert.",
-    "yes": "Ja"
+    "yes": "Ja",
+    "activeAccount": "Aktives Konto"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "Abheben eingeleitet",
         "submitRetryable": "Einzahlung empfangen",
         "createRetryableTicket": "Einzahlen eingeleitet",
-        "finalizeInboundTransfer": "Abhebung erhalten",
-        "depositEth": "Einzahlen eingeleitet"
+        "finalizeInboundTransferDeposit": "Einzahlung erhalten",
+        "depositEth": "Einzahlen eingeleitet",
+        "executeTransaction": "Beanspruchen"
       },
       "rfox": {
         "stake": "Stake",
@@ -708,6 +713,7 @@
         "out": "Ausgehend empfangen",
         "refund": "Rückerstattung",
         "swapOut": "Tausch erhalten",
+        "swap": "Handel",
         "swapRefund": "Swap Rückerstattung",
         "withdraw": "Auszahlung beantragt",
         "withdrawNative": "Abheben",
@@ -771,13 +777,22 @@
     "waitTimeValue": "~5-10 Minuten",
     "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio.",
     "arbitrum": {
+      "description": "Bridge über Arbitrum",
       "waitWarning": "Die natives bridging von Arbitrum ist sicherer, aber die Geltendmachung kann bis zu einer Woche dauern.",
       "waitCta": "Ich verstehe, dass es zirka 7 Tage dauern wird, bis ich Guthaben auf Ethereum einfordern kann",
       "claimCta": "Ich verstehe, dass ich nach der Beantragung meines Geldes eine weitere gebührenpflichtige Transaktion durchführen muss."
     },
-    "claims": "Ansprüche",
+    "claim": "Beanspruchen",
+    "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
+    "claimPending": "Warten auf Ihren Anspruch auf",
+    "claimSuccess": "Sie haben erfolgreich Ihren Anspruch erhoben",
+    "claimFailed": "Fehler beim Anspruchsversuch",
     "availableClaims": "Verfügbar",
-    "pendingClaims": "Ausstehend"
+    "noAvailableClaims": "Keine Ansprüche vorhanden",
+    "pendingClaims": "Ausstehend",
+    "noPendingClaims": "Keine Ansprüche offen",
+    "availableIn": "Verfügbar in %{time}",
+    "confirmAndClaim": "Bestätigen und Beanspruchen"
   },
   "trade": {
     "trade": "Handeln",
@@ -918,7 +933,7 @@
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
-    "smartContractReceiveAddressDescription": "Wir haben festgestellt, dass Sie von einem Smart Contract wechseln, dessen Adresse möglicherweise nicht in der Zielkette vorhanden ist. Bitte überprüfen Sie die gewünschte Empfängeradresse und geben Sie sie manuell unter %{chainName} ein.",
+    "disableThorNativeSmartContractReceive": "Wir haben festgestellt, dass Sie an eine Smart-Contract-Adresse auf %{chainName} senden. Aufgrund von THORChain-Einschränkungen wird der Empfang von %{nativeAssetSymbol} an eine Smart-Contract-Adresse nicht unterstützt. Bitte geben Sie eine andere Adresse ein.",
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "Öffnen Sie die %{appName} App",
-    "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen."
+    "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen.",
+    "signingDescription": "Die Anmeldeaufforderung wird nach dem Öffnen der App automatisch auf Ihrem Gerät angezeigt"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

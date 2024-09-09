@@ -75,6 +75,8 @@
     "retryQuestion": "リトライしますか？",
     "transactionFailed": "処理に失敗しました",
     "transactionFailedBody": "処理に失敗しました",
+    "safeProposalQueued": "SAFE の提案がキューに追加されました。%{confirmationsRequired} 件中 %{currentConfirmations} 件が署名されました。",
+    "safeProposalExecuted": "SAFE提案が実行されました。",
     "submitFeedback": "フィードバックを送信",
     "send": "送信",
     "receive": "受け取る",
@@ -153,6 +155,7 @@
     "symmetric": "対称",
     "asymmetric": "非対称 (%{assetSymbol})",
     "import": "インポート",
+    "accountsLoading": "アカウントの読み込み中",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -167,7 +170,8 @@
       "expandRow": "行を広げる"
     },
     "featureDisabled": "この機能は一時的に無効になっています。",
-    "yes": "はい"
+    "yes": "はい",
+    "activeAccount": "アクティブアカウント"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "引き出し開始",
         "submitRetryable": "入金受領",
         "createRetryableTicket": "入金開始",
-        "finalizeInboundTransfer": "引き出し分を受け取りました",
-        "depositEth": "入金開始"
+        "finalizeInboundTransferDeposit": "入金が受領されました",
+        "depositEth": "入金開始",
+        "executeTransaction": "請求"
       },
       "rfox": {
         "stake": "ステーク",
@@ -708,6 +713,7 @@
         "out": "アウトバウンド受信",
         "refund": "返金",
         "swapOut": "スワップを受け取りました",
+        "swap": "交換",
         "swapRefund": "スワップの返金",
         "withdraw": "出金要求あり",
         "withdrawNative": "撤回する",
@@ -771,13 +777,22 @@
     "waitTimeValue": "5~10分",
     "noSupportedAssets": "ポートフォリオにサポートされているアセットがありません。",
     "arbitrum": {
+      "description": "アービトラムを経由してブリッジする",
       "waitWarning": "Arbitrum のネイティブ ブリッジはより安全ですが、請求までに最大 1 週間かかる場合があります。",
       "waitCta": "イーサリアムで資金を請求できるようになるまでには最大7日かかることを理解しました。",
       "claimCta": "資金を受け取った後、手数料を支払って別のトランザクションをする必要があることを理解しました。"
     },
-    "claims": "請求",
+    "claim": "請求",
+    "claimReceiveAddress": "請求の受取アドレス",
+    "claimPending": "のあなたの請求を待っています",
+    "claimSuccess": "請求が完了しました",
+    "claimFailed": "請求中にエラーが発生しました",
     "availableClaims": "利用可能",
-    "pendingClaims": "保留中"
+    "noAvailableClaims": "請求できません",
+    "pendingClaims": "保留中",
+    "noPendingClaims": "保留中の請求はありません",
+    "availableIn": "%{time} で利用可能",
+    "confirmAndClaim": "確認と請求"
   },
   "trade": {
     "trade": "取引",
@@ -918,7 +933,7 @@
     "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
-    "smartContractReceiveAddressDescription": "宛先チェーンに存在しないアドレスのスマートコントラクトからスワップしようとしていることが検出されました。%{chainName} で希望の受信者アドレスを確認し、手動で入力してください。",
+    "disableThorNativeSmartContractReceive": "%{chainName} のスマート コントラクト アドレスに送信しようとしていることが検出されました。THORChain の制限により、スマート コントラクト アドレスへの %{nativeAssetSymbol} の受信はサポートされていません。別のアドレスを入力してください。",
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "%{appName} アプリを開く",
-    "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。"
+    "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。",
+    "signingDescription": "アプリを開くと、デバイスに署名プロンプトが自動的に表示されます。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

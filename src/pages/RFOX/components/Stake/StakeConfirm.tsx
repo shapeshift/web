@@ -26,7 +26,6 @@ import type { RowProps } from 'components/Row/Row'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
@@ -64,7 +63,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   const queryClient = useQueryClient()
   const history = useHistory()
   const translate = useTranslate()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, confirmedQuote.stakingAssetId),
@@ -264,28 +262,11 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
-    if (isApprovalRequired) {
-      return checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-        .then(() => {
-          handleApprove()
-        })
-        .catch(console.error)
-    }
+    if (isApprovalRequired) return handleApprove()
 
-    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(async () => {
-        await handleStake()
-        history.push(StakeRoutePaths.Status)
-      })
-      .catch(console.error)
-  }, [
-    handleStake,
-    history,
-    isApprovalRequired,
-    handleApprove,
-    stakingAsset,
-    checkLedgerAppOpenIfLedgerConnected,
-  ])
+    await handleStake()
+    history.push(StakeRoutePaths.Status)
+  }, [handleStake, history, isApprovalRequired, handleApprove, stakingAsset])
 
   const stakeCards = useMemo(() => {
     if (!stakingAsset) return null

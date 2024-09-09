@@ -13,7 +13,6 @@ import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
@@ -55,8 +54,6 @@ export const useUniV2LiquidityPool = ({
   assetId1: AssetId
   lpAssetId: AssetId
 } & UseUniV2LiquidityPoolOptions) => {
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const assetId0OrWeth = assetId0 === ethAssetId ? wethAssetId : assetId0
   const assetId1OrWeth = assetId1 === ethAssetId ? wethAssetId : assetId1
 
@@ -203,8 +200,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId0OrWeth).chainId)
-
         const maybeEthAmount = (() => {
           if (assetId0OrWeth === wethAssetId) return token0Amount
           if (assetId1OrWeth === wethAssetId) return token1Amount
@@ -238,7 +233,6 @@ export const useUniV2LiquidityPool = ({
       adapter,
       assetId0OrWeth,
       assetId1OrWeth,
-      checkLedgerAppOpenIfLedgerConnected,
       makeAddLiquidityData,
       skip,
       uniswapRouterContract,
@@ -329,8 +323,6 @@ export const useUniV2LiquidityPool = ({
       try {
         if (skip || !isNumber(accountNumber) || !uniswapRouterContract || !wallet) return
 
-        await checkLedgerAppOpenIfLedgerConnected(fromAssetId(assetId0OrWeth).chainId)
-
         const data = makeRemoveLiquidityData({
           asset0ContractAddress,
           asset1ContractAddress,
@@ -365,8 +357,6 @@ export const useUniV2LiquidityPool = ({
       accountNumber,
       uniswapRouterContract,
       wallet,
-      checkLedgerAppOpenIfLedgerConnected,
-      assetId0OrWeth,
       makeRemoveLiquidityData,
       asset0ContractAddress,
       asset1ContractAddress,
@@ -605,9 +595,6 @@ export const useUniV2LiquidityPool = ({
     async (contractAddress: Address) => {
       if (skip || !wallet || !isNumber(accountNumber)) return
 
-      // UNI-V2 is hardcoded to Ethereum Mainnet
-      await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
       const contract = getOrCreateContractByType({
         address: contractAddress,
         type: ContractType.ERC20,
@@ -641,7 +628,7 @@ export const useUniV2LiquidityPool = ({
 
       return txid
     },
-    [accountNumber, adapter, checkLedgerAppOpenIfLedgerConnected, getApproveFees, skip, wallet],
+    [accountNumber, adapter, getApproveFees, skip, wallet],
   )
 
   return {

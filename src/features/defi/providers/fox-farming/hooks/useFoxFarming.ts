@@ -9,7 +9,6 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { toBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
@@ -38,8 +37,6 @@ export const useFoxFarming = (
   contractAddress: FoxEthStakingContractAddress,
   { skip }: UseFoxFarmingOptions = {},
 ) => {
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const { farmingAccountId } = useFoxEth()
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
   const lpAsset = useAppSelector(state => selectAssetById(state, foxEthLpAssetId))
@@ -86,8 +83,6 @@ export const useFoxFarming = (
           wallet,
         })
 
-        await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
@@ -108,7 +103,6 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
-      checkLedgerAppOpenIfLedgerConnected,
     ],
   )
 
@@ -133,8 +127,6 @@ export const useFoxFarming = (
           wallet,
         })
 
-        await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
@@ -155,7 +147,6 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
-      checkLedgerAppOpenIfLedgerConnected,
     ],
   )
 
@@ -281,8 +272,6 @@ export const useFoxFarming = (
     const fees = await getApproveFees()
     if (!fees) return
 
-    await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
     const txid = await buildAndBroadcast({
       adapter,
       receiverAddress: CONTRACT_INTERACTION, // no receiver for this contract call
@@ -297,14 +286,7 @@ export const useFoxFarming = (
     })
 
     return txid
-  }, [
-    accountNumber,
-    adapter,
-    checkLedgerAppOpenIfLedgerConnected,
-    contractAddress,
-    getApproveFees,
-    wallet,
-  ])
+  }, [accountNumber, adapter, contractAddress, getApproveFees, wallet])
 
   const claimRewards = useCallback(async () => {
     if (skip || !isValidAccountNumber(accountNumber) || !wallet || !userAddress) return
@@ -324,8 +306,6 @@ export const useFoxFarming = (
       wallet,
     })
 
-    await checkLedgerAppOpenIfLedgerConnected(ethChainId)
-
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
@@ -333,16 +313,7 @@ export const useFoxFarming = (
     })
 
     return txid
-  }, [
-    accountNumber,
-    adapter,
-    checkLedgerAppOpenIfLedgerConnected,
-    contractAddress,
-    foxFarmingContract.abi,
-    skip,
-    userAddress,
-    wallet,
-  ])
+  }, [accountNumber, adapter, contractAddress, foxFarmingContract.abi, skip, userAddress, wallet])
 
   return {
     allowance,

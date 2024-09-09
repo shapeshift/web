@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const tokeRewardHashAbi: InterfaceAbi = [
+export const TOKE_REWARD_HASH_ABI = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,

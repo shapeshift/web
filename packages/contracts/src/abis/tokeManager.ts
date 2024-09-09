@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const tokeManagerAbi: InterfaceAbi = [
+export const TOKE_MANAGER_ABI = [
   { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
   {
     anonymous: false,

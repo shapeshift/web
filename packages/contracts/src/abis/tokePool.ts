@@ -1,6 +1,4 @@
-import type { InterfaceAbi } from 'ethers'
-
-export const tokePoolAbi: InterfaceAbi = [
+export const TOKE_POOL_ABI = [
   {
     anonymous: false,
     inputs: [

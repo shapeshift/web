@@ -1,6 +1,6 @@
 import { type Address, erc20Abi } from 'viem'
 
-import { FARMING_ABI } from './abis/farmingAbi'
+import { FARMING_ABI } from './abis/farming'
 import { THORCHAIN_ROUTER_ABI } from './abis/thorchainRouter'
 import { UNISWAP_V2_PAIR_ABI } from './abis/uniswapV2Pair'
 import { UNISWAP_V2_ROUTER_02_ABI } from './abis/uniswapV2Router02'

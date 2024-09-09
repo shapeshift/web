@@ -75,6 +75,8 @@
     "retryQuestion": "重试？",
     "transactionFailed": "交易失败",
     "transactionFailedBody": "交易失败",
+    "safeProposalQueued": "SAFE 提案已排队。已签署 %{currentConfirmations} 个（共 %{confirmationsRequired} 个）。",
+    "safeProposalExecuted": "已执行 SAFE 建议。",
     "submitFeedback": "提交反馈",
     "send": "发送",
     "receive": "接收",
@@ -153,6 +155,7 @@
     "symmetric": "对称",
     "asymmetric": "不对称 (%{assetSymbol})",
     "import": "导入",
+    "accountsLoading": "正在加载帐户",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -167,7 +170,8 @@
       "expandRow": "展开行"
     },
     "featureDisabled": "此功能暂时禁用。",
-    "yes": "是的"
+    "yes": "是的",
+    "activeAccount": "活跃账户"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "提现已发起",
         "submitRetryable": "充值到账",
         "createRetryableTicket": "充值已启动",
-        "finalizeInboundTransfer": "提现已收到",
-        "depositEth": "充值已启动"
+        "finalizeInboundTransferDeposit": "充值已到账",
+        "depositEth": "充值已启动",
+        "executeTransaction": "认领"
       },
       "rfox": {
         "stake": "质押",
@@ -708,6 +713,7 @@
         "out": "Outbound 已收到",
         "refund": "退款",
         "swapOut": "已收到兑换",
+        "swap": "交易",
         "swapRefund": "兑换退款",
         "withdraw": "请求提现",
         "withdrawNative": "提现",
@@ -771,13 +777,22 @@
     "waitTimeValue": "~5-10 分钟",
     "noSupportedAssets": "投资组合中没有受支持的资产。",
     "arbitrum": {
+      "description": "通过 Arbitrum 搭建桥接",
       "waitWarning": "Arbitrum 的原生桥更安全，但可能需要长达一周的时间才能认领。",
       "waitCta": "我知道我需要大约 7 天的时间才能在以太坊上领取资金",
       "claimCta": "我理解领取资金后，我必须再发送一笔交易并支付费用"
     },
-    "claims": "认领",
+    "claim": "认领",
+    "claimReceiveAddress": "认领接收地址",
+    "claimPending": "等待您的认领",
+    "claimSuccess": "您已成功申领",
+    "claimFailed": "尝试申领时出错",
     "availableClaims": "可用的",
-    "pendingClaims": "待确认"
+    "noAvailableClaims": "沒有认领",
+    "pendingClaims": "待确认",
+    "noPendingClaims": "没有待决认领",
+    "availableIn": "%{time} 后可用",
+    "confirmAndClaim": "确认并认领"
   },
   "trade": {
     "trade": "交易",
@@ -918,7 +933,7 @@
     "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
-    "smartContractReceiveAddressDescription": "我们检测到你正在从智能合约进行兑换，而该合约的地址可能不存在于目标链上。请验证并在 %{chainName} 上手动输入所需的收件人地址",
+    "disableThorNativeSmartContractReceive": "我们检测到你正在向 %{chainName} 上的智能合约地址发送。由于 THORChain 的限制，不支持将 %{nativeAssetSymbol} 接收至智能合约地址。请输入其他地址",
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "打开 %{appName} 应用",
-    "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。"
+    "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。",
+    "signingDescription": "打开应用程序后，你的设备中会自动弹出签名提示"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

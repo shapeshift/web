@@ -349,8 +349,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
           )
 
           const maturity =
-            new Date(userPosition[0].dateLastAdded).getTime() +
-            thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
+            userPosition[0].dateLastAdded + thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
 
           return { maturity }
         } catch (error) {

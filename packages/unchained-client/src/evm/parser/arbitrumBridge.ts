@@ -13,7 +13,7 @@ import {
   ARB_RETRYABLE_TX_CONTRACT,
   ARB_SYS_ABI,
   ARB_SYS_CONTRACT,
-  ARBITRUM_L2_ERC20_GATEWAY_PROXY,
+  ARBITRUM_L2_ERC20_GATEWAY_PROXY_CONTRACT,
   ARBITRUM_RETRYABLE_TX_ABI,
   L1_ARBITRUM_GATEWAY_ABI,
   L1_ARBITRUM_GATEWAY_CONTRACT,
@@ -69,7 +69,7 @@ export class Parser implements SubParser<Tx> {
         return this.l2ArbitrumGatewayAbi
       if (txInteractsWithContract(tx, L2_ARBITRUM_CUSTOM_GATEWAY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
-      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY))
+      if (txInteractsWithContract(tx, ARBITRUM_L2_ERC20_GATEWAY_PROXY_CONTRACT))
         return this.l2ArbitrumGatewayAbi
       if (
         txInteractsWithContract(tx, L1_ARBITRUM_GATEWAY_CONTRACT) &&

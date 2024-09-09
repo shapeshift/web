@@ -1,10 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import {
-  WETH_ABI,
-  WETH_TOKEN_CONTRACT_ADDRESS,
-  WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
-} from '@shapeshiftoss/contracts'
+import { WETH_ABI, WETH_TOKEN_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import assert from 'assert'
 import type { InterfaceAbi } from 'ethers'
 import { ethers } from 'ethers'
 
@@ -38,16 +35,9 @@ export class Parser implements SubParser<Tx> {
     this.chainId = args.chainId
     this.provider = args.provider
 
-    this.wethContract = (() => {
-      switch (args.chainId) {
-        case 'eip155:1':
-          return WETH_TOKEN_CONTRACT_ADDRESS
-        case 'eip155:3':
-          return WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN
-        default:
-          throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
-      }
-    })()
+    assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
+
+    this.wethContract = WETH_TOKEN_CONTRACT_ADDRESS
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

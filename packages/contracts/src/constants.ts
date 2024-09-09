@@ -7,7 +7,6 @@ import { UNISWAP_V2_ROUTER_02_ABI } from './abis/uniswapV2Router02'
 import { ContractType } from './types'
 
 export const WETH_TOKEN_CONTRACT_ADDRESS = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
-export const WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN = '0xc778417E063141139Fce010982780140Aa0cD5Ab'
 export const FOX_TOKEN_CONTRACT_ADDRESS = '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d'
 
 // Staking contract addresses as string literals

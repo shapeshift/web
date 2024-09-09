@@ -98,6 +98,14 @@ const PoolsPage = makeSuspenseful(
   ),
 )
 
+const MarketsPage = makeSuspenseful(
+  lazy(() =>
+    import('pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
+      default: MarketsPage,
+    })),
+  ),
+)
+
 const Trade = makeSuspenseful(
   lazy(() =>
     import('pages/Trade/Trade').then(({ Trade }) => ({
@@ -187,6 +195,16 @@ export const routes: NestedRoute[] = [
     priority: 4,
     mobileNav: false,
     disable: !getConfig().REACT_APP_FEATURE_THORCHAIN_LP,
+  },
+  {
+    path: '/markets',
+    label: 'navBar.markets',
+    icon: <PoolsIcon />,
+    main: MarketsPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_MARKETS,
   },
   {
     path: '/earn',

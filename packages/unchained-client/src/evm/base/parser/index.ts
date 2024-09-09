@@ -1,4 +1,4 @@
-import { ZRX_BASE_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/base'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -18,7 +18,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
         api: this.api,
       }),
       new erc20.Parser({ chainId: this.chainId, provider: this.provider }),
-      new zrx.Parser({ proxyContract: ZRX_BASE_PROXY_CONTRACT }),
+      new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
     ])
   }
 }

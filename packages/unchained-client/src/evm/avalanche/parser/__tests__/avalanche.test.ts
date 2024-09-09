@@ -1,6 +1,6 @@
 import { avalancheAssetId, avalancheChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_AVALANCHE_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
@@ -804,7 +804,7 @@ describe('parseTx', () => {
         assetId: avalancheAssetId,
         components: [{ value: '50000000000000000' }],
         from: address,
-        to: ZRX_AVALANCHE_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '50000000000000000',
         type: TransferType.Send,
       }

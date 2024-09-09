@@ -7,8 +7,8 @@ import {
   UNISWAP_V2_ROUTER_02_MAINNET,
   UNIV2_STAKING_REWARDS_ABI,
   WETH_TOKEN_CONTRACT_ADDRESS,
-  WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN,
 } from '@shapeshiftoss/contracts'
+import assert from 'assert'
 import type { InterfaceAbi, JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 import { erc20Abi } from 'viem'
@@ -48,16 +48,9 @@ export class Parser implements SubParser<Tx> {
     this.chainId = args.chainId
     this.provider = args.provider
 
-    this.wethContract = (() => {
-      switch (args.chainId) {
-        case 'eip155:1':
-          return WETH_TOKEN_CONTRACT_ADDRESS
-        case 'eip155:3':
-          return WETH_TOKEN_CONTRACT_ADDRESS_ROPSTEN
-        default:
-          throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
-      }
-    })()
+    assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
+
+    this.wethContract = WETH_TOKEN_CONTRACT_ADDRESS
   }
 
   async parseUniV2(tx: Tx): Promise<TxSpecific | undefined> {

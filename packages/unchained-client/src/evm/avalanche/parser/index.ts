@@ -1,4 +1,4 @@
-import { ZRX_AVALANCHE_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 
 import type { Tx } from '../../../generated/avalanche'
 import type { BaseTransactionParserArgs } from '../../parser'
@@ -28,7 +28,7 @@ export class TransactionParser extends BaseTransactionParser<Tx> {
         rpcUrl: args.rpcUrl,
         midgardUrl: args.midgardUrl,
       }),
-      new zrx.Parser({ proxyContract: ZRX_AVALANCHE_PROXY_CONTRACT }),
+      new zrx.Parser({ proxyContract: ZRX_ETHEREUM_PROXY_CONTRACT }),
     ])
   }
 }

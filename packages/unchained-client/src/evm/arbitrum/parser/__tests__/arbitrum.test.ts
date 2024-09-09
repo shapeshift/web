@@ -1,6 +1,6 @@
 import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
-import { ZRX_ARBITRUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
@@ -754,7 +754,7 @@ describe('parseTx', () => {
         assetId: arbitrumAssetId,
         components: [{ value: '944413987404689' }],
         from: address,
-        to: ZRX_ARBITRUM_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '944413987404689',
         type: TransferType.Send,
       }

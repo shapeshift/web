@@ -38,6 +38,8 @@ import type {
 } from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
 
+const THORCHAIN_HARD_FORK_BLOCK_HEIGHT = 17562000
+
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
 }> => {
@@ -350,7 +352,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
         // Uses legacy THORNode for last_add_height which happened before hardfork block
         const thorchainNodeUrl =
-          accountPosition.last_add_height < 17562000
+          accountPosition.last_add_height < THORCHAIN_HARD_FORK_BLOCK_HEIGHT
             ? getConfig().REACT_APP_THORCHAIN_V1_NODE_URL
             : getConfig().REACT_APP_THORCHAIN_NODE_URL
 

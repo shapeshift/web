@@ -348,8 +348,14 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
           height: accountPosition.last_add_height?.toString(),
         })
 
+        // Uses legacy THORNode for last_add_height which happened before hardfork block
+        const thorchainNodeUrl =
+          accountPosition.last_add_height < 17562000
+            ? getConfig().REACT_APP_THORCHAIN_V1_NODE_URL
+            : getConfig().REACT_APP_THORCHAIN_NODE_URL
+
         const { data: blockDetails } = await axios.get<ThorchainBlock>(
-          `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/block?${blockParams}`,
+          `${thorchainNodeUrl}/lcd/thorchain/block?${blockParams}`,
         )
 
         const maturity =

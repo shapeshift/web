@@ -1,6 +1,5 @@
-import type { Address } from 'viem'
+import { type Address, erc20Abi } from 'viem'
 
-import { ERC20_ABI } from './abis/erc20'
 import { FARMING_ABI } from './abis/farmingAbi'
 import { THORCHAIN_ROUTER_ABI } from './abis/thorchainRouter'
 import { UNISWAP_V2_PAIR_ABI } from './abis/uniswapV2Pair'
@@ -77,7 +76,7 @@ export const CONTRACT_ADDRESS_TO_ABI = {
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V7]: FARMING_ABI,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V8]: FARMING_ABI,
   [ETH_FOX_STAKING_CONTRACT_ADDRESS_V9]: FARMING_ABI,
-  [FOX_TOKEN_CONTRACT_ADDRESS]: ERC20_ABI,
+  [FOX_TOKEN_CONTRACT_ADDRESS]: erc20Abi,
   [UNISWAP_V2_ROUTER_02_MAINNET]: UNISWAP_V2_ROUTER_02_ABI,
   // THOR Router Mainnet
   [THOR_ROUTER_CONTRACT_ADDRESS_MAINNET]: THORCHAIN_ROUTER_ABI,
@@ -85,7 +84,7 @@ export const CONTRACT_ADDRESS_TO_ABI = {
 
 export const CONTRACT_TYPE_TO_ABI = {
   [ContractType.UniV2Pair]: UNISWAP_V2_PAIR_ABI,
-  [ContractType.ERC20]: ERC20_ABI,
+  [ContractType.ERC20]: erc20Abi,
   [ContractType.ThorRouter]: THORCHAIN_ROUTER_ABI,
 } as const
 

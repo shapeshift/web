@@ -1,14 +1,13 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { ERC20_ABI } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useAllowance } from 'react-queries/hooks/useAllowance'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 import type { EvmFees } from 'hooks/queries/useEvmFees'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -67,7 +66,7 @@ export const useRfoxBridgeApproval = ({
     if (!allowanceContract) return
 
     return encodeFunctionData({
-      abi: ERC20_ABI,
+      abi: erc20Abi,
       functionName: 'approve',
       args: [getAddress(allowanceContract), BigInt(confirmedQuote.bridgeAmountCryptoBaseUnit)],
     })

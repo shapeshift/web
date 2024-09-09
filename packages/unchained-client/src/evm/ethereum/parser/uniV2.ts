@@ -1,7 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
-  ERC20_ABI,
   UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
   UNISWAP_V2_FACTORY_MAINNET,
   UNISWAP_V2_ROUTER_02_ABI,
@@ -12,6 +11,7 @@ import {
 } from '@shapeshiftoss/contracts'
 import type { InterfaceAbi, JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
+import { erc20Abi } from 'viem'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'
@@ -88,7 +88,7 @@ export class Parser implements SubParser<Tx> {
     const transfers = await (async () => {
       switch (getSigHash(tx.inputData)) {
         case this.supportedFunctions.addLiquidityEthSigHash: {
-          const contract = new Contract(tokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(tokenAddress, erc20Abi, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()
@@ -113,7 +113,7 @@ export class Parser implements SubParser<Tx> {
           ]
         }
         case this.supportedFunctions.removeLiquidityEthSigHash: {
-          const contract = new Contract(lpTokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(lpTokenAddress, erc20Abi, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()

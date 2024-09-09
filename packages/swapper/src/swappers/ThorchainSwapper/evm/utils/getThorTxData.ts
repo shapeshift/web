@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import type { Address } from 'viem'
+import { type Address, getAddress } from 'viem'
 
 import { depositWithExpiry, getInboundAddressDataForChain } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'
@@ -34,8 +34,8 @@ export const getThorTxInfo = async ({
   if (maybeInboundAddress.isErr()) throw maybeInboundAddress.unwrapErr()
   const inboundAddress = maybeInboundAddress.unwrap()
 
-  const router = inboundAddress.router as Address
-  const vault = inboundAddress.address as Address
+  const router = getAddress(inboundAddress.router as string)
+  const vault = getAddress(inboundAddress.address as string)
 
   if (!router) {
     throw Error(`No router found for ${sellAsset.assetId} at inbound address ${inboundAddress}`)
@@ -45,7 +45,7 @@ export const getThorTxInfo = async ({
     vault,
     asset: isNativeEvmAsset(sellAsset.assetId)
       ? '0x0000000000000000000000000000000000000000'
-      : (assetReference as Address),
+      : getAddress(assetReference),
     amount: BigInt(sellAmountCryptoBaseUnit),
     memo,
     expiry: BigInt(expiry),

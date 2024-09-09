@@ -75,6 +75,8 @@
     "retryQuestion": "Tentar novamente?",
     "transactionFailed": "Falha na transação",
     "transactionFailedBody": "Falha na transação",
+    "safeProposalQueued": "Proposta SAFE na fila. %{currentConfirmations} de %{confirmationsRequired} assinada.",
+    "safeProposalExecuted": "Proposta na SAFE executada.",
     "submitFeedback": "Deixe um comentário",
     "send": "Enviar",
     "receive": "Receber",
@@ -153,6 +155,7 @@
     "symmetric": "Simétrico",
     "asymmetric": "Assimétrico (%{assetSymbol})",
     "import": "Importar",
+    "accountsLoading": "Carregando contas",
     "carousel": {
       "next": "Próximo",
       "prev": "Anterior",
@@ -167,7 +170,8 @@
       "expandRow": "Expandir"
     },
     "featureDisabled": "Este recurso está temporariamente desativado.",
-    "yes": "Sim"
+    "yes": "Sim",
+    "activeAccount": "Conta ativa"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "Saque Iniciado",
         "submitRetryable": "Depósito recebido",
         "createRetryableTicket": "Depósito iniciado",
-        "finalizeInboundTransfer": "Saque Recebido",
-        "depositEth": "Depósito iniciado"
+        "finalizeInboundTransferDeposit": "Depósito recebido",
+        "depositEth": "Depósito iniciado",
+        "executeTransaction": "Resgate"
       },
       "rfox": {
         "stake": "Stake",
@@ -708,6 +713,7 @@
         "out": "Outbound recebido",
         "refund": "Reembolso",
         "swapOut": "Swap recebido",
+        "swap": "Negocie",
         "swapRefund": "Pagamento Swap",
         "withdraw": "Saque solicitado",
         "withdrawNative": "Sacar",
@@ -771,13 +777,22 @@
     "waitTimeValue": "~5-10 minutos",
     "noSupportedAssets": "Nenhum ativo suportado no portfólio.",
     "arbitrum": {
+      "description": "Ponte via Arbitrum",
       "waitWarning": "A ponte nativa da Arbitrum é mais segura, mas pode levar até uma semana para ser resgatada.",
       "waitCta": "Entendo que levará cerca de 7 dias antes que eu possa resgatar fundos no Ethereum",
       "claimCta": "Entendo que após resgatar meus fundos, terei que enviar outra transação com uma taxa"
     },
-    "claims": "Resgates",
+    "claim": "Resgate",
+    "claimReceiveAddress": "Endereço de recebimento do resgate",
+    "claimPending": "Aguardando seu resgate de",
+    "claimSuccess": "Você resgatou com sucesso",
+    "claimFailed": "Erro ao tentar resgatar",
     "availableClaims": "Disponível",
-    "pendingClaims": "Pendente"
+    "noAvailableClaims": "Nenhum resgate disponível",
+    "pendingClaims": "Pendente",
+    "noPendingClaims": "Nenhum resgate pendente",
+    "availableIn": "Disponível em %{time}",
+    "confirmAndClaim": "Confirmar e Resgate"
   },
   "trade": {
     "trade": "Swap",
@@ -918,7 +933,7 @@
     "numHops": "Esta negociação inclui %{numHops} Hops",
     "receiveAddress": "Endereço de recebimento",
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
-    "smartContractReceiveAddressDescription": "Detectamos que você está trocando de um contrato inteligente cujo endereço pode não existir na rede de destino. Verifique e insira manualmente o endereço do destinatário desejado em %{chainName}",
+    "disableThorNativeSmartContractReceive": "Detectamos que você está enviando para um endereço de contrato inteligente em %{chainName}. Devido às limitações do THORChain, não há suporte para receber %{nativeAssetSymbol} para um endereço de contrato inteligente. Insira outro endereço",
     "toContinue": "para continuar.",
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "Abra o aplicativo %{appName}",
-    "description": "Para continuar, você precisará abrir o aplicativo %{appName} no seu dispositivo Ledger."
+    "description": "Para continuar, você precisará abrir o aplicativo %{appName} no seu dispositivo Ledger.",
+    "signingDescription": "O prompt de assinatura aparecerá automaticamente no seu dispositivo após abrir o aplicativo"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

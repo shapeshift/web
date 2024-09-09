@@ -554,7 +554,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     action: 'addLiquidity',
     enableEstimateFees: Boolean(
       bnOrZero(actualAssetDepositAmountCryptoPrecision).gt(0) &&
-        isApprovalRequired === false &&
+        !isApprovalRequired &&
         incompleteSide !== AsymSide.Rune,
     ),
   })

@@ -8,7 +8,6 @@ export const emitter = new EventEmitter()
 
 export type LedgerOpenAppEventArgs = {
   chainId: ChainId
-  isSigning: boolean
   reject: (reason?: any) => void
 }
 
@@ -78,11 +77,7 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
   }
 }
 
-export const verifyLedgerAppOpen = async (
-  chainId: ChainId | KnownChainIds,
-  wallet: HDWallet,
-  isSigning: boolean,
-) => {
+export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wallet: HDWallet) => {
   const coin = getCoin(chainId)
   const appName = getLedgerAppName(chainId)
 
@@ -104,7 +99,7 @@ export const verifyLedgerAppOpen = async (
   try {
     await new Promise<void>((resolve, reject) => {
       // emit event to trigger modal open
-      const args: LedgerOpenAppEventArgs = { chainId, isSigning, reject }
+      const args: LedgerOpenAppEventArgs = { chainId, reject }
       emitter.emit('LedgerOpenApp', args)
 
       // prompt user to open app on device

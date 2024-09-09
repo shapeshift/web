@@ -95,7 +95,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
     try {
       if (supportsCosmos(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet, false)
+        await verifyLedgerAppOpen(this.chainId, wallet)
 
         const bip44Params = this.getBIP44Params({ accountNumber })
         const cosmosAddress = await wallet.cosmosGetAddress({
@@ -276,7 +276,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     try {
       const { txToSign, wallet } = signTxInput
       if (supportsCosmos(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet, true)
+        await verifyLedgerAppOpen(this.chainId, wallet)
 
         const signedTx = await wallet.cosmosSignTx(txToSign)
 

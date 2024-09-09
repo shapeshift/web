@@ -24,10 +24,9 @@ import { AssetOnLedger } from './components/AssetOnLedger'
 export type LedgerOpenAppModalProps = {
   chainId: ChainId
   onCancel: () => void
-  isSigning: boolean
 }
 
-export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenAppModalProps) => {
+export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProps) => {
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -68,9 +67,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenA
                 appName,
               })}
             </RawText>
-            {isSigning ? (
-              <Alert status='warning'>{translate('ledgerOpenApp.signingDescription')}</Alert>
-            ) : null}
+            <Alert status='warning'>{translate('ledgerOpenApp.devicePrompt')}</Alert>
             <Spinner mt={4} size='lg' />
           </VStack>
         </ModalBody>

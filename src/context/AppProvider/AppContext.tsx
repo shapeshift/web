@@ -68,13 +68,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
 
   useEffect(() => {
-    const handleLedgerOpenApp = ({ chainId, isSigning, reject }: LedgerOpenAppEventArgs) => {
+    const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
       const onCancel = () => {
         closeModal()
         reject()
       }
 
-      openModal({ chainId, onCancel, isSigning })
+      openModal({ chainId, onCancel })
     }
 
     const handleLedgerAppOpened = () => {

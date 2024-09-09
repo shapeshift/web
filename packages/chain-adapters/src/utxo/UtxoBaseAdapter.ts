@@ -244,7 +244,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       const address = await (async () => {
         if (pubKey) return account?.chainSpecific.addresses?.[targetIndex]?.pubkey
 
-        await verifyLedgerAppOpen(this.chainId, wallet, false)
+        await verifyLedgerAppOpen(this.chainId, wallet)
 
         return wallet.btcGetAddress({
           addressNList: toAddressNList({ ...bip44Params, index: targetIndex }),
@@ -438,7 +438,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         throw new Error(`UtxoBaseAdapter: wallet does not support ${this.coinName}`)
       }
 
-      await verifyLedgerAppOpen(this.chainId, wallet, true)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.btcSignTx(txToSign)
 
@@ -554,7 +554,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   ): Promise<PublicKey> {
     this.assertIsAccountTypeSupported(accountType)
 
-    await verifyLedgerAppOpen(this.chainId, wallet, false)
+    await verifyLedgerAppOpen(this.chainId, wallet)
 
     const bip44Params = this.getBIP44Params({ accountNumber, accountType })
     const path = toRootDerivationPath(bip44Params)

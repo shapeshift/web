@@ -96,7 +96,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
 
     try {
       if (supportsThorchain(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet, false)
+        await verifyLedgerAppOpen(this.chainId, wallet)
 
         const address = await wallet.thorchainGetAddress({
           addressNList: toAddressNList(bip44Params),
@@ -140,7 +140,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     try {
       const { txToSign, wallet } = signTxInput
       if (supportsThorchain(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet, true)
+        await verifyLedgerAppOpen(this.chainId, wallet)
 
         const signedTx = await wallet.thorchainSignTx(txToSign)
 

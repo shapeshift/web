@@ -414,7 +414,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
       }
 
-      await verifyLedgerAppOpen(this.chainId, wallet, true)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.ethSignTx(txToSign)
 
@@ -474,7 +474,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         throw new Error(`wallet does not support ${this.getDisplayName()}`)
 
       await this.assertSwitchChain(wallet)
-      await verifyLedgerAppOpen(this.chainId, wallet, true)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedMessage = await wallet.ethSignMessage(messageToSign)
 
@@ -499,7 +499,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       }
 
       await this.assertSwitchChain(wallet)
-      await verifyLedgerAppOpen(this.chainId, wallet, true)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const result = await wallet.ethSignTypedData(typedDataToSign)
 
@@ -524,7 +524,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
 
     await this.assertSwitchChain(wallet)
-    await verifyLedgerAppOpen(this.chainId, wallet, false)
+    await verifyLedgerAppOpen(this.chainId, wallet)
 
     const address = await (wallet as ETHWallet).ethGetAddress({
       addressNList: toAddressNList(bip44Params),

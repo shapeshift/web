@@ -1,4 +1,4 @@
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/src/swappers/ThorchainSwapper/types'
 import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
@@ -12,7 +12,6 @@ import {
   RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS,
   thorchainBlockTimeMs,
 } from 'lib/utils/thorchain/constants'
-import type { ThorchainBlock } from 'lib/utils/thorchain/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -34,11 +33,10 @@ import type {
 } from '../types'
 import type {
   ThorchainRunepoolInformationResponseSuccess,
+  ThorchainRunepoolMemberPositionResponse,
   ThorchainRunepoolReservePositionsResponse,
 } from './types'
 import { getMidgardPools, getThorchainSaversPosition } from './utils'
-
-const THORCHAIN_HARD_FORK_BLOCK_HEIGHT = 17562000
 
 export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
   data: GetOpportunityIdsOutput
@@ -344,27 +342,23 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
       const maybeMaturity = await (async () => {
         if (stakingOpportunityId !== thorchainAssetId) return {}
-        if (!accountPosition.last_add_height) return { maturity: undefined }
 
-        const blockParams = new URLSearchParams({
-          height: accountPosition.last_add_height?.toString(),
-        })
+        try {
+          const { data: userPosition } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
+            `${getConfig().REACT_APP_MIDGARD_URL}/runepool/${fromAccountId(accountId).account}`,
+          )
 
-        // Uses legacy THORNode for last_add_height which happened before hardfork block
-        const thorchainNodeUrl =
-          accountPosition.last_add_height < THORCHAIN_HARD_FORK_BLOCK_HEIGHT
-            ? getConfig().REACT_APP_THORCHAIN_V1_NODE_URL
-            : getConfig().REACT_APP_THORCHAIN_NODE_URL
+          const maturity =
+            new Date(userPosition[0].dateLastAdded).getTime() +
+            thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
 
-        const { data: blockDetails } = await axios.get<ThorchainBlock>(
-          `${thorchainNodeUrl}/lcd/thorchain/block?${blockParams}`,
-        )
-
-        const maturity =
-          new Date(blockDetails.header.time).getTime() +
-          thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
-
-        return { maturity }
+          return { maturity }
+        } catch (error) {
+          if (axios.isAxiosError(error) && error.response?.status === 404) {
+            return { maturity: undefined }
+          }
+          throw new Error('Error fetching RUNEpool maturity')
+        }
       })()
 
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {

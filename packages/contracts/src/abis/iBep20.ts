@@ -1,4 +1,4 @@
-export const BEP20_ABI = [
+export const I_BEP20_ABI = [
   {
     anonymous: false,
     inputs: [

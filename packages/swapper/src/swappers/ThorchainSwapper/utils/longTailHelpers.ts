@@ -1,6 +1,6 @@
 import { avalancheChainId, bscChainId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { UNISWAP_V3_QUOTER_ABI } from '@shapeshiftoss/contracts'
-import { UNISWAP_V3_POOL_ABI } from '@shapeshiftoss/contracts'
+import { I_UNISWAP_V3_POOL_ABI } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
@@ -127,7 +127,7 @@ export const getContractDataByPool = (
   Array.from(poolAddresses.entries()).forEach(
     ([address, { fee, token0Address, token1Address }]) => {
       const poolContract = getContract({
-        abi: UNISWAP_V3_POOL_ABI,
+        abi: I_UNISWAP_V3_POOL_ABI,
         address,
         client: publicClient,
       })

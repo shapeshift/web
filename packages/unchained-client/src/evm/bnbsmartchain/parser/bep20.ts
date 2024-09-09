@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { BEP20_ABI } from '@shapeshiftoss/contracts'
+import { I_BEP20_ABI } from '@shapeshiftoss/contracts'
 import { ethers } from 'ethers'
 
 import type { BaseTxMetadata } from '../../../types'
@@ -22,7 +22,7 @@ export class Parser<T extends Tx> implements SubParser<T> {
   provider: ethers.JsonRpcProvider
 
   readonly chainId: ChainId
-  readonly abiInterface = new ethers.Interface(BEP20_ABI)
+  readonly abiInterface = new ethers.Interface(I_BEP20_ABI)
 
   readonly supportedFunctions = {
     approveSigHash: this.abiInterface.getFunction('approve')!.selector,

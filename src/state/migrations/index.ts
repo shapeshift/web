@@ -111,4 +111,8 @@ export const migrations = {
   100: clearAssets,
   101: clearAssets,
   102: clearAssets,
+  103: clearAssets,
+  104: clearTxHistory,
+  105: clearPortfolio,
+  106: clearOpportunities,
 }

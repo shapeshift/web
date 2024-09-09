@@ -308,7 +308,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
-        data: data || (await getErc20Data(to, value, contractAddress)),
+        data: data || (await getErc20Data(to, value, contractAddress)) || '0x',
         nonce,
         gasLimit: toHex(BigInt(gasLimit)),
         ...fees,

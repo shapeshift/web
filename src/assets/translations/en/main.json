@@ -608,6 +608,8 @@
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "markets": "Markets",
     "actionMenu": {
       "send": {
         "title": "Send",
@@ -629,8 +631,7 @@
         "title": "Scan QR Code",
         "body": "Easily scan to send or receive crypto"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Sent",
@@ -2570,5 +2571,11 @@
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution"
+  },
+  "markets": {
+    "recommended": "Recommended",
+    "watchlist": "My Watchlist",
+    "categories": "Categories",
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
   }
 }

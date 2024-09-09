@@ -6,6 +6,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
+import PQueue from 'p-queue'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -17,6 +18,8 @@ import type {
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTxInput,
+  TxHistoryInput,
+  TxHistoryResponse,
   ValidAddressResult,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../../types'
@@ -44,6 +47,7 @@ const calculateFee = (fee: string): string => {
 
 export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorchain.V1Api> {
   midgardUrl: string
+  httpV1: unchained.thorchainV1.V1Api
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
@@ -52,6 +56,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     coinType: Number(ASSET_REFERENCE.Thorchain),
     accountNumber: 0,
   }
+
+  protected readonly httpV1: unchained.thorchainV1.V1Api
 
   constructor(args: ChainAdapterArgs) {
     super({
@@ -67,6 +73,8 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       ...args,
     })
+
+    this.httpV1 = args.httpV1
   }
 
   getDisplayName() {
@@ -133,6 +141,31 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       return { valid: true, result: ValidAddressResultType.Valid }
     } catch (e) {
       return { valid: false, result: ValidAddressResultType.Invalid }
+    }
+  }
+
+  async getTxHistoryV1(input: TxHistoryInput): Promise<TxHistoryResponse> {
+    const requestQueue = input.requestQueue ?? new PQueue()
+    try {
+      const data = await requestQueue.add(() =>
+        this.httpV1.getTxHistory({
+          pubkey: input.pubkey,
+          pageSize: input.pageSize,
+          cursor: input.cursor,
+        }),
+      )
+
+      const txs = await Promise.all(
+        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+      )
+
+      return {
+        cursor: data.cursor,
+        pubkey: input.pubkey,
+        transactions: txs,
+      }
+    } catch (err) {
+      return ErrorHandler(err)
     }
   }
 

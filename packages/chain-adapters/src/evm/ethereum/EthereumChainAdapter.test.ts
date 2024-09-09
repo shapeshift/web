@@ -543,7 +543,7 @@ describe('EthereumChainAdapter', () => {
         txToSign: {
           addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
-          data: '',
+          data: '0x',
           gasLimit: toHex(BigInt(gasLimit)),
           gasPrice: toHex(BigInt(gasPrice)),
           nonce: '0x2',

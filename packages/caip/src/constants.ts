@@ -28,7 +28,7 @@ export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
-export const thorchainAssetId: AssetId = 'cosmos:thorchain-mainnet-v1/slip44:931'
+export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'
 export const binanceAssetId: AssetId = 'cosmos:binance-chain-tigris/slip44:714'
 
 export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
@@ -47,7 +47,7 @@ export const arbitrumNovaChainId: ChainId = 'eip155:42170'
 export const baseChainId: ChainId = 'eip155:8453'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
-export const thorchainChainId: ChainId = 'cosmos:thorchain-mainnet-v1'
+export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 
 export const CHAIN_NAMESPACE = {
@@ -67,7 +67,7 @@ export const CHAIN_REFERENCE = {
   DogecoinMainnet: '00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
   CosmosHubMainnet: 'cosmoshub-4',
-  ThorchainMainnet: 'thorchain-mainnet-v1',
+  ThorchainMainnet: 'thorchain-1',
   BinanceMainnet: 'binance-chain-tigris', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
   OptimismMainnet: '10', //https://community.optimism.io/docs/useful-tools/networks/#optimism-mainnet

@@ -85,9 +85,11 @@ export const SnapIntro = ({
   }, [history])
 
   const confirmCopy = useMemo(() => {
+    if ((!isCorrectVersion && isSnapInstalled) || previousIsCorrectVersion === false)
+      return translate('common.update')
+
     if (!isSnapInstalled || isRemoved) return translate('walletProvider.metaMaskSnap.addSnap')
-    if (!isCorrectVersion) return translate('common.update')
-  }, [isCorrectVersion, isRemoved, isSnapInstalled, translate])
+  }, [isCorrectVersion, isRemoved, isSnapInstalled, previousIsCorrectVersion, translate])
 
   return (
     <>

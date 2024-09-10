@@ -523,7 +523,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       throw new Error(`wallet does not support ${this.getDisplayName()}`)
     }
 
-    await this.assertSwitchChain(wallet)
     await verifyLedgerAppOpen(this.chainId, wallet)
 
     const address = await (wallet as ETHWallet).ethGetAddress({

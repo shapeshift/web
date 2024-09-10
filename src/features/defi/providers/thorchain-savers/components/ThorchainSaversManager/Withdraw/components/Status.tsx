@@ -1,6 +1,5 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
@@ -35,13 +34,9 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
-type StatusProps = {
-  accountId: AccountId | undefined
-}
-
 const externalLinkIcon = <ExternalLinkIcon />
 
-export const Status: React.FC<StatusProps> = ({ accountId }) => {
+export const Status: React.FC = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
@@ -88,7 +83,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         })
       }
     })()
-  }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
+  }, [appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')

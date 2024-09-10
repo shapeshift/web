@@ -171,7 +171,7 @@ export const ThorchainSaversWithdraw: React.FC<WithdrawProps> = ({ accountId }) 
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: ownProps => <Status {...ownProps} accountId={accountId} />,
+        component: Status,
       },
     }
     // We only need this to update on symbol change

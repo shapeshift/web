@@ -38,14 +38,14 @@ export const SnapIntro = ({
   const history = useHistory()
 
   const titleSlug = useMemo(() => {
-    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.title'
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.title'
+    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.title'
     return 'walletProvider.metaMaskSnap.title'
   }, [isCorrectVersion, isRemoved])
 
   const bodySlug = useMemo(() => {
-    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.subtitle'
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.subtitle'
+    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.subtitle'
     return 'walletProvider.metaMaskSnap.subtitle'
   }, [isCorrectVersion, isRemoved])
 
@@ -79,9 +79,9 @@ export const SnapIntro = ({
   }, [history])
 
   const confirmCopy = useMemo(() => {
-    if (isCorrectVersion) return translate('walletProvider.metaMaskSnap.addSnap')
+    if (isCorrectVersion || isRemoved) return translate('walletProvider.metaMaskSnap.addSnap')
     return translate('common.update')
-  }, [isCorrectVersion, translate])
+  }, [isCorrectVersion, isRemoved, translate])
 
   return (
     <>

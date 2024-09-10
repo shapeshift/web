@@ -65,6 +65,8 @@ export const Details = () => {
   const history = useHistory()
   const translate = useTranslate()
 
+  const handleNextClick = useCallback(() => history.push(SendRoutes.Confirm), [history])
+
   const {
     accountId,
     amountFieldError,
@@ -103,7 +105,6 @@ export const Details = () => {
     fieldName,
     cryptoHumanBalance,
     fiatBalance,
-    handleNextClick,
     handleSendMax,
     handleInputChange,
     isLoading,

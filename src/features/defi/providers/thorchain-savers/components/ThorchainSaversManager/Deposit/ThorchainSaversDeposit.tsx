@@ -200,7 +200,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
       },
       [DefiStep.Status]: {
         label: translate('defi.steps.status.title'),
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [

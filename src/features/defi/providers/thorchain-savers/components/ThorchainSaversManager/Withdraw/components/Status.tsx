@@ -1,5 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
@@ -23,6 +24,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { waitForThorchainUpdate } from 'lib/utils/thorchain'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectAssets,
@@ -34,9 +36,13 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { ThorchainSaversWithdrawActionType } from '../WithdrawCommon'
 import { WithdrawContext } from '../WithdrawContext'
 
+type StatusProps = {
+  accountId: AccountId | undefined
+}
+
 const externalLinkIcon = <ExternalLinkIcon />
 
-export const Status: React.FC = () => {
+export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(WithdrawContext)
@@ -65,7 +71,7 @@ export const Status: React.FC = () => {
   )
 
   useEffect(() => {
-    if (!(contextDispatch && state?.txid?.length)) return
+    if (!(contextDispatch && state?.txid?.length && accountId)) return
     ;(async () => {
       // Ensuring we wait for the outbound Tx to exist
       // Note, the transaction we wait for here is a Thorchain transaction, *not* the inbound Tx
@@ -75,6 +81,21 @@ export const Status: React.FC = () => {
       }).promise
 
       if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {
+        if (thorchainTxStatus === TxStatusType.Confirmed) {
+          appDispatch(
+            getOpportunitiesUserData.initiate(
+              [
+                {
+                  accountId,
+                  defiProvider: DefiProvider.ThorchainSavers,
+                  defiType: DefiType.Staking,
+                },
+              ],
+              { forceRefetch: true },
+            ),
+          )
+        }
+
         contextDispatch({
           type: ThorchainSaversWithdrawActionType.SET_WITHDRAW,
           payload: {
@@ -83,7 +104,7 @@ export const Status: React.FC = () => {
         })
       }
     })()
-  }, [appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
+  }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')

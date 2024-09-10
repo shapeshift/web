@@ -1,10 +1,5 @@
-import {
-  ASSET_NAMESPACE,
-  type AssetId,
-  bscChainId,
-  type ChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'

@@ -13,7 +13,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { trimWithEndEllipsis } from 'lib/utils'
 import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 
-import { accountIdToLabel, findAccountsByAssetId } from './utils'
+import { accountIdToLabel, findAccountsByAssetId } from '.'
 
 vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

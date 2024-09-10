@@ -53,8 +53,8 @@ import type {
   Portfolio,
   PortfolioAccountBalancesById,
   PortfolioAccounts as PortfolioSliceAccounts,
-} from './portfolioSliceCommon'
-import { initialState } from './portfolioSliceCommon'
+} from '../portfolioSliceCommon'
+import { initialState } from '../portfolioSliceCommon'
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountId): string => {

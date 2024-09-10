@@ -1538,7 +1538,7 @@
       },
       "update": {
         "title": "Multichain snap needs updating",
-        "subtitle": "Please uninstall the ShapeShift multichain snap and click update below to continue using the multichain capabilities of ShapeShift through MetaMask!"
+        "subtitle": "Uninstall the ShapeShift multichain snap and click 'Update' to keep using ShapeShifts multichain features with MetaMask!"
       },
       "secondaryTitle": "The best Multichain experience for MetaMask: Powered by ShapeShift",
       "secondaryBody": "Send, receive, track, trade, and earn with the ShapeShift Multichain Snap on the following chains:",

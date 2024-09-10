@@ -41,13 +41,15 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
 
   const renderSnapStatus = useMemo(() => {
     if (isSnapInstalled) {
-      return <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
+      return isCorrectVersion ? (
+        <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
+      ) : (
+        <Tag colorScheme='red'>{translate('common.update')}</Tag>
+      )
     }
+
     if (!isSnapInstalled) {
       return <Tag>{translate('walletProvider.metaMaskSnap.notActive')}</Tag>
-    }
-    if (!isCorrectVersion) {
-      return <Tag colorScheme='red'>{translate('common.update')}</Tag>
     }
   }, [isCorrectVersion, isSnapInstalled, translate])
 
@@ -58,7 +60,7 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}
-        isDisabled={isSnapInstalled === true && !isCorrectVersion}
+        isDisabled={isSnapInstalled === true && isCorrectVersion === true}
       >
         {translate('walletProvider.metaMaskSnap.multiChainSnap')}
         <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>

@@ -150,7 +150,7 @@ export const useIsSnapInstalled = (): {
     const version = await getSnapVersion()
     const _isSnapInstalled = await checkIsSnapInstalled()
     // TODO(gomes): no magic strings in the house
-    setIsCorrectVersion(version === '1.0.10')
+    setIsCorrectVersion(version === '1.0.9')
     setIsSnapInstalled(_isSnapInstalled)
   }, [isConnected, isDemoWallet, wallet])
 

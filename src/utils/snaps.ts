@@ -21,13 +21,12 @@ type GetSnapsResult = Record<
   }
 >
 
-export const enableShapeShiftSnap = async (
-  version: string = getConfig().REACT_APP_SNAP_ID,
-): Promise<void> => {
+export const enableShapeShiftSnap = async (): Promise<void> => {
+  const snapVersion = getConfig().REACT_APP_SNAP_VERSION
   const isSnapFeatureEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
   assert(isSnapFeatureEnabled, 'Snap feature flag is disabled')
   const snapId = getConfig().REACT_APP_SNAP_ID
-  await _enableShapeShiftSnap(snapId, version)
+  await _enableShapeShiftSnap(snapId, snapVersion)
 }
 
 export const getSnapVersion = async (): Promise<string | null> => {

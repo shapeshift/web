@@ -50,7 +50,7 @@ const widthProp = { base: 'auto', md: 'full' }
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
   const showSnapModal = useSelector(selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
@@ -113,6 +113,17 @@ export const Header = memo(() => {
   }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
+    if (!isSnapInstalled) return
+    if (isCorrectVersion) return
+    if (snapModal.isOpen) return
+
+    return snapModal.open({})
+  }, [isCorrectVersion, isSnapInstalled, snapModal])
+
+  useEffect(() => {
+    if (!isCorrectVersion && isSnapInstalled) return
+    if (snapModal.isOpen) return
+
     if (previousSnapInstall === true && isSnapInstalled === false) {
       // they uninstalled the snap
       toast({
@@ -123,7 +134,7 @@ export const Header = memo(() => {
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
-      snapModal.open({ isRemoved: true })
+      return snapModal.open({ isRemoved: true })
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
       history.push(`/assets/${btcAssetId}`)
@@ -134,13 +145,14 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [
     appDispatch,
     currentWalletId,
     dispatch,
     history,
+    isCorrectVersion,
     isSnapInstalled,
     previousSnapInstall,
     showSnapModal,

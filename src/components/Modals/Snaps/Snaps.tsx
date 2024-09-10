@@ -13,26 +13,31 @@ export type SnapsModalProps = {
 export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { close, isOpen } = useModal('snaps')
   const isSnapsEnabled = useFeatureFlag('Snaps')
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
 
   useEffect(() => {
-    if (isSnapInstalled) {
+    if (isSnapInstalled && isCorrectVersion) {
       close()
     }
-  }, [close, isSnapInstalled])
+  }, [close, isCorrectVersion, isSnapInstalled])
 
   const handleClose = useCallback(() => {
     close()
   }, [close])
 
   if (!isSnapsEnabled) return null
+  if (isCorrectVersion === null) return null
 
   return (
     <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
       <ModalOverlay />
       <ModalContent minW='450px'>
         <ModalCloseButton />
-        <SnapContent isRemoved={isRemoved} onClose={handleClose} />
+        <SnapContent
+          isRemoved={isRemoved}
+          isCorrectVersion={isCorrectVersion}
+          onClose={handleClose}
+        />
       </ModalContent>
     </Modal>
   )

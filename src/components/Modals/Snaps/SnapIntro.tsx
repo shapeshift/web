@@ -27,17 +27,28 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
-export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
+export const SnapIntro = ({
+  isRemoved,
+  isCorrectVersion,
+}: {
+  isRemoved?: boolean
+  isCorrectVersion: boolean
+}) => {
   const translate = useTranslate()
   const history = useHistory()
 
-  const titleSlug = isRemoved
-    ? 'walletProvider.metaMaskSnap.uninstall.title'
-    : 'walletProvider.metaMaskSnap.title'
+  const titleSlug = useMemo(() => {
+    if (!isCorrectVersion) return 'Multichain snap needs updating'
+    if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.title'
+    return 'walletProvider.metaMaskSnap.title'
+  }, [isCorrectVersion, isRemoved])
 
-  const bodySlug = isRemoved
-    ? 'walletProvider.metaMaskSnap.uninstall.subtitle'
-    : 'walletProvider.metaMaskSnap.subtitle'
+  const bodySlug = useMemo(() => {
+    if (!isCorrectVersion)
+      return 'Please update the ShapeShift multichain snap to continue using the multichain capabilities of ShapeShift through MetaMask!'
+    if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.subtitle'
+    return 'walletProvider.metaMaskSnap.subtitle'
+  }, [isCorrectVersion, isRemoved])
 
   const allNativeAssets = useMemo(() => {
     return knownChainIds
@@ -67,6 +78,11 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
     getMixPanel()?.track(MixPanelEvent.StartAddSnap)
     history.push('/confirm')
   }, [history])
+
+  const confirmCopy = useMemo(() => {
+    if (isCorrectVersion) return translate('walletProvider.metaMaskSnap.addSnap')
+    return translate('common.update')
+  }, [isCorrectVersion, translate])
 
   return (
     <>
@@ -113,7 +129,7 @@ export const SnapIntro = ({ isRemoved }: { isRemoved?: boolean }) => {
         </Checkbox>
         <HStack spacing={2}>
           <Button colorScheme='blue' onClick={handleNext}>
-            {translate('walletProvider.metaMaskSnap.addSnap')}
+            {confirmCopy}
           </Button>
         </HStack>
       </ModalFooter>

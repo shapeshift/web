@@ -171,7 +171,8 @@
     },
     "featureDisabled": "This feature is temporarily disabled.",
     "yes": "Yes",
-    "activeAccount": "Active Account"
+    "activeAccount": "Active Account",
+    "update": "Update"
   },
   "consentBanner": {
     "body": {

@@ -43,7 +43,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
     const { chainId: buyAssetChainId, assetId: buyAssetAssetId } =
       useAppSelector(selectInputBuyAsset)
 
-    const isSnapInstalled = useIsSnapInstalled()
+    const { isSnapInstalled } = useIsSnapInstalled()
     const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
     const buyAssetAccountIds = useAppSelector(state =>
       selectAccountIdsByAssetId(state, { assetId: buyAssetAssetId }),
@@ -125,6 +125,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       [buyAssetAssetId, buyAssetChainId, dispatch],
     )
 
+    // We're enabling the snap, so no versionin concerns here
     const handleEnableShapeShiftSnap = useCallback(() => openSnapsModal({}), [openSnapsModal])
     const handleAddAccount = useCallback(
       () => openManageAccountsModal({}),

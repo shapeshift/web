@@ -102,6 +102,7 @@ const EnterPassword = lazy(() =>
 const SnapInstall = lazy(() =>
   import('./MetaMask/components/SnapInstall').then(({ SnapInstall }) => ({ default: SnapInstall })),
 )
+
 const ChangeLabel = lazy(() =>
   import('components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,

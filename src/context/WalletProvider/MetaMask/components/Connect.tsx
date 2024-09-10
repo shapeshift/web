@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
+import { getSnapVersion } from 'utils/snaps'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -89,6 +90,15 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           if (!isMetaMaskDesktop || isMetaMaskImpersonator || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
+
+          const snapVersion = await getSnapVersion()
+          // TODO(gomes): no magic strings in the house
+          const isCorrectVersion = snapVersion === '1.0.9'
+
+          if (!isCorrectVersion) {
+            // This is already handled in header, we don't want to double route
+            return
+          }
 
           if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')

@@ -5,9 +5,11 @@ import { SnapIntro } from './SnapIntro'
 
 export const SnapContent = ({
   isRemoved,
+  isCorrectVersion,
   onClose,
 }: {
   isRemoved?: boolean
+  isCorrectVersion: boolean
   onClose: () => void
 }) => {
   return (
@@ -16,7 +18,7 @@ export const SnapContent = ({
         {({ location }) => (
           <Switch key={location.key} location={location}>
             <Route path='/intro'>
-              <SnapIntro isRemoved={isRemoved} />
+              <SnapIntro isRemoved={isRemoved} isCorrectVersion={isCorrectVersion} />
             </Route>
             <Route path='/confirm'>
               <SnapConfirm onClose={onClose} />

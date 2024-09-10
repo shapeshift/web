@@ -10,6 +10,7 @@ import type { Eip1193Provider } from 'ethers'
 import pDebounce from 'p-debounce'
 import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
+import { getSnapVersion } from 'utils/snaps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
@@ -128,8 +129,12 @@ export const checkIsMetaMaskImpersonator = pMemoize(
   },
 )
 
-export const useIsSnapInstalled = (): null | boolean => {
+export const useIsSnapInstalled = (): {
+  isSnapInstalled: boolean | null
+  isCorrectVersion: boolean | null
+} => {
   const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
+  const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
 
   const {
     state: { wallet, isConnected, isDemoWallet },
@@ -142,7 +147,10 @@ export const useIsSnapInstalled = (): null | boolean => {
     if (isMetaMaskImpersonator) return
     if (!isMetaMaskDesktop) return
 
+    const version = await getSnapVersion()
     const _isSnapInstalled = await checkIsSnapInstalled()
+    // TODO(gomes): no magic strings in the house
+    setIsCorrectVersion(version === '1.0.10')
     setIsSnapInstalled(_isSnapInstalled)
   }, [isConnected, isDemoWallet, wallet])
 
@@ -157,7 +165,7 @@ export const useIsSnapInstalled = (): null | boolean => {
     return () => clearInterval(intervalId)
   }, [checkSnapInstallation, wallet])
 
-  return isSnapInstalled
+  return { isSnapInstalled, isCorrectVersion }
 }
 
 export const canAddMetaMaskAccount = ({

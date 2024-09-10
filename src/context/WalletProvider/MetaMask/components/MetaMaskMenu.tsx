@@ -15,7 +15,7 @@ type MetaMaskMenuProps = {
 }
 
 export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
   const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)

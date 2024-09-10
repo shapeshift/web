@@ -83,7 +83,18 @@ export const Status: React.FC = () => {
           element: <WarningIcon color='red.500' boxSize='75px' />,
         }
       default:
-        return null
+        return {
+          key: TxStatus.Pending,
+          title: 'pools.waitingForConfirmation',
+          body: [
+            'modals.send.status.pendingBody',
+            {
+              amount: amountCryptoPrecision,
+              symbol: asset.symbol,
+            },
+          ],
+          element: <CircularProgress size='75px' />,
+        }
     }
   }, [txStatus, amountCryptoPrecision, asset])
 

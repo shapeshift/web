@@ -3,7 +3,6 @@ import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 
 import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
@@ -20,7 +19,6 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const {
     sellAsset,
@@ -40,16 +38,10 @@ export const BridgeStatus: React.FC<BridgeRouteProps & BridgeStatusProps> = ({
   }, [confirmedQuote, history])
 
   const handleSignAndBroadcast = useCallback(async () => {
-    if (!sellAsset) return undefined
+    if (!sellAsset) return
 
-    try {
-      await checkLedgerAppOpenIfLedgerConnected(sellAsset.chainId)
-
-      return handleBridge()
-    } catch (e) {
-      console.error(e)
-    }
-  }, [handleBridge, checkLedgerAppOpenIfLedgerConnected, sellAsset])
+    return await handleBridge()
+  }, [handleBridge, sellAsset])
 
   const steps: MultiStepStatusStep[] = useMemo(() => {
     if (!(sellAsset && buyAsset)) return []

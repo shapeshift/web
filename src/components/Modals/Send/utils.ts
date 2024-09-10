@@ -91,18 +91,15 @@ export const estimateFees = ({
 export const handleSend = async ({
   sendInput,
   wallet,
-  checkLedgerAppOpenIfLedgerConnected,
 }: {
   sendInput: SendInput
   wallet: HDWallet
-  checkLedgerAppOpenIfLedgerConnected: (chainId: ChainId) => Promise<void>
 }): Promise<string> => {
   const state = store.getState()
   const asset = selectAssetById(state, sendInput.assetId ?? '')
   if (!asset) return ''
 
   const chainId = asset.chainId
-  await checkLedgerAppOpenIfLedgerConnected(chainId)
   const supportedEvmChainIds = getSupportedEvmChainIds()
 
   const acccountMetadataFilter = { accountId: sendInput.accountId }

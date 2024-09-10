@@ -1,5 +1,8 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
+import { emitter } from '@shapeshiftoss/chain-adapters'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -12,6 +15,7 @@ import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
+import { useModal } from 'hooks/useModal/useModal'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -61,6 +65,31 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const isSnapInstalled = Boolean(useIsSnapInstalled())
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
+  const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
+
+  useEffect(() => {
+    const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
+      const onCancel = () => {
+        closeModal()
+        reject()
+      }
+
+      openModal({ chainId, onCancel })
+    }
+
+    const handleLedgerAppOpened = () => {
+      closeModal()
+    }
+
+    emitter.on('LedgerOpenApp', handleLedgerOpenApp)
+    emitter.on('LedgerAppOpened', handleLedgerAppOpened)
+
+    return () => {
+      emitter.off('LedgerOpenApp', handleLedgerOpenApp)
+      emitter.off('LedgerAppOpened', handleLedgerAppOpened)
+    }
+  })
+
   useNfts()
 
   // track anonymous portfolio
@@ -126,9 +155,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           return
         }
 
-        if (!wallet) {
-          return
-        }
+        if (!wallet || isLedger(wallet)) return
 
         let chainIds = supportedChains.filter(chainId => {
           return walletSupportsChain({

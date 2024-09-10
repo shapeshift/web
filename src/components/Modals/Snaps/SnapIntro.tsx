@@ -10,6 +10,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
+  usePrevious,
 } from '@chakra-ui/react'
 import { knownChainIds } from 'constants/chains'
 import { useCallback, useMemo } from 'react'
@@ -38,18 +39,21 @@ export const SnapIntro = ({
 }) => {
   const translate = useTranslate()
   const history = useHistory()
+  const previousIsCorrectVersion = usePrevious(isCorrectVersion)
 
   const titleSlug = useMemo(() => {
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.title'
-    if (!isCorrectVersion && isSnapInstalled) return 'walletProvider.metaMaskSnap.update.title'
+    if ((!isCorrectVersion && isSnapInstalled) || previousIsCorrectVersion === false)
+      return 'walletProvider.metaMaskSnap.update.title'
     return 'walletProvider.metaMaskSnap.title'
-  }, [isCorrectVersion, isRemoved, isSnapInstalled])
+  }, [isCorrectVersion, isRemoved, isSnapInstalled, previousIsCorrectVersion])
 
   const bodySlug = useMemo(() => {
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.subtitle'
-    if (!isCorrectVersion && isSnapInstalled) return 'walletProvider.metaMaskSnap.update.subtitle'
+    if ((!isCorrectVersion && isSnapInstalled) || previousIsCorrectVersion === false)
+      return 'walletProvider.metaMaskSnap.update.subtitle'
     return 'walletProvider.metaMaskSnap.subtitle'
-  }, [isCorrectVersion, isRemoved, isSnapInstalled])
+  }, [isCorrectVersion, isRemoved, isSnapInstalled, previousIsCorrectVersion])
 
   const allNativeAssets = useMemo(() => {
     return knownChainIds

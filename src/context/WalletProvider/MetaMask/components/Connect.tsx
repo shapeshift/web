@@ -95,11 +95,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           // TODO(gomes): no magic strings in the house
           const isCorrectVersion = snapVersion === '1.0.9'
 
-          if (!isCorrectVersion) {
-            // This is already handled in header, we don't want to double route
-            return
+          if (isSnapsEnabled && isSnapInstalled && !isCorrectVersion && showSnapModal) {
+            return history.push('/metamask/snap/update')
           }
-
           if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')
           }

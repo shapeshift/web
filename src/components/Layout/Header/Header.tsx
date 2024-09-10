@@ -52,6 +52,7 @@ export const Header = memo(() => {
   const snapModal = useModal('snaps')
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
+  const previousIsCorrectVersion = usePrevious(isCorrectVersion)
   const showSnapModal = useSelector(selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
@@ -113,18 +114,14 @@ export const Header = memo(() => {
   }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
-    if (!isSnapInstalled) return
-    if (isCorrectVersion) return
-    if (snapModal.isOpen) return
-
-    return snapModal.open({})
-  }, [isCorrectVersion, isSnapInstalled, snapModal])
-
-  useEffect(() => {
     if (!isCorrectVersion && isSnapInstalled) return
     if (snapModal.isOpen) return
 
-    if (previousSnapInstall === true && isSnapInstalled === false) {
+    if (
+      previousSnapInstall === true &&
+      isSnapInstalled === false &&
+      previousIsCorrectVersion === true
+    ) {
       // they uninstalled the snap
       toast({
         status: 'success',
@@ -154,6 +151,7 @@ export const Header = memo(() => {
     history,
     isCorrectVersion,
     isSnapInstalled,
+    previousIsCorrectVersion,
     previousSnapInstall,
     showSnapModal,
     snapModal,

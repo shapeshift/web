@@ -38,14 +38,13 @@ export const SnapIntro = ({
   const history = useHistory()
 
   const titleSlug = useMemo(() => {
-    if (!isCorrectVersion) return 'Multichain snap needs updating'
+    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.title'
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.title'
     return 'walletProvider.metaMaskSnap.title'
   }, [isCorrectVersion, isRemoved])
 
   const bodySlug = useMemo(() => {
-    if (!isCorrectVersion)
-      return 'Please update the ShapeShift multichain snap to continue using the multichain capabilities of ShapeShift through MetaMask!'
+    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.subtitle'
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.subtitle'
     return 'walletProvider.metaMaskSnap.subtitle'
   }, [isCorrectVersion, isRemoved])

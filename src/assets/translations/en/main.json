@@ -1536,6 +1536,10 @@
         "title": "You have removed Multichain support from MetaMask!",
         "subtitle": "Re-add the Multichain Snap on MetaMask to send, receive, track, trade, and earn with the following chains:"
       },
+      "update": {
+        "title": "Multichain snap needs updating",
+        "subtitle": "Please uninstall the ShapeShift multichain snap and click update below to continue using the multichain capabilities of ShapeShift through MetaMask!"
+      },
       "secondaryTitle": "The best Multichain experience for MetaMask: Powered by ShapeShift",
       "secondaryBody": "Send, receive, track, trade, and earn with the ShapeShift Multichain Snap on the following chains:",
       "connectMetaMask": "Connect MetaMask",

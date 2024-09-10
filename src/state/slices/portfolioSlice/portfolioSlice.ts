@@ -14,6 +14,7 @@ import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
@@ -24,7 +25,6 @@ import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
-import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from './utils/portals'
 
 type WalletMetaPayload = {
   walletId: WalletId

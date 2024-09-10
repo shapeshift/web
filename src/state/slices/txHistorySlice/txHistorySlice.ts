@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import PQueue from 'p-queue'
@@ -213,6 +213,7 @@ export const txHistoryApi = createApi({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
         const requestQueue = new PQueue({ concurrency: 2 })
+
         await Promise.all(
           accountIds.map(async accountId => {
             const { chainId, account: pubkey } = fromAccountId(accountId)
@@ -223,58 +224,73 @@ export const txHistoryApi = createApi({
               return { error: { data, status: 400 } }
             }
 
-            try {
-              let currentCursor = ''
-              do {
-                const pageSize = 10
+            const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
+              for await (const getTxHistory of getTxHistoryFns) {
+                try {
+                  let currentCursor = ''
 
-                const requestCursor = currentCursor
-                const { cursor, transactions } = await adapter.getTxHistory({
-                  cursor: requestCursor,
-                  pubkey,
-                  pageSize,
-                  requestQueue,
-                })
+                  do {
+                    const pageSize = 10
+                    const requestCursor = currentCursor
 
-                const state = getState() as State
-                const txsById = state.txHistory.txs.byId
+                    const { cursor, transactions } = await getTxHistory({
+                      cursor: requestCursor,
+                      pubkey,
+                      pageSize,
+                      requestQueue,
+                    })
 
-                const hasTx = transactions.some(
-                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
-                )
+                    const state = getState() as State
+                    const txsById = state.txHistory.txs.byId
 
-                const results: TransactionsByAccountId = { [accountId]: transactions }
-                dispatch(txHistory.actions.upsertTxsByAccountId(results))
+                    const hasTx = transactions.some(
+                      tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
+                    )
 
-                /**
-                 * We have run into a transaction that already exists in the store, stop fetching more history
-                 *
-                 * Two edge cases exist currently:
-                 *
-                 * 1) If there was an error fetching transaction history after at least one page was fetched,
-                 * the user would be missing all transactions thereafter. The next time we fetch tx history,
-                 * we will think we ran into the latest existing transaction in the store and stop fetching.
-                 * This means we will never upsert those missing transactions until the cache is cleared and
-                 * they are successfully fetched again.
-                 *
-                 * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
-                 *
-                 * 2) Cached pending transactions will not be updated to completed if they are older than the
-                 * last page found containing cached transactions.
-                 *
-                 * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
-                 */
-                if (hasTx) break
+                    const results: TransactionsByAccountId = { [accountId]: transactions }
+                    dispatch(txHistory.actions.upsertTxsByAccountId(results))
 
-                currentCursor = cursor
-              } while (currentCursor)
+                    /**
+                     * We have run into a transaction that already exists in the store, stop fetching more history
+                     *
+                     * Two edge cases exist currently:
+                     *
+                     * 1) If there was an error fetching transaction history after at least one page was fetched,
+                     * the user would be missing all transactions thereafter. The next time we fetch tx history,
+                     * we will think we ran into the latest existing transaction in the store and stop fetching.
+                     * This means we will never upsert those missing transactions until the cache is cleared and
+                     * they are successfully fetched again.
+                     *
+                     * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
+                     *
+                     * 2) Cached pending transactions will not be updated to completed if they are older than the
+                     * last page found containing cached transactions.
+                     *
+                     * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
+                     */
+                    if (hasTx) return
 
-              // Mark this account as hydrated so downstream can determine the difference between an
-              // account starting part-way thru a time period and "still hydrating".
-              dispatch(txHistory.actions.setAccountIdHydrated(accountId))
-            } catch (err) {
-              console.error(err)
-              dispatch(txHistory.actions.setAccountIdErrored(accountId))
+                    currentCursor = cursor
+                  } while (currentCursor)
+
+                  // Mark this account as hydrated so downstream can determine the difference between an
+                  // account starting part-way thru a time period and "still hydrating".
+                  dispatch(txHistory.actions.setAccountIdHydrated(accountId))
+                } catch (err) {
+                  console.error(err)
+                  dispatch(txHistory.actions.setAccountIdErrored(accountId))
+                }
+              }
+            }
+
+            if (chainId === thorchainChainId) {
+              // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
+              await fetch([
+                adapter.getTxHistory.bind(adapter),
+                (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),
+              ])
+            } else {
+              await fetch([adapter.getTxHistory.bind(adapter)])
             }
           }),
         )

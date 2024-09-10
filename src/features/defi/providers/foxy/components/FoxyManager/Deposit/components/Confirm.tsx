@@ -16,7 +16,6 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -33,7 +32,6 @@ import { DepositContext } from '../DepositContext'
 type ConfirmProps = StepComponentProps & { accountId: AccountId | undefined }
 
 export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const { poll } = usePoll<TransactionReceipt | null>()
   const foxyApi = getFoxyApi()
   const { state, dispatch } = useContext(DepositContext)
@@ -86,8 +84,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
       if (!supportsETH(walletState.wallet))
         throw new Error(`handleDeposit: wallet does not support ethereum`)
 
-      await checkLedgerAppOpenIfLedgerConnected(feeAsset.chainId)
-
       const txid = await foxyApi.deposit({
         amountDesired: bnOrZero(state?.deposit.cryptoAmount)
           .times(bn(10).pow(asset.precision))
@@ -137,7 +133,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     bip44Params,
     dispatch,
     feeAsset,
-    checkLedgerAppOpenIfLedgerConnected,
     state?.deposit.cryptoAmount,
     asset.precision,
     contractAddress,

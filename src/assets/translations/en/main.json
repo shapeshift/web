@@ -608,6 +608,8 @@
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "markets": "Markets",
     "actionMenu": {
       "send": {
         "title": "Send",
@@ -629,8 +631,7 @@
         "title": "Scan QR Code",
         "body": "Easily scan to send or receive crypto"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Sent",
@@ -1888,7 +1889,7 @@
   "ledgerOpenApp": {
     "title": "Open the %{appName} App",
     "description": "To continue, you will need to open the %{appName} app on your Ledger device.",
-    "signingDescription": "Signing prompt will automatically pop-up in your device after opening the app"
+    "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2570,5 +2571,11 @@
     "emissionsPoolHelper": "Emissions Pool (This Epoch)",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution"
+  },
+  "markets": {
+    "recommended": "Recommended",
+    "watchlist": "My Watchlist",
+    "categories": "Categories",
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
   }
 }

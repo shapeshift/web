@@ -43,10 +43,10 @@ export const tribeToken: Token = {
 }
 
 export const maticToken: Token = {
-  contract: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0',
+  contract: '0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6',
   decimals: 18,
-  name: 'Matic Token',
-  symbol: 'MATIC',
+  name: 'Polygon Ecosystem Token',
+  symbol: 'POL',
 }
 
 export const usdtToken: Token = {

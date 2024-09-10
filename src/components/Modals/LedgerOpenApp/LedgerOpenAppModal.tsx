@@ -10,26 +10,36 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { type ChainId, ethAssetId } from '@shapeshiftoss/caip'
+import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { selectAssetById, selectFeeAssetByChainId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { AssetOnLedger } from './components/AssetOnLedger'
-import { useLedgerAppDetails } from './hooks/useLedgerAppDetails'
 
 export type LedgerOpenAppModalProps = {
   chainId: ChainId
   onCancel: () => void
-  isSigning: boolean
 }
 
-export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenAppModalProps) => {
-  const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
+export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProps) => {
   const translate = useTranslate()
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
 
-  const { appName, appAsset } = useLedgerAppDetails(chainId)
+  const appName = useMemo(() => {
+    return getLedgerAppName(chainId)
+  }, [chainId])
+
+  const appAsset = useMemo(() => {
+    if (isEvmChainId(chainId)) return ethAsset
+    return feeAsset
+  }, [feeAsset, chainId, ethAsset])
 
   const handleClose = useCallback(() => {
     closeModal()
@@ -57,9 +67,7 @@ export const LedgerOpenAppModal = ({ chainId, onCancel, isSigning }: LedgerOpenA
                 appName,
               })}
             </RawText>
-            {isSigning ? (
-              <Alert status='warning'>{translate('ledgerOpenApp.signingDescription')}</Alert>
-            ) : null}
+            <Alert status='warning'>{translate('ledgerOpenApp.devicePrompt')}</Alert>
             <Spinner mt={4} size='lg' />
           </VStack>
         </ModalBody>

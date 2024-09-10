@@ -17,7 +17,7 @@ export const useFormSend = () => {
   } = useWallet()
 
   const handleFormSend = useCallback(
-    async (sendInput: SendInput): Promise<string> => {
+    async (sendInput: SendInput): Promise<string | undefined> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
@@ -65,7 +65,6 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
-        return ''
       }
     },
     [toast, translate, wallet],

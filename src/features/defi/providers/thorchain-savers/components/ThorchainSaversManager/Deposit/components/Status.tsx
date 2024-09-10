@@ -1,7 +1,6 @@
 import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
 import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
@@ -9,7 +8,7 @@ import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
-import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
@@ -29,21 +28,15 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectTxById,
 } from 'state/slices/selectors'
-import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { ThorchainSaversDepositActionType } from '../DepositCommon'
 import { DepositContext } from '../DepositContext'
 
-type StatusProps = {
-  accountId: AccountId | undefined
-}
-
 const externalLinkIcon = <ExternalLinkIcon />
 
-export const Status: React.FC<StatusProps> = ({ accountId }) => {
+export const Status: React.FC = () => {
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const { state, dispatch: contextDispatch } = useContext(DepositContext)
@@ -70,37 +63,25 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
   )
 
-  const account = useMemo(() => accountId && fromAccountId(accountId).account, [accountId])
-
-  const serializedTxIndex = useMemo(() => {
-    if (!(state?.txid && accountId && account)) return ''
-    return serializeTxIndex(accountId, state.txid, account)
-  }, [state?.txid, accountId, account])
-
-  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
-
   useEffect(() => {
-    if (!accountId) return
+    if (!contextDispatch || !state?.txid) return
+    ;(async () => {
+      // Skipping outbound detection since there's no outbound tx involved here - as long as the inner swap is confirmed, we're gucci
+      const thorchainTxStatus = await waitForThorchainUpdate({
+        txId: state.txid!,
+        skipOutbound: true,
+      }).promise
 
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && contextDispatch) {
-      ;(async () => {
-        // Skipping outbound detection since there's no outbound tx involved here - as long as the inner swap is confirmed, we're gucci
-        const thorchainTxStatus = await waitForThorchainUpdate({
-          txId: confirmedTransaction.txid,
-          skipOutbound: true,
-        }).promise
-
-        if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {
-          contextDispatch({
-            type: ThorchainSaversDepositActionType.SET_DEPOSIT,
-            payload: {
-              txStatus: thorchainTxStatus === TxStatusType.Confirmed ? 'success' : 'failed',
-            },
-          })
-        }
-      })()
-    }
-  }, [accountId, appDispatch, confirmedTransaction, contextDispatch, getOpportunitiesUserData])
+      if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {
+        contextDispatch({
+          type: ThorchainSaversDepositActionType.SET_DEPOSIT,
+          payload: {
+            txStatus: thorchainTxStatus === TxStatusType.Confirmed ? 'success' : 'failed',
+          },
+        })
+      }
+    })()
+  }, [appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')

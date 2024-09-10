@@ -26,6 +26,7 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   }, [close])
 
   if (!isSnapsEnabled) return null
+  if (isSnapInstalled === null) return null
   if (isCorrectVersion === null) return null
 
   return (
@@ -36,6 +37,7 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
         <SnapContent
           isRemoved={isRemoved}
           isCorrectVersion={isCorrectVersion}
+          isSnapInstalled={isSnapInstalled}
           onClose={handleClose}
         />
       </ModalContent>

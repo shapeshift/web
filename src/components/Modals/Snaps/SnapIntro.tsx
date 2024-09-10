@@ -30,24 +30,26 @@ import { store } from 'state/store'
 export const SnapIntro = ({
   isRemoved,
   isCorrectVersion,
+  isSnapInstalled,
 }: {
   isRemoved?: boolean
   isCorrectVersion: boolean
+  isSnapInstalled: boolean
 }) => {
   const translate = useTranslate()
   const history = useHistory()
 
   const titleSlug = useMemo(() => {
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.title'
-    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.title'
+    if (!isCorrectVersion && isSnapInstalled) return 'walletProvider.metaMaskSnap.update.title'
     return 'walletProvider.metaMaskSnap.title'
-  }, [isCorrectVersion, isRemoved])
+  }, [isCorrectVersion, isRemoved, isSnapInstalled])
 
   const bodySlug = useMemo(() => {
     if (isRemoved) return 'walletProvider.metaMaskSnap.uninstall.subtitle'
-    if (!isCorrectVersion) return 'walletProvider.metaMaskSnap.update.subtitle'
+    if (!isCorrectVersion && isSnapInstalled) return 'walletProvider.metaMaskSnap.update.subtitle'
     return 'walletProvider.metaMaskSnap.subtitle'
-  }, [isCorrectVersion, isRemoved])
+  }, [isCorrectVersion, isRemoved, isSnapInstalled])
 
   const allNativeAssets = useMemo(() => {
     return knownChainIds

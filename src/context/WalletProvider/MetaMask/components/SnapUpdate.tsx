@@ -10,7 +10,8 @@ export const SnapUpdate = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }, [dispatch])
 
-  // If we land here, we know the version is incorrect
-  const isCorrectVersion = false
-  return <SnapContent onClose={handleClose} isCorrectVersion={isCorrectVersion} />
+  return (
+    // If we land here, we know the version is incorrect
+    <SnapContent onClose={handleClose} isCorrectVersion={false} isSnapInstalled={true} />
+  )
 }

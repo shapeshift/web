@@ -10,7 +10,12 @@ export const SnapInstall = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }, [dispatch])
 
-  // If we land here, we don't care about versioning, the user does *not* have the snap installed yet
-  const isCorrectVersion = true
-  return <SnapContent onClose={handleClose} isCorrectVersion={isCorrectVersion} />
+  return (
+    <SnapContent
+      onClose={handleClose}
+      // If we land here, we don't care about versioning, the user does *not* have the snap installed yet
+      isCorrectVersion
+      isSnapInstalled={false}
+    />
+  )
 }

@@ -15,6 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
+const snapVersion = getConfig().REACT_APP_SNAP_VERSION
 
 // Many many user-agents to detect mobile MM and other in-app dApp browsers
 // https://github.com/MetaMask/metamask-mobile/issues/3920#issuecomment-1074188335
@@ -149,8 +150,8 @@ export const useIsSnapInstalled = (): {
 
     const version = await getSnapVersion()
     const _isSnapInstalled = await checkIsSnapInstalled()
-    // TODO(gomes): no magic strings in the house
-    setIsCorrectVersion(version === '1.0.9')
+
+    setIsCorrectVersion(version === snapVersion)
     setIsSnapInstalled(_isSnapInstalled)
   }, [isConnected, isDemoWallet, wallet])
 

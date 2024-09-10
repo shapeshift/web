@@ -1,3 +1,4 @@
+import { getConfig } from 'config'
 import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
@@ -92,8 +93,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           const isSnapInstalled = await checkIsSnapInstalled()
 
           const snapVersion = await getSnapVersion()
-          // TODO(gomes): no magic strings in the house
-          const isCorrectVersion = snapVersion === '1.0.9'
+
+          const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
 
           if (isSnapsEnabled && isSnapInstalled && !isCorrectVersion && showSnapModal) {
             return history.push('/metamask/snap/update')

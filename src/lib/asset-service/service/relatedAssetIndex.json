@@ -37,7 +37,7 @@
   "cosmos:cosmoshub-4/ibc:E92E07E68705FAD13305EE9C73684B30A7B66A52F54C9890327E0A4C0F1D22E3": [],
   "cosmos:cosmoshub-4/ibc:F663521BF1836B00F5F177680F74BFB9A8B5654A694D0D2BC249E03CF2509013": [],
   "cosmos:cosmoshub-4/slip44:118": [],
-  "cosmos:thorchain-mainnet-v1/slip44:931": [],
+  "cosmos:thorchain-1/slip44:931": [],
   "eip155:1/erc20:0x000000e29fa2bd3e5c215ffc71aa66b29c9769a2": [],
   "eip155:1/erc20:0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7": [],
   "eip155:1/erc20:0x0037830245f5dd5ff4d158101309ba3ad3639783": [],
@@ -24772,5 +24772,14 @@
   "eip155:1/erc20:0x82d09e30d5d682d69b4a5d97c61b7ba651457625": [
     "eip155:8453/erc20:0x78b3c724a2f663d11373c4a1978689271895256f",
     "eip155:1/erc20:0x82d09e30d5d682d69b4a5d97c61b7ba651457625"
+  ],
+  "eip155:1/erc20:0x99bb69ee1bbfc7706c3ebb79b21c5b698fe58ec0": [
+    "eip155:8453/erc20:0xd20ab1015f6a2de4a6fddebab270113f689c2f7c",
+    "eip155:56/bep20:0x680d3113caf77b61b510f332d5ef4cf5b41a761d",
+    "eip155:1/erc20:0x99bb69ee1bbfc7706c3ebb79b21c5b698fe58ec0"
+  ],
+  "eip155:1/erc20:0xc52fafdc900cb92ae01e6e4f8979af7f436e2eb2": [
+    "eip155:8453/erc20:0xd1917629b3e6a72e6772aab5dbe58eb7fa3c2f33",
+    "eip155:1/erc20:0xc52fafdc900cb92ae01e6e4f8979af7f436e2eb2"
   ]
 }

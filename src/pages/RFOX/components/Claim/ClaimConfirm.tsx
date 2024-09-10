@@ -24,7 +24,6 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
@@ -63,7 +62,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const history = useHistory()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const handleGoBack = useCallback(() => {
     history.push(ClaimRoutePaths.Select)
@@ -209,13 +207,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     if (!stakingAsset) return
 
-    await checkLedgerAppOpenIfLedgerConnected(stakingAsset.chainId)
-      .then(async () => {
-        await handleClaim()
-        history.push(ClaimRoutePaths.Status)
-      })
-      .catch(console.error)
-  }, [handleClaim, history, checkLedgerAppOpenIfLedgerConnected, stakingAsset])
+    await handleClaim()
+    history.push(ClaimRoutePaths.Status)
+  }, [handleClaim, history, stakingAsset])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
   const isClaimTxPending = useMemo(

@@ -75,6 +75,8 @@
     "retryQuestion": "Tekrar dene?",
     "transactionFailed": "İşlem Başarısız",
     "transactionFailedBody": "İşlem Başarısız",
+    "safeProposalQueued": "SAFE teklif sıraya alındı. %{confirmationsRequired} tekliften %{currentConfirmations} tanesi imzalandı.",
+    "safeProposalExecuted": "SAFE teklifi yürürlüğe girdi.",
     "submitFeedback": "Geri Bildirim Gönder",
     "send": "Gönder",
     "receive": "Al",
@@ -153,6 +155,7 @@
     "symmetric": "Simetrik",
     "asymmetric": "Asimetrik (%{assetSymbol})",
     "import": "İçe aktar",
+    "accountsLoading": "Hesaplar Yükleniyor",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -167,7 +170,8 @@
       "expandRow": "Satırı Genişlet"
     },
     "featureDisabled": "Bu özellik geçici olarak devre dışıdır.",
-    "yes": "Evet"
+    "yes": "Evet",
+    "activeAccount": "Aktif Hesap"
   },
   "consentBanner": {
     "body": {
@@ -657,8 +661,9 @@
         "withdrawEth": "Para Çekme Başlatıldı",
         "submitRetryable": "Alınan Depozit",
         "createRetryableTicket": "Para Yatırma Başlatıldı",
-        "finalizeInboundTransfer": "Çekilen Para Alındı",
-        "depositEth": "Para Yatırma Başlatıldı"
+        "finalizeInboundTransferDeposit": "Alınan Depozit",
+        "depositEth": "Para Yatırma Başlatıldı",
+        "executeTransaction": "Talep Et"
       },
       "rfox": {
         "stake": "Stake",
@@ -708,6 +713,7 @@
         "out": "Giden Alınan",
         "refund": "Geri Ödeme",
         "swapOut": "Takas Alındı",
+        "swap": "Takas",
         "swapRefund": "Takas İadesi",
         "withdraw": "Para Çekme Talep Edildi",
         "withdrawNative": "Çekim",
@@ -771,13 +777,22 @@
     "waitTimeValue": "~5-10 Dakika",
     "noSupportedAssets": "Portföyde desteklenen varlık yok.",
     "arbitrum": {
+      "description": "Arbitrum ile Köprü",
       "waitWarning": "Arbitrum'un yerel köprüsü daha güvenlidir ancak alınması bir hafta kadar sürebilir.",
       "waitCta": "Ethereum'da fon talebinde bulunabilmemin ~7 gün süreceğini biliyorum",
       "claimCta": "Paramı talep ettikten sonra ücretli başka bir işlem göndermem gerekeceğini anlıyorum"
     },
-    "claims": "Toplananlar",
+    "claim": "Talep Et",
+    "claimReceiveAddress": "Alıcı Adresi Talep Et",
+    "claimPending": "Talebinizi bekliyoruz",
+    "claimSuccess": "Başarıyla talep ettiniz",
+    "claimFailed": "Talepte bulunmaya çalışırken hata oluştu",
     "availableClaims": "Mevcut",
-    "pendingClaims": "Bekleyen"
+    "noAvailableClaims": "Hiçbir talep mevcut değil",
+    "pendingClaims": "Bekleyen",
+    "noPendingClaims": "Bekleyen hiçbir talep yok",
+    "availableIn": "%{time} içinde mevcut",
+    "confirmAndClaim": "Onayla ve Talep Et"
   },
   "trade": {
     "trade": "Takas",
@@ -918,7 +933,7 @@
     "numHops": "Bu takas %{numHops} atlama içerir",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
-    "smartContractReceiveAddressDescription": "Adresi hedef zincirinde bulunmayan bir akıllı sözleşmeden geçiş yaptığınızı tespit ettik. Lütfen %{chainName} üzerinde istenen alıcı adresini doğrulayın ve manuel olarak girin",
+    "disableThorNativeSmartContractReceive": "%{chainName} üzerindeki bir akıllı sözleşme adresine gönderdiğinizi tespit ettik. THORChain sınırlamaları nedeniyle, %{nativeAssetSymbol}'u bir akıllı sözleşme adresine almak desteklenmiyor. Lütfen başka bir adres girin",
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
@@ -1871,7 +1886,8 @@
   },
   "ledgerOpenApp": {
     "title": "%{appName} Uygulamasını açın",
-    "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir."
+    "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir.",
+    "signingDescription": "Uygulamayı açtıktan sonra cihazınızda imzalama istemi otomatik olarak açılır"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {

@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertUnreachable } from 'lib/utils'
 
@@ -24,8 +23,6 @@ export const ManageAccountsDrawer = ({
   const wallet = useWallet().state.wallet
   const [step, setStep] = useState<ManageAccountsStep>('selectChain')
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null)
-
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: false })
 
   const handleClose = useCallback(() => {
     setStep('selectChain')
@@ -66,16 +63,11 @@ export const ManageAccountsDrawer = ({
   }, [parentSelectedChainId])
 
   const handleSelectChainId = useCallback(
-    async (chainId: ChainId) => {
+    (chainId: ChainId) => {
       setSelectedChainId(chainId)
-
-      // Only proceed to next step if the promise is resolved, i.e the user has opened the Ledger
-      // app without cancelling
-      await checkLedgerAppOpenIfLedgerConnected(chainId)
-        .then(() => handleNext())
-        .catch(console.error)
+      handleNext()
     },
-    [checkLedgerAppOpenIfLedgerConnected, handleNext],
+    [handleNext],
   )
 
   const drawerContent = useMemo(() => {

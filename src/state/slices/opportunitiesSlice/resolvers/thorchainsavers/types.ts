@@ -147,3 +147,13 @@ export type ThorchainRunepoolReservePositionsResponse = {
     runeWithdrawn: string
   }[]
 }
+
+export type ThorchainRunepoolMemberPositionResponse = {
+  runeAddress: string
+  units: string
+  runeAdded: string
+  runeDeposit: string
+  runeWithdrawn: string
+  dateFirstAdded: string
+  dateLastAdded: string
+}

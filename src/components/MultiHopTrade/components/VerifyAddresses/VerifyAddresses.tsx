@@ -26,7 +26,6 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
@@ -287,23 +286,13 @@ export const VerifyAddresses = () => {
     ],
   )
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
+  const handleBuyVerify = useCallback(() => {
+    handleVerify(AddressVerificationType.Buy)
+  }, [handleVerify])
 
-  const handleBuyVerify = useCallback(async () => {
-    // Only proceed to verify the buy address if the promise is resolved, i.e the user has opened
-    // the Ledger app without cancelling
-    await checkLedgerAppOpenIfLedgerConnected(buyAsset.chainId)
-      .then(() => handleVerify(AddressVerificationType.Buy))
-      .catch(console.error)
-  }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, buyAsset.chainId])
-
-  const handleSellVerify = useCallback(async () => {
-    // Only proceed to verify the sell address if the promise is resolved, i.e the user has opened
-    // the Ledger app without cancelling
-    await checkLedgerAppOpenIfLedgerConnected(sellAsset.chainId)
-      .then(() => handleVerify(AddressVerificationType.Sell))
-      .catch(console.error)
-  }, [checkLedgerAppOpenIfLedgerConnected, handleVerify, sellAsset.chainId])
+  const handleSellVerify = useCallback(() => {
+    handleVerify(AddressVerificationType.Sell)
+  }, [handleVerify])
 
   const verifyBuyAssetTranslation: TextPropTypes['translation'] = useMemo(
     () => ['trade.verifyAsset', { asset: buyAsset.symbol }],

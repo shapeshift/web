@@ -21,7 +21,6 @@ import { getAddress, zeroAddress } from 'viem'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { estimateFees, handleSend } from 'components/Modals/Send/utils'
 import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -82,7 +81,6 @@ export const useSendThorTx = ({
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
   const wallet = useWallet().state.wallet
   const toast = useToast()
   const translate = useTranslate()
@@ -279,8 +277,6 @@ export const useSendThorTx = ({
     if (accountNumber === undefined) return
     if (isToken(asset.assetId) && !inboundAddressData) return
 
-    await checkLedgerAppOpenIfLedgerConnected(asset.chainId)
-
     if (
       action !== 'withdrawRunepool' &&
       !shouldUseDustAmount &&
@@ -377,11 +373,7 @@ export const useSendThorTx = ({
             input: '',
           }
 
-          const _txId = await handleSend({
-            sendInput,
-            wallet,
-            checkLedgerAppOpenIfLedgerConnected,
-          })
+          const _txId = await handleSend({ sendInput, wallet })
 
           return {
             _txId,
@@ -443,7 +435,6 @@ export const useSendThorTx = ({
     toast,
     translate,
     depositWithExpiryInputData,
-    checkLedgerAppOpenIfLedgerConnected,
     fromAddress,
     selectedCurrency,
   ])

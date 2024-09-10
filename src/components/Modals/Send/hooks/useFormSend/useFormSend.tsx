@@ -2,7 +2,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -17,20 +16,14 @@ export const useFormSend = () => {
     state: { wallet },
   } = useWallet()
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const handleFormSend = useCallback(
-    async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string> => {
+    async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string | undefined> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
-        const broadcastTXID = await handleSend({
-          wallet,
-          sendInput,
-          checkLedgerAppOpenIfLedgerConnected,
-        })
+        const broadcastTXID = await handleSend({ wallet, sendInput })
 
         setTimeout(() => {
           if (!toastOnBroadcast) return
@@ -77,7 +70,7 @@ export const useFormSend = () => {
         return ''
       }
     },
-    [checkLedgerAppOpenIfLedgerConnected, toast, translate, wallet],
+    [toast, translate, wallet],
   )
 
   return {

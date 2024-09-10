@@ -41,7 +41,7 @@ export const Status: React.FC = () => {
   const accountId = useWatch<SendInput, SendFormFields.AccountId>({
     name: SendFormFields.AccountId,
   })
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
   )
@@ -50,6 +50,7 @@ export const Status: React.FC = () => {
     accountId,
     txHash: txHash || null,
   })
+
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
     accountId,
@@ -131,7 +132,18 @@ export const Status: React.FC = () => {
           element: <WarningIcon color='red.500' boxSize='75px' />,
         }
       default:
-        return null
+        return {
+          key: TxStatus.Pending,
+          title: 'pools.waitingForConfirmation',
+          body: [
+            'modals.send.status.pendingBody',
+            {
+              amount: amountCryptoPrecision,
+              symbol: asset.symbol,
+            },
+          ],
+          element: <CircularProgress size='75px' />,
+        }
     }
   }, [
     asset,
@@ -154,7 +166,6 @@ export const Status: React.FC = () => {
       maybeSafeTx,
     })
   }, [accountId, feeAsset, maybeSafeTx, txHash])
-
   return (
     <Card width='full'>
       <SharedStatus txLink={txLink} body={bodyContent} onClose={handleClose} />

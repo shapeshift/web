@@ -199,12 +199,11 @@ export const portfolioApi = createApi({
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const nftCollectionsById = selectNftCollections(state)
 
-          const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
-          const maybePortalsPlatforms = await fetchPortalsPlatforms()
-
-          const data = ((): Portfolio => {
+          const data = await (async (): Promise<Portfolio> => {
             // add placeholder non spam assets for evm chains
             if (evmChainIds.includes(chainId as EvmChainId)) {
+              const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
+              const maybePortalsPlatforms = await fetchPortalsPlatforms()
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

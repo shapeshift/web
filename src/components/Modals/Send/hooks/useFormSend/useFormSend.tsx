@@ -2,8 +2,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
-import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -14,26 +12,18 @@ import { handleSend } from '../../utils'
 export const useFormSend = () => {
   const toast = useToast()
   const translate = useTranslate()
-  const send = useModal('send')
-  const qrCode = useModal('qrCode')
   const {
     state: { wallet },
   } = useWallet()
 
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
-
   const handleFormSend = useCallback(
-    async (sendInput: SendInput) => {
+    async (sendInput: SendInput): Promise<string | undefined> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
-        const broadcastTXID = await handleSend({
-          wallet,
-          sendInput,
-          checkLedgerAppOpenIfLedgerConnected,
-        })
+        const broadcastTXID = await handleSend({ wallet, sendInput })
 
         setTimeout(() => {
           toast({
@@ -59,6 +49,8 @@ export const useFormSend = () => {
             position: 'top-right',
           })
         }, 5000)
+
+        return broadcastTXID
       } catch (e) {
         // If we're here, we know asset is defined
         const asset = selectAssetById(store.getState(), sendInput.assetId)!
@@ -73,13 +65,9 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
-      } finally {
-        // Sends may be done from the context of a QR code modal, or a send modal, which are similar, but effectively diff. modal refs
-        qrCode.close()
-        send.close()
       }
     },
-    [checkLedgerAppOpenIfLedgerConnected, qrCode, send, toast, translate, wallet],
+    [toast, translate, wallet],
   )
 
   return {

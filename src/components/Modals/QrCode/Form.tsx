@@ -24,6 +24,7 @@ import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
 import { Details } from '../Send/views/Details'
+import { Status } from '../Send/views/Status'
 
 type QrCodeFormProps = {
   assetId?: AssetId
@@ -70,6 +71,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     setAddressError(null)
     history.goBack()
   }, [history])
+
+  const handleSubmit = useCallback(
+    async (data: SendInput) => {
+      const txHash = await handleFormSend(data)
+      if (!txHash) return
+      methods.setValue(SendFormFields.TxHash, txHash)
+      history.push(SendRoutes.Status)
+    },
+    [handleFormSend, history, methods],
+  )
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') event.preventDefault()
@@ -142,7 +153,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleFormSend)} onKeyDown={checkKeyDown}>
+      <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
         <AnimatePresence mode='wait' initial={false}>
           <Switch location={location} key={location.key}>
             <Route path={SendRoutes.Select}>
@@ -163,6 +174,9 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             </Route>
             <Route path={SendRoutes.Confirm}>
               <Confirm />
+            </Route>
+            <Route path={SendRoutes.Status}>
+              <Status />
             </Route>
             <Redirect exact from='/' to={SendRoutes.Scan} />
           </Switch>

@@ -2,6 +2,7 @@ export enum SendRoutes {
   Address = '/send/address',
   Details = '/send/details',
   Confirm = '/send/confirm',
+  Status = '/send/status',
   Select = '/send/select',
   Scan = '/send/scan',
 }
@@ -23,4 +24,5 @@ export enum SendFormFields {
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax',
   CustomNonce = 'customNonce',
+  TxHash = 'txHash',
 }

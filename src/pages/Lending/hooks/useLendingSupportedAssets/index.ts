@@ -33,7 +33,7 @@ export const useLendingSupportedAssets = ({
   statusFilter?: ThornodePoolStatuses | 'All'
 }) => {
   const wallet = useWallet().state.wallet
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const { data: availablePools } = useQuery({
     ...reactQueries.thornode.poolsData(),

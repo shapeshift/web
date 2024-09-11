@@ -42,6 +42,7 @@ const validators = {
   REACT_APP_UNCHAINED_COSMOS_WS_URL: url(),
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: url(),
   REACT_APP_UNCHAINED_THORCHAIN_WS_URL: url(),
+  REACT_APP_UNCHAINED_THORCHAIN_V1_HTTP_URL: url(),
   REACT_APP_THORCHAIN_NODE_URL: url(),
   REACT_APP_ETHEREUM_NODE_URL: url(),
   REACT_APP_AVALANCHE_NODE_URL: url(),
@@ -153,6 +154,7 @@ const validators = {
   REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
+  REACT_APP_SNAP_VERSION: str(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY: bool({ default: false }),
@@ -168,6 +170,7 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE_CLAIMS: bool({ default: false }),
   REACT_APP_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),
   REACT_APP_FEATURE_RUNEPOOL: bool({ default: false }),
+  REACT_APP_FEATURE_MARKETS: bool({ default: false }),
   REACT_APP_PORTALS_BASE_URL: url(),
   REACT_APP_ZERION_BASE_URL: url(),
 }

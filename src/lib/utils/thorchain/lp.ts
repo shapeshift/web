@@ -119,7 +119,7 @@ export const getSlippage = ({
     }
   }
 
-  // symmetrical lp positions incur no slippage as there is no rebalancing swap occuring
+  // symmetrical lp positions incur no slippage as there is no rebalancing swap occurring
   return {
     decimalPercent: '0',
     runeAmountCryptoPrecision: '0',

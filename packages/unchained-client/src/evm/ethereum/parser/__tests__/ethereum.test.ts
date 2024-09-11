@@ -1987,7 +1987,7 @@ describe('parseTx', () => {
       const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
       const buyTransfer = {
-        assetId: 'eip155:1/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
+        assetId: 'eip155:1/erc20:0x455e53cbb86018ac2b8092fdcd39d8444affc3f6',
         components: [{ value: '50000000000000000000000' }],
         from: '0x22F9dCF4647084d6C31b2765F6910cd85C178C18',
         to: address,

@@ -50,8 +50,9 @@ const widthProp = { base: 'auto', md: 'full' }
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const snapModal = useModal('snaps')
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const previousSnapInstall = usePrevious(isSnapInstalled)
+  const previousIsCorrectVersion = usePrevious(isCorrectVersion)
   const showSnapModal = useSelector(selectShowSnapsModal)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
@@ -113,7 +114,14 @@ export const Header = memo(() => {
   }, [appDispatch, currentWalletId, hasUtxoAccountIds, isSnapInstalled, wallet, walletAccountIds])
 
   useEffect(() => {
-    if (previousSnapInstall === true && isSnapInstalled === false) {
+    if (!isCorrectVersion && isSnapInstalled) return
+    if (snapModal.isOpen) return
+
+    if (
+      previousSnapInstall === true &&
+      isSnapInstalled === false &&
+      previousIsCorrectVersion === true
+    ) {
       // they uninstalled the snap
       toast({
         status: 'success',
@@ -123,7 +131,7 @@ export const Header = memo(() => {
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
-      snapModal.open({ isRemoved: true })
+      return snapModal.open({ isRemoved: true })
     }
     if (previousSnapInstall === false && isSnapInstalled === true) {
       history.push(`/assets/${btcAssetId}`)
@@ -134,14 +142,16 @@ export const Header = memo(() => {
         title: translate('walletProvider.metaMaskSnap.snapInstalledToast'),
         position: 'bottom',
       })
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+      return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     }
   }, [
     appDispatch,
     currentWalletId,
     dispatch,
     history,
+    isCorrectVersion,
     isSnapInstalled,
+    previousIsCorrectVersion,
     previousSnapInstall,
     showSnapModal,
     snapModal,

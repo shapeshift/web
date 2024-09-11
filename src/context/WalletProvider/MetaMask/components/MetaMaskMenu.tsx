@@ -15,7 +15,7 @@ type MetaMaskMenuProps = {
 }
 
 export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const translate = useTranslate()
   const snapModal = useModal('snaps')
   const [isMetaMask, setIsMetaMask] = useState<null | boolean>(null)
@@ -34,27 +34,33 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
   }, [wallet])
 
   const handleClick = useCallback(() => {
-    if (isSnapInstalled === false) {
+    if (isSnapInstalled === false || isCorrectVersion === false) {
       snapModal.open({})
     }
-  }, [isSnapInstalled, snapModal])
+  }, [isCorrectVersion, isSnapInstalled, snapModal])
 
   const renderSnapStatus = useMemo(() => {
-    if (isSnapInstalled === true) {
-      return <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
-    } else {
+    if (isSnapInstalled) {
+      return isCorrectVersion ? (
+        <Tag colorScheme='green'>{translate('walletProvider.metaMaskSnap.active')}</Tag>
+      ) : (
+        <Tag colorScheme='red'>{translate('common.update')}</Tag>
+      )
+    }
+
+    if (!isSnapInstalled) {
       return <Tag>{translate('walletProvider.metaMaskSnap.notActive')}</Tag>
     }
-  }, [isSnapInstalled, translate])
+  }, [isCorrectVersion, isSnapInstalled, translate])
 
   return isMetaMask ? (
     <>
       <MenuDivider />
-      {isSnapInstalled && <ManageAccountsMenuItem onClose={onClose} />}
+      {isSnapInstalled && isCorrectVersion && <ManageAccountsMenuItem onClose={onClose} />}
       <MenuItem
         justifyContent='space-between'
         onClick={handleClick}
-        isDisabled={isSnapInstalled === true}
+        isDisabled={isSnapInstalled === true && isCorrectVersion === true}
       >
         {translate('walletProvider.metaMaskSnap.multiChainSnap')}
         <Skeleton isLoaded={isSnapInstalled !== null}>{renderSnapStatus}</Skeleton>

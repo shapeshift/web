@@ -66,7 +66,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
 
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const filteredDownStakingOpportunities = useMemo(
     () =>

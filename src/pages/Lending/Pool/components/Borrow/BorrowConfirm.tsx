@@ -39,7 +39,6 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { useInterval } from 'hooks/useInterval/useInterval'
-import { useLedgerOpenApp } from 'hooks/useLedgerOpenApp/useLedgerOpenApp'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
@@ -91,8 +90,6 @@ export const BorrowConfirm = ({
   const {
     state: { wallet },
   } = useWallet()
-
-  const checkLedgerAppOpenIfLedgerConnected = useLedgerOpenApp({ isSigning: true })
 
   const borrowAssetId = borrowAsset?.assetId ?? ''
   const history = useHistory()
@@ -315,7 +312,7 @@ export const BorrowConfirm = ({
 
       if (!sendInput) throw new Error('Error building send input')
 
-      return handleSend({ sendInput, wallet, checkLedgerAppOpenIfLedgerConnected })
+      return handleSend({ sendInput, wallet })
     })()
 
     if (!maybeTxId) {
@@ -348,7 +345,6 @@ export const BorrowConfirm = ({
     setDepositAmount,
     history,
     selectedCurrency,
-    checkLedgerAppOpenIfLedgerConnected,
   ])
 
   // Quote expiration interval

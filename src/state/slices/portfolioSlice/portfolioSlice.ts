@@ -14,6 +14,7 @@ import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
+import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
@@ -24,7 +25,6 @@ import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements } from './utils'
-import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from './utils/portals'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -199,12 +199,11 @@ export const portfolioApi = createApi({
           const portfolioAccounts = { [pubkey]: await adapter.getAccount(pubkey) }
           const nftCollectionsById = selectNftCollections(state)
 
-          const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
-          const maybePortalsPlatforms = await fetchPortalsPlatforms()
-
-          const data = ((): Portfolio => {
+          const data = await (async (): Promise<Portfolio> => {
             // add placeholder non spam assets for evm chains
             if (evmChainIds.includes(chainId as EvmChainId)) {
+              const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
+              const maybePortalsPlatforms = await fetchPortalsPlatforms()
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

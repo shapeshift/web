@@ -390,17 +390,6 @@ describe('assetId', () => {
       expect(id).toEqual('12345')
     })
 
-    it('can return chainId, chainReference, chainNamespace, assetNamespace, assetReference from FOX AssetId on ropsten', () => {
-      const AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-      const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } =
-        fromAssetId(AssetId)
-      expect(chainNamespace).toEqual(CHAIN_NAMESPACE.Evm)
-      expect(chainReference).toEqual(CHAIN_REFERENCE.EthereumMainnet)
-      expect(chainId).toEqual(toChainId({ chainNamespace, chainReference }))
-      expect(assetNamespace).toEqual('erc20')
-      expect(assetReference).toEqual('0xc770eefad204b5180df6a14ee197d99d808ee52d')
-    })
-
     it('can parse a cosmoshub native token', () => {
       const AssetId = 'cosmos:cosmoshub-4/slip44:118'
       const { chainId, chainReference, chainNamespace, assetNamespace, assetReference } =

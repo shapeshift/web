@@ -44,7 +44,7 @@ export const Notifications = memo(() => {
   const {
     state: { wallet, modalType },
   } = useWallet()
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const ethAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: ethAssetId }),

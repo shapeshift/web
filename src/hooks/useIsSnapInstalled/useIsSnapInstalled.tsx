@@ -166,6 +166,7 @@ export const useIsSnapInstalled = (): {
     return () => clearInterval(intervalId)
   }, [checkSnapInstallation, wallet])
 
+  console.log({ isSnapInstalled, isCorrectVersion })
   return { isSnapInstalled, isCorrectVersion }
 }
 

@@ -16,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { enableShapeShiftSnap } from 'utils/snaps'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { RawText } from 'components/Text'
+import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 
@@ -24,6 +25,7 @@ type SnapConfirmProps = {
 }
 
 export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
+  const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const [isInstalling, setIsInstalling] = useState(false)
   const [hasAgreed, setHasAgreed] = useState(false)
   const [hasPinkySworeSeedPhraseIsBackedUp, setHasPinkySworeSeedPhraseIsBackedUp] = useState(false)
@@ -69,7 +71,13 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
   return (
     <>
       <ModalHeader textAlign='center'>
-        <Heading as='h4'>{translate('walletProvider.metaMaskSnapConfirm.title')}</Heading>
+        <Heading as='h4'>
+          {translate(
+            isSnapInstalled && !isCorrectVersion
+              ? 'walletProvider.metaMaskSnapConfirm.updateTitle'
+              : 'walletProvider.metaMaskSnapConfirm.title',
+          )}
+        </Heading>
       </ModalHeader>
       <ModalBody>
         <Alert status='warning' borderRadius='lg' mb={4}>
@@ -116,7 +124,11 @@ export const SnapConfirm: React.FC<SnapConfirmProps> = ({ onClose }) => {
           isDisabled={!(hasAgreed && hasPinkySworeSeedPhraseIsBackedUp)}
           onClick={handleAddSnap}
         >
-          {translate('walletProvider.metaMaskSnapConfirm.acceptInstall')}
+          {translate(
+            isSnapInstalled && !isCorrectVersion
+              ? 'walletProvider.metaMaskSnapConfirm.acceptUpdate'
+              : 'walletProvider.metaMaskSnapConfirm.acceptInstall',
+          )}
         </Button>
       </ModalFooter>
     </>

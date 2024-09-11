@@ -162,7 +162,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending,
     [isSnapshotApiQueriesPending],

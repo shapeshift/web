@@ -94,7 +94,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     ),
   )
 
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
 
   const filteredPositions = useMemo(

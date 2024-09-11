@@ -154,6 +154,7 @@ const validators = {
   REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
   REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
+  REACT_APP_SNAP_VERSION: str(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW: bool({ default: false }),
   REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY: bool({ default: false }),

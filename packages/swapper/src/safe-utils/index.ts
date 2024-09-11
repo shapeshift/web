@@ -10,27 +10,21 @@ import type {
   SafeTxInfo,
 } from './types'
 
+const nilSafeTransctionInfo: SafeTxInfo = {
+  transaction: null,
+  isSafeTxHash: false,
+  isQueuedSafeTx: false,
+  isExecutedSafeTx: false,
+}
+
 export const fetchSafeTransactionInfo = async ({
   safeTxHash,
   accountId,
   fetchIsSmartContractAddressQuery,
 }: FetchSafeTransactionArgs): Promise<SafeTxInfo> => {
-  if (!accountId) {
-    return {
-      transaction: null,
-      isSafeTxHash: false,
-      isQueuedSafeTx: false,
-      isExecutedSafeTx: false,
-    }
-  }
-  const chainId = fromAccountId(accountId).chainId
-  if (!isEvmChainId(chainId))
-    return {
-      transaction: null,
-      isSafeTxHash: false,
-      isQueuedSafeTx: false,
-      isExecutedSafeTx: false,
-    }
+  const chainId = accountId ? fromAccountId(accountId).chainId : ''
+  if (!accountId || !chainId || !isEvmChainId(chainId)) return nilSafeTransctionInfo
+
   const isSmartContractAddress = await fetchIsSmartContractAddressQuery(
     fromAccountId(accountId).account,
     chainId,
@@ -40,12 +34,7 @@ export const fetchSafeTransactionInfo = async ({
     // Assume any smart contract address is a SAFE, and by extension, any non-smart contract address is not
     // This is super naive, but this is exactly the same way SAFE does it
     // https://github.com/safe-global/safe-core-sdk/blob/ea0d5018a93f294dfd891e6c8963edcb96431876/packages/protocol-kit/src/Safe.ts#L303
-    return {
-      transaction: null,
-      isSafeTxHash: false,
-      isQueuedSafeTx: false,
-      isExecutedSafeTx: false,
-    }
+    return nilSafeTransctionInfo
   }
 
   const baseUrl = ChainIdToSafeBaseUrl[chainId]
@@ -59,12 +48,7 @@ export const fetchSafeTransactionInfo = async ({
     )
 
     if ('detail' in response.data) {
-      return {
-        transaction: null,
-        isSafeTxHash: false,
-        isQueuedSafeTx: false,
-        isExecutedSafeTx: false,
-      }
+      return nilSafeTransctionInfo
     }
 
     const isQueuedSafeTx = Boolean(
@@ -81,12 +65,7 @@ export const fetchSafeTransactionInfo = async ({
     }
   } catch (error) {
     // If the request fails, it's likely not a Safe transaction hash
-    return {
-      transaction: null,
-      isSafeTxHash: false,
-      isQueuedSafeTx: false,
-      isExecutedSafeTx: false,
-    }
+    return nilSafeTransctionInfo
   }
 }
 

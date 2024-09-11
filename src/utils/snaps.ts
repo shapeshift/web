@@ -1,5 +1,4 @@
 import detectEthereumProvider from '@metamask/detect-provider'
-import { enableShapeShiftSnap as _enableShapeShiftSnap } from '@shapeshiftoss/metamask-snaps-adapter'
 import assert from 'assert'
 import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers'
@@ -22,11 +21,21 @@ type GetSnapsResult = Record<
 >
 
 export const enableShapeShiftSnap = async (): Promise<void> => {
+  const provider = (await detectEthereumProvider()) as Eip1193Provider
+
   const snapVersion = getConfig().REACT_APP_SNAP_VERSION
   const isSnapFeatureEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
   assert(isSnapFeatureEnabled, 'Snap feature flag is disabled')
   const snapId = getConfig().REACT_APP_SNAP_ID
-  await _enableShapeShiftSnap(snapId, snapVersion)
+
+  await provider.request({
+    method: 'wallet_requestSnaps',
+    params: {
+      [snapId]: {
+        version: snapVersion,
+      },
+    },
+  })
 }
 
 export const getSnapVersion = async (): Promise<string | null> => {

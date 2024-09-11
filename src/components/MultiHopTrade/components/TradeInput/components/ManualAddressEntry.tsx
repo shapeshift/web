@@ -125,7 +125,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       [buyAssetAssetId, buyAssetChainId, dispatch],
     )
 
-    // We're enabling the snap, so no versionin concerns here
+    // We're enabling the snap, so no versioning concerns here
     const handleEnableShapeShiftSnap = useCallback(() => openSnapsModal({}), [openSnapsModal])
     const handleAddAccount = useCallback(
       () => openManageAccountsModal({}),

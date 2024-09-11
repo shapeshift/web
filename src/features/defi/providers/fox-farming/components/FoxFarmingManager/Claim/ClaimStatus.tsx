@@ -173,7 +173,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (!opportunity || !asset) return
-    if (state.txStatus === TxStatus.Confirmed) {
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.ClaimSuccess,
         {
@@ -184,7 +184,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         assets,
       )
     }
-  }, [amount, asset, assets, claimFiatAmount, opportunity, state.txStatus])
+  }, [amount, asset, assets, claimFiatAmount, opportunity, status])
 
   const handleClose = useCallback(() => browserHistory.goBack(), [browserHistory])
 
@@ -208,15 +208,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
       })
 
     return translate(
-      state.txStatus === TxStatus.Pending
-        ? 'defi.broadcastingTransaction'
-        : 'defi.transactionComplete',
+      status === TxStatus.Pending ? 'defi.broadcastingTransaction' : 'defi.transactionComplete',
     )
   }, [
     maybeSafeTx?.isQueuedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
-    state.txStatus,
+    status,
     translate,
   ])
 
@@ -228,14 +226,14 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             size='24'
             position='relative'
             thickness='4px'
-            isIndeterminate={state.txStatus === TxStatus.Pending}
+            isIndeterminate={status === TxStatus.Pending}
           >
             <Box position='absolute' top='50%' left='50%' transform='translate(-50%, -50%)'>
-              {state.txStatus === TxStatus.Pending ? (
+              {status === TxStatus.Pending ? (
                 <AssetIcon src={asset?.icon} boxSize='16' />
               ) : (
-                <IconCircle bg={StatusInfo[state.txStatus].color} boxSize='16' color='white'>
-                  {StatusInfo[state.txStatus].icon}
+                <IconCircle bg={StatusInfo[status!]?.color} boxSize='16' color='white'>
+                  {StatusInfo[status!]?.icon ?? null}
                 </IconCircle>
               )}
             </Box>
@@ -277,31 +275,21 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           </Row>
           <Row>
             <Row.Label>
-              {translate(
-                state.txStatus === TxStatus.Pending
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed',
-              )}
+              {translate(status ? 'modals.status.estimatedGas' : 'modals.status.gasUsed')}
             </Row.Label>
             <Row.Value>
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(
-                    state.txStatus === TxStatus.Pending
-                      ? estimatedGas
-                      : state.usedGasFeeCryptoPrecision,
-                  )
+                  value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision)
                     .times(feeMarketData.price)
                     .toFixed(2)}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(
-                    state.txStatus === TxStatus.Pending
-                      ? estimatedGas
-                      : state.usedGasFeeCryptoPrecision,
-                  ).toFixed(5)}
+                  value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision).toFixed(
+                    5,
+                  )}
                   symbol='ETH'
                 />
               </Stack>

@@ -16,6 +16,7 @@ import {
   type PriceHistoryArgs,
   ZERION_CHAINS_MAP,
 } from '@shapeshiftoss/types'
+import { createThrottle } from '@shapeshiftoss/utils'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import { getConfig } from 'config'
@@ -25,7 +26,6 @@ import { assertUnreachable, isToken } from 'lib/utils'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
-import { createThrottle } from '../utils'
 import type {
   ListFungiblesResponse,
   ZerionChartResponse,

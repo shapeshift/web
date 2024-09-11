@@ -3,7 +3,7 @@ import { SnapContent } from 'components/Modals/Snaps/SnapContent'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
-export const SnapInstall = () => {
+export const SnapUpdate = () => {
   const { dispatch } = useWallet()
 
   const handleClose = useCallback(() => {
@@ -11,11 +11,7 @@ export const SnapInstall = () => {
   }, [dispatch])
 
   return (
-    <SnapContent
-      onClose={handleClose}
-      // If we land here, we don't care about versioning, the user does *not* have the snap installed yet
-      isCorrectVersion
-      isSnapInstalled={false}
-    />
+    // If we land here, we know the version is incorrect
+    <SnapContent onClose={handleClose} isCorrectVersion={false} isSnapInstalled={true} />
   )
 }

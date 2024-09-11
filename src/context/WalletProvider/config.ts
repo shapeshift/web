@@ -102,6 +102,11 @@ const EnterPassword = lazy(() =>
 const SnapInstall = lazy(() =>
   import('./MetaMask/components/SnapInstall').then(({ SnapInstall }) => ({ default: SnapInstall })),
 )
+
+const SnapUpdate = lazy(() =>
+  import('./MetaMask/components/SnapUpdate').then(({ SnapUpdate }) => ({ default: SnapUpdate })),
+)
+
 const ChangeLabel = lazy(() =>
   import('components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,
@@ -394,6 +399,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     routes: [
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/snap/install', component: SnapInstall },
+      { path: '/metamask/snap/update', component: SnapUpdate },
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
     connectedMenuComponent: MetaMaskMenu,

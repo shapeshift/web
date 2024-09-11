@@ -13,7 +13,7 @@ export const useSupportedAssets = () => {
   const sortedAssets = useAppSelector(selectAssetsSortedByMarketCapUserCurrencyBalanceAndName)
   const assets = useAppSelector(selectAssets)
   const wallet = useWallet().state.wallet
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const queryParams = useMemo(() => {

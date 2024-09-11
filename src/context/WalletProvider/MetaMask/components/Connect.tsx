@@ -1,7 +1,9 @@
+import { getConfig } from 'config'
 import React, { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
+import { getSnapVersion } from 'utils/snaps'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
@@ -90,6 +92,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 
+          const snapVersion = await getSnapVersion()
+
+          const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
+
+          if (isSnapsEnabled && isSnapInstalled && !isCorrectVersion && showSnapModal) {
+            return history.push('/metamask/snap/update')
+          }
           if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')
           }

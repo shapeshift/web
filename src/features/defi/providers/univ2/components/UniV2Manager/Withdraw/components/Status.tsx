@@ -109,37 +109,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  useEffect(() => {
-    if (!lpOpportunity) return
-    if (state?.withdraw.txStatus === 'success') {
-      trackOpportunityEvent(
-        MixPanelEvent.WithdrawSuccess,
-        {
-          opportunity: lpOpportunity,
-          fiatAmounts: [state?.withdraw.lpFiatAmount],
-          cryptoAmounts: [
-            { assetId: lpAssetId, amountCryptoHuman: state?.withdraw.lpAmount },
-            { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
-            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
-          ],
-        },
-        assets,
-      )
-    }
-  }, [
-    assets,
-    lpOpportunity,
-    lpAsset.assetId,
-    state?.withdraw.asset0Amount,
-    state?.withdraw.asset1Amount,
-    state?.withdraw.lpAmount,
-    state?.withdraw.lpFiatAmount,
-    state?.withdraw.txStatus,
-    lpAssetId,
-    assetId1,
-    assetId0,
-  ])
-
   const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
     if (maybeSafeTx?.isQueuedSafeTx)
       return {
@@ -171,8 +140,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       }
     }
 
-    switch (state?.withdraw.txStatus) {
-      case 'success':
+    switch (tx?.status) {
+      case TxStatus.Confirmed:
         return {
           statusText: StatusTextEnum.success,
           status: TxStatus.Confirmed,
@@ -182,7 +151,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             opportunity: lpAsset.symbol,
           }),
         }
-      case 'failed':
+      case TxStatus.Failed:
         return {
           statusText: StatusTextEnum.failed,
           status: TxStatus.Failed,
@@ -199,7 +168,49 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           statusBody: translate('modals.withdraw.status.pending'),
         }
     }
-  }, [maybeSafeTx, state?.withdraw.txStatus, lpAsset.symbol, translate])
+  }, [
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.isExecutedSafeTx,
+    translate,
+    tx?.status,
+    lpAsset.symbol,
+  ])
+
+  useEffect(() => {
+    if (!lpOpportunity) return
+    if (!state) return
+
+    if (status === TxStatus.Confirmed) {
+      trackOpportunityEvent(
+        MixPanelEvent.WithdrawSuccess,
+        {
+          opportunity: lpOpportunity,
+          fiatAmounts: [state?.withdraw.lpFiatAmount],
+          cryptoAmounts: [
+            { assetId: lpAssetId, amountCryptoHuman: state?.withdraw.lpAmount },
+            { assetId: assetId0, amountCryptoHuman: state.withdraw.asset0Amount },
+            { assetId: assetId1, amountCryptoHuman: state.withdraw.asset1Amount },
+          ],
+        },
+        assets,
+      )
+    }
+  }, [
+    assets,
+    lpOpportunity,
+    lpAsset.assetId,
+    state?.withdraw.asset0Amount,
+    state?.withdraw.asset1Amount,
+    state?.withdraw.lpAmount,
+    state?.withdraw.lpFiatAmount,
+    lpAssetId,
+    assetId1,
+    assetId0,
+    state,
+    status,
+  ])
 
   useEffect(() => {
     if (!feeAsset || !(tx || maybeSafeTx)) return
@@ -249,7 +260,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   return (
     <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
       loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
       continueText='modals.status.position'
       statusText={statusText}

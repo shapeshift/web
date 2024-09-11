@@ -129,8 +129,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         statusBg: 'green.500',
       }
 
-    switch (state?.deposit.txStatus) {
-      case 'success':
+    switch (confirmedTransaction?.status) {
+      case TxStatus.Confirmed:
         return {
           statusText: StatusTextEnum.success,
           status: TxStatus.Confirmed,
@@ -140,7 +140,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           }),
           statusBg: 'green.500',
         }
-      case 'failed':
+      case TxStatus.Failed:
         return {
           statusText: StatusTextEnum.failed,
           status: TxStatus.Failed,
@@ -158,12 +158,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         }
     }
   }, [
+    confirmedTransaction?.status,
     foxFarmingOpportunity?.opportunityName,
     maybeSafeTx?.isExecutedSafeTx,
     maybeSafeTx?.isQueuedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
-    state?.deposit.txStatus,
     translate,
   ])
 
@@ -194,7 +194,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (!foxFarmingOpportunity) return
-    if (state?.deposit.txStatus === 'success') {
+    if (!state) return
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.DepositSuccess,
         {
@@ -211,9 +212,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     asset.assetId,
     assets,
     foxFarmingOpportunity,
+    state,
     state?.deposit.cryptoAmount,
     state?.deposit.fiatAmount,
-    state?.deposit.txStatus,
+    status,
   ])
 
   const txLink = useMemo(() => {
@@ -273,9 +275,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                status === TxStatus.Pending ? 'modals.status.estimatedGas' : 'modals.status.gasUsed'
               }
             />
           </Row.Label>
@@ -284,7 +284,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 )
@@ -294,7 +294,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}

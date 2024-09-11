@@ -131,8 +131,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         statusBg: 'green.500',
       }
 
-    switch (state?.withdraw.txStatus) {
-      case 'success':
+    switch (confirmedTransaction?.status) {
+      case TxStatus.Confirmed:
         return {
           statusText: StatusTextEnum.success,
           status: TxStatus.Confirmed,
@@ -142,7 +142,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           }),
           statusBg: 'green.500',
         }
-      case 'failed':
+      case TxStatus.Failed:
         return {
           statusText: StatusTextEnum.failed,
           status: TxStatus.Failed,
@@ -166,7 +166,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     maybeSafeTx?.transaction?.transactionHash,
     translate,
     opportunity?.opportunityName,
-    state?.withdraw.txStatus,
+    confirmedTransaction?.status,
   ])
 
   useEffect(() => {
@@ -197,7 +197,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (!opportunity) return
-    if (state?.withdraw.txStatus === 'success') {
+    if (!state) return
+
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.WithdrawSuccess,
         {
@@ -212,9 +214,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     asset.assetId,
     assets,
     opportunity,
+    state,
     state?.withdraw.fiatAmount,
     state?.withdraw.lpAmount,
-    state?.withdraw.txStatus,
+    status,
   ])
 
   const txLink = useMemo(() => {
@@ -268,9 +271,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.withdraw.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                status === TxStatus.Pending ? 'modals.status.estimatedGas' : 'modals.status.gasUsed'
               }
             />
           </Row.Label>
@@ -279,7 +280,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.withdraw.estimatedGasCryptoPrecision
                     : state.withdraw.usedGasFeeCryptoPrecision,
                 )
@@ -289,7 +290,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.withdraw.estimatedGasCryptoPrecision
                     : state.withdraw.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}

@@ -53,6 +53,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     accountId,
   })
 
+  console.log({ maybeSafeTx })
+
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],
@@ -127,8 +129,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       }
     }
 
-    switch (state?.deposit?.txStatus) {
-      case 'success':
+    switch (confirmedTransaction?.status) {
+      case TxStatus.Confirmed:
         return {
           statusText: StatusTextEnum.success,
           status: TxStatus.Confirmed,
@@ -139,7 +141,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           }),
           statusBg: 'green.500',
         }
-      case 'failed':
+      case TxStatus.Failed:
         return {
           statusText: StatusTextEnum.failed,
           status: TxStatus.Failed,
@@ -157,12 +159,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         }
     }
   }, [
+    confirmedTransaction?.status,
     earnUserLpOpportunity?.name,
     maybeSafeTx?.isExecutedSafeTx,
     maybeSafeTx?.isQueuedSafeTx,
     maybeSafeTx?.transaction?.confirmations?.length,
     maybeSafeTx?.transaction?.confirmationsRequired,
-    state?.deposit?.txStatus,
     translate,
   ])
 
@@ -211,7 +213,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (!earnUserLpOpportunity) return
-    if (state?.deposit.txStatus === 'success') {
+    if (!state) return
+
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.DepositSuccess,
         {
@@ -230,11 +234,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     assetId1,
     assets,
     earnUserLpOpportunity,
+    state,
     state?.deposit.asset0CryptoAmount,
     state?.deposit.asset0FiatAmount,
     state?.deposit.asset1CryptoAmount,
     state?.deposit.asset1FiatAmount,
-    state?.deposit.txStatus,
+    status,
   ])
 
   if (!state) return null
@@ -242,8 +247,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   return (
     <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.deposit.txStatus)}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
+      loading={![TxStatus.Confirmed, TxStatus.Failed].includes(status)}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}
@@ -256,7 +261,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
+                status === TxStatus.Pending
                   ? 'modals.confirm.amountToDeposit'
                   : 'modals.confirm.amountDeposited'
               }
@@ -285,9 +290,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                status === TxStatus.Pending ? 'modals.status.estimatedGas' : 'modals.status.gasUsed'
               }
             />
           </Row.Label>
@@ -296,7 +299,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 )
@@ -306,7 +309,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}

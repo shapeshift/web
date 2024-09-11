@@ -193,7 +193,6 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
 
   const filter = useMemo(() => ({ accountId: maybeRuneAccountId }), [maybeRuneAccountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  console.log({ accountNumber, maybeRuneAccountId })
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
@@ -211,11 +210,11 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
             boxProps={boxProps}
             buttonProps={buttonProps}
           />
-        ) : (
+        ) : maybeSelectedRuneAddress ? (
           <Tag colorScheme='gray'>
-            <MiddleEllipsis value={maybeSelectedRuneAddress ?? ''} />
+            <MiddleEllipsis value={maybeSelectedRuneAddress} />
           </Tag>
-        )}
+        ) : null}
       </InlineCopyButton>
     )
   }, [

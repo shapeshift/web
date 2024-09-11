@@ -21,7 +21,6 @@ import type {
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
-import type { ethers as ethersV5 } from 'ethers5'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -161,7 +160,6 @@ export type GetTradeQuoteInput =
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
-  getEthersV5Provider: (chainId: EvmChainId) => ethersV5.providers.JsonRpcProvider
 }
 export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) => UtxoChainAdapter }
 export type CosmosSdkSwapperDeps = {

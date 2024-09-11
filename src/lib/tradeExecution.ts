@@ -1,4 +1,3 @@
-import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -96,7 +95,6 @@ export class TradeExecution {
             accountId,
             stepIndex,
             config: getConfig(),
-            getEthersV5Provider,
             assertGetEvmChainAdapter,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
@@ -162,7 +160,6 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
           config,
           assertGetEvmChainAdapter,
-          getEthersV5Provider,
         })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {
@@ -214,7 +211,6 @@ export class TradeExecution {
         from,
         config,
         assertGetEvmChainAdapter,
-        getEthersV5Provider,
       })
 
       return await swapper.executeEvmMessage(unsignedTxResult, { signMessage }, config)

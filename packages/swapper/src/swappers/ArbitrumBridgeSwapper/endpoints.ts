@@ -4,6 +4,7 @@ import type { Provider } from '@ethersproject/providers'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
+import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -158,7 +159,6 @@ export const arbitrumBridgeApi: SwapperApi = {
     txHash,
     chainId,
     assertGetEvmChainAdapter,
-    getEthersV5Provider,
     accountId,
     fetchIsSmartContractAddressQuery,
   }): Promise<{

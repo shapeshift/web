@@ -18,14 +18,14 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { zeroAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/portals/constants'
+import type { GetTokensResponse, HistoryResponse } from 'lib/portals/types'
 import { assertUnreachable, getTimeFrameBounds, isToken } from 'lib/utils'
 
 import generatedAssetData from '../../asset-service/service/generatedAssetData.json'
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
-import type { GetTokensResponse, HistoryResponse } from './types'
 
 const calculatePercentChange = (openPrice: string, closePrice: string): number => {
   const open = bnOrZero(openPrice)

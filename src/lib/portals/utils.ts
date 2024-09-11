@@ -2,13 +2,9 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
-import type {
-  GetBalancesResponse,
-  GetPlatformsResponse,
-  PlatformsById,
-  TokenInfo,
-} from 'lib/market-service/portals/types'
+
+import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
+import type { GetBalancesResponse, GetPlatformsResponse, PlatformsById, TokenInfo } from './types'
 
 export const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
   const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/platforms`

@@ -4,13 +4,9 @@ import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import axios from 'axios'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/market-service/portals/constants'
-import type {
-  GetPlatformsResponse,
-  GetTokensResponse,
-  PlatformsById,
-  TokenInfo,
-} from 'lib/market-service/portals/types'
+import { CHAIN_ID_TO_PORTALS_NETWORK } from 'lib/portals/constants'
+import type { GetTokensResponse, TokenInfo } from 'lib/portals/types'
+import { fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
 import { isSome } from 'lib/utils'
 
 import generatedAssetData from '../../../src/lib/asset-service/service/generatedAssetData.json'
@@ -23,32 +19,6 @@ const PORTALS_API_KEY = process.env.REACT_APP_PORTALS_API_KEY
 const PORTALS_BASE_URL = process.env.REACT_APP_PORTALS_BASE_URL
 if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
 if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
-
-const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
-  const url = `${PORTALS_BASE_URL}/v2/platforms`
-
-  try {
-    const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
-      headers: {
-        Authorization: `Bearer ${PORTALS_API_KEY}`,
-      },
-    })
-
-    const byId = platforms.reduce<PlatformsById>((acc, platform) => {
-      acc[platform.platform] = platform
-      return acc
-    }, {})
-
-    return byId
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error(`Failed to fetch Portals platforms: ${error.message}`)
-    }
-    console.error(`Failed to fetch Portals platforms: ${error}`)
-
-    return {}
-  }
-}
 
 const fetchPortalsTokens = async (
   chainId: ChainId,
@@ -114,11 +84,6 @@ const fetchPortalsTokens = async (
   }
 }
 
-const maybeTokenImage = (image: string | undefined) => {
-  if (!image) return
-  if (image === 'missing_large.png') return
-  return image
-}
 export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
   const portalsPlatforms = await fetchPortalsPlatforms()
   const chainId = nativeAsset.chainId

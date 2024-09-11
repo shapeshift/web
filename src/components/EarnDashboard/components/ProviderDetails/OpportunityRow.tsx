@@ -86,7 +86,7 @@ export const OpportunityRow: React.FC<
 
   const handleClick = useCallback(
     (action: DefiAction) => {
-      if (asset?.isPool) {
+      if (asset?.isPool && opportunity.isReadOnly) {
         return history.push(`/trade/${assetId}`)
       }
       if (opportunity.isReadOnly) {
@@ -96,7 +96,7 @@ export const OpportunityRow: React.FC<
       }
       onClick(opportunity, action)
     },
-    [asset?.isPool, assetId, history, onClick, opportunity],
+    [asset, assetId, history, onClick, opportunity],
   )
 
   const handleClaimClick = useCallback(() => handleClick(DefiAction.Claim), [handleClick])
@@ -140,7 +140,7 @@ export const OpportunityRow: React.FC<
             <NestedAsset
               key={rewardAssetId}
               isClaimableRewards={isClaimableRewards}
-              isExternal={opportunity.isReadOnly}
+              isExternal={opportunity.isReadOnly && !asset?.isPool}
               assetId={rewardAssetId}
               balances={rewardBalance}
               onClick={handleClaimClick}
@@ -174,6 +174,7 @@ export const OpportunityRow: React.FC<
     underlyingAssetBalances,
     isClaimableRewards,
     opportunity.isReadOnly,
+    asset?.isPool,
     handleClaimClick,
     translate,
     assetId,
@@ -218,7 +219,7 @@ export const OpportunityRow: React.FC<
             icons={icons}
             subText={assetCellSubText}
             justifyContent='flex-start'
-            isExternal={opportunity.isReadOnly}
+            isExternal={opportunity.isReadOnly && !asset?.isPool}
             opportunityName={opportunity.opportunityName}
           />
           <Amount.Crypto

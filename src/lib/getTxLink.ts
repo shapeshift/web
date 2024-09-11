@@ -31,8 +31,7 @@ export const safeChainShortNameByChainId: Partial<Record<KnownChainIds, string>>
 }
 type GetTxLink = GetTxBaseUrl &
   ({ txId: string; tradeId?: never } | { tradeId: string; txId?: never }) & {
-    // TODO(gomes): make me required in a follow-up and have SAFE TxIds working holistically
-    accountId?: AccountId | undefined
+    accountId: AccountId | undefined
     maybeSafeTx: SafeTxInfo | undefined
   }
 

@@ -396,6 +396,7 @@ export const useSendThorTx = ({
       txId: _txId ?? '',
       name: SwapperName.Thorchain,
       maybeSafeTx,
+      accountId,
     })
 
     // Only toast "Transaction sent" for non-SAFE Tx hashes - in the case of SAFE Txs, dis not a final on-chain Tx just yet

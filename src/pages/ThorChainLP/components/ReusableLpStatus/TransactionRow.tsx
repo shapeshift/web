@@ -316,6 +316,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
         name: SwapperName.Thorchain,
         // THORFi is incompatible with SAFE wallets because msg.sender/tx.origin shenanigans, so this will never be a SAFE Tx
         maybeSafeTx: undefined,
+        accountId: undefined,
       }),
     [txId],
   )

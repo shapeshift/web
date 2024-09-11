@@ -137,6 +137,7 @@ export const useTxDetails = (txId: string): TxDetails => {
     defaultExplorerBaseUrl: feeAsset?.explorerTxLink ?? '',
     txId: tx.txid,
     maybeSafeTx,
+    accountId,
   })
 
   return {

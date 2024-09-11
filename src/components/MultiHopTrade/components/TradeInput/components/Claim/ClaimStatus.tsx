@@ -138,8 +138,9 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
       txId: claimTxHash,
       defaultExplorerBaseUrl: activeClaim.destinationExplorerTxLink,
       maybeSafeTx,
+      accountId: activeClaim.accountId,
     })
-  }, [activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
+  }, [activeClaim.accountId, activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
 
   return (
     <SlideTransition>

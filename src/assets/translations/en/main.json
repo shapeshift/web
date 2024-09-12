@@ -2586,6 +2586,10 @@
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
     "categories": "Categories",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "categories": {
+      "oneClickDefiAssets": "One Click DeFi Assets",
+      "thorchainDefi": "THORChain DeFi"
+    }
   }
 }

@@ -27,17 +27,20 @@ type RowProps = {
 const gridColumnSx = { base: 1, md: 2, lg: 4 }
 const gridTemplateColumnSx = { base: '1fr', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' }
 
-const AssetsGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
-  assetIds,
-  selectedChainId,
-}) => {
+const AssetsGrid: React.FC<{
+  assetIds: AssetId[]
+  selectedChainId?: ChainId
+  isLoading: boolean
+}> = ({ assetIds, selectedChainId, isLoading }) => {
   const history = useHistory()
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, 8),
+      )
+        // TODO(gomes): remove me when we have real data here for all categories
+        .slice(0, 8),
     [assetIds, selectedChainId],
   )
 
@@ -52,18 +55,29 @@ const AssetsGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> =
     <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
       {filteredAssetIds.map((assetId, index) =>
         index === 0 ? (
-          <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
+          <CardWithSparkline
+            key={assetId}
+            assetId={assetId}
+            onClick={handleCardClick}
+            isLoading={isLoading}
+          />
         ) : (
-          <AssetCard key={assetId} assetId={assetId} onClick={handleCardClick} />
+          <AssetCard
+            key={assetId}
+            assetId={assetId}
+            onClick={handleCardClick}
+            isLoading={isLoading}
+          />
         ),
       )}
     </SimpleGrid>
   )
 }
 
-const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
+const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoading: boolean }> = ({
   assetIds,
   selectedChainId,
+  isLoading,
 }) => {
   const history = useHistory()
   const handleCardClick = useCallback(
@@ -72,35 +86,42 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
     },
     [history],
   )
-  const { data: portalsData } = usePortalsAssetsQuery()
+  const { data: portalsAssets } = usePortalsAssetsQuery()
 
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, 8),
+      )
+        // TODO(gomes): remove me when we have real data here for all categories
+        .slice(0, 8),
     [assetIds, selectedChainId],
   )
 
   return (
     <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
       {filteredAssetIds.map((assetId, index) => {
-        const apy = portalsData?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo?.metrics
-          .apy
-        const volume24H = portalsData?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
+        const apy = portalsAssets?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
+          ?.metrics.apy
+        const volume24H = portalsAssets?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
           ?.metrics.volumeUsd1d
-        return index === 0 ? (
-          <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
-        ) : (
-          <LpCard
-            key={assetId}
-            assetId={assetId}
-            apy={apy ?? '0'}
-            volume24H={volume24H ?? '0'}
-            onClick={handleCardClick}
-          />
-        )
+
+        if (index === 0) {
+          return (
+            <CardWithSparkline assetId={assetId} onClick={handleCardClick} isLoading={isLoading} />
+          )
+        } else {
+          return (
+            <LpCard
+              assetId={assetId}
+              apy={apy ?? '0'}
+              volume24H={volume24H ?? '0'}
+              onClick={handleCardClick}
+              isLoading={isLoading}
+            />
+          )
+        }
       })}
     </SimpleGrid>
   )
@@ -147,42 +168,76 @@ export const Recommended: React.FC = () => {
   const assetIds = useAppSelector(selectAssetIds)
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
 
-  const { data: portalsData } = usePortalsAssetsQuery()
+  const { isLoading: isPortalsAssetsLoading, data: portalsAssets } = usePortalsAssetsQuery()
 
   const rows = useMemo(
     () => [
       {
         title: 'Most Popular',
-        component: <AssetsGrid assetIds={assetIds} selectedChainId={selectedChainId} />,
-      },
-      {
-        title: 'Trending',
-        subtitle: 'These are top assets that have jumped 10% or more',
-        component: <AssetsGrid assetIds={assetIds} selectedChainId={selectedChainId} />,
-      },
-      {
-        title: 'Top Movers',
-        component: <AssetsGrid assetIds={assetIds} selectedChainId={selectedChainId} />,
-      },
-      {
-        title: 'Recently Added',
-        component: <AssetsGrid assetIds={assetIds} selectedChainId={selectedChainId} />,
-      },
-      {
-        title: 'One Click DeFi Assets',
+        // TODO(gomes): loading state when implemented
         component: (
-          <LpGrid
-            assetIds={portalsData?.map(({ asset }) => asset.assetId) ?? []}
+          <AssetsGrid
+            assetIds={assetIds}
             selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
           />
         ),
       },
       {
-        title: 'THORChain DeFi',
-        component: <LpGrid assetIds={assetIds} selectedChainId={selectedChainId} />,
+        title: 'Trending',
+        subtitle: 'These are top assets that have jumped 10% or more',
+        // TODO(gomes): loading state when implemented
+        component: (
+          <AssetsGrid
+            assetIds={assetIds}
+            selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
+          />
+        ),
+      },
+      {
+        title: 'Top Movers',
+        component: (
+          <AssetsGrid
+            assetIds={assetIds}
+            selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
+          />
+        ),
+      },
+      {
+        title: 'Recently Added',
+        // TODO(gomes): loading state when implemented
+        component: (
+          <AssetsGrid
+            assetIds={assetIds}
+            selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
+          />
+        ),
+      },
+      {
+        title: translate('markets.categories.oneClickDefiAssets'),
+        component: (
+          <LpGrid
+            assetIds={portalsAssets?.map(({ asset }) => asset.assetId) ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
+          />
+        ),
+      },
+      {
+        title: translate('markets.categories.thorchainDefi'),
+        component: (
+          <LpGrid
+            assetIds={assetIds}
+            selectedChainId={selectedChainId}
+            isLoading={isPortalsAssetsLoading}
+          />
+        ),
       },
     ],
-    [assetIds, portalsData, selectedChainId],
+    [assetIds, isPortalsAssetsLoading, portalsAssets, selectedChainId, translate],
   )
 
   return (

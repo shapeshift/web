@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { WETH_ABI, WETH_TOKEN_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
 import assert from 'assert'
-import type { InterfaceAbi } from 'ethers'
 import { ethers } from 'ethers'
 
 import type { Tx } from '../../../generated/ethereum'
@@ -24,7 +23,7 @@ export class Parser implements SubParser<Tx> {
   provider: ethers.JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new ethers.Interface(WETH_ABI as InterfaceAbi)
+  readonly abiInterface = new ethers.Interface(WETH_ABI)
 
   readonly supportedFunctions = {
     depositSigHash: this.abiInterface.getFunction('deposit')!.selector,

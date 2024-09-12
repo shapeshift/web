@@ -9,7 +9,7 @@ import {
   WETH_TOKEN_CONTRACT_ADDRESS,
 } from '@shapeshiftoss/contracts'
 import assert from 'assert'
-import type { InterfaceAbi, JsonRpcProvider } from 'ethers'
+import type { JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
 import { erc20Abi } from 'viem'
 
@@ -31,8 +31,8 @@ export class Parser implements SubParser<Tx> {
   provider: JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI as InterfaceAbi)
-  readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI as InterfaceAbi)
+  readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI)
+  readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
 
   readonly supportedFunctions = {
     addLiquidityEthSigHash: this.abiInterface.getFunction('addLiquidityETH')!.selector,

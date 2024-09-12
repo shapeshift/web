@@ -248,7 +248,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       !(
         selectedAssetAccountId &&
         stakingAssetAccountId &&
-        runeAddress &&
+        (runeAddress || currentRuneAddress) &&
         selectedAsset &&
         stakingAsset &&
         isValidStakingAmount
@@ -260,7 +260,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       stakingAssetAccountId,
       stakingAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      runeAddress: currentRuneAddress ?? runeAddress,
+      // typescript is borked, one of them is defined because of the early return
+      runeAddress: currentRuneAddress ? currentRuneAddress : runeAddress ?? '',
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -554,7 +555,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               isValidWallet={Boolean(isChainSupportedByWallet || isAccountMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
-                  !runeAddress ||
+                  (!runeAddress && !currentRuneAddress) ||
                   !isValidStakingAmount ||
                   !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                   isAccountMetadataLoading ||

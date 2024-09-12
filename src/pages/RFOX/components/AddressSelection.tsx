@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -82,6 +82,11 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
       : undefined,
     select: selectRuneAddress,
   })
+
+  useEffect(() => {
+    handleRuneAddressChange(undefined)
+    setIsManualAddress(false)
+  }, [stakingAssetAccountId, handleRuneAddressChange])
 
   const shouldDisableAccountDropdown = useMemo(() => {
     return Boolean(currentRuneAddress && setStepIndex)

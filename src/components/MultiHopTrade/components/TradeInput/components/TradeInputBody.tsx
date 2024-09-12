@@ -150,8 +150,8 @@ export const TradeInputBody = ({
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
-    return !walletSupportsBuyAssetChain
-  }, [walletSupportsBuyAssetChain])
+    return !walletSupportsBuyAssetChain || isLoading
+  }, [walletSupportsBuyAssetChain, isLoading])
 
   return (
     <Stack spacing={0}>
@@ -162,6 +162,7 @@ export const TradeInputBody = ({
         onAccountIdChange={setSellAssetAccountId}
         labelPostFix={sellTradeAssetSelect}
         percentOptions={percentOptions}
+        isLoading={isLoading}
       />
       <Flex alignItems='center' justifyContent='center' my={-2}>
         <Divider />

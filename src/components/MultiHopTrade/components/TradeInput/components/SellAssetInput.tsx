@@ -24,6 +24,8 @@ export type SellAssetInputProps = {
   onAccountIdChange: AccountDropdownProps['onChange']
   labelPostFix?: TradeAssetInputProps['labelPostFix']
   percentOptions: number[]
+  isReadOnly?: TradeAssetInputProps['isReadOnly']
+  isLoading?: boolean
 }
 
 export const SellAssetInput = memo(
@@ -33,6 +35,7 @@ export const SellAssetInput = memo(
     label,
     onAccountIdChange,
     percentOptions,
+    isLoading,
     ...rest
   }: SellAssetInputProps) => {
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -99,8 +102,8 @@ export const SellAssetInput = memo(
         isSendMaxDisabled={false}
         onChange={handleSellAssetInputChange}
         percentOptions={percentOptions}
-        showInputSkeleton={false}
-        showFiatSkeleton={false}
+        showInputSkeleton={isLoading}
+        showFiatSkeleton={isLoading}
         label={label}
         formControlProps={formControlProps}
         onAccountIdChange={onAccountIdChange}

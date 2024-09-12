@@ -28,7 +28,6 @@ export const SparkLine: React.FC<SparkLineProps> = ({
   themeColor = 'blue',
   height = 50,
 }) => {
-  console.log({ assetId, percentChange })
   const assetIds = useMemo(() => [assetId], [assetId])
   const timeframe = HistoryTimeframe.DAY
 

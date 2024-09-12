@@ -69,7 +69,8 @@ const generateColorMap = async () => {
   }, initial)
 
   await fs.promises.writeFile(
-    `../../src/lib/asset-service/service/color-map.json`,
+    // note: cwd is the root of the monorepo, *not* the script directory
+    `src/lib/asset-service/service/color-map.json`,
     // beautify the file for github diff.
     JSON.stringify(colorMap, null, 2),
   )

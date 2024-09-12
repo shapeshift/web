@@ -119,7 +119,7 @@ export const useWalletSupportsChain = (
   // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
   // programatically depending on whether the snaps is installed or not, but in the meantime, this will make things happy
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId])
   const chainAccountIds = useAppSelector(state =>

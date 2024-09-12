@@ -176,19 +176,18 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     return runeAccountId
   }, [accountIdsByAccountNumberAndChainId, stakingAssetAccountNumber])
 
-  const maybeDefaultRuneAccountId = useMemo(() => {
+  const maybeRuneAccountId = useMemo(() => {
+    if (selectedAddress) return toAccountId({ account: selectedAddress, chainId: thorchainChainId })
     if (currentRuneAddress)
       return toAccountId({ account: currentRuneAddress, chainId: thorchainChainId })
     if (maybeMatchingRuneAccountId) return maybeMatchingRuneAccountId
     return undefined
-  }, [currentRuneAddress, maybeMatchingRuneAccountId])
+  }, [currentRuneAddress, maybeMatchingRuneAccountId, selectedAddress])
 
   const maybeSelectedRuneAddress = useMemo(() => {
-    if (selectedAddress) return selectedAddress
-    if (maybeDefaultRuneAccountId) return fromAccountId(maybeDefaultRuneAccountId).account
-
-    return undefined
-  }, [maybeDefaultRuneAccountId, selectedAddress])
+    if (!maybeRuneAccountId) return
+    return fromAccountId(maybeRuneAccountId).account
+  }, [maybeRuneAccountId])
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
@@ -199,7 +198,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         value={maybeSelectedRuneAddress ?? ''}
       >
         <AccountDropdown
-          defaultAccountId={maybeDefaultRuneAccountId}
+          defaultAccountId={maybeRuneAccountId}
           assetId={thorchainAssetId}
           onChange={handleAccountIdChange}
           boxProps={boxProps}
@@ -207,7 +206,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         />
       </InlineCopyButton>
     )
-  }, [handleAccountIdChange, isManualAddress, maybeDefaultRuneAccountId, maybeSelectedRuneAddress])
+  }, [handleAccountIdChange, isManualAddress, maybeRuneAccountId, maybeSelectedRuneAddress])
 
   const addressSelectionLabel = useMemo(
     () =>

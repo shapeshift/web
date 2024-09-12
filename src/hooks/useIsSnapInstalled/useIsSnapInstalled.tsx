@@ -10,10 +10,12 @@ import type { Eip1193Provider } from 'ethers'
 import pDebounce from 'p-debounce'
 import pMemoize from 'p-memoize'
 import { useCallback, useEffect, useState } from 'react'
+import { getSnapVersion } from 'utils/snaps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapId = getConfig().REACT_APP_SNAP_ID
+const snapVersion = getConfig().REACT_APP_SNAP_VERSION
 
 // Many many user-agents to detect mobile MM and other in-app dApp browsers
 // https://github.com/MetaMask/metamask-mobile/issues/3920#issuecomment-1074188335
@@ -128,8 +130,12 @@ export const checkIsMetaMaskImpersonator = pMemoize(
   },
 )
 
-export const useIsSnapInstalled = (): null | boolean => {
+export const useIsSnapInstalled = (): {
+  isSnapInstalled: boolean | null
+  isCorrectVersion: boolean | null
+} => {
   const [isSnapInstalled, setIsSnapInstalled] = useState<null | boolean>(null)
+  const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
 
   const {
     state: { wallet, isConnected, isDemoWallet },
@@ -142,7 +148,10 @@ export const useIsSnapInstalled = (): null | boolean => {
     if (isMetaMaskImpersonator) return
     if (!isMetaMaskDesktop) return
 
+    const version = await getSnapVersion()
     const _isSnapInstalled = await checkIsSnapInstalled()
+
+    setIsCorrectVersion(version === snapVersion)
     setIsSnapInstalled(_isSnapInstalled)
   }, [isConnected, isDemoWallet, wallet])
 
@@ -157,7 +166,7 @@ export const useIsSnapInstalled = (): null | boolean => {
     return () => clearInterval(intervalId)
   }, [checkSnapInstallation, wallet])
 
-  return isSnapInstalled
+  return { isSnapInstalled, isCorrectVersion }
 }
 
 export const canAddMetaMaskAccount = ({

@@ -24,6 +24,22 @@ type RowProps = {
 
 const gridColumnSx = { base: 1, md: 2, lg: 4 }
 
+const AssetsGrid: React.FC<{ assets: Asset[] }> = ({ assets }) => (
+  <SimpleGrid columns={gridColumnSx} spacing={4}>
+    {assets.map(asset => (
+      <AssetCard key={asset.id} asset={asset} />
+    ))}
+  </SimpleGrid>
+)
+
+const LpGrid: React.FC<{ assets: Asset[] }> = ({ assets }) => (
+  <SimpleGrid columns={gridColumnSx} spacing={4}>
+    {assets.map(asset => (
+      <LpCard key={asset.id} asset={asset} apy={'42'} volume24H={'10000'} />
+    ))}
+  </SimpleGrid>
+)
+
 const Row: React.FC<RowProps> = ({ title, subtitle, children, chainIds }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
 
@@ -63,64 +79,28 @@ export const Recommended: React.FC = () => {
     () => [
       {
         title: 'Most Popular',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(0, 4).map(asset => (
-              <AssetCard key={asset.id} asset={asset} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <AssetsGrid assets={assets.slice(0, 4)} />,
       },
       {
         title: 'Trending',
         subtitle: 'These are top assets that have jumped 10% or more',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(0, 4).map(asset => (
-              <AssetCard key={asset.id} asset={asset} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <AssetsGrid assets={assets.slice(0, 4)} />,
       },
       {
         title: 'Top Movers',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(0, 4).map(asset => (
-              <AssetCard key={asset.id} asset={asset} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <AssetsGrid assets={assets.slice(0, 4)} />,
       },
       {
         title: 'Recently Added',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(-4).map(asset => (
-              <AssetCard key={asset.id} asset={asset} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <AssetsGrid assets={assets.slice(0, 4)} />,
       },
       {
         title: 'One Click DeFi Assets',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(0, 4).map(asset => (
-              <LpCard key={asset.id} asset={asset} apy={'42'} volume24H={'10000'} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <LpGrid assets={assets.slice(0, 4)} />,
       },
       {
         title: 'THORChain DeFi',
-        component: (
-          <SimpleGrid columns={gridColumnSx} spacing={4}>
-            {assets.slice(0, 4).map(asset => (
-              <LpCard key={asset.id} asset={asset} apy={'42'} volume24H={'10000'} />
-            ))}
-          </SimpleGrid>
-        ),
+        component: <LpGrid assets={assets.slice(0, 4)} />,
       },
     ],
     [assets],

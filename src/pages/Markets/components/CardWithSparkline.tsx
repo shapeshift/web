@@ -1,8 +1,9 @@
-import { Box, Card, CardBody, Flex, Link, Text } from '@chakra-ui/react'
+import { Box, Card, CardBody, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
+import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
@@ -14,16 +15,18 @@ import { useAppSelector } from 'state/store'
 export const CardWithSparkline: React.FC<{
   assetId: AssetId
   onClick: (assetId: AssetId) => void
-}> = ({ assetId, onClick: handleClick }) => {
+}> = ({ assetId, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+
+  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
 
   if (!asset || !marketData) return null
 
   const changePercent24Hr = marketData.changePercent24Hr
 
   return (
-    <Card height='380px' width='100%' borderRadius='xl' onClick={() => handleClick(assetId)}>
+    <Card height='380px' width='100%' borderRadius='xl' onClick={handleClick}>
       <CardBody display='flex' flexDirection='column' justifyContent='space-between' p={4}>
         <Flex align='center' mb={2}>
           <AssetIcon assetId={assetId} size='md' mr={3} />

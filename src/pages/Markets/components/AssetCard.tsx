@@ -1,5 +1,6 @@
 import { Box, Card, CardBody, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -11,15 +12,17 @@ type AssetCardProps = {
   onClick: (assetId: AssetId) => void
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick: handleClick }) => {
+export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData.changePercent24Hr
 
+  const handleClick = useCallback(() => onClick(assetId), [assetId, onClick])
+
   if (!asset) return null
 
   return (
-    <Card height='180px' width='100%' borderRadius='xl' onClick={() => handleClick(assetId)}>
+    <Card height='180px' width='100%' borderRadius='xl' onClick={handleClick}>
       <CardBody display='flex' flexDirection='column' justifyContent='space-between' p={4}>
         <Flex align='center' mb={4}>
           <AssetIcon src={asset.icon} boxSize='40px' mr={3} />

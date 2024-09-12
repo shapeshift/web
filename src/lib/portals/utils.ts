@@ -107,7 +107,11 @@ export const fetchPortalsTokens = async ({
       return fetchPortalsTokens({ chainIds, page: page + 1, accTokens: newTokens })
     } else {
       // No more pages, return all accumulated tokens
-      console.log(`Total Portals tokens fetched for ${networks}: ${newTokens.length}`)
+      console.log(
+        `Total Portals tokens fetched for ${networks ? networks.join(', ') : 'all chains'}: ${
+          newTokens.length
+        }`,
+      )
       clear() // Clear the interval when done
       return newTokens
     }

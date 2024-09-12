@@ -22,7 +22,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
     explorerTxLink: nativeAsset.explorerTxLink,
   }
 
-  const portalsTokens = await fetchPortalsTokens(chainId)
+  const portalsTokens = await fetchPortalsTokens([chainId])
   return portalsTokens
     .map(token => {
       const assetId = toAssetId({

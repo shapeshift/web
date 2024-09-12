@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import { createThrottle } from '@shapeshiftoss/utils'
+import { createThrottle, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import qs from 'qs'
@@ -22,7 +22,7 @@ const PORTALS_API_KEY =
   process.env.REACT_APP_PORTALS_API_KEY || getConfig().REACT_APP_PORTALS_API_KEY
 
 export const fetchPortalsTokens = async (
-  chainId: ChainId,
+  chainIds: ChainId[] | undefined,
   page: number = 0,
   accTokens: TokenInfo[] = [],
 ): Promise<TokenInfo[]> => {
@@ -35,16 +35,23 @@ export const fetchPortalsTokens = async (
     intervalMs: 15000, // 15 seconds
   })
 
-  const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
+  const networks = chainIds?.map(chainId => CHAIN_ID_TO_PORTALS_NETWORK[chainId])
+
+  if (typeof networks === 'object') {
+    networks.forEach((network, i) => {
+      if (!network) throw new Error(`Unsupported chainId: ${chainIds![i]}`)
+    })
+  }
+
+  const supportedNetworks = typeof networks === 'object' ? networks.filter(isSome) : undefined
 
   try {
-    if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
-
     const params = {
       limit: '250',
       // Minimum 100,000 bucks liquidity if asset is a LP token
       minLiquidity: '100000',
-      networks: [network],
+      // undefined means all networks
+      networks: supportedNetworks,
       page: page.toString(),
     }
 
@@ -67,10 +74,10 @@ export const fetchPortalsTokens = async (
 
     if (pageResponse.data.more) {
       // If there are more pages, recursively fetch the next page
-      return fetchPortalsTokens(chainId, page + 1, newTokens)
+      return fetchPortalsTokens(chainIds, page + 1, newTokens)
     } else {
       // No more pages, return all accumulated tokens
-      console.log(`Total Portals tokens fetched for ${network}: ${newTokens.length}`)
+      console.log(`Total Portals tokens fetched for ${networks}: ${newTokens.length}`)
       clear() // Clear the interval when done
       return newTokens
     }

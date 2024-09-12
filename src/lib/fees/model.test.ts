@@ -79,7 +79,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(30)
+    expect(feeBps.toNumber()).toEqual(35)
   })
 
   it('should discount fees by 50% holding at midpoint holding half max fox discount limit', () => {
@@ -90,7 +90,7 @@ describe('calculateFees', () => {
       foxHeld,
       feeModel: 'SWAPPER',
     })
-    expect(feeBps.toNumber()).toEqual(15)
+    expect(feeBps.toNumber()).toEqual(17)
     expect(foxDiscountPercent).toEqual(bn(50))
   })
 

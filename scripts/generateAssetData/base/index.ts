@@ -2,10 +2,10 @@ import { baseChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
+import { getPortalTokens } from 'lib/portals/utils'
 
 import { base } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([

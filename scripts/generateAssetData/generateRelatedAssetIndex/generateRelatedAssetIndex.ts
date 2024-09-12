@@ -10,8 +10,8 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import { isEvmChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'

@@ -69,7 +69,7 @@ const generateColorMap = async () => {
   }, initial)
 
   await fs.promises.writeFile(
-    `./scripts/generateAssetData/colorMap/color-map.json`,
+    `../../src/lib/asset-service/service/color-map.json`,
     // beautify the file for github diff.
     JSON.stringify(colorMap, null, 2),
   )

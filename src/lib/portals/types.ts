@@ -10,6 +10,7 @@ export type TokenInfo = {
   price: string | undefined
   pricePerShare: string | undefined
   platform: string
+  network: string
   metrics: {
     apy?: string
     volumeUsd1d?: string

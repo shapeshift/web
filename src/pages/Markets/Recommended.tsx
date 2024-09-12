@@ -1,6 +1,15 @@
 import { Box, Card, CardBody, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
-import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  type AssetId,
+  bscChainId,
+  type ChainId,
+  fromAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
+import { isSome } from '@shapeshiftoss/utils'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { noop } from 'lodash'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -12,13 +21,16 @@ import { SEO } from 'components/Layout/Seo'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { PriceChart } from 'components/PriceChart/PriceChart'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { PORTALS_NETWORK_TO_CHAIN_ID } from 'lib/portals/constants'
+import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from 'lib/portals/utils'
 import { markdownLinkToHTML } from 'lib/utils'
 import {
   selectAssetById,
   selectAssetIds,
+  selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { store, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { LpCard } from './components/LpCard'
@@ -184,6 +196,54 @@ export const Recommended: React.FC = () => {
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const assetIds = useAppSelector(selectAssetIds)
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
+
+  const { data: portalsPlatformsData } = useQuery({
+    queryKey: ['portalsPlatforms'],
+    queryFn: () => fetchPortalsPlatforms(),
+  })
+  const { data: portalsData } = useQuery({
+    queryKey: ['portalsAssets'],
+    queryFn: portalsPlatformsData
+      ? () =>
+          fetchPortalsTokens({
+            limit: '10',
+            chainIds: undefined,
+            sortBy: 'apy',
+            sortDirection: 'desc',
+          })
+      : skipToken,
+    select: tokens => {
+      if (!portalsPlatformsData) return
+
+      return tokens
+        .map(token => {
+          const chainId = PORTALS_NETWORK_TO_CHAIN_ID[token.network]
+          if (!chainId) return undefined
+
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetReference: token.address,
+          })
+          const feeAsset = selectFeeAssetById(store.getState(), assetId)
+          if (!feeAsset) return undefined
+
+          return {
+            asset: portalTokenToAsset({
+              token,
+              portalsPlatforms: portalsPlatformsData,
+              nativeAsset: feeAsset,
+              chainId,
+            }),
+            // TODO(gomes): do we even need TokenInfo here? Market-data should contain all we need and we shouldn't need to use raw Portals data?
+            tokenInfo: token,
+          }
+        })
+        .filter(isSome)
+    },
+  })
+
+  console.log({ portalsData })
 
   const rows = useMemo(
     () => [

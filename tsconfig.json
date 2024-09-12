@@ -33,7 +33,7 @@
     "experimentalDecorators": true,
     "jsx": "react-jsx",
   },
-  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData",
+  "include": ["src/**/*", "src/**/*.json", "packages/**/*", "packages/**/*.json", "scripts/generateAssetData", "scripts/generateAssetData",
     "scripts/generateTradableThorAssetMap"
   ],
   "exclude": ["dist", "node_modules", "**/__mocks__", "**/*.js", "src/lib/asset-service/service/generatedAssetData.json"],

@@ -1,8 +1,9 @@
-import { Box, Button, Card, CardBody, Flex, Skeleton, Text } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, Flex, Skeleton, Text as CText } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
+import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -38,12 +39,12 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, isLoadi
           <Flex align='center' mb={4}>
             <AssetIcon assetId={asset.assetId} pairProps={pairProps} />
             <Box textAlign='left' ml={3}>
-              <Text fontWeight='bold' fontSize='lg'>
+              <CText fontWeight='bold' fontSize='lg'>
                 {asset.name}
-              </Text>
-              <Text fontSize='sm' color='gray.500'>
+              </CText>
+              <CText fontSize='sm' color='gray.500'>
                 {asset.symbol}
-              </Text>
+              </CText>
             </Box>
           </Flex>
           <Flex justify='space-between'>
@@ -53,25 +54,22 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, isLoadi
                 value={bnOrZero(apy).times(0.01).toString()}
                 fontWeight='medium'
               />
-              <Text fontSize='sm' color='gray.500'>
-                APY
-              </Text>
+              <Text translation='common.apy' fontSize='sm' color='gray.500' />
+              APY
             </Box>
             <Box textAlign='right'>
               {bnOrZero(volume24H).isPositive() ? (
-                <Amount.Fiat
-                  fontWeight='bold'
-                  fontSize='xl'
-                  value={bnOrZero(volume24H).isZero() ? 'N/A' : volume24H}
-                />
+                <Amount.Fiat fontWeight='bold' fontSize='xl' value={volume24H} />
               ) : (
-                <Text fontSize='sm' color='gray.500'>
+                <CText fontSize='sm' color='gray.500'>
                   N/A
-                </Text>
+                </CText>
               )}
-              <Text fontSize='sm' color='gray.500'>
-                24h Volume
-              </Text>
+              <Text
+                translation='assets.assetDetails.assetHeader.24HrVolume'
+                fontSize='sm'
+                color='gray.500'
+              />
             </Box>
           </Flex>
         </CardBody>

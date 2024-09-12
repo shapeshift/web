@@ -187,11 +187,11 @@ export const Recommended: React.FC = () => {
     () => [
       {
         title: 'Most Popular',
-        // TODO(gomes): loading state when implemented
         component: (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
+            // TODO(gomes): loading state when implemented
             isLoading={isPortalsAssetsLoading}
           />
         ),
@@ -199,11 +199,11 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.trending.title'),
         subtitle: translate('markets.categories.trending.subtitle'),
-        // TODO(gomes): loading state when implemented
         component: (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
+            // TODO(gomes): loading state when implemented
             isLoading={isPortalsAssetsLoading}
           />
         ),
@@ -214,6 +214,7 @@ export const Recommended: React.FC = () => {
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
+            // TODO(gomes): loading state when implemented
             isLoading={isPortalsAssetsLoading}
           />
         ),
@@ -225,6 +226,7 @@ export const Recommended: React.FC = () => {
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
+            // TODO(gomes): loading state when implemented
             isLoading={isPortalsAssetsLoading}
           />
         ),
@@ -245,6 +247,7 @@ export const Recommended: React.FC = () => {
           <LpGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
+            // TODO(gomes): loading state when implemented
             isLoading={isPortalsAssetsLoading}
           />
         ),

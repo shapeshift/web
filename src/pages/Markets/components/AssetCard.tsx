@@ -1,25 +1,27 @@
-import { Box, Card, CardBody, Flex, Image, Text } from '@chakra-ui/react'
-import type { Asset } from '@shapeshiftoss/types'
+import { Box, Card, CardBody, Flex, Text } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { Amount } from 'components/Amount/Amount'
+import { AssetIcon } from 'components/AssetIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 type AssetCardProps = {
-  asset: Asset
+  assetId: AssetId
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ asset }) => {
-  const marketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
-  )
+export const AssetCard: React.FC<AssetCardProps> = ({ assetId }) => {
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData.changePercent24Hr
+
+  if (!asset) return null
 
   return (
     <Card height='180px' width='100%' borderRadius='xl'>
       <CardBody display='flex' flexDirection='column' justifyContent='space-between' p={4}>
         <Flex align='center' mb={4}>
-          <Image src={asset.icon} alt={asset.name} boxSize='40px' mr={3} />
+          <AssetIcon src={asset.icon} boxSize='40px' mr={3} />
           <Box>
             <Text fontWeight='bold' fontSize='lg'>
               {asset.name}

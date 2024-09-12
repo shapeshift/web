@@ -1,14 +1,11 @@
 import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import {
-  selectAssetsSortedByMarketCap,
-  selectWalletConnectedChainIdsSorted,
-} from 'state/slices/selectors'
+import { selectAssetIds, selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
@@ -24,18 +21,18 @@ type RowProps = {
 
 const gridColumnSx = { base: 1, md: 2, lg: 4 }
 
-const AssetsGrid: React.FC<{ assets: Asset[] }> = ({ assets }) => (
+const AssetsGrid: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => (
   <SimpleGrid columns={gridColumnSx} spacing={4}>
-    {assets.map(asset => (
-      <AssetCard key={asset.id} asset={asset} />
+    {assetIds.map(assetId => (
+      <AssetCard key={assetId} assetId={assetId} />
     ))}
   </SimpleGrid>
 )
 
-const LpGrid: React.FC<{ assets: Asset[] }> = ({ assets }) => (
+const LpGrid: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => (
   <SimpleGrid columns={gridColumnSx} spacing={4}>
-    {assets.map(asset => (
-      <LpCard key={asset.id} asset={asset} apy={'42'} volume24H={'10000'} />
+    {assetIds.map(assetId => (
+      <LpCard key={assetId} assetId={assetId} apy={'42'} volume24H={'10000'} />
     ))}
   </SimpleGrid>
 )
@@ -73,37 +70,37 @@ export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const portfolioChainIds = useAppSelector(selectWalletConnectedChainIdsSorted)
-  const assets = useAppSelector(selectAssetsSortedByMarketCap)
+  const assetIds = useAppSelector(selectAssetIds)
 
   const rows = useMemo(
     () => [
       {
         title: 'Most Popular',
-        component: <AssetsGrid assets={assets.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
       },
       {
         title: 'Trending',
         subtitle: 'These are top assets that have jumped 10% or more',
-        component: <AssetsGrid assets={assets.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
       },
       {
         title: 'Top Movers',
-        component: <AssetsGrid assets={assets.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
       },
       {
         title: 'Recently Added',
-        component: <AssetsGrid assets={assets.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
       },
       {
         title: 'One Click DeFi Assets',
-        component: <LpGrid assets={assets.slice(0, 4)} />,
+        component: <LpGrid assetIds={assetIds.slice(0, 4)} />,
       },
       {
         title: 'THORChain DeFi',
-        component: <LpGrid assets={assets.slice(0, 4)} />,
+        component: <LpGrid assetIds={assetIds.slice(0, 4)} />,
       },
     ],
-    [assets],
+    [assetIds],
   )
 
   return (

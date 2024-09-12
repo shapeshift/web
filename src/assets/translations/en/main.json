@@ -2522,7 +2522,7 @@
     "newAddressInfo": "This will update for the next reward cycle",
     "confirmAndUpdateAddress": "Confirm & Update Address",
     "unstakeFrom": "Unstake from r%{assetSymbol}",
-    "claimPending": "Requesting withdraw",
+    "claimPending": "Awaiting your claim of %{amount} %{symbol}",
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
     "noRewardsYet": "No rewards yet",

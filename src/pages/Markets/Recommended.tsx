@@ -1,11 +1,12 @@
 import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectAssetIds, selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
+import { selectAssetIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
@@ -16,29 +17,54 @@ type RowProps = {
   title: string
   subtitle?: string
   children: React.ReactNode
-  chainIds: ChainId[]
+  selectedChainId: ChainId | undefined
+  setSelectedChainId: (chainId: ChainId | undefined) => void
 }
 
 const gridColumnSx = { base: 1, md: 2, lg: 4 }
 
-const AssetsGrid: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => (
-  <SimpleGrid columns={gridColumnSx} spacing={4}>
-    {assetIds.map(assetId => (
-      <AssetCard key={assetId} assetId={assetId} />
-    ))}
-  </SimpleGrid>
-)
+const AssetsGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
+  assetIds,
+  selectedChainId,
+}) => {
+  const filteredAssetIds = selectedChainId
+    ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
+    : assetIds
 
-const LpGrid: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => (
-  <SimpleGrid columns={gridColumnSx} spacing={4}>
-    {assetIds.map(assetId => (
-      <LpCard key={assetId} assetId={assetId} apy={'42'} volume24H={'10000'} />
-    ))}
-  </SimpleGrid>
-)
+  return (
+    <SimpleGrid columns={gridColumnSx} spacing={4}>
+      {filteredAssetIds.map(assetId => (
+        <AssetCard key={assetId} assetId={assetId} />
+      ))}
+    </SimpleGrid>
+  )
+}
 
-const Row: React.FC<RowProps> = ({ title, subtitle, children, chainIds }) => {
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
+const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
+  assetIds,
+  selectedChainId,
+}) => {
+  const filteredAssetIds = selectedChainId
+    ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
+    : assetIds
+
+  return (
+    <SimpleGrid columns={gridColumnSx} spacing={4}>
+      {filteredAssetIds.map(assetId => (
+        <LpCard key={assetId} assetId={assetId} apy={'42'} volume24H={'10000'} />
+      ))}
+    </SimpleGrid>
+  )
+}
+
+const Row: React.FC<RowProps> = ({
+  title,
+  subtitle,
+  children,
+  selectedChainId,
+  setSelectedChainId,
+}) => {
+  const chainIds = Object.values(KnownChainIds)
 
   return (
     <Box mb={8}>
@@ -69,38 +95,38 @@ const Row: React.FC<RowProps> = ({ title, subtitle, children, chainIds }) => {
 export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
-  const portfolioChainIds = useAppSelector(selectWalletConnectedChainIdsSorted)
   const assetIds = useAppSelector(selectAssetIds)
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
 
   const rows = useMemo(
     () => [
       {
         title: 'Most Popular',
-        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
       {
         title: 'Trending',
         subtitle: 'These are top assets that have jumped 10% or more',
-        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
       {
         title: 'Top Movers',
-        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
       {
         title: 'Recently Added',
-        component: <AssetsGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <AssetsGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
       {
         title: 'One Click DeFi Assets',
-        component: <LpGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <LpGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
       {
         title: 'THORChain DeFi',
-        component: <LpGrid assetIds={assetIds.slice(0, 4)} />,
+        component: <LpGrid assetIds={assetIds.slice(0, 8)} selectedChainId={selectedChainId} />,
       },
     ],
-    [assetIds],
+    [assetIds, selectedChainId],
   )
 
   return (
@@ -108,7 +134,13 @@ export const Recommended: React.FC = () => {
       <SEO title={translate('navBar.markets')} />
       <Box p={4}>
         {rows.map((row, i) => (
-          <Row key={i} title={row.title} subtitle={row.subtitle} chainIds={portfolioChainIds}>
+          <Row
+            key={i}
+            title={row.title}
+            subtitle={row.subtitle}
+            selectedChainId={selectedChainId}
+            setSelectedChainId={setSelectedChainId}
+          >
             {row.component}
           </Row>
         ))}

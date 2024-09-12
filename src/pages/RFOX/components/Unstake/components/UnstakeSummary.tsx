@@ -1,7 +1,7 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -67,7 +67,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery({
     stakingAssetId,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT,
     select: data => data.toString(),
   })
 

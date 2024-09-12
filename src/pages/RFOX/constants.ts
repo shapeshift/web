@@ -1,6 +1,6 @@
 import {
   FOX_STAKING_V1_ABI,
-  RFOX_PROXY_CONTRACT_ADDRESS,
+  RFOX_PROXY_CONTRACT,
   viemClientByNetworkId,
 } from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
@@ -18,7 +18,7 @@ export const CURRENT_EPOCH_IPFS_HASH = 'QmPYuHffJfCQuexWJYv4CpukhRAyw3YM8MJbCZ34
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const contract = getContract({
-  address: RFOX_PROXY_CONTRACT_ADDRESS,
+  address: RFOX_PROXY_CONTRACT,
   abi: FOX_STAKING_V1_ABI,
   client,
 })

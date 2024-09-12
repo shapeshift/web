@@ -1,7 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { UNISWAP_V2_ROUTER_02_MAINNET } from '@shapeshiftoss/contracts'
+import { UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
@@ -228,7 +228,7 @@ export const Approve: React.FC<UniV2ApproveProps> = ({ accountId, onNext }) => {
       providerIcon={getMetadataForProvider(lpOpportunity.provider)?.icon ?? ''}
       onCancel={handleCancel}
       onConfirm={handleApprove}
-      spenderContractAddress={UNISWAP_V2_ROUTER_02_MAINNET}
+      spenderContractAddress={UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET}
     />
   )
 }

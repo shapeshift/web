@@ -5,8 +5,8 @@ import {
   ContractType,
   getOrCreateContractByAddress,
   getOrCreateContractByType,
-  UNISWAP_V2_ROUTER_02_MAINNET,
-  WETH_TOKEN_CONTRACT_ADDRESS,
+  UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
+  WETH_TOKEN_CONTRACT,
 } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isNumber from 'lodash/isNumber'
@@ -37,7 +37,7 @@ type UseUniV2LiquidityPoolOptions = {
 }
 
 const wethAssetId = toAssetId({
-  assetReference: WETH_TOKEN_CONTRACT_ADDRESS,
+  assetReference: WETH_TOKEN_CONTRACT,
   chainId: ethChainId,
   assetNamespace: 'erc20',
 })
@@ -77,7 +77,7 @@ export const useUniV2LiquidityPool = ({
   const adapter = useMemo(() => assertGetEvmChainAdapter(ethChainId), [])
 
   const uniswapRouterContract = useMemo(
-    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_MAINNET)),
+    () => (skip ? null : getOrCreateContractByAddress(UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET)),
     [skip],
   )
 

@@ -1,7 +1,7 @@
 import {
   UNISWAP_V3_POOL_FACTORY_CONTRACT_MAINNET,
   UNISWAP_V3_QUOTER_ABI,
-  UNISWAP_V3_QUOTER_MAINNET,
+  UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
   viemClientByChainId,
 } from '@shapeshiftoss/contracts'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
@@ -50,7 +50,7 @@ export const getBestAggregator = async (
   const quoterContract: GetContractReturnType<typeof UNISWAP_V3_QUOTER_ABI, PublicClient, Address> =
     getContract({
       abi: UNISWAP_V3_QUOTER_ABI,
-      address: UNISWAP_V3_QUOTER_MAINNET,
+      address: UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
       client: publicClient,
     })
 

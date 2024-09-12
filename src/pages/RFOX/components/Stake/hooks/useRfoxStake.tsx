@@ -3,7 +3,7 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useMutation, type UseQueryResult } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -127,13 +127,13 @@ export const useRfoxStake = ({
     return encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [RFOX_PROXY_CONTRACT_ADDRESS, BigInt(amountCryptoBaseUnit)],
+      args: [RFOX_PROXY_CONTRACT, BigInt(amountCryptoBaseUnit)],
     })
   }, [amountCryptoBaseUnit, stakingAsset])
 
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
-    spender: RFOX_PROXY_CONTRACT_ADDRESS,
+    spender: RFOX_PROXY_CONTRACT,
     from: stakingAssetAccountAddress,
   })
 
@@ -216,7 +216,7 @@ export const useRfoxStake = ({
         adapter,
         data: stakeCallData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: RFOX_PROXY_CONTRACT,
         wallet,
       })
 
@@ -237,7 +237,7 @@ export const useRfoxStake = ({
 
   const stakeFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: RFOX_PROXY_CONTRACT,
       accountNumber: stakingAssetAccountNumber,
       from: stakingAssetAccountAddress,
       data: stakeCallData,
@@ -283,7 +283,7 @@ export const useRfoxStake = ({
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
-      spender: RFOX_PROXY_CONTRACT_ADDRESS,
+      spender: RFOX_PROXY_CONTRACT,
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       from: stakingAssetAccountAddress,

@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -136,7 +136,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
   const changeAddressFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: RFOX_PROXY_CONTRACT,
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,

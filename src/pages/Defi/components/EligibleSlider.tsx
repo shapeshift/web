@@ -1,5 +1,5 @@
 import type { BoxProps } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from '@shapeshiftoss/contracts'
+import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -25,8 +25,7 @@ export const EligibleSlider: React.FC<EligibleSliderProps> = ({ slidesToShow = 4
       .slice(0, 5)
 
     const foxFarmingV9 = eligibleOpportunities.find(
-      eligibleOpportunity =>
-        eligibleOpportunity.contractAddress === ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
+      eligibleOpportunity => eligibleOpportunity.contractAddress === ETH_FOX_STAKING_V9_CONTRACT,
     )
 
     const rfoxOpportunity = eligibleOpportunities.find(

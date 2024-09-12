@@ -1,6 +1,6 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
-  ETH_FOX_POOL_CONTRACT_ADDRESS,
+  ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
   getOrCreateContractByAddress,
 } from '@shapeshiftoss/contracts'
@@ -54,7 +54,7 @@ export const ethFoxStakingMetadataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
-  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT_ADDRESS)
+  const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
 
   // tvl
   const totalSupply = await foxFarmingContract.read.totalSupply()

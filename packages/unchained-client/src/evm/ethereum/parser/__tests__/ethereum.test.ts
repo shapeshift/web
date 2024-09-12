@@ -2,8 +2,8 @@ import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import {
   FOXY_STAKING_CONTRACT,
-  UNI_V2_FOX_STAKING_REWARDS_V3,
-  WETH_TOKEN_CONTRACT_ADDRESS,
+  UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
+  WETH_TOKEN_CONTRACT,
   ZRX_ETHEREUM_PROXY_CONTRACT,
 } from '@shapeshiftoss/contracts'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
@@ -2648,7 +2648,7 @@ describe('parseTx', () => {
           {
             type: TransferType.Send,
             from: address,
-            to: UNI_V2_FOX_STAKING_REWARDS_V3,
+            to: UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '99572547380794318',
             components: [{ value: '99572547380794318' }],
@@ -2712,7 +2712,7 @@ describe('parseTx', () => {
         transfers: [
           {
             type: TransferType.Receive,
-            from: UNI_V2_FOX_STAKING_REWARDS_V3,
+            from: UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
             to: address,
             assetId: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
             totalValue: '531053586030903030',
@@ -2721,7 +2721,7 @@ describe('parseTx', () => {
           },
           {
             type: TransferType.Receive,
-            from: UNI_V2_FOX_STAKING_REWARDS_V3,
+            from: UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
             to: address,
             assetId: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             totalValue: '317669338073988',
@@ -2935,7 +2935,7 @@ describe('parseTx', () => {
     it('should be able to parse deposit', async () => {
       const { tx } = wethDeposit
       const address = '0x2D801972327b0F11422d9Cc14A3d00B07ae0CceB'
-      const contractAddress = WETH_TOKEN_CONTRACT_ADDRESS
+      const contractAddress = WETH_TOKEN_CONTRACT
 
       const expected: ParsedTx = {
         txid: tx.txid,
@@ -2991,7 +2991,7 @@ describe('parseTx', () => {
     it('should be able to parse deposit extra input data', async () => {
       const { tx2 } = wethDeposit
       const address = '0xE7F92E3d5FDe63C90A917e25854826873497ef3D'
-      const contractAddress = WETH_TOKEN_CONTRACT_ADDRESS
+      const contractAddress = WETH_TOKEN_CONTRACT
 
       const expected: ParsedTx = {
         txid: tx2.txid,
@@ -3047,7 +3047,7 @@ describe('parseTx', () => {
     it('should be able to parse withdrawal', async () => {
       const { tx } = wethWithdraw
       const address = '0xa6F15FB2cc5dC96c2EBA18c101AD3fAD27F74839'
-      const contractAddress = WETH_TOKEN_CONTRACT_ADDRESS
+      const contractAddress = WETH_TOKEN_CONTRACT
 
       const internalTransfer = {
         assetId: 'eip155:1/slip44:60',

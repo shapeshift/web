@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { WETH_ABI, WETH_TOKEN_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { WETH_ABI, WETH_TOKEN_CONTRACT } from '@shapeshiftoss/contracts'
 import assert from 'assert'
 import { ethers } from 'ethers'
 
@@ -36,7 +36,7 @@ export class Parser implements SubParser<Tx> {
 
     assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
 
-    this.wethContract = WETH_TOKEN_CONTRACT_ADDRESS
+    this.wethContract = WETH_TOKEN_CONTRACT
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {

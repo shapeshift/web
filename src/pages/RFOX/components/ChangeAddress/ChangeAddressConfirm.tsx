@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -94,7 +94,7 @@ export const ChangeAddressConfirm: React.FC<
 
   const changeAddressFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: RFOX_PROXY_CONTRACT,
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(confirmedQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,
@@ -153,7 +153,7 @@ export const ChangeAddressConfirm: React.FC<
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: RFOX_PROXY_CONTRACT,
         wallet,
       })
 

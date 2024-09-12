@@ -1,4 +1,4 @@
-import { UNI_V2_FOX_STAKING_REWARDS_V3 } from '@shapeshiftoss/contracts'
+import { UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT } from '@shapeshiftoss/contracts'
 
 import { mempoolMock } from './mempoolMock'
 
@@ -9,7 +9,7 @@ const foxStake = {
   timestamp: 1626986096,
   status: 1,
   from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-  to: UNI_V2_FOX_STAKING_REWARDS_V3,
+  to: UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
   confirmations: 1934893,
   value: '0',
   fee: '4650509500000000',
@@ -25,7 +25,7 @@ const foxStake = {
       symbol: 'UNI-V2',
       type: 'ERC20',
       from: '0x6bF198c2B5c8E48Af4e876bc2173175b89b1DA0C',
-      to: UNI_V2_FOX_STAKING_REWARDS_V3,
+      to: UNI_V2_FOX_STAKING_REWARDS_V3_CONTRACT,
       value: '99572547380794318',
     },
   ],

@@ -8,9 +8,10 @@ import { useAppSelector } from 'state/store'
 
 type AssetCardProps = {
   assetId: AssetId
+  onClick: (assetId: AssetId) => void
 }
 
-export const AssetCard: React.FC<AssetCardProps> = ({ assetId }) => {
+export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick: handleClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData.changePercent24Hr
@@ -18,7 +19,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId }) => {
   if (!asset) return null
 
   return (
-    <Card height='180px' width='100%' borderRadius='xl'>
+    <Card height='180px' width='100%' borderRadius='xl' onClick={() => handleClick(assetId)}>
       <CardBody display='flex' flexDirection='column' justifyContent='space-between' p={4}>
         <Flex align='center' mb={4}>
           <AssetIcon src={asset.icon} boxSize='40px' mr={3} />

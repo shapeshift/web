@@ -1,8 +1,9 @@
 import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
 import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -30,6 +31,7 @@ const AssetsGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> =
   assetIds,
   selectedChainId,
 }) => {
+  const history = useHistory()
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId
@@ -39,13 +41,20 @@ const AssetsGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> =
     [assetIds, selectedChainId],
   )
 
+  const handleCardClick = useCallback(
+    (assetId: AssetId) => {
+      return history.push(`/assets/${assetId}`)
+    },
+    [history],
+  )
+
   return (
     <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
       {filteredAssetIds.map((assetId, index) =>
         index === 0 ? (
-          <CardWithSparkline key={assetId} assetId={assetId} />
+          <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
         ) : (
-          <AssetCard key={assetId} assetId={assetId} />
+          <AssetCard key={assetId} assetId={assetId} onClick={handleCardClick} />
         ),
       )}
     </SimpleGrid>
@@ -56,6 +65,13 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
   assetIds,
   selectedChainId,
 }) => {
+  const history = useHistory()
+  const handleCardClick = useCallback(
+    (assetId: AssetId) => {
+      return history.push(`/assets/${assetId}`)
+    },
+    [history],
+  )
   const { data: portalsData } = usePortalsAssetsQuery()
 
   const filteredAssetIds = useMemo(
@@ -75,9 +91,15 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId }> = ({
         const volume24H = portalsData?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
           ?.metrics.volumeUsd1d
         return index === 0 ? (
-          <CardWithSparkline key={assetId} assetId={assetId} />
+          <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
         ) : (
-          <LpCard key={assetId} assetId={assetId} apy={apy ?? '0'} volume24H={volume24H ?? '0'} />
+          <LpCard
+            key={assetId}
+            assetId={assetId}
+            apy={apy ?? '0'}
+            volume24H={volume24H ?? '0'}
+            onClick={handleCardClick}
+          />
         )
       })}
     </SimpleGrid>

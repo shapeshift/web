@@ -10,16 +10,22 @@ type LpCardProps = {
   assetId: AssetId
   apy: string
   volume24H: string
+  onClick: (assetId: AssetId) => void
 }
 
 const pairProps = { showFirst: true }
 
-export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H }) => {
+export const LpCard: React.FC<LpCardProps> = ({
+  assetId,
+  apy,
+  volume24H,
+  onClick: handleCardClick,
+}) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) return null
 
   return (
-    <Card height='180px' width='100%' borderRadius='xl'>
+    <Card height='180px' width='100%' borderRadius='xl' onClick={() => handleCardClick(assetId)}>
       <CardBody display='flex' flexDirection='column' justifyContent='space-between' p={4}>
         <Flex align='center' mb={4}>
           <AssetIcon assetId={asset.assetId} pairProps={pairProps} />

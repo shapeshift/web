@@ -20,48 +20,42 @@ type RowProps = {
   subtitle?: string
   children: React.ReactNode
   chainIds: ChainId[]
-  selectedChainId: ChainId | undefined
-  setSelectedChainId: (chainId: ChainId | undefined) => void
 }
 
 const gridColumnSx = { base: 1, md: 2, lg: 4 }
 
-const Row: React.FC<RowProps> = ({
-  title,
-  subtitle,
-  children,
-  chainIds,
-  selectedChainId,
-  setSelectedChainId,
-}) => (
-  <Box mb={8}>
-    <Flex justify='space-between' align='center' mb={4}>
-      <Box>
-        <Heading size='lg' mb={1}>
-          {title}
-        </Heading>
-        {subtitle && (
-          <Text fontSize='sm' color='gray.500'>
-            {subtitle}
-          </Text>
-        )}
-      </Box>
-      <ChainDropdown
-        chainIds={chainIds}
-        chainId={selectedChainId}
-        onClick={setSelectedChainId}
-        showAll
-        includeBalance
-      />
-    </Flex>
-    {children}
-  </Box>
-)
+const Row: React.FC<RowProps> = ({ title, subtitle, children, chainIds }) => {
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
+
+  return (
+    <Box mb={8}>
+      <Flex justify='space-between' align='center' mb={4}>
+        <Box>
+          <Heading size='lg' mb={1}>
+            {title}
+          </Heading>
+          {subtitle && (
+            <Text fontSize='sm' color='gray.500'>
+              {subtitle}
+            </Text>
+          )}
+        </Box>
+        <ChainDropdown
+          chainIds={chainIds}
+          chainId={selectedChainId}
+          onClick={setSelectedChainId}
+          showAll
+          includeBalance
+        />
+      </Flex>
+      {children}
+    </Box>
+  )
+}
 
 export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
   const portfolioChainIds = useAppSelector(selectWalletConnectedChainIdsSorted)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
 
@@ -131,19 +125,13 @@ export const Recommended: React.FC = () => {
     ],
     [assets],
   )
+
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.markets')} />
       <Box p={4}>
         {rows.map((row, i) => (
-          <Row
-            key={i}
-            title={row.title}
-            subtitle={row.subtitle}
-            chainIds={portfolioChainIds}
-            selectedChainId={selectedChainId}
-            setSelectedChainId={setSelectedChainId}
-          >
+          <Row key={i} title={row.title} subtitle={row.subtitle} chainIds={portfolioChainIds}>
             {row.component}
           </Row>
         ))}

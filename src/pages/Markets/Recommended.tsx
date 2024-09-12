@@ -1,14 +1,15 @@
 import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
 import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
@@ -32,6 +33,7 @@ const AssetsGrid: React.FC<{
   selectedChainId?: ChainId
   isLoading: boolean
 }> = ({ assetIds, selectedChainId, isLoading }) => {
+  const dispatch = useAppDispatch()
   const history = useHistory()
   const filteredAssetIds = useMemo(
     () =>
@@ -43,6 +45,12 @@ const AssetsGrid: React.FC<{
         .slice(0, 8),
     [assetIds, selectedChainId],
   )
+
+  useEffect(() => {
+    filteredAssetIds.forEach(assetId =>
+      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
+    )
+  }, [assetIds, dispatch, filteredAssetIds])
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -79,6 +87,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   selectedChainId,
   isLoading,
 }) => {
+  const dispatch = useAppDispatch()
   const history = useHistory()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -98,6 +107,10 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
         .slice(0, 8),
     [assetIds, selectedChainId],
   )
+
+  useEffect(() => {
+    filteredAssetIds.map(assetId => dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)))
+  }, [assetIds, dispatch, filteredAssetIds])
 
   return (
     <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
@@ -184,8 +197,8 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: 'Trending',
-        subtitle: 'These are top assets that have jumped 10% or more',
+        title: translate('markets.categories.trending.title'),
+        subtitle: translate('markets.categories.trending.subtitle'),
         // TODO(gomes): loading state when implemented
         component: (
           <AssetsGrid
@@ -196,7 +209,7 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: 'Top Movers',
+        title: translate('markets.categories.topMovers.title'),
         component: (
           <AssetsGrid
             assetIds={assetIds}
@@ -206,7 +219,7 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: 'Recently Added',
+        title: translate('markets.categories.recentlyAdded.title'),
         // TODO(gomes): loading state when implemented
         component: (
           <AssetsGrid
@@ -217,7 +230,7 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: translate('markets.categories.oneClickDefiAssets'),
+        title: translate('markets.categories.oneClickDefiAssets.title'),
         component: (
           <LpGrid
             assetIds={portalsAssets?.map(({ asset }) => asset.assetId) ?? []}
@@ -227,7 +240,7 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: translate('markets.categories.thorchainDefi'),
+        title: translate('markets.categories.thorchainDefi.title'),
         component: (
           <LpGrid
             assetIds={assetIds}

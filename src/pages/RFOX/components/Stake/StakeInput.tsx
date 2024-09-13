@@ -261,7 +261,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       stakingAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
       // typescript is borked, one of them is defined because of the early return
-      runeAddress: currentRuneAddress ? currentRuneAddress : runeAddress ?? '',
+      runeAddress: currentRuneAddress || runeAddress,
     }
 
     setConfirmedQuote(_confirmedQuote)

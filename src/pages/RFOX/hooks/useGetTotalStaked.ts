@@ -1,4 +1,4 @@
-import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { arbitrum } from 'viem/chains'
 import { useReadContract } from 'wagmi'
 
@@ -12,7 +12,7 @@ export const useTotalStakedQuery = <SelectData = TotalStaked>({
   select,
 }: UseTotalStakedQueryProps<SelectData>) => {
   return useReadContract({
-    abi: FOX_STAKING_V1_ABI,
+    abi: RFOX_ABI,
     address: RFOX_PROXY_CONTRACT,
     functionName: 'totalStaked',
     chainId: arbitrum.id,

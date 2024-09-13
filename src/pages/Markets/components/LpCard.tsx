@@ -1,4 +1,13 @@
-import { Box, Button, Card, CardBody, Flex, Skeleton, Text as CText } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Skeleton,
+  Text as CText,
+  Tooltip,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -27,7 +36,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, isLoadi
 
   return (
     <Skeleton isLoaded={!isLoading} onClick={handleClick}>
-      <Card height='180px' width='100%' borderRadius='xl' p={0} as={Button} onClick={handleClick}>
+      <Card height='168px' width='100%' borderRadius='xl' p={0} as={Button} onClick={handleClick}>
         <CardBody
           as={Flex}
           flexDirection='column'
@@ -37,14 +46,32 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, isLoadi
           height='100%'
         >
           <Flex align='center' mb={4}>
-            <AssetIcon assetId={asset.assetId} pairProps={pairProps} />
-            <Box textAlign='left' ml={3}>
-              <CText fontWeight='bold' fontSize='lg'>
-                {asset.name}
-              </CText>
-              <CText fontSize='sm' color='gray.500'>
-                {asset.symbol}
-              </CText>
+            <AssetIcon assetId={asset.assetId} pairProps={pairProps} flexShrink={0} />
+            <Box textAlign='left' ml={3} overflow='hidden' width='100%'>
+              <Tooltip label={asset.name} placement='top-start'>
+                <CText
+                  fontWeight='bold'
+                  fontSize='lg'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                  overflow='hidden'
+                  width='100%'
+                >
+                  {asset.name}
+                </CText>
+              </Tooltip>
+              <Tooltip label={asset.symbol} placement='bottom-start'>
+                <CText
+                  fontSize='sm'
+                  color='gray.500'
+                  whiteSpace='nowrap'
+                  textOverflow='ellipsis'
+                  overflow='hidden'
+                  width='100%'
+                >
+                  {asset.symbol}
+                </CText>
+              </Tooltip>
             </Box>
           </Flex>
           <Flex justify='space-between'>
@@ -55,11 +82,10 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, isLoadi
                 fontWeight='medium'
               />
               <Text translation='common.apy' fontSize='sm' color='gray.500' />
-              APY
             </Box>
             <Box textAlign='right'>
               {bnOrZero(volume24H).isPositive() ? (
-                <Amount.Fiat fontWeight='bold' fontSize='xl' value={volume24H} />
+                <Amount.Fiat fontWeight='bold' fontSize='md' value={volume24H} />
               ) : (
                 <CText fontSize='sm' color='gray.500'>
                   N/A

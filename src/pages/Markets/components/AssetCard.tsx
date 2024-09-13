@@ -23,8 +23,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, isLoading, onClic
   if (!asset) return null
 
   return (
-    <Skeleton isLoaded={!isLoading} height='180px' width='100%' borderRadius='xl' p={0}>
-      <Card as={Button} height='180px' width='100%' borderRadius='xl' p={0} onClick={handleClick}>
+    <Skeleton isLoaded={!isLoading} height='168px' width='100%' borderRadius='xl' p={0}>
+      <Card as={Button} height='168px' width='100%' borderRadius='xl' p={0} onClick={handleClick}>
         <CardBody
           as={Flex}
           flexDirection='column'
@@ -35,11 +35,11 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, isLoading, onClic
         >
           <Flex align='center' mb={4}>
             <AssetIcon src={asset.icon} boxSize='40px' mr={3} />
-            <Box textAlign='left'>
-              <Text fontWeight='bold' fontSize='lg'>
+            <Box textAlign='left' overflow='hidden' width='100%'>
+              <Text fontWeight='bold' fontSize='lg' textOverflow='ellipsis' overflow='hidden'>
                 {asset.name}
               </Text>
-              <Text fontSize='sm' color='gray.500'>
+              <Text fontSize='sm' color='gray.500' textOverflow='ellipsis' overflow='hidden'>
                 {asset.symbol}
               </Text>
             </Box>

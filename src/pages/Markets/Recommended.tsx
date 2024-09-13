@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react'
 import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -25,8 +25,15 @@ type RowProps = {
   setSelectedChainId: (chainId: ChainId | undefined) => void
 }
 
-const gridColumnSx = { base: 1, md: 2, lg: 4 }
-const gridTemplateColumnSx = { base: '1fr', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' }
+const containerPaddingX = { base: 4, xl: 0 }
+
+const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(9, 1fr)' }
+const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
+
+const colSpanSparklineSx = { base: 1, md: 3 }
+const colSpanSx = { base: 1, md: 2 }
+
+const rowSpanSparklineSx = { base: 1, md: 2 }
 
 const AssetsGrid: React.FC<{
   assetIds: AssetId[]
@@ -42,7 +49,7 @@ const AssetsGrid: React.FC<{
         : assetIds
       )
         // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 8),
+        .slice(0, 7),
     [assetIds, selectedChainId],
   )
 
@@ -60,25 +67,29 @@ const AssetsGrid: React.FC<{
   )
 
   return (
-    <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
+    <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) =>
         index === 0 ? (
-          <CardWithSparkline
-            key={assetId}
-            assetId={assetId}
-            onClick={handleCardClick}
-            isLoading={isLoading}
-          />
+          <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
+            <CardWithSparkline
+              key={assetId}
+              assetId={assetId}
+              onClick={handleCardClick}
+              isLoading={isLoading}
+            />
+          </GridItem>
         ) : (
-          <AssetCard
-            key={assetId}
-            assetId={assetId}
-            onClick={handleCardClick}
-            isLoading={isLoading}
-          />
+          <GridItem colSpan={colSpanSx}>
+            <AssetCard
+              key={assetId}
+              assetId={assetId}
+              onClick={handleCardClick}
+              isLoading={isLoading}
+            />
+          </GridItem>
         ),
       )}
-    </SimpleGrid>
+    </Grid>
   )
 }
 
@@ -104,7 +115,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
         : assetIds
       )
         // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 8),
+        .slice(0, 7),
     [assetIds, selectedChainId],
   )
 
@@ -113,7 +124,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   }, [assetIds, dispatch, filteredAssetIds])
 
   return (
-    <SimpleGrid columns={gridColumnSx} gridTemplateColumns={gridTemplateColumnSx} spacing={4}>
+    <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) => {
         const apy = portalsAssets?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
           ?.metrics.apy
@@ -122,21 +133,29 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
 
         if (index === 0) {
           return (
-            <CardWithSparkline assetId={assetId} onClick={handleCardClick} isLoading={isLoading} />
+            <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
+              <CardWithSparkline
+                assetId={assetId}
+                onClick={handleCardClick}
+                isLoading={isLoading}
+              />
+            </GridItem>
           )
         } else {
           return (
-            <LpCard
-              assetId={assetId}
-              apy={apy ?? '0'}
-              volume24H={volume24H ?? '0'}
-              onClick={handleCardClick}
-              isLoading={isLoading}
-            />
+            <GridItem colSpan={colSpanSx}>
+              <LpCard
+                assetId={assetId}
+                apy={apy ?? '0'}
+                volume24H={volume24H ?? '0'}
+                onClick={handleCardClick}
+                isLoading={isLoading}
+              />
+            </GridItem>
           )
         }
       })}
-    </SimpleGrid>
+    </Grid>
   )
 }
 
@@ -152,8 +171,8 @@ const Row: React.FC<RowProps> = ({
   return (
     <Box mb={8}>
       <Flex justify='space-between' align='center' mb={4}>
-        <Box>
-          <Heading size='lg' mb={1}>
+        <Box me={4}>
+          <Heading size='md' mb={1}>
             {title}
           </Heading>
           {subtitle && (
@@ -209,7 +228,7 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: translate('markets.categories.topMovers.title'),
+        title: translate('markets.categories.topMovements.title'),
         component: (
           <AssetsGrid
             assetIds={assetIds}
@@ -259,7 +278,7 @@ export const Recommended: React.FC = () => {
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.markets')} />
-      <Box p={4}>
+      <Box py={4} px={containerPaddingX}>
         {rows.map((row, i) => (
           <Row
             key={i}

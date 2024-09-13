@@ -223,4 +223,4 @@ export const ARB_OUTBOX_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

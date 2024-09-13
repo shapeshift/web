@@ -63,4 +63,4 @@ export const ARB_PROXY_ABI = [
     type: 'function',
   },
   { stateMutability: 'payable', type: 'receive' },
-]
+] as const

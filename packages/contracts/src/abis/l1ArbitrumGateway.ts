@@ -253,4 +253,4 @@ export const L1_ARBITRUM_GATEWAY_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-]
+] as const

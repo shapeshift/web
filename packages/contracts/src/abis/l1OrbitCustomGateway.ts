@@ -372,4 +372,4 @@ export const L1_ORBIT_CUSTOM_GATEWAY_ABI = [
     stateMutability: 'payable',
     type: 'function',
   },
-]
+] as const

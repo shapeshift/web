@@ -552,4 +552,4 @@ export const RFOX_ABI = [
     inputs: [{ name: 'slot', internalType: 'bytes32', type: 'bytes32' }],
     name: 'UUPSUnsupportedProxiableUUID',
   },
-]
+] as const

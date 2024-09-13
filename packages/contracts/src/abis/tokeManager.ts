@@ -505,4 +505,4 @@ export const TOKE_MANAGER_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

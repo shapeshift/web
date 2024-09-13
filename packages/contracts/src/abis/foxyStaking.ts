@@ -714,4 +714,4 @@ export const FOXY_STAKING_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-]
+] as const

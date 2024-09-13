@@ -276,4 +276,4 @@ export const WETH_ABI = [
     name: 'Withdrawal',
     type: 'event',
   },
-]
+] as const

@@ -2510,7 +2510,6 @@
     "newAddressInfo": "Dies wird für den nächsten Belohnungszyklus aktualisiert",
     "confirmAndUpdateAddress": "Adresse bestätigen und aktualisieren",
     "unstakeFrom": "Unstake von r%{assetSymbol}",
-    "claimPending": "Auszahlung anfordern",
     "claimSuccess": "Sie haben %{amount} %{symbol} erfolgreich beansprucht.",
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
     "noRewardsYet": "Noch keine Belohnungen",

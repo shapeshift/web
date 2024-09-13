@@ -2510,7 +2510,6 @@
     "newAddressInfo": "Bu, bir sonraki ödül döngüsü için güncellenecektir",
     "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle",
     "unstakeFrom": "r%{assetSymbol}'dan Stake Kaldır",
-    "claimPending": "Çekim isteği",
     "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
     "claimReceiveAddress": "Alıcı Adresi Talebi",
     "noRewardsYet": "Henüz ödül yok",

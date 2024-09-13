@@ -2510,7 +2510,6 @@
     "newAddressInfo": "Isso será atualizado para o próximo ciclo de recompensa",
     "confirmAndUpdateAddress": "Confirmar e atualizar endereço",
     "unstakeFrom": "Unstake de r%{assetSymbol}",
-    "claimPending": "Solicitando saque",
     "claimSuccess": "Você resgatou com sucesso %{amount} %{symbol}.",
     "claimReceiveAddress": "Endereço Para Receber Resgate",
     "noRewardsYet": "Nenhuma recompensa ainda",

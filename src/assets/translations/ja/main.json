@@ -2510,7 +2510,6 @@
     "newAddressInfo": "これは次の報酬サイクルで更新されます",
     "confirmAndUpdateAddress": "アドレスの確認と更新",
     "unstakeFrom": "r%{assetSymbol} からステーク解除",
-    "claimPending": "引き出しをリクエスト",
     "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
     "claimReceiveAddress": "請求受取アドレス",
     "noRewardsYet": "まだ報酬はありません",

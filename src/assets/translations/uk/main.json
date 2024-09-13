@@ -2510,7 +2510,6 @@
     "newAddressInfo": "Ця інформація буде оновлена для наступного циклу нагородження",
     "confirmAndUpdateAddress": "Підтвердити та оновити адресу",
     "unstakeFrom": "Відстейкати від r%{assetSymbol}",
-    "claimPending": "Запит на виведення коштів",
     "claimSuccess": "Ви успішно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адреса отримання ",
     "noRewardsYet": "Нагород ще немає",

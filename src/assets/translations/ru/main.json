@@ -2510,7 +2510,6 @@
     "newAddressInfo": "Это будет обновлено для следующего цикла вознаграждения",
     "confirmAndUpdateAddress": "Подтвердить и обновить адрес",
     "unstakeFrom": "Отстейкать с r%{assetSymbol}",
-    "claimPending": "Запрос на вывод средств",
     "claimSuccess": "Вы успешно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адрес для получения клейма",
     "noRewardsYet": "Пока нет наград",

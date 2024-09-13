@@ -34,8 +34,8 @@ export const getThorTxInfo = async ({
   if (maybeInboundAddress.isErr()) throw maybeInboundAddress.unwrapErr()
   const inboundAddress = maybeInboundAddress.unwrap()
 
-  const router = getAddress(inboundAddress.router as string)
-  const vault = getAddress(inboundAddress.address as string)
+  const router = getAddress(inboundAddress.router ?? '')
+  const vault = getAddress(inboundAddress.address)
 
   if (!router) {
     throw Error(`No router found for ${sellAsset.assetId} at inbound address ${inboundAddress}`)

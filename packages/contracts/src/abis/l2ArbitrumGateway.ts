@@ -166,4 +166,4 @@ export const L2_ARBITRUM_GATEWAY_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

@@ -110,4 +110,4 @@ export const ARBITRUM_RETRYABLE_TX_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

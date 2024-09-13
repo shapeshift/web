@@ -408,4 +408,4 @@ export const UNIV2_STAKING_REWARDS_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

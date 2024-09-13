@@ -68,4 +68,4 @@ export const TOKE_REWARD_HASH_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

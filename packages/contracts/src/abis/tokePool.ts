@@ -305,4 +305,4 @@ export const TOKE_POOL_ABI = [
     stateMutability: 'view',
     type: 'function',
   },
-]
+] as const

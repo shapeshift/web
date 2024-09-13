@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { type FC, useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -117,7 +117,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     if (!newRuneAddress) return
 
     return encodeFunctionData({
-      abi: FOX_STAKING_V1_ABI,
+      abi: RFOX_ABI,
       functionName: 'setRuneAddress',
       args: [newRuneAddress],
     })

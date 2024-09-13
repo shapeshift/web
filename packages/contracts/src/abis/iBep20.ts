@@ -122,4 +122,4 @@ export const I_BEP20_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

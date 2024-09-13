@@ -136,4 +136,4 @@ export const ARB_SYS_ABI = [
     stateMutability: 'payable',
     type: 'function',
   },
-]
+] as const

@@ -1,4 +1,4 @@
-import type { FOX_STAKING_V1_ABI } from '@shapeshiftoss/contracts'
+import type { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { Address, Log, ReadContractReturnType } from 'viem'
 import type { PartialFields } from 'lib/types'
 
@@ -74,7 +74,7 @@ export type RFOXAccountLog =
   | Log<bigint, number, false, typeof withdrawEvent, false>
 
 export type AbiStakingInfo = ReadContractReturnType<
-  typeof FOX_STAKING_V1_ABI,
+  typeof RFOX_ABI,
   'stakingInfo',
   readonly [Address]
 >

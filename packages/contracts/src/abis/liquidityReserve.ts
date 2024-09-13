@@ -544,4 +544,4 @@ export const LIQUIDITY_RESERVE_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

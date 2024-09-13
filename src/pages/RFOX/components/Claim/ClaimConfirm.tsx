@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { foxStakingV1Abi, RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { FOX_STAKING_V1_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -106,7 +106,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
     if (!stakingAsset) return
 
     return encodeFunctionData({
-      abi: foxStakingV1Abi,
+      abi: FOX_STAKING_V1_ABI,
       functionName: 'withdraw',
       args: [BigInt(claimQuote.index)],
     })
@@ -129,7 +129,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT_ADDRESS,
+        to: RFOX_PROXY_CONTRACT,
         wallet,
       })
 
@@ -152,7 +152,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const claimFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT_ADDRESS,
+      to: RFOX_PROXY_CONTRACT,
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,

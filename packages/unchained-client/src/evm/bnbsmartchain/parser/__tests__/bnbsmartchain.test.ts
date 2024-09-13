@@ -1,12 +1,13 @@
 import { bscAssetId, bscChainId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import { TransactionParser, ZRX_BSC_PROXY_CONTRACT } from '../index'
+import { TransactionParser } from '../index'
 import bep20Approve from './mockData/bep20Approve'
 import bep721 from './mockData/bep721'
 import bep1155 from './mockData/bep1155'
@@ -745,7 +746,7 @@ describe('parseTx', () => {
       const buyTransfer: Transfer = {
         assetId: bscAssetId,
         components: [{ value: '4904343838640863' }],
-        from: ZRX_BSC_PROXY_CONTRACT,
+        from: ZRX_ETHEREUM_PROXY_CONTRACT,
         to: address,
         totalValue: '4904343838640863',
         type: TransferType.Receive,
@@ -803,7 +804,7 @@ describe('parseTx', () => {
         assetId: bscAssetId,
         components: [{ value: '1077638000000000000' }],
         from: address,
-        to: ZRX_BSC_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '1077638000000000000',
         type: TransferType.Send,
       }

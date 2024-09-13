@@ -1,12 +1,13 @@
 import { arbitrumAssetId, arbitrumChainId, ethAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
+import { ZRX_ETHEREUM_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Trade, Transfer } from '../../../../types'
 import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
-import { TransactionParser, ZRX_ARBITRUM_PROXY_CONTRACT } from '../index'
+import { TransactionParser } from '../index'
 import { arbitrumBridgeErc20GatewayReceive } from './mockData/arbitrumBridgeErc20GatewayReceive'
 import { arbitrumBridgeErc20ReceiveTx } from './mockData/arbitrumBridgeErc20ReceiveTx'
 import { arbitrumBridgeErc20WithdrawTx } from './mockData/arbitrumBridgeErc20WithdrawTx'
@@ -753,7 +754,7 @@ describe('parseTx', () => {
         assetId: arbitrumAssetId,
         components: [{ value: '944413987404689' }],
         from: address,
-        to: ZRX_ARBITRUM_PROXY_CONTRACT,
+        to: ZRX_ETHEREUM_PROXY_CONTRACT,
         totalValue: '944413987404689',
         type: TransferType.Send,
       }

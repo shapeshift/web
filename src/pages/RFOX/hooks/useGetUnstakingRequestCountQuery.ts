@@ -1,6 +1,6 @@
 import {
-  foxStakingV1Abi,
-  RFOX_PROXY_CONTRACT_ADDRESS,
+  FOX_STAKING_V1_ABI,
+  RFOX_PROXY_CONTRACT,
   viemClientByNetworkId,
 } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -13,13 +13,13 @@ import { arbitrum } from 'viem/chains'
 import type { Config } from 'wagmi'
 
 type GetUnstakingRequestCountQueryKey = ReadContractQueryKey<
-  typeof foxStakingV1Abi,
+  typeof FOX_STAKING_V1_ABI,
   'getUnstakingRequestCount',
   readonly [Address],
   Config
 >
 type UnstakingRequestCount = ReadContractReturnType<
-  typeof foxStakingV1Abi,
+  typeof FOX_STAKING_V1_ABI,
   'getUnstakingRequestCount',
   readonly [Address]
 >
@@ -38,7 +38,7 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
     () => [
       'readContract',
       {
-        address: RFOX_PROXY_CONTRACT_ADDRESS,
+        address: RFOX_PROXY_CONTRACT,
         functionName: 'getUnstakingRequestCount',
         args: [
           stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
@@ -54,8 +54,8 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
       stakingAssetAccountAddress
         ? () =>
             readContract(client, {
-              abi: foxStakingV1Abi,
-              address: RFOX_PROXY_CONTRACT_ADDRESS,
+              abi: FOX_STAKING_V1_ABI,
+              address: RFOX_PROXY_CONTRACT,
               functionName: 'getUnstakingRequestCount',
               args: [getAddress(stakingAssetAccountAddress)],
             })

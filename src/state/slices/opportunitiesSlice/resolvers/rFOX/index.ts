@@ -5,7 +5,7 @@ import {
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
-import { RFOX_PROXY_CONTRACT_ADDRESS, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import type { MarketData } from '@shapeshiftoss/types'
 import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { erc20Abi, getAddress } from 'viem'
@@ -28,7 +28,7 @@ import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput
 const client = viemClientByNetworkId[arbitrum.id]
 
 const stakingAssetId = foxOnArbitrumOneAssetId
-const stakingAssetAccountAddress = RFOX_PROXY_CONTRACT_ADDRESS
+const stakingAssetAccountAddress = RFOX_PROXY_CONTRACT
 
 export const rFOXStakingMetadataResolver = async ({
   opportunityId,

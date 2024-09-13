@@ -6,8 +6,8 @@ import {
   ethChainId,
   foxAssetId,
 } from '@shapeshiftoss/caip'
+import type { evm } from '@shapeshiftoss/chain-adapters'
 import { type Account } from '@shapeshiftoss/chain-adapters'
-import type { Token } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
 import toLower from 'lodash/toLower'
@@ -48,7 +48,7 @@ export const btcAddresses = Object.freeze([
   'bc1q4cqvc3ul562uuz358y77hmqhlfex8jhvfzzek8',
 ])
 
-export const mockEthToken = (obj?: Partial<Token>): Token => ({
+export const mockEthToken = (obj?: Partial<evm.Token>): evm.Token => ({
   balance: '100',
   assetId: foxAssetId,
   name: 'Fox',

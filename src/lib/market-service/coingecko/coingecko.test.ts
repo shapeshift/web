@@ -1,5 +1,4 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { coingeckoBaseUrl } from '@shapeshiftoss/caip/src/adapters'
 import type { MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
@@ -207,7 +206,7 @@ describe('CoinGecko market service', () => {
       const spy = mocks.get.mockResolvedValue({ data: [btc] })
       await coinGeckoMarketService.findAll({ count: 10 })
       expect(spy).toHaveBeenCalledTimes(1)
-      const url = `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
+      const url = `${adapters.coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false`
       expect(spy).toBeCalledWith(url)
     })
 

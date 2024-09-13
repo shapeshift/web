@@ -1,8 +1,7 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { BuildCustomTxInput } from '@shapeshiftoss/chain-adapters/src/evm/types'
 import type { BTCSignTx, ETHSignTypedData, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -258,7 +257,7 @@ export const useTradeExecution = (
                 ...transactionRequest,
                 wallet,
                 accountNumber,
-              } as BuildCustomTxInput)
+              } as evm.BuildCustomTxInput)
 
               const output = await signAndBroadcast({
                 adapter,

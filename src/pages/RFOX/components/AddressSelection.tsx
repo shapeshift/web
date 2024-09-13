@@ -22,6 +22,7 @@ import { validateAddress } from 'lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
+  selectPortfolioAccountIdsByAssetIdFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -218,6 +219,11 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   const filter = useMemo(() => ({ accountId: maybeRuneAccountId }), [maybeRuneAccountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
 
+  const accountsFilter = useMemo(() => ({ assetId: thorchainAssetId }), [])
+  const runeAccounts = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetIdFilter(state, accountsFilter),
+  )
+
   const CustomAddress = useCallback(() => {
     if (!maybeSelectedRuneAddress)
       return <Text translation='RFOX.noAddressFound' color='text.subtle' fontSize='sm' />
@@ -237,9 +243,9 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         isDisabled={!maybeSelectedRuneAddress}
         value={maybeSelectedRuneAddress ?? ''}
       >
-        {(!Boolean(currentRuneAddress) && maybeRuneAccountId) ||
+        {(!Boolean(currentRuneAddress) && maybeRuneAccountId && setStepIndex) ||
         accountNumber !== undefined ||
-        !setStepIndex ? (
+        (!setStepIndex && runeAccounts.length) ? (
           <AccountDropdown
             defaultAccountId={maybeRuneAccountId}
             assetId={thorchainAssetId}
@@ -263,6 +269,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     setStepIndex,
     shouldDisableAccountDropdown,
     accountNumber,
+    runeAccounts,
   ])
 
   const addressSelectionLabel = useMemo(

@@ -216,7 +216,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     },
   } = useRfoxStake({
     amountCryptoBaseUnit,
-    runeAddress,
+    runeAddress: currentRuneAddress || runeAddress,
     stakingAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,

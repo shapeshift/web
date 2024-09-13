@@ -1,7 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
-import { foxEthStakingContractAddresses } from '@shapeshiftoss/contracts'
+import {
+  ETH_FOX_STAKING_EVERGREEN_CONTRACT,
+  foxEthStakingContractAddresses,
+} from '@shapeshiftoss/contracts'
 import { getTypeGuardAssertion } from 'lib/utils'
 
 import type { DefiProviderMetadata, LpId, StakingId } from './types'
@@ -45,6 +48,7 @@ export const foxEthStakingAssetIdV8: AssetId =
   'eip155:1/erc20:0x662da6c777a258382f08b979d9489c3fbbbd8ac3'
 export const foxEthStakingAssetIdV9: AssetId =
   'eip155:1/erc20:0x721720784b76265aa3e34c1c7ba02a6027bcd3e5'
+export const foxEthStakingAssetIdEvergreen: AssetId = `eip155:1/erc20:${ETH_FOX_STAKING_EVERGREEN_CONTRACT}`
 
 // Tuple of all staking contracts as AssetIds, to iterate over and dispatch RTK queries for
 export const foxEthAssetIds = [
@@ -57,6 +61,7 @@ export const foxEthAssetIds = [
   foxEthStakingAssetIdV7,
   foxEthStakingAssetIdV8,
   foxEthStakingAssetIdV9,
+  foxEthStakingAssetIdEvergreen,
 ] as const
 export const foxEthStakingIds = foxEthAssetIds as readonly StakingId[]
 
@@ -70,6 +75,7 @@ export const STAKING_ID_TO_VERSION = {
   [foxEthStakingAssetIdV7]: 'V7',
   [foxEthStakingAssetIdV8]: 'V8',
   [foxEthStakingAssetIdV9]: 'V9',
+  [foxEthStakingAssetIdEvergreen]: 'Evergreen',
 }
 
 export const rFOXStakingIds = [foxOnArbitrumOneAssetId] as readonly StakingId[]

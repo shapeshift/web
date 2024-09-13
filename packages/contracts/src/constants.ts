@@ -1,5 +1,6 @@
 import { type Address, erc20Abi } from 'viem'
 
+import { EVERGREEN_FARMING_ABI } from './abis/evergreenFarming'
 import { FARMING_ABI } from './abis/farming'
 import { I_UNISWAP_V2_PAIR_ABI } from './abis/iUniswapV2Pair'
 import { THORCHAIN_ROUTER_ABI } from './abis/thorchainRouter'
@@ -19,6 +20,7 @@ export const ETH_FOX_STAKING_V6_CONTRACT = '0xebb1761ad43034fd7faa64d84e5bbd8cb5
 export const ETH_FOX_STAKING_V7_CONTRACT = '0x5939783dbf3e9f453a69bc9ddc1e492efac1fbcb' as const
 export const ETH_FOX_STAKING_V8_CONTRACT = '0x662da6c777a258382f08b979d9489c3fbbbd8ac3' as const
 export const ETH_FOX_STAKING_V9_CONTRACT = '0x721720784b76265aa3e34c1c7ba02a6027bcd3e5' as const
+export const ETH_FOX_STAKING_EVERGREEN_CONTRACT = 'TODO' as const
 
 export const foxEthStakingContractAddresses = [
   ETH_FOX_STAKING_V9_CONTRACT,
@@ -30,6 +32,7 @@ export const foxEthStakingContractAddresses = [
   ETH_FOX_STAKING_V3_CONTRACT,
   ETH_FOX_STAKING_V2_CONTRACT,
   ETH_FOX_STAKING_V1_CONTRACT,
+  ETH_FOX_STAKING_EVERGREEN_CONTRACT,
 ] as const
 
 // Exported as a string literal for contract address discrimination purposes
@@ -67,6 +70,7 @@ export const CONTRACT_ADDRESS_TO_ABI = {
   [ETH_FOX_STAKING_V7_CONTRACT]: FARMING_ABI,
   [ETH_FOX_STAKING_V8_CONTRACT]: FARMING_ABI,
   [ETH_FOX_STAKING_V9_CONTRACT]: FARMING_ABI,
+  [ETH_FOX_STAKING_EVERGREEN_CONTRACT]: EVERGREEN_FARMING_ABI,
   [FOX_TOKEN_CONTRACT]: erc20Abi,
   [UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET]: UNISWAP_V2_ROUTER_02_ABI,
   // THOR Router Mainnet

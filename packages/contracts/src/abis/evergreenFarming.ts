@@ -1,4 +1,4 @@
-export const STAKING_REWARDS_ABI = [
+export const EVERGREEN_FARMING_ABI = [
   {
     inputs: [
       {

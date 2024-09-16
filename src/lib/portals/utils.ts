@@ -6,6 +6,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 
 import { colorMap } from '../../lib/asset-service/service/colorMap'
 import generatedAssetData from '../../lib/asset-service/service/generatedAssetData.json'
@@ -250,7 +251,10 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
   if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
 
-  const portalsPlatforms = await fetchPortalsPlatforms()
+  const portalsPlatforms = await queryClient.fetchQuery({
+    queryFn: () => fetchPortalsPlatforms(),
+    queryKey: ['portalsPlatforms'],
+  })
   const chainId = nativeAsset.chainId
 
   const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId] })

@@ -12,6 +12,7 @@ import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
@@ -203,7 +204,10 @@ export const portfolioApi = createApi({
             // add placeholder non spam assets for evm chains
             if (evmChainIds.includes(chainId as EvmChainId)) {
               const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
-              const maybePortalsPlatforms = await fetchPortalsPlatforms()
+              const maybePortalsPlatforms = await queryClient.fetchQuery({
+                queryFn: () => fetchPortalsPlatforms(),
+                queryKey: ['portalsPlatforms'],
+              })
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(

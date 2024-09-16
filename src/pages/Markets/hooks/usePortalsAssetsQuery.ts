@@ -1,11 +1,17 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import { isSome } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { PORTALS_NETWORK_TO_CHAIN_ID } from 'lib/portals/constants'
+import type { TokenInfo } from 'lib/portals/types'
 import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from 'lib/portals/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+export type PortalsAssets = {
+  byId: Record<AssetId, TokenInfo>
+  ids: AssetId[]
+}
 
 export const usePortalsAssetsQuery = () => {
   const dispatch = useAppDispatch()
@@ -30,10 +36,10 @@ export const usePortalsAssetsQuery = () => {
     select: tokens => {
       if (!portalsPlatformsData) return
 
-      return tokens
-        .map(token => {
+      return tokens.reduce<PortalsAssets>(
+        (acc, token) => {
           const chainId = PORTALS_NETWORK_TO_CHAIN_ID[token.network]
-          if (!chainId) return undefined
+          if (!chainId) return acc
 
           const assetId = toAssetId({
             chainId,
@@ -41,7 +47,7 @@ export const usePortalsAssetsQuery = () => {
             assetReference: token.address,
           })
           const feeAsset = selectFeeAssetById(store.getState(), assetId)
-          if (!feeAsset) return undefined
+          if (!feeAsset) return acc
 
           const asset = portalTokenToAsset({
             token,
@@ -50,7 +56,7 @@ export const usePortalsAssetsQuery = () => {
             chainId,
           })
 
-          if (!asset) return undefined
+          if (!asset) return acc
 
           // upsert fetched asset if doesn't exist in generatedAssetData.json
           if (!assets[assetId]) {
@@ -62,13 +68,15 @@ export const usePortalsAssetsQuery = () => {
             )
           }
 
-          return {
-            asset,
-            // TODO(gomes): do we even need TokenInfo here? Market-data should contain all we need and we shouldn't need to use raw Portals data?
-            tokenInfo: token,
-          }
-        })
-        .filter(isSome)
+          acc.byId[assetId] = token
+          acc.ids.push(assetId)
+          return acc
+        },
+        {
+          byId: {},
+          ids: [],
+        },
+      )
     },
   })
 }

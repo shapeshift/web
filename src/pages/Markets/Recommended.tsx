@@ -126,10 +126,8 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) => {
-        const apy = portalsAssets?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
-          ?.metrics.apy
-        const volume24H = portalsAssets?.find(({ asset }) => asset.assetId === assetId)?.tokenInfo
-          ?.metrics.volumeUsd1d
+        const apy = portalsAssets?.byId[assetId]?.metrics.apy
+        const volume24H = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 
         if (index === 0) {
           return (
@@ -254,7 +252,7 @@ export const Recommended: React.FC = () => {
         title: translate('markets.categories.oneClickDefiAssets.title'),
         component: (
           <LpGrid
-            assetIds={portalsAssets?.map(({ asset }) => asset.assetId) ?? []}
+            assetIds={portalsAssets?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isPortalsAssetsLoading}
           />

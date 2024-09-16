@@ -1,15 +1,14 @@
 import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react'
 import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssetIds } from 'state/slices/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
@@ -40,7 +39,6 @@ const AssetsGrid: React.FC<{
   selectedChainId?: ChainId
   isLoading: boolean
 }> = ({ assetIds, selectedChainId, isLoading }) => {
-  const dispatch = useAppDispatch()
   const history = useHistory()
   const filteredAssetIds = useMemo(
     () =>
@@ -52,12 +50,6 @@ const AssetsGrid: React.FC<{
         .slice(0, 7),
     [assetIds, selectedChainId],
   )
-
-  useEffect(() => {
-    filteredAssetIds.forEach(assetId =>
-      dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)),
-    )
-  }, [assetIds, dispatch, filteredAssetIds])
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -98,7 +90,6 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   selectedChainId,
   isLoading,
 }) => {
-  const dispatch = useAppDispatch()
   const history = useHistory()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -118,10 +109,6 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
         .slice(0, 7),
     [assetIds, selectedChainId],
   )
-
-  useEffect(() => {
-    filteredAssetIds.map(assetId => dispatch(marketApi.endpoints.findByAssetId.initiate(assetId)))
-  }, [assetIds, dispatch, filteredAssetIds])
 
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>

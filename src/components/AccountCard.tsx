@@ -93,6 +93,9 @@ export const AccountCard = ({
             value={cryptoAmountAvailable}
             suffix={translate('common.available')}
             data-test='account-card-crypto-label'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
           />
         ) : (
           <Amount.Fiat
@@ -101,6 +104,9 @@ export const AccountCard = ({
             color='text.subtle'
             suffix={translate('common.available')}
             data-test='account-card-fiat-label'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
           />
         )}
       </SkeletonText>

@@ -1,10 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Box, Button, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { Button, SkeletonCircle, SkeletonText, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { motion } from 'framer-motion'
-import type { RefCallback } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { trimWithEndEllipsis } from 'lib/utils'
 
@@ -22,11 +20,7 @@ type AccountCardProps = {
 } & ButtonProps
 
 const chevronRightIcon = <ChevronRightIcon boxSize={6} />
-const labelInitialProps = { x: 0 }
-const hoverProps = {
-  x: 'var(--x-offset)',
-  transition: { duration: 1, type: 'linear', ease: 'linear' },
-}
+const maxLabelLength = 40
 
 export const AccountCard = ({
   asset,
@@ -47,33 +41,7 @@ export const AccountCard = ({
     [asset.assetId, isLoaded],
   )
 
-  const [showEllipsis, setShowEllipsis] = useState(false)
-
-  const getXOffset: RefCallback<HTMLDivElement> = useCallback(element => {
-    if (element) {
-      const parent = element.parentElement?.parentElement?.parentElement
-      const prevSibling = parent?.previousElementSibling
-      const nextSibling = parent?.nextElementSibling
-      const widthAvailable =
-        (parent?.parentElement?.clientWidth ?? 0) -
-        (prevSibling?.clientWidth ?? 0) -
-        (nextSibling?.clientWidth ?? 0) -
-        32 // padding in the parent div
-      const textWidth = element.firstElementChild?.clientWidth ?? 0
-      const isOverflowing = textWidth > widthAvailable
-
-      if (isOverflowing) {
-        setShowEllipsis(true)
-      }
-
-      element.style.setProperty(
-        '--x-offset',
-        isOverflowing ? `-${textWidth - widthAvailable}px` : '0px',
-      )
-
-      element.style.setProperty('--x-target-width', `${widthAvailable}px`)
-    }
-  }, [])
+  const willOverflow = useMemo(() => asset.name.length > maxLabelLength, [asset.name])
 
   return (
     <Button
@@ -88,26 +56,11 @@ export const AccountCard = ({
       {...rest}
     >
       <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto' width='full'>
-        {/* <Flex> */}
-        <Box overflow='hidden' whiteSpace='nowrap' position='relative'>
-          <Box
-            as={motion.div}
-            initial={labelInitialProps}
-            whileTap={labelInitialProps}
-            whileHover={hoverProps}
-            width='var(--x-target-width)'
-            onHoverStart={() => setShowEllipsis(false)}
-            onHoverEnd={() => setShowEllipsis(true)}
-            ref={getXOffset}
-          >
-            <RawText lineHeight='1.5' data-test='account-card-asset-name-label' width='max-content'>
-              {showEllipsis ? trimWithEndEllipsis(asset.name, 40) : asset.name}
-            </RawText>
-          </Box>
-        </Box>
-        {/* {showEllipsis && <RawText lineHeight='1.5'>...</RawText>} */}
-        {/* </Flex> */}
-
+        <Tooltip label={asset.name} isDisabled={!willOverflow}>
+          <RawText lineHeight='1.5' data-test='account-card-asset-name-label' width='max-content'>
+            {trimWithEndEllipsis(asset.name, maxLabelLength)}
+          </RawText>
+        </Tooltip>
         {showCrypto ? (
           <Amount.Crypto
             color='text.subtle'

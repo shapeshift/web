@@ -649,4 +649,4 @@ export const EVERGREEN_FARMING_ABI = [
     stateMutability: 'nonpayable',
     type: 'function',
   },
-]
+] as const

@@ -1,6 +1,5 @@
-import type { FARMING_ABI } from '@shapeshiftoss/contracts'
+import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
 import { memoize } from 'lodash'
-import type { Address, GetContractReturnType, PublicClient } from 'viem'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
@@ -15,15 +14,12 @@ export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLP
 
 // Rate of FOX given per second for all staked addresses)
 const getRewardsRate = memoize(
-  async (
-    farmingRewardsContract: GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>,
-  ) => await farmingRewardsContract.read.rewardRate(),
+  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) =>
+    await farmingRewardsContract.read.rewardRate(),
 )
 
 const getTotalLpSupply = memoize(
-  async (
-    farmingRewardsContract: GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>,
-  ) => {
+  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) => {
     try {
       const totalSupply = await farmingRewardsContract.read.totalSupply()
       return bnOrZero(totalSupply.toString())
@@ -36,9 +32,7 @@ const getTotalLpSupply = memoize(
 )
 
 export const rewardRatePerToken = memoize(
-  async (
-    farmingRewardsContract: GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>,
-  ) => {
+  async <T extends FoxEthStakingContractAbi>(farmingRewardsContract: FoxEthStakingContract<T>) => {
     try {
       const rewardRate = await getRewardsRate(farmingRewardsContract)
       const totalSupply = await getTotalLpSupply(farmingRewardsContract)

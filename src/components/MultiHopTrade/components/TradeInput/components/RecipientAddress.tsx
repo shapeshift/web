@@ -25,7 +25,7 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { middleEllipsis } from 'lib/utils'
-import { selectInputBuyAsset } from 'state/slices/selectors'
+import { selectInputBuyAsset, selectIsAccountMetadataLoading } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -42,6 +42,7 @@ export const RecipientAddress: React.FC<RecipientAddressProps> = ({
 }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const wallet = useWallet().state.wallet
   const useReceiveAddressArgs = useMemo(
     () => ({
@@ -154,7 +155,7 @@ export const RecipientAddress: React.FC<RecipientAddressProps> = ({
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  if (!receiveAddress || shouldForceManualAddressEntry) return null
+  if (!receiveAddress || shouldForceManualAddressEntry || isAccountMetadataLoading) return null
 
   return isRecipientAddressEditing ? (
     <form>

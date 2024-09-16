@@ -26,7 +26,11 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectHasUserEnteredAmount, selectInputSellAsset } from 'state/slices/selectors'
+import {
+  selectHasUserEnteredAmount,
+  selectInputSellAsset,
+  selectIsAccountMetadataLoading,
+} from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectFirstHop,
@@ -77,6 +81,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -113,6 +118,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   const isLoading = useMemo(
     () =>
+      isAccountMetadataLoading ||
       (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -124,6 +130,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,
+      isAccountMetadataLoading,
     ],
   )
 

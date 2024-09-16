@@ -159,7 +159,7 @@ export const getThorchainLendingPosition = async ({
 
     const allPositions = lendingPositionsResponse
     if (!allPositions.length) {
-      throw new Error(`No lending positions found for asset ID: ${assetId}`)
+      return null
     }
 
     const accountAddresses = await getAccountAddresses(accountId)

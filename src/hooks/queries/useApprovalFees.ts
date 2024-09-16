@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/src/swappers/utils/constants'
 import { useMemo } from 'react'
+import { maxUint256 } from 'viem'
 import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
@@ -83,7 +83,7 @@ export const getApprovalAmountCryptoBaseUnit = (
     case AllowanceType.Exact:
       return amountCryptoBaseUnit
     case AllowanceType.Unlimited:
-      return MAX_ALLOWANCE
+      return maxUint256.toString()
     case AllowanceType.Reset:
       return '0'
     default:

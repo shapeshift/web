@@ -1,23 +1,23 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
+  UNISWAP_V2_FACTORY_CONTRACT_MAINNET,
+  UNISWAP_V2_ROUTER_02_ABI,
+  UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
+  UNIV2_STAKING_REWARDS_ABI,
+  WETH_TOKEN_CONTRACT,
+} from '@shapeshiftoss/contracts'
+import assert from 'assert'
 import type { JsonRpcProvider } from 'ethers'
 import { Contract, getAddress, getCreate2Address, Interface, solidityPackedKeccak256 } from 'ethers'
+import { erc20Abi } from 'viem'
 
 import type { Tx } from '../../../generated/ethereum'
 import type { BaseTxMetadata } from '../../../types'
 import { TransferType } from '../../../types'
 import type { SubParser, TxSpecific } from '../../parser'
 import { getSigHash, txInteractsWithContract } from '../../parser'
-import { ERC20_ABI } from '../../parser/abi/erc20'
-import { UNIV2_ABI } from './abi/uniV2'
-import { UNIV2_STAKING_REWARDS_ABI } from './abi/uniV2StakingRewards'
-import {
-  UNI_V2_FOX_STAKING_REWARDS_CONTRACTS,
-  UNI_V2_ROUTER_CONTRACT,
-  WETH_CONTRACT_MAINNET,
-  WETH_CONTRACT_ROPSTEN,
-} from './constants'
-
 export interface TxMetadata extends BaseTxMetadata {
   parser: 'uniV2'
 }
@@ -31,7 +31,7 @@ export class Parser implements SubParser<Tx> {
   provider: JsonRpcProvider
   readonly chainId: ChainId
   readonly wethContract: string
-  readonly abiInterface = new Interface(UNIV2_ABI)
+  readonly abiInterface = new Interface(UNISWAP_V2_ROUTER_02_ABI)
   readonly stakingRewardsInterface = new Interface(UNIV2_STAKING_REWARDS_ABI)
 
   readonly supportedFunctions = {
@@ -48,16 +48,9 @@ export class Parser implements SubParser<Tx> {
     this.chainId = args.chainId
     this.provider = args.provider
 
-    this.wethContract = (() => {
-      switch (args.chainId) {
-        case 'eip155:1':
-          return WETH_CONTRACT_MAINNET
-        case 'eip155:3':
-          return WETH_CONTRACT_ROPSTEN
-        default:
-          throw new Error('chainId is not supported. (supported chainIds: eip155:1, eip155:3)')
-      }
-    })()
+    assert(args.chainId === 'eip155:1', `chainId '${args.chainId}' is not supported`)
+
+    this.wethContract = WETH_TOKEN_CONTRACT
   }
 
   async parseUniV2(tx: Tx): Promise<TxSpecific | undefined> {
@@ -88,7 +81,7 @@ export class Parser implements SubParser<Tx> {
     const transfers = await (async () => {
       switch (getSigHash(tx.inputData)) {
         case this.supportedFunctions.addLiquidityEthSigHash: {
-          const contract = new Contract(tokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(tokenAddress, erc20Abi, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()
@@ -113,7 +106,7 @@ export class Parser implements SubParser<Tx> {
           ]
         }
         case this.supportedFunctions.removeLiquidityEthSigHash: {
-          const contract = new Contract(lpTokenAddress, ERC20_ABI, this.provider)
+          const contract = new Contract(lpTokenAddress, erc20Abi, this.provider)
           const decimals = await contract.decimals()
           const name = await contract.name()
           const symbol = await contract.symbol()
@@ -176,7 +169,8 @@ export class Parser implements SubParser<Tx> {
   }
 
   async parse(tx: Tx): Promise<TxSpecific | undefined> {
-    if (txInteractsWithContract(tx, UNI_V2_ROUTER_CONTRACT)) return await this.parseUniV2(tx)
+    if (txInteractsWithContract(tx, UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET))
+      return await this.parseUniV2(tx)
 
     // TODO: parse any transaction that has input data that is able to be decoded using the `stakingRewardsInterface`
     const isFoxStakingRewards = UNI_V2_FOX_STAKING_REWARDS_CONTRACTS.some(contract =>
@@ -188,9 +182,8 @@ export class Parser implements SubParser<Tx> {
 
   private static pairFor(tokenA: string, tokenB: string): string {
     const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
-    const factoryContract = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
     const salt = solidityPackedKeccak256(['address', 'address'], [token0, token1])
     const initCodeHash = '0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // https://github.com/Uniswap/v2-periphery/blob/dda62473e2da448bc9cb8f4514dadda4aeede5f4/contracts/libraries/UniswapV2Library.sol#L24
-    return getCreate2Address(factoryContract, salt, initCodeHash)
+    return getCreate2Address(UNISWAP_V2_FACTORY_CONTRACT_MAINNET, salt, initCodeHash)
   }
 }

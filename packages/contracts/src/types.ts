@@ -3,11 +3,11 @@ import type { GetContractReturnType, PublicClient } from 'viem'
 import type {
   CONTRACT_ADDRESS_TO_ABI,
   CONTRACT_TYPE_TO_ABI,
-  ETH_FOX_POOL_CONTRACT_ADDRESS,
-  FOX_TOKEN_CONTRACT_ADDRESS,
+  ETH_FOX_POOL_CONTRACT,
+  FOX_TOKEN_CONTRACT,
   foxEthStakingContractAddresses,
-  THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM,
-  UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS,
+  THOR_ROUTER_CONTRACT_MAINNET,
+  UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
 } from './constants'
 
 export enum ContractType {
@@ -34,11 +34,11 @@ export type KnownContractByType<
 > = GetContractReturnType<KnownContractAbiByType<T>, PublicClient, A>
 
 export type KnownContractAddress =
-  | typeof ETH_FOX_POOL_CONTRACT_ADDRESS
+  | typeof ETH_FOX_POOL_CONTRACT
   | FoxEthStakingContractAddress
-  | typeof FOX_TOKEN_CONTRACT_ADDRESS
-  | typeof UNISWAP_V2_ROUTER_02_CONTRACT_ADDRESS
-  | typeof THOR_ROUTER_CONTRACT_ADDRESS_ETHEREUM
+  | typeof FOX_TOKEN_CONTRACT
+  | typeof UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET
+  | typeof THOR_ROUTER_CONTRACT_MAINNET
 
 export type DefinedContract = {
   contract: KnownContractByAddress<KnownContractAddress>

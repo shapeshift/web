@@ -184,6 +184,8 @@
   "eip155:1/erc20:0x05bbe7240de66f6480c9aeda77c1376b13393f83": "#0D254A",
   "eip155:1/erc20:0x05d3606d5c81eb9b7b18530995ec9b29da05faba": "#242C2C",
   "eip155:1/erc20:0x05ec93c0365baaeabf7aeffb0972ea7ecdd39cf1": "#815699",
+  "eip155:1/erc20:0x05ed7525ec770472c1e6fbb74ce773b70894bae8": "#7D3ACD",
+  "eip155:1/erc20:0x05f0d9ef9103d2f5f16e6807570167d3d8547500": "#559EDC",
   "eip155:1/erc20:0x05f72d4555e71ef3f5862627828fc2f830d3ccb1": "#112C3A",
   "eip155:1/erc20:0x05fb86775fd5c16290f1e838f5caaa7342bd9a63": "#2CE4B4",
   "eip155:1/erc20:0x05fe069626543842439ef90d9fa1633640c50cf1": "#525252",
@@ -256,6 +258,12 @@
   "eip155:1/erc20:0x09675e24ca1eb06023451ac8088eca1040f47585": "#E2A808",
   "eip155:1/erc20:0x0981d9774a59a703db85f5eaa23672283ea31106": "#3A6F2E",
   "eip155:1/erc20:0x09a3ecafa817268f77be1283176b946c4ff2e608": "#040C3C",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x09bb53a24b90af4cef966a5acf38bafae65fee8e": "#a7fa27",
+  "eip155:1/erc20:0x09bc52b9eb7387ede639fc10ce5fa01cbcbf2b17": "#12ac47",
+  "eip155:1/erc20:0x09d1d767edf8fa23a64c51fa559e0688e526812f": "#73906a",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x09d6f0f5a21f5be4f59e209747e2d07f50bc694c": "#0C0C0C",
   "eip155:1/erc20:0x09d92c109b475dd513292c76544b4e250da13faa": "#BE7447",
   "eip155:1/erc20:0x09db87a538bd693e9d08544577d5ccfaa6373a48": "#525659",
@@ -405,6 +413,11 @@
   "eip155:1/erc20:0x109548dc14c0b8d7908a168202a4ab08bb449613": "#195182",
   "eip155:1/erc20:0x10bc518c32fbae5e38ecb50a612160571bd81e44": "#BC4474",
   "eip155:1/erc20:0x10dea67478c5f8c5e2d90e5e9b26dbe60c54d800": "#A72873",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x110492b31c59716ac47337e616804e3e3adc0b4a": "#D166AF",
+  "eip155:1/erc20:0x1106bfe2696530531fa30c514c4976949ab1a72d": "#a4558b",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x111111111117dc0aa78b770fa6a738034120c302": "#101A26",
   "eip155:1/erc20:0x111111517e4929d3dcbdfa7cce55d30d4b6bc4d6": "#0468E8",
   "eip155:1/erc20:0x1117ac6ad6cdf1a3bc543bad3b133724620522d5": "#99BDDB",
@@ -584,6 +597,10 @@
   "eip155:1/erc20:0x1a3cbda3853494acab67648ee59afeb7ec3e9334": "#0A0A0A",
   "eip155:1/erc20:0x1a4b46696b2bb4794eb3d4c26f1c55f9170fa4c5": "#A7F504",
   "eip155:1/erc20:0x1a57367c6194199e5d9aea1ce027431682dfb411": "#0A5009",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x1a65eb80a2ac3ea6e41d456ddd6e9cc5728bef7c": "#559EDC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x1a6658f40e51b372e593b7d2144c1402d5cf33e8": "#DC4C3C",
   "eip155:1/erc20:0x1a7a8bd9106f2b8d977e08582dc7d24c723ab0db": "#EAF8F9",
   "eip155:1/erc20:0x1a7e4e63778b4f12a199c062f3efdd288afcbce8": "#C0B99D",
@@ -851,6 +868,11 @@
   "eip155:1/erc20:0x27b5739e22ad9033bcbf192059122d163b60349d": "#D8E222",
   "eip155:1/erc20:0x27c70cd1946795b66be9d954418546998b546634": "#C53524",
   "eip155:1/erc20:0x27f103f86070cc639fef262787a16887d22d8415": "#2596E4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x27fd0857f0ef224097001e87e61026e39e1b04d1": "#b078dd",
+  "eip155:1/erc20:0x2801b56f6ccc8046ae29e86c0fce556e046122e2": "#0F1F30",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x280df82db83abb0a4c734bb02afc7985a1c8eaf2": "#CCDFF2",
   "eip155:1/erc20:0x2817cecf94465a9f7becf43d9b7c8025e88a4213": "#C0C4D4",
   "eip155:1/erc20:0x283344eea472f0fe04d6f722595a2fffefe1901a": "#040404",
@@ -1003,6 +1025,10 @@
   "eip155:1/erc20:0x302cae5dcf8f051d0177043c3438020b89b33218": "#192116",
   "eip155:1/erc20:0x30303101104100c397c069e0642acac518420205": "#071A12",
   "eip155:1/erc20:0x30672ae2680c319ec1028b69670a4a786baa0f35": "#17D9D9",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x306eeaff376a128514e40b4846e1650d9ba7ae43": "#fe4886",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x306fd3e7b169aa4ee19412323e1a5995b8c1a1f4": "#1D1F25",
   "eip155:1/erc20:0x3079f61704e9efa2bcf1db412f735d8d4cfa26f4": "#EAEAED",
   "eip155:1/erc20:0x30ae41d5f9988d359c733232c6c693c0e645c77e": "#1E1C1A",
@@ -1095,8 +1121,13 @@
   "eip155:1/erc20:0x341c05c0e9b33c0e38d64de76516b2ce970bb3be": "#404B4A",
   "eip155:1/erc20:0x3429d03c6f7521aec737a0bbf2e5ddcef2c3ae31": "#638C2F",
   "eip155:1/erc20:0x342f4ca388896e6300bb899aca2d8619cbefcece": "#8474FC",
+  "eip155:1/erc20:0x342ff27fddab6ac38c494a2d4731c1e34b985bf6": "#BDCEFB",
   "eip155:1/erc20:0x3432b6a60d23ca0dfca7761b7ab56459d9c964d0": "#040404",
   "eip155:1/erc20:0x34349c5569e7b846c3558961552d2202760a9789": "#0C6161",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x343fd171caf4f0287ae6b87d75a8964dc44516ab": "#e899ab",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x3446dd70b2d52a6bf4a5a192d9b0a161295ab7f9": "#C7C7F2",
   "eip155:1/erc20:0x3449fc1cd036255ba1eb19d65ff4ba2b8903a69a": "#8C4CFC",
   "eip155:1/erc20:0x344d6117ae0984f3afdd23e593f92d95a83dcd0e": "#D77F4E",
@@ -1339,6 +1370,10 @@
   "eip155:1/erc20:0x3f95aa88ddbb7d9d484aa3d482bf0a80009c52c9": "#DC4C24",
   "eip155:1/erc20:0x3f9bec82c776c47405bcb38070d2395fd18f89d3": "#242A2D",
   "eip155:1/erc20:0x3fa55eb91be2c5d72890da11a4c0269e7f786555": "#2B272E",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x3fa5db0910afc2a1e6de45039ea217410fb8641d": "#b3e734",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x3fa729b4548becbad4eab6ef18413470e6d5324c": "#C2EA33",
   "eip155:1/erc20:0x3fab0bbaa03bceaf7c49e2b12877db0142be65fc": "#AB9776",
   "eip155:1/erc20:0x3fca2cd116121decd03043fbaba39f60651de903": "#46C985",
@@ -1350,6 +1385,11 @@
   "eip155:1/erc20:0x400b1d8a7dd8c471026b2c8cbe1062b27d120538": "#7495AA",
   "eip155:1/erc20:0x401e6d25c2991824299aa5dbe67c82486a64381d": "#1C8CCC",
   "eip155:1/erc20:0x4022754bf8857395383c63326391f289d1bb14b9": "#3A80C4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x4028daac072e492d34a3afdbef0ba7e35d8b55c4": "#8bdf75",
+  "eip155:1/erc20:0x403829bce022844f66cdb2911d2260526d4eb843": "#1C1C1C",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x405154cfaf5ea4ef57b65b86959c73dd079fa312": "#394352",
   "eip155:1/erc20:0x4057db5bd9f67a566aa10e5587b1a964affc6a16": "#4D483A",
   "eip155:1/erc20:0x405919920765e8d30822db9342b62bb0f92976e8": "#8E47C2",
@@ -1392,6 +1432,10 @@
   "eip155:1/erc20:0x41aa9df60c41b07bf4f4cc1b8b3e6c9e25669a9e": "#2C51CE",
   "eip155:1/erc20:0x41b13e815308485f7f1af5afcc64a01519085609": "#77A0C9",
   "eip155:1/erc20:0x41c21693e60fc1a5dbb7c50e54e7a6016aa44c99": "#FCE0DE",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x41c84c0e2ee0b740cf0d31f63f3b6f627dc6b393": "#E0AFC5",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x41d06390b935356b46ad6750bda30148ad2044a4": "#AB5190",
   "eip155:1/erc20:0x41d321e0365a42058a465dc5bf98242a92c2e9f3": "#949494",
   "eip155:1/erc20:0x41d5d79431a913c4ae7d69a668ecdfe5ff9dfb68": "#52638C",
@@ -1413,6 +1457,11 @@
   "eip155:1/erc20:0x423f4e6138e475d85cf7ea071ac92097ed631eea": "#75C551",
   "eip155:1/erc20:0x42476f744292107e34519f9c357927074ea3f75d": "#231C23",
   "eip155:1/erc20:0x42496acd2c7b52ce90ed65ada6cafb0e893e2474": "#125220",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x425bfb93370f14ff525adb6eaeacfe1f4e3b5802": "#1FC9DB",
+  "eip155:1/erc20:0x42619f1eb89b993f7f5193de6ab1423a703fc344": "#26bcd9",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x4268a135840e5273e9dcb3dc78303767d3964f43": "#55BCC6",
   "eip155:1/erc20:0x426a688ee72811773eb64f5717a32981b56f10c1": "#D6DBE1",
   "eip155:1/erc20:0x426aedbed16726e3f220cb4fed4d4060b95cca46": "#84E6DE",
@@ -1501,6 +1550,10 @@
   "eip155:1/erc20:0x45e82579792dddf08cb3a037086604c262d78065": "#043625",
   "eip155:1/erc20:0x45f93404ae1e4f0411a7f42bc6a5dc395792738d": "#7B37CC",
   "eip155:1/erc20:0x45fdb1b92a649fb6a64ef1511d3ba5bf60044838": "#5CBC5C",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x45feeb2738020eb69974ecb8a9dd6fcfeb478a70": "#7fa2be",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x460372866fe1448de1549cebdb0539f4075a2aa8": "#477ED8",
   "eip155:1/erc20:0x46305b2ebcd92809d5fcef577c20c28a185af03c": "#D05D1C",
   "eip155:1/erc20:0x464ebe77c293e473b48cfe96ddcf88fcf7bfdac0": "#46375C",
@@ -1596,6 +1649,10 @@
   "eip155:1/erc20:0x4b7c762af92dbd917d159eb282b85aa13e955739": "#DAB585",
   "eip155:1/erc20:0x4b7ffcb2b92fb4890f22f62a52fb7a180eab818e": "#05050B",
   "eip155:1/erc20:0x4b9278b94a1112cad404048903b8d343a810b07e": "#6C2CF4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x4bb0925fa50da9b4c8936869433b48e78ccc5c13": "#b6f1c4",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x4bb3205bf648b7f59ef90dee0f1b62f6116bc7ca": "#0885F5",
   "eip155:1/erc20:0x4bcea5e4d0f6ed53cf45e7a28febb2d3621d7438": "#642C84",
   "eip155:1/erc20:0x4bd70556ae3f8a6ec6c4080a0c327b24325438f3": "#FB04CB",
@@ -1645,6 +1702,11 @@
   "eip155:1/erc20:0x4daeb4a06f70f4b1a5c329115731fe4b89c0b227": "#B77D2D",
   "eip155:1/erc20:0x4dafffddea93ddf1e0e7b61e844331455053ce5c": "#079277",
   "eip155:1/erc20:0x4db57d585fa82ca32d25086ddc069d899f08d455": "#7C530F",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x4dd0fe8549641a04d7ab4f37dbb541ae7dbb2838": "#2474CC",
+  "eip155:1/erc20:0x4dd26482738be6c06c31467a19dcda9ad781e8c4": "#7abe0a",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x4dd28568d05f09b02220b09c2cb307bfd837cb95": "#E7E8EA",
   "eip155:1/erc20:0x4dd942baa75810a3c1e876e79d5cd35e09c97a76": "#1C242C",
   "eip155:1/erc20:0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5": "#61AECC",
@@ -1683,6 +1745,10 @@
   "eip155:1/erc20:0x4fb721ef3bf99e0f2c193847afa296b9257d3c30": "#08B8EF",
   "eip155:1/erc20:0x4fbaf51b95b024d0d7cab575be2a1f0afedc9b64": "#B4BACA",
   "eip155:1/erc20:0x4fbb350052bca5417566f188eb2ebce5b19bc964": "#FBBC2F",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x4fbb60166199d36dd2fb09005154f0938b6d717b": "#2474CC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x4fc15c91a9c4a9efb404174464687e8e128730c2": "#282C30",
   "eip155:1/erc20:0x4fd51cb87ffefdf1711112b5bd8ab682e54988ea": "#142444",
   "eip155:1/erc20:0x4fe83213d56308330ec302a8bd641f1d0113a4cc": "#1C64F4",
@@ -1771,6 +1837,10 @@
   "eip155:1/erc20:0x54012cdf4119de84218f7eb90eeb87e25ae6ebd7": "#C5882B",
   "eip155:1/erc20:0x5408d3883ec28c2de205064ae9690142b035fed2": "#34BCB2",
   "eip155:1/erc20:0x5426178799ee0a0181a89b4f57efddfab49941ec": "#1FC9DB",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x54264c1b0355c71a678d5a171ca796429ddcb4f4": "#C3FB63",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x5441765d3ab74e0347df52ffab5a69e5146b5d26": "#DFA661",
   "eip155:1/erc20:0x544c42fbb96b39b21df61cf322b5edc285ee7429": "#73BB47",
   "eip155:1/erc20:0x544d230f0362f3843fda5caa99b94cb2b336e384": "#B4B4B4",
@@ -1856,6 +1926,10 @@
   "eip155:1/erc20:0x586a7cfe21e55ec0e24f0bfb118f77fe4ca87bab": "#342F2E",
   "eip155:1/erc20:0x5888641e3e6cbea6d84ba81edb217bd691d3be38": "#B92C18",
   "eip155:1/erc20:0x5891599664ed15c6e88041b4f5bc08594f026f0e": "#18150D",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x5899bef146be8228788c476b6384044d1a51f96e": "#54ae07",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x58aea10748a00d1781d6651f9d78a414ea32ca46": "#D7CC3D",
   "eip155:1/erc20:0x58b6a8a3302369daec383334672404ee733ab239": "#040404",
   "eip155:1/erc20:0x58cb30368ceb2d194740b144eab4c2da8a917dcb": "#D7E2E6",
@@ -2086,6 +2160,10 @@
   "eip155:1/erc20:0x644192291cc835a93d6330b24ea5f5fedd0eef9e": "#A5B4FC",
   "eip155:1/erc20:0x6468e79a80c0eab0f9a2b574c8d5bc374af59414": "#3BC98B",
   "eip155:1/erc20:0x649004e1c9fd8b0241d544bd78fc4eb3d3b4d199": "#E3D090",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x6490828bd87be38279a36f029f3b9af8b4e14b49": "#c2c4e7",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x64945165255bcb83f2ef9f31a575975832ca4db4": "#1A244D",
   "eip155:1/erc20:0x64a5b80089c0fb4858a8c2ca9c2988a484539fd8": "#B45C32",
   "eip155:1/erc20:0x64a60493d888728cf42616e034a0dfeae38efcf0": "#F0F1F4",
@@ -2158,6 +2236,7 @@
   "eip155:1/erc20:0x67466be17df832165f8c80a5a120ccc652bd7e69": "#1E0D19",
   "eip155:1/erc20:0x674c6ad92fd080e4004b2312b45f796a192d27a0": "#04FBB4",
   "eip155:1/erc20:0x675bbc7514013e2073db7a919f6e4cbef576de37": "#0454F4",
+  "eip155:1/erc20:0x676106576004ef54b4bd39ce8d2b34069f86eb8f": "#559EDC",
   "eip155:1/erc20:0x677ddbd918637e5f2c79e164d402454de7da8619": "#443CAC",
   "eip155:1/erc20:0x6781a0f84c7e9e846dcb84a9a5bd49333067b104": "#0495FB",
   "eip155:1/erc20:0x67859a9314b9dca2642023ad8231beaa6cbf1933": "#9F4837",
@@ -2177,6 +2256,11 @@
   "eip155:1/erc20:0x683a4ac99e65200921f556a19dadf4b0214b5938": "#CDBDBD",
   "eip155:1/erc20:0x683c8e87e74f3f8f27c0d2ebd4350fe4dba814ef": "#E7E7E7",
   "eip155:1/erc20:0x68449870eea84453044bd430822827e21fd8f101": "#080808",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x684b00a5773679f88598a19976fbeb25a68e9a5f": "#473cd5",
+  "eip155:1/erc20:0x6860a2fb5040930b9222a871c755b86a779b0cc1": "#2474CC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x686d1596e5632fe0471961e7977e8efe371b0b21": "#0D0D0D",
   "eip155:1/erc20:0x686f2404e77ab0d9070a46cdfb0b7fecdd2318b0": "#999999",
   "eip155:1/erc20:0x6873c95307e13beb58fb8fcddf9a99667655c9e4": "#DFF6EE",
@@ -2192,6 +2276,10 @@
   "eip155:1/erc20:0x68d009f251ff3a271477f77acb704c3b0f32a0c0": "#E4BCB8",
   "eip155:1/erc20:0x68d1c2a170bac7f73d7680970345fcf8ddec79bb": "#2A2826",
   "eip155:1/erc20:0x68d57c9a1c35f63e2c83ee8e49a64e9d70528d25": "#2C2B2C",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x68e78497a7b0db7718ccc833c164a18d8e626816": "#ddbe25",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x68f108fb7141ffe36b832c5c225d9e7e474bd664": "#414C4B",
   "eip155:1/erc20:0x69000405f9dce69bd4cbf4f2865b79144a69bfe0": "#040404",
   "eip155:1/erc20:0x6923f9b683111dcc0e20124e9a031deeae5dad93": "#142837",
@@ -2322,6 +2410,10 @@
   "eip155:1/erc20:0x6d68015171eaa7af9a5a0a103664cf1e506ff699": "#D1D3D1",
   "eip155:1/erc20:0x6d7497751656618fc38cfb5478994a20f7e235df": "#8F07C9",
   "eip155:1/erc20:0x6d765cbe5bc922694afe112c140b8878b9fb0390": "#CD83BD",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x6da6c5c7eb4d840049f51ba1a79ac8caf3009466": "#387ad7",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x6db6fdb5182053eecec778afec95e0814172a474": "#FBE8CC",
   "eip155:1/erc20:0x6dc02164d75651758ac74435806093e421b64605": "#CC0404",
   "eip155:1/erc20:0x6dc469a3ef387ad9619df7774388ae26439ac8d4": "#979640",
@@ -2413,6 +2505,10 @@
   "eip155:1/erc20:0x71ab77b7dbb4fa7e017bc15090b2163221420282": "#0FDEFC",
   "eip155:1/erc20:0x71aef7b30728b9bb371578f36c5a1f1502a5723e": "#596378",
   "eip155:1/erc20:0x71b3a0566f4bf80331d115d8026a7022bf670cce": "#0474B4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x71b9ec42bb3cb40f017d8ad8011be8e384a95fa5": "#E8E8E8",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x71da932ccda723ba3ab730c976bc66daaf9c598c": "#48FAF7",
   "eip155:1/erc20:0x71dc40668682a124231301414167e4cf7f55383c": "#F7F9FA",
   "eip155:1/erc20:0x71eeba415a523f5c952cc2f06361d5443545ad28": "#045CFC",
@@ -2560,6 +2656,10 @@
   "eip155:1/erc20:0x7865ec47bef9823ad0010c4970ed90a5e8107e53": "#050507",
   "eip155:1/erc20:0x7866e48c74cbfb8183cd1a929cd9b95a7a5cb4f4": "#ECECEC",
   "eip155:1/erc20:0x786f4782d1a5c602ea30bc4a95154110b9e231ea": "#E2C674",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x7881699ffc5e9eb0c9e6f09eee0c7c427f2323c7": "#3C3C3C",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x788b6d2b37aa51d916f2837ae25b05f0e61339d1": "#443784",
   "eip155:1/erc20:0x788d86e00ab31db859c3d6b80d5a9375801d7f2a": "#1E1E1E",
   "eip155:1/erc20:0x78993f9bee8b68f2531a92427595405f294161db": "#D1D2D7",
@@ -2581,6 +2681,10 @@
   "eip155:1/erc20:0x7968bc6a03017ea2de509aaa816f163db0f35148": "#E8D380",
   "eip155:1/erc20:0x797e1dc0738f2f047d7e0dd185e41a35f87c5618": "#44e700",
   "eip155:1/erc20:0x79874e049a65c330b23f99cf09dd93e58b1f46ad": "#041028",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x798b112420ad6391a4129ac25ef59663a44c88bb": "#040404",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x798bcb35d2d48c8ce7ef8171860b8d53a98b361d": "#F4F4FC",
   "eip155:1/erc20:0x798d1be841a82a273720ce31c822c61a67a601c3": "#FBA304",
   "eip155:1/erc20:0x7995ab36bb307afa6a683c24a25d90dc1ea83566": "#7C7C7C",
@@ -2607,6 +2711,11 @@
   "eip155:1/erc20:0x7a8adcf432ebcc2311b955d176ee4bfed13bb9a7": "#51A19C",
   "eip155:1/erc20:0x7a939bb714fd2a48ebeb1e495aa9aaa74ba9fa68": "#F0EFE0",
   "eip155:1/erc20:0x7aa2f174fbc4d0a17b34adfb9b3e1dc029b46d76": "#32358F",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x7aa68e84bcd8d1b4c9e10b1e565db993f68a3e09": "#0C6161",
+  "eip155:1/erc20:0x7aadb097c665eb81460d1ee5133841e1a4651072": "#41fed8",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x7ab7d54f8cb054141142f04ba0b3d41ac4c4d61c": "#1C1C1C",
   "eip155:1/erc20:0x7abc8a5768e6be61a6c693a6e4eacb5b60602c4d": "#53FB6B",
   "eip155:1/erc20:0x7acc3f723419fa0c1f789618f798e75c5189c24f": "#D7AC79",
@@ -2632,6 +2741,11 @@
   "eip155:1/erc20:0x7c5b267ed81009aa7374b5ca7e5137da47045ba8": "#4A3894",
   "eip155:1/erc20:0x7c5d5100b339fe7d995a893af6cb496b9474373c": "#DAF1F4",
   "eip155:1/erc20:0x7c68e725b0b2ffcba8947fded4198c3d1db041e6": "#37363A",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x7c7ca79e0cdc2dbdedd8bd1f527414a0ff1d15c9": "#9eafa0",
+  "eip155:1/erc20:0x7c7fbb2d11803c35aa3e283985237ad27f64406b": "#0F1F30",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x7c8155909cd385f120a56ef90728dd50f9ccbe52": "#DA1F9F",
   "eip155:1/erc20:0x7c84e62859d0715eb77d1b1c4154ecd6abb21bec": "#E62A51",
   "eip155:1/erc20:0x7c851d60b26a4f2a6f2c628ef3b65ed282c54e52": "#C7AE94",
@@ -2782,6 +2896,10 @@
   "eip155:1/erc20:0x84c722e6f1363e8d5c6db3ea600bef9a006da824": "#78C4E4",
   "eip155:1/erc20:0x84ca8bc7997272c7cfb4d0cd3d55cd942b3c9419": "#9B3798",
   "eip155:1/erc20:0x84dad4e4a4d1510052d39e916330372db8cd1238": "#F8EFA2",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x84e13785b5a27879921d6f685f041421c7f482da": "#0469DB",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x84fad63f8f26335f4f1bebc9fbf5ba277fd23c9e": "#9C786A",
   "eip155:1/erc20:0x8503a7b00b4b52692cc6c14e5b96f142e30547b7": "#E45C5C",
   "eip155:1/erc20:0x850aab69f0e0171a9a49db8be3e71351c8247df4": "#3953F2",
@@ -2796,6 +2914,11 @@
   "eip155:1/erc20:0x8578530205cecbe5db83f7f29ecfeec860c297c2": "#A2771B",
   "eip155:1/erc20:0x857de36f92330e1b9a21e8745c692f2ce13866cb": "#16101E",
   "eip155:1/erc20:0x857ffc55b1aa61a7ff847c82072790cae73cd883": "#040405",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x859f7092f56c43bb48bb46de7119d9c799716cdf": "#d4979e",
+  "eip155:1/erc20:0x85aa97537837514a9229fcaeb66eeef7242122bf": "#7c14d0",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x85cf7f10683c73359e7b06c082eef5851ff2956d": "#BCBCBC",
   "eip155:1/erc20:0x85d19fb57ca7da715695fcf347ca2169144523a7": "#C897A1",
   "eip155:1/erc20:0x85e0b9d3e7e4dba7e59090c533906d0e9211d8b6": "#C2C2BA",
@@ -3067,6 +3190,10 @@
   "eip155:1/erc20:0x92f419fb7a750aed295b0ddf536276bf5a40124f": "#ECECEC",
   "eip155:1/erc20:0x9303eabc860a743aabcc3a1629014cabcc3f8d36": "#52B4C5",
   "eip155:1/erc20:0x9305d3d847e4cf950d43c99094a93314833cf3a9": "#FAF6E6",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x9309bcd974cd13457eab1383539b46c93e90b66a": "#B1E359",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x93109af5638be68ed2d0e094f618777ff1051d28": "#090909",
   "eip155:1/erc20:0x9343e24716659a3551eb10aff9472a2dcad5db2d": "#12544C",
   "eip155:1/erc20:0x9348e94a447bf8b2ec11f374d3f055fd47d936df": "#C7C5C7",
@@ -3121,6 +3248,10 @@
   "eip155:1/erc20:0x95af148dcdc6b36b977addf7ea2599c5e0483263": "#96130B",
   "eip155:1/erc20:0x95b4ef2869ebd94beb4eee400a99824bf5dc325b": "#9492E2",
   "eip155:1/erc20:0x95ccffae3eb8767d4a941ec43280961dde89f4de": "#414942",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x95cfa1f48fad82232772d3b1415ad4393517f3b5": "#D166AF",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0x95e40e065afb3059dcabe4aaf404c1f92756603a": "#F0F9F9",
   "eip155:1/erc20:0x95fe3151105ad90c6dc30dc51fdf038ae7bb7f77": "#6041CB",
   "eip155:1/erc20:0x9609b540e5dedddb147abbf9812ade06b1e61b2c": "#CCCCCC",
@@ -3345,6 +3476,10 @@
   "eip155:1/erc20:0x9fdfb933ee990955d3219d4f892fd1f786b47c9b": "#7BACFA",
   "eip155:1/erc20:0x9ff58067bd8d239000010c154c6983a325df138e": "#04143C",
   "eip155:1/erc20:0x9ff58f4ffb29fa2266ab25e75e2a8b3503311656": "#738CAA",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0x9ff68f61ca5eb0c6606dc517a9d44001e564bb66": "#4158fb",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xa00453052a36d43a99ac1ca145dfe4a952ca33b8": "#D3B673",
   "eip155:1/erc20:0xa0084063ea01d5f09e56ef3ff6232a9e18b0bacd": "#28282F",
   "eip155:1/erc20:0xa0117792d4b100fd329b37e8ab4181df8a5b3326": "#D593A2",
@@ -3607,6 +3742,11 @@
   "eip155:1/erc20:0xac6df26a590f08dcc95d5a4705ae8abbc88509ef": "#7489DF",
   "eip155:1/erc20:0xac87d4cbb82ce7f4bcf31dbdc0024306cfd3ec5a": "#F449AC",
   "eip155:1/erc20:0xac9518ba93eeb2336a03137d254d8cc2e4d0fa38": "#04CCC4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xac9ae0eb05daee73bd964eaa0153b762d6455667": "#53a329",
+  "eip155:1/erc20:0xac9d70aebd49555b033751e311044becf3513c0f": "#CFD2DD",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xacb3604aadf26e6c0bb8c720420380629a328d2c": "#DF2F4D",
   "eip155:1/erc20:0xacbd826394189cf2623c6df98a18b41fc8ffc16d": "#A617AA",
   "eip155:1/erc20:0xacd2c239012d17beb128b0944d49015104113650": "#0D0C06",
@@ -3641,6 +3781,11 @@
   "eip155:1/erc20:0xae3e12b3a07393a5be2f5e980c585f95d5334a08": "#4464EC",
   "eip155:1/erc20:0xae41b275aaaf484b541a5881a2dded9515184cca": "#1C329F",
   "eip155:1/erc20:0xae4533189c7281501f04ba4b7c37e3aded402902": "#101A55",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xae461ca67b15dc8dc81ce7615e0320da1a9ab8d5": "#945391",
+  "eip155:1/erc20:0xae5099c39f023c91d3dd55244cafb36225b0850e": "#0D0D0D",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xae5b2aa98532c0c27c88f2085d66b5263f4b9fee": "#BACBD8",
   "eip155:1/erc20:0xae697f994fc5ebc000f8e22ebffee04612f98a0d": "#252525",
   "eip155:1/erc20:0xae6e307c3fe9e922e5674dbd7f830ed49c014c6b": "#234579",
@@ -3672,6 +3817,10 @@
   "eip155:1/erc20:0xafe7131a57e44f832cb2de78ade38cad644aac2f": "#56A6AE",
   "eip155:1/erc20:0xb009bfaaf85e53f55d8657781eb69feaaed83672": "#323937",
   "eip155:1/erc20:0xb012be90957d70d9a070918027655f998c123a88": "#807465",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xb01cc2918234ec8e3fd649df395837ddc9b88353": "#757a9e",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xb056c38f6b7dc4064367403e26424cd2c60655e1": "#1319FB",
   "eip155:1/erc20:0xb06b8186cc008a79fd6722b1eefad07c14e97da0": "#8208F4",
   "eip155:1/erc20:0xb076bda1abc154ddb4ccd9be45542a823aee290e": "#354444",
@@ -3693,6 +3842,12 @@
   "eip155:1/erc20:0xb17d69c91135516b0256c67e8bd32cd238b56161": "#CCCCCC",
   "eip155:1/erc20:0xb19dd661f076998e3b0456935092a233e12c2280": "#7C5026",
   "eip155:1/erc20:0xb1a822ce8c799b0777ed1f260113819247e1bf26": "#BFB9B9",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xb1a824a6caf1f789aa7ca1072e36e83cd62ba3ee": "#69fae6",
+  "eip155:1/erc20:0xb1b9150f2085f6a553b547099977181ca802752a": "#0C6161",
+  "eip155:1/erc20:0xb1bbeea2da2905e6b0a30203aef55c399c53d042": "#6f7fff",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xb1c064c3f2908f741c9dea4afc5773238b53e6cc": "#785C4E",
   "eip155:1/erc20:0xb1c9d42fa4ba691efe21656a7e6953d999b990c4": "#946CA4",
   "eip155:1/erc20:0xb1f1ee126e9c96231cc3d3fad7c08b4cf873b1f1": "#E5DED4",
@@ -3948,6 +4103,10 @@
   "eip155:1/erc20:0xbddf903f43dc7d9801f3f0034ba306169074ef8e": "#EEDDD5",
   "eip155:1/erc20:0xbdeb4b83251fb146687fa19d1c660f99411eefe3": "#047C7C",
   "eip155:1/erc20:0xbded8a4dc74a940eab68703167db89b1712b68ea": "#DEDEDE",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xbdfa7b7893081b35fb54027489e2bc7a38275129": "#8B93B3",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xbe00734799a67a62af2819825580318ac1b1e4ec": "#EAA706",
   "eip155:1/erc20:0xbe03e60757f21f4b6fc8f16676ad9d5b1002e512": "#832CF2",
   "eip155:1/erc20:0xbe042e9d09cb588331ff911c2b46fd833a3e5bd6": "#274C1B",
@@ -4040,6 +4199,11 @@
   "eip155:1/erc20:0xc1c146e09640fe9e5d670288cc43c6269949d9a1": "#0D2C4C",
   "eip155:1/erc20:0xc1ecfaf43c53bec9b9143ab274f35603fd10b886": "#232228",
   "eip155:1/erc20:0xc1f33e0cf7e40a67375007104b929e49a581bafe": "#040404",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xc1f4ecd6398ffc97d81cb3015aa6ef7b19773a08": "#FCECF5",
+  "eip155:1/erc20:0xc211b207e3324cf9c501d6f3fb77ffd77a3c82c9": "#BDCEFB",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xc221b7e65ffc80de234bbb6667abdd46593d34f0": "#E5E5E5",
   "eip155:1/erc20:0xc229c69eb3bb51828d0caa3509a05a51083898dd": "#075ED7",
   "eip155:1/erc20:0xc237868a9c5729bdf3173dddacaa336a0a5bb6e0": "#E30404",
@@ -4048,14 +4212,28 @@
   "eip155:1/erc20:0xc25a3a3b969415c80451098fa907ec722572917f": "#146267",
   "eip155:1/erc20:0xc2708a3a4ba7f64bddc1a49f92f941bc77cad23a": "#689AFC",
   "eip155:1/erc20:0xc278041fdd8249fe4c1aad1193876857eea3d68c": "#D8D7D8",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xc27bfe32e0a934a12681c1b35acf0dba0e7460ba": "#E8E8E8",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xc283c54df1d858570071a053057806ae73cb6a64": "#D0BC88",
   "eip155:1/erc20:0xc285b7e09a4584d027e5bc36571785b515898246": "#F4D464",
   "eip155:1/erc20:0xc28e27870558cf22add83540d2126da2e4b464c2": "#EC7038",
   "eip155:1/erc20:0xc28e931814725bbeb9e670676fabbcb694fe7df2": "#1C1C4C",
   "eip155:1/erc20:0xc28eb2250d1ae32c7e74cfb6d6b86afc9beb6509": "#CC9CE4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
   "eip155:1/erc20:0xc29bbe89e98250ee2eee3ac677bbed542a049efb": "#040404",
   "eip155:1/erc20:0xc2aeedc081d4cb6797a681e9403a82211f97b308": "#D24642",
   "eip155:1/erc20:0xc2e660c62f72c2ad35ace6db78a616215e2f2222": "#FCECBF",
+=======
+  "eip155:1/erc20:0xc29562b045d80fd77c69bec09541f5c16fe20d9d": "#040404",
+  "eip155:1/erc20:0xc29bbe89e98250ee2eee3ac677bbed542a049efb": "#040404",
+  "eip155:1/erc20:0xc2adda861f89bbb333c90c492cb837741916a225": "#7a7c72",
+  "eip155:1/erc20:0xc2aeedc081d4cb6797a681e9403a82211f97b308": "#D24642",
+  "eip155:1/erc20:0xc2c701110de2b9503e98619d9c9e3017877b0f72": "#1938f1",
+  "eip155:1/erc20:0xc2e2152647f4c26028482efaf64b2aa28779efc4": "#DE7D82",
+  "eip155:1/erc20:0xc2eab7d33d3cb97692ecb231a5d0e4a649cb539d": "#863efa",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xc2eb40516ecaac04ae9964934983d1e9ebdf51fd": "#E2D4D1",
   "eip155:1/erc20:0xc314b0e758d5ff74f63e307a86ebfe183c95767b": "#4069E3",
   "eip155:1/erc20:0xc31cebf8f9e825d1d1244d73d0a65e44bd5210db": "#070E1C",
@@ -4281,6 +4459,10 @@
   "eip155:1/erc20:0xce20bb92ccf9bbf5091ef85649e71e552819ad8c": "#D388DC",
   "eip155:1/erc20:0xce246eea10988c495b4a90a905ee9237a0f91543": "#B4CD17",
   "eip155:1/erc20:0xce391315b414d4c7555956120461d21808a69f3a": "#DCCCC4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xce407cd7b95b39d3b4d53065e711e713dd5c5999": "#4902b7",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xce5464b006a10d20c5fc56a19618212a129eed45": "#194920",
   "eip155:1/erc20:0xce593a29905951e8fc579bc092eca72577da575c": "#9E8857",
   "eip155:1/erc20:0xce682c89c63d2850cb2ca898e44d6c7c30d897a6": "#070808",
@@ -4320,6 +4502,10 @@
   "eip155:1/erc20:0xd01409314acb3b245cea9500ece3f6fd4d70ea30": "#939CFC",
   "eip155:1/erc20:0xd015422879a1308ba557510345e944b912b9ab73": "#87ACB2",
   "eip155:1/erc20:0xd01d133166820557db7138963bcd9009c54e4c33": "#A404EC",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xd0354d4e7bcf345fb117cabe41acadb724eccca2": "#9EDCFC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xd05728038681bcc79b2d5aeb4d9b002e66c93a40": "#E2A717",
   "eip155:1/erc20:0xd05d90a656fc375ac1478689d7bcd31098f2dd1f": "#3C2C5C",
   "eip155:1/erc20:0xd05f33b4fa630d6ba8a3ce75f7785439e6a3bb00": "#B53727",
@@ -4552,6 +4738,10 @@
   "eip155:1/erc20:0xdadb4ae5b5d3099dd1f586f990b845f2404a1c4c": "#565656",
   "eip155:1/erc20:0xdb0170e2d0c1cc1b2e7a90313d9b9afa4f250289": "#1C3A94",
   "eip155:1/erc20:0xdb0238975ce84f89212ffa56c64c0f2b47f8f153": "#F9F9F9",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xdb025419b9e8f1ad7ef3eb732e143c1be64034a1": "#3C3C3C",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xdb04fb08378129621634c151e9b61fef56947920": "#E0F3DD",
   "eip155:1/erc20:0xdb05ea0877a2622883941b939f0bb11d1ac7c400": "#EBF0F5",
   "eip155:1/erc20:0xdb25ca703181e7484a155dd612b06f57e12be5f0": "#046AD8",
@@ -4636,6 +4826,10 @@
   "eip155:1/erc20:0xdf4ef6ee483953fe3b84abd08c6a060445c01170": "#5BA3FB",
   "eip155:1/erc20:0xdf574c24545e5ffecb9a659c229253d4111d87e1": "#1B63F3",
   "eip155:1/erc20:0xdf60e6416fcf8c955fddf01148753a911f7a5905": "#b01734",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xdf7083f2a0f8a191ab5eeafebe92ed21cd3dd915": "#DCDCDC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xdf7ff54aacacbff42dfe29dd6144a69b629f8c9e": "#7689B3",
   "eip155:1/erc20:0xdf801468a808a32656d2ed2d2d80b72a129739f4": "#05735B",
   "eip155:1/erc20:0xdf87270e04bc5ac140e93571d0dd0c6f4a058b41": "#2484F4",
@@ -4648,6 +4842,10 @@
   "eip155:1/erc20:0xe0151763455a8a021e64880c238ba1cff3787ff0": "#484E5C",
   "eip155:1/erc20:0xe020b01b6fbd83066aa2e8ee0ccd1eb8d9cc70bf": "#ECEEF0",
   "eip155:1/erc20:0xe03b2642a5111ad0efc0cbce766498c2dd562ae9": "#E6CC7B",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xe05d099bfd7f4aa9f2e696f6c3ebe181479961a5": "#b8c054",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xe063f04f280c60aeca68b38341c2eecbec703ae2": "#F9DCDF",
   "eip155:1/erc20:0xe0797ec1d0bb0bec541a82c5262c3b0f93f68bfe": "#3F76EB",
   "eip155:1/erc20:0xe07c41e9cdf7e0a7800e4bbf90d414654fd6413d": "#E3D621",
@@ -4725,6 +4923,10 @@
   "eip155:1/erc20:0xe469699f617bfd0fbffcd575970d34c2cecffa9f": "#040404",
   "eip155:1/erc20:0xe46a1d19962ea120765d3139c588ffd617be04a8": "#040504",
   "eip155:1/erc20:0xe46a5e19b19711332e33f33c2db3ea143e86bc10": "#E2A717",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xe471f93c2be15b64e9ec63bbf485446cb934e8c4": "#35415e",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xe485e2f1bab389c08721b291f6b59780fec83fd7": "#343434",
   "eip155:1/erc20:0xe4880249745eac5f1ed9d8f7df844792d560e750": "#0A2765",
   "eip155:1/erc20:0xe4a6f23fb9e00fca037aa0ea0a6954de0a6c53bf": "#DFC264",
@@ -4866,6 +5068,10 @@
   "eip155:1/erc20:0xec56840be7c495cbf98c0157b458cd207ff85da1": "#040404",
   "eip155:1/erc20:0xec67005c4e498ec7f55e092bd1d35cbc47c91892": "#040404",
   "eip155:1/erc20:0xec70ff4a5b09110e4d20ada4f2db4a86ec61fac6": "#FC790E",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xec7a6619c3b5c251ca6ac8ee3d126d66e9541050": "#a3e30b",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xec9333e7dadeebf82d290d6cb12e66cc30ce46b0": "#FC8383",
   "eip155:1/erc20:0xeca82185adce47f39c684352b0439f030f860318": "#35B1E3",
   "eip155:1/erc20:0xecbbe10d3b5adb681deb586d012b588e046bcb9b": "#060B0C",
@@ -4913,6 +5119,11 @@
   "eip155:1/erc20:0xeeb4d8400aeefafc1b2953e0094134a887c76bd8": "#3EB0EB",
   "eip155:1/erc20:0xeec2be5c91ae7f8a338e1e5f3b5de49d07afdc81": "#11A8F8",
   "eip155:1/erc20:0xeec2e29ff5cd4cecea61de09e9f28fae74c70ddd": "#D4A744",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xeec515be690bf445c8c4d1625fd82fa75bc38bf6": "#3C3C3C",
+  "eip155:1/erc20:0xeed00e00236cd7f36f2558d8b5fd05046449599d": "#FCB831",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd": "#0483CB",
   "eip155:1/erc20:0xeee0fe52299f2de8e2ed5111cd521ab67dcf0faf": "#18B6BE",
   "eip155:1/erc20:0xeeecd285f60e802ecb6d8d8d37790c887f9a4b33": "#27DD08",
@@ -5074,6 +5285,7 @@
   "eip155:1/erc20:0xf6d2224916ddfbbab6e6bd0d1b7034f4ae0cab18": "#FC4C9E",
   "eip155:1/erc20:0xf6e06b54855eff198a2d9a8686113665499a6134": "#102C46",
   "eip155:1/erc20:0xf6f31b8afbf8e3f7fc8246bef26093f02838da98": "#F4DBE9",
+  "eip155:1/erc20:0xf6fd7ceb095bfd54130359cc9366a1493944213a": "#559EDC",
   "eip155:1/erc20:0xf70ce9ee486106882d3dc43ddbd84e0fa71ac2a5": "#406ACB",
   "eip155:1/erc20:0xf7168c8abb0ff80116413a8d95396bbdc318a3ff": "#273B27",
   "eip155:1/erc20:0xf71a2079566c87e26bcd9766d140d5bfdeeae731": "#B9613C",
@@ -5108,6 +5320,10 @@
   "eip155:1/erc20:0xf8e9f10c22840b613cda05a0c5fdb59a4d6cd7ef": "#F5D4AC",
   "eip155:1/erc20:0xf8ebf4849f1fa4faf0dff2106a173d3a6cb2eb3a": "#C1C1C1",
   "eip155:1/erc20:0xf90924b4064d88fdf9189d6ffd737ed85c01b9b7": "#040404",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:1/erc20:0xf91c12dae1313d0be5d7a27aa559b1171cc1eac5": "#52feb7",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:1/erc20:0xf920e4f3fbef5b3ad0a25017514b769bdc4ac135": "#4BADDE",
   "eip155:1/erc20:0xf921ae2dac5fa128dc0f6168bf153ea0943d2d43": "#4A4A4D",
   "eip155:1/erc20:0xf92d62ed69242d655e685c96b98f32f1409c3262": "#13A9E8",
@@ -5142,6 +5358,7 @@
   "eip155:1/erc20:0xfa59075dfce274e028b58bddfcc3d709960f594a": "#DCDCDC",
   "eip155:1/erc20:0xfa5a6e1347f6d99c57a53416c5c4645128909b62": "#131313",
   "eip155:1/erc20:0xfa5b75a9e13df9775cf5b996a049d9cc07c15731": "#C43484",
+  "eip155:1/erc20:0xfa615809a56892b9a9a0d48cf0a550deb0b42521": "#AC853E",
   "eip155:1/erc20:0xfa704148d516b209d52c2d75f239274c8f8eaf1a": "#520764",
   "eip155:1/erc20:0xfa816739edaac4ebf329219d4ef575085cc28037": "#5E5E5E",
   "eip155:1/erc20:0xfa93660c3f6a848556bb8e265f994160a1f2b289": "#886732",
@@ -5311,6 +5528,7 @@
   "eip155:10/erc20:0x29cb69d4780b53c1e5cd4d2b817142d2e9890715": "#CCC4D4",
   "eip155:10/erc20:0x29faf5905bff9cfcc7cf56a5ed91e0f091f8664b": "#BABABA",
   "eip155:10/erc20:0x2b1d36f5b61addaf7da7ebbd11b35fd8cfb0de31": "#52A4FC",
+  "eip155:10/erc20:0x2d691c2492e056adcae7ca317569af25910fc4cb": "#FCB004",
   "eip155:10/erc20:0x2dad3a13ef0c6366220f989157009e501e7938f8": "#D4E4FC",
   "eip155:10/erc20:0x2dd1b4d4548accea497050619965f91f78b3b532": "#0E0E0E",
   "eip155:10/erc20:0x2e17b8193566345a2dd467183526dedc42d2d5a8": "#2474CC",
@@ -5508,9 +5726,14 @@
   "eip155:10/erc20:0xd6c67ff71a82f1d994d94fa01295467d273d7324": "#1C6794",
   "eip155:10/erc20:0xd9cc3d70e730503e7f28c1b407389198c4b75fa2": "#D16386",
   "eip155:10/erc20:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1": "#FCBD3C",
+  "eip155:10/erc20:0xdc30b3bde2734a0bc55af01b38943ef04aacb423": "#FC9004",
   "eip155:10/erc20:0xdc6ff44d5d932cbd77b52e5612ba0529dc6226f1": "#D0D0D0",
   "eip155:10/erc20:0xdc8840a0a1ebf8be5ace62a7d9360dfcb26adffc": "#783C39",
   "eip155:10/erc20:0xdcc5dc90a803928dc21556590d4620030966270f": "#060606",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:10/erc20:0xdddcaee873f2d9df0e18a80709ef2b396d4a6ea5": "#0469DB",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:10/erc20:0xdecc0c09c3b5f6e92ef4184125d5648a66e35298": "#2474CC",
   "eip155:10/erc20:0xdfa46478f9e5ea86d57387849598dbfb2e964b02": "#F1C5C5",
   "eip155:10/erc20:0xe05a08226c49b636acf99c40da8dc6af83ce5bb3": "#FBEA1C",
@@ -5937,6 +6160,10 @@
   "eip155:137/erc20:0x388d819724dd6d71760a38f00dc01d310d879771": "#F2AA04",
   "eip155:137/erc20:0x38a232cabb8a7f745c7d6e0a5bf300e3499aa8a6": "#BF3538",
   "eip155:137/erc20:0x38a536a31ba4d8c1bcca016abbf786ecd25877e8": "#FCF8E6",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:137/erc20:0x38d693ce1df5aadf7bc62595a37d667ad57922e5": "#239CF6",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:137/erc20:0x38f9bf9dce51833ec7f03c9dc218197999999999": "#F9CE76",
   "eip155:137/erc20:0x3963a400b42377376d6c3d92ddf2d6288d8ee0d6": "#F2F5F7",
   "eip155:137/erc20:0x39ab6574c289c3ae4d88500eec792ab5b947a5eb": "#0C5C8C",
@@ -6373,6 +6600,10 @@
   "eip155:137/erc20:0x9dbfc1cbf7a1e711503a29b4b5f9130ebeccac96": "#847ACF",
   "eip155:137/erc20:0x9e20461bc2c4c980f62f1b279d71734207a6a356": "#2E3C64",
   "eip155:137/erc20:0x9e6b19874e97fe8e8cad77f2c0ab5e7a693e5dbf": "#3DAB47",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:137/erc20:0x9eb792c780d3e3714f245c596c8c8993bf6fc605": "#222F62",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:137/erc20:0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb": "#04C4CA",
   "eip155:137/erc20:0x9fb9a33956351cf4fa040f65a13b835a3c8764e3": "#D6D2FA",
   "eip155:137/erc20:0x9ff62d1fc52a907b6dcba8077c2ddca6e6a9d3e1": "#0C0C0C",
@@ -6876,6 +7107,7 @@
   "eip155:42161/erc20:0x15a808ed3846d25e88ae868de79f1bcb1ac382b5": "#C28020",
   "eip155:42161/erc20:0x15b2fb8f08e4ac1ce019eadae02ee92aedf06851": "#7464F4",
   "eip155:42161/erc20:0x1622bf67e6e5747b81866fe0b85178a93c7f86e3": "#D1D2D6",
+  "eip155:42161/erc20:0x163a9e12787dbfa2836caa549ae02ed67f73e7c2": "#FBF6EF",
   "eip155:42161/erc20:0x1689a6e1f09658ff37d0bb131514e701045876da": "#151326",
   "eip155:42161/erc20:0x16f1967565aad72dd77588a332ce445e7cef752b": "#888B84",
   "eip155:42161/erc20:0x17176a9868f321411b15ccb9b934cf95597e89c4": "#048024",
@@ -6927,6 +7159,7 @@
   "eip155:42161/erc20:0x259b0f9494b3f02c652fa11417b94cb700f1f7d8": "#C6C4EA",
   "eip155:42161/erc20:0x25d887ce7a35172c62febfd67a1856f20faebb00": "#4B8E42",
   "eip155:42161/erc20:0x2680e82fb8beb5a153a67fe687ffa67abb6b9013": "#047AF4",
+  "eip155:42161/erc20:0x26d9b74d1b5d5aa45f8622392afbbddef2e1ad1f": "#C0E4E4",
   "eip155:42161/erc20:0x26f2d64ac6676ec8673b845a1dc549b17a334c7f": "#E0AFC5",
   "eip155:42161/erc20:0x27bc2757fab0b8ab406016d1f71d8123452095d3": "#FAD342",
   "eip155:42161/erc20:0x27d8de4c30ffde34e982482ae504fc7f23061f61": "#2424A0",
@@ -6955,6 +7188,10 @@
   "eip155:42161/erc20:0x2d09268e7a8271b41cdd3019d97a4980d8110bfa": "#2474CC",
   "eip155:42161/erc20:0x2dade5b7df9da3a7e1c9748d169cd6dff77e3d01": "#BCD9ED",
   "eip155:42161/erc20:0x2e516ba5bf3b7ee47fb99b09eadb60bde80a82e0": "#DAC68E",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0x2ec0160246461f0ce477887dde2c931ee8233de7": "#2373CB",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0x2f11eeee0bf21e7661a22dbbbb9068f4ad191b86": "#EC8898",
   "eip155:42161/erc20:0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f": "#ECE8E6",
   "eip155:42161/erc20:0x2fac624899a844e0628bfdcc70efcd25f6e90b95": "#06CC94",
@@ -6995,6 +7232,10 @@
   "eip155:42161/erc20:0x386601d1e55c48e759bbf57c56015aad0d7f1b56": "#34A8C5",
   "eip155:42161/erc20:0x38d693ce1df5aadf7bc62595a37d667ad57922e5": "#C0C0C0",
   "eip155:42161/erc20:0x38f9bf9dce51833ec7f03c9dc218197999999999": "#F9CE76",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0x399f292939668e591957726df3ec9a0e7dc8ac57": "#C0E4E4",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0x39a49bc5017fc668299cd32e734c9269acc35295": "#44CAC9",
   "eip155:42161/erc20:0x3a18dcc9745edcd1ef33ecb93b0b6eba5671e7ca": "#A13334",
   "eip155:42161/erc20:0x3a33473d7990a605a88ac72a78ad4efc40a54adb": "#3A31D0",
@@ -7037,6 +7278,7 @@
   "eip155:42161/erc20:0x498bf2b1e120fed3ad3d42ea2165e9b73f99c1e5": "#C4340A",
   "eip155:42161/erc20:0x498c620c7c91c6eba2e3cd5485383f41613b7eb6": "#EEEEEE",
   "eip155:42161/erc20:0x4a7779abed707a9c7deadbbef5c15f3e52370a99": "#E9DCD0",
+  "eip155:42161/erc20:0x4a7ff2901a8577363ee6ac75077bc3ee67a93c98": "#2373CB",
   "eip155:42161/erc20:0x4b019aaa21e98e212d31e54c843e73ff34d25717": "#373762",
   "eip155:42161/erc20:0x4c4b907bd5c38d14a084aac4f511a9b46f7ec429": "#61E8C6",
   "eip155:42161/erc20:0x4cb9a7ae498cedcbb5eae9f25736ae7d428c9d66": "#FCDAD5",
@@ -7122,6 +7364,7 @@
   "eip155:42161/erc20:0x6688b00f0c23a4a546beaae51a7c90c439895d48": "#1C1C1C",
   "eip155:42161/erc20:0x6694340fc020c5e6b96567843da2df01b2ce1eb6": "#8C8C8C",
   "eip155:42161/erc20:0x66e535e8d2ebf13f49f3d49e5c50395a97c137b1": "#EA4945",
+  "eip155:42161/erc20:0x6700aaa7faf636f537fb9607a8b8f2ec3cd07ce1": "#E0AFC5",
   "eip155:42161/erc20:0x6740acb82ac5c63a7ad2397ee1faed7c788f5f8c": "#0B140F",
   "eip155:42161/erc20:0x67bad479f77488f0f427584e267e66086a7da43a": "#D5ECE6",
   "eip155:42161/erc20:0x67c31056358b8977ea95a3a899dd380d4bced706": "#CA8866",
@@ -7154,6 +7397,10 @@
   "eip155:42161/erc20:0x711b771c7c443ebb695e4b3495c337fdaf37be11": "#0454FC",
   "eip155:42161/erc20:0x712238a91f01849eadfaa8662b6fb94705e61063": "#2373CB",
   "eip155:42161/erc20:0x71453d859918a1d59354324c2a70d32e53b97f67": "#E0AFC5",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0x714754de5301f2f2b7ee26e94b42e978e7f56113": "#2373CB",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0x7189fb5b6504bbff6a852b13b7b82a3c118fdc27": "#181768",
   "eip155:42161/erc20:0x71b3a0566f4bf80331d115d8026a7022bf670cce": "#0474B4",
   "eip155:42161/erc20:0x71eeba415a523f5c952cc2f06361d5443545ad28": "#04080D",
@@ -7171,6 +7418,12 @@
   "eip155:42161/erc20:0x76ce14237110c865f431e18f91fc1b225fb6fe99": "#2E3130",
   "eip155:42161/erc20:0x772598e9e62155d7fdfe65fdf01eb5a53a8465be": "#7C58A3",
   "eip155:42161/erc20:0x77308f8b63a99b24b262d930e0218ed2f49f8475": "#D5ECE6",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0x77e4eb57f42a76eb18342ea0d1d94d36f8eacef8": "#9ACF2B",
+  "eip155:42161/erc20:0x78ab636351c1c5f117c1442b82d14ab3a92f8464": "#060606",
+  "eip155:42161/erc20:0x79a2e71460c97807ec40d6d670838bee99848f1d": "#9EDCFC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0x79ead7a012d97ed8deece279f9bc39e264d7eef9": "#1F3634",
   "eip155:42161/erc20:0x7a2c1b8e26c48a5b73816b7ec826fd4053f5f34b": "#C5ADF5",
   "eip155:42161/erc20:0x7a5d193fe4ed9098f7eadc99797087c96b002907": "#040404",
@@ -7245,6 +7498,11 @@
   "eip155:42161/erc20:0x8ebb85d53e6955e557b7c53acde1d42fd68561ec": "#D2D4D7",
   "eip155:42161/erc20:0x8ec1877698acf262fe8ad8a295ad94d6ea258988": "#FAD8E0",
   "eip155:42161/erc20:0x8f5c1a99b1df736ad685006cb6adca7b7ae4b514": "#6456EA",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0x8f5ee98867f5d5cfd71eaefe9997ea37a46deb33": "#E0AFC5",
+  "eip155:42161/erc20:0x8f93eaae544e8f5eb077a1e09c1554067d9e2ca8": "#D166AF",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0x8ffdf2de812095b1d19cb146e4c004587c0a0692": "#34B7EC",
   "eip155:42161/erc20:0x905dfcd5649217c42684f23958568e533c711aa3": "#D166AF",
   "eip155:42161/erc20:0x912ce59144191c1204e64559fe8253a0e49e6548": "#D9E1EA",
@@ -7332,6 +7590,7 @@
   "eip155:42161/erc20:0xadf5dd3e51bf28ab4f07e684ecf5d00691818790": "#0D68E2",
   "eip155:42161/erc20:0xae6aab43c4f3e0cea4ab83752c278f8debaba689": "#0E0718",
   "eip155:42161/erc20:0xaeaeed23478c3a4b798e4ed40d8b7f41366ae861": "#245CE4",
+  "eip155:42161/erc20:0xaef3c262569e56fb494755110ca6f481f8a2e353": "#040404",
   "eip155:42161/erc20:0xaf20f5f19698f1d19351028cd7103b63d30de7d7": "#CEB484",
   "eip155:42161/erc20:0xaf5db6e1cc585ca312e8c8f7c499033590cf5c98": "#FC8035",
   "eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831": "#2E7ACD",
@@ -7443,6 +7702,10 @@
   "eip155:42161/erc20:0xd58d345fd9c82262e087d2d0607624b410d88242": "#44DA9C",
   "eip155:42161/erc20:0xd5954c3084a1ccd70b4da011e67760b8e78aee84": "#1A8989",
   "eip155:42161/erc20:0xd67a097dce9d4474737e6871684ae3c05460f571": "#A1E4E4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:42161/erc20:0xd69d402d1bdb9a2b8c3d88d98b9ceaf9e4cd72d9": "#C0E4E4",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:42161/erc20:0xd74f5255d557944cf7dd0e45ff521520002d5748": "#141C24",
   "eip155:42161/erc20:0xd77b108d4f6cefaa0cae9506a934e825becca46e": "#FBE217",
   "eip155:42161/erc20:0xd79bb960dc8a206806c3a428b31bca49934d18d7": "#050505",
@@ -7652,6 +7915,10 @@
   "eip155:43114/erc20:0x1db749847c4abb991d8b6032102383e6bfd9b1c7": "#B58960",
   "eip155:43114/erc20:0x1e2c4fb7ede391d116e6b41cd0608260e8801d59": "#CCCCD2",
   "eip155:43114/erc20:0x1f1e7c893855525b303f99bdf5c3c05be09ca251": "#19152F",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:43114/erc20:0x1f6c375770f3ac345576bc744c6e315489ec4515": "#C0E4E4",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:43114/erc20:0x20c64dee8fda5269a78f2d5bdba861ca1d83df7a": "#474C57",
   "eip155:43114/erc20:0x2147efff675e4a4ee1c2f918d181cdbd7a8e208f": "#BDC5DD",
   "eip155:43114/erc20:0x214db107654ff987ad859f34125307783fc8e387": "#040404",
@@ -7666,6 +7933,11 @@
   "eip155:43114/erc20:0x2598c30330d5771ae9f983979209486ae26de875": "#4C4B89",
   "eip155:43114/erc20:0x25f11e22d5079c2970496d592579bf4902d09d76": "#E3E3E3",
   "eip155:43114/erc20:0x264c1383ea520f73dd837f915ef3a732e204a493": "#F4BC2C",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:43114/erc20:0x2774516897ac629ad3ed9dcac7e375dda78412b9": "#C46B63",
+  "eip155:43114/erc20:0x29472d511808ce925f501d25f9ee9effd2328db2": "#2474CC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:43114/erc20:0x29e38769f23701a2e4a8ef0492e19da4604be62c": "#C0E4E4",
   "eip155:43114/erc20:0x2ade4f6d462d60523235650160844bb6b46ac7d9": "#C46B63",
   "eip155:43114/erc20:0x2b1d36f5b61addaf7da7ebbd11b35fd8cfb0de31": "#52A4FC",
@@ -8148,6 +8420,11 @@
   "eip155:56/bep20:0x0536c8b0c3685b6e3c62a7b5c4e8b83f938f12d1": "#F9E65C",
   "eip155:56/bep20:0x05616b7b6da03fb4c773b76663816b360ccaede4": "#D38B4B",
   "eip155:56/bep20:0x0565805ca3a4105faee51983b0bd8ffb5ce1455c": "#226A87",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x05faf555522fa3f93959f86b41a3808666093210": "#D38B4B",
+  "eip155:56/bep20:0x06043b346450bbcfde066ebc39fdc264fdffed74": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x0615dbba33fe61a31c7ed131bda6655ed76748b1": "#090608",
   "eip155:56/bep20:0x061e64f1293bc49402a867cc6411987148bcdb1b": "#6C4C20",
   "eip155:56/bep20:0x062ca2d2f1af8c203fa3ad5298fd6faa4e44e897": "#B08629",
@@ -8736,6 +9013,7 @@
   "eip155:56/bep20:0x36a8fcb1f8bca02dc74eb34281de3b9143eae8e3": "#040405",
   "eip155:56/bep20:0x36bfbb1d5b3c9b336f3d64976599b6020ca805f1": "#D9F8E2",
   "eip155:56/bep20:0x36dbcbca106353d49e1e0e8974492ffb862a0c92": "#0F63B7",
+  "eip155:56/bep20:0x36e714d63b676236b72a0a4405f726337b06b6e5": "#046FF5",
   "eip155:56/bep20:0x36f1f32c728c3f330409ec1f0928fa3ab3c8a76f": "#F7F9F1",
   "eip155:56/bep20:0x36f84ee7f720312443c02389a08185e3ecf0ebed": "#070404",
   "eip155:56/bep20:0x36fe11b6d5c9421f68d235694fe192b35e803903": "#F3EAE8",
@@ -8823,6 +9101,10 @@
   "eip155:56/bep20:0x3fcca8648651e5b974dd6d3e50f61567779772a8": "#7584BE",
   "eip155:56/bep20:0x3fd230b77ad19aaf6330da7854ec76d5aeb49ead": "#D3D8E5",
   "eip155:56/bep20:0x400613f184d1207f5c07a67d67040a4e23e92feb": "#16511B",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x400db103af7a0403c9ab014b2b73702b89f6b4b7": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x40225c6277b29bf9056b4acb7ee1512cbff11671": "#293941",
   "eip155:56/bep20:0x4027d91ecd3140e53ae743d657549adfeebb27ab": "#584E5D",
   "eip155:56/bep20:0x404f83279c36e3e0e2771b7ae9f9b0b2b50ee27c": "#149C14",
@@ -9083,6 +9365,10 @@
   "eip155:56/bep20:0x5492ef6aeeba1a3896357359ef039a8b11621b45": "#F5C94A",
   "eip155:56/bep20:0x549cc5df432cdbaebc8b9158a6bdfe1cbd0ba16d": "#2A8A3D",
   "eip155:56/bep20:0x54bb6c8551712ab214950cd7acf8493ef4e7e3ae": "#C2A92F",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x54e6358f24927c259aaf53aa230b56e2d27b5810": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x5512014efa6cd57764fa743756f7a6ce3358cc83": "#624A69",
   "eip155:56/bep20:0x551897f8203bd131b350601d3ac0679ba0fc0136": "#746AF4",
   "eip155:56/bep20:0x551faab1027cc50efaea5bed092e330475c3cd99": "#B8C8FC",
@@ -9161,6 +9447,10 @@
   "eip155:56/bep20:0x5a7a183b6b44dc4ec2e3d2ef43f98c5152b1d76d": "#555555",
   "eip155:56/bep20:0x5ac52ee5b2a633895292ff6d8a89bb9190451587": "#140F06",
   "eip155:56/bep20:0x5ac5e6af46ef285b3536833e65d245c49b608d9b": "#7C4CA4",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x5b06aa1ebd2e15bc6001076355e5b4c39cbc83f3": "#F4BC2C",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x5b17b4d5e4009b5c43e3e3d63a5229f794cba389": "#C86832",
   "eip155:56/bep20:0x5b1baec64af6dc54e6e04349315919129a6d3c23": "#FCE474",
   "eip155:56/bep20:0x5b1f874d0b0c5ee17a495cbb70ab8bf64107a3bd": "#D3464D",
@@ -9392,6 +9682,10 @@
   "eip155:56/bep20:0x6c46422a0f7dbbad9bec3bbbc1189bfaf9794b05": "#04BAD2",
   "eip155:56/bep20:0x6c619006043eab742355395690c7b42d3411e8c0": "#04BCFC",
   "eip155:56/bep20:0x6c9297be2e3ce9c10c480a25b7157a43fd992942": "#040404",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x6cc280119bfa0e63ffa51d33076a5b4fa71231f5": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x6ccc8db8e3fd5ffdd2e7b92bd92e8e27baf704a8": "#141414",
   "eip155:56/bep20:0x6cd871fb811224aa23b6bf1646177cdfe5106416": "#DC0424",
   "eip155:56/bep20:0x6cda2862fd4b88ccfa522ffed66bc4277e7d9cc9": "#919191",
@@ -9417,6 +9711,10 @@
   "eip155:56/bep20:0x6e2a5ea25b161befa6a8444c71ae3a89c39933c6": "#3684DC",
   "eip155:56/bep20:0x6e4a971b81ca58045a2aa982eaa3d50c4ac38f42": "#7A6B34",
   "eip155:56/bep20:0x6e64fcf15be3eb71c3d42acf44d85bb119b2d98b": "#DED4C2",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0x6e6edb5b4fbb83ad41c5502d9ff05e76aa90a278": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0x6e7573e492f31107ef98029276922854e919ca28": "#CA9A41",
   "eip155:56/bep20:0x6e88056e8376ae7709496ba64d37fa2f8015ce3e": "#090909",
   "eip155:56/bep20:0x6e8ce91124d57c37556672f8889cb89af52a6746": "#473A1F",
@@ -10130,6 +10428,10 @@
   "eip155:56/bep20:0xa7ebcb0da35a8b6d2ea6943faec8949676a316cd": "#EEA83F",
   "eip155:56/bep20:0xa7f552078dcc247c2684336020c03648500c6d9f": "#508EE0",
   "eip155:56/bep20:0xa82d8d81557f6da6dd4ddad9f09a417530cfd4e7": "#F6ECF9",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0xa830f3a087c9a642694f6eea98778e1c70097754": "#84CCFC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0xa83595c57bd9eaa1ecf858161ee71acc6555692e": "#C0994A",
   "eip155:56/bep20:0xa85128073e25a0190b86b72e3976f8b02dad757d": "#F4941C",
   "eip155:56/bep20:0xa856098dcbc1b2b3a9c96c35c32bc4f71e49aed2": "#A8DD42",
@@ -10197,6 +10499,10 @@
   "eip155:56/bep20:0xad6742a35fb341a9cc6ad674738dd8da98b94fb1": "#EDCE56",
   "eip155:56/bep20:0xad9a1e7b34da8a17dec7328b151a4d3627f21d6b": "#A18240",
   "eip155:56/bep20:0xadaae082237cb1772c9e079db95c117e6dd0c5af": "#47A59A",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0xadbfe34e35edb3d31f4bd1af5a513f4c57cdc5e9": "#147DEE",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0xae20bc46300bab5d85612c6bc6ea87ea0f186035": "#04D4D4",
   "eip155:56/bep20:0xae28714390e95b8df1ef847c58aeac23ed457702": "#7570FC",
   "eip155:56/bep20:0xae2df9f730c54400934c06a17462c41c08a06ed8": "#C5B7B0",
@@ -10407,6 +10713,10 @@
   "eip155:56/bep20:0xbcbdecf8e76a5c32dba69de16985882ace1678c6": "#A7CA11",
   "eip155:56/bep20:0xbcc608002765339db153d07250d516bc4356531b": "#E00488",
   "eip155:56/bep20:0xbceee918077f63fb1b9e10403f59ca40c7061341": "#EFF0E7",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0xbcfce18c5c33463316f93a067b1f50d75b00dc09": "#060606",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0xbd100d061e120b2c67a24453cf6368e63f1be056": "#A4EAA0",
   "eip155:56/bep20:0xbd2949f67dcdc549c6ebe98696449fa79d988a9f": "#040C34",
   "eip155:56/bep20:0xbd2c43da85d007b0b3cd856fd55c299578d832bc": "#121212",
@@ -10928,6 +11238,10 @@
   "eip155:56/bep20:0xe9d78bf51ae04c7e1263a76ed89a65537b9ca903": "#C3A24D",
   "eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56": "#F4BC0C",
   "eip155:56/bep20:0xea136fc555e695ba96d22e10b7e2151c4c6b2a20": "#F1E4FC",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0xea26b78255df2bbc31c1ebf60010d78670185bd0": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0xea395dfafed39924988b475f2ca7f4c72655203a": "#244541",
   "eip155:56/bep20:0xea4821632b139b7f08e37533d8152d50976618c6": "#5C86C2",
   "eip155:56/bep20:0xea51801b8f5b88543ddad3d1727400c15b209d8f": "#CA9B87",
@@ -11057,6 +11371,10 @@
   "eip155:56/bep20:0xf574ba6bde97cc09784e616ebaed432b4e896b49": "#6AF9D2",
   "eip155:56/bep20:0xf585b5b4f22816baf7629aea55b701662630397b": "#714AF2",
   "eip155:56/bep20:0xf59918b07278ff20109f8c37d7255e0677b45c43": "#1C1917",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:56/bep20:0xf5d3cba24783586db9e7f35188ec0747ffb55f9b": "#D38B4B",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:56/bep20:0xf5d8015d625be6f59b8073c8189bd51ba28792e1": "#7CD2B7",
   "eip155:56/bep20:0xf5d8a096cccb31b9d7bce5afe812be23e3d4690d": "#EAEAED",
   "eip155:56/bep20:0xf5e11df1ebcf78b6b6d26e04ff19cd786a1e81dc": "#C8BDAE",
@@ -11206,6 +11524,7 @@
   "eip155:8453/erc20:0x063d2db6d348fa5957b78b6141d144426486c68c": "#653080",
   "eip155:8453/erc20:0x0645bc5cdff2376089323ac20df4119e48e4bcc4": "#04CCA4",
   "eip155:8453/erc20:0x068b598c2e4711b1b993415358038d71ea715f2d": "#079277",
+  "eip155:8453/erc20:0x06a613d3a056d4b04d7523c11d82c67bebf9d850": "#EBEBE3",
   "eip155:8453/erc20:0x06c4c7f8011fbfb6a9654ee4142532f9bb3c52b8": "#C48444",
   "eip155:8453/erc20:0x0711ed8b4d1eb1a935cdcc376a205c7dca584457": "#191919",
   "eip155:8453/erc20:0x0718f45bbf4781ce891e4e18182f025725f0fc95": "#163CF4",
@@ -11239,6 +11558,10 @@
   "eip155:8453/erc20:0x122a3f185655847980639e8edf0f0f66cd91c5fe": "#EAB324",
   "eip155:8453/erc20:0x1234d66b6fbb900296ae2f57740b800fd8960927": "#8B5BF3",
   "eip155:8453/erc20:0x1287a235474e0331c0975e373bdd066444d1bd35": "#483596",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:8453/erc20:0x12afdefb2237a5963e7bab3e2d46ad0eee70406e": "#2474CC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:8453/erc20:0x12e96c2bfea6e835cf8dd38a5834fa61cf723736": "#C4A639",
   "eip155:8453/erc20:0x1308ae20e66e43d575a76b5dfb30771a50c9256a": "#1F4E47",
   "eip155:8453/erc20:0x132bbda4a40d4d6288be49b637ec2c113b5d7600": "#D8D4E0",
@@ -11301,6 +11624,7 @@
   "eip155:8453/erc20:0x2416092f143378750bb29b79ed961ab195cceea5": "#C4EC6A",
   "eip155:8453/erc20:0x24569d33653c404f90af10a2b98d6e0030d3d267": "#0E140E",
   "eip155:8453/erc20:0x2496a9af81a87ed0b17f6edeaf4ac57671d24f38": "#111111",
+  "eip155:8453/erc20:0x24cb2b89844604c57350776d81e14765d03b91de": "#FCB004",
   "eip155:8453/erc20:0x24fcfc492c1393274b6bcd568ac9e225bec93584": "#235BD3",
   "eip155:8453/erc20:0x255f1b39172f65dc6406b8bee8b08155c45fe1b6": "#DCBB64",
   "eip155:8453/erc20:0x2598c30330d5771ae9f983979209486ae26de875": "#4C4B89",
@@ -11324,6 +11648,10 @@
   "eip155:8453/erc20:0x2af864fb54b55900cd58d19c7102d9e4fa8d84a3": "#1B2738",
   "eip155:8453/erc20:0x2b1d36f5b61addaf7da7ebbd11b35fd8cfb0de31": "#52A4FC",
   "eip155:8453/erc20:0x2bb9282552228734cca01a1671605122258e276a": "#079277",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:8453/erc20:0x2c159a183d9056e29649ce7e56e59ca833d32624": "#CEDDFC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:8453/erc20:0x2c8c89c442436cc6c0a77943e09c8daf49da3161": "#E9BB95",
   "eip155:8453/erc20:0x2c9ab600d71967ff259c491ad51f517886740cbc": "#B2B2B2",
   "eip155:8453/erc20:0x2d6a3893966dda77749cc7e4003ab15f5cfa3cc1": "#2454EB",
@@ -11496,6 +11824,7 @@
   "eip155:8453/erc20:0x621e87af48115122cd96209f820fe0445c2ea90e": "#1D31F6",
   "eip155:8453/erc20:0x6223901ea64608c75da8497d5eff15d19a1d8fd5": "#CED2DF",
   "eip155:8453/erc20:0x623cd3a3edf080057892aaf8d773bbb7a5c9b6e9": "#FCC43C",
+  "eip155:8453/erc20:0x627fe393bc6edda28e99ae648fd6ff362514304b": "#9EDCFC",
   "eip155:8453/erc20:0x628c5ba9b775dacecd14e237130c537f497d1cc7": "#DC0414",
   "eip155:8453/erc20:0x62e5b9934dcb87618cfc74b222305d16c997e8c1": "#E0AFC5",
   "eip155:8453/erc20:0x63228048121877a9e0f52020834a135074e8207c": "#291C22",
@@ -11534,6 +11863,7 @@
   "eip155:8453/erc20:0x6b82297c6f1f9c3b1f501450d2ee7c37667ab70d": "#927F68",
   "eip155:8453/erc20:0x6b9bb36519538e0c073894e964e90172e1c0b41f": "#0C1414",
   "eip155:8453/erc20:0x6bc40d4099f9057b23af309c08d935b890d7adc0": "#0F1427",
+  "eip155:8453/erc20:0x6c90f6cc42cc64d6fc110f02de964089b6298de7": "#9EDCFC",
   "eip155:8453/erc20:0x6d22d3ed82c947be8860a86a69c4b0cb0f65589e": "#E6D2B8",
   "eip155:8453/erc20:0x6d3b8c76c5396642960243febf736c6be8b60562": "#A9BDAF",
   "eip155:8453/erc20:0x6e2c81b6c2c0e02360f00a0da694e489acb0b05e": "#DFDFDF",
@@ -11674,6 +12004,10 @@
   "eip155:8453/erc20:0x98beaa72230788572e3e3be58d91c232dda315d4": "#060606",
   "eip155:8453/erc20:0x99ac4484e8a1dbd6a185380b3a811913ac884d87": "#7FC133",
   "eip155:8453/erc20:0x99b2b1a2adb02b38222adcd057783d7e5d1fcc7d": "#131D1D",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:8453/erc20:0x99cbc45ea5bb7ef3a5bc08fb1b7e56bb2442ef0d": "#9EDCFC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:8453/erc20:0x9a26f5433671751c3276a065f57e5a02d2817973": "#445375",
   "eip155:8453/erc20:0x9a27c6759a6de0f26ac41264f0856617dec6bc3f": "#976F2A",
   "eip155:8453/erc20:0x9a3b7959e998bf2b50ef1969067d623877050d92": "#40C1F0",
@@ -11801,6 +12135,10 @@
   "eip155:8453/erc20:0xbfd5206962267c7b4b4a8b3d76ac2e1b2a5c4d5e": "#783333",
   "eip155:8453/erc20:0xc0041ef357b183448b235a8ea73ce4e4ec8c265f": "#19D16D",
   "eip155:8453/erc20:0xc005b9833debcf5fe6cc5bc9ba4fd74bb382ae55": "#060606",
+<<<<<<< HEAD:src/lib/asset-service/service/color-map.json
+=======
+  "eip155:8453/erc20:0xc0c5689e6f4d256e861f65465b691aeecc0deb12": "#2474CC",
+>>>>>>> origin/develop:scripts/generateAssetData/colorMap/color-map.json
   "eip155:8453/erc20:0xc0fbc4967259786c743361a5885ef49380473dcf": "#141424",
   "eip155:8453/erc20:0xc11158c5da9db1d553ed28f0c2ba1cbedd42cfcb": "#0C2443",
   "eip155:8453/erc20:0xc19669a405067927865b40ea045a2baabbbe57f5": "#C454FC",
@@ -11809,6 +12147,7 @@
   "eip155:8453/erc20:0xc227717ef4ae4d982e14789eb33ba942243c3fee": "#241F23",
   "eip155:8453/erc20:0xc2464fb6edc12e4c0d3aa9b201497a27e6b7ef04": "#E4EEF7",
   "eip155:8453/erc20:0xc2bc7a73613b9bd5f373fe10b55c59a69f4d617b": "#B3C2FA",
+  "eip155:8453/erc20:0xc2e660c62f72c2ad35ace6db78a616215e2f2222": "#FCB004",
   "eip155:8453/erc20:0xc2fe011c3885277c7f0e7ffd45ff90cadc8ecd12": "#9A7A7A",
   "eip155:8453/erc20:0xc36f19bccd51e3f1163eff07b5edf9d2850acec4": "#0D16F7",
   "eip155:8453/erc20:0xc41ba5737baf6bd0ccd5daf7eee39874e4ad45ff": "#54DC24",
@@ -11965,6 +12304,7 @@
   "eip155:8453/erc20:0xf95e1c0a67492720ca22842122fe7fa63d5519e5": "#9E8363",
   "eip155:8453/erc20:0xf9b738c2e7adc4f299c57afd0890b925a5efea6f": "#8FCDBE",
   "eip155:8453/erc20:0xfa1f6e048e66ac240a4bb7eab7ee888e76081a6c": "#4080AC",
+  "eip155:8453/erc20:0xfa48a40dad139e9b1af8dc82f37da58cc3ca2867": "#9EDCFC",
   "eip155:8453/erc20:0xfa7f2e933c09cd113ef6e72b76d61fb4b27496a1": "#E9C99F",
   "eip155:8453/erc20:0xfa980ced6895ac314e7de34ef1bfae90a5add21b": "#D5EA41",
   "eip155:8453/erc20:0xfaa4f3bcfc87d791e9305951275e0f62a98bcb10": "#4377A7",

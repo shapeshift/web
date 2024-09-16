@@ -157,7 +157,7 @@ export const useSendThorTx = ({
     return depositWithExpiry({
       vault: getAddress(inboundAddressData.address),
       asset: assetAddress,
-      amount: amountOrDustCryptoBaseUnit,
+      amount: BigInt(amountOrDustCryptoBaseUnit),
       memo,
       expiry: BigInt(dayjs().add(15, 'minute').unix()),
     })

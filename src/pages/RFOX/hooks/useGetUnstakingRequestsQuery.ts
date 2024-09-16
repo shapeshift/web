@@ -1,8 +1,4 @@
-import {
-  foxStakingV1Abi,
-  RFOX_PROXY_CONTRACT_ADDRESS,
-  viemClientByNetworkId,
-} from '@shapeshiftoss/contracts'
+import { RFOX_ABI, RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getAddress, type MulticallReturnType } from 'viem'
@@ -21,8 +17,8 @@ const getContracts = (stakingAssetAccountAddress: string | undefined, count: big
         { length: Number(count) },
         (_, index) =>
           ({
-            abi: foxStakingV1Abi,
-            address: RFOX_PROXY_CONTRACT_ADDRESS,
+            abi: RFOX_ABI,
+            address: RFOX_PROXY_CONTRACT,
             functionName: 'getUnstakingRequest',
             args: [getAddress(stakingAssetAccountAddress), BigInt(index)],
             chainId: arbitrum.id,

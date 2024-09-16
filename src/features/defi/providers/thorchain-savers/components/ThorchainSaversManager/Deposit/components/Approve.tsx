@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { MAX_ALLOWANCE } from '@shapeshiftoss/swapper/dist/swappers/utils/constants'
 import type { Asset } from '@shapeshiftoss/types'
 import { Approve as ReusableApprove } from 'features/defi/components/Approve/Approve'
 import { ApprovePreFooter } from 'features/defi/components/Approve/ApprovePreFooter'
@@ -15,7 +14,7 @@ import { DefiAction, DefiStep } from 'features/defi/contexts/DefiManagerProvider
 import { canCoverTxFees } from 'features/defi/helpers/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
-import { encodeFunctionData, getAddress } from 'viem'
+import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -147,7 +146,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
       })
 
       const amountToApprove =
-        state.isExactAllowance || isReset ? amountCryptoBaseUnitOrZero : MAX_ALLOWANCE
+        state.isExactAllowance || isReset ? amountCryptoBaseUnitOrZero : maxUint256
 
       const data = encodeFunctionData({
         abi: contract.abi,

@@ -6,6 +6,14 @@ import {
   type FeeDataEstimate,
   type GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import {
+  FOXY_ABI,
+  FOXY_STAKING_ABI,
+  LIQUIDITY_RESERVE_ABI,
+  TOKE_MANAGER_ABI,
+  TOKE_POOL_ABI,
+  TOKE_REWARD_HASH_ABI,
+} from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -13,18 +21,11 @@ import type { BigNumber } from 'bignumber.js'
 import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
 import { toLower } from 'lodash'
-import { getAddress } from 'viem'
+import { erc20Abi, getAddress } from 'viem'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { MAX_ALLOWANCE } from 'lib/investor/constants'
+import { MAX_ALLOWANCE } from 'lib/investor/constants/allowance'
 import { DefiType } from 'state/slices/opportunitiesSlice/types'
 
-import { erc20Abi } from '../abi/erc20-abi'
-import { foxyAbi } from '../abi/foxy-abi'
-import { foxyStakingAbi } from '../abi/foxy-staking-abi'
-import { liquidityReserveAbi } from '../abi/liquidity-reserve-abi'
-import { tokeManagerAbi } from '../abi/toke-manager-abi'
-import { tokePoolAbi } from '../abi/toke-pool-abi'
-import { tokeRewardHashAbi } from '../abi/toke-reward-hash-abi'
 import { tokeManagerAddress, tokePoolAddress, tokeRewardHashAddress } from '../constants'
 import type {
   AllowanceInput,
@@ -100,11 +101,11 @@ export class FoxyApi {
     this.adapter = adapter
     this.provider = provider
     this.foxyStakingContracts = foxyAddresses.map(
-      addresses => new ethers.Contract(addresses.staking, foxyStakingAbi, this.provider),
+      addresses => new ethers.Contract(addresses.staking, FOXY_STAKING_ABI, this.provider),
     )
     this.liquidityReserveContracts = foxyAddresses.map(
       addresses =>
-        new ethers.Contract(addresses.liquidityReserve, liquidityReserveAbi, this.provider),
+        new ethers.Contract(addresses.liquidityReserve, LIQUIDITY_RESERVE_ABI, this.provider),
     )
     this.ethereumChainReference = chainReference
     this.providerUrl = providerUrl
@@ -638,10 +639,10 @@ export class FoxyApi {
     const { userAddress, contractAddress } = input
     const tokeManagerContract = new ethers.Contract(
       tokeManagerAddress,
-      tokeManagerAbi,
+      TOKE_MANAGER_ABI,
       this.provider,
     )
-    const tokePoolContract = new ethers.Contract(tokePoolAddress, tokePoolAbi, this.provider)
+    const tokePoolContract = new ethers.Contract(tokePoolAddress, TOKE_POOL_ABI, this.provider)
     const stakingContract = this.getStakingContract(contractAddress)
 
     const coolDownInfo = await (async () => {
@@ -765,7 +766,7 @@ export class FoxyApi {
     const { stakingContract } = input
     const tokeManagerContract = new ethers.Contract(
       tokeManagerAddress,
-      tokeManagerAbi,
+      TOKE_MANAGER_ABI,
       this.provider,
     )
 
@@ -1042,7 +1043,7 @@ export class FoxyApi {
   async tvl(input: TokenAddressInput): Promise<BigNumber> {
     const { tokenContractAddress } = input
     this.verifyAddresses([tokenContractAddress])
-    const contract = new ethers.Contract(tokenContractAddress, foxyAbi, this.provider)
+    const contract = new ethers.Contract(tokenContractAddress, FOXY_ABI, this.provider)
 
     try {
       const balance = await contract.circulatingSupply()
@@ -1075,7 +1076,7 @@ export class FoxyApi {
     const { contractAddress } = input
     const rewardHashContract = new ethers.Contract(
       tokeRewardHashAddress,
-      tokeRewardHashAbi,
+      TOKE_REWARD_HASH_ABI,
       this.provider,
     )
     const latestCycleIndex = await (() => {

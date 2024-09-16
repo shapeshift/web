@@ -1,4 +1,4 @@
-import type { IUniswapV2Pair } from '@shapeshiftoss/contracts'
+import type { I_UNISWAP_V2_PAIR_ABI } from '@shapeshiftoss/contracts'
 import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import { Token, TokenAmount } from '@uniswap/sdk'
 import BigNumber from 'bignumber.js'
@@ -54,7 +54,7 @@ const mockContract = getContract({
   abi: [],
   address: '' as Address,
   client: viemEthMainnetClient,
-}) as unknown as GetContractReturnType<typeof IUniswapV2Pair, PublicClient, Address>
+}) as unknown as GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient, Address>
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(
   new Token(1, '0x0000000000000000000000000000000000000000', token0Decimals),

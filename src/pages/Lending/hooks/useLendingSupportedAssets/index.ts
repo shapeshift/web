@@ -28,9 +28,11 @@ const queryKey = ['lendingSupportedAssets']
 export const useLendingSupportedAssets = ({
   type,
   statusFilter = 'Available',
+  hasLoanCollateral = true,
 }: {
   type: 'collateral' | 'borrow'
   statusFilter?: ThornodePoolStatuses | 'All'
+  hasLoanCollateral?: boolean
 }) => {
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -66,9 +68,11 @@ export const useLendingSupportedAssets = ({
   const selectSupportedAssets = useCallback(
     (data: ThornodePoolResponse[] | undefined) => {
       if (!data) return []
-      const pools = (availablePools ?? []).filter(
-        pool => type === 'borrow' || bnOrZero(pool.loan_collateral).gt(0),
-      )
+      const pools = (availablePools ?? []).filter(pool => {
+        if (type === 'borrow') return true
+        if (type === 'collateral') return !hasLoanCollateral || bnOrZero(pool.loan_collateral).gt(0)
+        return false
+      })
 
       const supportedAssets = pools
         .map(pool => {
@@ -99,7 +103,7 @@ export const useLendingSupportedAssets = ({
       }
       return supportedAssets
     },
-    [availablePools, type, wallet, walletChainIds, walletSupportChains],
+    [availablePools, hasLoanCollateral, type, wallet, walletChainIds, walletSupportChains],
   )
 
   const lendingSupportedAssetsQuery = useQuery({

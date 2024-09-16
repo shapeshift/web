@@ -207,7 +207,10 @@ export const YourLoans = () => {
   const translate = useTranslate()
   const lendingHeader = useMemo(() => <LendingHeader />, [])
 
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({ type: 'collateral' })
+  const { data: lendingSupportedAssets } = useLendingSupportedAssets({
+    type: 'collateral',
+    hasLoanCollateral: false,
+  })
 
   const history = useHistory()
 

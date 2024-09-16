@@ -55,9 +55,9 @@ export const AccountCard = ({
       rightIcon={chevronRightIcon}
       {...rest}
     >
-      <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto' width='full'>
+      <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto'>
         <Tooltip label={asset.name} isDisabled={!willOverflow}>
-          <RawText lineHeight='1.5' data-test='account-card-asset-name-label' width='max-content'>
+          <RawText lineHeight='1' mb={1} data-test='account-card-asset-name-label'>
             {trimWithEndEllipsis(asset.name, maxLabelLength)}
           </RawText>
         </Tooltip>

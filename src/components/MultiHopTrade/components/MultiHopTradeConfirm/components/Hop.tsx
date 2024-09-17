@@ -38,6 +38,7 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../../TwirlyToggle'
+import { ApprovalResetStep } from './ApprovalResetStep'
 import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
@@ -231,11 +232,10 @@ export const Hop = ({
 
           <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
             {allowanceReset.isRequired && (
-              <ApprovalStep
+              <ApprovalResetStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
-                isAllowanceResetStep={true}
                 activeTradeId={activeTradeId}
               />
             )}
@@ -246,7 +246,6 @@ export const Hop = ({
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
-                isAllowanceResetStep={false}
                 activeTradeId={activeTradeId}
               />
             )}

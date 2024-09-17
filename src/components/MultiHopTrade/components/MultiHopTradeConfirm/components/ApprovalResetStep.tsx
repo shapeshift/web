@@ -3,8 +3,8 @@ import {
   Button,
   Card,
   CircularProgress,
+  Divider,
   Icon,
-  Switch,
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
@@ -16,16 +16,15 @@ import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
-import { useToggle } from 'hooks/useToggle/useToggle'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { SharedApprovalStep } from './SharedApprovalStep/SharedApprovalStep'
 import type { RenderAllowanceContentCallbackParams } from './SharedApprovalStep/types'
 import { ApprovalStatusIcon } from './StatusIcon'
 
-export type ApprovalStepProps = {
+export type ApprovalResetStepProps = {
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isActive: boolean
@@ -36,16 +35,14 @@ export type ApprovalStepProps = {
 
 const initialIcon = <FaRotateRight />
 
-export const ApprovalStep = ({
+export const ApprovalResetStep = ({
   tradeQuoteStep,
   hopIndex,
   isActive,
   isLoading,
   activeTradeId,
-}: ApprovalStepProps) => {
+}: ApprovalResetStepProps) => {
   const translate = useTranslate()
-
-  const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
@@ -53,7 +50,7 @@ export const ApprovalStep = ({
       hopIndex,
     }
   }, [activeTradeId, hopIndex])
-  const { state, approval } = useAppSelector(state =>
+  const { state, allowanceReset } = useAppSelector(state =>
     selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
@@ -61,16 +58,14 @@ export const ApprovalStep = ({
     return (
       <ApprovalStatusIcon
         hopExecutionState={state}
-        approvalTxState={approval.state}
+        approvalTxState={allowanceReset.state}
         initialIcon={initialIcon}
-        overrideCompletedStateToPending
       />
     )
-  }, [approval.state, state])
+  }, [allowanceReset.state, state])
 
   const renderResetAllowanceContent = useCallback(
     ({
-      hopExecutionState,
       transactionExecutionState,
       isAllowanceApprovalLoading,
       handleSignAllowanceApproval,
@@ -78,62 +73,41 @@ export const ApprovalStep = ({
       // only render the approval button when the component is active and we don't yet have a tx hash
       if (!isActive) return
 
-      const isAwaitingApproval = hopExecutionState === HopExecutionState.AwaitingApproval
-      const isDisabled =
-        isAllowanceApprovalLoading ||
-        !isAwaitingApproval ||
-        transactionExecutionState !== TransactionExecutionState.AwaitingConfirmation
-
       return (
         <Card p='2' width='full'>
           <VStack width='full'>
             <Row px={2}>
               <Row.Label display='flex' alignItems='center'>
-                <Text color='text.subtle' translation='trade.allowance' />
-                <Tooltip label={translate('trade.allowanceTooltip')}>
+                <Text color='text.subtle' translation='trade.resetAllowance' />
+                <Tooltip label={translate('trade.resetAllowanceTooltip')}>
                   <Box ml={1}>
                     <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
                   </Box>
                 </Tooltip>
               </Row.Label>
-              <Row.Value textAlign='right' display='flex' alignItems='center'>
-                <Text
-                  color={isExactAllowance ? 'text.subtle' : 'white'}
-                  translation='trade.unlimited'
-                  fontWeight='bold'
-                />
-                <Switch
-                  size='sm'
-                  mx={2}
-                  isChecked={isExactAllowance}
-                  disabled={isDisabled}
-                  onChange={toggleIsExactAllowance}
-                />
-                <Text
-                  color={isExactAllowance ? 'white' : 'text.subtle'}
-                  translation='trade.exact'
-                  fontWeight='bold'
-                />
-              </Row.Value>
             </Row>
             <Button
               width='full'
               size='sm'
               colorScheme='blue'
-              isDisabled={isDisabled}
+              isDisabled={
+                isAllowanceApprovalLoading ||
+                transactionExecutionState !== TransactionExecutionState.AwaitingConfirmation
+              }
               isLoading={isAllowanceApprovalLoading}
               onClick={handleSignAllowanceApproval}
             >
-              {transactionExecutionState !== TransactionExecutionState.AwaitingConfirmation && (
+              {transactionExecutionState === TransactionExecutionState.Pending && (
                 <CircularProgress isIndeterminate size={2} mr={2} />
               )}
-              {translate('common.approve')}
+              {translate('common.reset')}
             </Button>
+            <Divider />
           </VStack>
         </Card>
       )
     },
-    [isActive, translate, isExactAllowance, toggleIsExactAllowance],
+    [translate, isActive],
   )
 
   return (
@@ -143,15 +117,15 @@ export const ApprovalStep = ({
       isLoading={isLoading}
       activeTradeId={activeTradeId}
       hopExecutionState={state}
-      transactionExecutionState={approval.state}
-      titleTranslation='trade.approvalTitle'
-      errorTranslation='trade.approvalFailed'
-      gasFeeLoadingTranslation='trade.approvalGasFeeLoading'
-      gasFeeTranslation='trade.approvalGasFee'
+      transactionExecutionState={allowanceReset.state}
+      titleTranslation='trade.resetTitle'
       stepIndicator={stepIndicator}
+      errorTranslation='trade.approvalResetFailed'
+      gasFeeLoadingTranslation='trade.approvalResetGasFeeLoading'
+      gasFeeTranslation='trade.approvalResetGasFee'
       renderContent={renderResetAllowanceContent}
-      allowanceType={isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited}
-      feeQueryEnabled={isActive}
+      allowanceType={AllowanceType.Reset}
+      feeQueryEnabled={false}
     />
   )
 }

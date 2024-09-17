@@ -1,8 +1,8 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, SkeletonCircle, SkeletonText } from '@chakra-ui/react'
+import { Box, Button, SkeletonCircle, SkeletonText, Tooltip } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from './Amount/Amount'
@@ -18,7 +18,9 @@ type AccountCardProps = {
   onClick?: () => void
 } & ButtonProps
 
-const chevronRightIcon = <ChevronRightIcon boxSize={6} />
+const leftIconBoxSize = '40px'
+const rightIconBoxSize = 6
+const chevronRightIcon = <ChevronRightIcon boxSize={rightIconBoxSize} />
 
 export const AccountCard = ({
   asset,
@@ -32,12 +34,21 @@ export const AccountCard = ({
   const translate = useTranslate()
   const buttonLeftIcon = useMemo(
     () => (
-      <SkeletonCircle isLoaded={isLoaded} boxSize='40px'>
-        <AssetIcon assetId={asset.assetId} boxSize='40px' />
+      <SkeletonCircle isLoaded={isLoaded} boxSize={leftIconBoxSize}>
+        <AssetIcon assetId={asset.assetId} boxSize={leftIconBoxSize} />
       </SkeletonCircle>
     ),
     [asset.assetId, isLoaded],
   )
+
+  const [willOverflow, setWillOverflow] = useState(false)
+
+  const checkOverflow = useCallback((el: HTMLElement | null) => {
+    if (el) {
+      const isOverflowing = el.scrollWidth > el.clientWidth
+      setWillOverflow(isOverflowing)
+    }
+  }, [])
 
   return (
     <Button
@@ -51,11 +62,28 @@ export const AccountCard = ({
       rightIcon={chevronRightIcon}
       {...rest}
     >
-      <SkeletonText noOfLines={2} isLoaded={isLoaded} mr='auto'>
-        <RawText lineHeight='1' mb={1} data-test='account-card-asset-name-label'>
-          {asset.name}
-        </RawText>
-
+      <SkeletonText
+        noOfLines={2}
+        isLoaded={isLoaded}
+        mr='auto'
+        flexGrow={1}
+        width={`calc(100% - ${leftIconBoxSize} - var(--chakra-sizes-${rightIconBoxSize}))`}
+      >
+        <Tooltip label={asset.name} isDisabled={!willOverflow}>
+          <Box overflow='hidden'>
+            <RawText
+              lineHeight='1'
+              mb={1}
+              data-test='account-card-asset-name-label'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+              ref={checkOverflow}
+            >
+              {asset.name}
+            </RawText>
+          </Box>
+        </Tooltip>
         {showCrypto ? (
           <Amount.Crypto
             color='text.subtle'
@@ -65,6 +93,9 @@ export const AccountCard = ({
             value={cryptoAmountAvailable}
             suffix={translate('common.available')}
             data-test='account-card-crypto-label'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
           />
         ) : (
           <Amount.Fiat
@@ -73,6 +104,9 @@ export const AccountCard = ({
             color='text.subtle'
             suffix={translate('common.available')}
             data-test='account-card-fiat-label'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
           />
         )}
       </SkeletonText>

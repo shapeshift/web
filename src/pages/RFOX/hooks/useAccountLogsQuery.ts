@@ -1,4 +1,4 @@
-import { RFOX_PROXY_CONTRACT_ADDRESS, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { getAddress } from 'viem'
@@ -21,14 +21,14 @@ const client = viemClientByNetworkId[arbitrum.id]
  * i.e DO NOT EXPORT THIS FUNCTION
  */
 const fetchAccountLogs = async (stakingAssetAccountAddress: string): Promise<RFOXAccountLog[]> => {
-  const rfoxCreationBlockNumber = getRfoxContractCreationBlockNumber(RFOX_PROXY_CONTRACT_ADDRESS)
+  const rfoxCreationBlockNumber = getRfoxContractCreationBlockNumber(RFOX_PROXY_CONTRACT)
 
   try {
     const logsByEventType = await Promise.all(
       [setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent].map(
         (event): Promise<RFOXAccountLog[]> =>
           client.getLogs({
-            address: RFOX_PROXY_CONTRACT_ADDRESS,
+            address: RFOX_PROXY_CONTRACT,
             event,
             fromBlock: rfoxCreationBlockNumber,
             args: {

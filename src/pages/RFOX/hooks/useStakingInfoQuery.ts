@@ -1,4 +1,4 @@
-import { RFOX_PROXY_CONTRACT_ADDRESS } from '@shapeshiftoss/contracts'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Address } from 'viem'
@@ -29,7 +29,7 @@ export const getStakingInfoQueryKey = (
     'stakingInfo',
     {
       chainId: arbitrum.id,
-      contractAddress: RFOX_PROXY_CONTRACT_ADDRESS,
+      contractAddress: RFOX_PROXY_CONTRACT,
       stakingAssetAccountAddress,
     },
   ]

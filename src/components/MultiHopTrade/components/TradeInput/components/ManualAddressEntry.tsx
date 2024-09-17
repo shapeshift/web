@@ -15,7 +15,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectIsAccountMetadataLoading } from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -28,6 +28,7 @@ type ManualAddressEntryProps = {
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
   ({ description, shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
     const dispatch = useAppDispatch()
+    const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
 
     const {
       formState: { isValidating },
@@ -57,6 +58,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
     const shouldShowManualReceiveAddressInput = useMemo(() => {
+      if (isAccountMetadataLoading) return false
       if (shouldForceManualAddressEntry) return true
       if (manualReceiveAddress) return false
       // Ledger "supports" all chains, but may not have them connected
@@ -69,6 +71,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       wallet,
       walletSupportsBuyAssetChain,
       shouldForceManualAddressEntry,
+      isAccountMetadataLoading,
     ])
 
     const chainAdapterManager = getChainAdapterManager()

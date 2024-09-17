@@ -1538,7 +1538,7 @@
       },
       "update": {
         "title": "Multichain Snap needs updating",
-        "subtitle": "Uninstall the ShapeShift multichain Snap and click 'Update' to keep using ShapeShifts multichain features with MetaMask!"
+        "subtitle": "Click 'Update' to continue using ShapeShift's multichain features with MetaMask!"
       },
       "secondaryTitle": "The best Multichain experience for MetaMask: Powered by ShapeShift",
       "secondaryBody": "Send, receive, track, trade, and earn with the ShapeShift Multichain Snap on the following chains:",
@@ -1551,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Install Multichain Snap",
+      "updateTitle": "Update Multichain Snap",
       "warningExperimental": "The ShapeShift Multichain Snap is a new, experimental feature, provided \"as is\"",
       "warningBackup": "Ensure you have backed up your MetaMask seed phrase. Any funds you send to non-EVM chains using this Snap will be directed to the default account you set up with MetaMask.",
       "agreeIntro": "Before continuing please read the following:",
@@ -1564,7 +1565,8 @@
       "agreeItem4": "By enabling the ShapeShift Multichain Snap, you acknowledge you are using it at your own risk",
       "readAndUnderstood": "I have read and understand",
       "seedBackedUp": "I have backed up my MetaMask seed phrase",
-      "acceptInstall": "Confirm & Install"
+      "acceptInstall": "Confirm & Install",
+      "acceptUpdate": "Confirm & Update"
     },
     "coinbase": {
       "errors": {
@@ -2520,7 +2522,7 @@
     "newAddressInfo": "This will update for the next reward cycle",
     "confirmAndUpdateAddress": "Confirm & Update Address",
     "unstakeFrom": "Unstake from r%{assetSymbol}",
-    "claimPending": "Requesting withdraw",
+    "claimPending": "Awaiting your claim of %{amount} %{symbol}",
     "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
     "noRewardsYet": "No rewards yet",

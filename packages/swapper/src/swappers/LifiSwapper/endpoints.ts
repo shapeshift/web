@@ -134,6 +134,8 @@ export const lifiApi: SwapperApi = {
     txHash,
     stepIndex,
     chainId,
+    accountId,
+    fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }): Promise<{
     status: TxStatus
@@ -159,6 +161,8 @@ export const lifiApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
+      accountId,
+      fetchIsSmartContractAddressQuery,
     })
 
     if (maybeSafeTransactionStatus) {

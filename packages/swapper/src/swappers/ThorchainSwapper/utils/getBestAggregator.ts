@@ -1,4 +1,9 @@
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
+import {
+  UNISWAP_V3_POOL_FACTORY_CONTRACT_MAINNET,
+  UNISWAP_V3_QUOTER_ABI,
+  UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
+  viemClientByChainId,
+} from '@shapeshiftoss/contracts'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { Token } from '@uniswap/sdk-core'
@@ -9,11 +14,6 @@ import { getContract } from 'viem'
 
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import {
-  UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
-  UNI_V3_ETHEREUM_QUOTER_ADDRESS,
-} from '../constants'
-import { QuoterAbi } from '../getThorTradeQuote/abis/QuoterAbi'
 import {
   feeAmountToContractMap,
   generateV3PoolAddressesAcrossFeeRange,
@@ -35,7 +35,7 @@ export const getBestAggregator = async (
     Address,
     { token0Address: Address; token1Address: Address; fee: FeeAmount }
   > = generateV3PoolAddressesAcrossFeeRange(
-    UNI_V3_ETHEREUM_POOL_FACTORY_CONTRACT_ADDRESS,
+    UNISWAP_V3_POOL_FACTORY_CONTRACT_MAINNET,
     sellToken,
     buyToken,
   )
@@ -47,10 +47,10 @@ export const getBestAggregator = async (
     buyToken.address,
   )
 
-  const quoterContract: GetContractReturnType<typeof QuoterAbi, PublicClient, Address> =
+  const quoterContract: GetContractReturnType<typeof UNISWAP_V3_QUOTER_ABI, PublicClient, Address> =
     getContract({
-      abi: QuoterAbi,
-      address: UNI_V3_ETHEREUM_QUOTER_ADDRESS,
+      abi: UNISWAP_V3_QUOTER_ABI,
+      address: UNISWAP_V3_QUOTER_CONTRACT_MAINNET,
       client: publicClient,
     })
 

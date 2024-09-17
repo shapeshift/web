@@ -1,6 +1,8 @@
 import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -15,8 +17,10 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
@@ -42,28 +46,28 @@ interface ClaimStatusState {
   contractAddress: string
 }
 
-enum TxStatus {
-  PENDING = 'pending',
-  SUCCESS = 'success',
-  FAILED = 'failed',
-}
-
 type ClaimState = {
   txStatus: TxStatus
   usedGasFeeCryptoPrecision?: string
 }
 
 const StatusInfo = {
-  [TxStatus.PENDING]: {
+  [TxStatus.Pending]: {
     text: 'defi.broadcastingTransaction',
     color: 'blue.500',
+    icon: undefined,
   },
-  [TxStatus.SUCCESS]: {
+  [TxStatus.Unknown]: {
+    text: 'defi.broadcastingTransaction',
+    color: 'blue.500',
+    icon: undefined,
+  },
+  [TxStatus.Confirmed]: {
     text: 'defi.transactionComplete',
     color: 'green.500',
     icon: <FaCheck />,
   },
-  [TxStatus.FAILED]: {
+  [TxStatus.Failed]: {
     text: 'defi.transactionFailed',
     color: 'red.500',
     icon: <FaTimes />,
@@ -79,7 +83,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
     state: { txid, amount, assetId, userAddress, estimatedGas, chainId, contractAddress },
   } = useLocation<ClaimStatusState>()
   const [state, setState] = useState<ClaimState>({
-    txStatus: TxStatus.PENDING,
+    txStatus: TxStatus.Pending,
+  })
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txid ?? undefined,
+    accountId,
   })
 
   const assets = useAppSelector(selectAssets)
@@ -128,20 +137,43 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
   }, [txid, accountAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
+  const status = useMemo(() => {
+    if (maybeSafeTx?.isQueuedSafeTx) {
+      return TxStatus.Pending
+    }
+
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      return TxStatus.Confirmed
+    }
+
+    return confirmedTransaction?.status
+  }, [confirmedTransaction?.status, maybeSafeTx?.isExecutedSafeTx, maybeSafeTx?.isQueuedSafeTx])
+
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending') {
+    if (status && status !== TxStatus.Pending) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (confirmedTransaction?.fee)
+          return fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
+        return '0'
+      })()
       setState({
-        txStatus: confirmedTransaction.status === 'Confirmed' ? TxStatus.SUCCESS : TxStatus.FAILED,
-        usedGasFeeCryptoPrecision: confirmedTransaction.fee
-          ? bnOrZero(confirmedTransaction.fee.value).div(`1e${feeAsset.precision}`).toString()
-          : '0',
+        txStatus: status,
+        usedGasFeeCryptoPrecision,
       })
     }
-  }, [confirmedTransaction, contractAddress, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    contractAddress,
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    status,
+  ])
 
   useEffect(() => {
     if (!opportunity || !asset) return
-    if (state.txStatus === TxStatus.SUCCESS) {
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.ClaimSuccess,
         {
@@ -152,9 +184,39 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
         assets,
       )
     }
-  }, [amount, asset, assets, claimFiatAmount, opportunity, state.txStatus])
+  }, [amount, asset, assets, claimFiatAmount, opportunity, status])
 
   const handleClose = useCallback(() => browserHistory.goBack(), [browserHistory])
+
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!txid) return
+
+    return getTxLink({
+      txId: txid,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      maybeSafeTx,
+    })
+  }, [accountId, feeAsset, maybeSafeTx, txid])
+
+  const statusText = useMemo(() => {
+    if (maybeSafeTx?.isQueuedSafeTx)
+      return translate('common.safeProposalQueued', {
+        currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+        confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+      })
+
+    return translate(
+      status === TxStatus.Pending ? 'defi.broadcastingTransaction' : 'defi.transactionComplete',
+    )
+  }, [
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    status,
+    translate,
+  ])
 
   return (
     <SlideTransition>
@@ -164,24 +226,20 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             size='24'
             position='relative'
             thickness='4px'
-            isIndeterminate={state.txStatus === TxStatus.PENDING}
+            isIndeterminate={status === TxStatus.Pending}
           >
             <Box position='absolute' top='50%' left='50%' transform='translate(-50%, -50%)'>
-              {state.txStatus === TxStatus.PENDING ? (
+              {status === TxStatus.Pending ? (
                 <AssetIcon src={asset?.icon} boxSize='16' />
               ) : (
-                <IconCircle bg={StatusInfo[state.txStatus].color} boxSize='16' color='white'>
-                  {StatusInfo[state.txStatus].icon}
+                <IconCircle bg={StatusInfo[status!]?.color} boxSize='16' color='white'>
+                  {StatusInfo[status!]?.icon ?? null}
                 </IconCircle>
               )}
             </Box>
           </CircularProgress>
           <RawText mt={6} fontWeight='medium'>
-            {translate(
-              state.txStatus === TxStatus.PENDING
-                ? 'defi.broadcastingTransaction'
-                : 'defi.transactionComplete',
-            )}
+            {statusText}
           </RawText>
         </Center>
       </ModalBody>
@@ -190,7 +248,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>{translate('modals.status.transactionId')}</Row.Label>
             <Row.Value>
-              <Link isExternal color='blue.500' href={`${asset?.explorerTxLink}${txid}`}>
+              <Link isExternal color='blue.500' href={txLink}>
                 <MiddleEllipsis value={txid} />
               </Link>
             </Row.Value>
@@ -218,7 +276,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           <Row>
             <Row.Label>
               {translate(
-                state.txStatus === TxStatus.PENDING
+                statusText === TxStatus.Pending
                   ? 'modals.status.estimatedGas'
                   : 'modals.status.gasUsed',
               )}
@@ -227,21 +285,15 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
               <Stack textAlign='right' spacing={0}>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING
-                      ? estimatedGas
-                      : state.usedGasFeeCryptoPrecision,
-                  )
+                  value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision)
                     .times(feeMarketData.price)
                     .toFixed(2)}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(
-                    state.txStatus === TxStatus.PENDING
-                      ? estimatedGas
-                      : state.usedGasFeeCryptoPrecision,
-                  ).toFixed(5)}
+                  value={bnOrZero(status ? estimatedGas : state.usedGasFeeCryptoPrecision).toFixed(
+                    5,
+                  )}
                   symbol='ETH'
                 />
               </Stack>

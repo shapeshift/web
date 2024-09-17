@@ -14,8 +14,8 @@ import { useSelector } from 'react-redux'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
+import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import {
   selectAccountIdsByChainId,
   selectAssetById,
@@ -24,6 +24,8 @@ import {
 import { store, useAppSelector } from 'state/store'
 
 const queryKey = ['lendingSupportedAssets']
+
+const lendingThorRegex = /^LENDING-THOR-(\w+)$/
 
 export const useLendingSupportedAssets = ({
   type,
@@ -46,6 +48,11 @@ export const useLendingSupportedAssets = ({
         : undefined,
   })
 
+  const { data: mimir } = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+  })
+
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
   const walletSupportChains = useMemo(
     () =>
@@ -66,9 +73,28 @@ export const useLendingSupportedAssets = ({
   const selectSupportedAssets = useCallback(
     (data: ThornodePoolResponse[] | undefined) => {
       if (!data) return []
-      const pools = (availablePools ?? []).filter(
-        pool => type === 'borrow' || bnOrZero(pool.loan_collateral).gt(0),
-      )
+      if (!mimir) return []
+
+      const pools = (availablePools ?? []).filter(pool => {
+        if (type === 'borrow') return true
+        if (type === 'collateral') {
+          const mimirLendingEnabledPools = Object.keys(mimir)
+            .filter(key => lendingThorRegex.test(key))
+            .map(key => {
+              const match = key.match(lendingThorRegex)?.[1]
+              if (!match) return undefined
+
+              // i.e LENDING-THOR-BTC, LENDING-THOR-ETH
+              // No token pools support, so that works, and lending's pretty much going hasta la vista
+              // so we don't need to worry about this not generalizing to assets
+              return `${match}.${match}`
+            })
+            .filter(Boolean)
+
+          return mimirLendingEnabledPools.includes(pool.asset)
+        }
+        return false
+      })
 
       const supportedAssets = pools
         .map(pool => {
@@ -99,7 +125,7 @@ export const useLendingSupportedAssets = ({
       }
       return supportedAssets
     },
-    [availablePools, type, wallet, walletChainIds, walletSupportChains],
+    [availablePools, mimir, type, wallet, walletChainIds, walletSupportChains],
   )
 
   const lendingSupportedAssetsQuery = useQuery({

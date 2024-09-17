@@ -1,11 +1,11 @@
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { assertGetViemClient, getEthersV5Provider, outboxAbi } from '@shapeshiftoss/contracts'
+import { ARB_OUTBOX_ABI, assertGetViemClient, getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import type { Hash } from 'viem'
+import type { Address, Hash, Hex } from 'viem'
 import { encodeFunctionData, getAddress } from 'viem'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,24 +43,23 @@ export const useArbitrumClaimTx = (
     queryFn: async () => {
       const { event, message } = claim
 
-      const proof = await message.getOutboxProof(l2Provider)
+      const proof = (await message.getOutboxProof(l2Provider)) as Hex[]
 
       if (!('position' in event)) return
-
       // nitro transaction
       return encodeFunctionData({
-        abi: outboxAbi,
+        abi: ARB_OUTBOX_ABI,
         functionName: 'executeTransaction',
         args: [
           proof,
-          event.position,
-          event.caller,
-          event.destination,
-          event.arbBlockNum,
-          event.ethBlockNum,
-          event.timestamp,
-          event.callvalue,
-          event.data,
+          event.position.toBigInt(),
+          event.caller as Address,
+          event.destination as Address,
+          event.arbBlockNum.toBigInt(),
+          event.ethBlockNum.toBigInt(),
+          event.timestamp.toBigInt(),
+          event.callvalue.toBigInt(),
+          event.data as Hex,
         ],
       })
     },

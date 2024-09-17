@@ -10,8 +10,7 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import { type Asset, type AssetsById, KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
@@ -33,6 +32,19 @@ axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay 
 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
+
+// Redeclared here due to ethers import issues
+export const EVM_CHAIN_IDS = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.OptimismMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.PolygonMainnet,
+  KnownChainIds.GnosisMainnet,
+  KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.ArbitrumNovaMainnet,
+  KnownChainIds.BaseMainnet,
+] as const
 
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [
@@ -114,7 +126,11 @@ const getRelatedAssetIds = async (
 
   const { chainId, assetReference } = fromAssetId(assetId)
 
-  if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return
+  if (
+    !EVM_CHAIN_IDS.includes(chainId as (typeof EVM_CHAIN_IDS)[number]) ||
+    FEE_ASSET_IDS.includes(assetId)
+  )
+    return
 
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'

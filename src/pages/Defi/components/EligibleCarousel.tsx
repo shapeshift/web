@@ -1,6 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_CONTRACT_ADDRESS_V9 } from '@shapeshiftoss/contracts'
+import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -51,8 +51,7 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
       .slice(0, 5)
 
     const foxFarmingV9 = eligibleOpportunities.find(
-      eligibleOpportunity =>
-        eligibleOpportunity.contractAddress === ETH_FOX_STAKING_CONTRACT_ADDRESS_V9,
+      eligibleOpportunity => eligibleOpportunity.contractAddress === ETH_FOX_STAKING_V9_CONTRACT,
     )
 
     const rfoxOpportunity = eligibleOpportunities.find(

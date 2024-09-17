@@ -1,6 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { toAccountId, toAssetId } from '@shapeshiftoss/caip'
-import type { AssetNamespace } from '@shapeshiftoss/caip/src/assetId/assetId'
 import { isSome } from 'lib/utils'
 import type { CovalentNftItemSchemaType } from 'state/apis/covalent/validators'
 

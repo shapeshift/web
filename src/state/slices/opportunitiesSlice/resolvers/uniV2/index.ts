@@ -4,7 +4,7 @@ import {
   fetchUniV2PairData,
   getEthersProvider,
   getOrCreateContractByType,
-  WETH_TOKEN_CONTRACT_ADDRESS,
+  WETH_TOKEN_CONTRACT,
 } from '@shapeshiftoss/contracts'
 import { KnownChainIds, type MarketData } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
@@ -151,7 +151,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
     const { chainId } = fromAssetId(opportunityId)
     const token0MarketData: MarketData = selectMarketDataByAssetIdUserCurrency(
       state,
-      token0Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token0Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',
@@ -162,7 +162,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
 
     const assetId0 =
       // Uniswap uses ERC20 WETH under the hood, but we want to display it as ETH
-      token0Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token0Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',
@@ -171,7 +171,7 @@ export const uniV2LpOpportunitiesMetadataResolver = async ({
           })
     // Uniswap uses ERC20 WETH under the hood, but we want to display it as ETH
     const assetId1 =
-      token1Address === WETH_TOKEN_CONTRACT_ADDRESS
+      token1Address === WETH_TOKEN_CONTRACT
         ? ethAssetId
         : toAssetId({
             assetNamespace: 'erc20',

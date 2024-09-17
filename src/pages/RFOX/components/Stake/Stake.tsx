@@ -130,6 +130,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     return (
       <StakeStatus
         txId={stakeTxid}
+        setStakeTxid={setStakeTxid}
         confirmedQuote={confirmedQuote}
         setStepIndex={setStepIndex}
         onTxConfirmed={handleTxConfirmed}

@@ -238,6 +238,10 @@ export const ConfirmSummary = ({
     translate,
   ])
 
+  const buttonText = useMemo(() => {
+    return <Text translation={quoteStatusTranslation} />
+  }, [quoteStatusTranslation])
+
   return (
     <>
       <CardFooter
@@ -303,6 +307,8 @@ export const ConfirmSummary = ({
         />
 
         <Button
+          isLoading={isAccountMetadataLoading}
+          loadingText={buttonText}
           type='submit'
           colorScheme={quoteHasError ? 'red' : 'blue'}
           size='lg-multiline'
@@ -310,7 +316,7 @@ export const ConfirmSummary = ({
           isDisabled={shouldDisablePreviewButton}
           mx={-2}
         >
-          <Text translation={quoteStatusTranslation} />
+          {buttonText}
         </Button>
       </CardFooter>
     </>

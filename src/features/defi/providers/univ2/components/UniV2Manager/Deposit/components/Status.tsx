@@ -2,12 +2,14 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -15,8 +17,10 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -43,6 +47,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(DepositContext)
   const { query, history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
@@ -89,19 +98,110 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.txid, accountAddress, accountId])
   const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    if (maybeSafeTx?.isQueuedSafeTx)
+      return {
+        statusIcon: null,
+        statusText: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+          },
+        ] as [string, InterpolationOptions],
+        status: TxStatus.Pending,
+        statusBody: translate('modals.deposit.status.pending'),
+        statusBg: 'transparent',
+      }
+
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBody: translate('modals.deposit.status.success', {
+          // This should never be undefined but might as well
+          opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+        }),
+        statusBg: 'green.500',
+      }
+    }
+
+    switch (confirmedTransaction?.status) {
+      case TxStatus.Confirmed:
+        return {
+          statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.success', {
+            // This should never be undefined but might as well
+            opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
+          }),
+          statusBg: 'green.500',
+        }
+      case TxStatus.Failed:
+        return {
+          statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
+          statusBody: translate('modals.deposit.status.failed'),
+          statusBg: 'red.500',
+        }
+      default:
+        return {
+          statusIcon: null,
+          statusText: StatusTextEnum.pending,
+          status: TxStatus.Pending,
+          statusBody: translate('modals.deposit.status.pending'),
+          statusBg: 'transparent',
+        }
+    }
+  }, [
+    confirmedTransaction?.status,
+    earnUserLpOpportunity?.name,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    translate,
+  ])
+
   useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
+    if (status !== TxStatus.Pending && dispatch) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (confirmedTransaction?.fee)
+          return fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
+        return '0'
+      })()
       dispatch({
         type: UniV2DepositActionType.SET_DEPOSIT,
         payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? fromBaseUnit(confirmedTransaction.fee.value, feeAsset.precision)
-            : '0',
+          txStatus: status === TxStatus.Confirmed ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision,
         },
       })
     }
-  }, [confirmedTransaction, dispatch, feeAsset.precision])
+  }, [
+    confirmedTransaction,
+    dispatch,
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    status,
+  ])
+
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      maybeSafeTx,
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   const handleViewPosition = () => {
     browserHistory.push('/earn')
@@ -111,7 +211,9 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   useEffect(() => {
     if (!earnUserLpOpportunity) return
-    if (state?.deposit.txStatus === 'success') {
+    if (!state) return
+
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.DepositSuccess,
         {
@@ -130,49 +232,21 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     assetId1,
     assets,
     earnUserLpOpportunity,
+    state,
     state?.deposit.asset0CryptoAmount,
     state?.deposit.asset0FiatAmount,
     state?.deposit.asset1CryptoAmount,
     state?.deposit.asset1FiatAmount,
-    state?.deposit.txStatus,
+    status,
   ])
 
   if (!state) return null
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    switch (state.deposit.txStatus) {
-      case 'success':
-        return {
-          statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.success', {
-            // This should never be undefined but might as well
-            opportunity: earnUserLpOpportunity?.name ?? 'UniSwap V2',
-          }),
-          statusBg: 'green.500',
-        }
-      case 'failed':
-        return {
-          statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBody: translate('modals.deposit.status.failed'),
-          statusBg: 'red.500',
-        }
-      default:
-        return {
-          statusIcon: null,
-          statusText: StatusTextEnum.pending,
-          statusBody: translate('modals.deposit.status.pending'),
-          statusBg: 'transparent',
-        }
-    }
-  })()
-
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.deposit.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.deposit.txStatus)}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
+      loading={![TxStatus.Confirmed, TxStatus.Failed].includes(status)}
       statusText={statusText}
       statusIcon={statusIcon}
       statusBody={statusBody}
@@ -185,7 +259,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
+                status === TxStatus.Pending
                   ? 'modals.confirm.amountToDeposit'
                   : 'modals.confirm.amountDeposited'
               }
@@ -214,9 +288,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.deposit.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                status === TxStatus.Pending ? 'modals.status.estimatedGas' : 'modals.status.gasUsed'
               }
             />
           </Row.Label>
@@ -225,7 +297,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 )
@@ -235,7 +307,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  state.deposit.txStatus === 'pending'
+                  status === TxStatus.Pending
                     ? state.deposit.estimatedGasCryptoPrecision
                     : state.deposit.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
@@ -252,12 +324,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${asset0.explorerTxLink}${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

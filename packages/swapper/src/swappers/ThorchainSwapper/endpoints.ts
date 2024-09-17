@@ -197,7 +197,7 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToLongTail:
         throw Error(`Unsupported trade type: ${TradeType}`)
       default:
-        assertUnreachable(tradeType)
+        return assertUnreachable(tradeType)
     }
   },
 
@@ -330,6 +330,8 @@ export const thorchainApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash,
     chainId,
+    accountId,
+    fetchIsSmartContractAddressQuery,
     config,
     assertGetEvmChainAdapter,
   }): Promise<{
@@ -342,6 +344,8 @@ export const thorchainApi: SwapperApi = {
         txHash,
         chainId,
         assertGetEvmChainAdapter,
+        accountId,
+        fetchIsSmartContractAddressQuery,
       })
 
       if (maybeSafeTransactionStatus) {

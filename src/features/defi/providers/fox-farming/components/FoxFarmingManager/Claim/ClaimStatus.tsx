@@ -275,7 +275,11 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
           </Row>
           <Row>
             <Row.Label>
-              {translate(status ? 'modals.status.estimatedGas' : 'modals.status.gasUsed')}
+              {translate(
+                statusText === TxStatus.Pending
+                  ? 'modals.status.estimatedGas'
+                  : 'modals.status.gasUsed',
+              )}
             </Row.Label>
             <Row.Value>
               <Stack textAlign='right' spacing={0}>

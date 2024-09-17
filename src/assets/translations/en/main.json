@@ -505,6 +505,8 @@
     "myRewardsBody": "Your active positions with claimable rewards will appear here.",
     "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
+    "liquidityLockupWarning": "There is a lockup period of %{time} in which you will be unable to withdraw your liquidity.",
+    "liquidityLocked": "Withdrawing liquidity is locked for %{time}",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
     "totalEarningBalance": "Total Earning Balance",

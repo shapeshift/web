@@ -1,11 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { isSome } from 'lib/utils'
+import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -35,6 +37,15 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   )
   const currentWalletId = useAppSelector(selectWalletId)
 
+  const liquidityLockupTime = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+    select: mimirData => {
+      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
+      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
+    },
+  })
+
   const { data: pools, isSuccess } = useQuery({
     ...reactQueries.thornode.poolsData(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
@@ -44,6 +55,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
   const queries = useMemo(() => {
     if (!pools) return []
+    if (!liquidityLockupTime.data) return []
 
     return pools
       .map(pool => {
@@ -53,7 +65,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
         return {
           ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
-          enabled: Boolean(isSuccess && currentWalletId),
+          enabled: Boolean(isSuccess && currentWalletId && liquidityLockupTime.isSuccess),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
@@ -84,6 +96,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
                     pool,
                     position,
                     runePrice: runeMarketDataUserCurrency.price,
+                    liquidityLockupTime: liquidityLockupTime.data,
                   }),
                 )
                 .filter(isSome),
@@ -93,16 +106,18 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
       })
       .filter(isSome)
   }, [
-    assets,
+    pools,
+    liquidityLockupTime,
     currentWalletId,
     isSuccess,
-    pools,
     portfolioAccounts,
+    runeAccountIds,
     queryClient,
     marketDataUserCurrency,
-    runeMarketDataUserCurrency?.price,
-    runeAccountIds,
+    assets,
+    runeMarketDataUserCurrency.price,
   ])
+
   // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector
   const _userLpDataQueries = useQueries({
     // @ts-ignore useQueries isn't strongly typed :(

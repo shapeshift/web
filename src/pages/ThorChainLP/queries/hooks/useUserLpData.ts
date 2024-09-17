@@ -8,6 +8,7 @@ import { reactQueries } from 'react-queries'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
+import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
@@ -22,6 +23,7 @@ type GetPositionArgs = {
   assetId: AssetId
   assetPrice: string
   runePrice: string
+  liquidityLockupTime: number
 }
 
 export const getUserLpDataPosition = ({
@@ -31,6 +33,7 @@ export const getUserLpDataPosition = ({
   assetId,
   assetPrice,
   runePrice,
+  liquidityLockupTime,
 }: GetPositionArgs): UserLpDataPosition | undefined => {
   const asset = assets[assetId]
   if (!asset) return
@@ -84,6 +87,15 @@ export const getUserLpDataPosition = ({
     return { isPending, isIncomplete: false, incompleteAsset: undefined }
   })()
 
+  const remainingLockupTime = (() => {
+    const dateNow = Math.floor(Date.now() / 1000)
+    const dateUnlocked = Number(position.dateLastAdded) + liquidityLockupTime
+
+    if (dateNow >= dateUnlocked) return 0
+
+    return dateNow - dateUnlocked
+  })()
+
   return {
     name,
     dateFirstAdded: position.dateFirstAdded,
@@ -106,6 +118,7 @@ export const getUserLpDataPosition = ({
     assetId,
     runeAddress: position.runeAddress,
     assetAddress: position.assetAddress,
+    remainingLockupTime,
   }
 }
 
@@ -133,6 +146,15 @@ export const useUserLpData = ({
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
+
+  const liquidityLockupTime = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+    select: mimirData => {
+      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
+      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
+    },
+  })
 
   const { data: pool } = useQuery({
     ...reactQueries.thornode.poolData(assetId),
@@ -164,6 +186,7 @@ export const useUserLpData = ({
     },
     select: (positions: Position[] | undefined) => {
       if (!pool) return null
+      if (!liquidityLockupTime.data) return null
 
       return (positions ?? [])
         .map(position =>
@@ -174,10 +197,11 @@ export const useUserLpData = ({
             pool,
             position,
             runePrice: runeMarketData.price,
+            liquidityLockupTime: liquidityLockupTime.data,
           }),
         )
         .filter(isSome)
     },
-    enabled: Boolean(assetId && currentWalletId && pool),
+    enabled: Boolean(assetId && currentWalletId && pool && liquidityLockupTime.isSuccess),
   })
 }

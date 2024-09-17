@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -167,13 +167,17 @@ export const createDefaultStatusResponse = (buyTxHash?: string) => ({
 })
 
 export const checkSafeTransactionStatus = async ({
+  accountId,
   txHash,
   chainId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
+  accountId: AccountId | undefined
   txHash: string
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<
   | {
       status: TxStatus
@@ -182,22 +186,22 @@ export const checkSafeTransactionStatus = async ({
     }
   | undefined
 > => {
-  const { transaction } = await fetchSafeTransactionInfo({ chainId, safeTxHash: txHash })
+  const { isExecutedSafeTx, isQueuedSafeTx, transaction } = await fetchSafeTransactionInfo({
+    accountId,
+    fetchIsSmartContractAddressQuery,
+    safeTxHash: txHash,
+  })
 
   if (!transaction) return
 
   // SAFE proposal queued, but not executed on-chain yet
-  if (
-    !transaction.transactionHash &&
-    transaction.confirmations &&
-    transaction.confirmations.length <= transaction.confirmationsRequired
-  ) {
+  if (isQueuedSafeTx) {
     return {
       status: TxStatus.Pending,
       message: [
         'common.safeProposalQueued',
         {
-          currentConfirmations: transaction.confirmations.length,
+          currentConfirmations: transaction.confirmations?.length,
           confirmationsRequired: transaction.confirmationsRequired,
         },
       ],
@@ -206,7 +210,7 @@ export const checkSafeTransactionStatus = async ({
   }
 
   // Transaction executed on-chain
-  if (transaction.transactionHash) {
+  if (isExecutedSafeTx) {
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
     const status = evm.getTxStatus(tx)
@@ -222,11 +226,15 @@ export const checkSafeTransactionStatus = async ({
 export const checkEvmSwapStatus = async ({
   txHash,
   chainId,
+  accountId,
   assertGetEvmChainAdapter,
+  fetchIsSmartContractAddressQuery,
 }: {
   txHash: string
+  accountId: AccountId | undefined
   chainId: ChainId
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<{
   status: TxStatus
   buyTxHash: string | undefined
@@ -234,11 +242,14 @@ export const checkEvmSwapStatus = async ({
 }> => {
   try {
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+      accountId,
       txHash,
+      fetchIsSmartContractAddressQuery,
       chainId,
       assertGetEvmChainAdapter,
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
+
     const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = evm.getTxStatus(tx)

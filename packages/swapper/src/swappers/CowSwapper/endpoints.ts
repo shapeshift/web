@@ -161,6 +161,8 @@ export const cowApi: SwapperApi = {
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID
     chainId,
+    accountId,
+    fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
     config,
   }): Promise<{
@@ -172,6 +174,8 @@ export const cowApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
+      fetchIsSmartContractAddressQuery,
+      accountId,
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 

@@ -94,9 +94,9 @@ export const HopTransactionStep = ({
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
-  const { data: safeTx } = useSafeTxQuery({
+  const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: sellTxHash,
-    chainId: tradeQuoteStep.sellAsset.chainId,
+    accountId: sellAssetAccountId,
   })
 
   const txLinks = useMemo(() => {
@@ -108,7 +108,7 @@ export const HopTransactionStep = ({
           defaultExplorerBaseUrl: tradeQuoteStep.buyAsset.explorerTxLink,
           txId: buyTxHash,
           // Assume buy TxHash can never be a user SAFE hash
-          isSafeTxHash: false,
+          maybeSafeTx: undefined,
           accountId: sellAssetAccountId,
         }),
         txHash: buyTxHash,
@@ -121,7 +121,7 @@ export const HopTransactionStep = ({
           name: tradeQuoteStep.source,
           defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
           accountId: sellAssetAccountId,
-          isSafeTxHash: Boolean(safeTx?.isSafeTxHash),
+          maybeSafeTx,
           ...(tradeQuoteStep.source === SwapperName.CowSwap
             ? {
                 tradeId: sellTxHash,
@@ -137,7 +137,7 @@ export const HopTransactionStep = ({
     return txLinks
   }, [
     buyTxHash,
-    safeTx?.isSafeTxHash,
+    maybeSafeTx,
     sellAssetAccountId,
     sellTxHash,
     tradeQuoteStep.buyAsset.explorerTxLink,

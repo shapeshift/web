@@ -19,10 +19,12 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from 'hooks/useToggle/useToggle'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectFirstHopSellAccountId } from 'state/slices/selectors'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -61,6 +63,13 @@ const ApprovalDescription = ({
   isLoadingNetworkFee = false,
 }: ApprovalDescriptionProps) => {
   const translate = useTranslate()
+  // this is the account we're selling from - assume this is the AccountId of the approval Tx
+  const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txHash,
+    accountId: firstHopSellAccountId,
+  })
+
   const errorMsg = isError ? (
     <Text
       color='text.error'
@@ -68,6 +77,17 @@ const ApprovalDescription = ({
       fontWeight='bold'
     />
   ) : null
+
+  const txLink = useMemo(
+    () =>
+      getTxLink({
+        defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+        maybeSafeTx,
+        tradeId: txHash ?? '',
+        accountId: firstHopSellAccountId,
+      }),
+    [firstHopSellAccountId, maybeSafeTx, tradeQuoteStep.sellAsset.explorerTxLink, txHash],
+  )
 
   if (isAwaitingReset) return null
 
@@ -88,13 +108,11 @@ const ApprovalDescription = ({
     )
   }
 
-  const href = `${tradeQuoteStep.sellAsset.explorerTxLink}${txHash}`
-
   return (
     <>
       {errorMsg}
-      <Link isExternal href={href} color='text.link'>
-        <MiddleEllipsis value={txHash} />
+      <Link isExternal href={txLink} color='text.link'>
+        <MiddleEllipsis value={maybeSafeTx?.transaction?.transactionHash ?? txHash} />
       </Link>
     </>
   )

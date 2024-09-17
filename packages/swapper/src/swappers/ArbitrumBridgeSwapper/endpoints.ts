@@ -159,6 +159,8 @@ export const arbitrumBridgeApi: SwapperApi = {
     txHash,
     chainId,
     assertGetEvmChainAdapter,
+    accountId,
+    fetchIsSmartContractAddressQuery,
   }): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
@@ -168,6 +170,8 @@ export const arbitrumBridgeApi: SwapperApi = {
       txHash,
       chainId,
       assertGetEvmChainAdapter,
+      accountId,
+      fetchIsSmartContractAddressQuery,
     })
     const isWithdraw = chainId === arbitrumChainId
 
@@ -227,6 +231,8 @@ export const arbitrumBridgeApi: SwapperApi = {
       txHash: maybeBuyTxHash,
       chainId: arbitrumChainId,
       assertGetEvmChainAdapter,
+      accountId,
+      fetchIsSmartContractAddressQuery,
     })
 
     // i.e Unknown is perfectly valid since ETH deposits Child Txids are available immediately deterministically, but will only be in the mempool after ~10mn

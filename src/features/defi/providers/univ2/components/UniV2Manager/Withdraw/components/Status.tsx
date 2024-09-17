@@ -2,13 +2,15 @@ import { CheckIcon, CloseIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { PairIcons } from 'features/defi/components/PairIcons/PairIcons'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
 } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -16,8 +18,10 @@ import { AssetIcon } from 'components/AssetIcon'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -26,6 +30,7 @@ import {
   selectAssetById,
   selectAssets,
   selectEarnUserLpOpportunity,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectTxById,
 } from 'state/slices/selectors'
@@ -43,6 +48,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const { state, dispatch } = useContext(WithdrawContext)
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const lpAssetId = toAssetId({
     chainId,
@@ -69,6 +79,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const asset0 = useAppSelector(state => selectAssetById(state, assetId0))
   const asset1 = useAppSelector(state => selectAssetById(state, assetId1))
   const lpAsset = useAppSelector(state => selectAssetById(state, lpAssetId))
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const assets = useAppSelector(selectAssets)
 
   if (!asset0) throw new Error(`Asset not found for AssetId ${assetId0}`)
@@ -88,21 +99,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     if (!(state?.txid && accountAddress && accountId)) return ''
     return serializeTxIndex(accountId, state.txid, accountAddress)
   }, [state?.txid, accountAddress, accountId])
-  const confirmedTransaction = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
-
-  useEffect(() => {
-    if (confirmedTransaction && confirmedTransaction.status !== 'Pending' && dispatch) {
-      dispatch({
-        type: UniV2WithdrawActionType.SET_WITHDRAW,
-        payload: {
-          txStatus: confirmedTransaction.status === 'Confirmed' ? 'success' : 'failed',
-          usedGasFeeCryptoPrecision: confirmedTransaction.fee
-            ? fromBaseUnit(confirmedTransaction.fee.value, lpAsset.precision)
-            : '0',
-        },
-      })
-    }
-  }, [confirmedTransaction, dispatch, asset0.precision, lpAsset.precision])
+  const tx = useAppSelector(gs => selectTxById(gs, serializedTxIndex))
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')
@@ -112,9 +109,80 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }, [browserHistory])
 
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    if (maybeSafeTx?.isQueuedSafeTx)
+      return {
+        statusIcon: null,
+        statusText: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+          },
+        ] as [string, InterpolationOptions],
+        status: TxStatus.Pending,
+        statusBg: 'transparent',
+        statusBody: translate('common.safeProposalQueued', {
+          currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+          confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+        }),
+      }
+
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+        statusBg: 'green.500',
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: lpAsset.symbol,
+        }),
+      }
+    }
+
+    switch (tx?.status) {
+      case TxStatus.Confirmed:
+        return {
+          statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
+          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
+          statusBg: 'green.500',
+          statusBody: translate('modals.withdraw.status.success', {
+            opportunity: lpAsset.symbol,
+          }),
+        }
+      case TxStatus.Failed:
+        return {
+          statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
+          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
+          statusBg: 'red.500',
+          statusBody: translate('modals.withdraw.status.failed'),
+        }
+      default:
+        return {
+          statusIcon: null,
+          statusText: StatusTextEnum.pending,
+          status: TxStatus.Pending,
+          statusBg: 'transparent',
+          statusBody: translate('modals.withdraw.status.pending'),
+        }
+    }
+  }, [
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.isExecutedSafeTx,
+    translate,
+    tx?.status,
+    lpAsset.symbol,
+  ])
+
   useEffect(() => {
     if (!lpOpportunity) return
-    if (state?.withdraw.txStatus === 'success') {
+    if (!state) return
+
+    if (status === TxStatus.Confirmed) {
       trackOpportunityEvent(
         MixPanelEvent.WithdrawSuccess,
         {
@@ -137,46 +205,62 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     state?.withdraw.asset1Amount,
     state?.withdraw.lpAmount,
     state?.withdraw.lpFiatAmount,
-    state?.withdraw.txStatus,
     lpAssetId,
     assetId1,
     assetId0,
+    state,
+    status,
   ])
+
+  useEffect(() => {
+    if (!feeAsset || !(tx || maybeSafeTx)) return
+
+    if (status !== TxStatus.Pending && dispatch) {
+      const usedGasFeeCryptoPrecision = (() => {
+        if (maybeSafeTx?.transaction?.gasUsed)
+          return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+        if (tx?.fee) return fromBaseUnit(tx.fee.value, lpAsset.precision)
+        return '0'
+      })()
+      dispatch({
+        type: UniV2WithdrawActionType.SET_WITHDRAW,
+        payload: {
+          txStatus: status === TxStatus.Confirmed ? 'success' : 'failed',
+          usedGasFeeCryptoPrecision,
+        },
+      })
+    }
+  }, [
+    tx,
+    dispatch,
+    asset0.precision,
+    lpAsset.precision,
+    statusText,
+    maybeSafeTx?.transaction?.gasUsed,
+    feeAsset?.precision,
+    feeAsset,
+    maybeSafeTx,
+    status,
+  ])
+
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      maybeSafeTx,
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
 
   if (!state || !lpOpportunity) return null
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    switch (state.withdraw.txStatus) {
-      case 'success':
-        return {
-          statusText: StatusTextEnum.success,
-          statusIcon: <CheckIcon color='gray.900' fontSize='xs' />,
-          statusBg: 'green.500',
-          statusBody: translate('modals.withdraw.status.success', {
-            opportunity: lpAsset.symbol,
-          }),
-        }
-      case 'failed':
-        return {
-          statusText: StatusTextEnum.failed,
-          statusIcon: <CloseIcon color='gray.900' fontSize='xs' />,
-          statusBg: 'red.500',
-          statusBody: translate('modals.withdraw.status.failed'),
-        }
-      default:
-        return {
-          statusIcon: null,
-          statusText: StatusTextEnum.pending,
-          statusBg: 'transparent',
-          statusBody: translate('modals.withdraw.status.pending'),
-        }
-    }
-  })()
-
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
       loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
       continueText='modals.status.position'
       statusText={statusText}
@@ -233,7 +317,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.withdraw.txStatus === 'pending'
+                statusText === StatusTextEnum.pending
                   ? 'modals.status.estimatedGas'
                   : 'modals.status.gasUsed'
               }
@@ -244,7 +328,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
+                  statusText === StatusTextEnum.pending
                     ? state.withdraw.estimatedGasCryptoPrecision
                     : state.withdraw.usedGasFeeCryptoPrecision,
                 )
@@ -254,7 +338,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
+                  statusText === StatusTextEnum.pending
                     ? state.withdraw.estimatedGasCryptoPrecision
                     : state.withdraw.usedGasFeeCryptoPrecision,
                 ).toFixed(5)}
@@ -271,12 +355,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${asset0.explorerTxLink}${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

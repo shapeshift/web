@@ -1,7 +1,7 @@
 import type { ChildToParentMessageReader, ChildToParentTransactionEvent } from '@arbitrum/sdk'
 import { ChildToParentMessageStatus, ChildTransactionReceipt } from '@arbitrum/sdk'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -23,6 +23,7 @@ type ClaimStatusResult = {
 }
 
 export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
+  accountId: AccountId
   amountCryptoBaseUnit: string
   assetId: string
   description: string
@@ -127,6 +128,10 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
 
           prev[data.claimStatus].push({
             tx: data.tx,
+            accountId: toAccountId({
+              chainId: arbitrumChainId,
+              account: data.tx.pubkey,
+            }),
             amountCryptoBaseUnit: data.tx.data.value,
             destinationAddress: data.tx.data.destinationAddress,
             destinationAssetId: data.tx.data.destinationAssetId,

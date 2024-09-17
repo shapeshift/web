@@ -209,7 +209,6 @@ export const YourLoans = () => {
 
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({
     type: 'collateral',
-    hasLoanCollateral: false,
   })
 
   const history = useHistory()

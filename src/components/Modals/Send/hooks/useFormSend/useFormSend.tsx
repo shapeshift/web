@@ -17,7 +17,7 @@ export const useFormSend = () => {
   } = useWallet()
 
   const handleFormSend = useCallback(
-    async (sendInput: SendInput): Promise<string | undefined> => {
+    async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string | undefined> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
@@ -26,6 +26,8 @@ export const useFormSend = () => {
         const broadcastTXID = await handleSend({ wallet, sendInput })
 
         setTimeout(() => {
+          if (!toastOnBroadcast) return
+
           toast({
             title: translate('modals.send.sent', { asset: asset.name }),
             description: (
@@ -65,6 +67,7 @@ export const useFormSend = () => {
           isClosable: true,
           position: 'top-right',
         })
+        return ''
       }
     },
     [toast, translate, wallet],

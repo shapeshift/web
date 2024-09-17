@@ -11,6 +11,7 @@ import {
   useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -22,6 +23,7 @@ type Status =
   | 'modals.status.header.pending'
   | 'modals.status.header.success'
   | 'modals.status.header.failed'
+  | [string, InterpolationOptions]
 
 type TxStatusProps = {
   loading?: boolean

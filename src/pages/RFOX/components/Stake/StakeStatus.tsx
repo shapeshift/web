@@ -1,9 +1,11 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useTxStatus } from 'hooks/useTxStatus/useTxStatus'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
@@ -17,7 +19,7 @@ import { StakeRoutePaths, type StakeRouteProps } from './types'
 
 type BodyContent = {
   key: TxStatus
-  title: string
+  title: string | [string, InterpolationOptions]
   body: TextPropTypes['translation']
   element: JSX.Element
 }
@@ -25,11 +27,13 @@ type BodyContent = {
 type StakeStatusProps = {
   confirmedQuote: RfoxStakingQuote
   txId: string
+  setStakeTxid: (txId: string) => void
   onTxConfirmed: () => Promise<void>
 }
 export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
   confirmedQuote,
   txId,
+  setStakeTxid,
   onTxConfirmed: handleTxConfirmed,
 }) => {
   const history = useHistory()
@@ -51,8 +55,38 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId: confirmedQuote.stakingAssetAccountId,
+  })
+
   const bodyContent: BodyContent | null = useMemo(() => {
     if (!stakingAsset) return null
+
+    if (maybeSafeTx?.isQueuedSafeTx) {
+      return {
+        key: TxStatus.Pending,
+        title: [
+          'common.safeProposalQueued',
+          {
+            currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+            confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+          },
+        ],
+        body: [
+          'RFOX.stakePending',
+          {
+            amount: bnOrZero(stakingAmountCryptoPrecision).toFixed(8),
+            symbol: stakingAsset.symbol,
+          },
+        ],
+        element: <CircularProgress size='75px' />,
+      }
+    }
+
+    if (maybeSafeTx?.isExecutedSafeTx && maybeSafeTx?.transaction?.transactionHash) {
+      setStakeTxid(maybeSafeTx.transaction.transactionHash)
+    }
 
     switch (txStatus) {
       case undefined:
@@ -92,11 +126,27 @@ export const StakeStatus: React.FC<StakeRouteProps & StakeStatusProps> = ({
       default:
         return null
     }
-  }, [txStatus, stakingAmountCryptoPrecision, stakingAsset])
+  }, [
+    stakingAsset,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    maybeSafeTx?.transaction?.transactionHash,
+    txStatus,
+    stakingAmountCryptoPrecision,
+    setStakeTxid,
+  ])
 
   const txLink = useMemo(
-    () => getTxLink({ txId, defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '' }),
-    [stakingAsset?.explorerTxLink, txId],
+    () =>
+      getTxLink({
+        txId,
+        defaultExplorerBaseUrl: stakingAsset?.explorerTxLink ?? '',
+        accountId: confirmedQuote.stakingAssetAccountId,
+        maybeSafeTx,
+      }),
+    [confirmedQuote.stakingAssetAccountId, maybeSafeTx, stakingAsset?.explorerTxLink, txId],
   )
 
   return <SharedStatus onBack={handleGoBack} txLink={txLink} body={bodyContent} />

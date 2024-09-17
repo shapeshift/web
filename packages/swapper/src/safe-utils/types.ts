@@ -1,8 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 
 export type SafeTxInfo = {
   transaction: SafeMultisigTransactionSuccess | null
   isSafeTxHash: boolean
+  isQueuedSafeTx: boolean
+  isExecutedSafeTx: boolean
 }
 
 type SafeMultisigConfirmationResponse = {
@@ -53,6 +55,7 @@ export type SafeTransactionError = {
 }
 
 export type FetchSafeTransactionArgs = {
-  chainId: ChainId
   safeTxHash: string
+  accountId: AccountId | undefined
+  fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }

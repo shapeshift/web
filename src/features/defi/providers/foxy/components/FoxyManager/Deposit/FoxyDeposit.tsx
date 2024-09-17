@@ -149,7 +149,7 @@ export const FoxyDeposit: React.FC<{
       },
       [DefiStep.Status]: {
         label: 'Status',
-        component: Status,
+        component: ownProps => <Status {...ownProps} accountId={accountId} />,
       },
     }
   }, [accountId, handleAccountIdChange, foxyContractAddress, translate, stakingAsset.symbol])

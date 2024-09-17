@@ -53,8 +53,6 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     accountId,
   })
 
-  console.log({ maybeSafeTx })
-
   const accountAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : null),
     [accountId],

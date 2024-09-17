@@ -145,7 +145,7 @@ const reactAppRewireConfig = {
     // Remove synthetic CSP/SRI/CID environment variables from DefinePlugin.
     _.merge(config, {
       plugins: (config.plugins ?? []).map(plugin => {
-        if (plugin.constructor.name !== 'DefinePlugin') return plugin
+        if (plugin?.constructor.name !== 'DefinePlugin') return plugin
 
         const definitions = JSON.parse(
           JSON.stringify((plugin as unknown as { definitions: unknown }).definitions),
@@ -203,7 +203,7 @@ const reactAppRewireConfig = {
     const env = Object.fromEntries(
       Object.entries(
         (config.plugins ?? [])
-          .filter(plugin => plugin.constructor.name === 'DefinePlugin')
+          .filter(plugin => plugin?.constructor.name === 'DefinePlugin')
           .reduceRight<webpack.DefinePlugin | undefined>(
             (_a, x) => x as webpack.DefinePlugin,
             undefined,
@@ -220,7 +220,7 @@ const reactAppRewireConfig = {
         ? {
             plugins: [
               ...(config.plugins ?? []).map(plugin => {
-                switch (plugin.constructor.name) {
+                switch (plugin?.constructor.name) {
                   case 'DefinePlugin': {
                     // Remove all REACT_APP_* 'process.env' entries from DefinePlugin; these will
                     // be pulled from env.json via src/config.ts and src/env/index.ts.

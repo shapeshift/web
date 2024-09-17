@@ -1,6 +1,7 @@
 import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
+import type { InterpolationOptions } from 'node-polyglot'
 import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
@@ -9,7 +10,7 @@ import { Text, type TextPropTypes } from 'components/Text/Text'
 
 export type SharedBodyContent = {
   key: TxStatus
-  title: string
+  title: string | [string, InterpolationOptions]
   body: TextPropTypes['translation']
   element: JSX.Element
 }
@@ -23,6 +24,7 @@ type SharedStatusProps = {
 
 export const SharedStatus: React.FC<SharedStatusProps> = ({ body, txLink, onBack, onClose }) => {
   const translate = useTranslate()
+
   return (
     <SlideTransition>
       {body && (
@@ -32,7 +34,11 @@ export const SharedStatus: React.FC<SharedStatusProps> = ({ body, txLink, onBack
               <Center flexDir='column' gap={4}>
                 {body.element}
                 <Stack spacing={2} alignItems='center'>
-                  <Heading as='h4'>{translate(body.title)}</Heading>
+                  <Heading as='h4'>
+                    {typeof body.title === 'string'
+                      ? translate(body.title)
+                      : translate(...body.title)}
+                  </Heading>
                   <Text textAlign='center' translation={body.body} />
                 </Stack>
               </Center>

@@ -309,6 +309,7 @@
     "react-dom@^18.2.0": "patch:react-dom@npm%3A18.2.0#./.yarn/patches/react-dom-npm-18.2.0-dd675bca1c.patch",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^6.5.3",
     "react-scripts/webpack": "5.94.0",
+    "react-scripts/workbox-webpack-plugin": "^7.1.0",
     "p-queue": "^6.6.2",
     "web3": "4.2.1-dev.a0d6730.0",
     "@wherever/react-notification-feed/wagmi": "^0.10.12",

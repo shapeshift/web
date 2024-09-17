@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Center, Collapse, Flex, Link } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -9,6 +9,7 @@ import { FaX } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 import { selectAssetById, selectFeeAssetByChainId, selectTxById } from 'state/slices/selectors'
 import { deserializeTxIndex } from 'state/slices/txHistorySlice/utils'
@@ -18,6 +19,7 @@ import type { MultiStepStatusStep } from './SharedMultiStepStatus'
 
 type TransactionRowProps = {
   assetId: AssetId
+  accountId: AccountId | undefined
   onStart: () => void
   header: JSX.Element
   isActive?: boolean
@@ -26,6 +28,7 @@ type TransactionRowProps = {
 
 export const TransactionRow: React.FC<TransactionRowProps> = ({
   assetId,
+  accountId,
   header,
   onStart,
   isActive,
@@ -44,15 +47,26 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     selectFeeAssetByChainId(state, fromAssetId(assetId).chainId),
   )
 
+  const txId = useMemo(
+    () => (serializedTxIndex ? deserializeTxIndex(serializedTxIndex).txid : undefined),
+    [serializedTxIndex],
+  )
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txId ?? undefined,
+    accountId,
+  })
+
   const txIdLink = useMemo(() => {
-    if (!(asset && serializedTxIndex)) return
-    const { txid } = deserializeTxIndex(serializedTxIndex)
+    if (!(asset && txId)) return
     return getTxLink({
       defaultExplorerBaseUrl: asset.explorerTxLink,
-      tradeId: txid,
+      tradeId: txId,
       name: SwapperName.ArbitrumBridge,
+      maybeSafeTx,
+      accountId: accountId ?? undefined,
     })
-  }, [asset, serializedTxIndex])
+  }, [accountId, asset, maybeSafeTx, txId])
 
   const handleSignTx = useCallback(async () => {
     if (!isActionable) return

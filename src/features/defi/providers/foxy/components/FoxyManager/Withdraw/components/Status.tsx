@@ -3,8 +3,10 @@ import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { Summary } from 'features/defi/components/Summary'
-import { TxStatus } from 'features/defi/components/TxStatus/TxStatus'
+import { TxStatus as TransactionStatus } from 'features/defi/components/TxStatus/TxStatus'
 import type {
   DefiParams,
   DefiQueryParams,
@@ -18,8 +20,10 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { StatusTextEnum } from 'components/RouteSteps/RouteSteps'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { getTxLink } from 'lib/getTxLink'
 
 import { WithdrawContext } from '../WithdrawContext'
 
@@ -32,6 +36,11 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const translate = useTranslate()
   const { history: browserHistory } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { stakingAsset, underlyingAsset, feeAsset, feeMarketData } = useFoxyQuery()
+
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: state?.txid ?? undefined,
+    accountId,
+  })
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
@@ -49,13 +58,36 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
     browserHistory.goBack()
   }, [browserHistory])
 
-  if (!state || !dispatch) return null
+  const { statusIcon, status, statusText, statusBg, statusBody } = useMemo(() => {
+    if (maybeSafeTx?.isQueuedSafeTx)
+      return {
+        statusIcon: <AssetIcon size='xs' src={underlyingAsset?.icon} justifyContent='center' />,
+        status: TxStatus.Pending,
+        statusBg: 'transparent',
+        statusText: StatusTextEnum.pending,
+        statusBody: translate('common.safeProposalQueued', {
+          currentConfirmations: maybeSafeTx?.transaction?.confirmations?.length,
+          confirmationsRequired: maybeSafeTx?.transaction?.confirmationsRequired,
+        }),
+      }
 
-  const { statusIcon, statusText, statusBg, statusBody } = (() => {
-    switch (state.withdraw.txStatus) {
+    if (maybeSafeTx?.isExecutedSafeTx) {
+      return {
+        statusText: StatusTextEnum.success,
+        status: TxStatus.Confirmed,
+        statusIcon: <CheckIcon color='white' />,
+        statusBg: 'green.500',
+        statusBody: translate('modals.withdraw.status.success', {
+          opportunity: `${stakingAsset.symbol} Vault`,
+        }),
+      }
+    }
+
+    switch (state?.withdraw.txStatus) {
       case 'success':
         return {
           statusText: StatusTextEnum.success,
+          status: TxStatus.Confirmed,
           statusIcon: <CheckIcon color='white' />,
           statusBg: 'green.500',
           statusBody: translate('modals.withdraw.status.success', {
@@ -65,6 +97,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       case 'failed':
         return {
           statusText: StatusTextEnum.failed,
+          status: TxStatus.Failed,
           statusIcon: <CloseIcon color='white' />,
           statusBg: 'red.500',
           statusBody: translate('modals.withdraw.status.failed'),
@@ -72,18 +105,55 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       default:
         return {
           statusIcon: <AssetIcon size='xs' src={underlyingAsset?.icon} justifyContent='center' />,
+          status: TxStatus.Pending,
           statusText: StatusTextEnum.pending,
           statusBg: 'transparent',
           statusBody: translate('modals.withdraw.status.pending'),
         }
     }
-  })()
+  }, [
+    maybeSafeTx?.isExecutedSafeTx,
+    maybeSafeTx?.isQueuedSafeTx,
+    maybeSafeTx?.transaction?.confirmations?.length,
+    maybeSafeTx?.transaction?.confirmationsRequired,
+    stakingAsset.symbol,
+    state?.withdraw.txStatus,
+    translate,
+    underlyingAsset?.icon,
+  ])
+
+  const txLink = useMemo(() => {
+    if (!feeAsset) return
+    if (!state?.txid) return
+
+    return getTxLink({
+      txId: state?.txid ?? undefined,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      accountId,
+      maybeSafeTx,
+    })
+  }, [accountId, feeAsset, maybeSafeTx, state?.txid])
+
+  const usedGasOrEstimateCryptoPrecision = useMemo(() => {
+    if (maybeSafeTx?.transaction?.gasUsed)
+      return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
+    if (state?.withdraw.usedGasFeeCryptoBaseUnit)
+      return fromBaseUnit(state.withdraw.usedGasFeeCryptoBaseUnit, feeAsset.precision)
+    return fromBaseUnit(state?.withdraw.estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision)
+  }, [
+    feeAsset.precision,
+    maybeSafeTx?.transaction?.gasUsed,
+    state?.withdraw.estimatedGasCryptoBaseUnit,
+    state?.withdraw.usedGasFeeCryptoBaseUnit,
+  ])
+
+  if (!state || !dispatch) return null
 
   return (
-    <TxStatus
+    <TransactionStatus
       onClose={handleCancel}
-      onContinue={state.withdraw.txStatus === 'success' ? handleViewPosition : undefined}
-      loading={!['success', 'failed'].includes(state.withdraw.txStatus)}
+      onContinue={status === TxStatus.Confirmed ? handleViewPosition : undefined}
+      loading={![TxStatus.Confirmed, TxStatus.Failed].includes(status)}
       continueText='modals.status.position'
       statusText={statusText}
       statusBg={statusBg}
@@ -123,9 +193,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           <Row.Label>
             <Text
               translation={
-                state.withdraw.txStatus === 'pending'
-                  ? 'modals.status.estimatedGas'
-                  : 'modals.status.gasUsed'
+                status === TxStatus.Pending ? 'modals.status.estimatedGas' : 'modals.status.gasUsed'
               }
             />
           </Row.Label>
@@ -133,24 +201,13 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCryptoBaseUnit
-                    : state.withdraw.usedGasFeeCryptoBaseUnit,
-                )
-                  .div(`1e+${feeAsset.precision}`)
+                value={bnOrZero(usedGasOrEstimateCryptoPrecision)
                   .times(feeMarketData.price)
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(
-                  state.withdraw.txStatus === 'pending'
-                    ? state.withdraw.estimatedGasCryptoBaseUnit
-                    : state.withdraw.usedGasFeeCryptoBaseUnit,
-                )
-                  .div(`1e+${feeAsset.precision}`)
-                  .toFixed(5)}
+                value={bnOrZero(usedGasOrEstimateCryptoPrecision).toFixed(5)}
                 symbol='ETH'
               />
             </Box>
@@ -164,12 +221,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             variant='ghost-filled'
             colorScheme='green'
             rightIcon={externalLinkIcon}
-            href={`${underlyingAsset.explorerTxLink}/${state.txid}`}
+            href={txLink}
           >
             {translate('defi.viewOnChain')}
           </Button>
         </Row>
       </Summary>
-    </TxStatus>
+    </TransactionStatus>
   )
 }

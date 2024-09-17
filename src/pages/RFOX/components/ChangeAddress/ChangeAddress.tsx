@@ -92,6 +92,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     return (
       <ChangeAddressStatus
         txId={changeAddressTxid}
+        setChangeAddressTxid={setChangeAddressTxid}
         confirmedQuote={confirmedQuote}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}

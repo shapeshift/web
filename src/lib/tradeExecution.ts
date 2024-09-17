@@ -20,7 +20,10 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import EventEmitter from 'events'
+import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
+import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { store } from 'state/store'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
@@ -63,6 +66,7 @@ export class TradeExecution {
       if (!hop) {
         throw new Error(`No hop found for stepIndex ${stepIndex}`)
       }
+
       const chainId = hop.sellAsset.chainId
 
       const sellTxHash = await buildSignBroadcast(swapper, {
@@ -76,18 +80,25 @@ export class TradeExecution {
       const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
       this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs)
 
+      // TODO(gomes): this is wrong, but isn't.
+      // It is a "sufficiently sane" solution to avoid more plumbing and possible regressions
+      // All this is used for is to check whether the address is a smart contract, to avoid spewing SAFE API with requests
+      // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
+      // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
+      const accountId = selectFirstHopSellAccountId(store.getState())
       const { cancelPolling } = poll({
         fn: async () => {
           const { status, message, buyTxHash } = await swapper.checkTradeStatus({
             quoteId: tradeQuote.id,
             txHash: sellTxHash,
             chainId,
+            accountId,
             stepIndex,
             config: getConfig(),
             assertGetEvmChainAdapter,
-
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
+            fetchIsSmartContractAddressQuery,
           })
 
           const payload: StatusArgs = { stepIndex, status, message, buyTxHash }

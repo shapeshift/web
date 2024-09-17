@@ -99,6 +99,9 @@ const RewardsContent = ({ stakingAssetAccountId }: RewardsContentProps) => {
         name: Dex.Thor,
         defaultExplorerBaseUrl: '',
         txId,
+        // This can't be a SAFE Tx - it's a reward distribution on RUNE
+        maybeSafeTx: undefined,
+        accountId: undefined,
       })
 
       return {

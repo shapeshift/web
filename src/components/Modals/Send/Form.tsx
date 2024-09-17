@@ -75,7 +75,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
-      const txHash = await handleFormSend(data)
+      const txHash = await handleFormSend(data, false)
       if (!txHash) return
       methods.setValue(SendFormFields.TxHash, txHash)
       history.push(SendRoutes.Status)

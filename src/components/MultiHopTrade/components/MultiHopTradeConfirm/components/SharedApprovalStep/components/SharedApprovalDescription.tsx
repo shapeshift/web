@@ -1,15 +1,29 @@
 import { Link } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
+import { getTxLink } from 'lib/getTxLink'
+import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
+
+type ErrorMsgProps = {
+  isError: boolean
+  errorTranslation: string
+}
+
+const ErrorMsg = ({ isError, errorTranslation }: ErrorMsgProps) => {
+  return isError ? (
+    <Text color='text.error' translation={errorTranslation} fontWeight='bold' />
+  ) : null
+}
 
 type SharedCompletedApprovalDescriptionProps = {
   tradeQuoteStep: TradeQuoteStep
-  isError: boolean
   txHash: string
-  errorTranslation: string
-}
+} & ErrorMsgProps
 
 export const SharedCompletedApprovalDescription = ({
   tradeQuoteStep,
@@ -17,17 +31,29 @@ export const SharedCompletedApprovalDescription = ({
   txHash,
   errorTranslation,
 }: SharedCompletedApprovalDescriptionProps) => {
-  const errorMsg = isError ? (
-    <Text color='text.error' translation={errorTranslation} fontWeight='bold' />
-  ) : null
+  // this is the account we're selling from - assume this is the AccountId of the approval Tx
+  const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txHash,
+    accountId: firstHopSellAccountId,
+  })
 
-  const href = `${tradeQuoteStep.sellAsset.explorerTxLink}${txHash}`
+  const txLink = useMemo(
+    () =>
+      getTxLink({
+        defaultExplorerBaseUrl: tradeQuoteStep.sellAsset.explorerTxLink,
+        maybeSafeTx,
+        tradeId: txHash ?? '',
+        accountId: firstHopSellAccountId,
+      }),
+    [firstHopSellAccountId, maybeSafeTx, tradeQuoteStep.sellAsset.explorerTxLink, txHash],
+  )
 
   return (
     <>
-      {errorMsg}
-      <Link isExternal href={href} color='text.link'>
-        <MiddleEllipsis value={txHash} />
+      <ErrorMsg isError={isError} errorTranslation={errorTranslation} />
+      <Link isExternal href={txLink} color='text.link'>
+        <MiddleEllipsis value={maybeSafeTx?.transaction?.transactionHash ?? txHash} />
       </Link>
     </>
   )
@@ -35,15 +61,13 @@ export const SharedCompletedApprovalDescription = ({
 
 type SharedApprovalDescriptionProps = {
   tradeQuoteStep: TradeQuoteStep
-  isError: boolean
   txHash: string | undefined
   approvalNetworkFeeCryptoFormatted: string | undefined
-  errorTranslation: string
   gasFeeLoadingTranslation: string
   gasFeeTranslation: string
   isAwaitingReset?: boolean
   isLoadingNetworkFee?: boolean
-}
+} & ErrorMsgProps
 
 export const SharedApprovalDescription = ({
   tradeQuoteStep,
@@ -56,14 +80,11 @@ export const SharedApprovalDescription = ({
   isLoadingNetworkFee = false,
 }: SharedApprovalDescriptionProps) => {
   const translate = useTranslate()
-  const errorMsg = isError ? (
-    <Text color='text.error' translation={errorTranslation} fontWeight='bold' />
-  ) : null
 
   if (!txHash) {
     return (
       <>
-        {errorMsg}
+        <ErrorMsg isError={isError} errorTranslation={errorTranslation} />
         {isLoadingNetworkFee
           ? translate(gasFeeLoadingTranslation)
           : translate(gasFeeTranslation, {
@@ -73,14 +94,12 @@ export const SharedApprovalDescription = ({
     )
   }
 
-  const href = `${tradeQuoteStep.sellAsset.explorerTxLink}${txHash}`
-
   return (
-    <>
-      {errorMsg}
-      <Link isExternal href={href} color='text.link'>
-        <MiddleEllipsis value={txHash} />
-      </Link>
-    </>
+    <SharedCompletedApprovalDescription
+      tradeQuoteStep={tradeQuoteStep}
+      isError={isError}
+      txHash={txHash}
+      errorTranslation={errorTranslation}
+    />
   )
 }

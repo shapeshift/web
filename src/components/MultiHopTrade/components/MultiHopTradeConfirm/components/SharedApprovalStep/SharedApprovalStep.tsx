@@ -1,7 +1,8 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import type { AllowanceType } from 'hooks/queries/useApprovalFees'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import type { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 
 import {
   SharedApprovalDescription,
@@ -12,6 +13,7 @@ import { SharedApprovalStepPending } from './components/SharedApprovalStepPendin
 import type { RenderAllowanceContentCallback } from './types'
 
 export type SharedApprovalStepProps = {
+  isComplete: boolean
   titleTranslation: string
   errorTranslation: string
   gasFeeLoadingTranslation: string
@@ -23,12 +25,13 @@ export type SharedApprovalStepProps = {
   hopExecutionState: HopExecutionState
   transactionExecutionState: TransactionExecutionState
   stepIndicator: JSX.Element
-  txHash?: string
+  txHash: string | undefined
   allowanceType: AllowanceType
   renderContent: RenderAllowanceContentCallback
 }
 
 export const SharedApprovalStep = ({
+  isComplete,
   tradeQuoteStep,
   hopIndex,
   isLoading,
@@ -44,14 +47,6 @@ export const SharedApprovalStep = ({
   allowanceType,
   renderContent,
 }: SharedApprovalStepProps) => {
-  const isComplete = useMemo(() => {
-    return [
-      HopExecutionState.AwaitingApproval,
-      HopExecutionState.AwaitingSwap,
-      HopExecutionState.Complete,
-    ].includes(hopExecutionState)
-  }, [hopExecutionState])
-
   const completedDescription = useMemo(() => {
     return (
       <SharedCompletedApprovalDescription
@@ -64,7 +59,7 @@ export const SharedApprovalStep = ({
   }, [tradeQuoteStep, transactionExecutionState, txHash, errorTranslation])
 
   const renderDescription = useCallback(
-    (approvalNetworkFeeCryptoFormatted?: string) => {
+    (approvalNetworkFeeCryptoFormatted: string) => {
       return (
         <SharedApprovalDescription
           tradeQuoteStep={tradeQuoteStep}
@@ -98,6 +93,7 @@ export const SharedApprovalStep = ({
     />
   ) : (
     <SharedApprovalStepPending
+      titleTranslation={titleTranslation}
       tradeQuoteStep={tradeQuoteStep}
       hopIndex={hopIndex}
       isLoading={isLoading}

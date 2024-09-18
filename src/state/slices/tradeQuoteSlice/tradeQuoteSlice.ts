@@ -92,9 +92,6 @@ export const tradeQuoteSlice = createSlice({
       const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
       state.tradeExecution[action.payload.id][hopKey][allowanceKey].state =
         TransactionExecutionState.Failed
-      if (allowanceKey === AllowanceKey.AllowanceReset) {
-        state.tradeExecution[action.payload.id][hopKey].state = HopExecutionState.AwaitingApproval
-      }
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setApprovalTxComplete: (
@@ -106,9 +103,14 @@ export const tradeQuoteSlice = createSlice({
       const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
       state.tradeExecution[action.payload.id][hopKey][allowanceKey].state =
         TransactionExecutionState.Complete
-      if (allowanceKey === AllowanceKey.AllowanceReset) {
-        state.tradeExecution[action.payload.id][hopKey].state = HopExecutionState.AwaitingApproval
-      }
+    },
+    setApprovalResetComplete: (
+      state,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
+    ) => {
+      const { hopIndex } = action.payload
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      state.tradeExecution[action.payload.id][key].state = HopExecutionState.AwaitingApproval
     },
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (

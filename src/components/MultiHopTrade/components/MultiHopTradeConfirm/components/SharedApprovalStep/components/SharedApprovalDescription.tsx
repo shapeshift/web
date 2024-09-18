@@ -62,7 +62,7 @@ export const SharedCompletedApprovalDescription = ({
 type SharedApprovalDescriptionProps = {
   tradeQuoteStep: TradeQuoteStep
   txHash: string | undefined
-  approvalNetworkFeeCryptoFormatted: string | undefined
+  approvalNetworkFeeCryptoFormatted: string
   gasFeeLoadingTranslation: string
   gasFeeTranslation: string
   isAwaitingReset?: boolean
@@ -88,7 +88,7 @@ export const SharedApprovalDescription = ({
         {isLoadingNetworkFee
           ? translate(gasFeeLoadingTranslation)
           : translate(gasFeeTranslation, {
-              fee: approvalNetworkFeeCryptoFormatted ?? '',
+              fee: approvalNetworkFeeCryptoFormatted,
             })}
       </>
     )

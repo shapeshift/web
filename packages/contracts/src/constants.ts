@@ -21,7 +21,7 @@ export const ETH_FOX_STAKING_V7_CONTRACT = '0x5939783dbf3e9f453a69bc9ddc1e492efa
 export const ETH_FOX_STAKING_V8_CONTRACT = '0x662da6c777a258382f08b979d9489c3fbbbd8ac3' as const
 export const ETH_FOX_STAKING_V9_CONTRACT = '0x721720784b76265aa3e34c1c7ba02a6027bcd3e5' as const
 export const ETH_FOX_STAKING_EVERGREEN_CONTRACT =
-  '0xffffffffffffffffffffffffffffffffffffffff' as const // TODO: update this with deploy
+  '0xe7e16e2b05440c2e484c5c41ac3e5a4d15da2744' as const
 
 export const foxEthStakingContractAddresses = [
   ETH_FOX_STAKING_V9_CONTRACT,

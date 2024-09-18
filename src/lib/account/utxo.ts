@@ -1,6 +1,7 @@
 import { toAccountId } from '@shapeshiftoss/caip'
 import { utxoAccountParams, utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -23,8 +24,20 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }
+      if (wallet instanceof PhantomHDWallet) {
+        // Phantom supposedly supports more script types, but only supports Segwit Native (bech32 addresses) for now
+        supportedAccountTypes = [UtxoAccountType.SegwitNative]
+      }
       for (const accountType of supportedAccountTypes) {
-        const { xpub: pubkey } = await adapter.getPublicKey(wallet, accountNumber, accountType)
+        const { xpub: pubkey } = await adapter
+          .getPublicKey(wallet, accountNumber, accountType)
+          .catch(e => {
+            console.error(
+              `Error getting pubkey for chainId: ${chainId} accountType: ${accountType} accountNumber: ${accountNumber}`,
+              e,
+            )
+            return { xpub: null }
+          })
 
         if (!pubkey) continue
 

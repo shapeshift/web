@@ -1525,6 +1525,22 @@
         "button": "Open"
       }
     },
+    "phantom": {
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Phantom",
+        "connectFailure": "Unable to connect Phantom wallet",
+        "multipleWallets": "Detected Ethereum provider is not Phantom. Do you have multiple wallets installed?"
+      },
+      "connect": {
+        "header": "Pair Phantom",
+        "body": "Click Pair and login to Phantom from the popup window",
+        "button": "Pair"
+      },
+      "failure": {
+        "header": "Error",
+        "body": "Unable to connect Phantom wallet"
+      }
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",

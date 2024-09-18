@@ -80,6 +80,7 @@ export type MetaMaskLikeProvider = BrowserProvider
 export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
+  | KeyManager.Phantom
   | KeyManager.WalletConnectV2
   | KeyManager.Coinbase
 

@@ -269,7 +269,7 @@ export const fetchPortalsPlatforms = async (): Promise<PlatformsById> => {
   try {
     const { data: platforms } = await axios.get<GetPlatformsResponse>(url, {
       headers: {
-        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
+        Authorization: `Bearer ${PORTALS_API_KEY}`,
       },
     })
 
@@ -293,7 +293,7 @@ export const fetchPortalsAccount = async (
   chainId: ChainId,
   owner: string,
 ): Promise<Record<AssetId, TokenInfo>> => {
-  const url = `${getConfig().REACT_APP_PORTALS_BASE_URL}/v2/account`
+  const url = `${PORTALS_BASE_URL}/v2/account`
 
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
@@ -306,7 +306,7 @@ export const fetchPortalsAccount = async (
         owner,
       },
       headers: {
-        Authorization: `Bearer ${getConfig().REACT_APP_PORTALS_API_KEY}`,
+        Authorization: `Bearer ${PORTALS_API_KEY}`,
       },
     })
 

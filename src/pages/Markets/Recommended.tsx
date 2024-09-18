@@ -151,7 +151,7 @@ const Row: React.FC<RowProps> = ({
   selectedChainId,
   setSelectedChainId,
 }) => {
-  const chainIds = Object.values(KnownChainIds)
+  const chainIds = useMemo(() => Object.values(KnownChainIds), [])
 
   return (
     <Box mb={8}>

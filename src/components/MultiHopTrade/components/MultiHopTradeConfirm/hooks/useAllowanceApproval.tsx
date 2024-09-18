@@ -35,7 +35,12 @@ export const useAllowanceApproval = (
 
   const isReset = useMemo(() => allowanceType === AllowanceType.Reset, [allowanceType])
 
-  const { allowanceCryptoBaseUnitResult, evmFeesResult, isApprovalRequired } = useApprovalFees({
+  const {
+    allowanceCryptoBaseUnitResult,
+    evmFeesResult,
+    isApprovalRequired,
+    isAllowanceResetRequired,
+  } = useApprovalFees({
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
@@ -52,6 +57,15 @@ export const useAllowanceApproval = (
     // complete an approval externally and have the app respond to the updated allowance on chain.
     dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex, id: confirmedTradeId }))
   }, [dispatch, hopIndex, isApprovalRequired, confirmedTradeId])
+
+  useEffect(() => {
+    if (isAllowanceResetRequired !== false || allowanceType !== AllowanceType.Reset) return
+
+    // Mark the allowance reset step complete as required.
+    // This is deliberately disjoint to the approval transaction orchestration to allow users to
+    // complete an approval reset externally and have the app respond to the updated allowance on chain.
+    dispatch(tradeQuoteSlice.actions.setApprovalResetComplete({ hopIndex, id: confirmedTradeId }))
+  }, [dispatch, hopIndex, isAllowanceResetRequired, confirmedTradeId, allowanceType])
 
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve({

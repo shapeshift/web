@@ -9,9 +9,10 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
-import { FaRotateRight } from 'react-icons/fa6'
+import { FaThumbsUp } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -23,7 +24,7 @@ import { useAppSelector } from 'state/store'
 
 import { SharedApprovalStep } from './SharedApprovalStep/SharedApprovalStep'
 import type { RenderAllowanceContentCallbackParams } from './SharedApprovalStep/types'
-import { ApprovalStatusIcon } from './StatusIcon'
+import { StatusIcon } from './StatusIcon'
 
 export type ApprovalStepProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -34,7 +35,7 @@ export type ApprovalStepProps = {
   activeTradeId: TradeQuote['id']
 }
 
-const initialIcon = <FaRotateRight />
+const defaultIcon = <FaThumbsUp />
 
 export const ApprovalStep = ({
   tradeQuoteStep,
@@ -53,22 +54,32 @@ export const ApprovalStep = ({
       hopIndex,
     }
   }, [activeTradeId, hopIndex])
-  const { state, approval } = useAppSelector(state =>
+  const { state: hopExecutionState, approval } = useAppSelector(state =>
     selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const stepIndicator = useMemo(() => {
-    return (
-      <ApprovalStatusIcon
-        hopExecutionState={state}
-        approvalTxState={approval.state}
-        initialIcon={initialIcon}
-        overrideCompletedStateToPending
-      />
-    )
-  }, [approval.state, state])
+    const txStatus = (() => {
+      switch (hopExecutionState) {
+        case HopExecutionState.Pending:
+        case HopExecutionState.AwaitingApprovalReset:
+          return TransactionExecutionState.AwaitingConfirmation
+        case HopExecutionState.AwaitingApproval:
+          return approval.state === TransactionExecutionState.Failed
+            ? TransactionExecutionState.Failed
+            : TransactionExecutionState.Pending
+        case HopExecutionState.AwaitingSwap:
+        case HopExecutionState.Complete:
+          return TransactionExecutionState.Complete
+        default:
+          assertUnreachable(hopExecutionState)
+      }
+    })()
 
-  const renderResetAllowanceContent = useCallback(
+    return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />
+  }, [approval.state, hopExecutionState])
+
+  const renderApprovalContent = useCallback(
     ({
       hopExecutionState,
       transactionExecutionState,
@@ -136,22 +147,27 @@ export const ApprovalStep = ({
     [isActive, translate, isExactAllowance, toggleIsExactAllowance],
   )
 
+  const isComplete = useMemo(() => {
+    return [HopExecutionState.AwaitingSwap, HopExecutionState.Complete].includes(hopExecutionState)
+  }, [hopExecutionState])
+
   return (
     <SharedApprovalStep
+      isComplete={isComplete}
       tradeQuoteStep={tradeQuoteStep}
       hopIndex={hopIndex}
       isLoading={isLoading}
       activeTradeId={activeTradeId}
-      hopExecutionState={state}
+      hopExecutionState={hopExecutionState}
       transactionExecutionState={approval.state}
       titleTranslation='trade.approvalTitle'
       errorTranslation='trade.approvalFailed'
       gasFeeLoadingTranslation='trade.approvalGasFeeLoading'
       gasFeeTranslation='trade.approvalGasFee'
       stepIndicator={stepIndicator}
-      renderContent={renderResetAllowanceContent}
+      renderContent={renderApprovalContent}
+      txHash={approval.txHash}
       allowanceType={isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited}
-      feeQueryEnabled={isActive}
     />
   )
 }

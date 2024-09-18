@@ -231,7 +231,7 @@ export const Hop = ({
           )}
 
           <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
-            {allowanceReset.isRequired && (
+            {allowanceReset.isRequired === true && (
               <ApprovalResetStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}

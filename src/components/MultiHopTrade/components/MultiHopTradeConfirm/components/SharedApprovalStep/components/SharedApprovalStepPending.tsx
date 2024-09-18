@@ -1,5 +1,5 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AllowanceType } from 'hooks/queries/useApprovalFees'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -14,6 +14,7 @@ import { StepperStep } from '../../StepperStep'
 import type { RenderAllowanceContentCallback } from '../types'
 
 export type SharedApprovalStepPendingProps = {
+  titleTranslation: string
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   isLoading?: boolean
@@ -22,12 +23,12 @@ export type SharedApprovalStepPendingProps = {
   transactionExecutionState: TransactionExecutionState
   stepIndicator: JSX.Element
   allowanceType: AllowanceType
-  feeQueryEnabled: boolean
-  renderDescription: (approvalNetworkFeeCryptoFormatted?: string) => JSX.Element
+  renderDescription: (approvalNetworkFeeCryptoFormatted: string) => JSX.Element
   renderContent: RenderAllowanceContentCallback
 }
 
 export const SharedApprovalStepPending = ({
+  titleTranslation,
   tradeQuoteStep,
   hopIndex,
   isLoading,
@@ -36,36 +37,25 @@ export const SharedApprovalStepPending = ({
   hopExecutionState,
   transactionExecutionState,
   allowanceType,
-  feeQueryEnabled,
   renderDescription,
   renderContent,
 }: SharedApprovalStepPendingProps) => {
+  const translate = useTranslate()
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
-
-  const [localFeeQueryEnabled, setFeeQueryEnabled] = useState(true)
 
   const {
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit,
     isLoading: isAllowanceApprovalLoading,
-  } = useAllowanceApproval(
-    tradeQuoteStep,
-    hopIndex,
-    allowanceType,
-    feeQueryEnabled && localFeeQueryEnabled,
-    activeTradeId,
-  )
+  } = useAllowanceApproval(tradeQuoteStep, hopIndex, allowanceType, true, activeTradeId)
 
   const handleSignAllowanceApproval = useCallback(async () => {
     try {
-      setFeeQueryEnabled(false)
       await approveMutation.mutateAsync()
     } catch (error) {
       console.error(error)
-    } finally {
-      setFeeQueryEnabled(true)
     }
   }, [approveMutation])
 
@@ -74,19 +64,15 @@ export const SharedApprovalStepPending = ({
   )
 
   const approvalNetworkFeeCryptoFormatted = useMemo(() => {
-    if (!feeAsset) return ''
-
-    if (approvalNetworkFeeCryptoBaseUnit) {
+    if (feeAsset && approvalNetworkFeeCryptoBaseUnit) {
       return toCrypto(
         fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset.precision),
         feeAsset.symbol,
       )
     }
 
-    return ''
-  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto])
-
-  const translate = useTranslate()
+    return translate('common.loadingText').toLowerCase()
+  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto, translate])
 
   const content = useMemo(() => {
     return renderContent({
@@ -110,7 +96,7 @@ export const SharedApprovalStepPending = ({
 
   return (
     <StepperStep
-      title={translate('trade.resetTitle')}
+      title={translate(titleTranslation)}
       description={description}
       stepIndicator={stepIndicator}
       content={content}

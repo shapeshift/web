@@ -22,7 +22,6 @@ type UseAllLendingPositionsDataProps = {
 export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDataProps = {}) => {
   const { data: lendingSupportedAssets } = useLendingSupportedAssets({
     type: 'collateral',
-    hasLoanCollateral: false,
   })
 
   const accountIds = useAppSelector(selectWalletAccountIds)

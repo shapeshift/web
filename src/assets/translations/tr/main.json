@@ -408,7 +408,7 @@
         "disabledDepositTitle": "Para yatırma işlemleri geçici olarak devre dışı bırakıldı.",
         "haltedWithdrawTitle": "Para çekme işlemleri geçici olarak durdurulmuştur.",
         "disabledWithdrawTitle": "Para çekme işlemleri geçici olarak devre dışı bırakıldı.",
-        "runePoolWithdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
+        "withdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",

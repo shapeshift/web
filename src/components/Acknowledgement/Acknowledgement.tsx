@@ -91,6 +91,7 @@ type AcknowledgementProps = {
   buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
   disableButton?: boolean
+  position?: 'relative' | 'static'
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
@@ -113,6 +114,7 @@ export const Acknowledgement = ({
   buttonTranslation,
   disableButton,
   icon: CustomIcon,
+  position = 'relative',
 }: AcknowledgementProps) => {
   const translate = useTranslate()
   const [isShowing, setIsShowing] = useState(false)
@@ -149,7 +151,7 @@ export const Acknowledgement = ({
 
   return (
     <Box
-      position='relative'
+      position={position}
       borderRadius={boxBorderRadius}
       overflow={isShowing ? 'hidden' : 'visible'}
       width={'100%'}

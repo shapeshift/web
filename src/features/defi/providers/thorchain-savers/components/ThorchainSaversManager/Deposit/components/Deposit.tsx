@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -16,9 +16,11 @@ import pDebounce from 'p-debounce'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { InfoAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -33,9 +35,15 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
+import {
+  BASE_BPS_POINTS,
+  RUNEPOOL_DEPOSIT_MEMO,
+  THORCHAIN_BLOCK_TIME_SECONDS,
+  thorchainBlockTimeMs,
+} from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -92,6 +100,8 @@ export const Deposit: React.FC<DepositProps> = ({
     null,
   )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
+  const [shouldShowInfoAcknowledgement, setShouldShowInfoAcknowledgement] = useState(false)
+  const [depositValues, setDepositValues] = useState<DepositValues>()
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
     cryptoAmount: string
@@ -165,6 +175,29 @@ export const Deposit: React.FC<DepositProps> = ({
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
+
+  const liquidityLockupTime = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+    select: mimirData => {
+      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
+      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
+    },
+  })
+
+  const runePoolDepositMaturityTime = useQuery({
+    ...reactQueries.thornode.mimir(),
+    staleTime: thorchainBlockTimeMs,
+    select: mimirData => {
+      const runePoolDepositMaturityBlocks = mimirData.RUNEPOOLDEPOSITMATURITYBLOCKS as
+        | number
+        | undefined
+
+      return Number(
+        bnOrZero(runePoolDepositMaturityBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
+      )
+    },
+  })
 
   const {
     data: thorchainSaversDepositQuote,
@@ -816,60 +849,102 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmountDebounced],
   )
 
+  const handleContinueMaybeAck = useCallback(
+    (formValues: DepositValues) => {
+      setDepositValues(formValues)
+      if (isRunePool && runePoolDepositMaturityTime.data) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      if (!isRunePool && liquidityLockupTime.data) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      handleContinue(formValues)
+    },
+    [liquidityLockupTime, runePoolDepositMaturityTime, isRunePool, handleContinue],
+  )
+
+  const handleAcknowledge = useCallback(() => {
+    if (!depositValues) return
+    handleContinue(depositValues)
+  }, [depositValues, handleContinue])
+
   if (!state || !contextDispatch || !opportunityData) return null
 
   return (
-    <ReusableDeposit
-      accountId={accountId}
-      onAccountIdChange={handleAccountIdChange}
-      asset={asset}
-      apy={opportunityData.apy ?? undefined}
-      cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
-      cryptoInputValidation={cryptoInputValidation}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
-      fiatInputValidation={fiatInputValidation}
-      marketData={assetMarketData}
-      onCancel={handleCancel}
-      onPercentClick={handlePercentClick}
-      onContinue={handleContinue}
-      onBack={handleBack}
-      onChange={handleInputChange}
-      percentOptions={percentOptions}
-      enableSlippage={false}
-      isLoading={
-        isEstimatedFeesDataLoading ||
-        isSweepNeededLoading ||
-        isThorchainSaversDepositQuoteLoading ||
-        state.loading
-      }
+    <InfoAcknowledgement
+      message={translate('defi.liquidityLockupWarning', {
+        time: formatSecondsToDuration(
+          isRunePool ? runePoolDepositMaturityTime.data ?? 0 : liquidityLockupTime.data ?? 0,
+        ),
+      })}
+      onAcknowledge={handleAcknowledge}
+      shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
+      setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
+      position='static'
     >
-      {!isRunePool ? (
-        <>
-          <Row>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row>
-            <Row.Label>
-              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                {translate(
-                  `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-                  { amount: daysToBreakEven ?? '0' },
-                )}
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        </>
-      ) : null}
-    </ReusableDeposit>
+      <ReusableDeposit
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
+        asset={asset}
+        apy={opportunityData.apy ?? undefined}
+        cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
+        cryptoInputValidation={cryptoInputValidation}
+        fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+        fiatInputValidation={fiatInputValidation}
+        marketData={assetMarketData}
+        onCancel={handleCancel}
+        onPercentClick={handlePercentClick}
+        onContinue={handleContinueMaybeAck}
+        onBack={handleBack}
+        onChange={handleInputChange}
+        percentOptions={percentOptions}
+        enableSlippage={false}
+        isLoading={
+          isEstimatedFeesDataLoading ||
+          isSweepNeededLoading ||
+          isThorchainSaversDepositQuoteLoading ||
+          liquidityLockupTime.isLoading ||
+          runePoolDepositMaturityTime.isLoading ||
+          state.loading
+        }
+      >
+        {!isRunePool ? (
+          <>
+            <Row>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  <Amount.Crypto
+                    value={slippageCryptoAmountPrecision ?? ''}
+                    symbol={asset.symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row>
+              <Row.Label>
+                <HelperTooltip
+                  label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}
+                >
+                  {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+                </HelperTooltip>
+              </Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  {translate(
+                    `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+                    { amount: daysToBreakEven ?? '0' },
+                  )}
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </>
+        ) : null}
+      </ReusableDeposit>
+    </InfoAcknowledgement>
   )
 }

@@ -408,7 +408,7 @@
         "disabledDepositTitle": "Einzahlungen sind vorübergehend deaktiviert.",
         "haltedWithdrawTitle": "Auszahlungen sind vorübergehend gestoppt.",
         "disabledWithdrawTitle": "Auszahlungen sind vorübergehend deaktiviert.",
-        "runePoolWithdrawLockedTitle": "Sie müssen %{timeHuman} warten, um abzuheben.",
+        "withdrawLockedTitle": "Sie müssen %{timeHuman} warten, um abzuheben.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",

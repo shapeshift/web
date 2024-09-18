@@ -408,7 +408,7 @@
         "disabledDepositTitle": "Депозити тимчасово не працюють.",
         "haltedWithdrawTitle": "Виведення коштів тимчасово призупинено.",
         "disabledWithdrawTitle": "Виведення коштів тимчасово відключено.",
-        "runePoolWithdrawLockedTitle": "Ви повинні дочекатися %{timeHuman}, щоб вивести кошти.",
+        "withdrawLockedTitle": "Ви повинні дочекатися %{timeHuman}, щоб вивести кошти.",
         "haltedDescription": "Будь ласка, напишіть у твіттері @THORChain, щоб підняти наш рівень!",
         "protocolFee": "Плата за протокол",
         "fee": "Комісія",

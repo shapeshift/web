@@ -90,10 +90,7 @@ export const getUserLpDataPosition = ({
   const remainingLockupTime = (() => {
     const dateNow = Math.floor(Date.now() / 1000)
     const dateUnlocked = Number(position.dateLastAdded) + liquidityLockupTime
-
-    if (dateNow >= dateUnlocked) return 0
-
-    return dateNow - dateUnlocked
+    return Math.max(dateUnlocked - dateNow, 0)
   })()
 
   return {

@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
@@ -9,10 +9,8 @@ import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import {
-  RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS,
-  thorchainBlockTimeMs,
-} from 'lib/utils/thorchain/constants'
+import { THORCHAIN_BLOCK_TIME_SECONDS } from 'lib/utils/thorchain/constants'
+import type { ThorchainMimir } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -33,6 +31,7 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 import type {
+  MidgardSaverResponse,
   ThorchainRunepoolInformationResponseSuccess,
   ThorchainRunepoolMemberPositionResponse,
   ThorchainRunepoolReservePositionsResponse,
@@ -304,6 +303,20 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
   }
 
   try {
+    const { data: mimir } = await axios.get<ThorchainMimir>(
+      `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
+    )
+
+    const liquidityLockupBlocks = mimir.LIQUIDITYLOCKUPBLOCKS as number | undefined
+    const liquidityLockupTime = Number(
+      bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
+    )
+
+    const runePoolDepositMaturityBlocks = mimir.RUNEPOOLDEPOSITMATURITYBLOCKS as number | undefined
+    const runePoolDepositMaturityTime = Number(
+      bnOrZero(runePoolDepositMaturityBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
+    )
+
     for (const stakingOpportunityId of opportunityIds) {
       const asset = selectAssetById(state, stakingOpportunityId)
       if (!asset)
@@ -327,7 +340,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         continue
       }
 
-      const { asset_deposit_value, asset_redeem_value } = accountPosition
+      const { asset_deposit_value, asset_redeem_value, asset_address } = accountPosition
 
       const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
         bn(10).pow(asset.precision),
@@ -341,23 +354,29 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
       ]
 
-      const maybeMaturity = await (async () => {
-        if (stakingOpportunityId !== thorchainAssetId) return {}
-
+      const dateUnlocked = await (async () => {
         try {
-          const { data: userPosition } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
-            `${getConfig().REACT_APP_MIDGARD_URL}/runepool/${fromAccountId(accountId).account}`,
+          if (stakingOpportunityId === thorchainAssetId) {
+            const { data } = await axios.get<[ThorchainRunepoolMemberPositionResponse]>(
+              `${getConfig().REACT_APP_MIDGARD_URL}/runepool/${asset_address}`,
+            )
+
+            return bnOrZero(data[0].dateLastAdded).plus(runePoolDepositMaturityTime).toNumber()
+          }
+
+          const { data } = await axios.get<MidgardSaverResponse>(
+            `${getConfig().REACT_APP_MIDGARD_URL}/saver/${asset_address}`,
           )
 
-          const maturity =
-            userPosition[0].dateLastAdded + thorchainBlockTimeMs * RUNEPOOL_MINIMUM_WITHDRAW_BLOCKS
+          const dateLastAdded = data.pools.find(({ pool }) => pool === accountPosition.asset)
+            ?.dateLastAdded
 
-          return { maturity }
+          return dateLastAdded
+            ? bnOrZero(dateLastAdded).plus(liquidityLockupTime).toNumber()
+            : undefined
         } catch (error) {
-          if (axios.isAxiosError(error) && error.response?.status === 404) {
-            return { maturity: undefined }
-          }
-          throw new Error('Error fetching RUNEpool maturity')
+          if (axios.isAxiosError(error) && error.response?.status === 404) return
+          throw new Error('Error fetching savers date last added')
         }
       })()
 
@@ -366,7 +385,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
         userStakingId,
         stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
         rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
-        ...maybeMaturity,
+        dateUnlocked,
       }
     }
 

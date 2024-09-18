@@ -10,7 +10,7 @@ import * as coingecko from '../coingecko'
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(polygonChainId),
-    getPortalTokens(polygon),
+    getPortalTokens(polygon, 'all'),
   ])
 
   const [assets, _portalsAssets] = results.map(result => {

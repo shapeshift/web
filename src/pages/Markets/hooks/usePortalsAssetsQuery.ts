@@ -28,7 +28,7 @@ export const usePortalsAssetsQuery = () => {
     queryFn: portalsPlatformsData
       ? () =>
           fetchPortalsTokens({
-            limit: '10',
+            limit: 10,
             chainIds: undefined,
             sortBy: 'apy',
             sortDirection: 'desc',

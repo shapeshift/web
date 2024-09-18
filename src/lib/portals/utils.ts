@@ -31,7 +31,7 @@ export const fetchPortalsTokens = async ({
   accTokens = [],
   sortBy,
   sortDirection,
-  limit = '250',
+  limit = 250,
 }: {
   chainIds: ChainId[] | undefined
   page?: number
@@ -50,7 +50,7 @@ export const fetchPortalsTokens = async ({
     | 'volumeUsd1d'
     | 'volumeUsd7d'
   sortDirection?: 'asc' | 'desc'
-  limit?: string
+  limit: number | 'all'
 }): Promise<TokenInfo[]> => {
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
   if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
@@ -76,7 +76,8 @@ export const fetchPortalsTokens = async ({
 
   try {
     const params = {
-      limit,
+      // Limit per *page*, unrelated to our akschual limit
+      limit: '250',
       // Minimum 100,000 bucks liquidity if asset is a LP token
       minLiquidity: '100000',
       // undefined means all networks
@@ -103,9 +104,9 @@ export const fetchPortalsTokens = async ({
 
     const newTokens = accTokens.concat(pageTokens)
 
-    if (pageResponse.data.more && newTokens.length < Number(limit)) {
+    if (pageResponse.data.more && (limit === 'all' || newTokens.length < Number(limit))) {
       // If there are more pages, recursively fetch the next page
-      return fetchPortalsTokens({ chainIds, page: page + 1, accTokens: newTokens })
+      return fetchPortalsTokens({ chainIds, page: page + 1, accTokens: newTokens, limit })
     } else {
       // No more pages, return all accumulated tokens
       console.log(
@@ -247,7 +248,10 @@ export const portalTokenToAsset = ({
   }
 }
 
-export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
+export const getPortalTokens = async (
+  nativeAsset: Asset,
+  limit: number | 'all',
+): Promise<Asset[]> => {
   if (!PORTALS_API_KEY) throw new Error('REACT_APP_PORTALS_API_KEY not set')
   if (!PORTALS_BASE_URL) throw new Error('REACT_APP_PORTALS_BASE_URL not set')
 
@@ -257,7 +261,7 @@ export const getPortalTokens = async (nativeAsset: Asset): Promise<Asset[]> => {
   })
   const chainId = nativeAsset.chainId
 
-  const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId] })
+  const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId], limit })
   return portalsTokens
     .map(token => portalTokenToAsset({ token, portalsPlatforms, chainId, nativeAsset }))
     .filter(isSome)

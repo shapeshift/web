@@ -10,7 +10,7 @@ import * as coingecko from '../coingecko'
 export const getAssets = async (): Promise<Asset[]> => {
   const [assets, _portalsAssets] = await Promise.all([
     coingecko.getAssets(gnosisChainId),
-    getPortalTokens(gnosis),
+    getPortalTokens(gnosis, 'all'),
   ])
 
   // Order matters here - We do a uniqBy and only keep the first of each asset using assetId as a criteria

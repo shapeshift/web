@@ -32,7 +32,7 @@ const foxyToken: Asset = {
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(ethChainId),
-    getPortalTokens(ethereum),
+    getPortalTokens(ethereum, 'all'),
   ])
 
   const [coingeckoTokens, portalsTokens] = results.map(result => {

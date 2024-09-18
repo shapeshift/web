@@ -2597,7 +2597,7 @@
       },
       "trending": {
         "title": "Trending",
-        "subtitle": "These are top assets that have jumped 10% or more"
+        "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
       "topMovements": {
         "title": "Top Movers"

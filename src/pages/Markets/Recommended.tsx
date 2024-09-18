@@ -202,7 +202,7 @@ export const Recommended: React.FC = () => {
       },
       {
         title: translate('markets.categories.trending.title'),
-        subtitle: translate('markets.categories.trending.subtitle'),
+        subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
         component: (
           <AssetsGrid
             assetIds={assetIds}

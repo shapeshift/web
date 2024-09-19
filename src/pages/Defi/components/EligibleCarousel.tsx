@@ -1,6 +1,6 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, Flex, Heading } from '@chakra-ui/react'
-import { ETH_FOX_STAKING_V9_CONTRACT } from '@shapeshiftoss/contracts'
+import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
 import { uniqBy } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -50,29 +50,30 @@ export const EligibleCarousel: React.FC<EligibleCarouselProps> = props => {
       )
       .slice(0, 5)
 
-    const foxFarmingV9 = eligibleOpportunities.find(
-      eligibleOpportunity => eligibleOpportunity.contractAddress === ETH_FOX_STAKING_V9_CONTRACT,
+    const foxFarmingEvergreen = eligibleOpportunities.find(
+      eligibleOpportunity =>
+        eligibleOpportunity.contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT,
     )
 
     const rfoxOpportunity = eligibleOpportunities.find(
       eligibleOpportunity => eligibleOpportunity.provider === DefiProvider.rFOX,
     )
 
-    if (!foxFarmingV9 && !rfoxOpportunity) {
+    if (!foxFarmingEvergreen && !rfoxOpportunity) {
       return filteredEligibleOpportunities
     }
 
-    const filteredEligibleOpportunitiesWithFoxFarmingV9 = uniqBy(
+    const filteredEligibleOpportunitiesWithFoxFarmingEvergreen = uniqBy(
       [
         rfoxOpportunity,
         filteredEligibleOpportunities[0],
-        foxFarmingV9,
+        foxFarmingEvergreen,
         ...filteredEligibleOpportunities.slice(1),
       ].filter(isSome),
       'contractAddress',
     ).slice(0, 5)
 
-    return filteredEligibleOpportunitiesWithFoxFarmingV9
+    return filteredEligibleOpportunitiesWithFoxFarmingEvergreen
   }, [eligibleOpportunities])
 
   const renderEligibleCards = useMemo(() => {

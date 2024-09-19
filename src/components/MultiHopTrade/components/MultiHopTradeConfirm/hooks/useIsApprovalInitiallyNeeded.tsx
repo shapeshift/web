@@ -103,6 +103,15 @@ export const useIsApprovalInitiallyNeeded = () => {
         secondHop: isAllowanceResetNeededForSecondHop ?? false,
       }),
     )
+
+    // TODO: actually wire this up
+    dispatch(
+      tradeQuoteSlice.actions.setPermit2Requirements({
+        id: activeQuote.id,
+        firstHop: true,
+        secondHop: true,
+      }),
+    )
   }, [
     activeQuote?.id,
     dispatch,

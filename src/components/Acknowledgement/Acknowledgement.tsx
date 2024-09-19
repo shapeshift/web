@@ -1,5 +1,6 @@
-import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
+import type { ComponentWithAs, IconProps, ResponsiveValue, ThemeTypings } from '@chakra-ui/react'
 import { Box, Button, Checkbox, Link, useColorModeValue } from '@chakra-ui/react'
+import type * as CSS from 'csstype'
 import type { AnimationDefinition, MotionStyle } from 'framer-motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -91,7 +92,7 @@ type AcknowledgementProps = {
   buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
   disableButton?: boolean
-  position?: 'relative' | 'static'
+  position?: ResponsiveValue<CSS.Property.Position>
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {

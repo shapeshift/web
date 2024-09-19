@@ -19,11 +19,8 @@ import type {
   TokenInfo,
 } from './types'
 
-// Accommodate for script vs. web shenanigans
-const PORTALS_BASE_URL =
-  process.env.REACT_APP_PORTALS_BASE_URL || getConfig().REACT_APP_PORTALS_BASE_URL
-const PORTALS_API_KEY =
-  process.env.REACT_APP_PORTALS_API_KEY || getConfig().REACT_APP_PORTALS_API_KEY
+const PORTALS_BASE_URL = getConfig().REACT_APP_PORTALS_BASE_URL
+const PORTALS_API_KEY = getConfig().REACT_APP_PORTALS_API_KEY
 
 export const fetchPortalsTokens = async ({
   chainIds,

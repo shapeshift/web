@@ -10,6 +10,7 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -517,7 +518,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const account = await this.getAccount(
       input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
     )
-    const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
+    const addresses = (() => {
+      // This means the account isn't an xpub account, pub a pubkey as account i.e Phantom, which doesn't expose an xpub
+      if (wallet instanceof PhantomHDWallet && !account.chainSpecific.addresses && account.pubkey)
+        return [account.pubkey]
+      return (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
+    })()
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
     await this.providers.ws.subscribeTxs(

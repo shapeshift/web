@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { PORTALS_NETWORK_TO_CHAIN_ID } from 'lib/portals/constants'
@@ -14,7 +14,7 @@ export type PortalsAssets = {
   ids: AssetId[]
 }
 
-export const usePortalsAssetsQuery = () => {
+export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | undefined }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -29,7 +29,7 @@ export const usePortalsAssetsQuery = () => {
       ? () =>
           fetchPortalsTokens({
             limit: 10,
-            chainIds: undefined,
+            chainIds,
             sortBy: 'apy',
             sortDirection: 'desc',
           })

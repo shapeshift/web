@@ -7,7 +7,7 @@ import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectAssetIds } from 'state/slices/selectors'
+import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
@@ -95,7 +95,9 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
     },
     [history],
   )
-  const { data: portalsAssets } = usePortalsAssetsQuery()
+  const { data: portalsAssets } = usePortalsAssetsQuery({
+    chainIds: selectedChainId ? [selectedChainId] : undefined,
+  })
 
   const filteredAssetIds = useMemo(
     () =>
@@ -144,7 +146,16 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
 
 const Row: React.FC<RowProps> = ({ title, subtitle, children }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
-  const chainIds = useMemo(() => Object.values(KnownChainIds), [])
+  const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
+
+  const chainIds = useMemo(
+    () =>
+      Object.values(KnownChainIds).filter(chainId => {
+        if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
+        return true
+      }),
+    [isArbitrumNovaEnabled],
+  )
 
   return (
     <Box mb={8}>
@@ -177,7 +188,9 @@ export const Recommended: React.FC = () => {
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const assetIds = useAppSelector(selectAssetIds)
 
-  const { isLoading: isPortalsAssetsLoading, data: portalsAssets } = usePortalsAssetsQuery()
+  const { isLoading: isPortalsAssetsLoading, data: portalsAssets } = usePortalsAssetsQuery({
+    chainIds: undefined,
+  })
 
   const rows = useMemo(
     () => [

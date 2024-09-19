@@ -849,7 +849,7 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmountDebounced],
   )
 
-  const handleContinueMaybeAck = useCallback(
+  const handleContinueOrAcknowledgement = useCallback(
     (formValues: DepositValues) => {
       setDepositValues(formValues)
       if (isRunePool && runePoolDepositMaturityTime.data) {
@@ -898,7 +898,7 @@ export const Deposit: React.FC<DepositProps> = ({
         marketData={assetMarketData}
         onCancel={handleCancel}
         onPercentClick={handlePercentClick}
-        onContinue={handleContinueMaybeAck}
+        onContinue={handleContinueOrAcknowledgement}
         onBack={handleBack}
         onChange={handleInputChange}
         percentOptions={percentOptions}

@@ -22,6 +22,7 @@
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
     "dev:packages": "yarn tsc --build --watch --preserveWatchOutput tsconfig.packages.json",
     "env": "yarn tsx ./scripts/bootstrap-env.ts",
+    "generate:all": "yarn generate:caip-adapters && yarn run generate:color-map && yarn run generate:asset-data && yarn run generate:thor-asset-map && yarn run generate:thor-longtail-tokens",
     "generate:caip-adapters": "yarn workspace @shapeshiftoss/caip generate",
     "generate:asset-data": "yarn tsx ./scripts/generateAssetData/generateAssetData.ts && yarn run codemod:clear-assets-migration",
     "generate:related-asset-index": "yarn tsx ./scripts/generateAssetData/generateRelatedAssetIndex.ts && yarn run codemod:clear-assets-migration",

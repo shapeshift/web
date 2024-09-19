@@ -27,7 +27,7 @@ export const MarketsHeader = () => {
         color: 'blue',
       },
       {
-        label: 'markets.categories',
+        label: 'markets.categoriesTabTitle',
         path: '/markets/categories',
         color: 'blue',
       },

@@ -172,7 +172,8 @@
     "featureDisabled": "This feature is temporarily disabled.",
     "yes": "Yes",
     "activeAccount": "Active Account",
-    "update": "Update"
+    "update": "Update",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -2587,7 +2588,25 @@
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
-    "categories": "Categories",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
+    "categoriesTabTitle": "Categories",
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "One Click DeFi Assets"
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi"
+      },
+      "trending": {
+        "title": "Trending",
+        "subtitle": "These are top assets that have jumped %{percentage}% or more"
+      },
+      "topMovements": {
+        "title": "Top Movers"
+      },
+      "recentlyAdded": {
+        "title": "Recently Added"
+      }
+    }
   }
 }

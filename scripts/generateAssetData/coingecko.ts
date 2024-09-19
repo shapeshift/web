@@ -16,6 +16,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { colorMap } from './../../src/lib/asset-service/service/colorMap'
 import {
   arbitrum,
   arbitrumNova,
@@ -27,7 +28,6 @@ import {
   optimism,
   polygon,
 } from './baseAssets'
-import { colorMap } from './colorMap'
 
 type Token = {
   chainId: number

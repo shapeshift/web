@@ -36,7 +36,8 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   )
   const currentWalletId = useAppSelector(selectWalletId)
 
-  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
+  const { data: thorchainMimirTimes, isSuccess: isThorchainMimirTimesSuccess } =
+    useThorchainMimirTimes()
 
   const { data: pools, isSuccess } = useQuery({
     ...reactQueries.thornode.poolsData(),
@@ -47,7 +48,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
   const queries = useMemo(() => {
     if (!pools) return []
-    if (!liquidityLockupTimeResult.data) return []
+    if (!thorchainMimirTimes) return []
 
     return pools
       .map(pool => {
@@ -57,7 +58,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
         return {
           ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
-          enabled: Boolean(isSuccess && currentWalletId && liquidityLockupTimeResult.isSuccess),
+          enabled: Boolean(isSuccess && currentWalletId && isThorchainMimirTimesSuccess),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
@@ -88,7 +89,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
                     pool,
                     position,
                     runePrice: runeMarketDataUserCurrency.price,
-                    liquidityLockupTime: liquidityLockupTimeResult.data,
+                    liquidityLockupTime: thorchainMimirTimes.liquidityLockupTime,
                   }),
                 )
                 .filter(isSome),
@@ -98,16 +99,17 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
       })
       .filter(isSome)
   }, [
-    pools,
-    liquidityLockupTimeResult,
+    assets,
     currentWalletId,
     isSuccess,
-    portfolioAccounts,
-    runeAccountIds,
-    queryClient,
+    isThorchainMimirTimesSuccess,
     marketDataUserCurrency,
-    assets,
+    pools,
+    portfolioAccounts,
+    queryClient,
+    runeAccountIds,
     runeMarketDataUserCurrency.price,
+    thorchainMimirTimes,
   ])
 
   // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector

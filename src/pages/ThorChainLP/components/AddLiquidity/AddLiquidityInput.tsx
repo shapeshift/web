@@ -237,7 +237,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
 
-  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
+  const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
+    useThorchainMimirTimes()
 
   const { data: poolAssetAccountAddress } = useThorchainFromAddress({
     accountId: poolAssetAccountId,
@@ -1466,8 +1467,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [handleSubmit, isUnsafeQuote])
 
   const handleClick = useCallback(() => {
-    liquidityLockupTimeResult.data ? setShouldShowInfoAcknowledgement(true) : handleDepositSubmit()
-  }, [liquidityLockupTimeResult, handleDepositSubmit])
+    thorchainMimirTimes?.liquidityLockupTime
+      ? setShouldShowInfoAcknowledgement(true)
+      : handleDepositSubmit()
+  }, [thorchainMimirTimes, handleDepositSubmit])
 
   if (!poolAsset || !runeAsset) return null
 
@@ -1475,7 +1478,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     <SlideTransition>
       <InfoAcknowledgement
         message={translate('defi.liquidityLockupWarning', {
-          time: formatSecondsToDuration(liquidityLockupTimeResult.data ?? 0),
+          time: formatSecondsToDuration(thorchainMimirTimes?.liquidityLockupTime ?? 0),
         })}
         onAcknowledge={handleDepositSubmit}
         shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
@@ -1619,7 +1622,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 isApprovalTxPending ||
                 (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
                 (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-                liquidityLockupTimeResult.isLoading
+                isThorchainMimirTimesLoading
               }
               onClick={handleClick}
             >

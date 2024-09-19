@@ -144,7 +144,8 @@ export const useUserLpData = ({
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
-  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
+  const { data: thorchainMimirTimes, isSuccess: isThorchainMimirTimesSuccess } =
+    useThorchainMimirTimes()
 
   const { data: pool } = useQuery({
     ...reactQueries.thornode.poolData(assetId),
@@ -176,7 +177,7 @@ export const useUserLpData = ({
     },
     select: (positions: Position[] | undefined) => {
       if (!pool) return null
-      if (!liquidityLockupTimeResult.data) return null
+      if (!thorchainMimirTimes) return null
 
       return (positions ?? [])
         .map(position =>
@@ -187,11 +188,11 @@ export const useUserLpData = ({
             pool,
             position,
             runePrice: runeMarketData.price,
-            liquidityLockupTime: liquidityLockupTimeResult.data,
+            liquidityLockupTime: thorchainMimirTimes.liquidityLockupTime,
           }),
         )
         .filter(isSome)
     },
-    enabled: Boolean(assetId && currentWalletId && pool && liquidityLockupTimeResult.isSuccess),
+    enabled: Boolean(assetId && currentWalletId && pool && isThorchainMimirTimesSuccess),
   })
 }

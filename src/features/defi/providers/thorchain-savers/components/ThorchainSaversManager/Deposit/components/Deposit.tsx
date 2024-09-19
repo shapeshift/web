@@ -171,7 +171,8 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
-  const { liquidityLockupTimeResult, runePoolDepositMaturityTimeResult } = useThorchainMimirTimes()
+  const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
+    useThorchainMimirTimes()
 
   const {
     data: thorchainSaversDepositQuote,
@@ -826,19 +827,19 @@ export const Deposit: React.FC<DepositProps> = ({
   const handleContinueOrAcknowledgement = useCallback(
     (formValues: DepositValues) => {
       setDepositValues(formValues)
-      if (isRunePool && runePoolDepositMaturityTimeResult.data) {
+      if (isRunePool && thorchainMimirTimes?.runePoolDepositMaturityTime) {
         setShouldShowInfoAcknowledgement(true)
         return
       }
 
-      if (!isRunePool && liquidityLockupTimeResult.data) {
+      if (!isRunePool && thorchainMimirTimes?.liquidityLockupTime) {
         setShouldShowInfoAcknowledgement(true)
         return
       }
 
       handleContinue(formValues)
     },
-    [liquidityLockupTimeResult, runePoolDepositMaturityTimeResult, isRunePool, handleContinue],
+    [thorchainMimirTimes, isRunePool, handleContinue],
   )
 
   const handleAcknowledge = useCallback(() => {
@@ -853,8 +854,8 @@ export const Deposit: React.FC<DepositProps> = ({
       message={translate('defi.liquidityLockupWarning', {
         time: formatSecondsToDuration(
           isRunePool
-            ? runePoolDepositMaturityTimeResult.data ?? 0
-            : liquidityLockupTimeResult.data ?? 0,
+            ? thorchainMimirTimes?.runePoolDepositMaturityTime ?? 0
+            : thorchainMimirTimes?.liquidityLockupTime ?? 0,
         ),
       })}
       onAcknowledge={handleAcknowledge}
@@ -883,8 +884,7 @@ export const Deposit: React.FC<DepositProps> = ({
           isEstimatedFeesDataLoading ||
           isSweepNeededLoading ||
           isThorchainSaversDepositQuoteLoading ||
-          liquidityLockupTimeResult.isLoading ||
-          runePoolDepositMaturityTimeResult.isLoading ||
+          isThorchainMimirTimesLoading ||
           state.loading
         }
       >

@@ -12,7 +12,7 @@ import { fromThorBaseUnit } from 'lib/utils/thorchain'
 import {
   selectLiquidityLockupTime,
   selectRunePoolMaturityTime,
-} from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
+} from 'lib/utils/thorchain/selectors'
 import type { ThorchainMimir } from 'lib/utils/thorchain/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'

@@ -41,6 +41,7 @@ import {
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -76,7 +77,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       // TODO(0xdef1cafe): translations
       if (pubkey.startsWith('xpub')) return 'Legacy'
       if (pubkey.startsWith('ypub')) return 'Segwit'
-      if (pubkey.startsWith('zpub')) return 'Segwit Native'
+      if (pubkey.startsWith('zpub') || bech32.decode(pubkey).prefix === 'bc') return 'Segwit Native'
       return ''
     case bchChainId:
       return 'Bitcoin Cash'

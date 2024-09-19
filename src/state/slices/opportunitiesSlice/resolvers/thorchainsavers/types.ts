@@ -46,6 +46,20 @@ export type MidgardPoolResponse = {
   volume24h: string
 }
 
+export type MidgardSaverResponse = {
+  pools: {
+    assetAdded: string
+    assetAddress: string
+    assetDeposit: string
+    assetRedeem: string
+    assetWithdrawn: string
+    dateFirstAdded: string
+    dateLastAdded: string
+    pool: string
+    saverUnits: string
+  }[]
+}
+
 export type ThorchainSaverPositionResponse = {
   asset: string
   asset_address: string

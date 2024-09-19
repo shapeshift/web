@@ -408,7 +408,7 @@
         "disabledDepositTitle": "デポジットは一時的に無効になります。",
         "haltedWithdrawTitle": "出金を一時停止しております。",
         "disabledWithdrawTitle": "引き出しは一時的に無効になっています。",
-        "runePoolWithdrawLockedTitle": "引き出すには%{timeHuman}待つ必要があります。",
+        "withdrawLockedTitle": "引き出すには%{timeHuman}待つ必要があります。",
         "haltedDescription": "上限を増やすには、@THORChain でツイートしてください。",
         "protocolFee": "プロトコル手数料",
         "fee": "手数料",

@@ -408,7 +408,7 @@
         "disabledDepositTitle": "Депозиты временно отключены.",
         "haltedWithdrawTitle": "Вывод средств временно приостановлен.",
         "disabledWithdrawTitle": "Вывод средств временно отключен.",
-        "runePoolWithdrawLockedTitle": "Чтобы снять деньги, вам придется подождать %{timeHuman}.",
+        "withdrawLockedTitle": "Чтобы снять деньги, вам придется подождать %{timeHuman}.",
         "haltedDescription": "Пожалуйста, напишите в твиттере @THORChain, чтобы поднять капитализацию!",
         "protocolFee": "Плата за протокол",
         "fee": "Комиссия",

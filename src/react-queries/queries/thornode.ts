@@ -9,8 +9,7 @@ import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapp
 import { Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import type { ThorchainMimir } from 'lib/utils/thorchain/lending/types'
-import type { ThorchainBlock } from 'lib/utils/thorchain/types'
+import type { ThorchainBlock, ThorchainMimir } from 'lib/utils/thorchain/types'
 
 const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
 

@@ -408,7 +408,7 @@
         "disabledDepositTitle": "Depósitos temporalmente deshabilitados.",
         "haltedWithdrawTitle": "Retiros suspendidos temporalmente.",
         "disabledWithdrawTitle": "Retiros temporalmente deshabilitados.",
-        "runePoolWithdrawLockedTitle": "Tienes que esperar %{timeHuman} para retirar.",
+        "withdrawLockedTitle": "Tienes que esperar %{timeHuman} para retirar.",
         "haltedDescription": "¡Tuitee a @THORChain para aumentar los límites!",
         "protocolFee": "Tarifa de Protocolo",
         "fee": "Comisión",

@@ -2585,6 +2585,7 @@
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
-    "categories": "Categories"
+    "categories": "Categories",
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
   }
 }

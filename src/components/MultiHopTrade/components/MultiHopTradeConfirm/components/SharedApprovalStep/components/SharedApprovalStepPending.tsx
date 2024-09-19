@@ -23,7 +23,7 @@ export type SharedApprovalStepPendingProps = {
   transactionExecutionState: TransactionExecutionState
   stepIndicator: JSX.Element
   allowanceType: AllowanceType
-  renderDescription: (approvalNetworkFeeCryptoFormatted: string) => JSX.Element
+  renderDescription: (approvalNetworkFeeCryptoFormatted: string | undefined) => JSX.Element
   renderContent: RenderAllowanceContentCallback
 }
 
@@ -70,9 +70,7 @@ export const SharedApprovalStepPending = ({
         feeAsset.symbol,
       )
     }
-
-    return translate('common.loadingText').toLowerCase()
-  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto, translate])
+  }, [approvalNetworkFeeCryptoBaseUnit, feeAsset, toCrypto])
 
   const content = useMemo(() => {
     return renderContent({

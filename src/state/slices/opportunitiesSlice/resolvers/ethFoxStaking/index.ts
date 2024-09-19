@@ -1,4 +1,5 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
@@ -53,7 +54,9 @@ export const ethFoxStakingMetadataResolver = async ({
   }
 
   assertIsFoxEthStakingContractAddress(contractAddress)
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
+  const foxFarmingContract = getOrCreateContractByAddress(
+    contractAddress,
+  ) as FoxEthStakingContract<FoxEthStakingContractAbi>
   const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
 
   // tvl

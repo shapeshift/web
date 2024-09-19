@@ -207,6 +207,14 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution[action.payload.id].secondHop.allowanceReset.isRequired =
         action.payload?.secondHop
     },
+    setPermit2Requirements: (
+      state,
+      action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuote['id'] }>,
+    ) => {
+      state.tradeExecution[action.payload.id].firstHop.permit2.isRequired = action.payload?.firstHop
+      state.tradeExecution[action.payload.id].secondHop.permit2.isRequired =
+        action.payload?.secondHop
+    },
     setApprovalTxHash: (
       state,
       action: PayloadAction<{

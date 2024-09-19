@@ -65,6 +65,7 @@ export const ApprovalResetStep = ({
             ? TransactionExecutionState.Failed
             : TransactionExecutionState.Pending
         case HopExecutionState.AwaitingApproval:
+        case HopExecutionState.AwaitingPermit2:
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
           return TransactionExecutionState.Complete
@@ -125,6 +126,7 @@ export const ApprovalResetStep = ({
   const isComplete = useMemo(() => {
     return [
       HopExecutionState.AwaitingApproval,
+      HopExecutionState.AwaitingPermit2,
       HopExecutionState.AwaitingSwap,
       HopExecutionState.Complete,
     ].includes(hopExecutionState)

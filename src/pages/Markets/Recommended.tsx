@@ -19,9 +19,7 @@ import { MarketsHeader } from './MarketsHeader'
 type RowProps = {
   title: string
   subtitle?: string
-  children: React.ReactNode
-  selectedChainId: ChainId | undefined
-  setSelectedChainId: (chainId: ChainId | undefined) => void
+  children: (selectedChainId: ChainId | undefined) => React.ReactNode
 }
 
 const containerPaddingX = { base: 4, xl: 0 }
@@ -144,13 +142,8 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   )
 }
 
-const Row: React.FC<RowProps> = ({
-  title,
-  subtitle,
-  children,
-  selectedChainId,
-  setSelectedChainId,
-}) => {
+const Row: React.FC<RowProps> = ({ title, subtitle, children }) => {
+  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const chainIds = useMemo(() => Object.values(KnownChainIds), [])
 
   return (
@@ -174,7 +167,7 @@ const Row: React.FC<RowProps> = ({
           includeBalance
         />
       </Flex>
-      {children}
+      {children(selectedChainId)}
     </Box>
   )
 }
@@ -183,7 +176,6 @@ export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const assetIds = useAppSelector(selectAssetIds)
-  const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
 
   const { isLoading: isPortalsAssetsLoading, data: portalsAssets } = usePortalsAssetsQuery()
 
@@ -191,7 +183,7 @@ export const Recommended: React.FC = () => {
     () => [
       {
         title: 'Most Popular',
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
@@ -203,7 +195,7 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.trending.title'),
         subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
@@ -214,7 +206,7 @@ export const Recommended: React.FC = () => {
       },
       {
         title: translate('markets.categories.topMovements.title'),
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
@@ -226,7 +218,7 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.recentlyAdded.title'),
         // TODO(gomes): loading state when implemented
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
@@ -237,7 +229,7 @@ export const Recommended: React.FC = () => {
       },
       {
         title: translate('markets.categories.oneClickDefiAssets.title'),
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <LpGrid
             assetIds={portalsAssets?.ids ?? []}
             selectedChainId={selectedChainId}
@@ -247,7 +239,7 @@ export const Recommended: React.FC = () => {
       },
       {
         title: translate('markets.categories.thorchainDefi.title'),
-        component: (
+        component: (selectedChainId: ChainId | undefined) => (
           <LpGrid
             assetIds={assetIds}
             selectedChainId={selectedChainId}
@@ -257,7 +249,7 @@ export const Recommended: React.FC = () => {
         ),
       },
     ],
-    [assetIds, isPortalsAssetsLoading, portalsAssets, selectedChainId, translate],
+    [assetIds, isPortalsAssetsLoading, portalsAssets, translate],
   )
 
   return (
@@ -265,13 +257,7 @@ export const Recommended: React.FC = () => {
       <SEO title={translate('navBar.markets')} />
       <Box py={4} px={containerPaddingX}>
         {rows.map((row, i) => (
-          <Row
-            key={i}
-            title={row.title}
-            subtitle={row.subtitle}
-            selectedChainId={selectedChainId}
-            setSelectedChainId={setSelectedChainId}
-          >
+          <Row key={i} title={row.title} subtitle={row.subtitle}>
             {row.component}
           </Row>
         ))}

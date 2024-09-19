@@ -43,6 +43,7 @@ import { ApprovalStep } from './ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
+import { Permit2Step } from './Permit2Step/Permit2Step'
 import { TimeRemaining } from './TimeRemaining'
 
 const collapseWidth = {
@@ -97,6 +98,7 @@ export const Hop = ({
     approval,
     swap,
     allowanceReset,
+    permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(
@@ -150,8 +152,10 @@ export const Hop = ({
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingApproval:
         return hopIndex === 0 ? 2 : 1
-      case HopExecutionState.AwaitingSwap:
+      case HopExecutionState.AwaitingPermit2:
         return hopIndex === 0 ? 3 : 2
+      case HopExecutionState.AwaitingSwap:
+        return hopIndex === 0 ? 4 : 3
       case HopExecutionState.Complete:
         return Infinity
       default:
@@ -187,6 +191,7 @@ export const Hop = ({
         )
       case HopExecutionState.AwaitingApprovalReset:
       case HopExecutionState.AwaitingApproval:
+      case HopExecutionState.AwaitingPermit2:
       case HopExecutionState.AwaitingSwap:
         return (
           <Circle size={8} bg='background.surface.raised.base'>
@@ -236,6 +241,15 @@ export const Hop = ({
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
+                activeTradeId={activeTradeId}
+              />
+            )}
+          </Collapse>
+          <Collapse in={permit2.isRequired} style={collapseWidth}>
+            {permit2.isRequired === true && (
+              <Permit2Step
+                tradeQuoteStep={tradeQuoteStep}
+                hopIndex={hopIndex}
                 activeTradeId={activeTradeId}
               />
             )}

@@ -26,6 +26,7 @@ export enum HopExecutionState {
   Pending = 'Pending',
   AwaitingApprovalReset = 'AwaitingApprovalReset',
   AwaitingApproval = 'AwaitingApproval',
+  AwaitingPermit2 = 'AwaitingPermit2',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
 }
@@ -77,6 +78,7 @@ export type HopExecutionMetadata = {
   state: HopExecutionState
   allowanceReset: ApprovalExecutionMetadata
   approval: ApprovalExecutionMetadata
+  permit2: Omit<ApprovalExecutionMetadata, 'txHash'>
   swap: SwapExecutionMetadata
 }
 

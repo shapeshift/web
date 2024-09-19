@@ -894,6 +894,12 @@
         "negativeRatio": "Insufficient sell amount"
       }
     },
+    "permit2": {
+      "title": "Permit token transfer",
+      "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
+      "error": "A problem occurred signing Permit2 message",
+      "signMessage": "Sign message"
+    },
     "errors": {
       "title": "Something went wrong",
       "amountTooSmall": "Minimum: %{minLimit}",

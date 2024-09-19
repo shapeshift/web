@@ -9,12 +9,12 @@ import { getTxLink } from 'lib/getTxLink'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type ErrorMsgProps = {
+export type ErrorMsgProps = {
   isError: boolean
   errorTranslation: string
 }
 
-const ErrorMsg = ({ isError, errorTranslation }: ErrorMsgProps) => {
+export const ErrorMsg = ({ isError, errorTranslation }: ErrorMsgProps) => {
   return isError ? (
     <Text color='text.error' translation={errorTranslation} fontWeight='bold' />
   ) : null

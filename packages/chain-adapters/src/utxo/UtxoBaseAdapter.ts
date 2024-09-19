@@ -323,12 +323,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        if (!input.path) continue
+        // TOOD(gomes): v. dangerous, narrow this monkey patch for Phantom only
+        // if (!input.path) continue
 
         const data = await this.providers.http.getTransaction({ txid: input.txid })
 
         signTxInputs.push({
-          addressNList: bip32ToAddressNList(input.path),
+          // TODO(gomes): v. dangerous, should only be used for phantom since no derivation happens, and assume account 0 address 0 yadi yada
+          // @ts-ignore
+          addressNList: input.path ? bip32ToAddressNList(input.path) : undefined,
           scriptType: accountTypeToScriptType[accountType],
           amount: String(input.value),
           vout: input.vout,

@@ -7,18 +7,22 @@ import {
   FormLabel,
   Input,
   Stack,
+  Tag,
 } from '@chakra-ui/react'
 import { fromAccountId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from 'components/InlineCopyButton'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { Text } from 'components/Text'
 import { validateAddress } from 'lib/address/address'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
+  selectPortfolioAccountIdsByAssetIdFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -26,8 +30,10 @@ import { selectRuneAddress } from '../helpers'
 import { useRFOXContext } from '../hooks/useRfoxContext'
 import { useStakingInfoQuery } from '../hooks/useStakingInfoQuery'
 import type { AddressSelectionValues } from '../types'
+import { RfoxTabIndex } from '../Widget'
 
 type AddressSelectionProps = {
+  setStepIndex: ((index: number) => void) | undefined
   onRuneAddressChange: (address: string | undefined) => void
   selectedAddress: string | undefined
 } & (
@@ -58,6 +64,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   isNewAddress,
   selectedAddress,
   validateIsNewAddress,
+  setStepIndex,
 }) => {
   const translate = useTranslate()
 
@@ -77,6 +84,15 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     select: selectRuneAddress,
   })
 
+  useEffect(() => {
+    handleRuneAddressChange(undefined)
+    setIsManualAddress(false)
+  }, [stakingAssetAccountId, handleRuneAddressChange])
+
+  const shouldDisableAccountDropdown = useMemo(() => {
+    return Boolean(currentRuneAddress && setStepIndex)
+  }, [currentRuneAddress, setStepIndex])
+
   const [isManualAddress, setIsManualAddress] = useState(false)
 
   const handleAccountIdChange = useCallback(
@@ -90,6 +106,10 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     handleRuneAddressChange(undefined)
     setIsManualAddress(!isManualAddress)
   }, [isManualAddress, handleRuneAddressChange])
+
+  const handleChangeAddressClick = useCallback(() => {
+    setStepIndex?.(RfoxTabIndex.ChangeAddress)
+  }, [setStepIndex])
 
   const manualAddressSelection = useMemo(() => {
     if (!isManualAddress) return null
@@ -177,17 +197,43 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
   }, [accountIdsByAccountNumberAndChainId, stakingAssetAccountNumber])
 
   const maybeRuneAccountId = useMemo(() => {
-    if (selectedAddress) return toAccountId({ account: selectedAddress, chainId: thorchainChainId })
+    if (selectedAddress && !shouldDisableAccountDropdown)
+      return toAccountId({ account: selectedAddress, chainId: thorchainChainId })
     if (currentRuneAddress)
       return toAccountId({ account: currentRuneAddress, chainId: thorchainChainId })
     if (maybeMatchingRuneAccountId) return maybeMatchingRuneAccountId
+
     return undefined
-  }, [currentRuneAddress, maybeMatchingRuneAccountId, selectedAddress])
+  }, [
+    currentRuneAddress,
+    maybeMatchingRuneAccountId,
+    selectedAddress,
+    shouldDisableAccountDropdown,
+  ])
 
   const maybeSelectedRuneAddress = useMemo(() => {
     if (!maybeRuneAccountId) return
     return fromAccountId(maybeRuneAccountId).account
   }, [maybeRuneAccountId])
+
+  const filter = useMemo(() => ({ accountId: maybeRuneAccountId }), [maybeRuneAccountId])
+  const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
+
+  const accountsFilter = useMemo(() => ({ assetId: thorchainAssetId }), [])
+  const runeAccounts = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetIdFilter(state, accountsFilter),
+  )
+
+  const CustomAddress = useCallback(() => {
+    if (!maybeSelectedRuneAddress)
+      return <Text translation='RFOX.noAddressFound' color='text.subtle' fontSize='sm' />
+
+    return (
+      <Tag colorScheme='gray'>
+        <MiddleEllipsis value={maybeSelectedRuneAddress} />
+      </Tag>
+    )
+  }, [maybeSelectedRuneAddress])
 
   const accountSelection = useMemo(() => {
     if (isManualAddress) return null
@@ -197,16 +243,34 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
         isDisabled={!maybeSelectedRuneAddress}
         value={maybeSelectedRuneAddress ?? ''}
       >
-        <AccountDropdown
-          defaultAccountId={maybeRuneAccountId}
-          assetId={thorchainAssetId}
-          onChange={handleAccountIdChange}
-          boxProps={boxProps}
-          buttonProps={buttonProps}
-        />
+        {(!Boolean(currentRuneAddress) && maybeRuneAccountId && setStepIndex) ||
+        accountNumber !== undefined ||
+        (!setStepIndex && runeAccounts.length) ? (
+          <AccountDropdown
+            defaultAccountId={maybeRuneAccountId}
+            assetId={thorchainAssetId}
+            onChange={handleAccountIdChange}
+            boxProps={boxProps}
+            buttonProps={buttonProps}
+            disabled={Boolean(shouldDisableAccountDropdown)}
+          />
+        ) : (
+          <CustomAddress />
+        )}
       </InlineCopyButton>
     )
-  }, [handleAccountIdChange, isManualAddress, maybeRuneAccountId, maybeSelectedRuneAddress])
+  }, [
+    handleAccountIdChange,
+    isManualAddress,
+    maybeRuneAccountId,
+    maybeSelectedRuneAddress,
+    CustomAddress,
+    currentRuneAddress,
+    setStepIndex,
+    shouldDisableAccountDropdown,
+    accountNumber,
+    runeAccounts,
+  ])
 
   const addressSelectionLabel = useMemo(
     () =>
@@ -220,6 +284,39 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
     [isNewAddress, translate],
   )
 
+  const TopRightButton = useCallback(() => {
+    if (Boolean(currentRuneAddress && setStepIndex)) {
+      return (
+        <Button
+          variant='link'
+          colorScheme='blue'
+          size='sm-multiline'
+          onClick={handleChangeAddressClick}
+        >
+          {translate('RFOX.changeAddress')}
+        </Button>
+      )
+    }
+
+    return (
+      <Button
+        variant='link'
+        colorScheme='blue'
+        size='sm-multiline'
+        onClick={handleToggleInputMethod}
+      >
+        {isManualAddress ? translate('RFOX.useWalletAddress') : translate('RFOX.useCustomAddress')}
+      </Button>
+    )
+  }, [
+    currentRuneAddress,
+    handleToggleInputMethod,
+    handleChangeAddressClick,
+    isManualAddress,
+    translate,
+    setStepIndex,
+  ])
+
   return (
     <FormControl isInvalid={Boolean(isManualAddress && errors.manualRuneAddress)}>
       <Stack px={6} py={4}>
@@ -227,16 +324,7 @@ export const AddressSelection: FC<AddressSelectionProps> = ({
           <FormLabel fontSize='sm' mb={0}>
             {addressSelectionLabel}
           </FormLabel>
-          <Button
-            variant='link'
-            colorScheme='blue'
-            size='sm-multiline'
-            onClick={handleToggleInputMethod}
-          >
-            {isManualAddress
-              ? translate('RFOX.useWalletAddress')
-              : translate('RFOX.useCustomAddress')}
-          </Button>
+          <TopRightButton />
         </Flex>
         <Box width='full'>{accountSelection || manualAddressSelection}</Box>
         <FormHelperText>{addressSelectionDescription}</FormHelperText>

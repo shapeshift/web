@@ -144,19 +144,20 @@ export const AvailablePools = () => {
     [history, path],
   )
   const headerComponent = useMemo(() => <LendingHeader />, [])
-  const { data: lendingSupportedAssets } = useLendingSupportedAssets({
-    type: 'collateral',
-    statusFilter: 'All',
-  })
+  const { isLoading: isLendingSupportedAssetsLoading, data: lendingSupportedAssets } =
+    useLendingSupportedAssets({
+      type: 'collateral',
+      statusFilter: 'All',
+    })
 
   const lendingRows = useMemo(() => {
-    if (!lendingSupportedAssets)
+    if (isLendingSupportedAssetsLoading)
       return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
 
-    return lendingSupportedAssets.map(asset => (
+    return (lendingSupportedAssets ?? []).map(asset => (
       <LendingPoolButton key={asset.assetId} asset={asset} onPoolClick={handlePoolClick} />
     ))
-  }, [handlePoolClick, lendingSupportedAssets])
+  }, [handlePoolClick, isLendingSupportedAssetsLoading, lendingSupportedAssets])
 
   return (
     <Main headerComponent={headerComponent} isSubPage>

@@ -57,15 +57,15 @@ const BridgeStatus = makeSuspenseful(
 
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]
 
-export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
+export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
   return (
     <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
-      <StakeRoutes headerComponent={headerComponent} />
+      <StakeRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
+export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
   const location = useLocation<RfoxBridgeQuote | undefined>()
   const { state: maybeBridgeQuote } = location
 
@@ -102,11 +102,12 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
         stakingAssetId={stakingAssetId}
         runeAddress={runeAddress}
         headerComponent={headerComponent}
+        setStepIndex={setStepIndex}
         onRuneAddressChange={setRuneAddress}
         setConfirmedQuote={setConfirmedQuote}
       />
     )
-  }, [headerComponent, runeAddress])
+  }, [headerComponent, runeAddress, setStepIndex])
 
   const renderStakeConfirm = useCallback(() => {
     if (!confirmedQuote) return null
@@ -115,11 +116,12 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
       <StakeConfirm
         stakeTxid={stakeTxid}
         setStakeTxid={setStakeTxid}
+        setStepIndex={setStepIndex}
         confirmedQuote={confirmedQuote}
         headerComponent={headerComponent}
       />
     )
-  }, [confirmedQuote, headerComponent, stakeTxid])
+  }, [confirmedQuote, headerComponent, stakeTxid, setStepIndex])
 
   const renderStakeStatus = useCallback(() => {
     if (!confirmedQuote) return null
@@ -128,12 +130,14 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
     return (
       <StakeStatus
         txId={stakeTxid}
+        setStakeTxid={setStakeTxid}
         confirmedQuote={confirmedQuote}
+        setStepIndex={setStepIndex}
         onTxConfirmed={handleTxConfirmed}
         headerComponent={headerComponent}
       />
     )
-  }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid])
+  }, [confirmedQuote, handleTxConfirmed, headerComponent, stakeTxid, setStepIndex])
 
   const renderBridgeConfirm = useCallback(() => {
     if (!maybeBridgeQuote) return null

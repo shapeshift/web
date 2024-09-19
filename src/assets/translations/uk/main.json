@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Ця функція тимчасово вимкнена.",
     "yes": "Так",
-    "activeAccount": "Активний акаунт"
+    "activeAccount": "Активний акаунт",
+    "update": "Оновлення"
   },
   "consentBanner": {
     "body": {
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Купити/продати",
     "lending": "Кредитування",
     "pools": "Пули",
+    "rFOX": "rFOX",
+    "markets": "Ринки",
     "actionMenu": {
       "send": {
         "title": "Надіслати",
@@ -629,8 +632,7 @@
         "title": "Відскануйте QR-код",
         "body": "Легке сканування для надсилання або отримання криптовалюти"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Надіслано",
@@ -840,7 +842,6 @@
     "pending": "Торгівля в очікуванні",
     "complete": "Угода завершена",
     "approveAsset": "Схвалити взаємодію з %{symbol}",
-    "needPermission": "потребує вашого дозволу на використання вашого %{symbol}",
     "whyNeedThis": "Навіщо мені це робити?",
     "estimatedGasFee": "Приблизний розмір комісії за газ",
     "receiveInclFee": "Отримання (в т.ч. комісія)",
@@ -1147,6 +1148,9 @@
         "average": "Середньо",
         "fast": "Швидко",
         "enterAmount": "Введіть суму"
+      },
+      "status": {
+        "pendingBody": "Відправлення %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "Дозволити %{spenderName} використовувати ваш %{asset}",
+      "resetHeader": "Скинути резерв  %{spenderName} для %{asset}",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "потребує вашого дозволу на використання %{asset}",
       "learnMore": "Навіщо мені це робити?",
@@ -1469,7 +1474,8 @@
         "connect": "Підключитися"
       },
       "verify": {
-        "confirmOnDevice": "Підтвердіть на пристрої"
+        "confirmOnDevice": "Підтвердіть на пристрої",
+        "addressMismatch": "Невідповідність адреси. Будь ласка, перевірте, чи підключено правильний пристрій, і спробуйте ще раз."
       },
       "success": {
         "header": "Ledger підключено",
@@ -1530,6 +1536,10 @@
         "title": "Ви вилучили підтримку мультичейну з MetaMask!",
         "subtitle": "Повторно додайте прив'язку Multichain Snap на MetaMask, щоб відправляти, отримувати, відстежувати, торгувати і заробляти за допомогою наступних ланцюжків:"
       },
+      "update": {
+        "title": "Мультичейнова прив'язка потребує оновлення",
+        "subtitle": "Натисніть «Оновити», щоб продовжити використання мультичейнових функцій ShapeShift з MetaMask!"
+      },
       "secondaryTitle": "Найкращий досвід роботи з Multichain для MetaMask: На базі ShapeShift",
       "secondaryBody": "Надсилайте, отримуйте, відстежуйте, торгуйте і заробляйте за допомогою ShapeShift Multichain Snap на наступних ланцюжках:",
       "connectMetaMask": "Підключити MetaMask",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Встановити Multichain Snap",
+      "updateTitle": "Оновлення Мультичейн прив'язки",
       "warningExperimental": "Multichain Snap у ShapeShift - це нова, експериментальна функція, яка надається \"як є\"",
       "warningBackup": "Переконайтеся, що ви створили резервну копію початкової фрази MetaMask. Будь-які кошти, які ви відправляєте в не-EVM-ланцюги за допомогою цієї прив'язки, будуть спрямовані на обліковий запис за замовчуванням, який ви створили в MetaMask.",
       "agreeIntro": "Перш ніж продовжити, будь ласка, прочитайте наступне:",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "Увімкнувши багатоланцюгову прив'язку ShapeShift, ви визнаєте, що використовуєте її на свій страх і ризик",
       "readAndUnderstood": "Я ознайомився та зрозумів",
       "seedBackedUp": "Я створив резервну копію своєї сід фрази MetaMask",
-      "acceptInstall": "Підтвердити та встановити"
+      "acceptInstall": "Підтвердити та встановити",
+      "acceptUpdate": "Підтвердити & Оновити"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "Відкрити %{appName} додаток",
     "description": "Щоб продовжити, вам потрібно відкрити додаток %{appName} на вашому пристрої Ledger.",
-    "signingDescription": "Підказка про підписання автоматично з'явиться на вашому пристрої після відкриття програми"
+    "devicePrompt": "Пристрій підкаже вам усі необхідні кроки для завершення поточної дії."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,6 +2522,7 @@
     "newAddressInfo": "Ця інформація буде оновлена для наступного циклу нагородження",
     "confirmAndUpdateAddress": "Підтвердити та оновити адресу",
     "unstakeFrom": "Відстейкати від r%{assetSymbol}",
+    "claimPending": "Чекаємо на вашу заяву про %{amount} %{symbol}",
     "claimSuccess": "Ви успішно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адреса отримання ",
     "noRewardsYet": "Нагород ще немає",
@@ -2568,5 +2581,10 @@
     "emissionsPoolHelper": "Пул емісії (ця епоха)",
     "foxBurnAmount": "Кількість спалених FOX (Ця епоха)",
     "pendingDistribution": "Очікує на розподіл"
+  },
+  "markets": {
+    "recommended": "Рекомендовано",
+    "watchlist": "Мій список спостереження",
+    "categories": "Категорії"
   }
 }

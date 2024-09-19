@@ -135,7 +135,7 @@
     "allChains": "Toutes les chaînes",
     "wallet": "Porte-monnaie",
     "action": "Action",
-    "feedbackAndSupport": "Feedback & Support",
+    "feedbackAndSupport": "Feedback et Support",
     "getSupport": "Obtenir de l'aide",
     "viewMyWallet": "Voir mon porte-monnaie",
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
@@ -390,7 +390,7 @@
       "claim": {
         "rewardDepositInfo": "Vos récompenses seront déposées dans votre porte-monnaie principal.",
         "title": "Réclamer des récompenses de mise",
-        "confirmAndClaim": "Confirmer & réclamer",
+        "confirmAndClaim": "Confirmer et réclamer",
         "rewardAmount": "Montant de la récompense",
         "claimingRewards": "Réclamer des récompenses",
         "claimAmount": "Réclamer le montant",
@@ -462,8 +462,8 @@
     "currentTvl": "TVL actuelle",
     "unbondInfoItWillTake": "Tant que vos jetons sont misés, vous ne pourrez pas les transférer ou les dépenser. Il faudra %{unbondingDays} jours pour les débloquer après les avoir démisés.",
     "unbondInfoItWillTakeShort": "Il faudra %{unbondingDays} jours pour démiser vos jetons",
-    "confirmAndBroadcast": "Confirmer & diffuser",
-    "signAndBroadcast": "Signer & diffuser",
+    "confirmAndBroadcast": "Confirmer et diffuser",
+    "signAndBroadcast": "Signer et diffuser",
     "averageApr": "APR moyen",
     "estimatedYearlyRewards": "Récompenses annuelles estimées",
     "staked": "Misé",
@@ -1270,7 +1270,7 @@
       "notEnoughGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
       "missingFundsForGas": "Fonds insuffisants, vous avez besoin de %{cryptoAmountHuman} %{assetSymbol} en plus pour terminer la transaction",
       "preFooter": "Les récompenses s'accumulent automatiquement",
-      "signBroadcast": "Signer & diffuser",
+      "signBroadcast": "Signer et diffuser",
       "cancel": "Annuler"
     },
     "status": {
@@ -1565,7 +1565,7 @@
       "agreeItem4": "En activant le Snap ShapeShift Multichain, vous reconnaissez que vous l'utilisez à vos propres risques.",
       "readAndUnderstood": "J'ai lu et compris",
       "seedBackedUp": "J'ai sauvegardé ma phrase de récupération MetaMask",
-      "acceptInstall": "Confirmer & Installer",
+      "acceptInstall": "Confirmer et installer",
       "acceptUpdate": "Confirmer et mettre à jour"
     },
     "coinbase": {
@@ -1996,7 +1996,7 @@
       },
       "liquidityPools": "Pools de liquidité",
       "farming": "Farming",
-      "borrowingAndLending": "Emprunter & prêter",
+      "borrowingAndLending": "Emprunter et prêter",
       "governanceTitle": "Gouvernance",
       "governanceDescription": "En tant que détenteur de FOX, vous pouvez avoir votre mot à dire sur l'avenir de ShapeShift. Vous trouverez ci-dessous les propositions actives ou récemment adoptées de la DAO sur lesquelles les détenteurs de jetons votent.",
       "seeAllProposals": "Voir toutes les propositions",

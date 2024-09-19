@@ -56,8 +56,6 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Yarn Install
         run: yarn install --immutable
-      - name: Build Packages
-        run: yarn build:packages
       - name: Build Web
         run: yarn env && yarn build:web
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts

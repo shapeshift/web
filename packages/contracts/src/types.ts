@@ -1,5 +1,6 @@
-import type { GetContractReturnType, PublicClient } from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
 
+import type { EVERGREEN_FARMING_ABI, FARMING_ABI } from './abis'
 import type {
   CONTRACT_ADDRESS_TO_ABI,
   CONTRACT_TYPE_TO_ABI,
@@ -46,3 +47,7 @@ export type DefinedContract = {
 }
 
 export type FoxEthStakingContractAddress = (typeof foxEthStakingContractAddresses)[number]
+export type FoxEthStakingContractAbi = typeof FARMING_ABI | typeof EVERGREEN_FARMING_ABI
+export type FoxEthStakingContract<T extends FoxEthStakingContractAbi> = T extends typeof FARMING_ABI
+  ? GetContractReturnType<typeof FARMING_ABI, PublicClient, Address>
+  : GetContractReturnType<typeof EVERGREEN_FARMING_ABI, PublicClient, Address>

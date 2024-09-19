@@ -17,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
+import { InlineCopyButton } from 'components/InlineCopyButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
@@ -233,9 +234,13 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />
               <Skeleton isLoaded={isCurrentRuneAddressSuccess}>
                 <RawText fontSize='xl' color={currentRuneAddress ? 'text.base' : 'text.warning'}>
-                  {currentRuneAddress
-                    ? middleEllipsis(currentRuneAddress)
-                    : translate('RFOX.noAddressFound')}
+                  {currentRuneAddress ? (
+                    <InlineCopyButton value={currentRuneAddress}>
+                      {middleEllipsis(currentRuneAddress)}
+                    </InlineCopyButton>
+                  ) : (
+                    translate('RFOX.noAddressFound')
+                  )}
                 </RawText>
               </Skeleton>
             </Flex>
@@ -268,6 +273,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
                 onRuneAddressChange={handleRuneAddressChange}
                 validateIsNewAddress={validateIsNewAddress}
                 selectedAddress={newRuneAddress}
+                setStepIndex={undefined}
               />
             </Skeleton>
           </Box>

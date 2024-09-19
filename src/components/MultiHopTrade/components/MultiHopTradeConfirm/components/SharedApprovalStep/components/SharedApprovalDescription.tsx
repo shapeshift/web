@@ -65,8 +65,7 @@ type SharedApprovalDescriptionProps = {
   approvalNetworkFeeCryptoFormatted: string
   gasFeeLoadingTranslation: string
   gasFeeTranslation: string
-  isAwaitingReset?: boolean
-  isLoadingNetworkFee?: boolean
+  isLoadingNetworkFee: boolean
 } & ErrorMsgProps
 
 export const SharedApprovalDescription = ({

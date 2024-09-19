@@ -59,16 +59,17 @@ export const SharedApprovalStep = ({
   }, [tradeQuoteStep, transactionExecutionState, txHash, errorTranslation])
 
   const renderDescription = useCallback(
-    (approvalNetworkFeeCryptoFormatted: string) => {
+    (approvalNetworkFeeCryptoFormatted: string | undefined) => {
       return (
         <SharedApprovalDescription
           tradeQuoteStep={tradeQuoteStep}
           isError={transactionExecutionState === TransactionExecutionState.Failed}
           txHash={txHash}
-          approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted}
+          approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted ?? ''}
           errorTranslation={errorTranslation}
           gasFeeLoadingTranslation={gasFeeLoadingTranslation}
           gasFeeTranslation={gasFeeTranslation}
+          isLoadingNetworkFee={!Boolean(approvalNetworkFeeCryptoFormatted)}
         />
       )
     },

@@ -8,7 +8,7 @@ import { reactQueries } from 'react-queries'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { getPoolShare } from 'lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
@@ -144,14 +144,7 @@ export const useUserLpData = ({
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
-  const liquidityLockupTime = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-    select: mimirData => {
-      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
-      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
-    },
-  })
+  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
 
   const { data: pool } = useQuery({
     ...reactQueries.thornode.poolData(assetId),
@@ -183,7 +176,7 @@ export const useUserLpData = ({
     },
     select: (positions: Position[] | undefined) => {
       if (!pool) return null
-      if (!liquidityLockupTime.data) return null
+      if (!liquidityLockupTimeResult.data) return null
 
       return (positions ?? [])
         .map(position =>
@@ -194,11 +187,11 @@ export const useUserLpData = ({
             pool,
             position,
             runePrice: runeMarketData.price,
-            liquidityLockupTime: liquidityLockupTime.data,
+            liquidityLockupTime: liquidityLockupTimeResult.data,
           }),
         )
         .filter(isSome)
     },
-    enabled: Boolean(assetId && currentWalletId && pool && liquidityLockupTime.isSuccess),
+    enabled: Boolean(assetId && currentWalletId && pool && liquidityLockupTimeResult.isSuccess),
   })
 }

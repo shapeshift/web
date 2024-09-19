@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -16,7 +16,6 @@ import pDebounce from 'p-debounce'
 import qs from 'qs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
@@ -35,14 +34,10 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isToken } from 'lib/utils'
 import { assertGetEvmChainAdapter, getFeesWithWalletEIP1559Support } from 'lib/utils/evm'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain/balance'
-import {
-  BASE_BPS_POINTS,
-  RUNEPOOL_DEPOSIT_MEMO,
-  THORCHAIN_BLOCK_TIME_SECONDS,
-  thorchainBlockTimeMs,
-} from 'lib/utils/thorchain/constants'
+import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { formatSecondsToDuration } from 'lib/utils/time'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -176,28 +171,7 @@ export const Deposit: React.FC<DepositProps> = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
 
-  const liquidityLockupTime = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-    select: mimirData => {
-      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
-      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
-    },
-  })
-
-  const runePoolDepositMaturityTime = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-    select: mimirData => {
-      const runePoolDepositMaturityBlocks = mimirData.RUNEPOOLDEPOSITMATURITYBLOCKS as
-        | number
-        | undefined
-
-      return Number(
-        bnOrZero(runePoolDepositMaturityBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
-      )
-    },
-  })
+  const { liquidityLockupTimeResult, runePoolDepositMaturityTimeResult } = useThorchainMimirTimes()
 
   const {
     data: thorchainSaversDepositQuote,
@@ -852,19 +826,19 @@ export const Deposit: React.FC<DepositProps> = ({
   const handleContinueOrAcknowledgement = useCallback(
     (formValues: DepositValues) => {
       setDepositValues(formValues)
-      if (isRunePool && runePoolDepositMaturityTime.data) {
+      if (isRunePool && runePoolDepositMaturityTimeResult.data) {
         setShouldShowInfoAcknowledgement(true)
         return
       }
 
-      if (!isRunePool && liquidityLockupTime.data) {
+      if (!isRunePool && liquidityLockupTimeResult.data) {
         setShouldShowInfoAcknowledgement(true)
         return
       }
 
       handleContinue(formValues)
     },
-    [liquidityLockupTime, runePoolDepositMaturityTime, isRunePool, handleContinue],
+    [liquidityLockupTimeResult, runePoolDepositMaturityTimeResult, isRunePool, handleContinue],
   )
 
   const handleAcknowledge = useCallback(() => {
@@ -878,7 +852,9 @@ export const Deposit: React.FC<DepositProps> = ({
     <InfoAcknowledgement
       message={translate('defi.liquidityLockupWarning', {
         time: formatSecondsToDuration(
-          isRunePool ? runePoolDepositMaturityTime.data ?? 0 : liquidityLockupTime.data ?? 0,
+          isRunePool
+            ? runePoolDepositMaturityTimeResult.data ?? 0
+            : liquidityLockupTimeResult.data ?? 0,
         ),
       })}
       onAcknowledge={handleAcknowledge}
@@ -907,8 +883,8 @@ export const Deposit: React.FC<DepositProps> = ({
           isEstimatedFeesDataLoading ||
           isSweepNeededLoading ||
           isThorchainSaversDepositQuoteLoading ||
-          liquidityLockupTime.isLoading ||
-          runePoolDepositMaturityTime.isLoading ||
+          liquidityLockupTimeResult.isLoading ||
+          runePoolDepositMaturityTimeResult.isLoading ||
           state.loading
         }
       >

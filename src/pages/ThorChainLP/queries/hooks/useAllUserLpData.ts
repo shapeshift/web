@@ -1,13 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { isSome } from 'lib/utils'
-import { THORCHAIN_BLOCK_TIME_SECONDS, thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -37,14 +36,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   )
   const currentWalletId = useAppSelector(selectWalletId)
 
-  const liquidityLockupTime = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-    select: mimirData => {
-      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
-      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
-    },
-  })
+  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
 
   const { data: pools, isSuccess } = useQuery({
     ...reactQueries.thornode.poolsData(),
@@ -55,7 +47,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
   const queries = useMemo(() => {
     if (!pools) return []
-    if (!liquidityLockupTime.data) return []
+    if (!liquidityLockupTimeResult.data) return []
 
     return pools
       .map(pool => {
@@ -65,7 +57,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
         return {
           ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
-          enabled: Boolean(isSuccess && currentWalletId && liquidityLockupTime.isSuccess),
+          enabled: Boolean(isSuccess && currentWalletId && liquidityLockupTimeResult.isSuccess),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
@@ -96,7 +88,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
                     pool,
                     position,
                     runePrice: runeMarketDataUserCurrency.price,
-                    liquidityLockupTime: liquidityLockupTime.data,
+                    liquidityLockupTime: liquidityLockupTimeResult.data,
                   }),
                 )
                 .filter(isSome),
@@ -107,7 +99,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
       .filter(isSome)
   }, [
     pools,
-    liquidityLockupTime,
+    liquidityLockupTimeResult,
     currentWalletId,
     isSuccess,
     portfolioAccounts,

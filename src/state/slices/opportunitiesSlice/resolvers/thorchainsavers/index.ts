@@ -9,8 +9,11 @@ import { thornode } from 'react-queries/queries/thornode'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit } from 'lib/utils/thorchain'
-import { THORCHAIN_BLOCK_TIME_SECONDS } from 'lib/utils/thorchain/constants'
-import type { ThorchainMimir } from 'lib/utils/thorchain/lending/types'
+import {
+  selectLiquidityLockupTime,
+  selectRunePoolMaturityTime,
+} from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import type { ThorchainMimir } from 'lib/utils/thorchain/types'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import { selectFeatureFlags } from 'state/slices/preferencesSlice/selectors'
@@ -307,15 +310,8 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       `${getConfig().REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/mimir`,
     )
 
-    const liquidityLockupBlocks = mimir.LIQUIDITYLOCKUPBLOCKS as number | undefined
-    const liquidityLockupTime = Number(
-      bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
-    )
-
-    const runePoolDepositMaturityBlocks = mimir.RUNEPOOLDEPOSITMATURITYBLOCKS as number | undefined
-    const runePoolDepositMaturityTime = Number(
-      bnOrZero(runePoolDepositMaturityBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0),
-    )
+    const liquidityLockupTime = selectLiquidityLockupTime(mimir)
+    const runePoolDepositMaturityTime = selectRunePoolMaturityTime(mimir)
 
     for (const stakingOpportunityId of opportunityIds) {
       const asset = selectAssetById(state, stakingOpportunityId)

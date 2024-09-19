@@ -26,7 +26,7 @@ import {
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
@@ -71,13 +71,10 @@ import {
   isSome,
   isToken,
 } from 'lib/utils'
-import {
-  THOR_PRECISION,
-  THORCHAIN_BLOCK_TIME_SECONDS,
-  thorchainBlockTimeMs,
-} from 'lib/utils/thorchain/constants'
+import { THOR_PRECISION } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from 'lib/utils/thorchain/hooks/useThorchainFromAddress'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { estimateAddThorchainLiquidityPosition } from 'lib/utils/thorchain/lp'
 import { AsymSide, type LpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/types'
 import { formatSecondsToDuration } from 'lib/utils/time'
@@ -240,14 +237,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     selectPortfolioAccountMetadataByAccountId(state, poolAssetAccountMetadataFilter),
   )
 
-  const liquidityLockupTime = useQuery({
-    ...reactQueries.thornode.mimir(),
-    staleTime: thorchainBlockTimeMs,
-    select: mimirData => {
-      const liquidityLockupBlocks = mimirData.LIQUIDITYLOCKUPBLOCKS as number | undefined
-      return Number(bnOrZero(liquidityLockupBlocks).times(THORCHAIN_BLOCK_TIME_SECONDS).toFixed(0))
-    },
-  })
+  const { liquidityLockupTimeResult } = useThorchainMimirTimes()
 
   const { data: poolAssetAccountAddress } = useThorchainFromAddress({
     accountId: poolAssetAccountId,
@@ -1476,8 +1466,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [handleSubmit, isUnsafeQuote])
 
   const handleClick = useCallback(() => {
-    liquidityLockupTime.data ? setShouldShowInfoAcknowledgement(true) : handleDepositSubmit()
-  }, [liquidityLockupTime, handleDepositSubmit])
+    liquidityLockupTimeResult.data ? setShouldShowInfoAcknowledgement(true) : handleDepositSubmit()
+  }, [liquidityLockupTimeResult, handleDepositSubmit])
 
   if (!poolAsset || !runeAsset) return null
 
@@ -1485,7 +1475,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     <SlideTransition>
       <InfoAcknowledgement
         message={translate('defi.liquidityLockupWarning', {
-          time: formatSecondsToDuration(liquidityLockupTime.data ?? 0),
+          time: formatSecondsToDuration(liquidityLockupTimeResult.data ?? 0),
         })}
         onAcknowledge={handleDepositSubmit}
         shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
@@ -1629,7 +1619,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
                 isApprovalTxPending ||
                 (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
                 (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||
-                liquidityLockupTime.isLoading
+                liquidityLockupTimeResult.isLoading
               }
               onClick={handleClick}
             >

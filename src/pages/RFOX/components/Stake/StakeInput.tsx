@@ -27,8 +27,10 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
+import { selectRuneAddress } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
+import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
@@ -79,10 +81,18 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   onRuneAddressChange,
   runeAddress,
   setConfirmedQuote,
+  setStepIndex,
 }) => {
   const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
+
+  const { data: currentRuneAddress } = useStakingInfoQuery({
+    stakingAssetAccountAddress: stakingAssetAccountId
+      ? fromAccountId(stakingAssetAccountId).account
+      : undefined,
+    select: selectRuneAddress,
+  })
 
   const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
@@ -206,7 +216,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     },
   } = useRfoxStake({
     amountCryptoBaseUnit,
-    runeAddress,
+    runeAddress: currentRuneAddress || runeAddress,
     stakingAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,
@@ -238,7 +248,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       !(
         selectedAssetAccountId &&
         stakingAssetAccountId &&
-        runeAddress &&
+        (runeAddress || currentRuneAddress) &&
         selectedAsset &&
         stakingAsset &&
         isValidStakingAmount
@@ -250,7 +260,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       stakingAssetAccountId,
       stakingAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      runeAddress,
+      // typescript is borked, one of them is defined because of the early return
+      runeAddress: currentRuneAddress || runeAddress || '',
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -280,6 +291,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     isBridgeRequired,
     history,
     selectedAssetId,
+    currentRuneAddress,
   ])
   const buyAssetSearch = useModal('buyAssetSearch')
 
@@ -488,6 +500,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             <AddressSelection
               selectedAddress={runeAddress}
               onRuneAddressChange={handleRuneAddressChange}
+              setStepIndex={setStepIndex}
             />
             <Collapse in={collapseIn}>
               {stakingAssetAccountId && (
@@ -542,7 +555,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
               isValidWallet={Boolean(isChainSupportedByWallet || isAccountMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
-                  !runeAddress ||
+                  (!runeAddress && !currentRuneAddress) ||
                   !isValidStakingAmount ||
                   !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                   isAccountMetadataLoading ||

@@ -12,6 +12,7 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 export type PortalsAssets = {
   byId: Record<AssetId, TokenInfo>
   ids: AssetId[]
+  chainIds: ChainId[]
 }
 
 export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | undefined }) => {
@@ -24,7 +25,7 @@ export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | unde
   })
 
   return useQuery({
-    queryKey: ['portalsAssets'],
+    queryKey: ['portalsAssets', { chainIds }],
     queryFn: portalsPlatformsData
       ? () =>
           fetchPortalsTokens({
@@ -72,6 +73,10 @@ export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | unde
             dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
           }
 
+          if (!acc.chainIds.includes(chainId)) {
+            acc.chainIds.push(chainId)
+          }
+
           acc.byId[assetId] = token
           acc.ids.push(assetId)
           return acc
@@ -79,6 +84,7 @@ export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | unde
         {
           byId: {},
           ids: [],
+          chainIds: [],
         },
       )
     },

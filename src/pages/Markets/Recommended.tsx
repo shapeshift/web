@@ -1,6 +1,8 @@
-import { Box, Flex, Grid, GridItem, Heading, Text } from '@chakra-ui/react'
-import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { Box, Flex, Grid, GridItem, Heading, Skeleton, Text } from '@chakra-ui/react'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import noop from 'lodash/noop'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -19,6 +21,7 @@ import { MarketsHeader } from './MarketsHeader'
 type RowProps = {
   title: string
   subtitle?: string
+  supportedChainIds: ChainId[] | undefined
   children: (selectedChainId: ChainId | undefined) => React.ReactNode
 }
 
@@ -56,26 +59,29 @@ const AssetsGrid: React.FC<{
     [history],
   )
 
+  if (isLoading)
+    return (
+      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+        {new Array(8).fill(null).map((_, index) => (
+          <GridItem colSpan={index === 0 ? colSpanSparklineSx : colSpanSx}>
+            <Skeleton isLoaded={false}>
+              <AssetCard onClick={noop} assetId={ethAssetId} />
+            </Skeleton>
+          </GridItem>
+        ))}
+      </Grid>
+    )
+
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) =>
         index === 0 ? (
           <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-            <CardWithSparkline
-              key={assetId}
-              assetId={assetId}
-              onClick={handleCardClick}
-              isLoading={isLoading}
-            />
+            <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
           </GridItem>
         ) : (
           <GridItem colSpan={colSpanSx}>
-            <AssetCard
-              key={assetId}
-              assetId={assetId}
-              onClick={handleCardClick}
-              isLoading={isLoading}
-            />
+            <AssetCard key={assetId} assetId={assetId} onClick={handleCardClick} />
           </GridItem>
         ),
       )}
@@ -110,6 +116,20 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
     [assetIds, selectedChainId],
   )
 
+  if (isLoading) {
+    return (
+      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+        {new Array(8).fill(null).map((_, index) => (
+          <GridItem colSpan={index === 0 ? colSpanSparklineSx : colSpanSx}>
+            <Skeleton isLoaded={false}>
+              <AssetCard onClick={noop} assetId={ethAssetId} />
+            </Skeleton>
+          </GridItem>
+        ))}
+      </Grid>
+    )
+  }
+
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) => {
@@ -119,11 +139,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
         if (index === 0) {
           return (
             <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-              <CardWithSparkline
-                assetId={assetId}
-                onClick={handleCardClick}
-                isLoading={isLoading}
-              />
+              <CardWithSparkline assetId={assetId} onClick={handleCardClick} />
             </GridItem>
           )
         } else {
@@ -134,7 +150,6 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
                 apy={apy ?? '0'}
                 volume24H={volume24H ?? '0'}
                 onClick={handleCardClick}
-                isLoading={isLoading}
               />
             </GridItem>
           )
@@ -144,18 +159,35 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   )
 }
 
-const Row: React.FC<RowProps> = ({ title, subtitle, children }) => {
+const OneClickDefiAssets: React.FC<{
+  selectedChainId: ChainId | undefined
+}> = ({ selectedChainId }) => {
+  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
+    chainIds: selectedChainId ? [selectedChainId] : undefined,
+  })
+
+  return (
+    <LpGrid
+      assetIds={portalsAssets?.ids ?? []}
+      selectedChainId={selectedChainId}
+      isLoading={isPortalsAssetsLoading}
+    />
+  )
+}
+
+const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
 
-  const chainIds = useMemo(
-    () =>
-      Object.values(KnownChainIds).filter(chainId => {
+  const chainIds = useMemo(() => {
+    if (!supportedChainIds)
+      return Object.values(KnownChainIds).filter(chainId => {
         if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
         return true
-      }),
-    [isArbitrumNovaEnabled],
-  )
+      })
+
+    return supportedChainIds
+  }, [isArbitrumNovaEnabled, supportedChainIds])
 
   return (
     <Box mb={8}>
@@ -188,7 +220,8 @@ export const Recommended: React.FC = () => {
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const assetIds = useAppSelector(selectAssetIds)
 
-  const { isLoading: isPortalsAssetsLoading, data: portalsAssets } = usePortalsAssetsQuery({
+  // Fetch for all chains here so we know which chains to show in the dropdown
+  const { isLoading: isPortalsAssetsLoading, data: allPortalsAssets } = usePortalsAssetsQuery({
     chainIds: undefined,
   })
 
@@ -243,12 +276,9 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.oneClickDefiAssets.title'),
         component: (selectedChainId: ChainId | undefined) => (
-          <LpGrid
-            assetIds={portalsAssets?.ids ?? []}
-            selectedChainId={selectedChainId}
-            isLoading={isPortalsAssetsLoading}
-          />
+          <OneClickDefiAssets selectedChainId={selectedChainId} />
         ),
+        supportedChainIds: allPortalsAssets?.chainIds,
       },
       {
         title: translate('markets.categories.thorchainDefi.title'),
@@ -262,7 +292,7 @@ export const Recommended: React.FC = () => {
         ),
       },
     ],
-    [assetIds, isPortalsAssetsLoading, portalsAssets, translate],
+    [allPortalsAssets?.chainIds, assetIds, isPortalsAssetsLoading, translate],
   )
 
   return (
@@ -270,7 +300,12 @@ export const Recommended: React.FC = () => {
       <SEO title={translate('navBar.markets')} />
       <Box py={4} px={containerPaddingX}>
         {rows.map((row, i) => (
-          <Row key={i} title={row.title} subtitle={row.subtitle}>
+          <Row
+            key={i}
+            title={row.title}
+            subtitle={row.subtitle}
+            supportedChainIds={row.supportedChainIds}
+          >
             {row.component}
           </Row>
         ))}

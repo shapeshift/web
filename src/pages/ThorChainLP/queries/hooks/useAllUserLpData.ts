@@ -6,6 +6,7 @@ import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import { isSome } from 'lib/utils'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import type { Position, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { findAccountsByAssetId } from 'state/slices/portfolioSlice/utils'
 import {
@@ -35,6 +36,9 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
   )
   const currentWalletId = useAppSelector(selectWalletId)
 
+  const { data: thorchainMimirTimes, isSuccess: isThorchainMimirTimesSuccess } =
+    useThorchainMimirTimes()
+
   const { data: pools, isSuccess } = useQuery({
     ...reactQueries.thornode.poolsData(),
     // @lukemorales/query-key-factory only returns queryFn and queryKey - all others will be ignored in the returned object
@@ -44,6 +48,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
   const queries = useMemo(() => {
     if (!pools) return []
+    if (!thorchainMimirTimes) return []
 
     return pools
       .map(pool => {
@@ -53,7 +58,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
 
         return {
           ...reactQueries.thorchainLp.userLpData(assetId, currentWalletId),
-          enabled: Boolean(isSuccess && currentWalletId),
+          enabled: Boolean(isSuccess && currentWalletId && isThorchainMimirTimesSuccess),
           // We may or may not want to revisit this, but this will prevent overfetching for now
           staleTime: Infinity,
           queryFn: async () => {
@@ -84,6 +89,7 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
                     pool,
                     position,
                     runePrice: runeMarketDataUserCurrency.price,
+                    liquidityLockupTime: thorchainMimirTimes.liquidityLockupTime,
                   }),
                 )
                 .filter(isSome),
@@ -96,13 +102,16 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
     assets,
     currentWalletId,
     isSuccess,
+    isThorchainMimirTimesSuccess,
+    marketDataUserCurrency,
     pools,
     portfolioAccounts,
     queryClient,
-    marketDataUserCurrency,
-    runeMarketDataUserCurrency?.price,
     runeAccountIds,
+    runeMarketDataUserCurrency.price,
+    thorchainMimirTimes,
   ])
+
   // We do not expose this as-is, but mapReduce the queries to massage *all* data, in addition to *each* query having its selector
   const _userLpDataQueries = useQueries({
     // @ts-ignore useQueries isn't strongly typed :(

@@ -101,13 +101,13 @@ export type UserStakingOpportunityBase = {
   }
 }
 
-export type RunepoolUserStakingOpportunity = {
-  maturity: number
+export type SaversUserStakingOpportunity = {
+  dateUnlocked: number
 } & UserStakingOpportunityBase
 
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
-  | RunepoolUserStakingOpportunity
+  | SaversUserStakingOpportunity
   | CosmosSdkStakingSpecificUserStakingOpportunity
   | FoxySpecificUserStakingOpportunity
 

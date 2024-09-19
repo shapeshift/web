@@ -128,5 +128,3 @@ export const isLendingQuoteOpen = (
 export const isLendingQuoteClose = (
   quote: LendingQuoteOpen | LendingQuoteClose | null,
 ): quote is LendingQuoteClose => Boolean(quote && 'quoteDebtRepaidAmountUserCurrency' in quote)
-
-export type ThorchainMimir = Record<string, unknown>

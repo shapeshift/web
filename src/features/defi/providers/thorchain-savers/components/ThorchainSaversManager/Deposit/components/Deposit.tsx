@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { InfoAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
@@ -36,6 +37,8 @@ import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from 'lib/utils/thorchain
 import { BASE_BPS_POINTS, RUNEPOOL_DEPOSIT_MEMO } from 'lib/utils/thorchain/constants'
 import { useGetThorchainSaversDepositQuoteQuery } from 'lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimirTimes } from 'lib/utils/thorchain/hooks/useThorchainMimirTimes'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { isUtxoChainId } from 'lib/utils/utxo'
 import type { EstimatedFeesQueryKey } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -92,6 +95,8 @@ export const Deposit: React.FC<DepositProps> = ({
     null,
   )
   const [daysToBreakEven, setDaysToBreakEven] = useState<string | null>(null)
+  const [shouldShowInfoAcknowledgement, setShouldShowInfoAcknowledgement] = useState(false)
+  const [depositValues, setDepositValues] = useState<DepositValues>()
   const [inputValues, setInputValues] = useState<{
     fiatAmount: string
     cryptoAmount: string
@@ -165,6 +170,9 @@ export const Deposit: React.FC<DepositProps> = ({
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
   )
+
+  const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
+    useThorchainMimirTimes()
 
   const {
     data: thorchainSaversDepositQuote,
@@ -816,60 +824,103 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmountDebounced],
   )
 
+  const handleContinueOrAcknowledgement = useCallback(
+    (formValues: DepositValues) => {
+      setDepositValues(formValues)
+      if (isRunePool && thorchainMimirTimes?.runePoolDepositMaturityTime) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      if (!isRunePool && thorchainMimirTimes?.liquidityLockupTime) {
+        setShouldShowInfoAcknowledgement(true)
+        return
+      }
+
+      handleContinue(formValues)
+    },
+    [thorchainMimirTimes, isRunePool, handleContinue],
+  )
+
+  const handleAcknowledge = useCallback(() => {
+    if (!depositValues) return
+    handleContinue(depositValues)
+  }, [depositValues, handleContinue])
+
   if (!state || !contextDispatch || !opportunityData) return null
 
   return (
-    <ReusableDeposit
-      accountId={accountId}
-      onAccountIdChange={handleAccountIdChange}
-      asset={asset}
-      apy={opportunityData.apy ?? undefined}
-      cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
-      cryptoInputValidation={cryptoInputValidation}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
-      fiatInputValidation={fiatInputValidation}
-      marketData={assetMarketData}
-      onCancel={handleCancel}
-      onPercentClick={handlePercentClick}
-      onContinue={handleContinue}
-      onBack={handleBack}
-      onChange={handleInputChange}
-      percentOptions={percentOptions}
-      enableSlippage={false}
-      isLoading={
-        isEstimatedFeesDataLoading ||
-        isSweepNeededLoading ||
-        isThorchainSaversDepositQuoteLoading ||
-        state.loading
-      }
+    <InfoAcknowledgement
+      message={translate('defi.liquidityLockupWarning', {
+        time: formatSecondsToDuration(
+          isRunePool
+            ? thorchainMimirTimes?.runePoolDepositMaturityTime ?? 0
+            : thorchainMimirTimes?.liquidityLockupTime ?? 0,
+        ),
+      })}
+      onAcknowledge={handleAcknowledge}
+      shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
+      setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
+      position='static'
     >
-      {!isRunePool ? (
-        <>
-          <Row>
-            <Row.Label>{translate('common.slippage')}</Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                <Amount.Crypto value={slippageCryptoAmountPrecision ?? ''} symbol={asset.symbol} />
-              </Skeleton>
-            </Row.Value>
-          </Row>
-          <Row>
-            <Row.Label>
-              <HelperTooltip label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}>
-                {translate('defi.modals.saversVaults.timeToBreakEven.title')}
-              </HelperTooltip>
-            </Row.Label>
-            <Row.Value>
-              <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
-                {translate(
-                  `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
-                  { amount: daysToBreakEven ?? '0' },
-                )}
-              </Skeleton>
-            </Row.Value>
-          </Row>
-        </>
-      ) : null}
-    </ReusableDeposit>
+      <ReusableDeposit
+        accountId={accountId}
+        onAccountIdChange={handleAccountIdChange}
+        asset={asset}
+        apy={opportunityData.apy ?? undefined}
+        cryptoAmountAvailable={balanceCryptoPrecision.toPrecision()}
+        cryptoInputValidation={cryptoInputValidation}
+        fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+        fiatInputValidation={fiatInputValidation}
+        marketData={assetMarketData}
+        onCancel={handleCancel}
+        onPercentClick={handlePercentClick}
+        onContinue={handleContinueOrAcknowledgement}
+        onBack={handleBack}
+        onChange={handleInputChange}
+        percentOptions={percentOptions}
+        enableSlippage={false}
+        isLoading={
+          isEstimatedFeesDataLoading ||
+          isSweepNeededLoading ||
+          isThorchainSaversDepositQuoteLoading ||
+          isThorchainMimirTimesLoading ||
+          state.loading
+        }
+      >
+        {!isRunePool ? (
+          <>
+            <Row>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  <Amount.Crypto
+                    value={slippageCryptoAmountPrecision ?? ''}
+                    symbol={asset.symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row>
+              <Row.Label>
+                <HelperTooltip
+                  label={translate('defi.modals.saversVaults.timeToBreakEven.tooltip')}
+                >
+                  {translate('defi.modals.saversVaults.timeToBreakEven.title')}
+                </HelperTooltip>
+              </Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isThorchainSaversDepositQuoteSuccess}>
+                  {translate(
+                    `defi.modals.saversVaults.${bnOrZero(daysToBreakEven).eq(1) ? 'day' : 'days'}`,
+                    { amount: daysToBreakEven ?? '0' },
+                  )}
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </>
+        ) : null}
+      </ReusableDeposit>
+    </InfoAcknowledgement>
   )
 }

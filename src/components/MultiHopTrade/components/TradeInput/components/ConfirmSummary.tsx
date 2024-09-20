@@ -1,6 +1,7 @@
 import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -98,6 +99,18 @@ export const ConfirmSummary = ({
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
 
+  const isTaprootReceiveAddress = useMemo(
+    () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
+    [buyAsset.chainId, receiveAddress],
+  )
+
+  const disableThorTaprootReceiveAddress = useMemo(() => {
+    // Taproot addresses are not supported by THORChain swapper currently
+    if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
+
+    return false
+  }, [activeSwapperName, isTaprootReceiveAddress])
+
   const disableThorNativeSmartContractReceive = useMemo(() => {
     // THORChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
@@ -124,7 +137,7 @@ export const ConfirmSummary = ({
     if (disableThorNativeSmartContractReceive) return true
 
     return false
-  }, [walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive, isAccountMetadataLoading])
+  }, [isAccountMetadataLoading, walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive])
 
   const quoteHasError = useMemo(() => {
     if (!isAnyTradeQuoteLoaded) return false
@@ -148,6 +161,8 @@ export const ConfirmSummary = ({
       isLoading ||
       // don't execute trades for smart contract receive addresses for THOR native assets receives
       disableThorNativeSmartContractReceive ||
+      // Taproot not supported by THORChain swapper currently
+      disableThorTaprootReceiveAddress ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -157,17 +172,18 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
+    isAccountMetadataLoading,
     quoteHasError,
     manualReceiveAddressIsValidating,
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
     isLoading,
     disableThorNativeSmartContractReceive,
+    disableThorTaprootReceiveAddress,
     activeQuote,
     hasUserEnteredAmount,
     activeSwapperName,
     isTradeQuoteApiQueryPending,
-    isAccountMetadataLoading,
   ])
 
   const quoteStatusTranslation = useMemo(() => {
@@ -298,6 +314,11 @@ export const ConfirmSummary = ({
           shouldUse={Boolean(receiveAddress) && disableThorNativeSmartContractReceive === false}
           shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={RecipientAddress}
+          description={
+            disableThorTaprootReceiveAddress
+              ? translate('trade.disableThorTaprootReceive')
+              : undefined
+          }
         />
         <WithLazyMount
           shouldUse={displayManualAddressEntry}

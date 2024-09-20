@@ -293,6 +293,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
     memo,
     fromAddress,
+    dustAmountCryptoBaseUnit,
   })
 
   const estimatedGasCryptoPrecision = useMemo(() => {

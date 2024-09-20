@@ -66,6 +66,7 @@ type UseSendThorTxProps = {
   disableEstimateFeesRefetch?: boolean
   fromAddress: string | null
   memo: string | null
+  dustAmountCryptoBaseUnit?: string
 }
 
 export const useSendThorTx = ({
@@ -77,6 +78,7 @@ export const useSendThorTx = ({
   disableEstimateFeesRefetch,
   fromAddress,
   memo: _memo,
+  dustAmountCryptoBaseUnit: _dustAmountCryptoBaseUnit,
 }: UseSendThorTxProps) => {
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
@@ -100,13 +102,18 @@ export const useSendThorTx = ({
     return ['withdrawLiquidity', 'withdrawSavers'].includes(action)
   }, [action])
 
+  // Either a fall through of the passed dustAmountCryptoBaseUnit, or the default dust amount for that feeAsset
   // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
   const dustAmountCryptoBaseUnit = useMemo(() => {
-    return THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
-  }, [feeAsset])
+    return _dustAmountCryptoBaseUnit
+      ? _dustAmountCryptoBaseUnit
+      : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
+  }, [_dustAmountCryptoBaseUnit, feeAsset?.assetId])
 
   const amountOrDustCryptoBaseUnit = useMemo(() => {
-    return shouldUseDustAmount ? dustAmountCryptoBaseUnit : bnOrZero(amountCryptoBaseUnit).toFixed()
+    return shouldUseDustAmount
+      ? bnOrZero(dustAmountCryptoBaseUnit).toFixed(0)
+      : bnOrZero(amountCryptoBaseUnit).toFixed(0)
   }, [shouldUseDustAmount, dustAmountCryptoBaseUnit, amountCryptoBaseUnit])
 
   const transactionType = useMemo(() => {

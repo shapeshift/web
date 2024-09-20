@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Esta característica está temporalmente deshabilitada.",
     "yes": "Sí",
-    "activeAccount": "Cuenta Activa"
+    "activeAccount": "Cuenta Activa",
+    "update": "Actualizar"
   },
   "consentBanner": {
     "body": {
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Comprar/Vender",
     "lending": "Préstamo",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "markets": "Mercados",
     "actionMenu": {
       "send": {
         "title": "Enviar",
@@ -629,8 +632,7 @@
         "title": "Escanear código QR",
         "body": "Escanee fácilmente para enviar o recibir cripto"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Enviado",
@@ -840,7 +842,6 @@
     "pending": "Intercambio Pendiente",
     "complete": "Intercambio Completado",
     "approveAsset": "Aprobar la interacción con %{symbol}",
-    "needPermission": "Necesitamos su permiso para usar su %{symbol}",
     "whyNeedThis": "¿Por qué necesito hacer esto?",
     "estimatedGasFee": "Tarifa estimada de gas",
     "receiveInclFee": "Recibir (incl. tarifas)",
@@ -1147,6 +1148,9 @@
         "average": "Promedio",
         "fast": "Rápido",
         "enterAmount": "Ingrese la cantidad"
+      },
+      "status": {
+        "pendingBody": "Enviando %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "Permita que %{spenderName} use su %{asset}",
+      "resetHeader": "Restablecer asignación de %{spenderName} para %{asset}",
       "shapeshiftRouterName": "Enrutador ShapeShift DAO",
       "body": "Necesitamos su permiso para usar su %{asset}",
       "learnMore": "¿Por qué necesito hacer esto?",
@@ -1469,7 +1474,8 @@
         "connect": "Conectar"
       },
       "verify": {
-        "confirmOnDevice": "Confirmar en dispositivo"
+        "confirmOnDevice": "Confirmar en dispositivo",
+        "addressMismatch": "Dirección no coincide. Verifique que el correcto dispositivo esté conectado y vuelva a intentar."
       },
       "success": {
         "header": "Ledger Conectada",
@@ -1530,6 +1536,10 @@
         "title": "¡Has eliminado la compatibilidad Multicadena de MetaMask!",
         "subtitle": "Vuelva a agregar Snap Multicadena en MetaMask para enviar, recibir, rastrear, intercambiar y ganar con las siguientes cadenas:"
       },
+      "update": {
+        "title": "Snap Multicadena necesita actualización",
+        "subtitle": "¡Clic 'Actualizar' para continuar usando funciones de múltiples cadenas ShapeShift con MetaMask!"
+      },
       "secondaryTitle": "La mejor experiencia Multicadena para MetaMask: con tecnología ShapeShift",
       "secondaryBody": "Envíe, reciba, rastree, intercambie y gane con Snap Multicadena ShapeShift en las siguientes cadenas:",
       "connectMetaMask": "Conectar MetaMask",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Instalar Snap Multicadena",
+      "updateTitle": "Actualizar Snap Multicadena",
       "warningExperimental": "Snap Multicadena ShapeShift es función nueva y experimental que se proporciona \"tal cual\"",
       "warningBackup": "Asegúrese tener copia de su frase semilla de MetaMask. Cualquier fondo que envíe a cadenas que no sean EVM usando este Snap se dirigirá a la cuenta predeterminada configurada con MetaMask.",
       "agreeIntro": "Antes de continuar por favor lea lo siguiente:",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "Al habilitar Snap Multicadena ShapeShift, usted reconoce que lo utiliza bajo su propio riesgo.",
       "readAndUnderstood": "He leído y entiendo",
       "seedBackedUp": "Hice copia de seguridad de mi frase semilla de MetaMask",
-      "acceptInstall": "Confirmar e instalar"
+      "acceptInstall": "Confirmar e instalar",
+      "acceptUpdate": "Confirmar y Actualizar"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "Abra la app %{appName}",
     "description": "Para continuar, deberá abrir la aplicación %{appName} en su dispositivo Ledger.",
-    "signingDescription": "El mensaje de firma aparecerá automáticamente en su dispositivo después de abrir la aplicación"
+    "devicePrompt": "Su dispositivo le indicará los pasos necesarios para completar su acción actual."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,7 +2522,7 @@
     "newAddressInfo": "Esto se actualizará para próximo ciclo de recompensas.",
     "confirmAndUpdateAddress": "Confirme y Actualice Dirección",
     "unstakeFrom": "Unstake para r%{assetSymbol}",
-    "claimPending": "Solicitando retiro",
+    "claimPending": "Esperando su reclamo de %{amount} %{symbol}",
     "claimSuccess": "Has reclamado %{amount} %{symbol} con éxito.",
     "claimReceiveAddress": "Dirección para Reclamar Recompensas",
     "noRewardsYet": "Aún no hay recompensas",
@@ -2569,5 +2581,10 @@
     "emissionsPoolHelper": "Fondo de Emisiones (esta época)",
     "foxBurnAmount": "Cantidad FOX quemados (esta época)",
     "pendingDistribution": "Distribución Pendiente"
+  },
+  "markets": {
+    "recommended": "Recomendado",
+    "watchlist": "Mi lista de seguimiento",
+    "categories": "Categorías"
   }
 }

@@ -2510,7 +2510,6 @@
     "newAddressInfo": "这将更新下一个奖励周期",
     "confirmAndUpdateAddress": "确认并更新地址",
     "unstakeFrom": "从 r%{assetSymbol} 取消质押",
-    "claimPending": "请求撤回",
     "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
     "claimReceiveAddress": "领取接收地址",
     "noRewardsYet": "尚无奖励",

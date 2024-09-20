@@ -172,7 +172,8 @@
     "featureDisabled": "This feature is temporarily disabled.",
     "yes": "Yes",
     "activeAccount": "Active Account",
-    "update": "Update"
+    "update": "Update",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -409,7 +410,7 @@
         "disabledDepositTitle": "Deposits are temporarily disabled.",
         "haltedWithdrawTitle": "Withdraws are temporarily halted.",
         "disabledWithdrawTitle": "Withdraws are temporarily disabled.",
-        "runePoolWithdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
+        "withdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "protocolFee": "Protocol Fee",
         "fee": "Fee",
@@ -505,6 +506,8 @@
     "myRewardsBody": "Your active positions with claimable rewards will appear here.",
     "viewAllPositions": "View All Positions",
     "liquidityPools": "Liquidity Pools",
+    "liquidityLockupWarning": "There is a lockup period of %{time}. During lockup you can't access your liquidity.",
+    "liquidityLocked": "Liquidity Locked (%{time})",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
     "totalEarningBalance": "Total Earning Balance",
@@ -2601,7 +2604,25 @@
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
-    "categories": "Categories",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat."
+    "categoriesTabTitle": "Categories",
+    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "One Click DeFi Assets"
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi"
+      },
+      "trending": {
+        "title": "Trending",
+        "subtitle": "These are top assets that have jumped %{percentage}% or more"
+      },
+      "topMovements": {
+        "title": "Top Movers"
+      },
+      "recentlyAdded": {
+        "title": "Recently Added"
+      }
+    }
   }
 }

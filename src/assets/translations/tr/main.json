@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Bu özellik geçici olarak devre dışıdır.",
     "yes": "Evet",
-    "activeAccount": "Aktif Hesap"
+    "activeAccount": "Aktif Hesap",
+    "update": "Güncelleme"
   },
   "consentBanner": {
     "body": {
@@ -408,7 +409,7 @@
         "disabledDepositTitle": "Para yatırma işlemleri geçici olarak devre dışı bırakıldı.",
         "haltedWithdrawTitle": "Para çekme işlemleri geçici olarak durdurulmuştur.",
         "disabledWithdrawTitle": "Para çekme işlemleri geçici olarak devre dışı bırakıldı.",
-        "runePoolWithdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
+        "withdrawLockedTitle": "Para çekmek için %{timeHuman} beklemeniz gerekiyor.",
         "haltedDescription": "Lütfen @THORChain adresine tweet atarak üst sınırınızı yükseltin!",
         "protocolFee": "Protokol Ücreti",
         "fee": "Ücret",
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Al/Sat",
     "lending": "Borç Verme",
     "pools": "Havuzlar",
+    "rFOX": "rFOX",
+    "markets": "Piyasalar",
     "actionMenu": {
       "send": {
         "title": "Gönder",
@@ -629,8 +632,7 @@
         "title": "QR Kodunu Tara",
         "body": "Kripto göndermek veya almak için kolayca tarayın"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Gönderilen",
@@ -840,7 +842,6 @@
     "pending": "İşlem Beklemede",
     "complete": "Takas Tamamlandı",
     "approveAsset": "%{symbol} ile etkileşimi onaylayın",
-    "needPermission": "%{symbol} kullanımınız için izniniz gerekiyor",
     "whyNeedThis": "Bunu neden yapmam gerekiyor?",
     "estimatedGasFee": "Tahmini Gaz Ücreti",
     "receiveInclFee": "Al (ücretler dahil)",
@@ -1147,6 +1148,9 @@
         "average": "Ortalama",
         "fast": "Hızlı",
         "enterAmount": "Miktarı girin"
+      },
+      "status": {
+        "pendingBody": "%{amount} %{symbol} gönderiliyor"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "%{spenderName}'ın %{asset} öğenizi kullanmasına izin verin",
+      "resetHeader": "%{asset} için %{spenderName} ödeneğini sıfırla",
       "shapeshiftRouterName": "ShapeShift DAO Yönlendirici",
       "body": "%{asset} kullanımınız için izniniz gerekiyor",
       "learnMore": "Bunu neden yapmam gerekiyor?",
@@ -1469,7 +1474,8 @@
         "connect": "Bağlan"
       },
       "verify": {
-        "confirmOnDevice": "Cihazda onayla"
+        "confirmOnDevice": "Cihazda onayla",
+        "addressMismatch": "Adres uyumsuzluğu. Lütfen doğru cihazın bağlı olduğundan emin olun ve tekrar deneyin."
       },
       "success": {
         "header": "Ledger Bağlandı",
@@ -1530,6 +1536,10 @@
         "title": "Multichain desteğini MetaMask'tan kaldırdınız!",
         "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i MetaMask'a yeniden ekleyin:"
       },
+      "update": {
+        "title": "Multichain Snap'in güncellenmesi gerekiyor",
+        "subtitle": "ShapeShift'in çoklu zincir özelliklerini MetaMask ile kullanmaya devam etmek için 'Güncelle'ye tıklayın!"
+      },
       "secondaryTitle": "MetaMask için en iyi Çoklu Zincir deneyimi: ShapeShift tarafından desteklenmektedir",
       "secondaryBody": "ShapeShift Multichain Snap ile aşağıdaki zincirlerde gönderin, alın, takip edin, ticaret yapın ve kazanın:",
       "connectMetaMask": "MetaMask'ı bağlayın",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Multichain Snap'i yükle",
+      "updateTitle": "Multichain Snap'i güncelle",
       "warningExperimental": "ShapeShift Multichain Snap, sağlanan yeni, deneysel bir özelliktir",
       "warningBackup": "MetaMask tohum ifadenizi yedeklediğinizden emin olun. Bu Snap'i kullanarak EVM dışı zincirlere göndereceğiniz tüm fonlar, MetaMask ile kurduğunuz varsayılan hesaba yönlendirilecektir.",
       "agreeIntro": "Devam etmeden önce lütfen aşağıdakileri okuyun:",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "ShapeShift Multichain Snap'i etkinleştirerek, riski size ait olmak üzere kullandığınızı kabul etmiş olursunuz.",
       "readAndUnderstood": "Okudum Ve Anladım",
       "seedBackedUp": "MetaMask tohum ifademi yedekledim",
-      "acceptInstall": "Onayla & Yükle"
+      "acceptInstall": "Onayla & Yükle",
+      "acceptUpdate": "Onayla ve Güncelle"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "%{appName} Uygulamasını açın",
     "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir.",
-    "signingDescription": "Uygulamayı açtıktan sonra cihazınızda imzalama istemi otomatik olarak açılır"
+    "devicePrompt": "Cihazınız, mevcut eyleminizi tamamlamak için gerekli adımları size bildirecektir."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,7 +2522,7 @@
     "newAddressInfo": "Bu, bir sonraki ödül döngüsü için güncellenecektir",
     "confirmAndUpdateAddress": "Adresi Onayla ve Güncelle",
     "unstakeFrom": "r%{assetSymbol}'dan Stake Kaldır",
-    "claimPending": "Çekim isteği",
+    "claimPending": "%{amount} %{symbol} tutarındaki talebinizi bekliyoruz",
     "claimSuccess": "Başarıyla %{amount} %{symbol} talebinde bulundunuz.",
     "claimReceiveAddress": "Alıcı Adresi Talebi",
     "noRewardsYet": "Henüz ödül yok",
@@ -2569,5 +2581,10 @@
     "emissionsPoolHelper": "Emisyon Havuzu (Bu Dönem)",
     "foxBurnAmount": "FOX Yakma Miktarı (Bu Dönem)",
     "pendingDistribution": "Bekleyen Dağıtım"
+  },
+  "markets": {
+    "recommended": "Önerilen",
+    "watchlist": "İzleme Listem",
+    "categories": "Kategoriler"
   }
 }

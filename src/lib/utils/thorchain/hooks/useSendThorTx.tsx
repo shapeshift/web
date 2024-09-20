@@ -66,7 +66,7 @@ type UseSendThorTxProps = {
   disableEstimateFeesRefetch?: boolean
   fromAddress: string | null
   memo: string | null
-  dustAmountCryptoBaseUnit?: string | null
+  dustAmountCryptoBaseUnit?: string
 }
 
 export const useSendThorTx = ({
@@ -104,7 +104,7 @@ export const useSendThorTx = ({
 
   // Either a fall through of the passed dustAmountCryptoBaseUnit, or the default dust amount for that feeAsset
   // @TODO: test this with RUNEPool, might not work properly due to mapping for LPs
-  const dustAmountCryptoBaseUnitOrDefault = useMemo(() => {
+  const dustAmountCryptoBaseUnit = useMemo(() => {
     return _dustAmountCryptoBaseUnit
       ? _dustAmountCryptoBaseUnit
       : THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[feeAsset?.assetId ?? ''] ?? '0'
@@ -112,9 +112,9 @@ export const useSendThorTx = ({
 
   const amountOrDustCryptoBaseUnit = useMemo(() => {
     return shouldUseDustAmount
-      ? bnOrZero(dustAmountCryptoBaseUnitOrDefault).toFixed(0)
+      ? bnOrZero(dustAmountCryptoBaseUnit).toFixed(0)
       : bnOrZero(amountCryptoBaseUnit).toFixed(0)
-  }, [shouldUseDustAmount, dustAmountCryptoBaseUnitOrDefault, amountCryptoBaseUnit])
+  }, [shouldUseDustAmount, dustAmountCryptoBaseUnit, amountCryptoBaseUnit])
 
   const transactionType = useMemo(() => {
     return asset ? getThorchainTransactionType(asset.chainId) : undefined
@@ -454,7 +454,7 @@ export const useSendThorTx = ({
     isEstimatedFeesDataError,
     txId,
     serializedTxIndex,
-    dustAmountCryptoBaseUnitOrDefault,
+    dustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
     inboundAddress,
   }

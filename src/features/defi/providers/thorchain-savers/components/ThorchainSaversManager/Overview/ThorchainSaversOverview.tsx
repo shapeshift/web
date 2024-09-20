@@ -51,7 +51,7 @@ import {
 import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import {
-  isRunePoolUserStakingOpportunity,
+  isSaversUserStakingOpportunity,
   makeDefiProviderDisplayName,
   serializeUserStakingId,
   toOpportunityId,
@@ -235,24 +235,9 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       .length,
   )
 
-  const isRunepoolWithdrawUnlocked = useMemo(() => {
-    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return
-
-    const maturityDate = new Date(earnOpportunityData.maturity)
-    const currentDate = new Date()
-
-    return currentDate >= maturityDate
-  }, [earnOpportunityData])
-
-  const runepoolSecondsLeftBeforeWithdrawal = useMemo(() => {
-    if (!isRunePoolUserStakingOpportunity(earnOpportunityData)) return 0
-
-    const maturityDate = new Date(earnOpportunityData.maturity)
-    const currentDate = new Date()
-
-    const diffTime = maturityDate.getTime() - currentDate.getTime()
-
-    return Math.ceil(diffTime / 1000)
+  const remainingLockupTime = useMemo(() => {
+    if (!isSaversUserStakingOpportunity(earnOpportunityData)) return 0
+    return Math.max(earnOpportunityData.dateUnlocked - Math.floor(Date.now() / 1000), 0)
   }, [earnOpportunityData])
 
   const accountFilter = useMemo(() => ({ accountId: maybeAccountId }), [maybeAccountId])
@@ -280,9 +265,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits,
       isDisabledDeposits,
       isDisabledWithdrawals,
-      isRunepoolWithdrawUnlocked,
-      isRunePool,
-      runepoolSecondsLeftBeforeWithdrawal,
+      remainingLockupTime,
     }: {
       isFull?: boolean
       hasPendingTxs?: boolean
@@ -290,9 +273,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits?: boolean
       isDisabledDeposits?: boolean
       isDisabledWithdrawals?: boolean
-      isRunepoolWithdrawUnlocked?: boolean
-      isRunePool?: boolean
-      runepoolSecondsLeftBeforeWithdrawal?: number
+      remainingLockupTime?: number
     } = {}): DefiButtonProps[] => [
       ...(isFull
         ? []
@@ -320,21 +301,27 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
           hasPendingTxs ||
           hasPendingQueries ||
           isDisabledWithdrawals ||
-          (isRunePool && !isRunepoolWithdrawUnlocked),
+          Boolean(remainingLockupTime),
         toolTip: (() => {
-          if (isRunePool && !isRunepoolWithdrawUnlocked && runepoolSecondsLeftBeforeWithdrawal)
-            return translate('defi.modals.saversVaults.runePoolWithdrawLockedTitle', {
-              timeHuman: formatSecondsToDuration(runepoolSecondsLeftBeforeWithdrawal),
-            })
-          if (isDisabledWithdrawals)
+          if (isDisabledWithdrawals) {
             return translate('defi.modals.saversVaults.disabledWithdrawTitle')
-          if (hasPendingTxs || hasPendingQueries)
+          }
+
+          if (remainingLockupTime) {
+            return translate('defi.modals.saversVaults.withdrawLockedTitle', {
+              timeHuman: formatSecondsToDuration(remainingLockupTime),
+            })
+          }
+
+          if (hasPendingTxs || hasPendingQueries) {
             return translate('defi.modals.saversVaults.cannotWithdrawWhilePendingTx')
+          }
         })(),
       },
     ],
     [translate],
   )
+
   const menu: DefiButtonProps[] = useMemo(() => {
     if (!earnOpportunityData) return []
 
@@ -345,23 +332,19 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
       isHaltedDeposits: isTradingActive === false,
       isDisabledDeposits: isThorchainSaversDepositEnabled === false,
       isDisabledWithdrawals: isThorchainSaversWithdrawalsEnabled === false,
-      isRunepoolWithdrawUnlocked,
-      runepoolSecondsLeftBeforeWithdrawal,
-      isRunePool,
+      remainingLockupTime,
     })
   }, [
     earnOpportunityData,
-    makeDefaultMenu,
-    opportunityMetadata?.isFull,
-    isHardCapReached,
-    hasPendingTxs,
     hasPendingQueries,
-    isTradingActive,
+    hasPendingTxs,
+    isHardCapReached,
     isThorchainSaversDepositEnabled,
     isThorchainSaversWithdrawalsEnabled,
-    isRunepoolWithdrawUnlocked,
-    runepoolSecondsLeftBeforeWithdrawal,
-    isRunePool,
+    isTradingActive,
+    makeDefaultMenu,
+    opportunityMetadata?.isFull,
+    remainingLockupTime,
   ])
 
   const renderVaultCap = useMemo(() => {

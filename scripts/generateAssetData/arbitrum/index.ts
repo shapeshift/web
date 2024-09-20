@@ -2,15 +2,15 @@ import { arbitrumChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
+import { getPortalTokens } from 'lib/portals/utils'
 
 import { arbitrum } from '../baseAssets'
 import * as coingecko from '../coingecko'
-import { getPortalTokens } from '../utils/portals'
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
     coingecko.getAssets(arbitrumChainId),
-    getPortalTokens(arbitrum),
+    getPortalTokens(arbitrum, 'all'),
   ])
   const [assets, _portalsAssets] = results.map(result => {
     if (result.status === 'fulfilled') return result.value

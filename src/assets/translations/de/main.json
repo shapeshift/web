@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert.",
     "yes": "Ja",
-    "activeAccount": "Aktives Konto"
+    "activeAccount": "Aktives Konto",
+    "update": "Aktualisiere"
   },
   "consentBanner": {
     "body": {
@@ -408,7 +409,7 @@
         "disabledDepositTitle": "Einzahlungen sind vorübergehend deaktiviert.",
         "haltedWithdrawTitle": "Auszahlungen sind vorübergehend gestoppt.",
         "disabledWithdrawTitle": "Auszahlungen sind vorübergehend deaktiviert.",
-        "runePoolWithdrawLockedTitle": "Sie müssen %{timeHuman} warten, um abzuheben.",
+        "withdrawLockedTitle": "Sie müssen %{timeHuman} warten, um abzuheben.",
         "haltedDescription": "Bitte twittern Sie an @THORChain, um die Obergrenzen zu erhöhen!",
         "protocolFee": "Protokollgebühr",
         "fee": "Gebühr",
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Kauf/Verkauf",
     "lending": "Verleihen",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "markets": "Märkte",
     "actionMenu": {
       "send": {
         "title": "Senden",
@@ -629,8 +632,7 @@
         "title": "QR-Code scannen",
         "body": "Einfaches Scannen zum Senden oder Empfangen von Kryptowährungen"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Gesendet",
@@ -840,7 +842,6 @@
     "pending": "Handel ausstehend",
     "complete": "Handel abgeschlossen",
     "approveAsset": "Interaktion mit %{symbol} genehmigen",
-    "needPermission": "benötigt Ihre Erlaubnis, Ihre %{symbol} zu verwenden",
     "whyNeedThis": "Warum muss ich das tun?",
     "estimatedGasFee": "Geschätzte Gasgebühr",
     "receiveInclFee": "Erhalten (inkl. Gebühren)",
@@ -1147,6 +1148,9 @@
         "average": "Durchschnittlich",
         "fast": "Schnell",
         "enterAmount": "Betrag eingeben"
+      },
+      "status": {
+        "pendingBody": "Sende %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "Erlaube %{spenderName}, deine %{asset} zu verwenden",
+      "resetHeader": "%{spenderName} Guthaben für %{asset} zurücksetzen",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "benötigt Ihre Erlaubnis, um Ihr %{asset} zu verwenden",
       "learnMore": "Warum muss ich das tun?",
@@ -1469,7 +1474,8 @@
         "connect": "Verbinden"
       },
       "verify": {
-        "confirmOnDevice": "Auf dem Gerät bestätigen"
+        "confirmOnDevice": "Auf dem Gerät bestätigen",
+        "addressMismatch": "Adressen stimmen nicht überein. Bitte überprüfen Sie, ob Sie das richtige Gerät angeschlossen haben und versuchen Sie es erneut."
       },
       "success": {
         "header": "Ledger Verbunden",
@@ -1530,6 +1536,10 @@
         "title": "Sie haben die Multichain Unterstützung von MetaMask entfernt!",
         "subtitle": "Fügen Sie den Multichain Snap auf MetaMask erneut hinzu, um mit den folgenden Ketten - zu senden, empfangen, verfolgen, handeln und verdienen:"
       },
+      "update": {
+        "title": "Multichain Snap muss aktualisiert werden",
+        "subtitle": "Klicken Sie auf „Aktualisiere“, um die Multichain-Funktionen von ShapeShift weiterhin mit MetaMask zu verwenden!"
+      },
       "secondaryTitle": "Das beste Multichain-Erlebnis für MetaMask: Unterstützt von ShapeShift",
       "secondaryBody": "Senden, empfangen, verfolgen, handeln und verdienen Sie mit dem ShapeShift Multichain Snap auf den folgenden Ketten:",
       "connectMetaMask": "MetaMask verbinden",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Installieren Sie Multichain Snap",
+      "updateTitle": "Aktualisiere Multichain Snap",
       "warningExperimental": "Der ShapeShift Multichain Snap ist eine neue, experimentelle Funktion, sofern sie „as is“ bereitgestellt wird.",
       "warningBackup": "Stellen Sie sicher, dass Sie Ihre MetaMask-Seed-Phrase gesichert haben. Alle Guthaben, die Sie mit diesem Snap an Nicht-EVM-Ketten senden, werden an das Standardkonto weitergeleitet, das Sie mit MetaMask eingerichtet haben.",
       "agreeIntro": "Bevor Sie fortfahren, lesen Sie bitte Folgendes:",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "Indem Sie den ShapeShift Multichain Snap aktivieren, erkennen Sie an, dass Sie ihn auf eigenes Risiko verwenden",
       "readAndUnderstood": "Ich habe es gelesen und verstanden",
       "seedBackedUp": "Ich habe meine MetaMask Seed-Phrase gesichert",
-      "acceptInstall": "Bestätigen & Installieren"
+      "acceptInstall": "Bestätigen & Installieren",
+      "acceptUpdate": "Bestätige und Aktualisiere"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "Öffnen Sie die %{appName} App",
     "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen.",
-    "signingDescription": "Die Anmeldeaufforderung wird nach dem Öffnen der App automatisch auf Ihrem Gerät angezeigt"
+    "devicePrompt": "Ihr Gerät fordert Sie zu allen notwendigen Schritten auf die zum Abschließen Ihrer aktuellen Aktion erforderlich sind."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2431,7 +2443,7 @@
   },
   "watchlist": {
     "empty": {
-      "title": "Beginnen Sie mit dem Aufbau Ihrer Beobachtungsliste",
+      "title": "Beginnen Sie mit dem Aufbau Ihrer Merkliste",
       "body": "Überall, wo Sie das Sternsymbol sehen, können Sie es verwenden, um Assets hinzuzufügen.",
       "cta": "Weitere Assets entdecken"
     }
@@ -2510,7 +2522,7 @@
     "newAddressInfo": "Dies wird für den nächsten Belohnungszyklus aktualisiert",
     "confirmAndUpdateAddress": "Adresse bestätigen und aktualisieren",
     "unstakeFrom": "Unstake von r%{assetSymbol}",
-    "claimPending": "Auszahlung anfordern",
+    "claimPending": "Erwarte deinen Anspruch in Höhe von %{amount} %{symbol}",
     "claimSuccess": "Sie haben %{amount} %{symbol} erfolgreich beansprucht.",
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
     "noRewardsYet": "Noch keine Belohnungen",
@@ -2569,5 +2581,10 @@
     "emissionsPoolHelper": "Emissionspool (diese Epoche)",
     "foxBurnAmount": "FOX-Verbrennungsmenge (diese Epoche)",
     "pendingDistribution": "Ausstehende Verteilung"
+  },
+  "markets": {
+    "recommended": "Empfohlen",
+    "watchlist": "Meine Merkliste",
+    "categories": "Kategorien"
   }
 }

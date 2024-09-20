@@ -5,3 +5,5 @@ export type ThorchainBlock = {
     time: string
   }
 }
+
+export type ThorchainMimir = Record<string, unknown>

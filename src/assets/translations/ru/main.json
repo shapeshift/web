@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Эта функция временно отключена.",
     "yes": "Да",
-    "activeAccount": "Активный аккаунт"
+    "activeAccount": "Активный аккаунт",
+    "update": "Обновление"
   },
   "consentBanner": {
     "body": {
@@ -408,7 +409,7 @@
         "disabledDepositTitle": "Депозиты временно отключены.",
         "haltedWithdrawTitle": "Вывод средств временно приостановлен.",
         "disabledWithdrawTitle": "Вывод средств временно отключен.",
-        "runePoolWithdrawLockedTitle": "Чтобы снять деньги, вам придется подождать %{timeHuman}.",
+        "withdrawLockedTitle": "Чтобы снять деньги, вам придется подождать %{timeHuman}.",
         "haltedDescription": "Пожалуйста, напишите в твиттере @THORChain, чтобы поднять капитализацию!",
         "protocolFee": "Плата за протокол",
         "fee": "Комиссия",
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Купить/Продать",
     "lending": "Кредитование",
     "pools": "Пулы",
+    "rFOX": "rFOX",
+    "markets": "Рынки",
     "actionMenu": {
       "send": {
         "title": "Отправить",
@@ -629,8 +632,7 @@
         "title": "Сканировать QR-код",
         "body": "Простое сканирование для отправки или получения криптовалюты"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Отправлено",
@@ -840,7 +842,6 @@
     "pending": "Торговля на стадии рассмотрения",
     "complete": "Выполнено",
     "approveAsset": "Подтвердить взаимодействие с %{symbol}",
-    "needPermission": "требуется ваше разрешение на использование вашего %{symbol}",
     "whyNeedThis": "Зачем мне это нужно?",
     "estimatedGasFee": "Предполагаемая комиссия за газ",
     "receiveInclFee": "Поступления (вкл. комиссию)",
@@ -1147,6 +1148,9 @@
         "average": "Средняя",
         "fast": "Быстро",
         "enterAmount": "Введите сумму"
+      },
+      "status": {
+        "pendingBody": "Отправка %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "Разрешить %{spenderName} использовать ваш %{asset}",
+      "resetHeader": "Сбросьте %{spenderName} надбавку за %{asset}",
       "shapeshiftRouterName": "Маршрутизатор ShapeShift DAO ",
       "body": " Нам нужно ваше разрешение на использование Вашего %{asset}",
       "learnMore": "Зачем мне это нужно?",
@@ -1469,7 +1474,8 @@
         "connect": "Подключить"
       },
       "verify": {
-        "confirmOnDevice": "Подтвердите на устройстве"
+        "confirmOnDevice": "Подтвердите на устройстве",
+        "addressMismatch": "Несоответствие адреса. Пожалуйста, проверьте правильность подключения устройства и повторите попытку."
       },
       "success": {
         "header": "Ledger подключен",
@@ -1530,6 +1536,10 @@
         "title": "Вы удалили поддержку Multichain из MetaMask!",
         "subtitle": "Повторно добавьте привязку Multichain на MetaMask, чтобы отправлять, получать, отслеживать, торговать и зарабатывать со следующими цепочками:"
       },
+      "update": {
+        "title": "Multichain Snap нуждается в обновлении",
+        "subtitle": "Нажмите «Обновить», чтобы продолжить использовать Multi Chain-функции ShapeShift с MetaMask!"
+      },
       "secondaryTitle": "Лучший опыт работы с Multichain для MetaMask: На платформе ShapeShift",
       "secondaryBody": "Отправляйте, получайте, отслеживайте, обменивайте и зарабатывайте с помощью ShapeShift Multichain Snap на следующих цепочках:",
       "connectMetaMask": "Подключить MetaMask",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Установить Multichain Snap",
+      "updateTitle": "Обновление Multichain Snap",
       "warningExperimental": "ShapeShift Multichain Snap является новой, экспериментальной функцией и предоставляется \"как есть\".",
       "warningBackup": "Убедитесь, что вы создали резервную копию начальной фразы MetaMask. Все средства, которые вы отправляете в не-EVM-цепочки с помощью этой привязки, будут направляться на счет по умолчанию, настроенный в MetaMask.",
       "agreeIntro": "Перед продолжением работы ознакомьтесь с данной информацией:",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "Включая ShapeShift Multichain Snap, вы подтверждаете, что используете его на свой страх и риск",
       "readAndUnderstood": "Я ознакомился и понимаю",
       "seedBackedUp": "Я создал резервную копию своей начальной фразы MetaMask",
-      "acceptInstall": "Подтвердить и установить"
+      "acceptInstall": "Подтвердить и установить",
+      "acceptUpdate": "Подтвердить и обновить"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "Открыть %{appName} апликацию",
     "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger.",
-    "signingDescription": "После открытия приложения на вашем устройстве автоматически появится приглашение к подписи"
+    "devicePrompt": "Устройство предложит вам выполнить все необходимые действия для завершения текущего действия."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,7 +2522,7 @@
     "newAddressInfo": "Это будет обновлено для следующего цикла вознаграждения",
     "confirmAndUpdateAddress": "Подтвердить и обновить адрес",
     "unstakeFrom": "Отстейкать с r%{assetSymbol}",
-    "claimPending": "Запрос на вывод средств",
+    "claimPending": "Ожидаем вашего заявления на %{amount} %{symbol}",
     "claimSuccess": "Вы успешно заклеймили %{amount} %{symbol}.",
     "claimReceiveAddress": "Адрес для получения клейма",
     "noRewardsYet": "Пока нет наград",
@@ -2569,5 +2581,10 @@
     "emissionsPoolHelper": "Пул эмиссии (данная эпоха)",
     "foxBurnAmount": "FOX Количество сжигания (эта эпоха)",
     "pendingDistribution": "Ожидающееся распределение"
+  },
+  "markets": {
+    "recommended": "Рекомендуем",
+    "watchlist": "Мой список наблюдения",
+    "categories": "Категории"
   }
 }

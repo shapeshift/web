@@ -57,6 +57,7 @@ import { estimateRemoveThorchainLiquidityPosition } from 'lib/utils/thorchain/lp
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from 'lib/utils/thorchain/lp/types'
 import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import { isLpConfirmedDepositQuote } from 'lib/utils/thorchain/lp/utils'
+import { formatSecondsToDuration } from 'lib/utils/time'
 import { useIsSweepNeededQuery } from 'pages/Lending/hooks/useIsSweepNeededQuery'
 import { usePool } from 'pages/ThorChainLP/queries/hooks/usePool'
 import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
@@ -904,6 +905,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (isUnsupportedWithdraw) return translate('common.unsupportedNetwork')
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
+    if (position?.remainingLockupTime)
+      return translate('defi.liquidityLocked', {
+        time: formatSecondsToDuration(position.remainingLockupTime),
+      })
     if (poolAssetFeeAsset && !hasEnoughPoolAssetFeeAssetBalanceForTx)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: poolAssetFeeAsset.symbol,
@@ -920,6 +925,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     isTradingActive,
     isUnsupportedWithdraw,
     poolAssetFeeAsset,
+    position,
     runeAsset,
     translate,
   ])
@@ -1083,7 +1089,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
               (isEstimatedPoolAssetFeesDataError && withdrawType !== AsymSide.Rune) ||
               (isEstimatedRuneFeesDataError && withdrawType !== AsymSide.Asset) ||
               !validInputAmount ||
-              isSweepNeededLoading
+              isSweepNeededLoading ||
+              Boolean(position?.remainingLockupTime)
             }
             isLoading={
               isTradingActiveLoading ||

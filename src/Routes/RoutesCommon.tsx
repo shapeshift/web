@@ -199,7 +199,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <PoolsIcon />,
+    icon: <AssetsIcon />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,

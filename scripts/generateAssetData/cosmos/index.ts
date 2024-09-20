@@ -2,8 +2,8 @@ import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
+import { colorMap } from '../../../src/lib/asset-service/service/colorMap'
 import { atom } from '../baseAssets'
-import { colorMap } from '../colorMap'
 
 type CosmosAsset = {
   denom: string

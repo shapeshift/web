@@ -135,7 +135,7 @@
     "allChains": "Toutes les chaînes",
     "wallet": "Porte-monnaie",
     "action": "Action",
-    "feedbackAndSupport": "Feedback & Support",
+    "feedbackAndSupport": "Feedback et Support",
     "getSupport": "Obtenir de l'aide",
     "viewMyWallet": "Voir mon porte-monnaie",
     "submitFeatureRequest": "Soumettre une idée de fonctionnalité",
@@ -171,7 +171,8 @@
     },
     "featureDisabled": "Cette fonctionnalité est temporairement désactivée.",
     "yes": "Oui",
-    "activeAccount": "Compte actif"
+    "activeAccount": "Compte actif",
+    "update": "Mettre à jour"
   },
   "consentBanner": {
     "body": {
@@ -389,7 +390,7 @@
       "claim": {
         "rewardDepositInfo": "Vos récompenses seront déposées dans votre porte-monnaie principal.",
         "title": "Réclamer des récompenses de mise",
-        "confirmAndClaim": "Confirmer & réclamer",
+        "confirmAndClaim": "Confirmer et réclamer",
         "rewardAmount": "Montant de la récompense",
         "claimingRewards": "Réclamer des récompenses",
         "claimAmount": "Réclamer le montant",
@@ -408,7 +409,7 @@
         "disabledDepositTitle": "Les dépôts sont temporairement désactivés.",
         "haltedWithdrawTitle": "Les retraits sont temporairement interrompus.",
         "disabledWithdrawTitle": "Les retraits sont temporairement désactivés.",
-        "runePoolWithdrawLockedTitle": "Vous devez attendre %{timeHuman} pour retirer.",
+        "withdrawLockedTitle": "Vous devez attendre %{timeHuman} pour retirer.",
         "haltedDescription": "Veuillez tweeter @THORChain pour augmenter les plafonds !",
         "protocolFee": "Frais de protocole",
         "fee": "Frais",
@@ -461,8 +462,8 @@
     "currentTvl": "TVL actuelle",
     "unbondInfoItWillTake": "Tant que vos jetons sont misés, vous ne pourrez pas les transférer ou les dépenser. Il faudra %{unbondingDays} jours pour les débloquer après les avoir démisés.",
     "unbondInfoItWillTakeShort": "Il faudra %{unbondingDays} jours pour démiser vos jetons",
-    "confirmAndBroadcast": "Confirmer & diffuser",
-    "signAndBroadcast": "Signer & diffuser",
+    "confirmAndBroadcast": "Confirmer et diffuser",
+    "signAndBroadcast": "Signer et diffuser",
     "averageApr": "APR moyen",
     "estimatedYearlyRewards": "Récompenses annuelles estimées",
     "staked": "Misé",
@@ -608,6 +609,8 @@
     "buyCryptoShort": "Achat/Vente",
     "lending": "Prêts",
     "pools": "Pools",
+    "rFOX": "rFOX",
+    "markets": "Marchés",
     "actionMenu": {
       "send": {
         "title": "Envoyer",
@@ -629,8 +632,7 @@
         "title": "Scanner un code QR",
         "body": "Scannez facilement pour envoyer ou recevoir des cryptos"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "Envoi",
@@ -840,7 +842,6 @@
     "pending": "Échange en attente",
     "complete": "Échange terminé",
     "approveAsset": "Autoriser l'interaction avec %{symbol}",
-    "needPermission": "a besoin de votre permission pour utiliser vos %{symbol}",
     "whyNeedThis": "Pourquoi dois-je faire cela ?",
     "estimatedGasFee": "Frais de carburant estimés",
     "receiveInclFee": "Recevoir (frais inclus)",
@@ -1147,6 +1148,9 @@
         "average": "Moyen",
         "fast": "Rapide",
         "enterAmount": "Entrer un montant"
+      },
+      "status": {
+        "pendingBody": "Envoi de %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1231,7 @@
     },
     "approve": {
       "header": "Autoriser %{spenderName} à utiliser vos %{asset}",
+      "resetHeader": "Réinitialiser l'allocation en %{asset} sur  %{spenderName}",
       "shapeshiftRouterName": "Routeur ShapeShift DAO",
       "body": "a besoin de votre permission pour utiliser vos %{asset}",
       "learnMore": "Pourquoi dois-je faire cela ?",
@@ -1265,7 +1270,7 @@
       "notEnoughGas": "Solde %{assetSymbol} insuffisant pour couvrir le carburant",
       "missingFundsForGas": "Fonds insuffisants, vous avez besoin de %{cryptoAmountHuman} %{assetSymbol} en plus pour terminer la transaction",
       "preFooter": "Les récompenses s'accumulent automatiquement",
-      "signBroadcast": "Signer & diffuser",
+      "signBroadcast": "Signer et diffuser",
       "cancel": "Annuler"
     },
     "status": {
@@ -1469,7 +1474,8 @@
         "connect": "Connecter"
       },
       "verify": {
-        "confirmOnDevice": "Confirmer sur l'appareil"
+        "confirmOnDevice": "Confirmer sur l'appareil",
+        "addressMismatch": "L'adresse ne correspond pas. Veuillez vérifier que le bon appareil est connecté et réessayer."
       },
       "success": {
         "header": "Ledger connecté",
@@ -1530,6 +1536,10 @@
         "title": "Vous avez supprimé le support multichaîne de MetaMask !",
         "subtitle": "Ajoutez à nouveau le Snap Multichain sur MetaMask pour envoyer, recevoir, suivre, échanger et gagner sur les chaînes suivantes :"
       },
+      "update": {
+        "title": "Le Snap Multichain doit être mis à jour",
+        "subtitle": "Cliquez sur \"Mettre à jour\" pour continuer à utiliser les fonctionnalités multichaînes de ShapeShift avec MetaMask !"
+      },
       "secondaryTitle": "La meilleure expérience multichaîne pour MetaMask : Propulsée par ShapeShift",
       "secondaryBody": "Envoyez, recevez, suivez, échangez et gagnez avec le Snap ShapeShift Multichain sur les chaînes suivantes :",
       "connectMetaMask": "Connecter MetaMask",
@@ -1541,6 +1551,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
+      "updateTitle": "Mise à jour du Snap Multichain",
       "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie \"telle quelle\".",
       "warningBackup": "Assurez-vous d'avoir sauvegardé votre phrase de récupération MetaMask. Tous les fonds que vous envoyez sur des chaînes non-EVM à l'aide de ce Snap seront dirigés vers le compte par défaut que vous avez créé dans MetaMask.",
       "agreeIntro": "Avant de continuer, veuillez lire ce qui suit :",
@@ -1554,7 +1565,8 @@
       "agreeItem4": "En activant le Snap ShapeShift Multichain, vous reconnaissez que vous l'utilisez à vos propres risques.",
       "readAndUnderstood": "J'ai lu et compris",
       "seedBackedUp": "J'ai sauvegardé ma phrase de récupération MetaMask",
-      "acceptInstall": "Confirmer & Installer"
+      "acceptInstall": "Confirmer et installer",
+      "acceptUpdate": "Confirmer et mettre à jour"
     },
     "coinbase": {
       "errors": {
@@ -1887,7 +1899,7 @@
   "ledgerOpenApp": {
     "title": "Ouvrir l'app %{appName}",
     "description": "Pour continuer, vous devrez ouvrir l'application %{appName} sur votre appareil Ledger.",
-    "signingDescription": "La demande de signature apparaîtra automatiquement sur votre appareil après l'ouverture de l'application"
+    "devicePrompt": "Votre appareil vous indiquera toutes les étapes nécessaires requises pour terminer votre action en cours."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -1984,7 +1996,7 @@
       },
       "liquidityPools": "Pools de liquidité",
       "farming": "Farming",
-      "borrowingAndLending": "Emprunter & prêter",
+      "borrowingAndLending": "Emprunter et prêter",
       "governanceTitle": "Gouvernance",
       "governanceDescription": "En tant que détenteur de FOX, vous pouvez avoir votre mot à dire sur l'avenir de ShapeShift. Vous trouverez ci-dessous les propositions actives ou récemment adoptées de la DAO sur lesquelles les détenteurs de jetons votent.",
       "seeAllProposals": "Voir toutes les propositions",
@@ -2510,7 +2522,7 @@
     "newAddressInfo": "Ceci sera mis à jour pour le prochain cycle de récompenses",
     "confirmAndUpdateAddress": "Confirmer et mettre à jour l'adresse",
     "unstakeFrom": "Démiser de r%{assetSymbol}",
-    "claimPending": "En demande de retrait",
+    "claimPending": "En attente de votre réclamation de %{amount} %{symbol}",
     "claimSuccess": "Vous avez réclamé %{amount} %{symbol} avec succès.",
     "claimReceiveAddress": "Adresse de réception de réclamation",
     "noRewardsYet": "Aucune récompense pour l'instant",
@@ -2569,5 +2581,10 @@
     "emissionsPoolHelper": "Pool d’émissions (cette époque)",
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
     "pendingDistribution": "Distribution en attente"
+  },
+  "markets": {
+    "recommended": "Recommandé",
+    "watchlist": "Mes actifs suivis",
+    "categories": "Catégories"
   }
 }

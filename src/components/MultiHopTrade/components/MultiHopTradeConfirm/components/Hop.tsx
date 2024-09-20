@@ -38,12 +38,10 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../../TwirlyToggle'
-import { ApprovalResetStep } from './ApprovalResetStep'
-import { ApprovalStep } from './ApprovalStep'
+import { ApprovalStep } from './ApprovalStep/ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
-import { Permit2Step } from './Permit2Step/Permit2Step'
 import { TimeRemaining } from './TimeRemaining'
 
 const collapseWidth = {
@@ -95,10 +93,8 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    approval,
+    allowanceApproval: approval,
     swap,
-    allowanceReset,
-    permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(
@@ -158,14 +154,14 @@ export const Hop = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
-      case HopExecutionState.AwaitingApprovalReset:
+      case HopExecutionState.AwaitingAllowanceReset:
+      // fallthrough
+      case HopExecutionState.AwaitingAllowanceApproval:
         return hopIndex === 0 ? 1 : 0
-      case HopExecutionState.AwaitingApproval:
-        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.AwaitingPermit2:
-        return hopIndex === 0 ? 3 : 2
+      // fallthrough
       case HopExecutionState.AwaitingSwap:
-        return hopIndex === 0 ? 4 : 3
+        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
         return Infinity
       default:
@@ -199,8 +195,8 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
-      case HopExecutionState.AwaitingApprovalReset:
-      case HopExecutionState.AwaitingApproval:
+      case HopExecutionState.AwaitingAllowanceReset:
+      case HopExecutionState.AwaitingAllowanceApproval:
       case HopExecutionState.AwaitingPermit2:
       case HopExecutionState.AwaitingSwap:
         return (
@@ -235,29 +231,9 @@ export const Hop = ({
             />
           )}
 
-          <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
-            {allowanceReset.isRequired === true && (
-              <ApprovalResetStep
-                tradeQuoteStep={tradeQuoteStep}
-                hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
-                activeTradeId={activeTradeId}
-              />
-            )}
-          </Collapse>
           <Collapse in={approval.isRequired} style={collapseWidth}>
             {approval.isRequired === true && (
               <ApprovalStep
-                tradeQuoteStep={tradeQuoteStep}
-                hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
-                activeTradeId={activeTradeId}
-              />
-            )}
-          </Collapse>
-          <Collapse in={permit2.isRequired} style={collapseWidth}>
-            {permit2.isRequired === true && (
-              <Permit2Step
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
                 activeTradeId={activeTradeId}

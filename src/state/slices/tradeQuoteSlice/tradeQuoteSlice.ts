@@ -66,43 +66,68 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution[action.payload].state = TradeExecutionState.FirstHop
       const allowanceResetRequired =
         state.tradeExecution[action.payload].firstHop.allowanceReset.isRequired
-      const approvalRequired = state.tradeExecution[action.payload].firstHop.approval.isRequired
+      const approvalRequired =
+        state.tradeExecution[action.payload].firstHop.allowanceApproval.isRequired
       state.tradeExecution[action.payload].firstHop.state = allowanceResetRequired
-        ? HopExecutionState.AwaitingApprovalReset
+        ? HopExecutionState.AwaitingAllowanceReset
         : approvalRequired
-        ? HopExecutionState.AwaitingApproval
+        ? HopExecutionState.AwaitingAllowanceApproval
         : HopExecutionState.AwaitingSwap
     },
-    setApprovalTxPending: (
+    setAllowanceResetTxPending: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
-      const { hopIndex, isReset } = action.payload
+      const { hopIndex, id } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
-      state.tradeExecution[action.payload.id][hopKey][allowanceKey].state =
-        TransactionExecutionState.Pending
+      const allowanceKey = AllowanceKey.AllowanceReset
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Pending
     },
-    setApprovalTxFailed: (
+    setAllowanceApprovalTxPending: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
-      const { hopIndex, isReset } = action.payload
+      const { hopIndex, id } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
-      state.tradeExecution[action.payload.id][hopKey][allowanceKey].state =
-        TransactionExecutionState.Failed
+      const allowanceKey = AllowanceKey.AllowanceApproval
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Pending
+    },
+    setAllowanceResetTxFailed: (
+      state,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
+    ) => {
+      const { hopIndex, id } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = AllowanceKey.AllowanceApproval
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Failed
+    },
+    setAllowanceApprovalTxFailed: (
+      state,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
+    ) => {
+      const { hopIndex, id } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = AllowanceKey.AllowanceApproval
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Failed
+    },
+    setAllowanceResetTxComplete: (
+      state,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
+    ) => {
+      const { hopIndex, id } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = AllowanceKey.AllowanceReset
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Complete
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
-    setApprovalTxComplete: (
+    setAllowanceApprovalTxComplete: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
-      const { hopIndex, isReset } = action.payload
+      const { hopIndex, id } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
-      state.tradeExecution[action.payload.id][hopKey][allowanceKey].state =
-        TransactionExecutionState.Complete
+      const allowanceKey = AllowanceKey.AllowanceApproval
+      state.tradeExecution[id][hopKey][allowanceKey].state = TransactionExecutionState.Complete
     },
     setApprovalResetComplete: (
       state,
@@ -110,7 +135,8 @@ export const tradeQuoteSlice = createSlice({
     ) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      state.tradeExecution[action.payload.id][key].state = HopExecutionState.AwaitingApproval
+      state.tradeExecution[action.payload.id][key].state =
+        HopExecutionState.AwaitingAllowanceApproval
     },
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (
@@ -168,11 +194,11 @@ export const tradeQuoteSlice = createSlice({
           const allowanceResetRequired =
             state.tradeExecution[action.payload.id].secondHop.allowanceReset.isRequired
           const approvalRequired =
-            state.tradeExecution[action.payload.id].secondHop.approval.isRequired
+            state.tradeExecution[action.payload.id].secondHop.allowanceApproval.isRequired
           state.tradeExecution[action.payload.id].secondHop.state = allowanceResetRequired
-            ? HopExecutionState.AwaitingApprovalReset
+            ? HopExecutionState.AwaitingAllowanceReset
             : approvalRequired
-            ? HopExecutionState.AwaitingApproval
+            ? HopExecutionState.AwaitingAllowanceApproval
             : HopExecutionState.AwaitingSwap
         } else {
           // first hop of single hop trade - trade complete
@@ -193,9 +219,13 @@ export const tradeQuoteSlice = createSlice({
       state,
       action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuote['id'] }>,
     ) => {
-      state.tradeExecution[action.payload.id].firstHop.approval.isRequired =
+      state.tradeExecution[action.payload.id].firstHop.allowanceApproval.isRequired =
         action.payload?.firstHop
-      state.tradeExecution[action.payload.id].secondHop.approval.isRequired =
+      state.tradeExecution[action.payload.id].secondHop.allowanceApproval.isRequired =
+        action.payload?.secondHop
+      state.tradeExecution[action.payload.id].firstHop.allowanceApproval.isInitiallyRequired =
+        action.payload?.firstHop
+      state.tradeExecution[action.payload.id].secondHop.allowanceApproval.isInitiallyRequired =
         action.payload?.secondHop
     },
     setAllowanceResetRequirements: (
@@ -206,6 +236,10 @@ export const tradeQuoteSlice = createSlice({
         action.payload?.firstHop
       state.tradeExecution[action.payload.id].secondHop.allowanceReset.isRequired =
         action.payload?.secondHop
+      state.tradeExecution[action.payload.id].firstHop.allowanceReset.isInitiallyRequired =
+        action.payload?.firstHop
+      state.tradeExecution[action.payload.id].secondHop.allowanceReset.isInitiallyRequired =
+        action.payload?.secondHop
     },
     setPermit2Requirements: (
       state,
@@ -215,19 +249,31 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution[action.payload.id].secondHop.permit2.isRequired =
         action.payload?.secondHop
     },
-    setApprovalTxHash: (
+    setAllowanceResetTxHash: (
       state,
       action: PayloadAction<{
         hopIndex: number
         txHash: string
-        isReset: boolean
         id: TradeQuote['id']
       }>,
     ) => {
-      const { hopIndex, txHash, isReset } = action.payload
+      const { hopIndex, txHash, id } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      const allowanceKey = isReset ? AllowanceKey.AllowanceReset : AllowanceKey.Approval
-      state.tradeExecution[action.payload.id][hopKey][allowanceKey].txHash = txHash
+      const allowanceKey = AllowanceKey.AllowanceReset
+      state.tradeExecution[id][hopKey][allowanceKey].txHash = txHash
+    },
+    setAllowanceApprovalTxHash: (
+      state,
+      action: PayloadAction<{
+        hopIndex: number
+        txHash: string
+        id: TradeQuote['id']
+      }>,
+    ) => {
+      const { hopIndex, txHash, id } = action.payload
+      const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const allowanceKey = AllowanceKey.AllowanceApproval
+      state.tradeExecution[id][hopKey][allowanceKey].txHash = txHash
     },
     setSwapSellTxHash: (
       state,

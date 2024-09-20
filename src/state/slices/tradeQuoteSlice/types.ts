@@ -24,8 +24,8 @@ export enum TransactionExecutionState {
 
 export enum HopExecutionState {
   Pending = 'Pending',
-  AwaitingApprovalReset = 'AwaitingApprovalReset',
-  AwaitingApproval = 'AwaitingApproval',
+  AwaitingAllowanceReset = 'AwaitingAllowanceReset',
+  AwaitingAllowanceApproval = 'AwaitingAllowanceApproval',
   AwaitingPermit2 = 'AwaitingPermit2',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
@@ -46,7 +46,7 @@ export enum HopKey {
 
 export enum AllowanceKey {
   AllowanceReset = 'allowanceReset',
-  Approval = 'approval',
+  AllowanceApproval = 'allowanceApproval',
 }
 
 export type StreamingSwapFailedSwap = {
@@ -63,6 +63,7 @@ export type StreamingSwapMetadata = {
 export type ApprovalExecutionMetadata = {
   state: TransactionExecutionState
   txHash?: string
+  isInitiallyRequired: boolean
   isRequired?: boolean
 }
 
@@ -77,7 +78,7 @@ export type SwapExecutionMetadata = {
 export type HopExecutionMetadata = {
   state: HopExecutionState
   allowanceReset: ApprovalExecutionMetadata
-  approval: ApprovalExecutionMetadata
+  allowanceApproval: ApprovalExecutionMetadata
   permit2: Omit<ApprovalExecutionMetadata, 'txHash'>
   swap: SwapExecutionMetadata
 }

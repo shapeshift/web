@@ -1,15 +1,20 @@
 import type { TradeQuoteSliceState } from './types'
 import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'
 
+const initialApprovalExecutionState = {
+  state: TransactionExecutionState.AwaitingConfirmation,
+  isInitiallyRequired: false,
+}
+
 const initialTransactionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
 }
 
 const initialHopState = {
   state: HopExecutionState.Pending,
-  allowanceReset: initialTransactionState,
-  approval: initialTransactionState,
-  permit2: initialTransactionState,
+  allowanceReset: initialApprovalExecutionState,
+  allowanceApproval: initialApprovalExecutionState,
+  permit2: initialApprovalExecutionState,
   swap: initialTransactionState,
 }
 

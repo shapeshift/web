@@ -210,7 +210,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const {
     estimatedFeesData,
     isEstimatedFeesDataLoading,
-    dustAmountCryptoBaseUnit,
+    dustAmountCryptoBaseUnitOrDefault: dustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
   } = useSendThorTx({
     assetId,

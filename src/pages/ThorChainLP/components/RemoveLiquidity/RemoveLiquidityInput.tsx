@@ -382,7 +382,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     estimatedFeesData: estimatedRuneFeesData,
     isEstimatedFeesDataLoading: isEstimatedRuneFeesDataLoading,
     isEstimatedFeesDataError: isEstimatedRuneFeesDataError,
-    dustAmountCryptoBaseUnit: runeDustAmountCryptoBaseUnit,
+    dustAmountCryptoBaseUnitOrDefault: runeDustAmountCryptoBaseUnit,
   } = useSendThorTx({
     assetId: thorchainAssetId,
     accountId: positionRuneAccountId ?? null,
@@ -415,7 +415,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     estimatedFeesData: estimatedPoolAssetFeesData,
     isEstimatedFeesDataLoading: isEstimatedPoolAssetFeesDataLoading,
     isEstimatedFeesDataError: isEstimatedPoolAssetFeesDataError,
-    dustAmountCryptoBaseUnit: poolAssetFeeAssetDustAmountCryptoBaseUnit,
+    dustAmountCryptoBaseUnitOrDefault: poolAssetFeeAssetDustAmountCryptoBaseUnit,
     outboundFeeCryptoBaseUnit,
   } = useSendThorTx({
     // Asym asset withdraws are the only ones occurring an asset Tx - both sym and asym RUNE side withdraws occur a RUNE Tx instead

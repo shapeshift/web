@@ -220,6 +220,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         setProtocolFeeCryptoBaseUnit(
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
+
         setDustAmountCryptoBaseUnit(
           bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
             asset.precision,
@@ -248,6 +249,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     protocolFeeCryptoBaseUnit,
     expiry,
     isRunePool,
+    feeAsset?.assetId,
   ])
 
   useEffect(() => {
@@ -293,6 +295,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     action: isRunePool ? 'withdrawRunepool' : 'withdrawSavers',
     memo,
     fromAddress,
+    dustAmountCryptoBaseUnit,
   })
 
   const estimatedGasCryptoPrecision = useMemo(() => {

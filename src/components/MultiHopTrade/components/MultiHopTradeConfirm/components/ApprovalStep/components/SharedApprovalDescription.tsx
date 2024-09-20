@@ -1,7 +1,6 @@
 import { Link } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { Text } from 'components/Text'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
@@ -9,21 +8,12 @@ import { getTxLink } from 'lib/getTxLink'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export type ErrorMsgProps = {
-  isError: boolean
-  errorTranslation: string
-}
-
-export const ErrorMsg = ({ isError, errorTranslation }: ErrorMsgProps) => {
-  return isError ? (
-    <Text color='text.error' translation={errorTranslation} fontWeight='bold' />
-  ) : null
-}
-
 type SharedCompletedApprovalDescriptionProps = {
   tradeQuoteStep: TradeQuoteStep
   txHash: string
-} & ErrorMsgProps
+  isError: boolean
+  errorTranslation: string
+}
 
 export const SharedCompletedApprovalDescription = ({
   tradeQuoteStep,
@@ -51,7 +41,8 @@ export const SharedCompletedApprovalDescription = ({
 
   return (
     <>
-      <ErrorMsg isError={isError} errorTranslation={errorTranslation} />
+      {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
+
       <Link isExternal href={txLink} color='text.link'>
         <MiddleEllipsis value={maybeSafeTx?.transaction?.transactionHash ?? txHash} />
       </Link>
@@ -62,11 +53,12 @@ export const SharedCompletedApprovalDescription = ({
 type SharedApprovalDescriptionProps = {
   tradeQuoteStep: TradeQuoteStep
   txHash: string | undefined
-  approvalNetworkFeeCryptoFormatted: string
+  approvalNetworkFeeCryptoFormatted: string | undefined
   gasFeeLoadingTranslation: string
   gasFeeTranslation: string
-  isLoadingNetworkFee: boolean
-} & ErrorMsgProps
+  isError: boolean
+  errorTranslation: string
+}
 
 export const SharedApprovalDescription = ({
   tradeQuoteStep,
@@ -76,19 +68,27 @@ export const SharedApprovalDescription = ({
   errorTranslation,
   gasFeeLoadingTranslation,
   gasFeeTranslation,
-  isLoadingNetworkFee = false,
 }: SharedApprovalDescriptionProps) => {
-  const translate = useTranslate()
-
+  console.log(approvalNetworkFeeCryptoFormatted)
   if (!txHash) {
     return (
       <>
-        <ErrorMsg isError={isError} errorTranslation={errorTranslation} />
-        {isLoadingNetworkFee
-          ? translate(gasFeeLoadingTranslation)
-          : translate(gasFeeTranslation, {
-              fee: approvalNetworkFeeCryptoFormatted,
-            })}
+        {isError && <Text color='text.error' translation={errorTranslation} fontWeight='bold' />}
+
+        <Text
+          color='text.subtle'
+          translation={
+            !Boolean(approvalNetworkFeeCryptoFormatted)
+              ? gasFeeLoadingTranslation
+              : [
+                  gasFeeTranslation,
+                  {
+                    fee: approvalNetworkFeeCryptoFormatted,
+                  },
+                ]
+          }
+          fontWeight='bold'
+        />
       </>
     )
   }

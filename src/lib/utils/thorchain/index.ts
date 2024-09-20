@@ -16,6 +16,7 @@ import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapp
 import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
+import { bech32 } from 'bech32'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
@@ -223,10 +224,12 @@ const getAccountAddressesWithBalances = async (
 
 // Memoized on accountId, see lodash docs:
 // "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(
-  async (accountId: AccountId): Promise<string[]> =>
-    (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
-)
+export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
+  // Handle the case where the accountId is a pubkey AccountId, not an xpub AccountId
+  if (isUtxoAccountId(accountId) && bech32.decode(fromAccountId(accountId).account).prefix === 'bc')
+    return [fromAccountId(accountId).account]
+  return (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address)
+})
 
 // A THOR Tx can either be:
 // - a RUNE MsgDeposit message type

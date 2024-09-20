@@ -112,8 +112,8 @@ export const useSendThorTx = ({
 
   const amountOrDustCryptoBaseUnit = useMemo(() => {
     return shouldUseDustAmount
-      ? dustAmountCryptoBaseUnitOrDefault
-      : bnOrZero(amountCryptoBaseUnit).toFixed()
+      ? bnOrZero(dustAmountCryptoBaseUnitOrDefault).toFixed(0)
+      : bnOrZero(amountCryptoBaseUnit).toFixed(0)
   }, [shouldUseDustAmount, dustAmountCryptoBaseUnitOrDefault, amountCryptoBaseUnit])
 
   const transactionType = useMemo(() => {

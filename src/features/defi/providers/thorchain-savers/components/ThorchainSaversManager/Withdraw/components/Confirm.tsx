@@ -248,7 +248,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     protocolFeeCryptoBaseUnit,
     expiry,
     isRunePool,
-    feeAsset?.assetId,
   ])
 
   useEffect(() => {

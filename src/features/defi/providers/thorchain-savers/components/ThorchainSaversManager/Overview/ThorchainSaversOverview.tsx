@@ -282,7 +282,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
               label: 'common.deposit',
               icon: <ArrowUpIcon />,
               action: DefiAction.Deposit,
-              isDisabled: false,
+              isDisabled:
+                isFull ||
+                hasPendingTxs ||
+                hasPendingQueries ||
+                isHaltedDeposits ||
+                isDisabledDeposits,
               toolTip: (() => {
                 if (isDisabledDeposits)
                   return translate('defi.modals.saversVaults.disabledDepositTitle')

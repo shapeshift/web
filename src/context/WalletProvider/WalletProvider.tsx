@@ -134,6 +134,7 @@ export const isKeyManagerWithProvider = (
       [
         KeyManager.XDefi,
         KeyManager.MetaMask,
+        KeyManager.Phantom,
         KeyManager.WalletConnectV2,
         KeyManager.Coinbase,
       ].includes(keyManager),
@@ -159,6 +160,9 @@ export const getMaybeProvider = async (
 
   if (localWalletType === KeyManager.MetaMask) {
     return (await detectEthereumProvider()) as MetaMaskLikeProvider
+  }
+  if (localWalletType === KeyManager.Phantom) {
+    return (globalThis as any).phantom.ethereum as unknown as MetaMaskLikeProvider
   }
   if (localWalletType === KeyManager.XDefi) {
     try {
@@ -638,6 +642,46 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.Phantom:
+            // Get the adapter again in each switch case to narrow down the adapter type
+            const phantomAdapter = await getAdapter(localWalletType)
+
+            if (phantomAdapter) {
+              currentAdapters[localWalletType] = phantomAdapter
+              dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+              // Fixes issue with wallet `type` being null when the wallet is loaded from state
+              dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
+            }
+
+            const localPhantomWallet = await phantomAdapter?.pairDevice()
+            // Set the provider again on refresh to ensure event handlers are properly set
+            await onProviderChange(KeyManager.Phantom, localPhantomWallet ?? null)
+            if (localPhantomWallet) {
+              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Phantom]
+              try {
+                await localPhantomWallet.initialize()
+                const deviceId = await localPhantomWallet.getDeviceID()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localPhantomWallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: KeyManager.Phantom,
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } catch (e) {
+                disconnect()
+              }
+            } else {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+
           case KeyManager.Coinbase:
             // Get the adapter again in each switch case to narrow down the adapter type
             const coinbaseAdapter = await getAdapter(localWalletType)

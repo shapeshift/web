@@ -1461,7 +1461,6 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
         "body": "Unable to connect Keplr wallet"
       }
     },
@@ -1501,7 +1500,6 @@
         "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
-        "header": "Error",
         "body": "Unable to connect Ledger wallet"
       },
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
@@ -1519,7 +1517,6 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
         "body": "Unable to connect MetaMask wallet"
       },
       "redirect": {
@@ -1538,10 +1535,6 @@
         "header": "Pair Phantom",
         "body": "Click Pair and login to Phantom from the popup window",
         "button": "Pair"
-      },
-      "failure": {
-        "header": "Error",
-        "body": "Unable to connect Phantom wallet"
       }
     },
     "metaMaskSnap": {
@@ -1599,7 +1592,6 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Unable to connect Coinbase wallet",
         "body": "Unable to connect Coinbase wallet"
       }
     },
@@ -1614,7 +1606,6 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
         "body": "Unable to connect WalletConnect wallet"
       }
     },
@@ -1630,7 +1621,6 @@
         "button": "Pair"
       },
       "failure": {
-        "header": "Error",
         "body": "Unable to connect XDEFI wallet"
       },
       "redirect": {

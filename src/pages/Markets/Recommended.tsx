@@ -2,6 +2,8 @@ import { Box, Flex, Grid, GridItem, Heading, Skeleton, Text } from '@chakra-ui/r
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
+import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,8 +11,16 @@ import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { getCoingeckoMovers } from 'lib/coingecko/utils'
+import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import {
+  selectAssetIds,
+  selectAssets,
+  selectFeatureFlag,
+  selectFeeAssetById,
+} from 'state/slices/selectors'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
@@ -219,11 +229,74 @@ export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
   const assetIds = useAppSelector(selectAssetIds)
+  const dispatch = useAppDispatch()
 
   // Fetch for all chains here so we know which chains to show in the dropdown
   const { isLoading: isPortalsAssetsLoading, data: allPortalsAssets } = usePortalsAssetsQuery({
     chainIds: undefined,
   })
+
+  const assets = useAppSelector(selectAssets)
+
+  // TODO(gomes): move coingecko query hooks to their own module
+  const { data: topMoversData, isTopMoversDataLoading } = useQuery({
+    queryKey: ['coinGeckoTopMovers'],
+    queryFn: getCoingeckoMovers,
+    staleTime: Infinity,
+    select: topMovers => {
+      if (!topMovers) return
+
+      // TODO(gomes): types
+      return topMovers.reduce<any>(
+        (acc, topMover) => {
+          const assetId = topMover.assetId
+          const chainId = fromAssetId(assetId).chainId
+          const feeAsset = selectFeeAssetById(store.getState(), assetId)
+          const precision =
+            topMover.details.detail_platforms[topMover.details.asset_platform_id]?.decimal_place
+          if (!feeAsset) return acc
+
+          const asset = makeAsset(assets, {
+            assetId,
+            symbol: topMover.details.symbol,
+            name: topMover.details.name,
+            precision,
+            icon: topMover.details.image.small,
+          })
+
+          if (!asset) return acc
+
+          // upsert fetched asset if doesn't exist in generatedAssetData.json
+          if (!assets[assetId]) {
+            dispatch(
+              assetsSlice.actions.upsertAssets({
+                ids: [assetId],
+                byId: { [assetId]: asset },
+              }),
+            )
+
+            // and its market-data since it may or may not be missing
+            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+          }
+
+          if (!acc.chainIds.includes(chainId)) {
+            acc.chainIds.push(chainId)
+          }
+
+          acc.byId[assetId] = topMover
+          acc.ids.push(assetId)
+          return acc
+        },
+        {
+          byId: {},
+          ids: [],
+          chainIds: [],
+        },
+      )
+    },
+  })
+
+  console.log({ topMoversData })
 
   const rows = useMemo(
     () => [
@@ -251,13 +324,12 @@ export const Recommended: React.FC = () => {
         ),
       },
       {
-        title: translate('markets.categories.topMovements.title'),
+        title: translate('markets.categories.topMovers.title'),
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={topMoversData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isTopMoversDataLoading}
           />
         ),
       },

@@ -2601,7 +2601,7 @@
         "title": "Trending",
         "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
-      "topMovements": {
+      "topMovers": {
         "title": "Top Movers"
       },
       "recentlyAdded": {

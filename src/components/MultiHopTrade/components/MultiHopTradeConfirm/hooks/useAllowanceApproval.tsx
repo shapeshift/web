@@ -5,11 +5,9 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
-import {
-  AllowanceType,
-  getApprovalAmountCryptoBaseUnit,
-  useApprovalFees,
-} from 'hooks/queries/useApprovalFees'
+import type { AllowanceType } from 'hooks/queries/useApprovalFees'
+import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from 'hooks/queries/useApprovalFees'
+import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
@@ -34,12 +32,15 @@ export const useAllowanceApproval = (
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
-  const {
-    allowanceCryptoBaseUnitResult,
-    evmFeesResult,
-    isApprovalRequired,
-    isAllowanceResetRequired,
-  } = useApprovalFees({
+  const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
+    useIsAllowanceApprovalRequired({
+      amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      assetId: tradeQuoteStep?.sellAsset.assetId,
+      from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+      spender: tradeQuoteStep?.allowanceContract,
+    })
+
+  const { evmFeesResult } = useApprovalFees({
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     assetId: tradeQuoteStep.sellAsset.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
@@ -49,34 +50,13 @@ export const useAllowanceApproval = (
   })
 
   useEffect(() => {
-    if (!isInitiallyRequired || isApprovalRequired !== false) return
+    if (!isInitiallyRequired || isAllowanceApprovalRequired !== false) return
 
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
     dispatch(tradeQuoteSlice.actions.setApprovalStepComplete({ hopIndex, id: confirmedTradeId }))
-  }, [dispatch, hopIndex, isApprovalRequired, confirmedTradeId, isInitiallyRequired])
-
-  useEffect(() => {
-    if (
-      !isInitiallyRequired ||
-      isAllowanceResetRequired !== false ||
-      allowanceType !== AllowanceType.Reset
-    )
-      return
-
-    // Mark the allowance reset step complete as required.
-    // This is deliberately disjoint to the approval transaction orchestration to allow users to
-    // complete an approval reset externally and have the app respond to the updated allowance on chain.
-    dispatch(tradeQuoteSlice.actions.setApprovalResetComplete({ hopIndex, id: confirmedTradeId }))
-  }, [
-    dispatch,
-    hopIndex,
-    isAllowanceResetRequired,
-    confirmedTradeId,
-    allowanceType,
-    isInitiallyRequired,
-  ])
+  }, [dispatch, hopIndex, isAllowanceApprovalRequired, confirmedTradeId, isInitiallyRequired])
 
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve({

@@ -6,7 +6,6 @@ import { assertUnreachable } from 'lib/utils'
 import { getApproveContractData } from 'lib/utils/evm'
 
 import { useEvmFees } from './useEvmFees'
-import { useIsApprovalRequired } from './useIsApprovalRequired'
 
 export enum AllowanceType {
   Exact,
@@ -35,14 +34,6 @@ export const useApprovalFees = ({
     return fromAssetId(assetId)
   }, [assetId])
 
-  const { allowanceCryptoBaseUnitResult, isApprovalRequired, isAllowanceResetRequired } =
-    useIsApprovalRequired({
-      amountCryptoBaseUnit,
-      assetId,
-      from,
-      spender,
-    })
-
   const approveContractData = useMemo(() => {
     if (!amountCryptoBaseUnit || !spender) return
 
@@ -63,17 +54,14 @@ export const useApprovalFees = ({
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(isApprovalRequired && enabled),
+    enabled: Boolean(enabled),
     refetchIntervalInBackground: true,
-    refetchInterval: isApprovalRequired ? 15_000 : false,
+    refetchInterval: enabled ? 15_000 : false,
   })
 
   return {
-    allowanceCryptoBaseUnitResult,
     approveContractData,
     evmFeesResult,
-    isApprovalRequired,
-    isAllowanceResetRequired,
   }
 }
 

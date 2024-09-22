@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
 import { AllowanceType, useApprovalFees } from 'hooks/queries/useApprovalFees'
+import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
@@ -30,15 +31,23 @@ export const useAllowanceReset = (
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
-  const { allowanceCryptoBaseUnitResult, evmFeesResult, isAllowanceResetRequired } =
-    useApprovalFees({
-      amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      assetId: tradeQuoteStep.sellAsset.assetId,
+  const { isAllowanceResetRequired, isLoading: isAllowanceResetRequirementsLoading } =
+    useIsAllowanceResetRequired({
+      amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      assetId: tradeQuoteStep?.sellAsset.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
-      allowanceType,
-      spender: tradeQuoteStep.allowanceContract,
-      enabled: isInitiallyRequired && feeQueryEnabled,
+      spender: tradeQuoteStep?.allowanceContract,
+      isDisabled: !(isInitiallyRequired && feeQueryEnabled),
     })
+
+  const { evmFeesResult } = useApprovalFees({
+    amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    assetId: tradeQuoteStep.sellAsset.assetId,
+    from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+    allowanceType,
+    spender: tradeQuoteStep.allowanceContract,
+    enabled: isInitiallyRequired && feeQueryEnabled,
+  })
 
   useEffect(() => {
     if (
@@ -109,7 +118,7 @@ export const useAllowanceReset = (
   })
 
   return {
-    isLoading: allowanceCryptoBaseUnitResult.isLoading || evmFeesResult.isLoading,
+    isLoading: isAllowanceResetRequirementsLoading || evmFeesResult.isLoading,
     allowanceResetMutation,
     allowanceResetNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
   }

@@ -60,7 +60,9 @@ export const useAllowanceReset = (
     // Mark the allowance reset step complete as required.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval reset externally and have the app respond to the updated allowance on chain.
-    dispatch(tradeQuoteSlice.actions.setApprovalResetComplete({ hopIndex, id: confirmedTradeId }))
+    dispatch(
+      tradeQuoteSlice.actions.setAllowanceResetStepComplete({ hopIndex, id: confirmedTradeId }),
+    )
   }, [
     dispatch,
     hopIndex,

@@ -79,7 +79,7 @@ export type HopExecutionMetadata = {
   state: HopExecutionState
   allowanceReset: ApprovalExecutionMetadata
   allowanceApproval: ApprovalExecutionMetadata
-  permit2: Omit<ApprovalExecutionMetadata, 'txHash'>
+  permit2: Omit<ApprovalExecutionMetadata, 'txHash'> & { permit2Signature?: string }
   swap: SwapExecutionMetadata
 }
 

@@ -22,6 +22,7 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { TransactionRequest } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -191,6 +192,10 @@ export type TradeQuoteStep = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
+  permit2?: {
+    eip712: TypedData
+    transaction: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
+  }
 }
 
 type TradeQuoteBase = {
@@ -276,10 +281,12 @@ export type CommonGetUnsignedTransactionArgs = {
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean } & Omit<
-    EvmSwapperDeps,
-    'fetchIsSmartContractAddressQuery'
-  >
+  EvmAccountMetadata &
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'> & {
+    permit2Signature?: string
+    supportsEIP1559: boolean
+  }
+
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>

@@ -14,6 +14,7 @@ import { StepperStep } from '../StepperStep'
 import { SharedCompletedApprovalDescription } from './components/SharedApprovalDescription'
 import { useAllowanceApprovalContent } from './hooks/useAllowanceApprovalContent'
 import { useAllowanceResetContent } from './hooks/useAllowanceResetContent'
+import { usePermit2Content } from './hooks/usePermit2Content'
 
 export type ApprovalStepProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -42,6 +43,7 @@ export const ApprovalStep = ({
     state: hopExecutionState,
     allowanceApproval,
     allowanceReset,
+    permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const { content: allowanceResetContent, description: allowanceResetDescription } =
@@ -58,6 +60,12 @@ export const ApprovalStep = ({
       activeTradeId,
     })
 
+  const { content: permit2Content, description: permit2Description } = usePermit2Content({
+    tradeQuoteStep,
+    hopIndex,
+    activeTradeId,
+  })
+
   const stepIndicator = useMemo(() => {
     const txStatus = (() => {
       switch (hopExecutionState) {
@@ -68,6 +76,7 @@ export const ApprovalStep = ({
         case HopExecutionState.AwaitingAllowanceApproval:
           return allowanceApproval.state
         case HopExecutionState.AwaitingPermit2:
+          return permit2.state
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
           return TransactionExecutionState.Complete
@@ -79,7 +88,7 @@ export const ApprovalStep = ({
     })()
 
     return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />
-  }, [allowanceApproval.state, allowanceReset.state, hopExecutionState])
+  }, [allowanceApproval.state, allowanceReset.state, hopExecutionState, permit2.state])
 
   const content = useMemo(() => {
     const inner = (() => {
@@ -91,6 +100,7 @@ export const ApprovalStep = ({
         case HopExecutionState.AwaitingAllowanceApproval:
           return allowanceApprovalContent
         case HopExecutionState.AwaitingPermit2:
+          return permit2Content
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
           return
@@ -104,7 +114,7 @@ export const ApprovalStep = ({
         <SlideTransitionX key={hopExecutionState}>{inner}</SlideTransitionX>
       </AnimatePresence>
     ) : undefined
-  }, [allowanceApprovalContent, allowanceResetContent, hopExecutionState])
+  }, [allowanceApprovalContent, allowanceResetContent, hopExecutionState, permit2Content])
 
   const description = useMemo(() => {
     switch (hopExecutionState) {
@@ -122,6 +132,7 @@ export const ApprovalStep = ({
       case HopExecutionState.AwaitingAllowanceApproval:
         return allowanceApprovalDescription
       case HopExecutionState.AwaitingPermit2:
+        return permit2Description
       case HopExecutionState.AwaitingSwap:
       case HopExecutionState.Complete:
         return (
@@ -142,6 +153,7 @@ export const ApprovalStep = ({
     allowanceReset.isInitiallyRequired,
     allowanceResetDescription,
     hopExecutionState,
+    permit2Description,
     tradeQuoteStep,
   ])
 

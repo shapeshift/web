@@ -69,7 +69,6 @@ export const SharedApprovalDescription = ({
   gasFeeLoadingTranslation,
   gasFeeTranslation,
 }: SharedApprovalDescriptionProps) => {
-  console.log(approvalNetworkFeeCryptoFormatted)
   if (!txHash) {
     return (
       <>

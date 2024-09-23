@@ -1,5 +1,5 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { Address } from 'viem'
+import type { Address, TypedData } from 'viem'
 
 export const zrxSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -108,19 +108,8 @@ export type ZrxPermit2QuoteResponse = ZrxPermit2PriceResponse & {
   permit2: {
     type: 'Permit2'
     hash: string
-    eip712: {
-      types: { name: string; type: string }[]
-      domain: {
-        name: string
-        version: string
-        chainId: number
-        verifyingContract: string
-        salt: string
-      }
-      message: unknown
-      primaryType: string
-    }
-  } | null
+    eip712: TypedData | null
+  }
   transaction: {
     to: Address
     data: string

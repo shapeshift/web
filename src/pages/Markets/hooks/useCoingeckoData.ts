@@ -1,9 +1,11 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { MarketData } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
+import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { getCoingeckoMovers } from 'lib/coingecko/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
-import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -18,9 +20,8 @@ export const useTopMoversQuery = () => {
     select: topMovers => {
       if (!topMovers) return
 
-      // TODO(gomes): types
       return topMovers.reduce<any>(
-        (acc, topMover) => {
+        (acc, topMover, i) => {
           const assetId = topMover.assetId
           const chainId = fromAssetId(assetId).chainId
           const feeAsset = selectFeeAssetById(store.getState(), assetId)
@@ -48,8 +49,28 @@ export const useTopMoversQuery = () => {
               }),
             )
 
-            // and its market-data since it may or may not be missing
-            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+            // The /coins/<coin> endpoint already returns us the current market data so no need to refetch it, we can directly upsert
+            const currentMarketData: MarketData = {
+              price: topMover.details.market_data.current_price.usd.toString(),
+              marketCap: topMover.details.market_data.market_cap.toString(),
+              volume: (topMover.details.market_data.total_volume ?? 0).toString(),
+              changePercent24Hr: topMover.details.market_data.price_change_percentage_24h,
+              supply: topMover.details.market_data.circulating_supply.toString(),
+              maxSupply:
+                topMover.details.market_data.max_supply?.toString() ??
+                topMover.details.market_data.total_supply?.toString(),
+            }
+
+            dispatch(marketData.actions.setCryptoMarketData({ [assetId]: currentMarketData }))
+
+            // We only need price history for the 0th item (big card with chart)
+            if (i === 0)
+              dispatch(
+                marketApi.endpoints.findPriceHistoryByAssetId.initiate({
+                  assetId,
+                  timeframe: DEFAULT_HISTORY_TIMEFRAME,
+                }),
+              )
           }
 
           if (!acc.chainIds.includes(chainId)) {

@@ -1,13 +1,26 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
-import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
+import type {
+  CoinGeckoMarketCap,
+  CoinGeckoMarketData,
+} from 'lib/market-service/coingecko/coingecko-types'
 
 import { COINGECKO_PLATFORM_ID_TO_CHAIN_ID } from './constants'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
-// TODO(gomes: proper type
+// Non-exhaustive types, refer to https://docs.coingecko.com/reference/coins-id and other endpoints for full response schema
+type CoingeckoAssetDetails = {
+  market_data: CoinGeckoMarketData
+  asset_platform_id: string
+  image: Record<string, string>
+  name: string
+  symbol: string
+  detail_platforms: Record<string, { decimal_place: number; contract_address: string }>
+  platforms: Record<string, string>
+}
+
 type MoverAsset = Pick<
   CoinGeckoMarketCap,
   'id' | 'symbol' | 'name' | 'image' | 'market_cap_rank'
@@ -16,6 +29,7 @@ type MoverAsset = Pick<
   usd_24h_vol: string
   usd_1y_change: string
   assetId: AssetId
+  details: CoingeckoAssetDetails
 }
 
 type MoversResponse = {
@@ -32,8 +46,9 @@ export const getCoingeckoMovers = async (): Promise<MoverAsset[]> => {
   await Promise.allSettled(
     all.map(async (topMover, i) => {
       try {
-        // TODO(gomes): types
-        const { data } = await axios.get(`${coingeckoBaseUrl}/coins/${topMover.id}`)
+        const { data } = await axios.get<CoingeckoAssetDetails>(
+          `${coingeckoBaseUrl}/coins/${topMover.id}`,
+        )
         const asset_platform_id = data.asset_platform_id
 
         const address = data.platforms?.[asset_platform_id]
@@ -44,8 +59,7 @@ export const getCoingeckoMovers = async (): Promise<MoverAsset[]> => {
 
         const assetId = toAssetId({
           chainId,
-          // TODO(gomes): bep20
-          assetNamespace: 'erc20',
+          assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
           assetReference: address,
         })
 

@@ -19,6 +19,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
+import uniq from 'lodash/uniq'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
@@ -78,8 +79,8 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   thorchainAssetId,
 ]
 
-export const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
-  assetId => fromAssetId(assetId).chainId,
+export const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = uniq(
+  SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(assetId => fromAssetId(assetId).chainId),
 )
 
 export const getAllThorchainSaversPositions = async (

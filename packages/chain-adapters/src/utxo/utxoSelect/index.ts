@@ -33,13 +33,7 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     // If input contains a `from` param, the intent is to only keep the UTXOs from that address
     // so we can ensure the send address is the one we want
     // This doesn't do any further checks, so error-handling should be done by the caller e.g `buildSendTransaction` callsites
-    if (
-      !input.from ||
-      // Accommodate for pubkey (not xpub) UTXOs which don't have an address
-      // Can there ever be a case where a pubkey UTXO also doesn't contain an address and this is a danger for fundus?
-      (input.from && !utxo.address) ||
-      (input.from && utxo.address === input.from)
-    ) {
+    if (!input.from || (input.from && utxo.address === input.from)) {
       acc.push(sanitizedUtxo)
     }
     return acc

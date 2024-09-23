@@ -208,7 +208,7 @@ export const getAccountAddresses = memoize(async (accountId: AccountId): Promise
       chainSpecific: { addresses },
     } = await adapter.getAccount(pubkey)
 
-    if (!addresses) return [pubkey]
+    if (!addresses) return []
 
     return addresses.map(({ pubkey }) => {
       const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey

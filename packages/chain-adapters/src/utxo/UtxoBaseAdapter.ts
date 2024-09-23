@@ -10,7 +10,6 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
-import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -324,15 +323,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        // TOOD(gomes): v. dangerous, narrow this monkey patch for Phantom only
-        // if (!input.path) continue
-
         const data = await this.providers.http.getTransaction({ txid: input.txid })
 
         signTxInputs.push({
-          // TODO(gomes): v. dangerous, should only be used for phantom since no derivation happens, and assume account 0 address 0 yadi yada
-          // @ts-ignore
-          addressNList: input.path ? bip32ToAddressNList(input.path) : undefined,
+          addressNList: input.path
+            ? bip32ToAddressNList(input.path)
+            : toAddressNList({ ...bip44Params }),
           scriptType: accountTypeToScriptType[accountType],
           amount: String(input.value),
           vout: input.vout,
@@ -518,12 +514,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const account = await this.getAccount(
       input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
     )
-    const addresses = (() => {
-      // This means the account isn't an xpub account, pub a pubkey as account i.e Phantom, which doesn't expose an xpub
-      if (wallet instanceof PhantomHDWallet && !account.chainSpecific.addresses && account.pubkey)
-        return [account.pubkey]
-      return (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
-    })()
+    const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
     await this.providers.ws.subscribeTxs(

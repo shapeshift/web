@@ -14,6 +14,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { isSome } from 'lib/utils'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetById, selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
@@ -182,18 +183,10 @@ const ThorchainAssets: React.FC<{
 }> = ({ selectedChainId }) => {
   const dispatch = useAppDispatch()
   const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
-    ...reactQueries.thornode.poolsData(),
+    queryKey: ['thorchainAssets'],
+    queryFn: thorchainSaversOpportunityIdsResolver,
     staleTime: Infinity,
-    select: pools =>
-      pools
-        .map(pool => poolAssetIdToAssetId(pool.asset))
-        .filter(thorchainAsset => {
-          const asset = selectAssetById(store.getState(), thorchainAsset ?? '')
-          if (!asset) return false
-
-          return true
-        })
-        .filter(isSome),
+    select: pools => pools.data,
   })
 
   useEffect(() => {

@@ -11,6 +11,7 @@ import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selecto
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
+import { isPermit2Hop } from '../../../hooks/helpers'
 import { useAllowanceApproval } from '../../../hooks/useAllowanceApproval'
 import { AllowanceApprovalContent } from '../components/ApprovalContent'
 import { SharedApprovalDescription } from '../components/SharedApprovalDescription'
@@ -31,6 +32,10 @@ export const useAllowanceApprovalContent = ({
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
+
+  const isPermit2 = useMemo(() => {
+    return isPermit2Hop(tradeQuoteStep)
+  }, [tradeQuoteStep])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
@@ -60,7 +65,8 @@ export const useAllowanceApprovalContent = ({
   } = useAllowanceApproval(
     tradeQuoteStep,
     hopIndex,
-    isExactAllowance ? AllowanceType.Exact : AllowanceType.Unlimited,
+    // Permit2 should always have unlimited allowance
+    isExactAllowance && !isPermit2 ? AllowanceType.Exact : AllowanceType.Unlimited,
     isEnabled,
     activeTradeId,
     allowanceApproval.isInitiallyRequired,
@@ -109,25 +115,28 @@ export const useAllowanceApprovalContent = ({
         transactionExecutionState={allowanceApproval.state}
         onSubmit={handleSignAllowanceApproval}
         topRightContent={
-          <>
-            <Text
-              color={isExactAllowance ? 'text.subtle' : 'white'}
-              translation='trade.unlimited'
-              fontWeight='bold'
-            />
-            <Switch
-              size='sm'
-              mx={2}
-              isChecked={isExactAllowance}
-              disabled={isApprovalButtonDisabled}
-              onChange={toggleIsExactAllowance}
-            />
-            <Text
-              color={isExactAllowance ? 'white' : 'text.subtle'}
-              translation='trade.exact'
-              fontWeight='bold'
-            />
-          </>
+          // Permit2 should always have unlimited allowance without ability to toggle
+          !isPermit2 ? (
+            <>
+              <Text
+                color={isExactAllowance ? 'text.subtle' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch
+                size='sm'
+                mx={2}
+                isChecked={isExactAllowance}
+                disabled={isApprovalButtonDisabled}
+                onChange={toggleIsExactAllowance}
+              />
+              <Text
+                color={isExactAllowance ? 'white' : 'text.subtle'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </>
+          ) : undefined
         }
       />
     )
@@ -138,6 +147,7 @@ export const useAllowanceApprovalContent = ({
     isAllowanceApprovalLoading,
     isApprovalButtonDisabled,
     isExactAllowance,
+    isPermit2,
     toggleIsExactAllowance,
   ])
 

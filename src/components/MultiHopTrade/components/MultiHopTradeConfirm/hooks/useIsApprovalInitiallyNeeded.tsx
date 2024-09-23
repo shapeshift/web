@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { type TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { ZRC_PERMIT2_SOURCE_ID } from '@shapeshiftoss/swapper/src/swappers/ZrxSwapper/utils/constants'
 import { useEffect, useMemo, useState } from 'react'
 import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
@@ -14,6 +13,8 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { isPermit2Hop } from './helpers'
 
 const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteId: string | undefined,
@@ -63,8 +64,8 @@ const useIsAllowanceResetInitiallyRequiredForHop = (
   const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
 
   const isPermit2 = useMemo(() => {
-    return tradeQuoteStep?.source === ZRC_PERMIT2_SOURCE_ID
-  }, [tradeQuoteStep?.source])
+    return isPermit2Hop(tradeQuoteStep)
+  }, [tradeQuoteStep])
 
   const { isAllowanceResetRequired, isLoading } = useIsAllowanceResetRequired({
     amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -137,6 +138,14 @@ export const useIsApprovalInitiallyNeeded = () => {
     secondHopSellAssetAccountId,
   )
 
+  const isPermit2InitiallyRequiredForFirstHop = useMemo(() => {
+    return isPermit2Hop(firstHop)
+  }, [firstHop])
+
+  const isPermit2InitiallyRequiredForSecondHop = useMemo(() => {
+    return isPermit2Hop(secondHop)
+  }, [secondHop])
+
   const isFirstHopLoading =
     isFirstHopAllowanceApprovalRequirementsLoading || isFirstHopAllowanceResetRequirementsLoading
   const isSecondHopLoading =
@@ -162,12 +171,11 @@ export const useIsApprovalInitiallyNeeded = () => {
       }),
     )
 
-    // TODO: actually wire this up
     dispatch(
       tradeQuoteSlice.actions.setPermit2Requirements({
         id: activeQuote.id,
-        firstHop: true,
-        secondHop: true,
+        firstHop: isPermit2InitiallyRequiredForFirstHop,
+        secondHop: isPermit2InitiallyRequiredForSecondHop,
       }),
     )
   }, [
@@ -178,6 +186,8 @@ export const useIsApprovalInitiallyNeeded = () => {
     isApprovalInitiallyNeededForFirstHop,
     isApprovalInitiallyNeededForSecondHop,
     isFirstHopLoading,
+    isPermit2InitiallyRequiredForFirstHop,
+    isPermit2InitiallyRequiredForSecondHop,
     isSecondHopLoading,
     secondHop,
   ])

@@ -162,7 +162,7 @@ export const getMaybeProvider = async (
     return (await detectEthereumProvider()) as MetaMaskLikeProvider
   }
   if (localWalletType === KeyManager.Phantom) {
-    return (globalThis as any).phantom.ethereum as unknown as MetaMaskLikeProvider
+    return (globalThis as any).phantom?.ethereum as unknown as MetaMaskLikeProvider
   }
   if (localWalletType === KeyManager.XDefi) {
     try {

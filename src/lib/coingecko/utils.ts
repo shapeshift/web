@@ -6,7 +6,10 @@ import type {
   CoinGeckoMarketData,
 } from 'lib/market-service/coingecko/coingecko-types'
 
-import { COINGECKO_PLATFORM_ID_TO_CHAIN_ID } from './constants'
+import {
+  COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID,
+  COINGECKO_PLATFORM_ID_TO_CHAIN_ID,
+} from './constants'
 
 const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
@@ -14,6 +17,7 @@ const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 type CoingeckoAssetDetails = {
   market_data: CoinGeckoMarketData
   asset_platform_id: string
+  id: string
   image: Record<string, string>
   name: string
   symbol: string
@@ -49,19 +53,27 @@ export const getCoingeckoMovers = async (): Promise<MoverAsset[]> => {
         const { data } = await axios.get<CoingeckoAssetDetails>(
           `${coingeckoBaseUrl}/coins/${topMover.id}`,
         )
-        const asset_platform_id = data.asset_platform_id
+        const { asset_platform_id, id } = data
 
         const address = data.platforms?.[asset_platform_id]
 
-        const chainId = COINGECKO_PLATFORM_ID_TO_CHAIN_ID[asset_platform_id]
-        // TODO(gomes): handle native assets without platform id with a dedicated mapping for said native assets, and check for asset id vs. platform id here
-        if (!chainId) return
+        const assetId = (() => {
+          // Handles native assets, which *may* not contain a platform_id
+          if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
+            return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
 
-        const assetId = toAssetId({
-          chainId,
-          assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
-          assetReference: address,
-        })
+          const chainId = COINGECKO_PLATFORM_ID_TO_CHAIN_ID[asset_platform_id]
+          if (!chainId) return
+
+          const assetId = toAssetId({
+            chainId,
+            assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetReference: address,
+          })
+          return assetId
+        })()
+
+        if (!assetId) return topMover
 
         all[i] = {
           ...topMover,

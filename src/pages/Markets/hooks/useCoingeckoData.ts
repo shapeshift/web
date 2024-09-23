@@ -39,7 +39,6 @@ const selectCoingeckoAssets = (
         icon: topMover.details.image.small,
       })
 
-      // TODO(gomes): all this bit of logic is duplicated from Portals and will be re-duplicated for other cg categories... consolidate me.
       if (!asset) return acc
 
       // upsert fetched asset if doesn't exist in generatedAssetData.json
@@ -51,7 +50,6 @@ const selectCoingeckoAssets = (
           }),
         )
 
-        // The /coins/<coin> endpoint already returns us the current market data so no need to refetch it, we can directly upsert
         const currentMarketData: MarketData = {
           price: topMover.details.market_data.current_price.usd.toString(),
           marketCap: topMover.details.market_data.market_cap.toString(),

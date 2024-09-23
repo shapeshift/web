@@ -1,23 +1,20 @@
 import { Box, Flex, Grid, GridItem, Heading, Skeleton, Text } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { reactQueries } from 'react-queries'
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router-dom'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { isSome } from 'lib/utils'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssetById, selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
@@ -34,6 +31,7 @@ type RowProps = {
   title: string
   subtitle?: string
   supportedChainIds: ChainId[] | undefined
+  displayChainDropdown: boolean
   children: (selectedChainId: ChainId | undefined) => React.ReactNode
 }
 
@@ -49,20 +47,10 @@ const rowSpanSparklineSx = { base: 1, md: 2 }
 
 const AssetsGrid: React.FC<{
   assetIds: AssetId[]
-  selectedChainId?: ChainId
   isLoading: boolean
-}> = ({ assetIds, selectedChainId, isLoading }) => {
+}> = ({ assetIds, isLoading }) => {
   const history = useHistory()
-  const filteredAssetIds = useMemo(
-    () =>
-      (selectedChainId
-        ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
-        : assetIds
-      )
-        // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 7),
-    [assetIds, selectedChainId],
-  )
+  const filteredAssetIds = useMemo(() => assetIds.slice(0, 7), [assetIds])
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -224,7 +212,13 @@ const ThorchainAssets: React.FC<{
   )
 }
 
-const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children }) => {
+const Row: React.FC<RowProps> = ({
+  title,
+  subtitle,
+  supportedChainIds,
+  children,
+  displayChainDropdown,
+}) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
 
@@ -251,13 +245,15 @@ const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children 
             </Text>
           )}
         </Box>
-        <ChainDropdown
-          chainIds={chainIds}
-          chainId={selectedChainId}
-          onClick={setSelectedChainId}
-          showAll
-          includeBalance
-        />
+        {displayChainDropdown && (
+          <ChainDropdown
+            chainIds={chainIds}
+            chainId={selectedChainId}
+            onClick={setSelectedChainId}
+            showAll
+            includeBalance
+          />
+        )}
       </Flex>
       {children(selectedChainId)}
     </Box>
@@ -282,46 +278,39 @@ export const Recommended: React.FC = () => {
     () => [
       {
         title: 'Most Popular',
-        component: (selectedChainId: ChainId | undefined) => (
+        component: () => (
           <AssetsGrid
             assetIds={assetIds}
-            selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
+            // TODO(gomes): This guy is still outstanding and waiting for product on what we do with this row
             isLoading={isPortalsAssetsLoading}
           />
         ),
+        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.trending.title'),
         subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
-        component: (selectedChainId: ChainId | undefined) => (
-          <AssetsGrid
-            assetIds={trendingData?.ids ?? []}
-            selectedChainId={selectedChainId}
-            isLoading={isTrendingDataLoading}
-          />
+        component: () => (
+          <AssetsGrid assetIds={trendingData?.ids ?? []} isLoading={isTrendingDataLoading} />
         ),
+        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.topMovers.title'),
-        component: (selectedChainId: ChainId | undefined) => (
-          <AssetsGrid
-            assetIds={topMoversData?.ids ?? []}
-            selectedChainId={selectedChainId}
-            isLoading={isTopMoversDataLoading}
-          />
+        component: () => (
+          <AssetsGrid assetIds={topMoversData?.ids ?? []} isLoading={isTopMoversDataLoading} />
         ),
+        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.recentlyAdded.title'),
-        // TODO(gomes): loading state when implemented
-        component: (selectedChainId: ChainId | undefined) => (
+        component: () => (
           <AssetsGrid
             assetIds={recentlyAddedData?.ids ?? []}
-            selectedChainId={selectedChainId}
             isLoading={isRecentlyAddedDataLoading}
           />
         ),
+        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.oneClickDefiAssets.title'),
@@ -329,12 +318,14 @@ export const Recommended: React.FC = () => {
           <OneClickDefiAssets selectedChainId={selectedChainId} />
         ),
         supportedChainIds: allPortalsAssets?.chainIds,
+        displayChainDropdown: true,
       },
       {
         title: translate('markets.categories.thorchainDefi.title'),
         component: (selectedChainId: ChainId | undefined) => (
           <ThorchainAssets selectedChainId={selectedChainId} />
         ),
+        displayChainDropdown: true,
       },
     ],
     [
@@ -361,6 +352,7 @@ export const Recommended: React.FC = () => {
             title={row.title}
             subtitle={row.subtitle}
             supportedChainIds={row.supportedChainIds}
+            displayChainDropdown={row.displayChainDropdown}
           >
             {row.component}
           </Row>

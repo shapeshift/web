@@ -3,7 +3,7 @@ import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/utils'
+import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
   getCoingeckoRecentlyAdded,
   getCoingeckoTopMovers,

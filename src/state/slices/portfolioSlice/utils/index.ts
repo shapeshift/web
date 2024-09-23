@@ -40,6 +40,7 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
@@ -296,10 +297,13 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case baseChainId:
       return supportsBase(wallet)
     case btcChainId:
-    case ltcChainId:
-    case dogeChainId:
-    case bchChainId:
       return supportsBTC(wallet)
+    case ltcChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case dogeChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case bchChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

@@ -29,15 +29,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {
-        const { xpub: pubkey } = await adapter
-          .getPublicKey(wallet, accountNumber, accountType)
-          .catch(e => {
-            console.error(
-              `Error getting pubkey for chainId: ${chainId} accountType: ${accountType} accountNumber: ${accountNumber}`,
-              e,
-            )
-            return { xpub: null }
-          })
+        const { xpub: pubkey } = await adapter.getPublicKey(wallet, accountNumber, accountType)
 
         if (!pubkey) continue
 

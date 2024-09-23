@@ -3,7 +3,7 @@ import type { MarketData } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { getCoingeckoMovers } from 'lib/coingecko/utils'
+import { getCoingeckoTopMovers, getCoingeckoTrending } from 'lib/coingecko/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
@@ -15,7 +15,7 @@ export const useTopMoversQuery = () => {
 
   const topMoversQuery = useQuery({
     queryKey: ['coinGeckoTopMovers'],
-    queryFn: getCoingeckoMovers,
+    queryFn: getCoingeckoTopMovers,
     staleTime: Infinity,
     select: topMovers => {
       if (!topMovers) return
@@ -91,4 +91,88 @@ export const useTopMoversQuery = () => {
   })
 
   return topMoversQuery
+}
+
+export const useTrendingQuery = () => {
+  const dispatch = useAppDispatch()
+  const assets = useAppSelector(selectAssets)
+
+  const trendingQuery = useQuery({
+    queryKey: ['coinGeckoTrending'],
+    queryFn: getCoingeckoTrending,
+    staleTime: Infinity,
+    select: trendings => {
+      if (!trendings) return
+
+      return trendings.reduce<any>(
+        (acc, trending, i) => {
+          const assetId = trending.assetId
+          const chainId = fromAssetId(assetId).chainId
+          const feeAsset = selectFeeAssetById(store.getState(), assetId)
+          const precision =
+            trending.details.detail_platforms[trending.details.asset_platform_id]?.decimal_place
+          if (!feeAsset) return acc
+
+          const asset = makeAsset(assets, {
+            assetId,
+            symbol: trending.details.symbol,
+            name: trending.details.name,
+            precision,
+            icon: trending.details.image.small,
+          })
+
+          // TODO(gomes): all this bit of logic is duplicated from Portals and will be re-duplicated for other cg categories... consolidate me.
+          if (!asset) return acc
+
+          // upsert fetched asset if doesn't exist in generatedAssetData.json
+          if (!assets[assetId]) {
+            dispatch(
+              assetsSlice.actions.upsertAssets({
+                ids: [assetId],
+                byId: { [assetId]: asset },
+              }),
+            )
+
+            // The /coins/<coin> endpoint already returns us the current market data so no need to refetch it, we can directly upsert
+            const currentMarketData: MarketData = {
+              price: trending.details.market_data.current_price.usd.toString(),
+              marketCap: trending.details.market_data.market_cap.toString(),
+              volume: (trending.details.market_data.total_volume ?? 0).toString(),
+              changePercent24Hr: trending.details.market_data.price_change_percentage_24h,
+              supply: trending.details.market_data.circulating_supply.toString(),
+              maxSupply:
+                trending.details.market_data.max_supply?.toString() ??
+                trending.details.market_data.total_supply?.toString(),
+            }
+
+            dispatch(marketData.actions.setCryptoMarketData({ [assetId]: currentMarketData }))
+
+            // We only need price history for the 0th item (big card with chart)
+            if (i === 0)
+              dispatch(
+                marketApi.endpoints.findPriceHistoryByAssetId.initiate({
+                  assetId,
+                  timeframe: DEFAULT_HISTORY_TIMEFRAME,
+                }),
+              )
+          }
+
+          if (!acc.chainIds.includes(chainId)) {
+            acc.chainIds.push(chainId)
+          }
+
+          acc.byId[assetId] = trending
+          acc.ids.push(assetId)
+          return acc
+        },
+        {
+          byId: {},
+          ids: [],
+          chainIds: [],
+        },
+      )
+    },
+  })
+
+  return trendingQuery
 }

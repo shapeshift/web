@@ -15,7 +15,7 @@ import { useAppSelector } from 'state/store'
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
 import { LpCard } from './components/LpCard'
-import { useTopMoversQuery } from './hooks/useCoingeckoData'
+import { useTopMoversQuery, useTrendingQuery } from './hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from './hooks/usePortalsAssetsQuery'
 import { MarketsHeader } from './MarketsHeader'
 
@@ -227,6 +227,7 @@ export const Recommended: React.FC = () => {
   })
 
   const { data: topMoversData, isLoading: isTopMoversDataLoading } = useTopMoversQuery()
+  const { data: trendingData, isLoading: isTrendingDataLoading } = useTrendingQuery()
 
   const rows = useMemo(
     () => [
@@ -246,10 +247,9 @@ export const Recommended: React.FC = () => {
         subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={trendingData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isTrendingDataLoading}
           />
         ),
       },
@@ -294,7 +294,16 @@ export const Recommended: React.FC = () => {
         ),
       },
     ],
-    [allPortalsAssets?.chainIds, assetIds, isPortalsAssetsLoading, translate],
+    [
+      allPortalsAssets?.chainIds,
+      assetIds,
+      isPortalsAssetsLoading,
+      isTopMoversDataLoading,
+      isTrendingDataLoading,
+      topMoversData?.ids,
+      translate,
+      trendingData?.ids,
+    ],
   )
 
   return (

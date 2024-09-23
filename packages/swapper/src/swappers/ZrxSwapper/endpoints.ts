@@ -3,15 +3,17 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
 
-import type {
-  EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
-  GetUnsignedEvmTransactionArgs,
-  SwapErrorRight,
-  SwapperApi,
-  SwapperDeps,
-  TradeQuote,
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
+import {
+  type EvmTransactionRequest,
+  type GetEvmTradeQuoteInput,
+  type GetTradeQuoteInput,
+  type GetUnsignedEvmTransactionArgs,
+  type SwapErrorRight,
+  type SwapperApi,
+  type SwapperDeps,
+  SwapperName,
+  type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
@@ -20,11 +22,13 @@ import { fetchFromZrx } from './utils/fetchFromZrx'
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assertGetEvmChainAdapter }: SwapperDeps,
+    { assertGetEvmChainAdapter, config, assetsById }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
+      config.REACT_APP_FEATURE_ZRX_PERMIT2,
+      assetsById,
     )
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -53,7 +57,9 @@ export const zrxApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       receiveAddress,
       affiliateBps: affiliateBps ?? '0',
-      slippageTolerancePercentageDecimal,
+      slippageTolerancePercentageDecimal:
+        slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
     })
 
     if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()

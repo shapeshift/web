@@ -1,8 +1,9 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
+import { isAddress } from 'viem'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
@@ -32,6 +33,16 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
 export const assetToToken = (asset: Asset): string => {
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
   return assetNamespace === 'slip44' ? asset.symbol : assetReference
+}
+
+export const tokenToAssetId = (token: string, chainId: ChainId): AssetId => {
+  // Native assets are returned as the symbol instead of an address
+  const assetNamespace = isAddress(token)
+    ? chainId === KnownChainIds.BnbSmartChainMainnet
+      ? ASSET_NAMESPACE.bep20
+      : ASSET_NAMESPACE.erc20
+    : ASSET_NAMESPACE.slip44
+  return toAssetId({ chainId, assetNamespace, assetReference: token })
 }
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ZrxSupportedChainId => {

@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { type TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { ZRC_PERMIT2_SOURCE_ID } from '@shapeshiftoss/swapper/src/swappers/ZrxSwapper/utils/constants'
 import { useEffect, useMemo, useState } from 'react'
 import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
@@ -62,8 +63,8 @@ const useIsAllowanceResetInitiallyRequiredForHop = (
   const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
 
   const isPermit2 = useMemo(() => {
-    return false // TODO: tradeQuoteStep?.source === SwapperName.Zrx
-  }, [])
+    return tradeQuoteStep?.source === ZRC_PERMIT2_SOURCE_ID
+  }, [tradeQuoteStep?.source])
 
   const { isAllowanceResetRequired, isLoading } = useIsAllowanceResetRequired({
     amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,

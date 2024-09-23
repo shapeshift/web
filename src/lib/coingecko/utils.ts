@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import axios from 'axios'
 import type {
@@ -67,21 +67,45 @@ type TrendingCoin = {
   assetId: AssetId
   details: CoingeckoAssetDetails
 }
+
 type TrendingResponse = {
   coins: {
     item: TrendingCoin
   }[]
 }
 
-export const getCoingeckoTopMovers = async (): Promise<MoverAsset[]> => {
+type RecentlyAddedCoin = {
+  id: string
+  symbol: string
+  name: string
+  activated_at: number
+} & {
+  assetId: AssetId
+  details: CoingeckoAssetDetails
+}
+
+type RecentlyAddedResponse = RecentlyAddedCoin[]
+
+export type CoingeckoAsset = {
+  assetId: AssetId
+  details: CoingeckoAssetDetails
+}
+
+export type CoingeckoList = {
+  byId: Record<AssetId, CoingeckoAsset>
+  ids: AssetId[]
+  chainIds: ChainId[]
+}
+
+export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
   const { data } = await axios.get<MoversResponse>(
     `${coingeckoBaseUrl}/coins/top_gainers_losers?vs_currency=usd`,
   )
 
-  const all = data.top_gainers.concat(data.top_losers)
+  const all: CoingeckoAsset[] = []
 
   await Promise.allSettled(
-    all.map(async (topMover, i) => {
+    data.top_gainers.concat(data.top_losers).map(async (topMover, i) => {
       try {
         const { data } = await axios.get<CoingeckoAssetDetails>(
           `${coingeckoBaseUrl}/coins/${topMover.id}`,
@@ -123,16 +147,67 @@ export const getCoingeckoTopMovers = async (): Promise<MoverAsset[]> => {
   return all.filter(mover => Boolean(mover.assetId))
 }
 
-export const getCoingeckoTrending = async (): Promise<TrendingCoin[]> => {
+export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
   const { data } = await axios.get<TrendingResponse>(`${coingeckoBaseUrl}/search/trending`)
 
-  const all = data.coins.map(({ item }) => item)
+  const all: CoingeckoAsset[] = []
 
   await Promise.allSettled(
-    all.map(async (coin, i) => {
+    data.coins
+      .map(({ item }) => item)
+      .map(async (coin, i) => {
+        try {
+          // The trending endpoint contains almost all we'd need... except the platform_id, which we need to build the ChainId/AssetId
+          // So we still need to fetch from the /coins/<coin> endpoint :shrugs:
+          const { data } = await axios.get<CoingeckoAssetDetails>(
+            `${coingeckoBaseUrl}/coins/${coin.id}`,
+          )
+          const { asset_platform_id, id } = data
+
+          const address = data.platforms?.[asset_platform_id]
+
+          const assetId = (() => {
+            // Handles native assets, which *may* not contain a platform_id
+            if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
+              return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
+
+            const chainId = COINGECKO_PLATFORM_ID_TO_CHAIN_ID[asset_platform_id]
+            if (!chainId) return
+
+            const assetId = toAssetId({
+              chainId,
+              assetNamespace:
+                chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+              assetReference: address,
+            })
+            return assetId
+          })()
+
+          if (!assetId) return coin
+
+          all[i] = {
+            ...coin,
+            assetId,
+            details: data,
+          }
+        } catch (error) {
+          console.error(`Error fetching asset details for ${coin.id}:`, error)
+          return coin
+        }
+      }),
+  )
+
+  return all.filter(mover => Boolean(mover.assetId))
+}
+
+export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => {
+  const { data } = await axios.get<RecentlyAddedResponse>(`${coingeckoBaseUrl}/coins/list/new`)
+
+  const all: CoingeckoAsset[] = []
+
+  await Promise.allSettled(
+    data.map(async (coin, i) => {
       try {
-        // The trending endpoint contains almost all we'd need... except the platform_id, which we need to build the ChainId/AssetId
-        // So we still need to fetch from the /coins/<coin> endpoint :shrugs:
         const { data } = await axios.get<CoingeckoAssetDetails>(
           `${coingeckoBaseUrl}/coins/${coin.id}`,
         )
@@ -159,13 +234,12 @@ export const getCoingeckoTrending = async (): Promise<TrendingCoin[]> => {
         if (!assetId) return coin
 
         all[i] = {
-          ...coin,
           assetId,
           details: data,
         }
       } catch (error) {
         console.error(`Error fetching asset details for ${coin.id}:`, error)
-        return coin
+        return null
       }
     }),
   )

@@ -15,7 +15,11 @@ import { useAppSelector } from 'state/store'
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
 import { LpCard } from './components/LpCard'
-import { useTopMoversQuery, useTrendingQuery } from './hooks/useCoingeckoData'
+import {
+  useRecentlyAddedQuery,
+  useTopMoversQuery,
+  useTrendingQuery,
+} from './hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from './hooks/usePortalsAssetsQuery'
 import { MarketsHeader } from './MarketsHeader'
 
@@ -228,6 +232,7 @@ export const Recommended: React.FC = () => {
 
   const { data: topMoversData, isLoading: isTopMoversDataLoading } = useTopMoversQuery()
   const { data: trendingData, isLoading: isTrendingDataLoading } = useTrendingQuery()
+  const { data: recentlyAddedData, isLoading: isRecentlyAddedDataLoading } = useRecentlyAddedQuery()
 
   const rows = useMemo(
     () => [
@@ -268,10 +273,9 @@ export const Recommended: React.FC = () => {
         // TODO(gomes): loading state when implemented
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={recentlyAddedData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isRecentlyAddedDataLoading}
           />
         ),
       },
@@ -298,8 +302,10 @@ export const Recommended: React.FC = () => {
       allPortalsAssets?.chainIds,
       assetIds,
       isPortalsAssetsLoading,
+      isRecentlyAddedDataLoading,
       isTopMoversDataLoading,
       isTrendingDataLoading,
+      recentlyAddedData?.ids,
       topMoversData?.ids,
       translate,
       trendingData?.ids,

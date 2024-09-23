@@ -133,7 +133,11 @@ export const LpGridItem = ({
     selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
   )
 
-  const apy = _apy ?? opportunityData?.apy
+  const apy =
+    _apy ??
+    bnOrZero(opportunityData?.apy)
+      .times(100)
+      .toString()
 
   if (index === 0) {
     return (

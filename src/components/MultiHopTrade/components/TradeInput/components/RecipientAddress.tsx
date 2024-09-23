@@ -35,10 +35,12 @@ const closeIcon = <CloseIcon />
 
 type RecipientAddressProps = {
   shouldForceManualAddressEntry?: boolean
+  description?: string
 }
 
 export const RecipientAddress: React.FC<RecipientAddressProps> = ({
   shouldForceManualAddressEntry,
+  description,
 }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -202,32 +204,39 @@ export const RecipientAddress: React.FC<RecipientAddressProps> = ({
       </FormControl>
     </form>
   ) : (
-    <Row alignItems='center' fontSize='sm' fontWeight='medium'>
-      <Row.Label>
-        <Text translation={recipientAddressTranslation} />
-      </Row.Label>
-      <Row.Value whiteSpace='nowrap'>
-        {isCustomRecipientAddress ? (
-          <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
-            <Tag size='md' colorScheme='blue'>
-              <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
-              <TagCloseButton onClick={resetManualReceiveAddress} />
-            </Tag>
-          </Tooltip>
-        ) : (
-          <Stack direction='row' spacing={1} alignItems='center'>
-            <RawText>{middleEllipsis(receiveAddress)}</RawText>
-            <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
-              <IconButton
-                aria-label='Edit recipient address'
-                icon={editIcon}
-                variant='ghost'
-                onClick={handleEditRecipientAddressClick}
-              />
+    <>
+      {description && (
+        <Row alignItems='center' fontSize='sm' fontWeight='medium'>
+          <Row.Label>{description}</Row.Label>
+        </Row>
+      )}
+      <Row alignItems='center' fontSize='sm' fontWeight='medium'>
+        <Row.Label>
+          <Text translation={recipientAddressTranslation} />
+        </Row.Label>
+        <Row.Value whiteSpace='nowrap'>
+          {isCustomRecipientAddress ? (
+            <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
+              <Tag size='md' colorScheme='blue'>
+                <TagLabel>{middleEllipsis(receiveAddress)}</TagLabel>
+                <TagCloseButton onClick={resetManualReceiveAddress} />
+              </Tag>
             </Tooltip>
-          </Stack>
-        )}
-      </Row.Value>
-    </Row>
+          ) : (
+            <Stack direction='row' spacing={1} alignItems='center'>
+              <RawText>{middleEllipsis(receiveAddress)}</RawText>
+              <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
+                <IconButton
+                  aria-label='Edit recipient address'
+                  icon={editIcon}
+                  variant='ghost'
+                  onClick={handleEditRecipientAddressClick}
+                />
+              </Tooltip>
+            </Stack>
+          )}
+        </Row.Value>
+      </Row>
+    </>
   )
 }

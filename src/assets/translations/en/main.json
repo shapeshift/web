@@ -2602,7 +2602,6 @@
         "title": "Trending",
         "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
-
       "tradingVolume": {
         "title": "Trading Volume",
         "subtitle": "These are top assets with the highest trading volume in the last 24 hours"

@@ -117,6 +117,18 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BaseMainnet]: viemBaseClient,
 }
 
+export const viemNetworkIdByChainId: Record<ChainId, number> = {
+  [KnownChainIds.EthereumMainnet]: mainnet.id,
+  [KnownChainIds.BnbSmartChainMainnet]: bsc.id,
+  [KnownChainIds.AvalancheMainnet]: avalanche.id,
+  [KnownChainIds.ArbitrumMainnet]: arbitrum.id,
+  [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNova.id,
+  [KnownChainIds.GnosisMainnet]: gnosis.id,
+  [KnownChainIds.PolygonMainnet]: polygon.id,
+  [KnownChainIds.OptimismMainnet]: optimism.id,
+  [KnownChainIds.BaseMainnet]: base.id,
+}
+
 export const viemClientByNetworkId: Record<number, PublicClient> = {
   [mainnet.id]: viemEthMainnetClient,
   [bsc.id]: viemBscClient,

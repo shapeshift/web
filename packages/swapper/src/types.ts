@@ -45,6 +45,7 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
+  REACT_APP_FEATURE_ZRX_PERMIT2: boolean
 }
 
 export enum SwapperName {

@@ -909,6 +909,7 @@
     "permit2": {
       "title": "Permit token transfer",
       "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
+      "tooltip": "This trade has an added security feature called 'Permit2' which requires you to grant permission for the application to complete the trade on your behalf.",
       "error": "A problem occurred signing Permit2 message",
       "signMessage": "Sign message"
     },

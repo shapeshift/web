@@ -59,7 +59,7 @@ export type TrendingResponse = {
   }[]
 }
 
-type RecentlyAddedCoin = {
+export type RecentlyAddedCoin = {
   id: string
   symbol: string
   name: string

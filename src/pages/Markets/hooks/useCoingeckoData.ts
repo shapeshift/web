@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
+  getCoingeckoMarkets,
   getCoingeckoRecentlyAdded,
   getCoingeckoTopMovers,
   getCoingeckoTrending,
@@ -125,6 +126,20 @@ export const useRecentlyAddedQuery = () => {
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoRecentlyAdded'],
     queryFn: getCoingeckoRecentlyAdded,
+    staleTime: Infinity,
+    select: data => selectCoingeckoAssets(data, dispatch, assets),
+  })
+
+  return recentlyAddedQuery
+}
+
+export const useMarketsQuery = ({ orderBy }: { orderBy: 'market_cap_desc' | 'volume_desc' }) => {
+  const dispatch = useAppDispatch()
+  const assets = useAppSelector(selectAssets)
+
+  const recentlyAddedQuery = useQuery({
+    queryKey: ['coinGeckoMarkets'],
+    queryFn: () => getCoingeckoMarkets(orderBy),
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })

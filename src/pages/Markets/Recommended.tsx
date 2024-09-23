@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -14,13 +14,14 @@ import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesA
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
+import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
 import { LpGridItem } from './components/LpCard'
 import {
+  useMarketsQuery,
   useRecentlyAddedQuery,
   useTopMoversQuery,
   useTrendingQuery,
@@ -32,7 +33,6 @@ type RowProps = {
   title: string
   subtitle?: string
   supportedChainIds: ChainId[] | undefined
-  displayChainDropdown: boolean
   children: (selectedChainId: ChainId | undefined) => React.ReactNode
 }
 
@@ -48,10 +48,18 @@ const rowSpanSparklineSx = { base: 1, md: 2 }
 
 const AssetsGrid: React.FC<{
   assetIds: AssetId[]
+  selectedChainId?: ChainId
   isLoading: boolean
-}> = ({ assetIds, isLoading }) => {
+}> = ({ assetIds, selectedChainId, isLoading }) => {
   const history = useHistory()
-  const filteredAssetIds = useMemo(() => assetIds.slice(0, 7), [assetIds])
+  const filteredAssetIds = useMemo(
+    () =>
+      (selectedChainId
+        ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
+        : assetIds
+      ).slice(0, 7),
+    [assetIds, selectedChainId],
+  )
 
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -111,9 +119,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      )
-        // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 7),
+      ).slice(0, 7),
     [assetIds, selectedChainId],
   )
 
@@ -213,13 +219,7 @@ const ThorchainAssets: React.FC<{
   )
 }
 
-const Row: React.FC<RowProps> = ({
-  title,
-  subtitle,
-  supportedChainIds,
-  children,
-  displayChainDropdown,
-}) => {
+const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
 
@@ -246,15 +246,13 @@ const Row: React.FC<RowProps> = ({
             </Text>
           )}
         </Box>
-        {displayChainDropdown && (
-          <ChainDropdown
-            chainIds={chainIds}
-            chainId={selectedChainId}
-            onClick={setSelectedChainId}
-            showAll
-            includeBalance
-          />
-        )}
+        <ChainDropdown
+          chainIds={chainIds}
+          chainId={selectedChainId}
+          onClick={setSelectedChainId}
+          showAll
+          includeBalance
+        />
       </Flex>
       {children(selectedChainId)}
     </Box>
@@ -264,54 +262,77 @@ const Row: React.FC<RowProps> = ({
 export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
-  const assetIds = useAppSelector(selectAssetIds)
 
   // Fetch for all chains here so we know which chains to show in the dropdown
-  const { isLoading: isPortalsAssetsLoading, data: allPortalsAssets } = usePortalsAssetsQuery({
+  const { data: allPortalsAssets } = usePortalsAssetsQuery({
     chainIds: undefined,
   })
 
   const { data: topMoversData, isLoading: isTopMoversDataLoading } = useTopMoversQuery()
   const { data: trendingData, isLoading: isTrendingDataLoading } = useTrendingQuery()
   const { data: recentlyAddedData, isLoading: isRecentlyAddedDataLoading } = useRecentlyAddedQuery()
+  const { data: highestVolumeData, isLoading: isHighestVolumeDataLoading } = useMarketsQuery({
+    orderBy: 'volume_desc',
+  })
+  const { data: marketCapData, isLoading: isMarketCapDataLoading } = useMarketsQuery({
+    orderBy: 'market_cap_desc',
+  })
 
   const rows = useMemo(
     () => [
       {
-        title: 'Most Popular',
-        component: () => (
+        title: translate('markets.categories.tradingVolume.title'),
+        subtitle: translate('markets.categories.tradingVolume.subtitle'),
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
-            // TODO(gomes): This guy is still outstanding and waiting for product on what we do with this row
-            isLoading={isPortalsAssetsLoading}
+            assetIds={highestVolumeData?.ids ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isHighestVolumeDataLoading}
           />
         ),
-        displayChainDropdown: false,
+      },
+      {
+        title: translate('markets.categories.marketCap.title'),
+        subtitle: translate('markets.categories.marketCap.subtitle'),
+        component: (selectedChainId: ChainId | undefined) => (
+          <AssetsGrid
+            assetIds={marketCapData?.ids ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isMarketCapDataLoading}
+          />
+        ),
       },
       {
         title: translate('markets.categories.trending.title'),
         subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
-        component: () => (
-          <AssetsGrid assetIds={trendingData?.ids ?? []} isLoading={isTrendingDataLoading} />
+        component: (selectedChainId: ChainId | undefined) => (
+          <AssetsGrid
+            assetIds={trendingData?.ids ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isTrendingDataLoading}
+          />
         ),
-        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.topMovers.title'),
-        component: () => (
-          <AssetsGrid assetIds={topMoversData?.ids ?? []} isLoading={isTopMoversDataLoading} />
+        component: (selectedChainId: ChainId | undefined) => (
+          <AssetsGrid
+            assetIds={topMoversData?.ids ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isTopMoversDataLoading}
+          />
         ),
-        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.recentlyAdded.title'),
-        component: () => (
+        // TODO(gomes): loading state when implemented
+        component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
             assetIds={recentlyAddedData?.ids ?? []}
+            selectedChainId={selectedChainId}
             isLoading={isRecentlyAddedDataLoading}
           />
         ),
-        displayChainDropdown: false,
       },
       {
         title: translate('markets.categories.oneClickDefiAssets.title'),
@@ -319,24 +340,24 @@ export const Recommended: React.FC = () => {
           <OneClickDefiAssets selectedChainId={selectedChainId} />
         ),
         supportedChainIds: allPortalsAssets?.chainIds,
-        displayChainDropdown: true,
       },
       {
         title: translate('markets.categories.thorchainDefi.title'),
         component: (selectedChainId: ChainId | undefined) => (
           <ThorchainAssets selectedChainId={selectedChainId} />
         ),
-        displayChainDropdown: true,
         supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     ],
     [
       allPortalsAssets?.chainIds,
-      assetIds,
-      isPortalsAssetsLoading,
+      highestVolumeData?.ids,
+      isHighestVolumeDataLoading,
+      isMarketCapDataLoading,
       isRecentlyAddedDataLoading,
       isTopMoversDataLoading,
       isTrendingDataLoading,
+      marketCapData?.ids,
       recentlyAddedData?.ids,
       topMoversData?.ids,
       translate,
@@ -354,7 +375,6 @@ export const Recommended: React.FC = () => {
             title={row.title}
             subtitle={row.subtitle}
             supportedChainIds={row.supportedChainIds}
-            displayChainDropdown={row.displayChainDropdown}
           >
             {row.component}
           </Row>

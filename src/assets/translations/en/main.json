@@ -2602,6 +2602,15 @@
         "title": "Trending",
         "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
+
+      "tradingVolume": {
+        "title": "Trading Volume",
+        "subtitle": "These are top assets with the highest trading volume in the last 24 hours"
+      },
+      "marketCap": {
+        "title": "Market Cap",
+        "subtitle": "These are top assets with the highest market capitalization in the last 24 hours"
+      },
       "topMovers": {
         "title": "Top Movers"
       },

@@ -449,9 +449,28 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
+  const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
+    if (!poolAssetFeeAsset) return 0
+
+    return fromBaseUnit(poolAssetFeeAssetDustAmountCryptoBaseUnit, poolAssetFeeAsset?.precision)
+  }, [poolAssetFeeAssetDustAmountCryptoBaseUnit, poolAssetFeeAsset])
+
+  const poolAssetFeeAssetDustAmountFiatUserCurrency = useMemo(() => {
+    return bnOrZero(poolAssetFeeAssetDustAmountCryptoPrecision).times(
+      poolAssetFeeAssetMarketData.price,
+    )
+  }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetDustAmountCryptoPrecision])
+
   const poolAssetGasFeeFiatUserCurrency = useMemo(
-    () => bnOrZero(poolAssetTxFeeCryptoPrecision).times(poolAssetFeeAssetMarketData.price),
-    [poolAssetFeeAssetMarketData.price, poolAssetTxFeeCryptoPrecision],
+    () =>
+      bnOrZero(poolAssetTxFeeCryptoPrecision)
+        .times(poolAssetFeeAssetMarketData.price)
+        .plus(poolAssetFeeAssetDustAmountFiatUserCurrency),
+    [
+      poolAssetFeeAssetMarketData.price,
+      poolAssetTxFeeCryptoPrecision,
+      poolAssetFeeAssetDustAmountFiatUserCurrency,
+    ],
   )
 
   const runeProtocolFeeCryptoPrecision = useMemo(() => {
@@ -842,11 +861,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       poolAssetFeeAsset?.precision,
     )
 
-    const poolAssetFeeAssetDustAmountCryptoPrecision = fromBaseUnit(
-      poolAssetFeeAssetDustAmountCryptoBaseUnit,
-      poolAssetFeeAsset?.precision,
-    )
-
     return bnOrZero(poolAssetTxFeeCryptoPrecision)
       .plus(poolAssetFeeAssetDustAmountCryptoPrecision)
       .lte(poolAssetFeeAssetBalanceCryptoPrecision)
@@ -855,8 +869,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     withdrawType,
     poolAssetFeeAsset,
     poolAssetFeeAssetBalanceCryptoBaseUnit,
-    poolAssetFeeAssetDustAmountCryptoBaseUnit,
     poolAssetTxFeeCryptoPrecision,
+    poolAssetFeeAssetDustAmountCryptoPrecision,
   ])
 
   const hasEnoughRuneBalanceForTx = useMemo(() => {

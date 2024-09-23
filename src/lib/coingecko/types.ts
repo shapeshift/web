@@ -1,5 +1,3 @@
-// TODO(gomes): move me to type utils before opening PR
-
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type {
   CoinGeckoMarketCap,

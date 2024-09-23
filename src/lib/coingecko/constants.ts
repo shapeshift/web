@@ -30,7 +30,6 @@ import {
 import invert from 'lodash/invert'
 
 export const CHAIN_ID_TO_COINGECKO_PLATFORM_ID: Partial<Record<ChainId, string | null>> = {
-  // TODO(gomes): add another mapping to handle native assets without platform id
   [btcChainId]: null,
   [bchChainId]: null,
   [dogeChainId]: null,

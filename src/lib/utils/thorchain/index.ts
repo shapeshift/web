@@ -16,7 +16,6 @@ import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapp
 import type { AccountMetadata, Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
-import { bech32 } from 'bech32'
 import { getConfig } from 'config'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
@@ -198,9 +197,9 @@ export const getThorchainFromAddress = async ({
   }
 }
 
-const getAccountAddressesWithBalances = async (
-  accountId: AccountId,
-): Promise<{ address: string; balance: string }[]> => {
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
   if (isUtxoAccountId(accountId)) {
     const { chainId, account: pubkey } = fromAccountId(accountId)
     const adapter = assertGetUtxoChainAdapter(chainId)
@@ -209,26 +208,15 @@ const getAccountAddressesWithBalances = async (
       chainSpecific: { addresses },
     } = await adapter.getAccount(pubkey)
 
-    if (!addresses) return []
+    if (!addresses) return [pubkey]
 
-    return addresses.map(({ pubkey, balance }) => {
+    return addresses.map(({ pubkey }) => {
       const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
-
-      return { address, balance }
+      return address
     })
   }
 
-  // We don't need balances for chain others than UTXOs
-  return [{ address: fromAccountId(accountId).account, balance: '' }]
-}
-
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
-  // Handle the case where the accountId is a pubkey AccountId, not an xpub AccountId
-  if (isUtxoAccountId(accountId) && bech32.decode(fromAccountId(accountId).account).prefix === 'bc')
-    return [fromAccountId(accountId).account]
-  return (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address)
+  return [fromAccountId(accountId).account]
 })
 
 // A THOR Tx can either be:

@@ -12,6 +12,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
+import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -326,6 +327,7 @@ export const Recommended: React.FC = () => {
           <ThorchainAssets selectedChainId={selectedChainId} />
         ),
         displayChainDropdown: true,
+        supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     ],
     [

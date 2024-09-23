@@ -865,13 +865,15 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       if (_isLocked) {
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
         // Don't continue execution in case the wallet got locked, set it to locked and abort instead
-        return
       }
 
-      // Either a change change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
-      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+      // Either a chain change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
+      if (!_isLocked) {
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+      }
 
       const adapter = await getAdapter(localWalletType)
+      // Re-pair - which in case of accounts changed means the user will be prompted to connect their current account if they didn't do so
       const localWallet = await adapter?.pairDevice()
 
       if (!localWallet) return

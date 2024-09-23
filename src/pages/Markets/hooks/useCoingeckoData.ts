@@ -138,7 +138,7 @@ export const useMarketsQuery = ({ orderBy }: { orderBy: 'market_cap_desc' | 'vol
   const assets = useAppSelector(selectAssets)
 
   const recentlyAddedQuery = useQuery({
-    queryKey: ['coinGeckoMarkets'],
+    queryKey: ['coinGeckoMarkets', orderBy],
     queryFn: () => getCoingeckoMarkets(orderBy),
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),

@@ -874,6 +874,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       const adapter = await getAdapter(localWalletType)
       // Re-pair - which in case of accounts changed means the user will be prompted to connect their current account if they didn't do so
+      // Note, this isn't guaranteed to work, not all wallets are the same, some (i.e MM) have this weird flow where connecting to an unconnected account
+      // from a connected account can only be done from the wallet itself and not programmatically
       const localWallet = await adapter?.pairDevice()
 
       if (!localWallet) return

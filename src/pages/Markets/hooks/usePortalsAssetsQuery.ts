@@ -68,10 +68,10 @@ export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | unde
                 byId: { [assetId]: asset },
               }),
             )
-
-            // and its market-data since it may or may not be missing
-            dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
           }
+
+          // and fetch its market-data since it may or may not be missing
+          dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
 
           if (!acc.chainIds.includes(chainId)) {
             acc.chainIds.push(chainId)

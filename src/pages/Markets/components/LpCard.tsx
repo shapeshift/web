@@ -1,12 +1,31 @@
-import { Box, Button, Card, CardBody, Flex, Text as CText, Tooltip } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  GridItem,
+  Text as CText,
+  Tooltip,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectAssetById } from 'state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectStakingOpportunityByFilter,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { CardWithSparkline } from './CardWithSparkline'
+
+const rowSpanSparklineSx = { base: 1, md: 2 }
+const colSpanSparklineSx = { base: 1, md: 3 }
+const colSpanSx = { base: 1, md: 2 }
 
 type LpCardProps = {
   assetId: AssetId
@@ -90,4 +109,43 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
       </CardBody>
     </Card>
   )
+}
+
+export const LpGridItem = ({
+  assetId,
+  apy: _apy,
+  volume,
+  onClick,
+  index,
+}: {
+  assetId: AssetId
+  apy: string | undefined
+  volume: string | undefined
+  onClick: (assetId: AssetId) => void
+  index: number
+}) => {
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const volume24H = volume ?? marketData?.volume ?? 0
+
+  // TODO(gomes): remove weird branching between THOR and Portals - Portals assets should be upserted as a DeFi Opportunity, so we can select them from the same slice
+  const opportunityMetadataFilter = useMemo(() => ({ assetId }), [assetId])
+  const opportunityData = useAppSelector(state =>
+    selectStakingOpportunityByFilter(state, opportunityMetadataFilter),
+  )
+
+  const apy = _apy ?? opportunityData?.apy
+
+  if (index === 0) {
+    return (
+      <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
+        <CardWithSparkline assetId={assetId} onClick={onClick} />
+      </GridItem>
+    )
+  } else {
+    return (
+      <GridItem colSpan={colSpanSx}>
+        <LpCard assetId={assetId} apy={apy ?? '0'} volume24H={volume24H ?? '0'} onClick={onClick} />
+      </GridItem>
+    )
+  }
 }

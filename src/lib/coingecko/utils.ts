@@ -32,6 +32,8 @@ export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
 
         const address = data.platforms?.[asset_platform_id]
 
+        if (!address) return topMover
+
         const assetId = (() => {
           // Handles native assets, which *may* not contain a platform_id
           if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
@@ -84,6 +86,8 @@ export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
 
           const address = data.platforms?.[asset_platform_id]
 
+          if (!address) return
+
           const assetId = (() => {
             // Handles native assets, which *may* not contain a platform_id
             if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
@@ -132,6 +136,8 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
         const { asset_platform_id, id } = data
 
         const address = data.platforms?.[asset_platform_id]
+
+        if (!address) return
 
         const assetId = (() => {
           // Handles native assets, which *may* not contain a platform_id

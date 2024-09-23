@@ -5,7 +5,7 @@ import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/Thorc
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
@@ -13,12 +13,14 @@ import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { isSome } from 'lib/utils'
-import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { selectAssetById, selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
-import { LpCard } from './components/LpCard'
+import { LpGridItem } from './components/LpCard'
 import {
   useRecentlyAddedQuery,
   useTopMoversQuery,
@@ -142,27 +144,18 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) => {
-        const apy = portalsAssets?.byId[assetId]?.metrics.apy
-        const volume24H = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
+        const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
+        const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 
-        if (index === 0) {
-          return (
-            <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-              <CardWithSparkline assetId={assetId} onClick={handleCardClick} />
-            </GridItem>
-          )
-        } else {
-          return (
-            <GridItem colSpan={colSpanSx}>
-              <LpCard
-                assetId={assetId}
-                apy={apy ?? '0'}
-                volume24H={volume24H ?? '0'}
-                onClick={handleCardClick}
-              />
-            </GridItem>
-          )
-        }
+        return (
+          <LpGridItem
+            assetId={assetId}
+            index={index}
+            onClick={handleCardClick}
+            apy={maybePortalsApy}
+            volume={maybePortalsVolume}
+          />
+        )
       })}
     </Grid>
   )
@@ -187,11 +180,47 @@ const OneClickDefiAssets: React.FC<{
 const ThorchainAssets: React.FC<{
   selectedChainId: ChainId | undefined
 }> = ({ selectedChainId }) => {
+  const dispatch = useAppDispatch()
   const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
     ...reactQueries.thornode.poolsData(),
     staleTime: Infinity,
-    select: pools => pools.map(pool => poolAssetIdToAssetId(pool.asset)).filter(isSome),
+    select: pools =>
+      pools
+        .map(pool => poolAssetIdToAssetId(pool.asset))
+        .filter(thorchainAsset => {
+          const asset = selectAssetById(store.getState(), thorchainAsset ?? '')
+          if (!asset) return false
+
+          return true
+        })
+        .filter(isSome),
   })
+
+  useEffect(() => {
+    ;(async () => {
+      await dispatch(
+        opportunitiesApi.endpoints.getOpportunityIds.initiate(
+          {
+            defiType: DefiType.Staking,
+            defiProvider: DefiProvider.ThorchainSavers,
+          },
+          { forceRefetch: true },
+        ),
+      )
+
+      await dispatch(
+        opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+          [
+            {
+              defiType: DefiType.Staking,
+              defiProvider: DefiProvider.ThorchainSavers,
+            },
+          ],
+          { forceRefetch: true },
+        ),
+      )
+    })()
+  }, [dispatch])
 
   return (
     <LpGrid

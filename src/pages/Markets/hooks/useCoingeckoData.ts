@@ -64,13 +64,14 @@ const selectCoingeckoAssets = (
         dispatch(marketData.actions.setCryptoMarketData({ [assetId]: currentMarketData }))
 
         // We only need price history for the 0th item (big card with chart)
-        if (i === 0)
+        if (i === 0) {
           dispatch(
             marketApi.endpoints.findPriceHistoryByAssetId.initiate({
               assetId,
               timeframe: DEFAULT_HISTORY_TIMEFRAME,
             }),
           )
+        }
       }
 
       if (!acc.chainIds.includes(chainId)) {

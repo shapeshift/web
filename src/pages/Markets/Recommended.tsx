@@ -1,14 +1,18 @@
 import { Box, Flex, Grid, GridItem, Heading, Skeleton, Text } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { poolAssetIdToAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { reactQueries } from 'react-queries'
 import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import { isSome } from 'lib/utils'
 import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -180,6 +184,24 @@ const OneClickDefiAssets: React.FC<{
   )
 }
 
+const ThorchainAssets: React.FC<{
+  selectedChainId: ChainId | undefined
+}> = ({ selectedChainId }) => {
+  const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
+    ...reactQueries.thornode.poolsData(),
+    staleTime: Infinity,
+    select: pools => pools.map(pool => poolAssetIdToAssetId(pool.asset)).filter(isSome),
+  })
+
+  return (
+    <LpGrid
+      assetIds={thorchainAssetIdsData ?? []}
+      selectedChainId={selectedChainId}
+      isLoading={isThorchainAssetIdsDataLoading}
+    />
+  )
+}
+
 const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
@@ -289,12 +311,7 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.thorchainDefi.title'),
         component: (selectedChainId: ChainId | undefined) => (
-          <LpGrid
-            assetIds={assetIds}
-            selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
-          />
+          <ThorchainAssets selectedChainId={selectedChainId} />
         ),
       },
     ],

@@ -18,8 +18,6 @@ export const MenuTab = forwardRef<MenuTabProps, 'button'>(
     const location = useLocation()
     const translate = useTranslate()
     const handleClick = useCallback(() => {
-      console.log({ history })
-      console.log('pushing', path)
       history.push(path)
     }, [history, path])
 

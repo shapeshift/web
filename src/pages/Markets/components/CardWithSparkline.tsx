@@ -5,6 +5,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { WatchAssetButton } from 'components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from 'components/AssetIcon'
 import { ParsedHtml } from 'components/ParsedHtml/ParsedHtml'
 import { PriceChart } from 'components/PriceChart/PriceChart'
@@ -44,26 +45,29 @@ export const CardWithSparkline: React.FC<{
         height='100%'
       >
         <Box>
-          <Flex alignItems='center' justifyContent='space-between' flexWrap='wrap' mb={4}>
-            <Flex align='center' mb={2}>
-              <AssetIcon pairProps={assetPairProps} assetId={assetId} size='md' mr={3} />
-              <Box textAlign='left'>
-                <Text fontWeight='bold' fontSize='lg'>
-                  {asset.name}
-                </Text>
-                <Text fontSize='sm' color='gray.500'>
-                  {asset.symbol}
-                </Text>
-              </Box>
+          <Flex width='100%' justify='space-between' mt={4}>
+            <Flex alignItems='center' justifyContent='space-between' flexWrap='wrap' mb={4}>
+              <Flex align='center' mb={2}>
+                <AssetIcon pairProps={assetPairProps} assetId={assetId} size='md' mr={3} />
+                <Box textAlign='left'>
+                  <Text fontWeight='bold' fontSize='lg'>
+                    {asset.name}
+                  </Text>
+                  <Text fontSize='sm' color='gray.500'>
+                    {asset.symbol}
+                  </Text>
+                  <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />
+                  <Flex align='center' mt={1}>
+                    <Amount.Percent
+                      autoColor
+                      value={bnOrZero(changePercent24Hr).times(0.01).toString()}
+                      fontWeight='medium'
+                    />
+                  </Flex>
+                </Box>
+              </Flex>
             </Flex>
-            <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />
-            <Flex align='center' mt={1}>
-              <Amount.Percent
-                autoColor
-                value={bnOrZero(changePercent24Hr).times(0.01).toString()}
-                fontWeight='medium'
-              />
-            </Flex>
+            <WatchAssetButton assetId={assetId} />
           </Flex>
           <Box mb={4} overflow='hidden' textAlign='left'>
             <Text

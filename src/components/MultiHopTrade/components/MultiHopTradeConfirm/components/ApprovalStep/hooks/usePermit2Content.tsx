@@ -1,4 +1,5 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { Text } from 'components/Text'
@@ -7,7 +8,11 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector } from 'state/store'
 
 import { useSignPermit2 } from '../../../hooks/useSignPermit2'
-import { AllowanceApprovalContent } from '../components/ApprovalContent'
+import { ApprovalContent } from '../components/ApprovalContent'
+import {
+  SharedApprovalDescription,
+  type TxLineProps,
+} from '../components/SharedApprovalDescription'
 
 export type UsePermit2ContentProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -27,9 +32,12 @@ export const usePermit2Content = ({
     }
   }, [activeTradeId, hopIndex])
 
-  const { state: hopExecutionState, permit2 } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
-  )
+  const {
+    state: hopExecutionState,
+    permit2,
+    allowanceReset,
+    allowanceApproval,
+  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const { signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
 
@@ -45,7 +53,7 @@ export const usePermit2Content = ({
   const content = useMemo(() => {
     if (hopExecutionState !== HopExecutionState.AwaitingPermit2) return
     return (
-      <AllowanceApprovalContent
+      <ApprovalContent
         buttonTranslation='trade.permit2.signMessage'
         isDisabled={isButtonDisabled}
         isLoading={false /* TODO: loading state when signature in progress */}
@@ -62,14 +70,34 @@ export const usePermit2Content = ({
   }, [tradeQuoteStep])
 
   const description = useMemo(() => {
-    const isError = permit2.state === TransactionExecutionState.Failed
+    const txLines = [
+      allowanceReset.txHash && {
+        nameTranslation: 'trade.allowanceResetTxName',
+        txHash: allowanceReset.txHash,
+      },
+      allowanceApproval.txHash && {
+        nameTranslation: 'trade.allowanceApprovalTxName',
+        txHash: allowanceApproval.txHash,
+      },
+    ].filter(isSome) as Omit<TxLineProps, 'tradeQuoteStep'>[]
+
     return (
-      <>
-        {isError && <Text color='text.error' translation='trade.permit2.error' fontWeight='bold' />}
+      <SharedApprovalDescription
+        tradeQuoteStep={tradeQuoteStep}
+        txLines={txLines}
+        isError={permit2.state === TransactionExecutionState.Failed}
+        errorTranslation='trade.permit2.error'
+      >
         <Text color='text.subtle' translation={descriptionTranslation} fontWeight='bold' />
-      </>
+      </SharedApprovalDescription>
     )
-  }, [descriptionTranslation, permit2.state])
+  }, [
+    allowanceApproval.txHash,
+    allowanceReset.txHash,
+    descriptionTranslation,
+    permit2.state,
+    tradeQuoteStep,
+  ])
 
   return {
     content,

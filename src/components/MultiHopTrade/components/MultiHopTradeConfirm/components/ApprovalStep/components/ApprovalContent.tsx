@@ -5,7 +5,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 
-export type AllowanceApprovalContentProps = {
+export type ApprovalContentProps = {
   buttonTranslation: string
   isDisabled: boolean
   isLoading: boolean
@@ -17,7 +17,7 @@ export type AllowanceApprovalContentProps = {
   children?: JSX.Element
 }
 
-export const AllowanceApprovalContent = ({
+export const ApprovalContent = ({
   buttonTranslation,
   isDisabled,
   isLoading,
@@ -27,7 +27,7 @@ export const AllowanceApprovalContent = ({
   transactionExecutionState,
   onSubmit,
   children,
-}: AllowanceApprovalContentProps) => {
+}: ApprovalContentProps) => {
   const translate = useTranslate()
 
   return (

@@ -128,7 +128,6 @@ export class CoinGeckoMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    console.log({ assetId, solanaCoingeckoAssetId: adapters.assetIdToCoingecko(assetId) })
     if (!adapters.assetIdToCoingecko(assetId)) return []
 
     const url = adapters.makeCoingeckoAssetUrl(assetId)
@@ -146,7 +145,6 @@ export class CoinGeckoMarketService implements MarketService {
       const { data: historyData } = await axios.get<CoinGeckoHistoryData>(
         `${baseUrl}/market_chart/range?vs_currency=${currency}&from=${from}&to=${to}${apiKeyQueryParam}`,
       )
-      console.log({ historyData, assetId })
 
       return historyData.prices.reduce<HistoryData[]>((prev, data) => {
         const [date, price] = data

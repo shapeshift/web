@@ -137,11 +137,19 @@ export const mockStore: ReduxState = {
     },
   },
   assets: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     byId: {},
     ids: [],
     relatedAssetIndex: {},
   },
   marketData: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     crypto: {
       byId: {},
       ids: [],

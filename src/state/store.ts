@@ -2,7 +2,7 @@ import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
 import { getConfig } from 'config'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { PERSIST, persistStore, PURGE } from 'redux-persist'
+import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -122,13 +122,13 @@ export const createStore = () =>
       getDefaultMiddleware({
         immutableCheck: {
           warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
         serializableCheck: {
           ignoreState: true,
           ignoreActions: true,
           warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         },
         thunk: {
           extraArgument: { subscribe: subscriptionMiddleware.subscribe },

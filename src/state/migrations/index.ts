@@ -9,6 +9,48 @@ import { clearSnapshot } from './clearSnapshot'
 import { clearTxHistory } from './clearTxHistory'
 import { clearWalletConnectWalletsMetadata } from './clearWalletConnectWalletsMetadata'
 
+export const clearTxHistoryMigrations = {
+  0: clearTxHistory,
+  1: clearTxHistory,
+  2: clearTxHistory,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearOpportunitiesMigrations = {
+  0: clearOpportunities,
+  1: clearOpportunities,
+  2: clearOpportunities,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearPortfolioMigrations = {
+  0: clearPortfolio,
+  1: clearPortfolio,
+  2: clearPortfolio,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearNftsMigrations = {
+  0: clearNfts,
+  1: clearNfts,
+  2: clearNfts,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearAssetsMigrations = {
+  0: clearAssets,
+  1: clearAssets,
+  2: clearAssets,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearMarketDataMigrations = {
+  0: clearMarketData,
+  1: clearMarketData,
+  2: clearMarketData,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
+export const clearSnapshotMigrations = {
+  0: clearSnapshot,
+  1: clearSnapshot,
+  2: clearSnapshot,
+} as unknown as Omit<MigrationManifest, '_persist'>
+
 export const migrations = {
   0: clearOpportunities,
   1: clearOpportunities,
@@ -129,4 +171,17 @@ export const migrations = {
   116: clearAssets,
   117: clearAssets,
   118: clearTxHistory,
+  119: clearTxHistory,
+  120: clearTxHistory,
+  121: clearTxHistory,
+  122: clearTxHistory,
+  123: clearTxHistory,
+  124: clearTxHistory,
+  125: clearTxHistory,
+  126: clearTxHistory,
+  127: clearTxHistory,
+  128: clearTxHistory,
+  129: clearTxHistory,
+  130: clearTxHistory,
+  131: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>

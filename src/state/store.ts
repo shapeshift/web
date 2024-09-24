@@ -1,9 +1,8 @@
 import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
 import { getConfig } from 'config'
-import localforage from 'localforage'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { createMigrate, PERSIST, persistReducer, persistStore, PURGE } from 'redux-persist'
+import { PERSIST, persistStore, PURGE } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -14,7 +13,6 @@ import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
-import { migrations } from './migrations'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
@@ -25,15 +23,6 @@ import * as selectors from './slices/selectors'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
-
-const persistConfig = {
-  key: 'root',
-  version: Math.max(...Object.keys(migrations).map(Number)),
-  whitelist: ['txHistory', 'portfolio', 'opportunities', 'nft', 'snapshot', 'localWalletSlice'],
-  storage: localforage,
-  // @ts-ignore createMigrate typings are wrong
-  migrate: createMigrate(migrations, { debug: false }),
-}
 
 const apiMiddleware = [
   portfolioApi.middleware,
@@ -53,8 +42,6 @@ const apiMiddleware = [
 ]
 
 const subscriptionMiddleware = createSubscriptionMiddleware()
-
-const persistedReducer = persistReducer(persistConfig, reducer)
 
 export const clearState = () => {
   store.dispatch(slices.assets.actions.clear())
@@ -126,7 +113,7 @@ const stateSanitizer = (state: any) => {
 /// This allows us to create an empty store for tests
 export const createStore = () =>
   configureStore({
-    reducer: persistedReducer,
+    reducer,
     enhancers: existingEnhancers => {
       // Add the autobatch enhancer to the store setup
       return existingEnhancers.concat(autoBatchEnhancer())

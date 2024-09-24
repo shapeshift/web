@@ -1,10 +1,12 @@
+import type { PersistPartial } from 'redux-persist/es/persistReducer'
+import type { NftState } from 'state/apis/nft/nftApi'
 import { initialState } from 'state/apis/nft/nftApi'
 import type { ReduxState } from 'state/reducer'
 
 export const clearNfts = (state: ReduxState): ReduxState => {
   return {
     ...state,
-    nft: initialState,
+    nft: initialState as NftState & PersistPartial,
     // This is very ugly but also very correct
     // Typically, to achieve this, we would dispatch nftapi.util.resetApiState as a side effect
     // But we can't do this here because circular deps, so we have to do it manually

@@ -44,7 +44,7 @@ type GetNftCollectionInput = {
   accountIds: AccountId[]
 }
 
-type NftState = {
+export type NftState = {
   selectedNftAvatarByWalletId: Record<WalletId, AssetId>
   nfts: {
     byId: PartialRecord<AssetId, NftItem>

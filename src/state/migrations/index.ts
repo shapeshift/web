@@ -1,3 +1,5 @@
+import type { MigrationManifest } from 'redux-persist'
+
 import { clearAssets } from './clearAssets'
 import { clearMarketData } from './clearMarketData'
 import { clearNfts } from './clearNfts'
@@ -122,4 +124,9 @@ export const migrations = {
   111: clearAssets,
   112: clearAssets,
   113: clearAssets,
-}
+  114: clearAssets,
+  115: clearAssets,
+  116: clearAssets,
+  117: clearAssets,
+  118: clearTxHistory,
+} as unknown as Omit<MigrationManifest, '_persist'>

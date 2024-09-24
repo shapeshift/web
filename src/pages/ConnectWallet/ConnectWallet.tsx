@@ -204,7 +204,7 @@ export const ConnectWallet = () => {
                         size='lg-multiline'
                         onClick={handleMetaMaskConnect}
                         leftIcon={metamaskIcon}
-                        my={4}
+                        mt={6}
                       >
                         {translate('walletProvider.metaMaskSnap.connectMetaMask')}
                       </Button>

@@ -13,8 +13,10 @@ export const MarketsPage = () => {
       <Route exact path={`${path}/recommended`}>
         <Recommended />
       </Route>
+      <Route exact path={`${path}/category/:category`}>
+        <Recommended />
+      </Route>
       <Route path={`${path}/watchlist`}></Route>
-      <Route path={`${path}/categories`}></Route>
     </Switch>
   )
 }

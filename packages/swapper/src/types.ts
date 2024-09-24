@@ -286,7 +286,7 @@ export type CommonGetUnsignedTransactionArgs = {
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'> & {
-    permit2Signature?: string
+    permit2Signature: string | undefined
     supportsEIP1559: boolean
   }
 
@@ -402,7 +402,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
+  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &

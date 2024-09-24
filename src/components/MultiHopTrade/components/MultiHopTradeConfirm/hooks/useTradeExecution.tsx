@@ -27,6 +27,7 @@ import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'stat
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -55,6 +56,17 @@ export const useTradeExecution = (
 
   const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
+  )
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: confirmedTradeId,
+      hopIndex,
+    }
+  }, [confirmedTradeId, hopIndex])
+
+  const { permit2 } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const accountMetadataFilter = useMemo(
@@ -259,6 +271,7 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             supportsEIP1559,
+            permit2Signature: permit2.permit2Signature,
             signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
               const { txToSign } = await adapter.buildCustomTx({
                 ...transactionRequest,
@@ -379,6 +392,7 @@ export const useTradeExecution = (
     translate,
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
+    permit2.permit2Signature,
   ])
 
   return executeTrade

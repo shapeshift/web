@@ -9,6 +9,7 @@ import {
   Link,
   Stack,
   Tooltip,
+  useColorModeValue,
 } from '@chakra-ui/react'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
@@ -62,6 +63,7 @@ export const ConnectWallet = () => {
   const { state, dispatch, connectDemo, connect } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const isSnapEnabled = useFeatureFlag('Snaps')
+  const snapInfoBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
   const allNativeAssets = useMemo(() => {
     return knownChainIds
@@ -158,16 +160,18 @@ export const ConnectWallet = () => {
             width={width}
           >
             <Stack spacing={6}>
-              <Stack spacing={4} textAlign='center' alignItems='center' fontWeight='bold'>
-                <RawText color='blue.300' fontSize='m' textTransform='uppercase'>
-                  {translate('connectWalletPage.secondaryTitle')}
-                </RawText>
-                <Heading as='h1' fontSize='4xl'>
-                  {translate('connectWalletPage.primaryTitle')}
-                </Heading>
-                <RawText color='text.subtle' fontSize='m'>
-                  {translate('connectWalletPage.primaryDescription')}
-                </RawText>
+              <Stack textAlign='center' alignItems='center' fontWeight='bold'>
+                <Stack spacing={2}>
+                  <RawText color='blue.300' fontSize='xs' textTransform='uppercase'>
+                    {translate('connectWalletPage.secondaryTitle')}
+                  </RawText>
+                  <Heading as='h1' fontSize='4xl'>
+                    {translate('connectWalletPage.primaryTitle')}
+                  </Heading>
+                  <RawText color='text.subtle' fontSize='md' fontWeight='medium'>
+                    {translate('connectWalletPage.primaryDescription')}
+                  </RawText>
+                </Stack>
                 <Button
                   size='lg-multiline'
                   zIndex={1}
@@ -192,11 +196,11 @@ export const ConnectWallet = () => {
                       />
                       <Divider flex={1} borderColor='border.bold' opacity='1' />
                     </Flex>
-                    <Box bg='background.button.secondary.base' p={6} borderRadius='lg' mt={4}>
-                      <HStack spacing={4} justify='center' wrap='wrap' mb={4}>
+                    <Box bg={snapInfoBgColor} p={8} borderRadius='lg' mt={4}>
+                      <HStack spacing={2} justify='center' wrap='wrap' mb={4}>
                         {renderChains}
                       </HStack>
-                      <RawText fontSize='m'>
+                      <RawText fontWeight='medium' fontSize='md'>
                         {translate('connectWalletPage.snapDescription')}
                       </RawText>
                       <Button

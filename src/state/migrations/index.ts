@@ -10,45 +10,38 @@ import { clearTxHistory } from './clearTxHistory'
 import { clearWalletConnectWalletsMetadata } from './clearWalletConnectWalletsMetadata'
 
 export const clearTxHistoryMigrations = {
-  0: clearTxHistory,
-  1: clearTxHistory,
-  2: clearTxHistory,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearOpportunitiesMigrations = {
-  0: clearOpportunities,
-  1: clearOpportunities,
-  2: clearOpportunities,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearOpportunities,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearPortfolioMigrations = {
-  0: clearPortfolio,
-  1: clearPortfolio,
-  2: clearPortfolio,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearPortfolio,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearNftsMigrations = {
-  0: clearNfts,
-  1: clearNfts,
-  2: clearNfts,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearNfts,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {
-  0: clearAssets,
-  1: clearAssets,
-  2: clearAssets,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {
-  0: clearMarketData,
-  1: clearMarketData,
-  2: clearMarketData,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearMarketData,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearSnapshotMigrations = {
-  0: clearSnapshot,
-  1: clearSnapshot,
-  2: clearSnapshot,
+  // Uncomment me when introducing the first migration for this slice
+  // 0: clearSnapshot,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const migrations = {

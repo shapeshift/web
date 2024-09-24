@@ -20,7 +20,7 @@ export const AssetsGrid: React.FC<{
   assetIds: AssetId[]
   selectedChainId?: ChainId
   isLoading: boolean
-  limit: number
+  limit: number | undefined
 }> = ({ assetIds, selectedChainId, limit, isLoading }) => {
   const history = useHistory()
   const filteredAssetIds = useMemo(
@@ -28,7 +28,7 @@ export const AssetsGrid: React.FC<{
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, limit - 1),
+      ).slice(0, limit && limit - 1),
     [assetIds, limit, selectedChainId],
   )
 

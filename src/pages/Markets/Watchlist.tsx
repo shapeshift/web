@@ -13,8 +13,6 @@ import { MarketsHeader } from './MarketsHeader'
 
 const containerPaddingX = { base: 4, xl: 0 }
 
-const ASSETS_LIMIT = 100
-
 export const WatchList: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
@@ -27,7 +25,7 @@ export const WatchList: React.FC = () => {
         assetIds={watchedAssetIds}
         selectedChainId={selectedChainId}
         isLoading={false}
-        limit={ASSETS_LIMIT}
+        limit={undefined}
       />
     ),
     [watchedAssetIds],

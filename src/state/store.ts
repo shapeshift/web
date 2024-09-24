@@ -2,7 +2,7 @@ import { autoBatchEnhancer, configureStore } from '@reduxjs/toolkit'
 import { getConfig } from 'config'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
-import { FLUSH, PAUSE, PERSIST, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist'
+import { persistStore } from 'redux-persist'
 import { getStateWith, registerSelectors } from 'reselect-tools'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -120,16 +120,10 @@ export const createStore = () =>
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
-        immutableCheck: {
-          warnAfter: 128,
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        },
-        serializableCheck: {
-          ignoreState: true,
-          ignoreActions: true,
-          warnAfter: 128,
-          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        },
+        // funnily enough, the checks that should check for perf. issues are actually slowing down the app
+        // https://github.com/reduxjs/redux-toolkit/issues/415
+        immutableCheck: false,
+        serializableCheck: false,
         thunk: {
           extraArgument: { subscribe: subscriptionMiddleware.subscribe },
         },

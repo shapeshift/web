@@ -21,6 +21,7 @@ export enum CoingeckoAssetPlatform {
   Arbitrum = 'arbitrum-one',
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
+  Solana = 'solana',
 }
 
 type CoinGeckoId = string
@@ -80,6 +81,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Cosmos
         case CHAIN_REFERENCE.ThorchainMainnet:
           return CoingeckoAssetPlatform.Thorchain
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
+    case CHAIN_NAMESPACE.Solana:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.SolanaMainnet:
+          return CoingeckoAssetPlatform.Solana
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,

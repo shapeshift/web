@@ -15,6 +15,7 @@ export const gnosisAssetId: AssetId = 'eip155:100/slip44:60'
 export const arbitrumAssetId: AssetId = 'eip155:42161/slip44:60'
 export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
+export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 
 export const foxOnGnosisAssetId: AssetId =
   'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d'
@@ -50,10 +51,13 @@ export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 
+export const solanaChainId: ChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
+
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
   Utxo: 'bip122',
   CosmosSdk: 'cosmos',
+  Solana: 'solana',
 } as const
 
 type ValidChainMap = {
@@ -77,6 +81,7 @@ export const CHAIN_REFERENCE = {
   ArbitrumMainnet: '42161', // https://chainlist.org/chain/42161
   ArbitrumNovaMainnet: '42170', // https://chainlist.org/chain/42170
   BaseMainnet: '8453', // https://chainlist.org/chain/8453
+  SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -88,6 +93,7 @@ export const ASSET_NAMESPACE = {
   bep1155: 'bep1155',
   slip44: 'slip44',
   ibc: 'ibc',
+  spl: 'spl',
 } as const
 
 export const ASSET_REFERENCE = {
@@ -107,6 +113,7 @@ export const ASSET_REFERENCE = {
   Arbitrum: '60', // evm chain which uses ethereum derivation path as common practice
   ArbitrumNova: '60', // evm chain which uses ethereum derivation path as common practice
   Base: '60', // evm chain which uses ethereum derivation path as common practice
+  Solana: '501',
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -132,6 +139,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.ThorchainMainnet,
     CHAIN_REFERENCE.BinanceMainnet,
   ],
+  [CHAIN_NAMESPACE.Solana]: [CHAIN_REFERENCE.SolanaMainnet],
 })
 
 type ValidAssetNamespace = {
@@ -150,6 +158,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
     ASSET_NAMESPACE.bep1155,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [ASSET_NAMESPACE.ibc, ASSET_NAMESPACE.slip44],
+  [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.spl, ASSET_NAMESPACE.slip44],
 })
 
 // We should prob change this once we add more chains
@@ -169,4 +178,5 @@ export const FEE_ASSET_IDS = [
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
+  solAssetId,
 ]

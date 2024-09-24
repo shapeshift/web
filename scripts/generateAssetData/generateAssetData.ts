@@ -28,6 +28,7 @@ import * as gnosis from './gnosis'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
+import * as solana from './solana'
 import { filterOutBlacklistedAssets } from './utils'
 
 const generatedAssetsPath = path.join(
@@ -46,6 +47,7 @@ const generateAssetData = async () => {
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
+  const solanaAssets = await solana.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -65,6 +67,7 @@ const generateAssetData = async () => {
     ...arbitrumAssets,
     ...arbitrumNovaAssets,
     ...baseAssets,
+    ...solanaAssets,
   ]
 
   // remove blacklisted assets
@@ -83,6 +86,7 @@ const generateAssetData = async () => {
     [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
     [KnownChainIds.BaseMainnet]: baseAssets.map(asset => asset.name),
+    [KnownChainIds.SolanaMainnet]: solanaAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -167,6 +171,11 @@ const generateAssetData = async () => {
     // mark any base assets that also exist on other evm chains
     if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Base`
+    }
+
+    // mark any solana assets that also exist on solana
+    if (chainId === KnownChainIds.SolanaMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Solana`
     }
 
     acc[asset.assetId] = asset

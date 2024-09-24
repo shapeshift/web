@@ -1,5 +1,7 @@
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { ZRC_PERMIT2_SOURCE_ID } from '@shapeshiftoss/swapper/dist/swappers/ZrxSwapper/utils/constants'
+import { SwapperName, type TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getConfig } from 'config'
 
-export const isPermit2Hop = (tradeQuoteStep: TradeQuoteStep | undefined) =>
-  tradeQuoteStep?.source === ZRC_PERMIT2_SOURCE_ID
+export const isPermit2Hop = (tradeQuoteStep: TradeQuoteStep | undefined) => {
+  const isPermit2Enabled = getConfig().REACT_APP_FEATURE_ZRX_PERMIT2
+  return isPermit2Enabled && tradeQuoteStep?.source === SwapperName.Zrx
+}

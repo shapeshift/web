@@ -124,9 +124,16 @@ export const ApprovalStep = ({
         // user an estimate for the approval and the reset, but this simply isn't possible. We might
         // be able to use the reset tx gas limit as a rough estimate though, but that is not
         // implemented here.
-        return allowanceReset.isInitiallyRequired
-          ? allowanceResetDescription
-          : allowanceApprovalDescription
+        if (allowanceReset.isInitiallyRequired) {
+          return allowanceResetDescription
+        }
+
+        if (allowanceApproval.isInitiallyRequired) {
+          return allowanceApprovalDescription
+        }
+
+        return permit2Description
+
       case HopExecutionState.AwaitingAllowanceReset:
         return allowanceResetDescription
       case HopExecutionState.AwaitingAllowanceApproval:
@@ -147,6 +154,7 @@ export const ApprovalStep = ({
         assertUnreachable(hopExecutionState)
     }
   }, [
+    allowanceApproval.isInitiallyRequired,
     allowanceApproval.state,
     allowanceApproval.txHash,
     allowanceApprovalDescription,

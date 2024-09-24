@@ -6,6 +6,7 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertPrecision } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { TypedData } from 'eip-712'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -14,10 +15,10 @@ import type {
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   TradeQuote,
+  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { ZRC_PERMIT2_SOURCE_ID } from '../utils/constants'
 import { fetchFromZrx, fetchFromZrxPermit2 } from '../utils/fetchFromZrx'
 import { assetToToken, isSupportedChainId, tokenToAssetId } from '../utils/helpers/helpers'
 
@@ -220,7 +221,7 @@ async function _getZrxPermit2TradeQuote(
   }
 
   const maybeZrxPriceResponse = await fetchFromZrxPermit2({
-    priceOrQuote: 'price',
+    priceOrQuote: 'quote',
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -232,7 +233,34 @@ async function _getZrxPermit2TradeQuote(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const zrxQuoteResponse = maybeZrxPriceResponse.unwrap()
 
-  const { sellAmount, buyAmount, gas, fees } = zrxQuoteResponse
+  const {
+    sellAmount,
+    buyAmount,
+    gas,
+    fees,
+    permit2: { eip712 },
+    transaction,
+  } = zrxQuoteResponse
+
+  if (!transaction || !eip712) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Missing required Permit2 metadata from 0x response',
+        code: TradeQuoteError.InvalidResponse,
+        details: { transaction, eip712 },
+      }),
+    )
+  }
+
+  const permit2: TradeQuoteStep['permit2'] = {
+    transaction: {
+      data: transaction.data as `0x${string}`,
+      gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
+      gas: transaction.gas ? BigInt(transaction.gas) : undefined,
+      value: BigInt(transaction.value),
+    },
+    eip712: eip712 as unknown as TypedData,
+  }
 
   // for the rate to be valid, both amounts must be converted to the same precision
   const rate = convertPrecision({
@@ -308,7 +336,8 @@ async function _getZrxPermit2TradeQuote(
           buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit: buyAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          source: ZRC_PERMIT2_SOURCE_ID,
+          source: SwapperName.Zrx,
+          permit2,
         },
       ] as SingleHopTradeQuoteSteps,
     })

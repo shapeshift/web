@@ -48,14 +48,15 @@ export const useAllowanceApproval = (
     spender: tradeQuoteStep.allowanceContract,
     enabled: isInitiallyRequired && feeQueryEnabled,
   })
-
   useEffect(() => {
     if (!isInitiallyRequired || isAllowanceApprovalRequired !== false) return
 
     // Mark the approval step complete if adequate allowance was found.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    dispatch(tradeQuoteSlice.actions.setAllowanceApprovalStepComplete({ hopIndex, id: confirmedTradeId }))
+    dispatch(
+      tradeQuoteSlice.actions.setAllowanceApprovalStepComplete({ hopIndex, id: confirmedTradeId }),
+    )
   }, [dispatch, hopIndex, isAllowanceApprovalRequired, confirmedTradeId, isInitiallyRequired])
 
   const approveMutation = useMutation({

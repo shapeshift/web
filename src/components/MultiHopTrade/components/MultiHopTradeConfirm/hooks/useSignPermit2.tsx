@@ -1,5 +1,6 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import assert from 'assert'
 import { useCallback, useMemo } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -38,12 +39,7 @@ export const useSignPermit2 = (
   )
 
   const signPermit2 = useCallback(async () => {
-    if (!wallet || !accountMetadata || !tradeQuoteStep.permit2) return
-
-    const typedDataToSign = {
-      addressNList: toAddressNList(accountMetadata.bip44Params),
-      typedData: tradeQuoteStep.permit2?.eip712,
-    }
+    if (!wallet || !accountMetadata) return
 
     dispatch(
       tradeQuoteSlice.actions.setPermit2SignaturePending({
@@ -53,6 +49,12 @@ export const useSignPermit2 = (
     )
 
     try {
+      assert(tradeQuoteStep.permit2, 'Trade quote is missing permit2 metadata')
+      const typedDataToSign = {
+        addressNList: toAddressNList(accountMetadata.bip44Params),
+        typedData: tradeQuoteStep.permit2?.eip712,
+      }
+
       const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
       const permit2Signature = await adapter.signTypedData({ typedDataToSign, wallet })
 

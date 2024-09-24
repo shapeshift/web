@@ -52,12 +52,14 @@ export const AllowanceApprovalContent = ({
         <Button
           width='full'
           size='sm'
-          colorScheme='blue'
+          colorScheme={
+            transactionExecutionState === TransactionExecutionState.Failed ? 'red' : 'blue'
+          }
           isDisabled={isDisabled}
           isLoading={isLoading}
           onClick={onSubmit}
         >
-          {transactionExecutionState !== TransactionExecutionState.AwaitingConfirmation && (
+          {transactionExecutionState === TransactionExecutionState.Pending && (
             <CircularProgress isIndeterminate size={2} mr={2} />
           )}
           {translate(buttonTranslation)}

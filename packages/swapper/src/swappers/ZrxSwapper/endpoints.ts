@@ -22,12 +22,12 @@ import { fetchFromZrx } from './utils/fetchFromZrx'
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assertGetEvmChainAdapter, config, assetsById }: SwapperDeps,
+    { assertGetEvmChainAdapter, assetsById }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
-      config.REACT_APP_FEATURE_ZRX_PERMIT2,
+      false, // TODO: config.REACT_APP_FEATURE_ZRX_PERMIT2,
       assetsById,
     )
 

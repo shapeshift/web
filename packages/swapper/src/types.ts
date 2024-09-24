@@ -91,6 +91,8 @@ export enum TradeQuoteError {
   RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
+  // the response from the API was invalid or unexpected
+  InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
   // catch-all for unknown issues

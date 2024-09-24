@@ -461,6 +461,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
   }, [poolAssetFeeAssetMarketData.price, poolAssetFeeAssetDustAmountCryptoPrecision])
 
+  // We also include the dust amount in the gas fee as it's deducted in the input validation
   const poolAssetGasFeeFiatUserCurrency = useMemo(
     () =>
       bnOrZero(poolAssetTxFeeCryptoPrecision)

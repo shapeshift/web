@@ -120,16 +120,8 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
     return positions.some(position => {
       const data = position.data
       if (!data) return false
-      const {
-        collateralBalanceCryptoPrecision,
-        collateralBalanceFiatUserCurrency,
-        debtBalanceFiatUserCurrency,
-      } = data
-      return (
-        (collateralBalanceCryptoPrecision && parseFloat(collateralBalanceCryptoPrecision) > 0) ||
-        (collateralBalanceFiatUserCurrency && parseFloat(collateralBalanceFiatUserCurrency) > 0) ||
-        (debtBalanceFiatUserCurrency && parseFloat(debtBalanceFiatUserCurrency) > 0)
-      )
+      const { collateralBalanceCryptoPrecision } = data
+      return collateralBalanceCryptoPrecision && parseFloat(collateralBalanceCryptoPrecision) > 0
     })
   }, [positions])
 

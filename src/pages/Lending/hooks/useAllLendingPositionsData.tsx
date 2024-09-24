@@ -115,7 +115,23 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
   )
 
   const isLoading = useMemo(() => positions.some(position => position.isLoading), [positions])
-  const isActive = useMemo(() => positions.some(position => position.data), [positions])
+
+  const isActive = useMemo(() => {
+    return positions.some(position => {
+      const data = position.data
+      if (!data) return false
+      const {
+        collateralBalanceCryptoPrecision,
+        collateralBalanceFiatUserCurrency,
+        debtBalanceFiatUserCurrency,
+      } = data
+      return (
+        (collateralBalanceCryptoPrecision && parseFloat(collateralBalanceCryptoPrecision) > 0) ||
+        (collateralBalanceFiatUserCurrency && parseFloat(collateralBalanceFiatUserCurrency) > 0) ||
+        (debtBalanceFiatUserCurrency && parseFloat(debtBalanceFiatUserCurrency) > 0)
+      )
+    })
+  }, [positions])
 
   return {
     debtValueUserCurrency,

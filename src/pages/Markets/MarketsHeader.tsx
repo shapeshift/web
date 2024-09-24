@@ -26,11 +26,6 @@ export const MarketsHeader = () => {
         path: '/markets/watchlist',
         color: 'blue',
       },
-      {
-        label: 'markets.categoriesTabTitle',
-        path: '/markets/categories',
-        color: 'blue',
-      },
     ]
   }, [])
 

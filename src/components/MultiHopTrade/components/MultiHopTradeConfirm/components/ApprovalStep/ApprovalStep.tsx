@@ -1,5 +1,5 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { assertUnreachable } from '@shapeshiftoss/utils'
+import { assertUnreachable, isSome } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { FaThumbsUp } from 'react-icons/fa6'
@@ -11,7 +11,8 @@ import { useAppSelector } from 'state/store'
 
 import { StatusIcon } from '../StatusIcon'
 import { StepperStep } from '../StepperStep'
-import { SharedCompletedApprovalDescription } from './components/SharedApprovalDescription'
+import type { TxLineProps } from './components/SharedApprovalDescription'
+import { SharedApprovalDescription } from './components/SharedApprovalDescription'
 import { useAllowanceApprovalContent } from './hooks/useAllowanceApprovalContent'
 import { useAllowanceResetContent } from './hooks/useAllowanceResetContent'
 import { usePermit2Content } from './hooks/usePermit2Content'
@@ -72,9 +73,19 @@ export const ApprovalStep = ({
         case HopExecutionState.Pending:
           return TransactionExecutionState.AwaitingConfirmation
         case HopExecutionState.AwaitingAllowanceReset:
-          return allowanceReset.state
+          // When the reset is complete, there is more for the user to do in this UI component, so
+          // the status should be set back to TransactionExecutionState.AwaitingConfirmation.
+          return allowanceReset.state === TransactionExecutionState.Complete
+            ? TransactionExecutionState.AwaitingConfirmation
+            : allowanceReset.state
         case HopExecutionState.AwaitingAllowanceApproval:
-          return allowanceApproval.state
+          // If this is a Permit2 flow and the approval tx is complete, there is more for the user
+          // to do in this UI component, so the status should be set back to
+          // TransactionExecutionState.AwaitingConfirmation.
+          return permit2.isRequired &&
+            allowanceApproval.state === TransactionExecutionState.Complete
+            ? TransactionExecutionState.AwaitingConfirmation
+            : allowanceApproval.state
         case HopExecutionState.AwaitingPermit2:
           return permit2.state
         case HopExecutionState.AwaitingSwap:
@@ -88,7 +99,13 @@ export const ApprovalStep = ({
     })()
 
     return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />
-  }, [allowanceApproval.state, allowanceReset.state, hopExecutionState, permit2.state])
+  }, [
+    allowanceApproval.state,
+    allowanceReset.state,
+    hopExecutionState,
+    permit2.isRequired,
+    permit2.state,
+  ])
 
   const content = useMemo(() => {
     const inner = (() => {
@@ -110,11 +127,26 @@ export const ApprovalStep = ({
     })()
 
     return inner ? (
-      <AnimatePresence>
+      <AnimatePresence mode='wait' initial={false}>
         <SlideTransitionX key={hopExecutionState}>{inner}</SlideTransitionX>
       </AnimatePresence>
     ) : undefined
   }, [allowanceApprovalContent, allowanceResetContent, hopExecutionState, permit2Content])
+
+  const txLines = useMemo(() => {
+    const txLines = [
+      allowanceReset.txHash && {
+        nameTranslation: 'trade.allowanceResetTxName',
+        txHash: allowanceReset.txHash,
+      },
+      allowanceApproval.txHash && {
+        nameTranslation: 'trade.allowanceApprovalTxName',
+        txHash: allowanceApproval.txHash,
+      },
+    ].filter(isSome) as Omit<TxLineProps, 'tradeQuoteStep'>[]
+
+    return txLines
+  }, [allowanceApproval.txHash, allowanceReset.txHash])
 
   const description = useMemo(() => {
     switch (hopExecutionState) {
@@ -143,10 +175,10 @@ export const ApprovalStep = ({
       case HopExecutionState.AwaitingSwap:
       case HopExecutionState.Complete:
         return (
-          <SharedCompletedApprovalDescription
+          <SharedApprovalDescription
             tradeQuoteStep={tradeQuoteStep}
             isError={allowanceApproval.state === TransactionExecutionState.Failed}
-            txHash={allowanceApproval.txHash ?? ''}
+            txLines={txLines}
             errorTranslation='trade.approvalFailed'
           />
         )
@@ -156,13 +188,13 @@ export const ApprovalStep = ({
   }, [
     allowanceApproval.isInitiallyRequired,
     allowanceApproval.state,
-    allowanceApproval.txHash,
     allowanceApprovalDescription,
     allowanceReset.isInitiallyRequired,
     allowanceResetDescription,
     hopExecutionState,
     permit2Description,
     tradeQuoteStep,
+    txLines,
   ])
 
   return (

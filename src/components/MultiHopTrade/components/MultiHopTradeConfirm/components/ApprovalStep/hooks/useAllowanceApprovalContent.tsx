@@ -1,6 +1,6 @@
 import { Switch } from '@chakra-ui/react'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
@@ -13,7 +13,9 @@ import { useAppSelector } from 'state/store'
 
 import { isPermit2Hop } from '../../../hooks/helpers'
 import { useAllowanceApproval } from '../../../hooks/useAllowanceApproval'
-import { AllowanceApprovalContent } from '../components/ApprovalContent'
+import { ApprovalContent } from '../components/ApprovalContent'
+import { GasEstimateLine } from '../components/GasEstimateLine'
+import type { TxLineProps } from '../components/SharedApprovalDescription'
 import { SharedApprovalDescription } from '../components/SharedApprovalDescription'
 
 export type UseAllowanceApprovalContentProps = {
@@ -48,6 +50,7 @@ export const useAllowanceApprovalContent = ({
     state: hopExecutionState,
     allowanceApproval,
     allowanceReset,
+    permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isEnabled = useMemo(() => {
@@ -105,14 +108,23 @@ export const useAllowanceApprovalContent = ({
 
   const content = useMemo(() => {
     if (hopExecutionState !== HopExecutionState.AwaitingAllowanceApproval) return
+
+    // If this is a Permit2 flow and the approval tx is complete, the app needs to wait until the
+    // allowance is reflected on-chain before appearing ready for the next action, so the status
+    // should be set back to TransactionExecutionState.AwaitingConfirmation.
+    const transactionExecutionState =
+      permit2.isRequired && allowanceApproval.state === TransactionExecutionState.Complete
+        ? TransactionExecutionState.Pending
+        : allowanceApproval.state
+
     return (
-      <AllowanceApprovalContent
+      <ApprovalContent
         buttonTranslation='common.approve'
         isDisabled={isApprovalButtonDisabled}
         isLoading={isAllowanceApprovalLoading}
         titleTranslation='trade.allowance'
-        tooltipTranslation='trade.allowanceTooltip'
-        transactionExecutionState={allowanceApproval.state}
+        tooltipTranslation={isPermit2 ? 'trade.permit2.tooltip' : 'trade.allowanceTooltip'}
+        transactionExecutionState={transactionExecutionState}
         onSubmit={handleSignAllowanceApproval}
         topRightContent={
           // Permit2 should always have unlimited allowance without ability to toggle
@@ -148,24 +160,42 @@ export const useAllowanceApprovalContent = ({
     isApprovalButtonDisabled,
     isExactAllowance,
     isPermit2,
+    permit2.isRequired,
     toggleIsExactAllowance,
   ])
 
   const description = useMemo(() => {
+    const txLines = [
+      allowanceReset.txHash && {
+        nameTranslation: 'trade.allowanceResetTxName',
+        txHash: allowanceReset.txHash,
+      },
+      allowanceApproval.txHash && {
+        nameTranslation: 'trade.allowanceApprovalTxName',
+        txHash: allowanceApproval.txHash,
+      },
+    ].filter(isSome) as Omit<TxLineProps, 'tradeQuoteStep'>[]
+
     return (
       <SharedApprovalDescription
         tradeQuoteStep={tradeQuoteStep}
-        approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted}
-        gasFeeLoadingTranslation='trade.approvalGasFeeLoading'
-        txHash={allowanceApproval.txHash}
-        gasFeeTranslation='trade.approvalGasFee'
+        txLines={txLines}
         isError={allowanceApproval.state === TransactionExecutionState.Failed}
         errorTranslation='trade.approvalFailed'
-      />
+      >
+        {!Boolean(allowanceApproval.txHash) ? (
+          <GasEstimateLine
+            gasFeeLoadingTranslation='trade.approvalGasFeeLoading'
+            gasFeeTranslation='trade.approvalGasFee'
+            approvalNetworkFeeCryptoFormatted={approvalNetworkFeeCryptoFormatted}
+          />
+        ) : null}
+      </SharedApprovalDescription>
     )
   }, [
     allowanceApproval.state,
     allowanceApproval.txHash,
+    allowanceReset.txHash,
     approvalNetworkFeeCryptoFormatted,
     tradeQuoteStep,
   ])

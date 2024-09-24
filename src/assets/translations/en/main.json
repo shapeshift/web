@@ -966,6 +966,8 @@
     "approvalResetGasFeeLoading": "Allowance reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
     "approvalResetFailed": "A problem occurred during allowance reset",
+    "allowanceResetTxName": "Allowance reset tx:",
+    "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",

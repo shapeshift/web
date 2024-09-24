@@ -1,5 +1,5 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
@@ -9,7 +9,9 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector } from 'state/store'
 
 import { useAllowanceReset } from '../../../hooks/useAllowanceReset'
-import { AllowanceApprovalContent } from '../components/ApprovalContent'
+import { ApprovalContent } from '../components/ApprovalContent'
+import { GasEstimateLine } from '../components/GasEstimateLine'
+import type { TxLineProps } from '../components/SharedApprovalDescription'
 import { SharedApprovalDescription } from '../components/SharedApprovalDescription'
 
 export type UseAllowanceResetContentProps = {
@@ -92,7 +94,7 @@ export const useAllowanceResetContent = ({
   const content = useMemo(() => {
     if (hopExecutionState !== HopExecutionState.AwaitingAllowanceReset) return
     return (
-      <AllowanceApprovalContent
+      <ApprovalContent
         buttonTranslation='common.reset'
         isDisabled={isAllowanceResetButtonDisabled}
         isLoading={isAllowanceResetLoading}
@@ -111,16 +113,28 @@ export const useAllowanceResetContent = ({
   ])
 
   const description = useMemo(() => {
+    const txLines = [
+      allowanceReset.txHash && {
+        nameTranslation: 'trade.allowanceResetTxName',
+        txHash: allowanceReset.txHash,
+      },
+    ].filter(isSome) as Omit<TxLineProps, 'tradeQuoteStep'>[]
+
     return (
       <SharedApprovalDescription
         tradeQuoteStep={tradeQuoteStep}
-        approvalNetworkFeeCryptoFormatted={allowanceResetNetworkFeeCryptoFormatted}
-        gasFeeLoadingTranslation='trade.approvalResetGasFeeLoading'
-        txHash={allowanceReset.txHash}
-        gasFeeTranslation='trade.approvalResetGasFee'
+        txLines={txLines}
         isError={allowanceReset.state === TransactionExecutionState.Failed}
         errorTranslation='trade.approvalResetFailed'
-      />
+      >
+        {!Boolean(allowanceReset.txHash) ? (
+          <GasEstimateLine
+            gasFeeLoadingTranslation='trade.approvalResetGasFeeLoading'
+            gasFeeTranslation='trade.approvalResetGasFee'
+            approvalNetworkFeeCryptoFormatted={allowanceResetNetworkFeeCryptoFormatted}
+          />
+        ) : null}
+      </SharedApprovalDescription>
     )
   }, [
     allowanceReset.state,

@@ -30,6 +30,7 @@ export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
   receiveAddress: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
+  zrxBaseUrl: string
 }
 
 export const fetchFromZrx = async <T extends 'price' | 'quote'>({
@@ -40,10 +41,11 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   receiveAddress,
   affiliateBps,
   slippageTolerancePercentageDecimal,
+  zrxBaseUrl,
 }: FetchFromZrxArgs<T>): Promise<
   Result<T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse, SwapErrorRight>
 > => {
-  const baseUrl = baseUrlFromChainId(buyAsset.chainId as ZrxSupportedChainId)
+  const baseUrl = baseUrlFromChainId(zrxBaseUrl, buyAsset.chainId as ZrxSupportedChainId)
   const zrxService = zrxServiceFactory({ baseUrl })
 
   const maybeTreasuryAddress = (() => {
@@ -90,11 +92,11 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
   receiveAddress,
   affiliateBps,
   slippageTolerancePercentageDecimal,
+  zrxBaseUrl,
 }: FetchFromZrxArgs<T>): Promise<
   Result<T extends 'quote' ? ZrxPermit2QuoteResponse : ZrxPermit2PriceResponse, SwapErrorRight>
 > => {
-  const baseUrl = baseUrlFromChainId(buyAsset.chainId as ZrxSupportedChainId)
-  const zrxService = zrxServiceFactory({ baseUrl })
+  const zrxService = zrxServiceFactory({ baseUrl: zrxBaseUrl })
 
   const maybeTreasuryAddress = (() => {
     try {
@@ -118,7 +120,7 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
       slippageBps: convertDecimalPercentageToBasisPoints(
         slippageTolerancePercentageDecimal,
       ).toNumber(),
-      feeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent
+      swapFeeRecipient: maybeTreasuryAddress, // Where affiliate fees are sent
       feeRecipientTradeSurplus: maybeTreasuryAddress, // Where trade surplus is sent
     },
   })

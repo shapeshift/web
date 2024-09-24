@@ -7,23 +7,24 @@ import { isAddress } from 'viem'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
+import { ZRX_NATIVE_ASSET_ADDRESS } from '../constants'
 
-export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
+export const baseUrlFromChainId = (zrxBaseUrl: string, chainId: ZrxSupportedChainId): string => {
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
-      return 'https://0x.shapeshift.com/ethereum/'
+      return `${zrxBaseUrl}ethereum/`
     case KnownChainIds.AvalancheMainnet:
-      return 'https://0x.shapeshift.com/avalanche/'
+      return `${zrxBaseUrl}avalanche/`
     case KnownChainIds.OptimismMainnet:
-      return 'https://0x.shapeshift.com/optimism/'
+      return `${zrxBaseUrl}optimism/`
     case KnownChainIds.BnbSmartChainMainnet:
-      return 'https://0x.shapeshift.com/bnbsmartchain/'
+      return `${zrxBaseUrl}bnbsmartchain/`
     case KnownChainIds.PolygonMainnet:
-      return 'https://0x.shapeshift.com/polygon/'
+      return `${zrxBaseUrl}polygon/`
     case KnownChainIds.ArbitrumMainnet:
-      return 'https://0x.shapeshift.com/arbitrum/'
+      return `${zrxBaseUrl}arbitrum/`
     case KnownChainIds.BaseMainnet:
-      return 'https://0x.shapeshift.com/base/'
+      return `${zrxBaseUrl}base/`
     default:
       assertUnreachable(chainId)
   }
@@ -32,7 +33,8 @@ export const baseUrlFromChainId = (chainId: ZrxSupportedChainId): string => {
 // converts an asset to zrx token (symbol or contract address)
 export const assetToToken = (asset: Asset): string => {
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
-  return assetNamespace === 'slip44' ? asset.symbol : assetReference
+  console.log(asset)
+  return assetNamespace === 'slip44' ? ZRX_NATIVE_ASSET_ADDRESS : assetReference
 }
 
 export const tokenToAssetId = (token: string, chainId: ChainId): AssetId => {

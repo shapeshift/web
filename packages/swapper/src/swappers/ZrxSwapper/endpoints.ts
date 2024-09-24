@@ -22,13 +22,14 @@ import { fetchFromZrx } from './utils/fetchFromZrx'
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
-    { assertGetEvmChainAdapter, assetsById }: SwapperDeps,
+    { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
-      false, // TODO: config.REACT_APP_FEATURE_ZRX_PERMIT2,
+      config.REACT_APP_FEATURE_ZRX_PERMIT2,
       assetsById,
+      config.REACT_APP_ZRX_BASE_URL,
     )
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -43,6 +44,7 @@ export const zrxApi: SwapperApi = {
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
+    config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, permit2 } = steps[0]
@@ -73,6 +75,7 @@ export const zrxApi: SwapperApi = {
         slippageTolerancePercentageDecimal:
           slippageTolerancePercentageDecimal ??
           getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
+        zrxBaseUrl: config.REACT_APP_ZRX_BASE_URL,
       })
 
       if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()

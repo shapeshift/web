@@ -97,6 +97,7 @@ const snapshotPersistConfig = {
 const localWalletSlicePersistConfig = {
   key: 'localWalletSlice',
   storage: localforage,
+  // no migrations for localWalletSlice yet - stay tuned!
 }
 
 const marketDataPersistConfig = {

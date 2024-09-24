@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   Center,
-  Circle,
   Divider,
   Flex,
   Heading,
@@ -16,9 +15,7 @@ import { knownChainIds } from 'constants/chains'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
-import NightSky from 'assets/nightsky.jpg'
 import { AssetIcon } from 'components/AssetIcon'
-import { FoxIcon } from 'components/Icons/FoxIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { LanguageSelector } from 'components/LanguageSelector'
 import { Page } from 'components/Layout/Page'
@@ -162,7 +159,7 @@ export const ConnectWallet = () => {
           >
             <Stack spacing={6}>
               <Stack spacing={4} textAlign='center' alignItems='center' fontWeight='bold'>
-                <RawText color='blue.200' fontSize='m' textTransform='uppercase'>
+                <RawText color='blue.300' fontSize='m' textTransform='uppercase'>
                   {translate('connectWalletPage.secondaryTitle')}
                 </RawText>
                 <Heading as='h1' fontSize='4xl'>
@@ -244,7 +241,7 @@ export const ConnectWallet = () => {
           zIndex={1}
           width='full'
           maxWidth='400px'
-          bgImage={NightSky}
+          background='linear-gradient(135deg, #0052FF 0%, #0052FF 40%, #00D2FF 100%)'
           backgroundSize='cover'
           display={display}
         >
@@ -253,29 +250,7 @@ export const ConnectWallet = () => {
             // Full height with "-webkit-fill-available" polyfill, see https://chakra-ui.com/changelog/v2.3.1#styled-system-231
             height='$100vh'
             px={6}
-          >
-            <Flex>
-              <Circle size='52px' mb='auto' mt={12}>
-                <FoxIcon boxSize='100%' color='white' />
-              </Circle>
-            </Flex>
-            <Stack mt='auto' spacing={6}>
-              <Flex flexDir='row' textAlign='left' fontSize='2xl' letterSpacing='tight'>
-                <RawText color='white' lineHeight='1' userSelect={'none'}>
-                  {translate('connectWalletPage.title')}
-                </RawText>
-              </Flex>
-              <Divider borderWidth={2} opacity='1' borderColor='white' maxWidth='80px' />
-              <Text
-                userSelect={'none'}
-                color='text.subtle'
-                fontSize='lg'
-                mb={12}
-                textAlign='left'
-                translation={'connectWalletPage.body'}
-              />
-            </Stack>
-          </Center>
+          />
         </Flex>
       </Flex>
     </Page>

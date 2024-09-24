@@ -55,24 +55,40 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution[action.payload].state = TradeExecutionState.Previewing
     },
     confirmTrade: (state, action: PayloadAction<TradeQuote['id']>) => {
-      if (state.tradeExecution[action.payload].state !== TradeExecutionState.Previewing) {
-        if (state.tradeExecution[action.payload].state === TradeExecutionState.Initializing) {
+      const tradeQuoteId = action.payload
+      if (state.tradeExecution[tradeQuoteId].state !== TradeExecutionState.Previewing) {
+        if (state.tradeExecution[tradeQuoteId].state === TradeExecutionState.Initializing) {
           console.error('attempted to confirm an uninitialized trade')
         } else {
           console.error('attempted to confirm an in-progress trade')
         }
         return
       }
-      state.tradeExecution[action.payload].state = TradeExecutionState.FirstHop
+
+      state.tradeExecution[tradeQuoteId].state = TradeExecutionState.FirstHop
+
       const allowanceResetRequired =
-        state.tradeExecution[action.payload].firstHop.allowanceReset.isRequired
+        state.tradeExecution[tradeQuoteId].firstHop.allowanceReset.isRequired
       const approvalRequired =
-        state.tradeExecution[action.payload].firstHop.allowanceApproval.isRequired
-      state.tradeExecution[action.payload].firstHop.state = allowanceResetRequired
-        ? HopExecutionState.AwaitingAllowanceReset
-        : approvalRequired
-        ? HopExecutionState.AwaitingAllowanceApproval
-        : HopExecutionState.AwaitingSwap
+        state.tradeExecution[tradeQuoteId].firstHop.allowanceApproval.isInitiallyRequired
+      const permit2Required = state.tradeExecution[tradeQuoteId].firstHop.permit2.isRequired
+
+      switch (true) {
+        case allowanceResetRequired:
+          state.tradeExecution[tradeQuoteId].firstHop.state =
+            HopExecutionState.AwaitingAllowanceReset
+          break
+        case approvalRequired:
+          state.tradeExecution[tradeQuoteId].firstHop.state =
+            HopExecutionState.AwaitingAllowanceApproval
+          break
+        case permit2Required:
+          state.tradeExecution[tradeQuoteId].firstHop.state = HopExecutionState.AwaitingPermit2
+          break
+        default:
+          state.tradeExecution[tradeQuoteId].firstHop.state = HopExecutionState.AwaitingSwap
+          break
+      }
     },
     setAllowanceResetTxPending: (
       state,
@@ -168,7 +184,7 @@ export const tradeQuoteSlice = createSlice({
     ) => {
       const { hopIndex, id } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      const permit2Required = state.tradeExecution[id][key].permit2.isInitiallyRequired
+      const permit2Required = state.tradeExecution[id][key].permit2.isRequired
       state.tradeExecution[id][key].state = permit2Required
         ? HopExecutionState.AwaitingPermit2
         : HopExecutionState.AwaitingSwap

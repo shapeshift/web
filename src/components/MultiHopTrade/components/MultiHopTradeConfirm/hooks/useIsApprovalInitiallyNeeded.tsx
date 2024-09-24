@@ -29,6 +29,7 @@ const useIsApprovalInitiallyNeededForHop = (
       assetId: tradeQuoteStep?.sellAsset.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
+      isDisabled: isApprovalInitiallyNeeded !== undefined,
     })
 
   // Reset the approval requirements if the trade quote ID changes
@@ -138,11 +139,11 @@ export const useIsApprovalInitiallyNeeded = () => {
     secondHopSellAssetAccountId,
   )
 
-  const isPermit2InitiallyRequiredForFirstHop = useMemo(() => {
+  const isPermit2RequiredForFirstHop = useMemo(() => {
     return isPermit2Hop(firstHop)
   }, [firstHop])
 
-  const isPermit2InitiallyRequiredForSecondHop = useMemo(() => {
+  const isPermit2RequiredForSecondHop = useMemo(() => {
     return isPermit2Hop(secondHop)
   }, [secondHop])
 
@@ -174,8 +175,8 @@ export const useIsApprovalInitiallyNeeded = () => {
     dispatch(
       tradeQuoteSlice.actions.setPermit2Requirements({
         id: activeQuote.id,
-        firstHop: isPermit2InitiallyRequiredForFirstHop,
-        secondHop: isPermit2InitiallyRequiredForSecondHop,
+        firstHop: isPermit2RequiredForFirstHop,
+        secondHop: isPermit2RequiredForSecondHop,
       }),
     )
   }, [
@@ -186,8 +187,8 @@ export const useIsApprovalInitiallyNeeded = () => {
     isApprovalInitiallyNeededForFirstHop,
     isApprovalInitiallyNeededForSecondHop,
     isFirstHopLoading,
-    isPermit2InitiallyRequiredForFirstHop,
-    isPermit2InitiallyRequiredForSecondHop,
+    isPermit2RequiredForFirstHop,
+    isPermit2RequiredForSecondHop,
     isSecondHopLoading,
     secondHop,
   ])

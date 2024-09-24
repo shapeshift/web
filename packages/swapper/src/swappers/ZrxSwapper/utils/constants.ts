@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { type SupportedChainIds, SwapperName } from '../../../types'
+import { type SupportedChainIds } from '../../../types'
 
 export const AFFILIATE_ADDRESS = '0xc770eefad204b5180df6a14ee197d99d808ee52d'
 
@@ -32,5 +32,3 @@ export const ZRX_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: ZRX_SUPPORTED_CHAINIDS as ChainId[],
   buy: ZRX_SUPPORTED_CHAINIDS as ChainId[],
 }
-
-export const ZRC_PERMIT2_SOURCE_ID = `${SwapperName.Zrx} • Permit2`

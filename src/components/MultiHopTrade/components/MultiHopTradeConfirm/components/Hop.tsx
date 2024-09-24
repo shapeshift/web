@@ -93,13 +93,14 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    allowanceApproval: approval,
+    allowanceApproval,
+    permit2,
     swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(
-    () => [approval.state, swap.state].includes(TransactionExecutionState.Failed),
-    [approval.state, swap.state],
+    () => [allowanceApproval.state, swap.state].includes(TransactionExecutionState.Failed),
+    [allowanceApproval.state, swap.state],
   )
   const buyAmountCryptoPrecision = useMemo(
     () =>
@@ -157,9 +158,9 @@ export const Hop = ({
       case HopExecutionState.AwaitingAllowanceReset:
       // fallthrough
       case HopExecutionState.AwaitingAllowanceApproval:
-        return hopIndex === 0 ? 1 : 0
-      case HopExecutionState.AwaitingPermit2:
       // fallthrough
+      case HopExecutionState.AwaitingPermit2:
+        return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingSwap:
         return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
@@ -231,8 +232,11 @@ export const Hop = ({
             />
           )}
 
-          <Collapse in={approval.isRequired} style={collapseWidth}>
-            {approval.isRequired === true && (
+          <Collapse
+            in={allowanceApproval.isRequired === true || permit2.isRequired === true}
+            style={collapseWidth}
+          >
+            {(allowanceApproval.isRequired === true || permit2.isRequired === true) && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}

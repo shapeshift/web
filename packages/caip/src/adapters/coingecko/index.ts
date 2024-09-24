@@ -1,5 +1,4 @@
 import invertBy from 'lodash/invertBy'
-import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
@@ -44,7 +43,7 @@ export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
-  generatedAssetIdToCoingeckoMap[toLower(assetId)]
+  generatedAssetIdToCoingeckoMap[assetId]
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {

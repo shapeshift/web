@@ -30,6 +30,8 @@ import {
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  solanaChainId,
+  solAssetId,
   thorchainChainId,
 } from '../../constants'
 import {
@@ -180,6 +182,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Solana)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Solana,
+            chainReference: CHAIN_REFERENCE.SolanaMainnet,
+            assetNamespace: 'spl',
+            assetReference: platforms[CoingeckoAssetPlatform.Solana],
+          })
+          prev[solanaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -192,6 +208,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
+      [solanaChainId]: { [solAssetId]: 'solana' },
     },
   )
 

@@ -38,6 +38,21 @@ export const MarketsHeader = () => {
     history.push('/explore')
   }, [history])
 
+  const maybeCategory = useMemo(
+    () =>
+      history.location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
+    [history.location.pathname],
+  )
+  const headingCopy = useMemo(() => {
+    if (maybeCategory) return `markets.categories.${maybeCategory}.title`
+    return 'navBar.markets'
+  }, [maybeCategory])
+
+  const subtitleCopy = useMemo(() => {
+    if (maybeCategory) return `markets.categories.${maybeCategory}.subtitle`
+    return 'markets.marketsBody'
+  }, [maybeCategory])
+
   return (
     <>
       <Display.Mobile>
@@ -46,20 +61,30 @@ export const MarketsHeader = () => {
             <PageBackButton onBack={handleBack} />
           </PageHeader.Left>
           <PageHeader.Middle>
-            <PageHeader.Title>{translate('navBar.markets')}</PageHeader.Title>
+            <PageHeader.Title>{translate(headingCopy)}</PageHeader.Title>
           </PageHeader.Middle>
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
-          <Display.Desktop>
-            <Stack>
-              <Heading>{translate('navBar.markets')}</Heading>
-              <Text color='text.subtle' translation='markets.marketsBody' />
-            </Stack>
-          </Display.Desktop>
-        </Container>
-        <TabMenu items={NavItems} />
+        {!maybeCategory && (
+          // Don't show tabs and heading when on a single category view
+          <>
+            <Container
+              maxWidth='container.4xl'
+              px={containerPadding}
+              pt={containerPaddingTop}
+              pb={4}
+            >
+              <Display.Desktop>
+                <Stack>
+                  <Heading>{translate(headingCopy)}</Heading>
+                  <Text color='text.subtle' translation={subtitleCopy} />
+                </Stack>
+              </Display.Desktop>
+            </Container>
+            <TabMenu items={NavItems} />
+          </>
+        )}
       </Stack>
     </>
   )

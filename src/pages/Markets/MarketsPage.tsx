@@ -1,5 +1,6 @@
 import { Redirect, Route, Switch, useRouteMatch } from 'react-router'
 
+import { Category } from './Category'
 import { Recommended } from './Recommended'
 
 export const MarketsPage = () => {
@@ -14,7 +15,7 @@ export const MarketsPage = () => {
         <Recommended />
       </Route>
       <Route exact path={`${path}/category/:category`}>
-        <Recommended />
+        <Category />
       </Route>
       <Route path={`${path}/watchlist`}></Route>
     </Switch>

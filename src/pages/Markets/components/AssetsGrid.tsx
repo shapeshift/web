@@ -3,7 +3,9 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import { useCallback, useMemo } from 'react'
+import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
@@ -16,6 +18,8 @@ const colSpanSx = { base: 1, md: 2 }
 
 const rowSpanSparklineSx = { base: 1, md: 2 }
 
+const emptyIcon = <RiExchangeFundsLine color='pink.200' />
+
 export const AssetsGrid: React.FC<{
   assetIds: AssetId[]
   selectedChainId?: ChainId
@@ -23,6 +27,7 @@ export const AssetsGrid: React.FC<{
   limit: number | undefined
 }> = ({ assetIds, selectedChainId, limit, isLoading }) => {
   const history = useHistory()
+  console.log({ location: history.location })
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId
@@ -50,6 +55,23 @@ export const AssetsGrid: React.FC<{
           </GridItem>
         ))}
       </Grid>
+    )
+
+  if (!filteredAssetIds.length)
+    return (
+      <ResultsEmpty
+        title={
+          history.location.pathname === '/markets/watchlist'
+            ? 'markets.watchlistEmpty.emptyTitle'
+            : 'markets.emptyTitle'
+        }
+        body={
+          history.location.pathname === '/markets/watchlist'
+            ? 'markets.watchlistEmpty.emptyBody'
+            : 'markets.emptyBody'
+        }
+        icon={emptyIcon}
+      />
     )
 
   return (

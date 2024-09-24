@@ -2593,6 +2593,12 @@
     "watchlist": "My Watchlist",
     "categoriesTabTitle": "Categories",
     "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "watchlistEmpty": {
+      "emptyTitle": "No assets in Watchlist",
+      "emptyBody": "It appears you haven't starred any assets just yet. Start adding assets to your watchlist now to track them!"
+    },
+    "emptyTitle": "No assets found",
+    "emptyBody": "No assets were found with the current filter. Try adjusting your selected chain to see more assets.",
     "categories": {
       "oneClickDefiAssets": {
         "title": "One Click DeFi Assets"

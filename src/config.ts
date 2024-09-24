@@ -173,6 +173,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE_RFOX: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION: bool({ default: true }),
   REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
+  REACT_APP_ZRX_BASE_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

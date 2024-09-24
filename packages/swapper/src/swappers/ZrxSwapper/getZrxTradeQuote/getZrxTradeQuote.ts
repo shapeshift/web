@@ -27,14 +27,16 @@ export function getZrxTradeQuote(
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   isPermit2Enabled: boolean,
   assetsById: AssetsByIdPartial,
+  zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
-  if (!isPermit2Enabled) return _getZrxTradeQuote(input, assertGetEvmChainAdapter)
-  return _getZrxPermit2TradeQuote(input, assertGetEvmChainAdapter, assetsById)
+  if (!isPermit2Enabled) return _getZrxTradeQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
+  return _getZrxPermit2TradeQuote(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
 }
 
 async function _getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -93,6 +95,7 @@ async function _getZrxTradeQuote(
     receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
+    zrxBaseUrl,
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
@@ -170,6 +173,7 @@ async function _getZrxPermit2TradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   assetsById: AssetsByIdPartial,
+  zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
@@ -228,6 +232,7 @@ async function _getZrxPermit2TradeQuote(
     receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
+    zrxBaseUrl,
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())

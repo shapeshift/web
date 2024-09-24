@@ -121,6 +121,7 @@ export const createStore = () =>
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
         // funnily enough, the checks that should check for perf. issues are actually slowing down the app
+        // This is actually safe, since we're not derps mutating the state directly and are using actions and immer for extra safety
         // https://github.com/reduxjs/redux-toolkit/issues/415
         immutableCheck: false,
         serializableCheck: false,

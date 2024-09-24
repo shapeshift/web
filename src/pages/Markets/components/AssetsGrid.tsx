@@ -27,7 +27,6 @@ export const AssetsGrid: React.FC<{
   limit: number | undefined
 }> = ({ assetIds, selectedChainId, limit, isLoading }) => {
   const history = useHistory()
-  console.log({ location: history.location })
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId

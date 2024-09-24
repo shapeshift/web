@@ -11,6 +11,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { WatchAssetButton } from 'components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from 'components/AssetIcon'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -49,7 +50,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        p={4}
+        p={2}
         width='100%'
         height='100%'
       >
@@ -81,6 +82,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
               </CText>
             </Tooltip>
           </Box>
+          <WatchAssetButton assetId={assetId} />
         </Flex>
         <Flex justify='space-between'>
           <Box textAlign='left'>

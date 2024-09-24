@@ -96,6 +96,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
                 {name} {`(${symbol}${asset.id ? ` ${middleEllipsis(asset.id)}` : ''})`}
               </Heading>
 
+              <WatchAssetButton assetId={assetId} />
               <IconButton
                 as={Link}
                 isExternal

@@ -2,6 +2,7 @@ import { Box, Button, Card, CardBody, Flex, Text } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { WatchAssetButton } from 'components/AssetHeader/WatchAssetButton'
 import { AssetIcon } from 'components/AssetIcon'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
@@ -27,7 +28,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        p={4}
+        p={2}
         width='100%'
         height='100%'
       >
@@ -41,6 +42,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
               {asset.symbol}
             </Text>
           </Box>
+          <WatchAssetButton assetId={assetId} />
         </Flex>
         <Box textAlign='left'>
           <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />

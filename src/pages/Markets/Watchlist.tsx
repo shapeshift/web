@@ -1,0 +1,49 @@
+import { Box } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { Main } from 'components/Layout/Main'
+import { SEO } from 'components/Layout/Seo'
+import { selectWatchedAssetIds } from 'state/slices/preferencesSlice/selectors'
+import { useAppSelector } from 'state/store'
+
+import { AssetsGrid } from './components/AssetsGrid'
+import { MarketsRow } from './components/MarketsRow'
+import { MarketsHeader } from './MarketsHeader'
+
+const containerPaddingX = { base: 4, xl: 0 }
+
+const ASSETS_LIMIT = 100
+
+export const WatchList: React.FC = () => {
+  const translate = useTranslate()
+  const headerComponent = useMemo(() => <MarketsHeader />, [])
+
+  const watchedAssetIds = useAppSelector(selectWatchedAssetIds)
+
+  const component = useCallback(
+    (selectedChainId: ChainId | undefined) => (
+      <AssetsGrid
+        assetIds={watchedAssetIds}
+        selectedChainId={selectedChainId}
+        isLoading={false}
+        limit={ASSETS_LIMIT}
+      />
+    ),
+    [watchedAssetIds],
+  )
+
+  const body = useMemo(
+    () => <MarketsRow supportedChainIds={undefined}>{component}</MarketsRow>,
+    [component],
+  )
+
+  return (
+    <Main headerComponent={headerComponent} isSubPage>
+      <SEO title={translate('navBar.markets')} />
+      <Box py={4} px={containerPaddingX}>
+        {body}
+      </Box>
+    </Main>
+  )
+}

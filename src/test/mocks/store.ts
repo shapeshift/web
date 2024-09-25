@@ -42,6 +42,10 @@ export const mockStore: ReduxState = {
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
   portfolio: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     isAccountMetadataLoading: false,
     accounts: {
       byId: {},
@@ -134,11 +138,19 @@ export const mockStore: ReduxState = {
     },
   },
   assets: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     byId: {},
     ids: [],
     relatedAssetIndex: {},
   },
   marketData: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     crypto: {
       byId: {},
       ids: [],
@@ -152,6 +164,10 @@ export const mockStore: ReduxState = {
     isMarketDataLoaded: false,
   },
   txHistory: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     txs: {
       byId: {},
       byAccountIdAssetId: {},
@@ -160,6 +176,10 @@ export const mockStore: ReduxState = {
     hydrationMeta: {},
   },
   opportunities: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     lp: {
       byAccountId: {},
       byId: {},
@@ -176,6 +196,10 @@ export const mockStore: ReduxState = {
     },
   },
   nft: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     selectedNftAvatarByWalletId: {},
     nfts: {
       byId: {},
@@ -209,6 +233,10 @@ export const mockStore: ReduxState = {
     isTradeQuoteRequestAborted: false,
   },
   snapshot: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
@@ -216,6 +244,10 @@ export const mockStore: ReduxState = {
     strategies: undefined,
   },
   localWalletSlice: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
     walletType: null,
     walletDeviceId: null,
     nativeWalletName: null,

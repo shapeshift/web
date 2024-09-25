@@ -124,6 +124,9 @@ export const getTradeQuoteInput = async ({
         sendAddress,
       }
     }
+    case CHAIN_NAMESPACE.Solana: {
+      throw new Error('Solana is not supported in getTradeQuoteInput')
+    }
     default:
       assertUnreachable(chainNamespace)
   }

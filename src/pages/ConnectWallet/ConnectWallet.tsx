@@ -16,6 +16,7 @@ import { knownChainIds } from 'constants/chains'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
+import SplashSidebar from 'assets/splash-sidebar.jpg'
 import { AssetIcon } from 'components/AssetIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { LanguageSelector } from 'components/LanguageSelector'
@@ -245,7 +246,7 @@ export const ConnectWallet = () => {
           zIndex={1}
           width='full'
           maxWidth='400px'
-          background='linear-gradient(135deg, #0052FF 0%, #0052FF 40%, #00D2FF 100%)'
+          bgImage={SplashSidebar}
           backgroundSize='cover'
           display={display}
         >

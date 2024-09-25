@@ -2,6 +2,8 @@ import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads/build'
 import BigNumber from 'bignumber.js'
+import type { Hex } from 'viem'
+import { concat, numberToHex, size } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import {
@@ -83,17 +85,30 @@ export const zrxApi: SwapperApi = {
       return zrxQuoteResponse.unwrap()
     })()
 
+    const calldataWithSignature = (() => {
+      if (!permit2Signature) return data
+
+      // append the signature to the calldata
+      const signatureLengthInHex = numberToHex(size(permit2Signature as Hex), {
+        signed: false,
+        size: 32,
+      })
+      return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
+    })()
+
+    // gas estimation
     const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
-      data,
+      data: calldataWithSignature,
       to,
       value,
       from,
       supportsEIP1559,
     })
 
-    // append the signature to the calldata
-    const calldataWithSignature = `${data}${(permit2Signature ?? '').replace('0x', '')}`
+    // const adapter = assertGetEvmChainAdapter(chainId)
+    // const { average: feeData } = await adapter.getGasFeeData()
+    // const gasLimit = estimatedGas
 
     return {
       to,

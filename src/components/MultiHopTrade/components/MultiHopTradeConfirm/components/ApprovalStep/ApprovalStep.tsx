@@ -108,10 +108,11 @@ export const ApprovalStep = ({
   ])
 
   const content = useMemo(() => {
+    console.log({ hopExecutionState })
     const inner = (() => {
       switch (hopExecutionState) {
         case HopExecutionState.Pending:
-          return
+          return null
         case HopExecutionState.AwaitingAllowanceReset:
           return allowanceResetContent
         case HopExecutionState.AwaitingAllowanceApproval:
@@ -120,7 +121,7 @@ export const ApprovalStep = ({
           return permit2Content
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
-          return
+          return null
         default:
           assertUnreachable(hopExecutionState)
       }
@@ -207,10 +208,12 @@ export const ApprovalStep = ({
       isLoading={isLoading}
       isError={allowanceApproval.state === TransactionExecutionState.Failed}
       isPending={
+        (hopExecutionState === HopExecutionState.AwaitingAllowanceReset &&
+          allowanceReset.state === TransactionExecutionState.AwaitingConfirmation) ||
         (hopExecutionState === HopExecutionState.AwaitingAllowanceApproval &&
           allowanceApproval.state === TransactionExecutionState.AwaitingConfirmation) ||
-        (hopExecutionState === HopExecutionState.AwaitingAllowanceReset &&
-          allowanceReset.state === TransactionExecutionState.AwaitingConfirmation)
+        (hopExecutionState === HopExecutionState.AwaitingPermit2 &&
+          permit2.state === TransactionExecutionState.AwaitingConfirmation)
       }
     />
   )

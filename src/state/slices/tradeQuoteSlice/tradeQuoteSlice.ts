@@ -169,7 +169,13 @@ export const tradeQuoteSlice = createSlice({
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[id][hopKey].permit2.state = TransactionExecutionState.Complete
       state.tradeExecution[id][hopKey].permit2.permit2Signature = permit2Signature
+
+      // Mark the whole Permit2 step complete. We can do this here because no on-chain processing is
+      // required, unlike allowance reset and allowance approval.
+      state.tradeExecution[id][hopKey].state = HopExecutionState.AwaitingSwap
     },
+    // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceResetStepComplete: (
       state,
       action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
@@ -178,6 +184,8 @@ export const tradeQuoteSlice = createSlice({
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[id][key].state = HopExecutionState.AwaitingAllowanceApproval
     },
+    // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
+    // complete an approval externally and have the app respond to the updated allowance on chain.
     setAllowanceApprovalStepComplete: (
       state,
       action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
@@ -188,14 +196,6 @@ export const tradeQuoteSlice = createSlice({
       state.tradeExecution[id][key].state = permit2Required
         ? HopExecutionState.AwaitingPermit2
         : HopExecutionState.AwaitingSwap
-    },
-    setPermit2StepComplete: (
-      state,
-      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
-    ) => {
-      const { hopIndex, id } = action.payload
-      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      state.tradeExecution[id][key].state = HopExecutionState.AwaitingSwap
     },
     setSwapTxPending: (
       state,

@@ -233,10 +233,10 @@ export const Hop = ({
           )}
 
           <Collapse
-            in={allowanceApproval.isRequired === true || permit2.isRequired === true}
+            in={allowanceApproval.isInitiallyRequired === true || permit2.isRequired === true}
             style={collapseWidth}
           >
-            {(allowanceApproval.isRequired === true || permit2.isRequired === true) && (
+            {(allowanceApproval.isInitiallyRequired === true || permit2.isRequired === true) && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}

@@ -238,14 +238,9 @@ async function _getZrxPermit2TradeQuote(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const zrxQuoteResponse = maybeZrxPriceResponse.unwrap()
 
-  const {
-    sellAmount,
-    buyAmount,
-    gas,
-    fees,
-    permit2: { eip712 },
-    transaction,
-  } = zrxQuoteResponse
+  const { sellAmount, buyAmount, gas, fees, permit2: quotePermit2, transaction } = zrxQuoteResponse
+
+  const eip712 = quotePermit2?.eip712 ?? null
 
   if (!transaction || !eip712) {
     return Err(
@@ -259,6 +254,7 @@ async function _getZrxPermit2TradeQuote(
 
   const permit2: TradeQuoteStep['permit2'] = {
     transaction: {
+      to: transaction.to,
       data: transaction.data as `0x${string}`,
       gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
       gas: transaction.gas ? BigInt(transaction.gas) : undefined,
@@ -291,8 +287,6 @@ async function _getZrxPermit2TradeQuote(
   const integratorFee = fees.integratorFee?.amount ?? '0'
   const buyAmountBeforeFeesCryptoBaseUnit = bn(buyAmount).plus(integratorFee).toFixed()
 
-  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
-  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
   try {
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()

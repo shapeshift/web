@@ -109,7 +109,7 @@ export type ZrxPermit2QuoteResponse = ZrxPermit2PriceResponse & {
     type: 'Permit2'
     hash: string
     eip712: TypedData | null
-  }
+  } | null
   transaction: {
     to: Address
     data: string

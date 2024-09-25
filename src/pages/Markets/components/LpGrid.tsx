@@ -4,7 +4,9 @@ import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
+import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -19,6 +21,8 @@ const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
 
 const colSpanSparklineSx = { base: 1, md: 3 }
 const colSpanSx = { base: 1, md: 2 }
+
+const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
 export const LpGrid: React.FC<{
   assetIds: AssetId[]
@@ -59,6 +63,9 @@ export const LpGrid: React.FC<{
       </Grid>
     )
   }
+
+  if (!filteredAssetIds.length)
+    return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
 
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>

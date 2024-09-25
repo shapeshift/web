@@ -16,13 +16,13 @@ type WatchAssetButtonProps = {
 export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) => {
   const appDispatch = useAppDispatch()
   const isAssetIdWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
-  const handleToggleWatchAsset = useCallback(() => {
-    if (isAssetIdWatched) {
-      appDispatch(preferences.actions.removeWatchedAssetId(assetId))
-    } else {
-      appDispatch(preferences.actions.addWatchedAssetId(assetId))
-    }
-  }, [appDispatch, assetId, isAssetIdWatched])
+  const handleToggleWatchAsset: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+    e => {
+      e.stopPropagation()
+      appDispatch(preferences.actions.toggleWatchedAssetId(assetId))
+    },
+    [appDispatch, assetId],
+  )
   return (
     <IconButton
       onClick={handleToggleWatchAsset}

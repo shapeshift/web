@@ -11,10 +11,10 @@ import { useAppSelector } from 'state/store'
 import type { MARKETS_CATEGORIES } from '../constants'
 
 type RowProps = {
-  title: string
+  title?: string
   subtitle?: string
   supportedChainIds: ChainId[] | undefined
-  category: MARKETS_CATEGORIES
+  category?: MARKETS_CATEGORIES
   children: (selectedChainId: ChainId | undefined) => React.ReactNode
 }
 
@@ -52,9 +52,11 @@ export const MarketsRow: React.FC<RowProps> = ({
             {isCategoryRoute && (
               <IconButton variant='ghost' aria-label='back' onClick={handleBack} icon={backIcon} />
             )}
-            <Heading size='md' mb={1}>
-              <Link to={`/markets/category/${category}`}>{title}</Link>
-            </Heading>
+            {category && title && (
+              <Heading size='md' mb={1}>
+                <Link to={`/markets/category/${category}`}>{title}</Link>
+              </Heading>
+            )}
           </Flex>
           {subtitle && (
             <Text fontSize='sm' color='gray.500'>

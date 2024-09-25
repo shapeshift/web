@@ -43,9 +43,11 @@ export const useAllowanceResetContent = ({
   const isEnabled = useMemo(() => {
     return (
       Boolean(allowanceReset.isRequired) &&
-      allowanceReset.state === TransactionExecutionState.AwaitingConfirmation
+      [HopExecutionState.Pending, HopExecutionState.AwaitingAllowanceReset].includes(
+        hopExecutionState,
+      )
     )
-  }, [allowanceReset.isRequired, allowanceReset.state])
+  }, [allowanceReset.isRequired, hopExecutionState])
 
   const {
     allowanceResetMutation,

@@ -56,10 +56,13 @@ export const useAllowanceApprovalContent = ({
   const isEnabled = useMemo(() => {
     return (
       Boolean(allowanceApproval.isRequired) &&
-      allowanceApproval.state === TransactionExecutionState.AwaitingConfirmation &&
-      !allowanceReset.isRequired // Don't start estimating gas until the reset is no longer required
+      [
+        HopExecutionState.Pending,
+        HopExecutionState.AwaitingAllowanceReset,
+        HopExecutionState.AwaitingAllowanceApproval,
+      ].includes(hopExecutionState)
     )
-  }, [allowanceApproval.isRequired, allowanceApproval.state, allowanceReset.isRequired])
+  }, [allowanceApproval.isRequired, hopExecutionState])
 
   const {
     approveMutation,

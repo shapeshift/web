@@ -197,9 +197,9 @@ export const getThorchainFromAddress = async ({
   }
 }
 
-const getAccountAddressesWithBalances = async (
-  accountId: AccountId,
-): Promise<{ address: string; balance: string }[]> => {
+// Memoized on accountId, see lodash docs:
+// "By default, the first argument provided to the memoized function is used as the map cache key."
+export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
   if (isUtxoAccountId(accountId)) {
     const { chainId, account: pubkey } = fromAccountId(accountId)
     const adapter = assertGetUtxoChainAdapter(chainId)
@@ -210,23 +210,14 @@ const getAccountAddressesWithBalances = async (
 
     if (!addresses) return []
 
-    return addresses.map(({ pubkey, balance }) => {
+    return addresses.map(({ pubkey }) => {
       const address = pubkey.startsWith('bitcoincash') ? pubkey.replace('bitcoincash:', '') : pubkey
-
-      return { address, balance }
+      return address
     })
   }
 
-  // We don't need balances for chain others than UTXOs
-  return [{ address: fromAccountId(accountId).account, balance: '' }]
-}
-
-// Memoized on accountId, see lodash docs:
-// "By default, the first argument provided to the memoized function is used as the map cache key."
-export const getAccountAddresses = memoize(
-  async (accountId: AccountId): Promise<string[]> =>
-    (await getAccountAddressesWithBalances(accountId)).map(({ address }) => address),
-)
+  return [fromAccountId(accountId).account]
+})
 
 // A THOR Tx can either be:
 // - a RUNE MsgDeposit message type

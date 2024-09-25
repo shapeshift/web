@@ -80,6 +80,7 @@ export type MetaMaskLikeProvider = BrowserProvider
 export type KeyManagerWithProvider =
   | KeyManager.XDefi
   | KeyManager.MetaMask
+  | KeyManager.Phantom
   | KeyManager.WalletConnectV2
   | KeyManager.Coinbase
 
@@ -133,6 +134,7 @@ export const isKeyManagerWithProvider = (
       [
         KeyManager.XDefi,
         KeyManager.MetaMask,
+        KeyManager.Phantom,
         KeyManager.WalletConnectV2,
         KeyManager.Coinbase,
       ].includes(keyManager),
@@ -158,6 +160,9 @@ export const getMaybeProvider = async (
 
   if (localWalletType === KeyManager.MetaMask) {
     return (await detectEthereumProvider()) as MetaMaskLikeProvider
+  }
+  if (localWalletType === KeyManager.Phantom) {
+    return (globalThis as any).phantom?.ethereum as unknown as MetaMaskLikeProvider
   }
   if (localWalletType === KeyManager.XDefi) {
     try {
@@ -637,6 +642,46 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.Phantom:
+            // Get the adapter again in each switch case to narrow down the adapter type
+            const phantomAdapter = await getAdapter(localWalletType)
+
+            if (phantomAdapter) {
+              currentAdapters[localWalletType] = phantomAdapter
+              dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+              // Fixes issue with wallet `type` being null when the wallet is loaded from state
+              dispatch({ type: WalletActions.SET_CONNECTOR_TYPE, payload: localWalletType })
+            }
+
+            const localPhantomWallet = await phantomAdapter?.pairDevice()
+            // Set the provider again on refresh to ensure event handlers are properly set
+            await onProviderChange(KeyManager.Phantom, localPhantomWallet ?? null)
+            if (localPhantomWallet) {
+              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Phantom]
+              try {
+                await localPhantomWallet.initialize()
+                const deviceId = await localPhantomWallet.getDeviceID()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localPhantomWallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: KeyManager.Phantom,
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+              } catch (e) {
+                disconnect()
+              }
+            } else {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+
           case KeyManager.Coinbase:
             // Get the adapter again in each switch case to narrow down the adapter type
             const coinbaseAdapter = await getAdapter(localWalletType)
@@ -819,14 +864,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       if (_isLocked) {
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
-        // Don't continue execution in case the wallet got locked, set it to locked and abort instead
-        return
+      } else {
+        // Either a chain change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
       }
 
-      // Either a change change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
-      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-
       const adapter = await getAdapter(localWalletType)
+
+      // Re-pair - which in case of accounts changed means the user will be prompted to connect their current account if they didn't do so
+      // Note, this isn't guaranteed to work, not all wallets are the same, some (i.e MM) have this weird flow where connecting to an unconnected account
+      // from a connected account can only be done from the wallet itself and not programmatically
       const localWallet = await adapter?.pairDevice()
 
       if (!localWallet) return

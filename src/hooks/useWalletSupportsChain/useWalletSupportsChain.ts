@@ -32,6 +32,7 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -78,10 +79,13 @@ export const walletSupportsChain = ({
 
   switch (chainId) {
     case btcChainId:
-    case bchChainId:
-    case dogeChainId:
-    case ltcChainId:
       return supportsBTC(wallet)
+    case bchChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case dogeChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case ltcChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:

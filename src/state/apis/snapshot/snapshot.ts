@@ -19,15 +19,17 @@ type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 
-export const initialState: {
-  votingPowerByModel: Record<ParameterModel, string | undefined>
-  strategies: Strategy[] | undefined
-} = {
+export const initialState: SnapshotState = {
   votingPowerByModel: {
     SWAPPER: undefined,
     THORCHAIN_LP: undefined,
   },
   strategies: undefined,
+}
+
+export type SnapshotState = {
+  votingPowerByModel: Record<ParameterModel, string | undefined>
+  strategies: Strategy[] | undefined
 }
 
 export const snapshot = createSlice({

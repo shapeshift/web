@@ -23,7 +23,6 @@ export const clearNftsMigrations = {
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {
-  // https://github.com/shapeshift/web/pull/7798
   0: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 

@@ -240,9 +240,9 @@ export class Parser {
     })()
 
     const liquidity = (() => {
-      if (txType === 'withdraw') return { type: getLiquidityType(action.pools[0]) }
-      if (type.toLowerCase() === 'refund' && txType === 'deposit')
+      if (type.toLowerCase() === 'refund' && ['withdraw', 'deposit'].includes(txType))
         return { type: getLiquidityType(refundMemo.split(':')[1]) }
+      if (txType === 'withdraw') return { type: getLiquidityType(action.pools[0]) }
     })()
 
     const swap = txType === 'swap' ? { type: getSwapType(swapMemo || refundMemo) } : undefined

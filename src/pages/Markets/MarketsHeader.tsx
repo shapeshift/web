@@ -26,11 +26,6 @@ export const MarketsHeader = () => {
         path: '/markets/watchlist',
         color: 'blue',
       },
-      {
-        label: 'markets.categoriesTabTitle',
-        path: '/markets/categories',
-        color: 'blue',
-      },
     ]
   }, [])
 
@@ -43,15 +38,6 @@ export const MarketsHeader = () => {
       history.location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
     [history.location.pathname],
   )
-  const headingCopy = useMemo(() => {
-    if (maybeCategory) return `markets.categories.${maybeCategory}.title`
-    return 'navBar.markets'
-  }, [maybeCategory])
-
-  const subtitleCopy = useMemo(() => {
-    if (maybeCategory) return `markets.categories.${maybeCategory}.subtitle`
-    return 'markets.marketsBody'
-  }, [maybeCategory])
 
   return (
     <>
@@ -61,7 +47,7 @@ export const MarketsHeader = () => {
             <PageBackButton onBack={handleBack} />
           </PageHeader.Left>
           <PageHeader.Middle>
-            <PageHeader.Title>{translate(headingCopy)}</PageHeader.Title>
+            <PageHeader.Title>{translate('navBar.markets')}</PageHeader.Title>
           </PageHeader.Middle>
         </PageHeader>
       </Display.Mobile>
@@ -77,8 +63,8 @@ export const MarketsHeader = () => {
             >
               <Display.Desktop>
                 <Stack>
-                  <Heading>{translate(headingCopy)}</Heading>
-                  <Text color='text.subtle' translation={subtitleCopy} />
+                  <Heading>{translate('navBar.markets')}</Heading>
+                  <Text color='text.subtle' translation='markets.marketsBody' />
                 </Stack>
               </Display.Desktop>
             </Container>

@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  adapters,
   arbitrumChainId,
   arbitrumNovaChainId,
   avalancheChainId,
@@ -29,22 +30,24 @@ import {
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 
-export const CHAIN_ID_TO_COINGECKO_PLATFORM_ID: Partial<Record<ChainId, string | null>> = {
+export const CHAIN_ID_TO_COINGECKO_PLATFORM_ID: Partial<
+  Record<ChainId, adapters.CoingeckoAssetPlatform | null>
+> = {
   [btcChainId]: null,
   [bchChainId]: null,
   [dogeChainId]: null,
   [ltcChainId]: null,
   [thorchainChainId]: null,
-  [ethChainId]: 'ethereum',
-  [avalancheChainId]: 'avalanche',
-  [optimismChainId]: 'optimistic-ethereum',
-  [bscChainId]: 'binance-smart-chain',
-  [polygonChainId]: 'polygon-pos',
-  [gnosisChainId]: 'xdai',
-  [arbitrumChainId]: 'arbitrum-one',
-  [arbitrumNovaChainId]: 'arbitrum-nova',
-  [baseChainId]: 'base',
-  [cosmosChainId]: 'cosmos',
+  [ethChainId]: adapters.CoingeckoAssetPlatform.Ethereum,
+  [avalancheChainId]: adapters.CoingeckoAssetPlatform.Avalanche,
+  [optimismChainId]: adapters.CoingeckoAssetPlatform.Optimism,
+  [bscChainId]: adapters.CoingeckoAssetPlatform.BnbSmartChain,
+  [polygonChainId]: adapters.CoingeckoAssetPlatform.Polygon,
+  [gnosisChainId]: adapters.CoingeckoAssetPlatform.Gnosis,
+  [arbitrumChainId]: adapters.CoingeckoAssetPlatform.Arbitrum,
+  [arbitrumNovaChainId]: adapters.CoingeckoAssetPlatform.ArbitrumNova,
+  [baseChainId]: adapters.CoingeckoAssetPlatform.Base,
+  [cosmosChainId]: adapters.CoingeckoAssetPlatform.Cosmos,
 }
 
 export const COINGECKO_PLATFORM_ID_TO_CHAIN_ID: Partial<Record<string, ChainId | null>> = invert(
@@ -56,11 +59,13 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   'bitcoin-cash': bchAssetId,
   dogecoin: dogeAssetId,
   litecoin: ltcAssetId,
-  ethereum: ethAssetId,
-  thorchain: thorchainAssetId,
-  xdai: gnosisAssetId,
-  cosmos: cosmosAssetId,
-  'matic-network': polygonAssetId,
-  base: baseAssetId,
+  [adapters.CoingeckoAssetPlatform.Ethereum]: ethAssetId,
+  [adapters.CoingeckoAssetPlatform.Thorchain]: thorchainAssetId,
+  [adapters.CoingeckoAssetPlatform.Gnosis]: gnosisAssetId,
+  [adapters.CoingeckoAssetPlatform.Cosmos]: cosmosAssetId,
+  // This isn't a mistake - the network and id are different in the case of MATIC/POS
+  'polygon-ecosystem-token': polygonAssetId,
+  [adapters.CoingeckoAssetPlatform.Base]: baseAssetId,
+  // This isn't a mistake - the network and id are different in the case of BSC
   binanceCoin: bscAssetId,
 }

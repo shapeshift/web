@@ -64,6 +64,9 @@ const WalletSelectItem = ({
   const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET
   if (walletType === KeyManager.Coinbase && !isCoinbaseEnabled) return null
 
+  const isPhantomEnabled = getConfig().REACT_APP_FEATURE_PHANTOM_WALLET
+  if (walletType === KeyManager.Phantom && !isPhantomEnabled) return null
+
   const isWalletConnectV2Enabled = getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2
   if (walletType === KeyManager.WalletConnectV2 && !isWalletConnectV2Enabled) return null
 

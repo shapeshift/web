@@ -124,7 +124,7 @@ describe('adapters:coingecko', () => {
       expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnCosmos, atomOnBsc])
     })
 
-    it('can get AssetIds for USD Coin on chains using coingecko', () => {
+    it('can get AssetIds for USD Coin on Solana and EVM chains using coingecko', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const assetNamespace = 'erc20'
       const usdcOnEthereum = toAssetId({

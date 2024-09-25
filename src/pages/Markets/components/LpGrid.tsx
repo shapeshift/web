@@ -65,13 +65,7 @@ export const LpGrid: React.FC<{
   }
 
   if (!filteredAssetIds.length)
-    return (
-      <ResultsEmpty
-        title='lending.yourLoans.emptyTitle'
-        body='lending.yourLoans.emptyBody'
-        icon={emptyIcon}
-      />
-    )
+    return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
 
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>

@@ -230,6 +230,9 @@ export const accountToPortfolio: AccountToPortfolio = ({
 
         break
       }
+      case CHAIN_NAMESPACE.Solana: {
+        throw new Error('Solana not supported')
+      }
       default:
         assertUnreachable(chainNamespace)
     }
@@ -270,6 +273,9 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
         bnOrZero(cosmosAccount.balance).gt(0)
 
       return hasActivity
+    }
+    case CHAIN_NAMESPACE.Solana: {
+      throw new Error('Solana not supported')
     }
     default:
       assertUnreachable(chainNamespace)

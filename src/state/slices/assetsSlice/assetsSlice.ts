@@ -10,6 +10,7 @@ import {
   gnosisChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
@@ -99,6 +100,7 @@ export const assetApi = createApi({
             if (!flags.Arbitrum && asset.chainId === arbitrumChainId) return prev
             if (!flags.ArbitrumNova && asset.chainId === arbitrumNovaChainId) return prev
             if (!flags.Base && asset.chainId === baseChainId) return prev
+            if (!flags.Solana && asset.chainId === solanaChainId) return prev
             prev[assetId] = asset
             return prev
           },

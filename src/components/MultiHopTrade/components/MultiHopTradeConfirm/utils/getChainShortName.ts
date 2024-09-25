@@ -33,6 +33,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'DOGE'
     case KnownChainIds.LitecoinMainnet:
       return 'LTC'
+    case KnownChainIds.SolanaMainnet:
+      return 'SOL'
     default: {
       assertUnreachable(chainId)
     }

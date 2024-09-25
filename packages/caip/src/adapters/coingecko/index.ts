@@ -1,11 +1,24 @@
 import invertBy from 'lodash/invertBy'
-import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
-import { CHAIN_NAMESPACE, CHAIN_REFERENCE } from '../../constants'
+import {
+  arbitrumChainId,
+  arbitrumNovaChainId,
+  avalancheChainId,
+  baseChainId,
+  bscChainId,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  cosmosChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+  thorchainChainId,
+} from '../../constants'
 import * as adapters from './generated'
 
 // https://api.coingecko.com/api/v3/asset_platforms
@@ -21,6 +34,7 @@ export enum CoingeckoAssetPlatform {
   Arbitrum = 'arbitrum-one',
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
+  Solana = 'solana',
 }
 
 type CoinGeckoId = string
@@ -43,7 +57,7 @@ export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
-  generatedAssetIdToCoingeckoMap[toLower(assetId)]
+  generatedAssetIdToCoingeckoMap[assetId]
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
@@ -85,10 +99,48 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Solana:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.SolanaMainnet:
+          return CoingeckoAssetPlatform.Solana
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
       throw new Error(`chainNamespace ${chainNamespace} not supported.`)
+  }
+}
+
+export const coingeckoAssetPlatformToChainId = (platform: CoingeckoAssetPlatform): ChainId => {
+  switch (platform) {
+    case CoingeckoAssetPlatform.Ethereum:
+      return ethChainId
+    case CoingeckoAssetPlatform.Avalanche:
+      return avalancheChainId
+    case CoingeckoAssetPlatform.Optimism:
+      return optimismChainId
+    case CoingeckoAssetPlatform.BnbSmartChain:
+      return bscChainId
+    case CoingeckoAssetPlatform.Polygon:
+      return polygonChainId
+    case CoingeckoAssetPlatform.Gnosis:
+      return gnosisChainId
+    case CoingeckoAssetPlatform.Arbitrum:
+      return arbitrumChainId
+    case CoingeckoAssetPlatform.ArbitrumNova:
+      return arbitrumNovaChainId
+    case CoingeckoAssetPlatform.Base:
+      return baseChainId
+    case CoingeckoAssetPlatform.Cosmos:
+      return cosmosChainId
+    case CoingeckoAssetPlatform.Thorchain:
+      return thorchainChainId
+    default:
+      throw new Error(`Unsupported Coingecko asset platform: ${platform}`)
   }
 }
 

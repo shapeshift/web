@@ -21,7 +21,13 @@ describe('opportunitiesSlice', () => {
   })
 
   it('returns uninitialized properties for initialState', () => {
-    expect(store.getState().opportunities).toEqual(initialState)
+    expect(store.getState().opportunities).toEqual({
+      ...initialState,
+      _persist: {
+        rehydrated: true,
+        version: -Infinity,
+      },
+    })
   })
 
   describe('reducers', () => {

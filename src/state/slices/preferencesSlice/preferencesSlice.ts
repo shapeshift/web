@@ -17,6 +17,7 @@ export type FeatureFlags = {
   Gnosis: boolean
   Arbitrum: boolean
   ArbitrumNova: boolean
+  Solana: boolean
   Base: boolean
   ThorSwap: boolean
   ThorSwapStreamingSwaps: boolean
@@ -106,6 +107,7 @@ const initialState: Preferences = {
     Gnosis: getConfig().REACT_APP_FEATURE_GNOSIS,
     Arbitrum: getConfig().REACT_APP_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA,
+    Solana: getConfig().REACT_APP_FEATURE_SOLANA,
     Base: getConfig().REACT_APP_FEATURE_BASE,
     ThorSwap: getConfig().REACT_APP_FEATURE_THOR_SWAP,
     ThorSwapStreamingSwaps: getConfig().REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS,

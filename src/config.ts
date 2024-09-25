@@ -75,6 +75,7 @@ const validators = {
   REACT_APP_FEATURE_GNOSIS: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM: bool({ default: false }),
   REACT_APP_FEATURE_ARBITRUM_NOVA: bool({ default: false }),
+  REACT_APP_FEATURE_SOLANA: bool({ default: false }),
   REACT_APP_FEATURE_BASE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),

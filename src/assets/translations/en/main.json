@@ -287,12 +287,16 @@
   },
   "connectWalletPage": {
     "title": "The Original Multichain Exchange",
+    "primaryTitle": "Welcome to Multichain DeFi.",
+    "secondaryTitle": "Private. Decentralized. Non-custodial.",
+    "primaryDescription": "Trade, bridge, and earn rewards effortlessly. Experience Native Bitcoin, Dogecoin, and more. Manage Liquidity and DeFi Positions in One-Click.",
+    "snapDescription": "Download the ShapeShift Multichain Snap and Unlock Bitcoin, Dogecoin, and more for your MetaMask.",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore the",
     "defiUniverse": "DeFi Universe",
     "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
     "header": "Please connect a wallet to get started",
-    "cta": "Connect Wallet",
+    "cta": "Connect or Create Wallet",
     "viewADemo": "View a Demo",
     "dontHaveWallet": "Don't have a wallet?",
     "welcomeBack": "Welcome back!",
@@ -1553,8 +1557,6 @@
         "title": "Multichain Snap needs updating",
         "subtitle": "Click 'Update' to continue using ShapeShift's multichain features with MetaMask!"
       },
-      "secondaryTitle": "The best Multichain experience for MetaMask: Powered by ShapeShift",
-      "secondaryBody": "Send, receive, track, trade, and earn with the ShapeShift Multichain Snap on the following chains:",
       "connectMetaMask": "Connect MetaMask",
       "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
@@ -2608,7 +2610,15 @@
         "title": "Trending",
         "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
-      "topMovements": {
+      "tradingVolume": {
+        "title": "Trading Volume",
+        "subtitle": "These are top assets with the highest trading volume in the last 24 hours"
+      },
+      "marketCap": {
+        "title": "Market Cap",
+        "subtitle": "These are top assets with the highest market capitalization in the last 24 hours"
+      },
+      "topMovers": {
         "title": "Top Movers"
       },
       "recentlyAdded": {

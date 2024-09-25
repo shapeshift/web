@@ -352,6 +352,8 @@ export const useTradeExecution = (
           cancelPollingRef.current = output?.cancelPolling
           return
         }
+        case CHAIN_NAMESPACE.Solana:
+          return
         default:
           assertUnreachable(stepSellAssetChainNamespace)
       }

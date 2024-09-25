@@ -71,6 +71,13 @@ export const chainIdFeeAssetReferenceMap = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
+      case CHAIN_NAMESPACE.Solana:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.SolanaMainnet:
+            return ASSET_REFERENCE.Solana
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
       default:
         throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
     }

@@ -26,6 +26,7 @@ export enum KnownChainIds {
   LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
   CosmosMainnet = 'cosmos:cosmoshub-4',
   ThorchainMainnet = 'cosmos:thorchain-1',
+  SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
 }
 
 export type EvmChainId =

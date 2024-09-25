@@ -1,5 +1,4 @@
 import invertBy from 'lodash/invertBy'
-import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
 import { fromAssetId } from '../../assetId/assetId'
@@ -35,6 +34,7 @@ export enum CoingeckoAssetPlatform {
   Arbitrum = 'arbitrum-one',
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
+  Solana = 'solana',
 }
 
 type CoinGeckoId = string
@@ -57,7 +57,7 @@ export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
   generatedCoingeckoToAssetIdsMap[id]
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
-  generatedAssetIdToCoingeckoMap[toLower(assetId)]
+  generatedAssetIdToCoingeckoMap[assetId]
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
@@ -94,6 +94,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Cosmos
         case CHAIN_REFERENCE.ThorchainMainnet:
           return CoingeckoAssetPlatform.Thorchain
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
+    case CHAIN_NAMESPACE.Solana:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.SolanaMainnet:
+          return CoingeckoAssetPlatform.Solana
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,

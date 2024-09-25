@@ -240,3 +240,19 @@ export const base: AssetWithNetworkName = {
   explorerTxLink: 'https://basescan.org/tx/',
   relatedAssetKey: null,
 }
+
+export const solana: AssetWithNetworkName = {
+  assetId: caip.solAssetId,
+  chainId: caip.solanaChainId,
+  name: 'Solana',
+  networkName: 'Solana',
+  symbol: 'SOL',
+  precision: 9,
+  color: '#9971d8',
+  networkColor: '#9971d8',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/426526def2f327476e868ecb902c515ab17518af/blockchains/solana/info/logo.png',
+  explorer: 'https://explorer.solana.com',
+  explorerAddressLink: 'https://explorer.solana.com/address/',
+  explorerTxLink: 'https://explorer.solana.com/tx/',
+  relatedAssetKey: null,
+}

@@ -1,5 +1,7 @@
 import type { MigrationManifest } from 'redux-persist'
 
+import { clearAssets } from './clearAssets'
+
 export const clearTxHistoryMigrations = {
   // Uncomment me when introducing the first migration for this slice
   // 0: clearTxHistory,
@@ -21,8 +23,8 @@ export const clearNftsMigrations = {
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearAssetsMigrations = {
-  // Uncomment me when introducing the first migration for this slice
-  // 0: clearAssets,
+  // https://github.com/shapeshift/web/pull/7798
+  0: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

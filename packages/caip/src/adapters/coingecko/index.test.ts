@@ -124,7 +124,7 @@ describe('adapters:coingecko', () => {
       expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnCosmos, atomOnBsc])
     })
 
-    it('can get AssetIds for USD Coin on EVM Chains', () => {
+    it('can get AssetIds for USD Coin on Solana and EVM chains using coingecko', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm
       const assetNamespace = 'erc20'
       const usdcOnEthereum = toAssetId({
@@ -163,6 +163,12 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
       })
+      const usdcOnSolana = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Solana,
+        chainReference: CHAIN_REFERENCE.SolanaMainnet,
+        assetNamespace: 'spl',
+        assetReference: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -170,6 +176,7 @@ describe('adapters:coingecko', () => {
         usdcOnPolygon,
         usdcOnArbitrum,
         usdcOnBase,
+        usdcOnSolana,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

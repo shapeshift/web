@@ -222,16 +222,18 @@ const ThorchainAssets: React.FC<{
 const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children }) => {
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
+  const isSolanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Solana'))
 
   const chainIds = useMemo(() => {
     if (!supportedChainIds)
       return Object.values(KnownChainIds).filter(chainId => {
         if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
+        if (!isSolanaEnabled && chainId === KnownChainIds.SolanaMainnet) return false
         return true
       })
 
     return supportedChainIds
-  }, [isArbitrumNovaEnabled, supportedChainIds])
+  }, [isArbitrumNovaEnabled, isSolanaEnabled, supportedChainIds])
 
   return (
     <Box mb={8}>

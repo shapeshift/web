@@ -125,6 +125,7 @@ describe('opportunitiesSlice selectors', () => {
       },
       opportunities: {
         ...initialState,
+        _persist: { version: 0, rehydrated: false },
         lp,
         staking,
         userStaking,
@@ -228,6 +229,7 @@ describe('opportunitiesSlice selectors', () => {
     const mockState = {
       ...mockBaseState,
       opportunities: {
+        _persist: { version: 0, rehydrated: false },
         ...initialState,
         staking,
         userStaking,
@@ -347,6 +349,7 @@ describe('opportunitiesSlice selectors', () => {
       ...mockBaseState,
       opportunities: {
         ...initialState,
+        _persist: { version: 0, rehydrated: false },
         staking,
         userStaking,
       },

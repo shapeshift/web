@@ -127,6 +127,16 @@ export const Hop = ({
           )
         )
       case TransactionExecutionState.Pending:
+        // The hop may be pending, but it doesn't mean that it has been signed and broadcasted
+        if (!swap.sellTxHash) {
+          return (
+            tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
+              <RawText fontWeight='bold'>
+                {prettyMilliseconds(tradeQuoteStep.estimatedExecutionTimeMs)}
+              </RawText>
+            )
+          )
+        }
         return (
           tradeQuoteStep.estimatedExecutionTimeMs !== undefined && (
             <TimeRemaining initialTimeMs={tradeQuoteStep.estimatedExecutionTimeMs} />
@@ -139,7 +149,7 @@ export const Hop = ({
       default:
         return null
     }
-  }, [swap.state, tradeQuoteStep.estimatedExecutionTimeMs, onToggleIsOpen, isOpen])
+  }, [swap.state, swap.sellTxHash, tradeQuoteStep.estimatedExecutionTimeMs, onToggleIsOpen, isOpen])
 
   const activeStep = useMemo(() => {
     switch (hopExecutionState) {

@@ -182,6 +182,12 @@ export const tradeQuoteSlice = createSlice({
     ) => {
       const { hopIndex, id } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+
+      // Don't update the state if we're on a different stage of the flow
+      if (state.tradeExecution[id][key].state !== HopExecutionState.AwaitingAllowanceReset) {
+        return
+      }
+
       state.tradeExecution[id][key].state = HopExecutionState.AwaitingAllowanceApproval
     },
     // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
@@ -192,6 +198,12 @@ export const tradeQuoteSlice = createSlice({
     ) => {
       const { hopIndex, id } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+
+      // Don't update the state if we're on a different stage of the flow
+      if (state.tradeExecution[id][key].state !== HopExecutionState.AwaitingAllowanceApproval) {
+        return
+      }
+
       const permit2Required = state.tradeExecution[id][key].permit2.isRequired
       state.tradeExecution[id][key].state = permit2Required
         ? HopExecutionState.AwaitingPermit2

@@ -2,7 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { KeyManager } from 'context/WalletProvider/KeyManager'
 
-interface LocalWalletState {
+export type LocalWalletState = {
   walletType: KeyManager | null
   walletDeviceId: string | null
   nativeWalletName: string | null

@@ -13,5 +13,6 @@ import arbitrumNova from './eip155_42170/adapter.json'
 import base from './eip155_8453/adapter.json'
 import cosmos from './cosmos_cosmoshub-4/adapter.json'
 import thorchain from './cosmos_thorchain-1/adapter.json'
+import solana from './solana_5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/adapter.json'
 
-export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis, arbitrum, arbitrumNova, base }
+export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, avalanche, thorchain, optimism, bnbsmartchain, polygon, gnosis, arbitrum, arbitrumNova, base, solana }

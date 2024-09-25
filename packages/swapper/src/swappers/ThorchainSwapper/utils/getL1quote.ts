@@ -64,6 +64,15 @@ export const getL1quote = async (
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
+  if (chainNamespace === CHAIN_NAMESPACE.Solana) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Solana is not supported',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain)

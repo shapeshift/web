@@ -60,7 +60,7 @@ export const AddAccountModal = () => {
     selectMaybeNextAccountNumberByChainId(s, filter),
   )
 
-  const isSnapInstalled = Boolean(useIsSnapInstalled())
+  const { isSnapInstalled } = useIsSnapInstalled()
 
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
   const unsupportedSnapChainIds = useMemo(() => {
@@ -73,7 +73,7 @@ export const AddAccountModal = () => {
           accountNumber: nextAccountNumber,
           chainId,
           wallet,
-          isSnapInstalled,
+          isSnapInstalled: Boolean(isSnapInstalled),
         }),
     )
   }, [chainIds, isMetaMaskMultichainWallet, isSnapInstalled, nextAccountNumber, wallet])
@@ -105,7 +105,7 @@ export const AddAccountModal = () => {
         accountNumber,
         chainIds,
         wallet,
-        isSnapInstalled,
+        isSnapInstalled: Boolean(isSnapInstalled),
       })
 
       const { getAccount } = portfolioApi.endpoints

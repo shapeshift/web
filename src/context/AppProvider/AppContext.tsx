@@ -63,7 +63,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
-  const isSnapInstalled = Boolean(useIsSnapInstalled())
+  const { isSnapInstalled } = useIsSnapInstalled()
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
 
@@ -180,7 +180,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           )
             break
 
-          const input = { accountNumber, chainIds, wallet, isSnapInstalled }
+          const input = {
+            accountNumber,
+            chainIds,
+            wallet,
+            isSnapInstalled: Boolean(isSnapInstalled),
+          }
           const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)
           const accountIds = Object.keys(accountIdsAndMetadata)
 

@@ -166,6 +166,9 @@ describe('adapters:coingecko:utils', () => {
           'eip155:8453/slip44:60': 'ethereum',
           'eip155:8453/erc20:0x4200000000000000000000000000000000000006': 'weth',
         },
+        'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': {
+          'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501': 'solana',
+        },
       }
       expect(result).toEqual(expected)
     })

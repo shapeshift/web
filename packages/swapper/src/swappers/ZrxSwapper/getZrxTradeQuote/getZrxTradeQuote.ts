@@ -238,7 +238,7 @@ async function _getZrxPermit2TradeQuote(
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
   const zrxQuoteResponse = maybeZrxPriceResponse.unwrap()
 
-  const { sellAmount, buyAmount, gas, fees, permit2: quotePermit2, transaction } = zrxQuoteResponse
+  const { sellAmount, buyAmount, fees, permit2: quotePermit2, transaction } = zrxQuoteResponse
 
   const eip712 = quotePermit2?.eip712 ?? null
 
@@ -295,7 +295,7 @@ async function _getZrxPermit2TradeQuote(
       supportsEIP1559,
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
-      gasLimit: bnOrZero(gas).times(1.2).toFixed(),
+      gasLimit: bnOrZero(transaction.gas).times(1.2).toFixed(),
     })
 
     const protocolFees = (() => {

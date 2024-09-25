@@ -28,11 +28,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        p={2}
+        py={4}
+        px={4}
         width='100%'
         height='100%'
       >
-        <Flex align='center' mb={4}>
+        <Flex align='center'>
           <AssetIcon src={asset.icon} boxSize='40px' mr={3} />
           <Box textAlign='left' overflow='hidden' width='100%'>
             <Text fontWeight='bold' fontSize='lg' textOverflow='ellipsis' overflow='hidden'>
@@ -42,7 +43,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
               {asset.symbol}
             </Text>
           </Box>
-          <WatchAssetButton assetId={assetId} />
+          <WatchAssetButton assetId={assetId} alignSelf='flex-start' />
         </Flex>
         <Box textAlign='left'>
           <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />

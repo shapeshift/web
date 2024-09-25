@@ -9,23 +9,26 @@ import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { MARKETS_CATEGORIES } from '../constants'
+import type { RowProps } from '../hooks/useRows'
 
-type RowProps = {
+type MarketsRowProps = {
   title?: string
   subtitle?: string
   supportedChainIds: ChainId[] | undefined
   category?: MARKETS_CATEGORIES
-  children: (selectedChainId: ChainId | undefined) => React.ReactNode
+  showSparkline?: boolean
+  children: (props: RowProps) => React.ReactNode
 }
 
 const backIcon = <ArrowBackIcon />
 
-export const MarketsRow: React.FC<RowProps> = ({
+export const MarketsRow: React.FC<MarketsRowProps> = ({
   title,
   subtitle,
   supportedChainIds,
   children,
   category,
+  showSparkline,
 }) => {
   const params: { category?: MARKETS_CATEGORIES } = useParams()
   const history = useHistory()
@@ -44,25 +47,57 @@ export const MarketsRow: React.FC<RowProps> = ({
     return supportedChainIds
   }, [isArbitrumNovaEnabled, supportedChainIds])
 
+  const Title = useMemo(() => {
+    if (!title) return null
+
+    if (isCategoryRoute) {
+      return <Heading>{title}</Heading>
+    }
+
+    return (
+      <Heading size={'md'} mb={2}>
+        {category ? <Link to={`/markets/category/${category}`}>{title}</Link> : title}
+      </Heading>
+    )
+  }, [category, isCategoryRoute, title])
+
+  const Subtitle = useMemo(() => {
+    if (!subtitle) return null
+
+    if (isCategoryRoute) {
+      return (
+        <Text color='text.subtle' mt={2}>
+          {subtitle}
+        </Text>
+      )
+    }
+
+    return (
+      <Text fontSize='sm' color='gray.500'>
+        {subtitle}
+      </Text>
+    )
+  }, [isCategoryRoute, subtitle])
+
   return (
     <Box mb={8}>
-      <Flex justify='space-between' align='center' mb={4}>
+      <Flex
+        justify='space-between'
+        align='flex-end'
+        pb={isCategoryRoute && 6}
+        mb={isCategoryRoute ? 12 : 4}
+        borderBottomWidth={isCategoryRoute && 1}
+        borderColor={isCategoryRoute && 'border.base'}
+        gap={isCategoryRoute && 8}
+      >
         <Box me={4}>
-          <Flex direction='row'>
+          <Flex direction='row' align='center'>
             {isCategoryRoute && (
-              <IconButton variant='ghost' aria-label='back' onClick={handleBack} icon={backIcon} />
+              <IconButton aria-label='back' onClick={handleBack} icon={backIcon} mr={4} />
             )}
-            {category && title && (
-              <Heading size='md' mb={1}>
-                <Link to={`/markets/category/${category}`}>{title}</Link>
-              </Heading>
-            )}
+            {Title}
           </Flex>
-          {subtitle && (
-            <Text fontSize='sm' color='gray.500'>
-              {subtitle}
-            </Text>
-          )}
+          {Subtitle}
         </Box>
         <ChainDropdown
           chainIds={chainIds}
@@ -72,7 +107,7 @@ export const MarketsRow: React.FC<RowProps> = ({
           includeBalance
         />
       </Flex>
-      {children(selectedChainId)}
+      {children({ selectedChainId, showSparkline })}
     </Box>
   )
 }

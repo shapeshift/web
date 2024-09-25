@@ -1,8 +1,7 @@
-import { Grid, GridItem, Skeleton } from '@chakra-ui/react'
+import { Grid } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
-import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router'
@@ -13,14 +12,11 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { useAppDispatch } from 'state/store'
 
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
-import { AssetCard } from './AssetCard'
+import { LoadingGrid } from './LoadingGrid'
 import { LpGridItem } from './LpCard'
 
-const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(9, 1fr)' }
+const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(20, 1fr)' }
 const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
-
-const colSpanSparklineSx = { base: 1, md: 3 }
-const colSpanSx = { base: 1, md: 2 }
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
@@ -46,23 +42,11 @@ export const LpGrid: React.FC<{
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, limit - 1),
+      ).slice(0, limit),
     [assetIds, limit, selectedChainId],
   )
 
-  if (isLoading) {
-    return (
-      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
-        {new Array(8).fill(null).map((_, index) => (
-          <GridItem colSpan={index === 0 ? colSpanSparklineSx : colSpanSx}>
-            <Skeleton isLoaded={false}>
-              <AssetCard onClick={noop} assetId={ethAssetId} />
-            </Skeleton>
-          </GridItem>
-        ))}
-      </Grid>
-    )
-  }
+  if (isLoading) return <LoadingGrid />
 
   if (!filteredAssetIds.length)
     return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
@@ -75,6 +59,7 @@ export const LpGrid: React.FC<{
 
         return (
           <LpGridItem
+            key={assetId}
             assetId={assetId}
             index={index}
             onClick={handleCardClick}

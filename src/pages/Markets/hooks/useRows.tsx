@@ -14,6 +14,11 @@ import {
 } from '../hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 
+export type RowProps = {
+  selectedChainId: ChainId | undefined
+  showSparkline?: boolean
+}
+
 export const useRows = ({ limit }: { limit: number }) => {
   const translate = useTranslate()
 
@@ -38,7 +43,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       category: MARKETS_CATEGORIES
       title: string
       subtitle?: string
-      component: (selectedChainId: ChainId | undefined) => JSX.Element
+      component: (props: RowProps) => JSX.Element
       supportedChainIds?: ChainId[] | undefined
     }
   > = useMemo(
@@ -47,12 +52,13 @@ export const useRows = ({ limit }: { limit: number }) => {
         category: MARKETS_CATEGORIES.TRADING_VOLUME,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.subtitle`),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={highestVolumeData?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isHighestVolumeDataLoading}
             limit={limit}
+            showSparkline={showSparkline}
           />
         ),
       },
@@ -60,12 +66,13 @@ export const useRows = ({ limit }: { limit: number }) => {
         category: MARKETS_CATEGORIES.MARKET_CAP,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.subtitle`),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={marketCapData?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isMarketCapDataLoading}
             limit={limit}
+            showSparkline={showSparkline}
           />
         ),
       },
@@ -75,44 +82,46 @@ export const useRows = ({ limit }: { limit: number }) => {
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`, {
           percentage: '10',
         }),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={trendingData?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isTrendingDataLoading}
             limit={limit}
+            showSparkline={showSparkline}
           />
         ),
       },
       [MARKETS_CATEGORIES.TOP_MOVERS]: {
         category: MARKETS_CATEGORIES.TOP_MOVERS,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TOP_MOVERS}.title`),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={topMoversData?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isTopMoversDataLoading}
             limit={limit}
+            showSparkline={showSparkline}
           />
         ),
       },
       [MARKETS_CATEGORIES.RECENTLY_ADDED]: {
         category: MARKETS_CATEGORIES.RECENTLY_ADDED,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
-        // TODO(gomes): loading state when implemented
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={recentlyAddedData?.ids ?? []}
             selectedChainId={selectedChainId}
             isLoading={isRecentlyAddedDataLoading}
             limit={limit}
+            showSparkline={showSparkline}
           />
         ),
       },
       [MARKETS_CATEGORIES.ONE_CLICK_DEFI]: {
         category: MARKETS_CATEGORIES.ONE_CLICK_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.title`),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId }: RowProps) => (
           <OneClickDefiAssets selectedChainId={selectedChainId} limit={limit} />
         ),
         supportedChainIds: allPortalsAssets?.chainIds,
@@ -120,7 +129,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.THORCHAIN_DEFI]: {
         category: MARKETS_CATEGORIES.THORCHAIN_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.title`),
-        component: (selectedChainId: ChainId | undefined) => (
+        component: ({ selectedChainId }: RowProps) => (
           <ThorchainAssets selectedChainId={selectedChainId} limit={limit} />
         ),
         supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,

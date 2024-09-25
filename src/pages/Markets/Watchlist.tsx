@@ -1,5 +1,4 @@
 import { Box } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
@@ -9,6 +8,7 @@ import { useAppSelector } from 'state/store'
 
 import { AssetsGrid } from './components/AssetsGrid'
 import { MarketsRow } from './components/MarketsRow'
+import type { RowProps } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
 
 const containerPaddingX = { base: 4, xl: 0 }
@@ -20,20 +20,25 @@ export const WatchList: React.FC = () => {
   const watchedAssetIds = useAppSelector(selectWatchedAssetIds)
 
   const component = useCallback(
-    (selectedChainId: ChainId | undefined) => (
+    ({ selectedChainId, showSparkline }: RowProps) => (
       <AssetsGrid
         assetIds={watchedAssetIds}
         selectedChainId={selectedChainId}
         isLoading={false}
         limit={undefined}
+        showSparkline={showSparkline}
       />
     ),
     [watchedAssetIds],
   )
 
   const body = useMemo(
-    () => <MarketsRow supportedChainIds={undefined}>{component}</MarketsRow>,
-    [component],
+    () => (
+      <MarketsRow title={translate('markets.watchlist')} supportedChainIds={undefined}>
+        {component}
+      </MarketsRow>
+    ),
+    [component, translate],
   )
 
   return (

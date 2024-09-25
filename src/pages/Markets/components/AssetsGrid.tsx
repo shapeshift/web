@@ -1,22 +1,22 @@
-import { Grid, GridItem, Skeleton } from '@chakra-ui/react'
+import { Grid, GridItem } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
-import noop from 'lodash/noop'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 
+import {
+  colSpanSmallSx,
+  colSpanSparklineSx,
+  colSpanSx,
+  gridTemplateColumnSx,
+  gridTemplateRowsSx,
+  rowSpanSparklineSx,
+} from '../constants'
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
-
-const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(9, 1fr)' }
-const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
-
-const colSpanSparklineSx = { base: 1, md: 3 }
-const colSpanSx = { base: 1, md: 2 }
-
-const rowSpanSparklineSx = { base: 1, md: 2 }
+import { LoadingGrid } from './LoadingGrid'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
@@ -25,15 +25,17 @@ export const AssetsGrid: React.FC<{
   selectedChainId?: ChainId
   isLoading: boolean
   limit: number | undefined
-}> = ({ assetIds, selectedChainId, limit, isLoading }) => {
+  showSparkline?: boolean
+}> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline }) => {
   const history = useHistory()
+
   const filteredAssetIds = useMemo(
     () =>
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, limit && limit - 1),
-    [assetIds, limit, selectedChainId],
+      ).slice(0, limit && showSparkline ? limit - 1 : limit),
+    [assetIds, limit, selectedChainId, showSparkline],
   )
 
   const handleCardClick = useCallback(
@@ -43,18 +45,7 @@ export const AssetsGrid: React.FC<{
     [history],
   )
 
-  if (isLoading)
-    return (
-      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
-        {new Array(8).fill(null).map((_, index) => (
-          <GridItem colSpan={index === 0 ? colSpanSparklineSx : colSpanSx}>
-            <Skeleton isLoaded={false}>
-              <AssetCard onClick={noop} assetId={ethAssetId} />
-            </Skeleton>
-          </GridItem>
-        ))}
-      </Grid>
-    )
+  if (isLoading) return <LoadingGrid showSparkline={showSparkline} />
 
   if (!filteredAssetIds.length)
     return (
@@ -75,17 +66,25 @@ export const AssetsGrid: React.FC<{
 
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
-      {filteredAssetIds.map((assetId, index) =>
-        index === 0 ? (
-          <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-            <CardWithSparkline key={assetId} assetId={assetId} onClick={handleCardClick} />
+      {filteredAssetIds.map((assetId, index) => {
+        if (showSparkline) {
+          return index === 0 ? (
+            <GridItem key={assetId} rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
+              <CardWithSparkline assetId={assetId} onClick={handleCardClick} />
+            </GridItem>
+          ) : (
+            <GridItem key={assetId} colSpan={index <= 6 ? colSpanSmallSx : colSpanSx}>
+              <AssetCard assetId={assetId} onClick={handleCardClick} />
+            </GridItem>
+          )
+        }
+
+        return (
+          <GridItem key={assetId} colSpan={colSpanSx}>
+            <AssetCard assetId={assetId} onClick={handleCardClick} />
           </GridItem>
-        ) : (
-          <GridItem colSpan={colSpanSx}>
-            <AssetCard key={assetId} assetId={assetId} onClick={handleCardClick} />
-          </GridItem>
-        ),
-      )}
+        )
+      })}
     </Grid>
   )
 }

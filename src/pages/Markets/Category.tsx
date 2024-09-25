@@ -15,7 +15,7 @@ const containerPaddingX = { base: 4, xl: 0 }
 const ASSETS_LIMIT = 100
 
 export const Category: React.FC = () => {
-  const params: { category: MARKETS_CATEGORIES } = useParams()
+  const params = useParams<{ category: MARKETS_CATEGORIES }>()
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 

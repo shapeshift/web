@@ -27,6 +27,7 @@ export const Recommended: React.FC = () => {
           subtitle={row.subtitle}
           supportedChainIds={row.supportedChainIds}
           category={row.category}
+          showSparkline={i === 0}
         >
           {row.component}
         </MarketsRow>

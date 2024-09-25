@@ -22,11 +22,7 @@ import {
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { CardWithSparkline } from './CardWithSparkline'
-
-const rowSpanSparklineSx = { base: 1, md: 2 }
-const colSpanSparklineSx = { base: 1, md: 3 }
-const colSpanSx = { base: 1, md: 2 }
+import { colSpanSx } from '../constants'
 
 type LpCardProps = {
   assetId: AssetId
@@ -141,17 +137,9 @@ export const LpGridItem = ({
       .times(100)
       .toString()
 
-  if (index === 0) {
-    return (
-      <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-        <CardWithSparkline assetId={assetId} onClick={onClick} />
-      </GridItem>
-    )
-  } else {
-    return (
-      <GridItem colSpan={colSpanSx}>
-        <LpCard assetId={assetId} apy={apy ?? '0'} volume24H={volume24H ?? '0'} onClick={onClick} />
-      </GridItem>
-    )
-  }
+  return (
+    <GridItem key={index} colSpan={colSpanSx}>
+      <LpCard assetId={assetId} apy={apy ?? '0'} volume24H={volume24H ?? '0'} onClick={onClick} />
+    </GridItem>
+  )
 }

@@ -1,3 +1,4 @@
+import type { IconButtonProps } from '@chakra-ui/react'
 import { IconButton } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
@@ -9,11 +10,11 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 const starEmpty = <FaRegStar />
 const starFilled = <FaStar />
 
-type WatchAssetButtonProps = {
+type WatchAssetButtonProps = Partial<IconButtonProps> & {
   assetId: AssetId
 }
 
-export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) => {
+export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...props }) => {
   const appDispatch = useAppDispatch()
   const isAssetIdWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
   const handleToggleWatchAsset: React.MouseEventHandler<HTMLButtonElement> = useCallback(
@@ -27,10 +28,11 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId }) =
     <IconButton
       onClick={handleToggleWatchAsset}
       icon={isAssetIdWatched ? starFilled : starEmpty}
-      aria-label='favorite asset'
       isRound
-      variant='ghost'
-      fontSize='2xl'
+      size='sm'
+      ml={2}
+      aria-label='favorite asset'
+      {...props}
     />
   )
 }

@@ -5,7 +5,6 @@ import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
-import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from 'lib/utils'
@@ -213,22 +212,17 @@ export const txHistoryApi = createApi({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
         await Promise.all(
-          accountIds.map(async accountId => {
-            // DO NOT MOVE ME OUTSIDE OF THIS SCOPE
-            // This is a queue, and having a shared queue across AccountIds means a failure in one AccountId may be caught in another,
-            // meaning a happy account may be detected as errored, while the actual errored one won't.
-            const requestQueue = new PQueue({ concurrency: 2 })
+          accountIds.map(accountId => {
             const { chainId, account: pubkey } = fromAccountId(accountId)
             const adapter = getChainAdapterManager().get(chainId)
 
             if (!adapter) {
-              const data = `getAllTxHistory: no adapter available for chainId ${chainId}`
-              return { error: { data, status: 400 } }
+              throw new Error(`getAllTxHistory: no adapter available for chainId ${chainId}`)
             }
 
-            const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
-              for await (const getTxHistory of getTxHistoryFns) {
-                try {
+            const fetch = (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) =>
+              Promise.allSettled(
+                getTxHistoryFns.map(async getTxHistory => {
                   let currentCursor = ''
 
                   do {
@@ -239,7 +233,6 @@ export const txHistoryApi = createApi({
                       cursor: requestCursor,
                       pubkey,
                       pageSize,
-                      requestQueue,
                     })
 
                     const state = getState() as State
@@ -278,23 +271,26 @@ export const txHistoryApi = createApi({
                   // Mark this account as hydrated so downstream can determine the difference between an
                   // account starting part-way thru a time period and "still hydrating".
                   dispatch(txHistory.actions.setAccountIdHydrated(accountId))
-                } catch (err) {
-                  console.trace()
-                  console.error(err)
-                  dispatch(txHistory.actions.setAccountIdErrored(accountId))
-                }
-              }
-            }
+                }),
+              )
 
             if (chainId === thorchainChainId) {
               // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
-              await fetch([
+              return fetch([
                 adapter.getTxHistory.bind(adapter),
                 (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),
               ])
             } else {
-              await fetch([adapter.getTxHistory.bind(adapter)])
+              return fetch([adapter.getTxHistory])
             }
+          }),
+        ).map((accountIdResults, i) =>
+          accountIdResults.map(({ status }) => {
+            if (status === 'rejected') {
+              debugger
+              dispatch(txHistory.actions.setAccountIdErrored(accountIds[i]))
+            }
+            return null
           }),
         )
 

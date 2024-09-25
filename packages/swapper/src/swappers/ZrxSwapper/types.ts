@@ -104,7 +104,7 @@ export type ZrxPermit2PriceResponse = {
   zid: string
 }
 
-export type ZrxPermit2QuoteResponse = ZrxPermit2PriceResponse & {
+export type ZrxPermit2QuoteResponse = Omit<ZrxPermit2PriceResponse, 'gas' | 'gasPrice'> & {
   permit2: {
     type: 'Permit2'
     hash: string

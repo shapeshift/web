@@ -28,12 +28,6 @@ export const useCountdown = (
     })
   }, [onCompleted])
 
-  useEffect(() => {
-    return () => {
-      if (id.current) clearInterval(id.current)
-    }
-  }, [handleDecrement])
-
   const start = useCallback((): void => {
     if (id.current) return
     id.current = setInterval(handleDecrement, 1000)

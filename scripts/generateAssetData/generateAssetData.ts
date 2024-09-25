@@ -86,7 +86,6 @@ const generateAssetData = async () => {
     [KnownChainIds.ArbitrumMainnet]: arbitrumAssets.map(asset => asset.name),
     [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNovaAssets.map(asset => asset.name),
     [KnownChainIds.BaseMainnet]: baseAssets.map(asset => asset.name),
-    [KnownChainIds.SolanaMainnet]: solanaAssets.map(asset => asset.name),
   }
 
   const isNotUniqueAsset = (asset: Asset) => {
@@ -171,11 +170,6 @@ const generateAssetData = async () => {
     // mark any base assets that also exist on other evm chains
     if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Base`
-    }
-
-    // mark any solana assets that also exist on solana
-    if (chainId === KnownChainIds.SolanaMainnet && isNotUniqueAsset(asset)) {
-      asset.name = `${asset.name} on Solana`
     }
 
     acc[asset.assetId] = asset

@@ -19,6 +19,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
+import uniq from 'lodash/uniq'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
@@ -48,7 +49,7 @@ const usdtEthereumAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a22062069
 // The minimum amount to be sent both for deposit and withdraws
 // else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
-  [btcAssetId]: '30000',
+  [btcAssetId]: '10000',
   [bchAssetId]: '10000',
   [ltcAssetId]: '10000',
   [dogeAssetId]: '100000000',
@@ -78,8 +79,8 @@ const SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS = [
   thorchainAssetId,
 ]
 
-const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(
-  assetId => fromAssetId(assetId).chainId,
+export const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = uniq(
+  SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(assetId => fromAssetId(assetId).chainId),
 )
 
 export const getAllThorchainSaversPositions = async (

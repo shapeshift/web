@@ -2,19 +2,30 @@ import { Box, Flex, Grid, GridItem, Heading, Skeleton, Text } from '@chakra-ui/r
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { useQuery } from '@tanstack/react-query'
 import noop from 'lodash/noop'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
-import { selectAssetIds, selectFeatureFlag } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
+import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
+import { selectFeatureFlag } from 'state/slices/selectors'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AssetCard } from './components/AssetCard'
 import { CardWithSparkline } from './components/CardWithSparkline'
-import { LpCard } from './components/LpCard'
+import { LpGridItem } from './components/LpCard'
+import {
+  useMarketsQuery,
+  useRecentlyAddedQuery,
+  useTopMoversQuery,
+  useTrendingQuery,
+} from './hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from './hooks/usePortalsAssetsQuery'
 import { MarketsHeader } from './MarketsHeader'
 
@@ -46,9 +57,7 @@ const AssetsGrid: React.FC<{
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      )
-        // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 7),
+      ).slice(0, 7),
     [assetIds, selectedChainId],
   )
 
@@ -110,9 +119,7 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
       (selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      )
-        // TODO(gomes): remove me when we have real data here for all categories
-        .slice(0, 7),
+      ).slice(0, 7),
     [assetIds, selectedChainId],
   )
 
@@ -133,27 +140,18 @@ const LpGrid: React.FC<{ assetIds: AssetId[]; selectedChainId?: ChainId; isLoadi
   return (
     <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
       {filteredAssetIds.map((assetId, index) => {
-        const apy = portalsAssets?.byId[assetId]?.metrics.apy
-        const volume24H = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
+        const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
+        const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 
-        if (index === 0) {
-          return (
-            <GridItem rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-              <CardWithSparkline assetId={assetId} onClick={handleCardClick} />
-            </GridItem>
-          )
-        } else {
-          return (
-            <GridItem colSpan={colSpanSx}>
-              <LpCard
-                assetId={assetId}
-                apy={apy ?? '0'}
-                volume24H={volume24H ?? '0'}
-                onClick={handleCardClick}
-              />
-            </GridItem>
-          )
-        }
+        return (
+          <LpGridItem
+            assetId={assetId}
+            index={index}
+            onClick={handleCardClick}
+            apy={maybePortalsApy}
+            volume={maybePortalsVolume}
+          />
+        )
       })}
     </Grid>
   )
@@ -171,6 +169,52 @@ const OneClickDefiAssets: React.FC<{
       assetIds={portalsAssets?.ids ?? []}
       selectedChainId={selectedChainId}
       isLoading={isPortalsAssetsLoading}
+    />
+  )
+}
+
+const ThorchainAssets: React.FC<{
+  selectedChainId: ChainId | undefined
+}> = ({ selectedChainId }) => {
+  const dispatch = useAppDispatch()
+  const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
+    queryKey: ['thorchainAssets'],
+    queryFn: thorchainSaversOpportunityIdsResolver,
+    staleTime: Infinity,
+    select: pools => pools.data,
+  })
+
+  useEffect(() => {
+    ;(async () => {
+      await dispatch(
+        opportunitiesApi.endpoints.getOpportunityIds.initiate(
+          {
+            defiType: DefiType.Staking,
+            defiProvider: DefiProvider.ThorchainSavers,
+          },
+          { forceRefetch: true },
+        ),
+      )
+
+      await dispatch(
+        opportunitiesApi.endpoints.getOpportunitiesMetadata.initiate(
+          [
+            {
+              defiType: DefiType.Staking,
+              defiProvider: DefiProvider.ThorchainSavers,
+            },
+          ],
+          { forceRefetch: true },
+        ),
+      )
+    })()
+  }, [dispatch])
+
+  return (
+    <LpGrid
+      assetIds={thorchainAssetIdsData ?? []}
+      selectedChainId={selectedChainId}
+      isLoading={isThorchainAssetIdsDataLoading}
     />
   )
 }
@@ -220,23 +264,43 @@ const Row: React.FC<RowProps> = ({ title, subtitle, supportedChainIds, children 
 export const Recommended: React.FC = () => {
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
-  const assetIds = useAppSelector(selectAssetIds)
 
   // Fetch for all chains here so we know which chains to show in the dropdown
-  const { isLoading: isPortalsAssetsLoading, data: allPortalsAssets } = usePortalsAssetsQuery({
+  const { data: allPortalsAssets } = usePortalsAssetsQuery({
     chainIds: undefined,
+  })
+
+  const { data: topMoversData, isLoading: isTopMoversDataLoading } = useTopMoversQuery()
+  const { data: trendingData, isLoading: isTrendingDataLoading } = useTrendingQuery()
+  const { data: recentlyAddedData, isLoading: isRecentlyAddedDataLoading } = useRecentlyAddedQuery()
+  const { data: highestVolumeData, isLoading: isHighestVolumeDataLoading } = useMarketsQuery({
+    orderBy: 'volume_desc',
+  })
+  const { data: marketCapData, isLoading: isMarketCapDataLoading } = useMarketsQuery({
+    orderBy: 'market_cap_desc',
   })
 
   const rows = useMemo(
     () => [
       {
-        title: 'Most Popular',
+        title: translate('markets.categories.tradingVolume.title'),
+        subtitle: translate('markets.categories.tradingVolume.subtitle'),
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={highestVolumeData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isHighestVolumeDataLoading}
+          />
+        ),
+      },
+      {
+        title: translate('markets.categories.marketCap.title'),
+        subtitle: translate('markets.categories.marketCap.subtitle'),
+        component: (selectedChainId: ChainId | undefined) => (
+          <AssetsGrid
+            assetIds={marketCapData?.ids ?? []}
+            selectedChainId={selectedChainId}
+            isLoading={isMarketCapDataLoading}
           />
         ),
       },
@@ -245,21 +309,19 @@ export const Recommended: React.FC = () => {
         subtitle: translate('markets.categories.trending.subtitle', { percentage: '10' }),
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={trendingData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isTrendingDataLoading}
           />
         ),
       },
       {
-        title: translate('markets.categories.topMovements.title'),
+        title: translate('markets.categories.topMovers.title'),
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={topMoversData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isTopMoversDataLoading}
           />
         ),
       },
@@ -268,10 +330,9 @@ export const Recommended: React.FC = () => {
         // TODO(gomes): loading state when implemented
         component: (selectedChainId: ChainId | undefined) => (
           <AssetsGrid
-            assetIds={assetIds}
+            assetIds={recentlyAddedData?.ids ?? []}
             selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
+            isLoading={isRecentlyAddedDataLoading}
           />
         ),
       },
@@ -285,16 +346,25 @@ export const Recommended: React.FC = () => {
       {
         title: translate('markets.categories.thorchainDefi.title'),
         component: (selectedChainId: ChainId | undefined) => (
-          <LpGrid
-            assetIds={assetIds}
-            selectedChainId={selectedChainId}
-            // TODO(gomes): loading state when implemented
-            isLoading={isPortalsAssetsLoading}
-          />
+          <ThorchainAssets selectedChainId={selectedChainId} />
         ),
+        supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     ],
-    [allPortalsAssets?.chainIds, assetIds, isPortalsAssetsLoading, translate],
+    [
+      allPortalsAssets?.chainIds,
+      highestVolumeData?.ids,
+      isHighestVolumeDataLoading,
+      isMarketCapDataLoading,
+      isRecentlyAddedDataLoading,
+      isTopMoversDataLoading,
+      isTrendingDataLoading,
+      marketCapData?.ids,
+      recentlyAddedData?.ids,
+      topMoversData?.ids,
+      translate,
+      trendingData?.ids,
+    ],
   )
 
   return (

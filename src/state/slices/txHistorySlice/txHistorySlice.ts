@@ -212,10 +212,12 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
-        const requestQueue = new PQueue({ concurrency: 2 })
-
         await Promise.all(
           accountIds.map(async accountId => {
+            // DO NOT MOVE ME OUTSIDE OF THIS SCOPE
+            // This is a queue, and having a shared queue across AccountIds means a failure in one AccountId may be caught in another,
+            // meaning a happy account may be detected as errored, while the actual errored one won't.
+            const requestQueue = new PQueue({ concurrency: 2 })
             const { chainId, account: pubkey } = fromAccountId(accountId)
             const adapter = getChainAdapterManager().get(chainId)
 
@@ -277,6 +279,7 @@ export const txHistoryApi = createApi({
                   // account starting part-way thru a time period and "still hydrating".
                   dispatch(txHistory.actions.setAccountIdHydrated(accountId))
                 } catch (err) {
+                  console.trace()
                   console.error(err)
                   dispatch(txHistory.actions.setAccountIdErrored(accountId))
                 }

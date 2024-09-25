@@ -133,16 +133,8 @@ export const createStore = () =>
     },
     middleware: getDefaultMiddleware =>
       getDefaultMiddleware({
-        immutableCheck: {
-          warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
-        },
-        serializableCheck: {
-          ignoreState: true,
-          ignoreActions: true,
-          warnAfter: 128,
-          ignoredActions: [PERSIST, PURGE],
-        },
+        immutableCheck: false,
+        serializableCheck: false,
         thunk: {
           extraArgument: { subscribe: subscriptionMiddleware.subscribe },
         },

@@ -1,12 +1,10 @@
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import { adapters, ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import type { CoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
 import axios from 'axios'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
-import {
-  COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID,
-  COINGECKO_PLATFORM_ID_TO_CHAIN_ID,
-} from './constants'
+import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
 import type {
   CoingeckoAsset,
   CoingeckoAssetDetails,
@@ -44,7 +42,9 @@ const getCoinDetails = async (
       if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
         return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
 
-      const chainId = COINGECKO_PLATFORM_ID_TO_CHAIN_ID[asset_platform_id]
+      const chainId = adapters.coingeckoAssetPlatformToChainId(
+        asset_platform_id as CoingeckoAssetPlatform,
+      )
       if (!chainId) return
 
       const assetId = toAssetId({

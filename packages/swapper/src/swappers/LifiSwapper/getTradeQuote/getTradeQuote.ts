@@ -92,7 +92,7 @@ export async function getTradeQuote(
       // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
-      bridges: { deny: ['stargate', 'amarok', 'arbitrum'] },
+      bridges: { deny: ['stargate', 'stargateV2', 'amarok', 'arbitrum'] },
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined

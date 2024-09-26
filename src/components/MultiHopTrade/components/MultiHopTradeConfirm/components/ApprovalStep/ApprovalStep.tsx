@@ -108,7 +108,6 @@ export const ApprovalStep = ({
   ])
 
   const content = useMemo(() => {
-    console.log({ hopExecutionState })
     const inner = (() => {
       switch (hopExecutionState) {
         case HopExecutionState.Pending:

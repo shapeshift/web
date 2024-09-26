@@ -890,7 +890,7 @@
       "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
       "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
       "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote",
-      "priceImpactDifference": "The estimated difference between the USD values of input and output amounts.",
+      "inputOutputDifference": "The estimated difference between the USD values of input and output amounts.",
       "gasFee": "This is the estimated gas fee to complete this trade.",
       "slippageWithAmount": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive.",
       "slippage": "Your transaction will revert if the price changes unfavorably by more than this percentage.",

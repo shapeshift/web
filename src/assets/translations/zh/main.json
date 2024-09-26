@@ -882,7 +882,7 @@
       "manualReceiveAddress": "这是你接收资金的地址。已手动输入，请确保正确。",
       "amountPercentageDifference": "这是你将收到的 %{buyAssetSymbol} 总数与最佳报价相比的百分比差异",
       "overallPercentageDifference": "这是扣除所有费用后收到的总数与最佳报价相比的百分比差异",
-      "priceImpactDifference": "输入和输出金额的美元价值之间的估计差异。",
+      "inputOutputDifference": "输入和输出金额的美元价值之间的估计差异。",
       "gasFee": "这是完成这笔交易的估计手续费。",
       "slippageWithAmount": "如果价格变动导致你收到的金额少于 %{amount}，你的交易将被还原。这是保证你收到的最低金额。",
       "slippage": "如果价格不利变化超过此百分比，你的交易将恢复。",

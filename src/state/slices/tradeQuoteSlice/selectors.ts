@@ -118,6 +118,13 @@ const selectIsSwapperQuoteAvailable = createSelector(
   },
 )
 
+export const selectIsAnySwapperQuoteAvailable = createSelector(
+  selectIsSwapperQuoteAvailable,
+  isSwapperQuoteAvailable => {
+    return Object.values(isSwapperQuoteAvailable).some(identity)
+  },
+)
+
 // Returns the top-level errors related to the request for a trade quote. Not related to individual
 // quote responses.
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
@@ -725,6 +732,18 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
 export const selectIsAnyTradeQuoteLoaded = createSelector(
   selectIsSwapperQuoteAvailable,
   selectHasUserEnteredAmount,
-  (isSwapperQuoteAvailable, hasUserEnteredAmount) =>
-    !hasUserEnteredAmount || Object.values(isSwapperQuoteAvailable).some(identity),
+  selectIsAnyTradeQuoteLoading,
+  (isSwapperQuoteAvailable, hasUserEnteredAmount, isAnyTradeQuoteLoading) => {
+    if (!hasUserEnteredAmount) {
+      return true
+    }
+
+    // If we're still loading, return true if there is any quote available
+    if (isAnyTradeQuoteLoading) {
+      return Object.values(isSwapperQuoteAvailable).some(identity)
+    }
+
+    // Otherwise, an empty result should default to true to allow the app to stop loading state.
+    return true
+  },
 )

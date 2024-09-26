@@ -13,15 +13,7 @@ import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import { zapper, zapperApi } from './apis/zapper/zapperApi'
-import {
-  clearAssetsMigrations,
-  clearMarketDataMigrations,
-  clearNftsMigrations,
-  clearOpportunitiesMigrations,
-  clearPortfolioMigrations,
-  clearSnapshotMigrations,
-  clearTxHistoryMigrations,
-} from './migrations'
+import { clearAssetsMigrations } from './migrations'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
@@ -62,49 +54,62 @@ const preferencesPersistConfig = {
 const txHistoryPersistConfig = {
   key: 'txHistory',
   storage: localforage,
-  version: Math.max(...Object.keys(clearTxHistoryMigrations).map(Number)),
-  migrate: createMigrate(clearTxHistoryMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearTxHistoryMigrations).map(Number)),
+  // migrate: createMigrate(clearTxHistoryMigrations, { debug: false }),
 }
 
 const portfolioPersistConfig = {
   key: 'portfolio',
   storage: localforage,
-  version: Math.max(...Object.keys(clearPortfolioMigrations).map(Number)),
-  migrate: createMigrate(clearPortfolioMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearPortfolioMigrations).map(Number)),
+  // migrate: createMigrate(clearPortfolioMigrations, { debug: false }),
 }
 
 const opportunitiesPersistConfig = {
   key: 'opportunities',
   storage: localforage,
-  version: Math.max(...Object.keys(clearOpportunitiesMigrations).map(Number)),
-  migrate: createMigrate(clearOpportunitiesMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearOpportunitiesMigrations).map(Number)),
+  // migrate: createMigrate(clearOpportunitiesMigrations, { debug: false }),
 }
 
 const nftPersistConfig = {
   key: 'nft',
   storage: localforage,
-  version: Math.max(...Object.keys(clearNftsMigrations).map(Number)),
-  migrate: createMigrate(clearNftsMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearNftsMigrations).map(Number)),
+  // migrate: createMigrate(clearNftsMigrations, { debug: false }),
 }
 
 const snapshotPersistConfig = {
   key: 'snapshot',
   storage: localforage,
-  version: Math.max(...Object.keys(clearSnapshotMigrations).map(Number)),
-  migrate: createMigrate(clearSnapshotMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearSnapshotMigrations).map(Number)),
+  // migrate: createMigrate(clearSnapshotMigrations, { debug: false }),
 }
 
 const localWalletSlicePersistConfig = {
   key: 'localWalletSlice',
   storage: localforage,
+  version: 0,
   // no migrations for localWalletSlice yet - stay tuned!
 }
 
 const marketDataPersistConfig = {
   key: 'marketData',
   storage: localforage,
-  version: Math.max(...Object.keys(clearMarketDataMigrations).map(Number)),
-  migrate: createMigrate(clearMarketDataMigrations, { debug: false }),
+  version: 0,
+  // Uncomment me when introducing the first migration for this slice
+  // version: Math.max(...Object.keys(clearMarketDataMigrations).map(Number)),
+  // migrate: createMigrate(clearMarketDataMigrations, { debug: false }),
 }
 
 const assetsPersistConfig = {

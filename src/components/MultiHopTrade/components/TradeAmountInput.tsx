@@ -101,7 +101,6 @@ export type TradeAmountInputProps = {
   cryptoAmount: string
   fiatAmount: string
   showFiatAmount?: boolean
-  priceImpactPercentage?: string
   balance?: string
   fiatBalance?: string
   errors?: FieldError
@@ -119,6 +118,7 @@ export type TradeAmountInputProps = {
   isAccountSelectionHidden?: boolean
   isFiat?: boolean
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
+  inputOutputDifferenceDecimalPercentage?: string
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -150,7 +150,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     showFiatAmount = '0',
     balance,
     fiatBalance,
-    priceImpactPercentage,
     errors,
     percentOptions = defaultPercentOptions,
     children,
@@ -164,6 +163,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     layout = 'stacked',
     isFiat,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
+    inputOutputDifferenceDecimalPercentage: inputOutputDifferencePercentage,
   }) => {
     const {
       number: { localeParts },
@@ -314,7 +314,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
-    const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
+    const priceImpactColor = usePriceImpactColor(
+      bnOrZero(inputOutputDifferencePercentage).times(100).toString(),
+    )
 
     return (
       <FormControl
@@ -399,8 +401,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
-                {priceImpactPercentage && (
-                  <Tooltip label={translate('trade.tooltip.priceImpactDifference')}>
+                {inputOutputDifferencePercentage && (
+                  <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
                         <Amount.Percent
@@ -408,7 +410,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                           prefix='('
                           suffix=')'
                           color={priceImpactColor ?? 'text.subtle'}
-                          value={bnOrZero(priceImpactPercentage).div(100).times(-1).toString()}
+                          value={bnOrZero(inputOutputDifferencePercentage).times(-1).toString()}
                         />
                       </Skeleton>
                     </Flex>

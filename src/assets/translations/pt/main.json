@@ -883,7 +883,7 @@
       "manualReceiveAddress": "Este é o endereço para o qual você receberá seus fundos. Foi inserido manualmente, verifique se está correto.",
       "amountPercentageDifference": "Esta é a diferença percentual no valor total de %{buyAssetSymbol} que você receberá, em comparação com a melhor cotação",
       "overallPercentageDifference": "Esta é a diferença percentual no valor total recebido após a dedução de todas as taxas, em comparação com a melhor cotação",
-      "priceImpactDifference": "A diferença estimada entre os valores em USD dos valores de entrada e saída.",
+      "inputOutputDifference": "A diferença estimada entre os valores em USD dos valores de entrada e saída.",
       "gasFee": "Esta é a taxa de gás estimada para concluir esta negociação.",
       "slippageWithAmount": "Se o preço mudar de forma que você receba menos de %{amount}, sua transação será revertida. Este é o valor mínimo que você tem garantia de receber.",
       "slippage": "A sua transação será revertida se o preço mudar desfavoravelmente em mais do que esta percentagem.",

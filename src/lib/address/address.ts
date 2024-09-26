@@ -252,6 +252,8 @@ type ValidateAddressReturn = boolean
 export type ValidateAddressByChainId = (args: ValidateAddressArgs) => Promise<ValidateAddressReturn>
 
 export const validateAddress: ValidateAddressByChainId = async ({ chainId, maybeAddress }) => {
+  // Invalidate taproot addresses for BTC
+  if (chainId === btcChainId && maybeAddress.startsWith('bc1p')) return false
   try {
     const adapter = getChainAdapterManager().get(chainId)
     if (!adapter) return false

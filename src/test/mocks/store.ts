@@ -119,6 +119,7 @@ export const mockStore: ReduxState = {
       RunePool: false,
       Portals: false,
       Markets: false,
+      PhantomWallet: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

@@ -3,6 +3,7 @@ export enum KeyManager {
   Native = 'native',
   KeepKey = 'keepkey',
   MetaMask = 'metamask',
+  Phantom = 'phantom',
   Demo = 'demo',
   XDefi = 'xdefi',
   Keplr = 'keplr',

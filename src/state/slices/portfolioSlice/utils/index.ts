@@ -40,7 +40,9 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
+import { bech32 } from 'bech32'
 import cloneDeep from 'lodash/cloneDeep'
 import maxBy from 'lodash/maxBy'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -76,7 +78,9 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       // TODO(0xdef1cafe): translations
       if (pubkey.startsWith('xpub')) return 'Legacy'
       if (pubkey.startsWith('ypub')) return 'Segwit'
-      if (pubkey.startsWith('zpub')) return 'Segwit Native'
+      // TODO(gomes): This assumes bc prefix *is* a SegWit Native address, but this will consider both bc1p (P2WPKH) and bc1q (taproot) as SegWit Native
+      // which is wrong, but fine for now as we don't support Taproot.
+      if (pubkey.startsWith('zpub') || bech32.decode(pubkey).prefix === 'bc') return 'Segwit Native'
       return ''
     case bchChainId:
       return 'Bitcoin Cash'
@@ -301,10 +305,13 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case baseChainId:
       return supportsBase(wallet)
     case btcChainId:
-    case ltcChainId:
-    case dogeChainId:
-    case bchChainId:
       return supportsBTC(wallet)
+    case ltcChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case dogeChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case bchChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

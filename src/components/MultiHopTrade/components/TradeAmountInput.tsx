@@ -400,7 +400,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>
                 {priceImpactPercentage && (
-                  <Tooltip label={translate('trade.tooltip.priceImpactDifference')}>
+                  <Tooltip label={translate('trade.tooltip.inputOutputDifference')}>
                     <Flex>
                       <Skeleton isLoaded={!showFiatSkeleton}>
                         <Amount.Percent

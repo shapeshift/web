@@ -883,7 +883,7 @@
       "manualReceiveAddress": "Bu, fonunuzu çekeceğiniz adrestir. Manuel olarak girilmiştir, lütfen doğru olduğundan emin olun.",
       "amountPercentageDifference": "En iyi fiyat teklifiyle karşılaştırıldığında alacağınız toplam %{buyAssetSymbol} tutarındaki yüzde farkıdır",
       "overallPercentageDifference": "En iyi teklifle karşılaştırıldığında, tüm ücretler düşüldükten sonra alınan toplam tutardaki yüzdelik farktır.",
-      "priceImpactDifference": "Girdi ve çıktı tutarlarının USD değerleri arasındaki tahmini fark.",
+      "inputOutputDifference": "Girdi ve çıktı tutarlarının USD değerleri arasındaki tahmini fark.",
       "gasFee": "Bu ticareti tamamlamak için gereken tahmini gaz ücretidir.",
       "slippageWithAmount": "Fiyat, %{amount} tutarından daha azını alacak şekilde hareket ederse işleminiz geri alınacaktır. Bu, alacağınız garanti edilen minimum tutardır.",
       "slippage": "Fiyatın bu yüzdeden daha fazla olumsuz yönde değişmesi durumunda işleminiz geri alınacaktır.",

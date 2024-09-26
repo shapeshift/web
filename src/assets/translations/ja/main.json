@@ -882,7 +882,7 @@
       "manualReceiveAddress": "資金を受け取るアドレスです。手動で入力されていますので、正しいことを確認してください。",
       "amountPercentageDifference": "これは、最良の見積もりと比較した、あなたが受け取る %{buyAssetSymbol} の合計額の差のパーセンテージです。",
       "overallPercentageDifference": "これは、最良の見積もりと比較した、すべての手数料を差し引いた後の受け取り総額のパーセンテージの差です。",
-      "priceImpactDifference": "入力量と出力量のUSD値間の推定差",
+      "inputOutputDifference": "入力量と出力量のUSD値間の推定差",
       "gasFee": "これは、この取引を完了するための推定ガス代です。",
       "slippageWithAmount": "価格が変動し、受け取る金額が %{amount} 未満になる場合、トランザクションは取り消されます。これは受け取ることが保証される最低金額です。",
       "slippage": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",

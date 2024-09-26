@@ -883,7 +883,7 @@
       "manualReceiveAddress": "C'est l'adresse à laquelle vous recevrez vos fonds. Elle a été saisie manuellement, veuillez vous assurer qu'elle est correcte.",
       "amountPercentageDifference": "Il s'agit de la différence en pourcentage du montant total en %{buyAssetSymbol} que vous recevrez, par rapport au meilleur devis.",
       "overallPercentageDifference": "Il s'agit de la différence en pourcentage du montant global reçu après déduction de tous les frais, par rapport au meilleur devis.",
-      "priceImpactDifference": "La différence estimée entre les valeurs en USD des montants d’entrée et de sortie.",
+      "inputOutputDifference": "La différence estimée entre les valeurs en USD des montants d’entrée et de sortie.",
       "gasFee": "Il s'agit des frais de carburant estimés pour finaliser cette transaction.",
       "slippageWithAmount": "Si le prix change de telle manière que vous recevrez moins de %{amount}, votre transaction sera annulée. Il s’agit du montant minimum garanti que vous recevrez.",
       "slippage": "Votre transaction sera annulée si le prix change défavorablement de plus de ce pourcentage.",

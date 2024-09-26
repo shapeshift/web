@@ -33,7 +33,6 @@ export const baseUrlFromChainId = (zrxBaseUrl: string, chainId: ZrxSupportedChai
 // converts an asset to zrx token (symbol or contract address)
 export const assetToToken = (asset: Asset): string => {
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
-  console.log(asset)
   return assetNamespace === 'slip44' ? ZRX_NATIVE_ASSET_ADDRESS : assetReference
 }
 

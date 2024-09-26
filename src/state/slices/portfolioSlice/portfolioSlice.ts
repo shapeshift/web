@@ -203,8 +203,6 @@ export const portfolioApi = createApi({
               })
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
 
-              console.log({ account })
-
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
                 (prev, token) => {
                   const isSpam = [token.name, token.symbol].some(text => {

@@ -216,6 +216,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             )
           }
 
+          let chainIdsWithActivity: string[] = []
+
           // Groups promises by chain namespaces. We need all of them to settle *for a given chain family* to detect activity, at least for UTXOs
           // Doing the account meta upsertion side effects right after EVM chains / others are settled allow us to immediately start upserting meta,
           // which in turn will make the app mark said accounts as loaded
@@ -278,8 +280,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           )
 
           await Promise.allSettled(chainNamespacePromises)
-
-          let chainIdsWithActivity: string[] = []
 
           chainIds = chainIdsWithActivity
         }

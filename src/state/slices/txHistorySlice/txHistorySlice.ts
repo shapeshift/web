@@ -235,7 +235,6 @@ export const txHistoryApi = createApi({
                       pubkey,
                       pageSize,
                     })
-                    console.log({ transactions })
 
                     const state = getState() as State
                     const txsById = state.txHistory.txs.byId

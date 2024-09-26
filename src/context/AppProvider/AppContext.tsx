@@ -33,11 +33,11 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetIds,
+  selectEnabledWalletAccountIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
   selectSelectedLocale,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -59,7 +59,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { supportedChains } = usePlugins()
   const wallet = useWallet().state.wallet
   const assetIds = useSelector(selectAssetIds)
-  const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()

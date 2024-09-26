@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { useGetNftUserTokensQuery } from 'state/apis/nft/nftApi'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { selectEnabledWalletAccountIds } from 'state/slices/common-selectors'
 import { useAppSelector } from 'state/store'
 
 export const useNfts = () => {
-  const requestedAccountIds = useAppSelector(selectWalletAccountIds)
+  const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
 
   const { isUninitialized, isLoading, isFetching, data } = useGetNftUserTokensQuery(
     {

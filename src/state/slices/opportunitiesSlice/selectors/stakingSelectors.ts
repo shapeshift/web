@@ -23,9 +23,9 @@ import {
 
 import { selectAssetByFilter, selectAssets } from '../../assetsSlice/selectors'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
-  selectWalletAccountIds,
 } from '../../common-selectors'
 import {
   selectMarketDataByFilter,
@@ -61,7 +61,7 @@ export const selectStakingIds = createDeepEqualOutputSelector(
 )
 
 export const selectUserStakingIds = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.ids,
   (walletAccountIds, userStakingIds): UserStakingId[] =>
     userStakingIds.filter(userStakingId =>
@@ -75,7 +75,7 @@ export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelect
 )
 
 export const selectUserStakingOpportunitiesById = createSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
   (walletAccountIds, userStakingById) =>
     pickBy(userStakingById, (_userStaking, userStakingId) =>

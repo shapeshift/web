@@ -5,7 +5,6 @@ import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
-import PQueue from 'p-queue'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { deepUpsertArray } from 'lib/utils'
@@ -212,8 +211,6 @@ export const txHistoryApi = createApi({
   endpoints: build => ({
     getAllTxHistory: build.query<null, AccountId[]>({
       queryFn: async (accountIds, { dispatch, getState }) => {
-        const requestQueue = new PQueue({ concurrency: 2 })
-
         await Promise.all(
           accountIds.map(async accountId => {
             const { chainId, account: pubkey } = fromAccountId(accountId)
@@ -237,8 +234,8 @@ export const txHistoryApi = createApi({
                       cursor: requestCursor,
                       pubkey,
                       pageSize,
-                      requestQueue,
                     })
+                    console.log({ transactions })
 
                     const state = getState() as State
                     const txsById = state.txHistory.txs.byId

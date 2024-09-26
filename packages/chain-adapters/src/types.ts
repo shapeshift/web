@@ -13,7 +13,6 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
-import type PQueue from 'p-queue'
 
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
@@ -251,7 +250,6 @@ export interface TxHistoryInput {
   readonly cursor?: string
   readonly pubkey: string
   readonly pageSize?: number
-  readonly requestQueue?: PQueue
 }
 
 export type GetAddressInputBase = {

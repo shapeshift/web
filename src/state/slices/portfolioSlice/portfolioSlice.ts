@@ -180,7 +180,6 @@ export const portfolio = createSlice({
 
 type GetAccountArgs = {
   accountId: AccountId
-  upsertOnFetch?: boolean
 }
 
 export const portfolioApi = createApi({

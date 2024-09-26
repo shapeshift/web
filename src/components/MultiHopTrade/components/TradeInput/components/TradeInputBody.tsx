@@ -13,7 +13,7 @@ import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -99,7 +99,8 @@ export const TradeInputBody = ({
     return [1]
   }, [sellAsset.assetId])
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { priceImpactPercentage } = usePriceImpact(activeQuote)
+  const inputOutputDifferenceDecimalPercentage =
+    useInputOutputDifferenceDecimalPercentage(activeQuote)
 
   // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
   useEffect(() => {
@@ -218,7 +219,7 @@ export const TradeInputBody = ({
         onAccountIdChange={setBuyAssetAccountId}
         formControlProps={formControlProps}
         labelPostFix={buyTradeAssetSelect}
-        priceImpactPercentage={priceImpactPercentage?.toString()}
+        inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
       />
     </Stack>
   )

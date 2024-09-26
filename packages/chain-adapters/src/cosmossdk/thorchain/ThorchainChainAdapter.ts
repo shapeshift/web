@@ -6,6 +6,7 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
+import PQueue from 'p-queue'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -144,14 +145,19 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   async getTxHistoryV1(input: TxHistoryInput): Promise<TxHistoryResponse> {
+    const requestQueue = input.requestQueue ?? new PQueue()
     try {
-      const data = await this.httpV1.getTxHistory({
-        pubkey: input.pubkey,
-        pageSize: input.pageSize,
-        cursor: input.cursor,
-      })
+      const data = await requestQueue.add(() =>
+        this.httpV1.getTxHistory({
+          pubkey: input.pubkey,
+          pageSize: input.pageSize,
+          cursor: input.cursor,
+        }),
+      )
 
-      const txs = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
+      const txs = await Promise.all(
+        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+      )
 
       return {
         cursor: data.cursor,

@@ -22,6 +22,7 @@ import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
+import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -384,13 +385,19 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
-    const data = await this.providers.http.getTxHistory({
-      pubkey: input.pubkey,
-      pageSize: input.pageSize,
-      cursor: input.cursor,
-    })
+    const requestQueue = input.requestQueue ?? new PQueue()
 
-    const transactions = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
+    const data = await requestQueue.add(() =>
+      this.providers.http.getTxHistory({
+        pubkey: input.pubkey,
+        pageSize: input.pageSize,
+        cursor: input.cursor,
+      }),
+    )
+
+    const transactions = await Promise.all(
+      data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+    )
 
     return {
       cursor: data.cursor ?? '',

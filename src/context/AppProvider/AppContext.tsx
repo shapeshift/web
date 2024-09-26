@@ -145,9 +145,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
         if (hasManagedAccounts) {
           requestedAccountIds.forEach(accountId => {
-            dispatch(
-              portfolioApi.endpoints.getAccount.initiate({ accountId }, { forceRefetch: true }),
-            )
+            dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId }))
           })
 
           return
@@ -217,6 +215,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           let chainIdsWithActivity: string[] = []
+          debugger
 
           // Groups promises by chain namespaces. We need all of them to settle *for a given chain family* to detect activity, at least for UTXOs
           // Doing the account meta upsertion side effects right after EVM chains / others are settled allow us to immediately start upserting meta,
@@ -225,9 +224,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             async accountIds => {
               const results = await Promise.allSettled(
                 accountIds.map(async id => {
-                  const result = await dispatch(
-                    getAccount.initiate({ accountId: id }, { forceRefetch: true }),
-                  )
+                  const result = await dispatch(getAccount.initiate({ accountId: id }))
                   return result
                 }),
               )
@@ -259,11 +256,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                     })
 
                 // don't add accounts with no activity past account 0
-                if (accountNumber > 0 && !accountNumberHasChainActivity)
+                if (accountNumber > 0 && !accountNumberHasChainActivity) {
+                  chainIdsWithActivity = chainIdsWithActivity.filter(
+                    _chainId => _chainId !== chainId,
+                  )
                   return delete accountMetadataByAccountId[accountId]
-
-                // unique set to handle utxo chains with multiple account types per account
-                chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+                } else {
+                  // unique set to handle utxo chains with multiple account types per account
+                  chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+                }
 
                 dispatch(portfolio.actions.upsertPortfolio(account))
               })

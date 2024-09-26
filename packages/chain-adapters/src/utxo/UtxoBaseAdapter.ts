@@ -14,6 +14,7 @@ import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
+import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ErrorHandler } from '../error/ErrorHandler'
@@ -471,17 +472,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
+    const requestQueue = input.requestQueue ?? new PQueue()
+
     if (!this.accountAddresses[input.pubkey]) {
-      await this.getAccount(input.pubkey)
+      await requestQueue.add(() => this.getAccount(input.pubkey))
     }
 
-    const data = await this.providers.http.getTxHistory({
-      pubkey: input.pubkey,
-      pageSize: input.pageSize,
-      cursor: input.cursor,
-    })
+    const data = await requestQueue.add(() =>
+      this.providers.http.getTxHistory({
+        pubkey: input.pubkey,
+        pageSize: input.pageSize,
+        cursor: input.cursor,
+      }),
+    )
 
-    const transactions = await Promise.all(data.txs.map(tx => this.parseTx(tx, input.pubkey)))
+    const transactions = await Promise.all(
+      data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+    )
 
     return {
       cursor: data.cursor ?? '',

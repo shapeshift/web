@@ -130,6 +130,7 @@ export const portfolio = createSlice({
 
     upsertPortfolio: {
       reducer: (draftState, { payload }: { payload: Portfolio }) => {
+        console.log('upserting portfolio', { payload })
         // upsert all
         draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
         draftState.accounts.ids = Object.keys(draftState.accounts.byId)
@@ -140,10 +141,6 @@ export const portfolio = createSlice({
         )
         draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
       },
-
-      // Use the `prepareAutoBatched` utility to automatically
-      // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
-      prepare: prepareAutoBatched<Portfolio>(),
     },
     /**
      * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice
@@ -208,6 +205,8 @@ export const portfolioApi = createApi({
                 queryKey: ['portalsPlatforms'],
               })
               const account = portfolioAccounts[pubkey] as Account<EvmChainId>
+
+              console.log({ account })
 
               const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
                 (prev, token) => {

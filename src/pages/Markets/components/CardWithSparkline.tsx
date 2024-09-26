@@ -40,57 +40,51 @@ export const CardWithSparkline: React.FC<{
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        py={6}
+        py={5}
         width='100%'
         height='100%'
       >
         <Box>
-          <Flex width='100%' justify='space-between' mt={4}>
-            <Flex alignItems='center' justifyContent='space-between' flexWrap='wrap' mb={4}>
-              <Flex align='center' mb={2}>
-                <AssetIcon pairProps={assetPairProps} assetId={assetId} size='md' mr={3} />
-                <Box textAlign='left'>
-                  <Text fontWeight='bold' fontSize='lg'>
-                    {asset.name}
-                  </Text>
-                  <Text fontSize='sm' color='gray.500'>
-                    {asset.symbol}
-                  </Text>
-                  <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />
-                  <Flex align='center' mt={1}>
-                    <Amount.Percent
-                      autoColor
-                      value={bnOrZero(changePercent24Hr).times(0.01).toString()}
-                      fontWeight='medium'
-                    />
-                  </Flex>
-                </Box>
-              </Flex>
+          <Flex width='100%' align='center' justify='space-between' mb={4}>
+            <Flex width='100%'>
+              <AssetIcon pairProps={assetPairProps} assetId={assetId} size='md' mr={3} />
+              <Box textAlign='left'>
+                <Text fontWeight='bold' fontSize='lg' mb={1}>
+                  {asset.name}
+                </Text>
+                <Text fontSize='sm' color='text.subtle'>
+                  {asset.symbol}
+                </Text>
+              </Box>
+              <WatchAssetButton assetId={assetId} alignSelf='flex-start' />
             </Flex>
-            <WatchAssetButton assetId={assetId} />
+            <Box textAlign='right'>
+              <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' mb={1} />
+              <Amount.Percent
+                autoColor
+                value={bnOrZero(changePercent24Hr).times(0.01).toString()}
+                fontWeight='medium'
+              />
+            </Box>
           </Flex>
-          <Box mb={4} overflow='hidden' textAlign='left'>
-            <Text
+          <Box overflow='hidden' textAlign='left'>
+            <ParsedHtml
               fontSize='sm'
-              color='gray.500'
-              lineHeight='19px'
+              color='text.subtle'
+              lineHeight='24px'
               whiteSpace='break-spaces'
               noOfLines={3}
-            >
-              <ParsedHtml
-                color='text.subtle'
-                innerHtml={markdownLinkToHTML(asset.description || '')}
-              />
-            </Text>
+              innerHtml={markdownLinkToHTML(asset.description || '')}
+            />
           </Box>
         </Box>
-        <Box height='50%' m={-6}>
+        <Box mx={-6}>
           <PriceChart
             assetId={assetId}
             timeframe={HistoryTimeframe.DAY}
             percentChange={changePercent24Hr}
             setPercentChange={noop}
-            chartHeight='120px'
+            chartHeight='150px'
             hideAxis={true}
           />
         </Box>

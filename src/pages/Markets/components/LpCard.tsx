@@ -46,13 +46,14 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        p={2}
+        py={5}
+        px={5}
         width='100%'
         height='100%'
       >
-        <Flex align='center' mb={4}>
-          <AssetIcon assetId={asset.assetId} pairProps={pairProps} flexShrink={0} />
-          <Box textAlign='left' ml={3} overflow='hidden' width='100%'>
+        <Flex align='center'>
+          <AssetIcon assetId={asset.assetId} pairProps={pairProps} flexShrink={0} mr={3} />
+          <Box textAlign='left' overflow='hidden' width='100%'>
             <Tooltip label={asset.name} placement='top-start'>
               <CText
                 fontWeight='bold'
@@ -61,6 +62,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
                 textOverflow='ellipsis'
                 overflow='hidden'
                 width='100%'
+                mb={1}
               >
                 {asset.name}
               </CText>
@@ -68,7 +70,7 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
             <Tooltip label={asset.symbol} placement='bottom-start'>
               <CText
                 fontSize='sm'
-                color='gray.500'
+                color='text.subtle'
                 whiteSpace='nowrap'
                 textOverflow='ellipsis'
                 overflow='hidden'
@@ -78,29 +80,31 @@ export const LpCard: React.FC<LpCardProps> = ({ assetId, apy, volume24H, onClick
               </CText>
             </Tooltip>
           </Box>
-          <WatchAssetButton assetId={assetId} />
+          <WatchAssetButton assetId={assetId} alignSelf='flex-start' />
         </Flex>
         <Flex justify='space-between'>
           <Box textAlign='left'>
             <Amount.Percent
               autoColor
               value={bnOrZero(apy).times(0.01).toString()}
-              fontWeight='medium'
+              fontWeight='bold'
+              fontSize='2xl'
+              mb={1}
             />
-            <Text translation='common.apy' fontSize='sm' color='gray.500' />
+            <Text translation='common.apy' color='text.subtle' />
           </Box>
           <Box textAlign='right'>
             {bnOrZero(volume24H).isPositive() ? (
-              <Amount.Fiat fontWeight='bold' fontSize='md' value={volume24H} />
+              <Amount.Fiat fontWeight='bold' fontSize='2xl' value={volume24H} />
             ) : (
-              <CText fontSize='sm' color='gray.500'>
+              <CText fontWeight='bold' fontSize='2xl'>
                 N/A
               </CText>
             )}
             <Text
               translation='assets.assetDetails.assetHeader.24HrVolume'
-              fontSize='sm'
-              color='gray.500'
+              color='text.subtle'
+              mt={1}
             />
           </Box>
         </Flex>

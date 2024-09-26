@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardBody, Flex, Text } from '@chakra-ui/react'
+import { Box, Button, Card, CardBody, Flex, Text, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -28,18 +28,26 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
         as={Flex}
         flexDirection='column'
         justifyContent='space-between'
-        py={4}
-        px={4}
+        py={5}
+        px={5}
         width='100%'
         height='100%'
       >
         <Flex align='center'>
-          <AssetIcon src={asset.icon} boxSize='40px' mr={3} />
+          <AssetIcon assetId={asset.assetId} boxSize='40px' mr={3} />
           <Box textAlign='left' overflow='hidden' width='100%'>
-            <Text fontWeight='bold' fontSize='lg' textOverflow='ellipsis' overflow='hidden'>
-              {asset.name}
-            </Text>
-            <Text fontSize='sm' color='gray.500' textOverflow='ellipsis' overflow='hidden'>
+            <Tooltip label={asset.name} placement='top-start'>
+              <Text fontWeight='bold' fontSize='lg' textOverflow='ellipsis' overflow='hidden'>
+                {asset.name}
+              </Text>
+            </Tooltip>
+            <Text
+              fontSize='sm'
+              color='text.subtle'
+              textOverflow='ellipsis'
+              overflow='hidden'
+              mt={1}
+            >
               {asset.symbol}
             </Text>
           </Box>
@@ -47,13 +55,12 @@ export const AssetCard: React.FC<AssetCardProps> = ({ assetId, onClick }) => {
         </Flex>
         <Box textAlign='left'>
           <Amount.Fiat value={marketData.price} fontWeight='bold' fontSize='2xl' />
-          <Flex align='center' mt={1}>
-            <Amount.Percent
-              autoColor
-              value={bnOrZero(changePercent24Hr).times(0.01).toString()}
-              fontWeight='medium'
-            />
-          </Flex>
+          <Amount.Percent
+            autoColor
+            value={bnOrZero(changePercent24Hr).times(0.01).toString()}
+            fontWeight='medium'
+            mt={1}
+          />
         </Box>
       </CardBody>
     </Card>

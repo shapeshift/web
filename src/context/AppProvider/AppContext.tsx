@@ -274,6 +274,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
                   walletId: await wallet.getDeviceID(),
                 }),
               )
+              for (const accountId of Object.keys(accountMetadataByAccountId)) {
+                dispatch(portfolio.actions.enableAccountId(accountId))
+              }
 
               return results
             },
@@ -282,10 +285,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           await Promise.allSettled(chainNamespacePromises)
 
           chainIds = chainIdsWithActivity
-        }
-
-        for (const accountId of Object.keys(accountMetadataByAccountId)) {
-          dispatch(portfolio.actions.enableAccountId(accountId))
         }
       } finally {
         dispatch(portfolio.actions.setIsAccountMetadataLoading(false))

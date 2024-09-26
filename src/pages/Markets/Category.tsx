@@ -1,38 +1,39 @@
 import { Box } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useParams } from 'react-router'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
+import type { MARKETS_CATEGORIES } from './constants'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
 
 const containerPaddingX = { base: 4, xl: 0 }
 
-const ASSETS_LIMIT = 8
+const ASSETS_LIMIT = 100
 
-export const Recommended: React.FC = () => {
+export const Category: React.FC = () => {
+  const params = useParams<{ category: MARKETS_CATEGORIES }>()
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 
-  const rows = useRows({ limit: ASSETS_LIMIT })
+  const allRows = useRows({ limit: ASSETS_LIMIT })
+  const row = allRows[params.category]
 
   const body = useMemo(
-    () =>
-      Object.values(rows).map((row, i) => (
-        <MarketsRow
-          key={i}
-          title={row.title}
-          subtitle={row.subtitle}
-          supportedChainIds={row.supportedChainIds}
-          category={row.category}
-          showSparkline={i === 0}
-        >
-          {row.component}
-        </MarketsRow>
-      )),
-    [rows],
+    () => (
+      <MarketsRow
+        title={row.title}
+        subtitle={row.subtitle}
+        supportedChainIds={row.supportedChainIds}
+        category={row.category}
+      >
+        {row.component}
+      </MarketsRow>
+    ),
+    [row.category, row.component, row.subtitle, row.supportedChainIds, row.title],
   )
 
   return (

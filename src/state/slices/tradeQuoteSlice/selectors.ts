@@ -733,14 +733,20 @@ export const selectIsAnyTradeQuoteLoaded = createSelector(
   selectIsSwapperQuoteAvailable,
   selectHasUserEnteredAmount,
   selectIsAnyTradeQuoteLoading,
-  (isSwapperQuoteAvailable, hasUserEnteredAmount, isAnyTradeQuoteLoading) => {
+  selectIsAnySwapperQuoteAvailable,
+  (
+    isSwapperQuoteAvailable,
+    hasUserEnteredAmount,
+    isAnyTradeQuoteLoading,
+    isAnySwapperQuoteAvailable,
+  ) => {
     if (!hasUserEnteredAmount) {
       return true
     }
 
     // If we're still loading, return true if there is any quote available
     if (isAnyTradeQuoteLoading) {
-      return Object.values(isSwapperQuoteAvailable).some(identity)
+      return isAnySwapperQuoteAvailable
     }
 
     // Otherwise, an empty result should default to true to allow the app to stop loading state.

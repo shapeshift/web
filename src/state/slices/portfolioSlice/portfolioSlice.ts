@@ -127,20 +127,17 @@ export const portfolio = createSlice({
       // add the `action.meta[SHOULD_AUTOBATCH]` field the enhancer needs
       prepare: prepareAutoBatched<WalletId>(),
     },
+    upsertPortfolio: (draftState, { payload }: { payload: Portfolio }) => {
+      console.log('upserting portfolio', { payload })
+      // upsert all
+      draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
+      draftState.accounts.ids = Object.keys(draftState.accounts.byId)
 
-    upsertPortfolio: {
-      reducer: (draftState, { payload }: { payload: Portfolio }) => {
-        console.log('upserting portfolio', { payload })
-        // upsert all
-        draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
-        draftState.accounts.ids = Object.keys(draftState.accounts.byId)
-
-        draftState.accountBalances.byId = merge(
-          draftState.accountBalances.byId,
-          payload.accountBalances.byId,
-        )
-        draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
-      },
+      draftState.accountBalances.byId = merge(
+        draftState.accountBalances.byId,
+        payload.accountBalances.byId,
+      )
+      draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
     },
     /**
      * Explicitly enable an account by its `AccountId`. Necessary where `use-strict` toggles twice

@@ -236,9 +236,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               const { onMessage } = txHistory.actions
 
               // refetch account on new tx
-              dispatch(
-                getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
-              )
+              dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
 
               maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)

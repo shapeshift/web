@@ -187,7 +187,7 @@ export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
-      queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
+      queryFn: async ({ accountId }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const assetIds = state.assets.ids
@@ -332,7 +332,7 @@ export const portfolioApi = createApi({
             return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
           })()
 
-          upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           console.error(e)

@@ -59,12 +59,7 @@ export const DegradedStateBanner = memo(() => {
 
   const handleRetry = useCallback(() => {
     erroredAccountIds.forEach(accountId =>
-      dispatch(
-        portfolioApi.endpoints.getAccount.initiate(
-          { accountId, upsertOnFetch: true },
-          { forceRefetch: true },
-        ),
-      ),
+      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId }, { forceRefetch: true })),
     )
   }, [dispatch, erroredAccountIds])
 

@@ -145,10 +145,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         if (hasManagedAccounts) {
           requestedAccountIds.forEach(accountId => {
             dispatch(
-              portfolioApi.endpoints.getAccount.initiate(
-                { accountId, upsertOnFetch: true },
-                { forceRefetch: true },
-              ),
+              portfolioApi.endpoints.getAccount.initiate({ accountId }, { forceRefetch: true }),
             )
           })
 

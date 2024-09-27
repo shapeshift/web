@@ -1,6 +1,6 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
-import type { AccountId, ChainNamespace } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -189,101 +189,99 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const { getAccount } = portfolioApi.endpoints
 
-          const groupAccountIdsByNamespace = (
+          // Chunks of AccountIds
+          // For UTXOs, each chain gets its own chunk to detect chain activity over other scriptTypes
+          // For others, no need to use chunks, but for the sake of consistency, we keep the same structure
+          const accountNumberAccountIdChunks = (
             _accountIds: AccountId[],
-          ): Record<ChainNamespace, AccountId[]> => {
+          ): Record<ChainId, AccountId[]> => {
             return _accountIds.reduce(
               (acc, _accountId) => {
                 const { chainId } = fromAccountId(_accountId)
-                const namespace = fromChainId(chainId).chainNamespace
 
-                // This should not happen but...
-                if (!acc[namespace]) {
-                  acc[namespace] = []
+                if (isUtxoChainId(chainId)) {
+                  acc[chainId] = [_accountId]
+                  return acc
                 }
-                acc[namespace].push(_accountId)
+
+                if (!acc[chainId]) {
+                  acc[chainId] = []
+                }
+                acc[chainId].push(_accountId)
 
                 return acc
               },
-              {
-                [CHAIN_NAMESPACE.Evm]: [],
-                [CHAIN_NAMESPACE.CosmosSdk]: [],
-                [CHAIN_NAMESPACE.Solana]: [],
-                [CHAIN_NAMESPACE.Utxo]: [],
-              } as Record<ChainNamespace, AccountId[]>,
+              {} as Record<ChainId, AccountId[]>,
             )
           }
 
           let chainIdsWithActivity: string[] = []
-          debugger
 
           // Groups promises by chain namespaces. We need all of them to settle *for a given chain family* to detect activity, at least for UTXOs
           // Doing the account meta upsertion side effects right after EVM chains / others are settled allow us to immediately start upserting meta,
           // which in turn will make the app mark said accounts as loaded
-          const chainNamespacePromises = Object.values(groupAccountIdsByNamespace(accountIds)).map(
-            async accountIds => {
-              const results = await Promise.allSettled(
-                accountIds.map(async id => {
-                  const result = await dispatch(getAccount.initiate({ accountId: id }))
-                  return result
-                }),
-              )
+          const accountNumberAccountIdsPromises = Object.values(
+            accountNumberAccountIdChunks(accountIds),
+          ).map(async accountIds => {
+            const results = await Promise.allSettled(
+              accountIds.map(async id => {
+                const result = await dispatch(getAccount.initiate({ accountId: id }))
+                return result
+              }),
+            )
 
-              results.forEach((res, idx) => {
-                if (res.status === 'rejected') return
+            results.forEach((res, idx) => {
+              if (res.status === 'rejected') return
 
-                const { data: account } = res.value
-                if (!account) return
+              const { data: account } = res.value
+              if (!account) return
 
-                const accountId = accountIds[idx]
-                const { chainId } = fromAccountId(accountId)
+              const accountId = accountIds[idx]
+              const { chainId } = fromAccountId(accountId)
 
-                const { hasActivity } = account.accounts.byId[accountId]
+              const { hasActivity } = account.accounts.byId[accountId]
 
-                const accountNumberHasChainActivity = !isUtxoChainId(chainId)
-                  ? hasActivity
-                  : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-                    // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
-                    // being upserted for BTC and LTC
-                    results.some((res, _idx) => {
-                      if (res.status === 'rejected') return false
-                      const { data: account } = res.value
-                      if (!account) return false
-                      const accountId = accountIds[_idx]
-                      const { chainId: _chainId } = fromAccountId(accountId)
-                      if (chainId !== _chainId) return false
-                      return account.accounts.byId[accountId].hasActivity
-                    })
+              const accountNumberHasChainActivity = !isUtxoChainId(chainId)
+                ? hasActivity
+                : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+                  // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
+                  // being upserted for BTC and LTC
+                  results.some((res, _idx) => {
+                    if (res.status === 'rejected') return false
+                    const { data: account } = res.value
+                    if (!account) return false
+                    const accountId = accountIds[_idx]
+                    const { chainId: _chainId } = fromAccountId(accountId)
+                    if (chainId !== _chainId) return false
+                    return account.accounts.byId[accountId].hasActivity
+                  })
 
-                // don't add accounts with no activity past account 0
-                if (accountNumber > 0 && !accountNumberHasChainActivity) {
-                  chainIdsWithActivity = chainIdsWithActivity.filter(
-                    _chainId => _chainId !== chainId,
-                  )
-                  return delete accountMetadataByAccountId[accountId]
-                } else {
-                  // unique set to handle utxo chains with multiple account types per account
-                  chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
-                }
-
-                dispatch(portfolio.actions.upsertPortfolio(account))
-              })
-
-              dispatch(
-                portfolio.actions.upsertAccountMetadata({
-                  accountMetadataByAccountId,
-                  walletId: await wallet.getDeviceID(),
-                }),
-              )
-              for (const accountId of Object.keys(accountMetadataByAccountId)) {
-                dispatch(portfolio.actions.enableAccountId(accountId))
+              // don't add accounts with no activity past account 0
+              if (accountNumber > 0 && !accountNumberHasChainActivity) {
+                chainIdsWithActivity = chainIdsWithActivity.filter(_chainId => _chainId !== chainId)
+                return delete accountMetadataByAccountId[accountId]
+              } else {
+                // unique set to handle utxo chains with multiple account types per account
+                chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
               }
 
-              return results
-            },
-          )
+              dispatch(portfolio.actions.upsertPortfolio(account))
+            })
 
-          await Promise.allSettled(chainNamespacePromises)
+            dispatch(
+              portfolio.actions.upsertAccountMetadata({
+                accountMetadataByAccountId,
+                walletId: await wallet.getDeviceID(),
+              }),
+            )
+            for (const accountId of Object.keys(accountMetadataByAccountId)) {
+              dispatch(portfolio.actions.enableAccountId(accountId))
+            }
+
+            return results
+          })
+
+          await Promise.allSettled(accountNumberAccountIdsPromises)
 
           chainIds = chainIdsWithActivity
         }

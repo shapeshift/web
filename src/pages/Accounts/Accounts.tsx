@@ -106,7 +106,6 @@ export const Accounts = () => {
     ))
   }, [blanks])
 
-  console.log({ loading })
   const renderRows = useMemo(() => {
     return loading ? blankRows : chainRows
   }, [blankRows, chainRows, loading])

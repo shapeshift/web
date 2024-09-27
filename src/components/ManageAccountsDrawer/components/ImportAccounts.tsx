@@ -326,7 +326,9 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
         if (isEnabled) {
           return
         }
-        await dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId }))
+        await dispatch(
+          portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }),
+        )
       }),
     )
 

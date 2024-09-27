@@ -290,7 +290,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
         const { getAllTxHistory } = txHistoryApi.endpoints
 
-        await dispatch(getAllTxHistory.initiate(requestedAccountIds))
+        await Promise.all(
+          requestedAccountIds.map(requestedAccountId =>
+            dispatch(getAllTxHistory.initiate(requestedAccountId)),
+          ),
+        )
       }
     })()
   }, [

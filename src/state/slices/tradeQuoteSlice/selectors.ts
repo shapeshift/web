@@ -730,16 +730,10 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
 )
 
 export const selectIsAnyTradeQuoteLoaded = createSelector(
-  selectIsSwapperQuoteAvailable,
   selectHasUserEnteredAmount,
   selectIsAnyTradeQuoteLoading,
   selectIsAnySwapperQuoteAvailable,
-  (
-    isSwapperQuoteAvailable,
-    hasUserEnteredAmount,
-    isAnyTradeQuoteLoading,
-    isAnySwapperQuoteAvailable,
-  ) => {
+  (hasUserEnteredAmount, isAnyTradeQuoteLoading, isAnySwapperQuoteAvailable) => {
     if (!hasUserEnteredAmount) {
       return true
     }

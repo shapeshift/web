@@ -218,10 +218,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           let chainIdsWithActivity: string[] = []
-
-          // Groups promises by chain namespaces. We need all of them to settle *for a given chain family* to detect activity, at least for UTXOs
-          // Doing the account meta upsertion side effects right after EVM chains / others are settled allow us to immediately start upserting meta,
-          // which in turn will make the app mark said accounts as loaded
+          // Chunks of AccountIds promises for accountNumber/AccountId combination
+          // This allows every run of AccountIds per chain/accountNumber to run in parallel vs. all sequentally, so
+          // we can run each chain's side effects immediately
           const accountNumberAccountIdsPromises = Object.values(
             accountNumberAccountIdChunks(accountIds),
           ).map(async accountIds => {

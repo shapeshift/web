@@ -287,6 +287,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } finally {
         dispatch(portfolio.actions.setIsAccountMetadataLoading(false))
+        // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
+        const { getAllTxHistory } = txHistoryApi.endpoints
+
+        await dispatch(getAllTxHistory.initiate(requestedAccountIds))
       }
     })()
   }, [
@@ -307,18 +311,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
   }, [dispatch, portfolioLoadingStatus])
-
-  // once portfolio is done loading, fetch all transaction history
-  useEffect(() => {
-    ;(async () => {
-      if (!requestedAccountIds.length) return
-      if (portfolioLoadingStatus === 'loading') return
-
-      const { getAllTxHistory } = txHistoryApi.endpoints
-
-      await dispatch(getAllTxHistory.initiate(requestedAccountIds))
-    })()
-  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({

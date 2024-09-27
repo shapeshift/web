@@ -131,6 +131,9 @@ export const portfolio = createSlice({
       // upsert all
       draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
       draftState.accounts.ids = Object.keys(draftState.accounts.byId)
+      if (draftState.accounts.ids.includes('eip155:1:0xd764ea00bbf008592829a4bc2dfd2538a522e23a')) {
+        debugger
+      }
 
       draftState.accountBalances.byId = merge(
         draftState.accountBalances.byId,

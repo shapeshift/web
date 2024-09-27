@@ -153,6 +153,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (!wallet || isLedger(wallet)) return
 
+        const walletId = await wallet.getDeviceID()
+
         let chainIds = supportedChains.filter(chainId => {
           return walletSupportsChain({
             chainId,
@@ -259,24 +261,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
               // don't add accounts with no activity past account 0
               if (accountNumber > 0 && !accountNumberHasChainActivity) {
                 chainIdsWithActivity = chainIdsWithActivity.filter(_chainId => _chainId !== chainId)
-                return delete accountMetadataByAccountId[accountId]
+                delete accountMetadataByAccountId[accountId]
               } else {
                 // unique set to handle utxo chains with multiple account types per account
                 chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+
+                dispatch(portfolio.actions.upsertPortfolio(account))
+                const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(
+                  (acc, [accountId, metadata]) => {
+                    const { chainId: _chainId } = fromAccountId(accountId)
+                    if (chainId === _chainId) {
+                      acc[accountId] = metadata
+                    }
+                    return acc
+                  },
+                  {} as AccountMetadataById,
+                )
+                dispatch(
+                  portfolio.actions.upsertAccountMetadata({
+                    accountMetadataByAccountId: chainIdAccountMetadata,
+                    walletId,
+                  }),
+                )
+                for (const accountId of Object.keys(accountMetadataByAccountId)) {
+                  dispatch(portfolio.actions.enableAccountId(accountId))
+                }
               }
-
-              dispatch(portfolio.actions.upsertPortfolio(account))
             })
-
-            dispatch(
-              portfolio.actions.upsertAccountMetadata({
-                accountMetadataByAccountId,
-                walletId: await wallet.getDeviceID(),
-              }),
-            )
-            for (const accountId of Object.keys(accountMetadataByAccountId)) {
-              dispatch(portfolio.actions.enableAccountId(accountId))
-            }
 
             return results
           })

@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import SplashSidebar from 'assets/splash-sidebar.jpg'
 import { AssetIcon } from 'components/AssetIcon'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { MetaMaskIcon } from 'components/Icons/MetaMaskIcon'
 import { LanguageSelector } from 'components/LanguageSelector'
 import { Page } from 'components/Layout/Page'
@@ -252,10 +253,13 @@ export const ConnectWallet = () => {
         >
           <Center
             flexDir='column'
+            p={6}
+            justifyContent='flex-start'
             // Full height with "-webkit-fill-available" polyfill, see https://chakra-ui.com/changelog/v2.3.1#styled-system-231
             height='$100vh'
-            px={6}
-          />
+          >
+            <FoxIcon boxSize='4rem' />
+          </Center>
         </Flex>
       </Flex>
     </Page>

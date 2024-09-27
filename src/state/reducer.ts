@@ -77,6 +77,7 @@ const opportunitiesPersistConfig = {
   key: 'opportunities',
   storage: localforage,
   version: Math.max(...Object.keys(clearOpportunitiesMigrations).map(Number)),
+  migrate: createMigrate(clearOpportunitiesMigrations, { debug: false }),
 }
 
 const nftPersistConfig = {

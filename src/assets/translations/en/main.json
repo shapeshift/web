@@ -2596,39 +2596,6 @@
   },
   "markets": {
     "recommended": "Recommended",
-    "watchlist": "My Watchlist",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
-    "watchlistEmpty": {
-      "emptyTitle": "No assets in Watchlist",
-      "emptyBody": "It appears you haven't starred any assets just yet. Start adding assets to your watchlist now to track them!"
-    },
-    "emptyTitle": "No assets found",
-    "emptyBody": "No assets were found with the current filter. Try adjusting your selected chain to see more assets.",
-    "categories": {
-      "oneClickDefiAssets": {
-        "title": "One Click DeFi Assets"
-      },
-      "thorchainDefi": {
-        "title": "THORChain DeFi"
-      },
-      "trending": {
-        "title": "Trending",
-        "subtitle": "These are top assets that have jumped %{percentage}% or more"
-      },
-      "tradingVolume": {
-        "title": "Trading Volume",
-        "subtitle": "These are top assets with the highest trading volume in the last 24 hours"
-      },
-      "marketCap": {
-        "title": "Market Cap",
-        "subtitle": "These are top assets with the highest market capitalization in the last 24 hours"
-      },
-      "topMovers": {
-        "title": "Top Movers"
-      },
-      "recentlyAdded": {
-        "title": "Recently Added"
-      }
-    }
+    "watchlist": "My Watchlist"
   }
 }

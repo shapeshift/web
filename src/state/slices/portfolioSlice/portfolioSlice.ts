@@ -128,7 +128,6 @@ export const portfolio = createSlice({
       prepare: prepareAutoBatched<WalletId>(),
     },
     upsertPortfolio: (draftState, { payload }: { payload: Portfolio }) => {
-      console.log('upserting portfolio', { payload })
       // upsert all
       draftState.accounts.byId = merge(draftState.accounts.byId, payload.accounts.byId)
       draftState.accounts.ids = Object.keys(draftState.accounts.byId)
@@ -174,6 +173,7 @@ export const portfolio = createSlice({
 
 type GetAccountArgs = {
   accountId: AccountId
+  upsertOnFetch?: boolean
 }
 
 export const portfolioApi = createApi({
@@ -181,7 +181,7 @@ export const portfolioApi = createApi({
   reducerPath: 'portfolioApi',
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
-      queryFn: async ({ accountId }, { dispatch, getState }) => {
+      queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const assetIds = state.assets.ids
@@ -326,7 +326,7 @@ export const portfolioApi = createApi({
             return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
           })()
 
-          dispatch(portfolio.actions.upsertPortfolio(data))
+          upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
           return { data }
         } catch (e) {
           console.error(e)

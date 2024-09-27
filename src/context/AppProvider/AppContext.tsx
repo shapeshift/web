@@ -145,7 +145,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
         if (hasManagedAccounts) {
           requestedAccountIds.forEach(accountId => {
-            dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId }))
+            dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
           })
 
           return

@@ -26,17 +26,18 @@ export const MarketsHeader = () => {
         path: '/markets/watchlist',
         color: 'blue',
       },
-      {
-        label: 'markets.categoriesTabTitle',
-        path: '/markets/categories',
-        color: 'blue',
-      },
     ]
   }, [])
 
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
+
+  const maybeCategory = useMemo(
+    () =>
+      history.location.pathname.match(/\/markets\/category\/(?<category>[\w]+)/)?.groups?.category,
+    [history.location.pathname],
+  )
 
   return (
     <>
@@ -51,15 +52,25 @@ export const MarketsHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
-          <Display.Desktop>
-            <Stack>
-              <Heading>{translate('navBar.markets')}</Heading>
-              <Text color='text.subtle' translation='markets.marketsBody' />
-            </Stack>
-          </Display.Desktop>
-        </Container>
-        <TabMenu items={NavItems} />
+        {!maybeCategory && (
+          // Don't show tabs and heading when on a single category view
+          <>
+            <Container
+              maxWidth='container.4xl'
+              px={containerPadding}
+              pt={containerPaddingTop}
+              pb={4}
+            >
+              <Display.Desktop>
+                <Stack>
+                  <Heading>{translate('navBar.markets')}</Heading>
+                  <Text color='text.subtle' translation='markets.marketsBody' />
+                </Stack>
+              </Display.Desktop>
+            </Container>
+            <TabMenu items={NavItems} />
+          </>
+        )}
       </Stack>
     </>
   )

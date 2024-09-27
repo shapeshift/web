@@ -204,11 +204,13 @@ export const preferences = createSlice({
     setSnapInstalled(state, { payload }: { payload: boolean }) {
       state.snapInstalled = payload
     },
-    addWatchedAssetId(state, { payload }: { payload: AssetId }) {
-      state.watchedAssets = state.watchedAssets.concat(payload)
-    },
-    removeWatchedAssetId(state, { payload }: { payload: AssetId }) {
-      state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+    toggleWatchedAssetId(state, { payload }: { payload: AssetId }) {
+      const isWatched = state.watchedAssets.includes(payload)
+      if (isWatched) {
+        state.watchedAssets = state.watchedAssets.filter(assetId => assetId !== payload)
+      } else {
+        state.watchedAssets = state.watchedAssets.concat(payload)
+      }
     },
     setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
       state.selectedHomeView = payload

@@ -72,7 +72,7 @@ export const getLatestThorTxStatusMessage = (
 
         if (!hasOutboundTx && obj.completed) {
           return {
-            message: 'Swap finalized, awaiting transaction confirmation',
+            message: undefined, // undefined because the tx is complete and no message will be displayed
             status: TxStatus.Confirmed,
           }
         }

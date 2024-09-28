@@ -61,7 +61,10 @@ export const getLatestThorTxStatusMessage = (
           }
         }
 
-        return { message: obj.pending ? 'Swap pending' : 'Swap complete', status: TxStatus.Pending }
+        return {
+          message: obj.pending ? 'Swap pending' : 'Swap complete, awaiting finalization',
+          status: TxStatus.Pending,
+        }
       }
       case 'swap_finalised': {
         const obj = response.stages[key]
@@ -69,7 +72,7 @@ export const getLatestThorTxStatusMessage = (
 
         if (!hasOutboundTx && obj.completed) {
           return {
-            message: 'Swap finalized',
+            message: 'Swap finalized, awaiting transaction confirmation',
             status: TxStatus.Confirmed,
           }
         }

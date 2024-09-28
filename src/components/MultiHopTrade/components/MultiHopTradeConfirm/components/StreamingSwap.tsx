@@ -26,7 +26,7 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
       <Row>
         <Row.Label>{translate('trade.streamStatus')}</Row.Label>
         {totalSwapCount > 0 && (
-          <Row.Value>{`${attemptedSwapCount} of ${totalSwapCount}`}</Row.Value>
+          <Row.Value>{`${attemptedSwapCount - failedSwaps.length} of ${totalSwapCount}`}</Row.Value>
         )}
       </Row>
       <Row>
@@ -36,7 +36,7 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
           size='sm'
           min={0}
           max={totalSwapCount}
-          value={attemptedSwapCount}
+          value={attemptedSwapCount - failedSwaps.length}
           hasStripe={!isComplete}
           isAnimated={!isComplete}
           colorScheme={isComplete ? 'green' : 'blue'}

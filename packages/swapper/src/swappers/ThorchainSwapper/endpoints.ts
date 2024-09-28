@@ -373,7 +373,7 @@ export const thorchainApi: SwapperApi = {
       }
 
       const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
-      const hasOutboundTx = latestOutTx?.chain !== 'THOR'
+      const hasOutboundTx = latestOutTx !== undefined && latestOutTx.chain !== 'THOR'
 
       const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
 
@@ -386,6 +386,7 @@ export const thorchainApi: SwapperApi = {
         )
 
         if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
+          console.log({ outboundTxConfirmations, hasOutboundTx, buyTxHash })
           return {
             buyTxHash,
             status: TxStatus.Confirmed,
@@ -395,6 +396,8 @@ export const thorchainApi: SwapperApi = {
       }
 
       const { message, status } = getLatestThorTxStatusMessage(data, hasOutboundTx)
+
+      console.log({ message, status })
 
       return {
         buyTxHash,

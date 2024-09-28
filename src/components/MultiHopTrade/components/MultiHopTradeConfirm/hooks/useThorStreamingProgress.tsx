@@ -153,9 +153,11 @@ export const useThorStreamingProgress = (
   }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId])
 
   const result = useMemo(() => {
+    const numSuccessfulSwaps =
+      (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)
+
     const isComplete =
-      streamingSwapMeta !== undefined &&
-      streamingSwapMeta.attemptedSwapCount === streamingSwapMeta.totalSwapCount
+      streamingSwapMeta !== undefined && numSuccessfulSwaps >= streamingSwapMeta.totalSwapCount
 
     return {
       isComplete,

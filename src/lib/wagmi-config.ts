@@ -1,4 +1,5 @@
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import { getConfig } from 'config'
 import {
   arbitrum,
   arbitrumNova,
@@ -11,6 +12,7 @@ import {
   polygon,
 } from 'viem/chains'
 import { createConfig } from 'wagmi'
+import { walletConnect } from 'wagmi/connectors'
 
 declare module 'wagmi' {
   interface Register {
@@ -24,4 +26,9 @@ export const wagmiConfig = createConfig({
   client({ chain }) {
     return viemClientByNetworkId[chain.id]!
   },
+  connectors: [
+    walletConnect({
+      projectId: getConfig().REACT_APP_WALLET_CONNECT_TO_DAPPS_PROJECT_ID,
+    }),
+  ],
 })

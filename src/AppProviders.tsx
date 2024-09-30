@@ -4,6 +4,7 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { captureException } from '@sentry/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
@@ -59,43 +60,48 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
-        <QueryClientProvider>
-          <PluginProvider>
-            <ColorModeScript storageKey='ss-theme' />
-            <ChatwootWidget />
-            <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-              <ToastContainer />
-              <PersistGate loading={splashScreen} persistor={persistor}>
-                <HashRouter basename='/'>
-                  <ScrollToTop />
-                  <BrowserRouterProvider>
-                    <I18nProvider>
-                      <WalletProvider>
-                        <ModalProvider>
-                          <WalletConnectV2Provider>
-                            <KeepKeyProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                                <WagmiProvider config={wagmiConfig}>
-                                  <TransactionsProvider>
-                                    <AppProvider>
-                                      <FoxEthProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
-                                      </FoxEthProvider>
-                                    </AppProvider>
-                                  </TransactionsProvider>
-                                </WagmiProvider>
-                              </ErrorBoundary>
-                            </KeepKeyProvider>
-                          </WalletConnectV2Provider>
-                        </ModalProvider>
-                      </WalletProvider>
-                    </I18nProvider>
-                  </BrowserRouterProvider>
-                </HashRouter>
-              </PersistGate>
-            </ChakraProvider>
-          </PluginProvider>
-        </QueryClientProvider>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider>
+            <RainbowKitProvider>
+              <PluginProvider>
+                <ColorModeScript storageKey='ss-theme' />
+                <ChatwootWidget />
+                <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+                  <ToastContainer />
+                  <PersistGate loading={splashScreen} persistor={persistor}>
+                    <HashRouter basename='/'>
+                      <ScrollToTop />
+                      <BrowserRouterProvider>
+                        <I18nProvider>
+                          <WalletProvider>
+                            <ModalProvider>
+                              <WalletConnectV2Provider>
+                                <KeepKeyProvider>
+                                  <ErrorBoundary
+                                    FallbackComponent={ErrorPage}
+                                    onError={handleError}
+                                  >
+                                    <TransactionsProvider>
+                                      <AppProvider>
+                                        <FoxEthProvider>
+                                          <DefiManagerProvider>{children}</DefiManagerProvider>
+                                        </FoxEthProvider>
+                                      </AppProvider>
+                                    </TransactionsProvider>
+                                  </ErrorBoundary>
+                                </KeepKeyProvider>
+                              </WalletConnectV2Provider>
+                            </ModalProvider>
+                          </WalletProvider>
+                        </I18nProvider>
+                      </BrowserRouterProvider>
+                    </HashRouter>
+                  </PersistGate>
+                </ChakraProvider>
+              </PluginProvider>
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </ReduxProvider>
     </HelmetProvider>
   )

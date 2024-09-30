@@ -1,3 +1,5 @@
+import '@rainbow-me/rainbowkit/styles.css'
+
 import {
   Box,
   Button,
@@ -11,11 +13,13 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, matchPath, useHistory } from 'react-router-dom'
+import { useWalletClient } from 'wagmi'
 import SplashSidebar from 'assets/splash-sidebar.jpg'
 import { AssetIcon } from 'components/AssetIcon'
 import { FoxIcon } from 'components/Icons/FoxIcon'
@@ -62,6 +66,10 @@ const langSelectorMarginTop = {
 const metamaskIcon = <MetaMaskIcon />
 
 export const ConnectWallet = () => {
+  const { data: walletClient } = useWalletClient()
+
+  console.log({ walletClient })
+
   const { state, dispatch, connectDemo, connect } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const isSnapEnabled = useFeatureFlag('Snaps')
@@ -185,6 +193,7 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='connectWalletPage.cta' />
                 </Button>
+                <ConnectButton />
                 {isSnapEnabled && (
                   <>
                     <Flex alignItems='center' justifyContent='center' width='full' gap={4}>

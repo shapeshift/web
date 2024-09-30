@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import { Button } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -26,9 +25,7 @@ export const TransactionHistoryList: React.FC<TransactionHistoryListProps> = mem
       () =>
         !hasMore && isAnyTxHistoryApiQueryPending ? (
           <CircularProgress isIndeterminate size={6} />
-        ) : (
-          <ChevronDownIcon />
-        ),
+        ) : undefined,
       [hasMore, isAnyTxHistoryApiQueryPending],
     )
 

@@ -206,8 +206,7 @@ export const txHistory = createSlice({
   },
 })
 
-// Exported as a paranoia to ensure module-time evaluation as a singleton
-export const requestQueue = new PQueue({ concurrency: 2 })
+const requestQueue = new PQueue({ concurrency: 2 })
 
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

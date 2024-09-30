@@ -52,7 +52,7 @@ export const selectWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
   (walletId, walletById): AccountId[] => {
-    const walletAccountIds = (walletId && walletById[walletId]) ?? []
+    const walletAccountIds = walletById?.[walletId ?? ''] ?? []
     return walletAccountIds
   },
 )

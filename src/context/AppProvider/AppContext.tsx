@@ -191,20 +191,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const { getAccount } = portfolioApi.endpoints
 
-          // Chunks of AccountIds
-          // For UTXOs, each chain gets its own chunk to detect chain activity over other scriptTypes
-          // For others, no need to use chunks, but for the sake of consistency, we keep the same structure
-          const accountNumberAccountIdChunks = (
+          const accountNumberAccountIdsByChainId = (
             _accountIds: AccountId[],
           ): Record<ChainId, AccountId[]> => {
             return _accountIds.reduce(
               (acc, _accountId) => {
                 const { chainId } = fromAccountId(_accountId)
-
-                if (isUtxoChainId(chainId)) {
-                  acc[chainId] = [_accountId]
-                  return acc
-                }
 
                 if (!acc[chainId]) {
                   acc[chainId] = []
@@ -218,11 +210,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           }
 
           let chainIdsWithActivity: string[] = []
-          // Chunks of AccountIds promises for accountNumber/AccountId combination
           // This allows every run of AccountIds per chain/accountNumber to run in parallel vs. all sequentally, so
-          // we can run each chain's side effects immediately
+          // we can run each item (usually one AccountId, except UTXOs which may contain many because of many scriptTypes) 's side effects immediately
           const accountNumberAccountIdsPromises = Object.values(
-            accountNumberAccountIdChunks(accountIds),
+            accountNumberAccountIdsByChainId(accountIds),
           ).map(async accountIds => {
             const results = await Promise.allSettled(
               accountIds.map(async id => {

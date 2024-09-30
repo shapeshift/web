@@ -13,7 +13,7 @@ export const Activity = ({ headerComponent }: ClaimsProps) => {
   const filter = useMemo(
     () => ({
       accountId: stakingAssetAccountId,
-      isRfoxTx: true,
+      parser: 'rfox' as const,
     }),
     [stakingAssetAccountId],
   )

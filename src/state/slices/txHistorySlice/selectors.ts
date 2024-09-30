@@ -21,7 +21,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectFromParamFromFilter,
-  selectIsRfoxTxParamFromFilter,
+  selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
@@ -141,8 +141,8 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
-  selectIsRfoxTxParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, isRfoxTxFilter): TxId[] => {
+  selectParserParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser): TxId[] => {
     const maybeFilteredByAccountId = accountIdFilter
       ? pickBy(data, (_, accountId) => {
           return accountId === accountIdFilter
@@ -152,8 +152,8 @@ export const selectTxIdsByFilter = createCachedSelector(
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const maybeFilteredByRfox = isRfoxTxFilter
-      ? uniqueIds.filter(txId => txs[txId].data?.parser === 'rfox')
+    const maybeFilteredByRfox = parser
+      ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
       : uniqueIds
 
     const maybeUniqueIdsByStatus = txStatusFilter

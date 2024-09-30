@@ -1,6 +1,7 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,7 +16,7 @@ type RecentTransactionFilter = {
   acccountId?: AccountId
   assetId?: AssetId
   txStatus?: TxStatus
-  isRfoxTx?: boolean
+  parser?: TxMetadata['parser']
 }
 type RecentTransactionProps = {
   limit?: number

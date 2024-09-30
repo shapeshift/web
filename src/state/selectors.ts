@@ -53,6 +53,7 @@ type ParamFilter = Partial<{
   feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
+  isRfoxTx: boolean
   hopIndex: number
   tradeId: TradeQuote['id']
 }>
@@ -98,6 +99,7 @@ export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+export const selectIsRfoxTxParamFromFilter = selectParamFromFilter('isRfoxTx')
 
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

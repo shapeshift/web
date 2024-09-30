@@ -6,14 +6,41 @@ import { NavLink } from 'react-router-dom'
 import { Text } from 'components/Text'
 import { TransactionHistoryList } from 'components/TransactionHistory/TransactionHistoryList'
 import { selectTxIdsByFilter } from 'state/slices/selectors'
+import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
-type RecentTransactionProps = { limit?: number; viewMoreLink?: boolean } & CardProps
+type RecentTransactionProps = {
+  limit?: number
+  viewMoreLink?: boolean
+  filter?: Record<string, any>
+} & Omit<CardProps, 'filter'>
 
-const filter = {}
+type RecentTransactionsBodyProps = {
+  limit: number
+} & (
+  | {
+      txIds: TxId[]
+      filter?: never
+    }
+  | {
+      txIds?: never
+      filter: Record<string, any>
+    }
+)
+
+const defaultFilter = {}
+
+export const RecentTransactionsBody: React.FC<RecentTransactionsBodyProps> = ({
+  txIds: _txIds,
+  filter,
+  limit,
+}) => {
+  const txIds = useAppSelector(state => (_txIds ? _txIds : selectTxIdsByFilter(state, filter)))
+  return <TransactionHistoryList txIds={txIds} useCompactMode={true} initialTxsCount={limit} />
+}
 
 export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
-  ({ limit = 10, viewMoreLink, ...rest }) => {
+  ({ limit = 10, viewMoreLink, filter = defaultFilter, ...rest }) => {
     const txIds = useAppSelector(state => selectTxIdsByFilter(state, filter))
     const translate = useTranslate()
     return (
@@ -28,7 +55,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
             </Button>
           )}
         </CardHeader>
-        <TransactionHistoryList txIds={txIds} useCompactMode={true} initialTxsCount={limit} />
+        <RecentTransactionsBody txIds={txIds} limit={limit} />
       </Card>
     )
   },

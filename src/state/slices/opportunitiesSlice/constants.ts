@@ -61,7 +61,7 @@ export const foxEthAssetIds = [
   foxEthStakingAssetIdV7,
   foxEthStakingAssetIdV8,
   foxEthStakingAssetIdV9,
-  // foxEthStakingAssetIdEvergreen, // TODO: Uncomment when Evergreen staking is ready for go-live
+  foxEthStakingAssetIdEvergreen,
 ] as const
 export const foxEthStakingIds = foxEthAssetIds as readonly StakingId[]
 

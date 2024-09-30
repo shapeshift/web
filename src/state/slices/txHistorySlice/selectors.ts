@@ -21,6 +21,7 @@ import {
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
   selectFromParamFromFilter,
+  selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
@@ -140,21 +141,25 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter): TxId[] => {
-    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
-
-    const filtered = pickBy(data, (_, accountId) => {
-      if (accountIdFilter) return accountId === accountIdFilter
-      return true
-    })
-    const flattened = values(filtered)
+  selectParserParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser): TxId[] => {
+    const maybeFilteredByAccountId = accountIdFilter
+      ? pickBy(data, (_, accountId) => {
+          return accountId === accountIdFilter
+        })
+      : data
+    const flattened = values(maybeFilteredByAccountId)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const uniqueIdsByStatus = txStatusFilter
-      ? uniqueIds.filter(txId => txs[txId].status === txStatusFilter)
+    const maybeFilteredByRfox = parser
+      ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
       : uniqueIds
-    const sortedIds = uniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+
+    const maybeUniqueIdsByStatus = txStatusFilter
+      ? maybeFilteredByRfox.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByRfox
+    const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
 )((_state: ReduxState, filter) =>

@@ -1,6 +1,7 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Progress, Stack } from '@chakra-ui/react'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 
@@ -21,6 +22,10 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
     activeTradeId,
   )
 
+  const isInitializing = useMemo(() => {
+    return !isComplete && totalSwapCount === 0
+  }, [isComplete, totalSwapCount])
+
   return (
     <Stack px={4}>
       <Row>
@@ -37,7 +42,7 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
           min={0}
           max={totalSwapCount}
           value={attemptedSwapCount - failedSwaps.length}
-          hasStripe={!isComplete}
+          hasStripe={isInitializing}
           isAnimated={!isComplete}
           colorScheme={isComplete ? 'green' : 'blue'}
         />

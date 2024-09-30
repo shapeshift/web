@@ -155,19 +155,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const walletId = await wallet.getDeviceID()
 
-        let chainIds = supportedChains.filter(chainId => {
-          return walletSupportsChain({
-            chainId,
-            wallet,
-            isSnapInstalled,
-            checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
-          })
-        })
+        let chainIds = new Set(
+          supportedChains.filter(chainId => {
+            return walletSupportsChain({
+              chainId,
+              wallet,
+              isSnapInstalled,
+              checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+            })
+          }),
+        )
 
         const accountMetadataByAccountId: AccountMetadataById = {}
         const isMultiAccountWallet = wallet.supportsBip44Accounts()
         const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-        for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+        for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
           if (
             accountNumber > 0 &&
             // only some wallets support multi account
@@ -180,7 +182,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const input = {
             accountNumber,
-            chainIds,
+            chainIds: Array.from(chainIds),
             wallet,
             isSnapInstalled: Boolean(isSnapInstalled),
           }
@@ -209,7 +211,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
             )
           }
 
-          let chainIdsWithActivity: string[] = []
+          let chainIdsWithActivity: Set<ChainId> = new Set()
           // This allows every run of AccountIds per chain/accountNumber to run in parallel vs. all sequentally, so
           // we can run each item (usually one AccountId, except UTXOs which may contain many because of many scriptTypes) 's side effects immediately
           const accountNumberAccountIdsPromises = Object.values(
@@ -250,11 +252,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
               // don't add accounts with no activity past account 0
               if (accountNumber > 0 && !accountNumberHasChainActivity) {
-                chainIdsWithActivity = chainIdsWithActivity.filter(_chainId => _chainId !== chainId)
+                chainIdsWithActivity.delete(chainId)
                 delete accountMetadataByAccountId[accountId]
               } else {
-                // unique set to handle utxo chains with multiple account types per account
-                chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+                // handle utxo chains with multiple account types per account
+                chainIdsWithActivity.add(chainId)
 
                 dispatch(portfolio.actions.upsertPortfolio(account))
                 const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(

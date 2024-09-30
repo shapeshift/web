@@ -20,7 +20,7 @@ type RecentTransactionFilter = {
 type RecentTransactionProps = {
   limit?: number
   viewMoreLink?: boolean
-  filter: RecentTransactionFilter
+  filter?: RecentTransactionFilter
 } & Omit<CardProps, 'filter'>
 
 type RecentTransactionsBodyProps = {

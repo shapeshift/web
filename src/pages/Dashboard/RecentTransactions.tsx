@@ -1,5 +1,7 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Button, Card, CardHeader, Heading } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { NavLink } from 'react-router-dom'
@@ -9,10 +11,16 @@ import { selectTxIdsByFilter } from 'state/slices/selectors'
 import type { TxId } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
+type RecentTransactionFilter = {
+  acccountId?: AccountId
+  assetId?: AssetId
+  txStatus?: TxStatus
+  isRfoxTx?: boolean
+}
 type RecentTransactionProps = {
   limit?: number
   viewMoreLink?: boolean
-  filter?: Record<string, any>
+  filter: RecentTransactionFilter
 } & Omit<CardProps, 'filter'>
 
 type RecentTransactionsBodyProps = {
@@ -24,7 +32,7 @@ type RecentTransactionsBodyProps = {
     }
   | {
       txIds?: never
-      filter: Record<string, any>
+      filter: RecentTransactionFilter
     }
 )
 

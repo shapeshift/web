@@ -44,6 +44,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
@@ -100,7 +101,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const translate = useTranslate()
   const history = useHistory()
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
   const isChainSupportedByWallet = useWalletSupportsChain(
     fromAssetId(selectedAssetId).chainId,
@@ -450,6 +451,16 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   ])
 
   if (!selectedAsset) return null
+
+  if (!isConnected)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ConnectWallet />
+        </CardBody>
+      </SlideTransition>
+    )
 
   if (!stakingAssetAccountAddress && !isAccountMetadataLoading)
     return (

@@ -15,6 +15,8 @@ import WorkBoxPlugin from 'workbox-webpack-plugin'
 import { cspMeta, headers, serializeCsp } from './headers'
 import { progressPlugin } from './progress'
 
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+
 type DevServerConfigFunction = (
   proxy: unknown,
   allowedHost: unknown,
@@ -367,6 +369,19 @@ const reactAppRewireConfig = {
         // bundles all imports from this package. This plugin silences the warning.
         // https://webpack.js.org/guides/dependency-management/#require-with-expression
         new ContextReplacementPlugin(/@cowprotocol\/app-data/),
+      ],
+    })
+
+    // Set up the BundleAnalyzerPlugin for analyzing the bundle size
+    _.merge(config, {
+      plugins: [
+        ...(config.plugins ?? []),
+        process.env.ANALYZE === 'true' &&
+          new BundleAnalyzerPlugin({
+            analyzerMode: 'server',
+            analyzerPort: 8888,
+            openAnalyzer: true,
+          }),
       ],
     })
 

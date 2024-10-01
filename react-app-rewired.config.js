@@ -1,4 +1,5 @@
 const tsNode = require('ts-node')
+
 tsNode.register({
   extends: './tsconfig.web.json',
   include: ['src'],

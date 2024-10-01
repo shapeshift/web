@@ -9,6 +9,7 @@
     "version": "independent"
   },
   "scripts": {
+    "analyze": "ANALYZE=true yarn build:web",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
     "build:web": "yarn build:packages && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired --openssl-legacy-provider build && tsx ./scripts/writeHeaders.ts && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && tsx ./scripts/writeBuildMetadata.ts",
     "build:packages": "yarn clean:packages && yarn workspace @shapeshiftoss/unchained-client generate && yarn tsc --build tsconfig.packages.json",
@@ -294,6 +295,7 @@
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "1.1.1",
     "webpack": "5.94.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-subresource-integrity": "^5.0.0",
     "workbox-webpack-plugin": "^7.1.0"
   },

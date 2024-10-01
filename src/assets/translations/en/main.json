@@ -2597,7 +2597,7 @@
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "marketsBody": "Discover the most exciting cryptocurrencies. Track top movers, emerging tokens, DeFi opportunities, and more!",
     "watchlistEmpty": {
       "emptyTitle": "No assets in Watchlist",
       "emptyBody": "It appears you haven't starred any assets just yet. Start adding assets to your watchlist now to track them!"

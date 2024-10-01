@@ -1,18 +1,18 @@
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
-import { StepsStyleConfig } from 'chakra-ui-steps'
+import { StepsTheme } from 'chakra-ui-steps'
 
 export const StepsStyle = {
-  ...StepsStyleConfig,
+  ...StepsTheme,
   baseStyle: (props: StyleFunctionProps) => {
     return {
-      ...StepsStyleConfig.baseStyle(props),
+      ...StepsTheme.baseStyle(props),
       stepIconContainer: {
-        ...StepsStyleConfig.baseStyle(props).stepIconContainer,
+        ...StepsTheme.baseStyle(props).stepIconContainer,
         bg: 'transparent',
       },
       labelContainer: {
-        ...StepsStyleConfig.baseStyle(props).labelContainer,
+        ...StepsTheme.baseStyle(props).labelContainer,
         '& span': {
           color: 'text.subtle',
         },
@@ -28,7 +28,7 @@ export const StepsStyle = {
         },
       },
       connector: {
-        ...StepsStyleConfig.baseStyle(props).connector,
+        ...StepsTheme.baseStyle(props).connector,
         borderColor: 'transparent',
       },
     }

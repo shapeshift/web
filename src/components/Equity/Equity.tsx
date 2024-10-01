@@ -142,7 +142,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [borderColor],
   )
 
-  if (!asset) return null
+  if (!asset || !accountId) return null
 
   return (
     <Card variant='dashboard'>

@@ -34,9 +34,9 @@ import {
 import {
   selectActiveQuote,
   selectFirstHop,
-  selectIsAnyTradeQuoteLoaded,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
+  selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -87,7 +87,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
 
-  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -119,14 +119,14 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const isLoading = useMemo(
     () =>
       isAccountMetadataLoading ||
-      (!isAnyTradeQuoteLoaded && !isTradeQuoteRequestAborted) ||
+      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAnyTradeQuoteLoaded,
+      shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,

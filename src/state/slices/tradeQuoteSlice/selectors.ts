@@ -729,11 +729,12 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   },
 )
 
-export const selectIsAnyTradeQuoteLoaded = createSelector(
+export const selectShouldShowTradeQuoteOrAwaitInput = createSelector(
   selectHasUserEnteredAmount,
   selectIsAnyTradeQuoteLoading,
   selectIsAnySwapperQuoteAvailable,
   (hasUserEnteredAmount, isAnyTradeQuoteLoading, isAnySwapperQuoteAvailable) => {
+    // Paranoia - if no amount entered, we're still awaiting input
     if (!hasUserEnteredAmount) {
       return true
     }
@@ -743,7 +744,8 @@ export const selectIsAnyTradeQuoteLoaded = createSelector(
       return isAnySwapperQuoteAvailable
     }
 
-    // Otherwise, an empty result should default to true to allow the app to stop loading state.
+    // Otherwise, the quotes are fully loaded and ready to display, or we have an empty result which
+    // should default to true to allow the app to stop loading state.
     return true
   },
 )

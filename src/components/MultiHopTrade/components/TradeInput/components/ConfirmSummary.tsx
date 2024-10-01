@@ -32,8 +32,8 @@ import {
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
   selectIsAnySwapperQuoteAvailable,
-  selectIsAnyTradeQuoteLoaded,
   selectIsAnyTradeQuoteLoading,
+  selectShouldShowTradeQuoteOrAwaitInput,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
@@ -79,7 +79,7 @@ export const ConfirmSummary = ({
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
-  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
   const isAnySwapperQuoteAvailable = useAppSelector(selectIsAnySwapperQuoteAvailable)
@@ -144,14 +144,14 @@ export const ConfirmSummary = ({
   }, [isAccountMetadataLoading, walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive])
 
   const quoteHasError = useMemo(() => {
-    if (!isAnyTradeQuoteLoaded) return false
+    if (!shouldShowTradeQuoteOrAwaitInput) return false
     if (hasUserEnteredAmount && !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable) return true
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [
     activeQuoteErrors?.length,
     hasUserEnteredAmount,
     isAnySwapperQuoteAvailable,
-    isAnyTradeQuoteLoaded,
+    shouldShowTradeQuoteOrAwaitInput,
     isAnyTradeQuoteLoading,
     quoteRequestErrors?.length,
   ])
@@ -205,7 +205,7 @@ export const ConfirmSummary = ({
     switch (true) {
       case isAccountMetadataLoading:
         return 'common.accountsLoading'
-      case !isAnyTradeQuoteLoaded:
+      case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
@@ -227,7 +227,7 @@ export const ConfirmSummary = ({
     quoteResponseErrors,
     activeQuoteErrors,
     isAccountMetadataLoading,
-    isAnyTradeQuoteLoaded,
+    shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
     isAnyTradeQuoteLoading,
     isAnySwapperQuoteAvailable,

@@ -243,9 +243,33 @@ export const tradeQuoteSlice = createSlice({
         id: TradeQuote['id']
       }>,
     ) => {
-      const { hopIndex, streamingSwapMetadata } = action.payload
+      const { hopIndex, streamingSwapMetadata, id } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
-      state.tradeExecution[action.payload.id][key].swap.streamingSwap = streamingSwapMetadata
+      // Break race condition updating streaming swap state after trade completes
+      if (state.tradeExecution[id][key].swap.state === TransactionExecutionState.Complete) {
+        return
+      }
+      state.tradeExecution[id][key].swap.streamingSwap = streamingSwapMetadata
+    },
+    setStreamingSwapMetaComplete: (
+      state,
+      action: PayloadAction<{
+        hopIndex: number
+        id: TradeQuote['id']
+      }>,
+    ) => {
+      const { hopIndex, id } = action.payload
+      const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+      const existingState = state.tradeExecution[id][key].swap.streamingSwap
+
+      // not a streaming swap, or no metadata to update (e.g in the case of very small streams which
+      // never have a streaming state reported by the api)
+      if (!existingState) return
+
+      state.tradeExecution[id][key].swap.streamingSwap = {
+        ...existingState,
+        attemptedSwapCount: existingState?.totalSwapCount ?? 0,
+      }
     },
     updateTradeQuoteDisplayCache: (
       state,

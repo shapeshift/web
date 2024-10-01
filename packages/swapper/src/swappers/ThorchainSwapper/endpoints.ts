@@ -32,8 +32,7 @@ import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
 import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import type { ThornodeStatusResponse } from './types'
-import { checkOutboundTxConfirmations } from './utils/checkOutputTxConfirmations'
+import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
@@ -360,11 +359,17 @@ export const thorchainApi: SwapperApi = {
       const thorTxHash = txHash.replace(/^0x/, '')
 
       // not using monadic axios, this is intentional for simplicity in this non-monadic context
-      const { data } = await axios.get<ThornodeStatusResponse>(
-        `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
-      )
+      const [{ data: txData }, { data: txStatusData }] = await Promise.all([
+        axios.get<ThornodeTxResponse>(
+          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/${thorTxHash}`,
+        ),
+        axios.get<ThornodeStatusResponse>(
+          `${config.REACT_APP_THORCHAIN_NODE_URL}/lcd/thorchain/tx/status/${thorTxHash}`,
+        ),
+      ])
 
-      if ('error' in data) {
+      // We care about txStatusData errors because it drives all of the status logic.
+      if ('error' in txStatusData) {
         return {
           buyTxHash: undefined,
           status: TxStatus.Unknown,
@@ -372,33 +377,28 @@ export const thorchainApi: SwapperApi = {
         }
       }
 
-      const latestOutTx = data.out_txs?.[data.out_txs.length - 1]
-      const hasOutboundTx = latestOutTx?.chain !== 'THOR'
+      // We use planned_out_txs to determine the number of out txs because we don't want to derive
+      // swap completion based on the length of out_txs which is populated as the trade executed
+      const numOutTxs = txStatusData.planned_out_txs?.length ?? 0
+      const lastOutTx = txStatusData.out_txs?.[numOutTxs - 1]
 
-      const buyTxHash = parseThorBuyTxHash(txHash, latestOutTx)
+      const buyTxHash = parseThorBuyTxHash(txHash, lastOutTx)
 
-      // if we have an outbound transaction (non rune) and associated buyTxHash, check if it's been confirmed on-chain
-      if (hasOutboundTx && buyTxHash) {
-        const outboundTxConfirmations = await checkOutboundTxConfirmations(
+      // If thornode says the tx is done, its done ;)
+      // We discard txData errors because we can derive the status before it returns a success response.
+      if (!('error' in txData) && txData.observed_tx?.status === 'done') {
+        return {
           buyTxHash,
-          latestOutTx,
-          config,
-        )
-
-        if (outboundTxConfirmations !== undefined && outboundTxConfirmations > 0) {
-          return {
-            buyTxHash,
-            status: TxStatus.Confirmed,
-            message: undefined,
-          }
+          status: TxStatus.Confirmed,
+          message: undefined,
         }
       }
 
-      const { message, status } = getLatestThorTxStatusMessage(data, hasOutboundTx)
-
+      const hasOutboundTx = lastOutTx !== undefined && lastOutTx.chain !== 'THOR'
+      const message = getLatestThorTxStatusMessage(txStatusData, hasOutboundTx)
       return {
         buyTxHash,
-        status,
+        status: TxStatus.Pending,
         message,
       }
     } catch (e) {

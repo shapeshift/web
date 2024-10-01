@@ -12,8 +12,6 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { PrivateRoute } from './PrivateRoute'
-
 const Flags = makeSuspenseful(
   lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
 )
@@ -111,16 +109,6 @@ export const Routes = memo(() => {
     () =>
       appRoutes.map(route => {
         const MainComponent = route.main
-        if (location.pathname.startsWith('/wallet'))
-          return (
-            <PrivateRoute
-              key={isUnstableRoute ? Date.now() : 'privateRoute'}
-              path={route.path}
-              hasWallet={hasWallet}
-            >
-              {MainComponent && <MainComponent />}
-            </PrivateRoute>
-          )
         return (
           <Route key={isUnstableRoute ? Date.now() : 'route'} path={route.path}>
             {MainComponent && <MainComponent />}

@@ -57,7 +57,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
@@ -264,12 +264,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
+    if (!isConnected) return
 
     // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
-  }, [dispatch, portfolioLoadingStatus])
+  }, [dispatch, isConnected, portfolioLoadingStatus])
 
   // once portfolio is done loading, fetch all transaction history
   useEffect(() => {

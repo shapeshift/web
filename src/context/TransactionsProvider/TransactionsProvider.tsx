@@ -48,7 +48,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
@@ -160,6 +160,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
 
   const maybeRefetchVotingPower = useCallback(
     ({ status }: Transaction, chainId: ChainId) => {
+      if (!isConnected) return
       // Only refetch voting power for EVM ChainIds. Refetching at Tx history provider is so we can refetch voting power on a best-effort basis,
       // and we should probably do some king of interval refetching instead of relying on Tx history
       if (!isEvmChainId(chainId)) return
@@ -171,7 +172,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
         snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
       )
     },
-    [dispatch],
+    [dispatch, isConnected],
   )
 
   const maybeRefetchNfts = useCallback(

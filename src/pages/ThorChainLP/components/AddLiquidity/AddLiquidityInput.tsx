@@ -984,13 +984,15 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   useEffect(() => {
-    dispatch(
-      snapshotApi.endpoints.getVotingPower.initiate(
-        { model: 'THORCHAIN_LP' },
-        // Fetch only once on mount to avoid overfetching
-        { forceRefetch: false },
-      ),
-    )
+    if (isConnected) {
+      dispatch(
+        snapshotApi.endpoints.getVotingPower.initiate(
+          { model: 'THORCHAIN_LP' },
+          // Fetch only once on mount to avoid overfetching
+          { forceRefetch: false },
+        ),
+      )
+    }
 
     if (!slippageFiatUserCurrency) return
     if (!activeOpportunityId) return

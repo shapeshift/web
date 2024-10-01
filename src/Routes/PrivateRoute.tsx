@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { RouteProps } from 'react-router-dom'
-import { Redirect, Route, Switch } from 'react-router-dom'
+import { Redirect, Route } from 'react-router-dom'
 
 type PrivateRouteProps = {
   hasWallet: boolean
@@ -17,11 +17,5 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
     [location],
   )
 
-  return (
-    <Switch location={location}>
-      <Route {...rest} path='/markets' />
-      <Route {...rest} path='/assets' />
-      {hasWallet ? <Route {...rest} /> : <Redirect to={to} />}
-    </Switch>
-  )
+  return hasWallet ? <Route {...rest} /> : <Redirect to={to} />
 }

@@ -164,7 +164,24 @@ export const Routes = memo(() => {
       <Route>
         <Layout>
           <Switch>
-            {privateRoutesList}
+            {appRoutes.map(route => {
+              const MainComponent = route.main
+              if (location.pathname.startsWith('/wallet'))
+                return (
+                  <PrivateRoute
+                    key={isUnstableRoute ? Date.now() : 'privateRoute'}
+                    path={route.path}
+                    hasWallet={hasWallet}
+                  >
+                    {MainComponent && <MainComponent />}
+                  </PrivateRoute>
+                )
+              return (
+                <Route key={isUnstableRoute ? Date.now() : 'route'} path={route.path}>
+                  {MainComponent && <MainComponent />}
+                </Route>
+              )
+            })}
             <Redirect from='/' to='/trade' />
             <Route>
               <NotFound />

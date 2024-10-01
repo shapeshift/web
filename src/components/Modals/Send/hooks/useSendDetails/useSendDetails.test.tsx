@@ -136,7 +136,7 @@ const setup = ({
           amountCryptoPrecision: '1',
           asset: asset.assetId,
         }),
-      }) as unknown as UseFormReturn<any, any>,
+      }) as unknown as UseFormReturn<any>,
   )
 
   const wrapper: React.FC<PropsWithChildren> = ({ children }) => (

@@ -18,22 +18,22 @@ export type Modals = {
   qrCode: FC<QrCodeModalProps>
   send: FC<SendModalProps>
   fiatRamps: FC<FiatRampsModalProps>
-  settings: FC<{}>
-  keepKeyWipe: FC<{}>
+  settings: FC
+  keepKeyWipe: FC
   backupNativePassphrase: FC<BackupPassphraseModalProps>
-  mobileWelcomeModal: FC<{}>
-  addAccount: FC<{}>
+  mobileWelcomeModal: FC
+  addAccount: FC
   assetSearch: FC<AssetSearchModalProps>
   buyAssetSearch: FC<AssetSearchModalProps>
   sellAssetSearch: FC<AssetSearchModalProps>
   buyTradeAssetSearch: FC<TradeAssetSearchModalProps>
   sellTradeAssetSearch: FC<TradeAssetSearchModalProps>
   popup: FC<PopupWindowModalProps>
-  nativeOnboard: FC<{}>
+  nativeOnboard: FC
   nft: FC<NftModalProps>
-  feedbackSupport: FC<{}>
+  feedbackSupport: FC
   snaps: FC<SnapsModalProps>
-  manageAccounts: FC<{}>
+  manageAccounts: FC
   ledgerOpenApp: FC<LedgerOpenAppModalProps>
 }
 

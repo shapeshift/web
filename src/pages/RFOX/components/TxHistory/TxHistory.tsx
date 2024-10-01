@@ -3,6 +3,7 @@ import type { PropsWithChildren } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { Activity } from './Activity'
 import { Claims } from './Claims'
 import { Rewards } from './Rewards'
 
@@ -14,17 +15,13 @@ type FormHeaderTabProps = {
 
 const activeStyle = { color: 'text.base' }
 
-export const RewardsAndClaimsTabIndex = {
+export const TxHistoryIndex = {
   Rewards: 0,
   Claims: 1,
+  Activity: 2,
 }
 
-const RewardsAndClaimsTab: React.FC<FormHeaderTabProps> = ({
-  index,
-  onClick,
-  isActive,
-  children,
-}) => {
+const TxHistoryTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
   const handleClick = useCallback(() => {
     onClick(index)
   }, [index, onClick])
@@ -46,7 +43,7 @@ type FormHeaderProps = {
   activeIndex: number
 }
 
-const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
+const TxHistoryHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) => {
   const translate = useTranslate()
   const handleClick = useCallback(
     (index: number) => {
@@ -57,29 +54,36 @@ const RewardsAndClaimsHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activ
 
   return (
     <Flex gap={4}>
-      <RewardsAndClaimsTab
-        index={RewardsAndClaimsTabIndex.Rewards}
+      <TxHistoryTab
+        index={TxHistoryIndex.Rewards}
         onClick={handleClick}
-        isActive={activeIndex === RewardsAndClaimsTabIndex.Rewards}
+        isActive={activeIndex === TxHistoryIndex.Rewards}
       >
         {translate('RFOX.rewards')}
-      </RewardsAndClaimsTab>
-      <RewardsAndClaimsTab
-        index={RewardsAndClaimsTabIndex.Claims}
+      </TxHistoryTab>
+      <TxHistoryTab
+        index={TxHistoryIndex.Claims}
         onClick={handleClick}
-        isActive={activeIndex === RewardsAndClaimsTabIndex.Claims}
+        isActive={activeIndex === TxHistoryIndex.Claims}
       >
         {translate('RFOX.claims')}
-      </RewardsAndClaimsTab>
+      </TxHistoryTab>
+      <TxHistoryTab
+        index={TxHistoryIndex.Activity}
+        onClick={handleClick}
+        isActive={activeIndex === TxHistoryIndex.Activity}
+      >
+        {translate('common.activity')}
+      </TxHistoryTab>
     </Flex>
   )
 }
 
-export const RewardsAndClaims: React.FC = () => {
-  const [stepIndex, setStepIndex] = useState(RewardsAndClaimsTabIndex.Rewards)
+export const TxHistory: React.FC = () => {
+  const [stepIndex, setStepIndex] = useState(TxHistoryIndex.Rewards)
 
   const TabHeader = useMemo(
-    () => <RewardsAndClaimsHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
+    () => <TxHistoryHeader setStepIndex={setStepIndex} activeIndex={stepIndex} />,
     [stepIndex],
   )
   return (
@@ -91,6 +95,9 @@ export const RewardsAndClaims: React.FC = () => {
           </TabPanel>
           <TabPanel px={0} py={0}>
             <Claims headerComponent={TabHeader} />
+          </TabPanel>
+          <TabPanel px={0} py={0}>
+            <Activity headerComponent={TabHeader} />
           </TabPanel>
         </TabPanels>
       </Tabs>

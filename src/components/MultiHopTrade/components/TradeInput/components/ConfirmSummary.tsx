@@ -31,7 +31,9 @@ import {
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectIsAnyTradeQuoteLoaded,
+  selectIsAnySwapperQuoteAvailable,
+  selectIsAnyTradeQuoteLoading,
+  selectShouldShowTradeQuoteOrAwaitInput,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
@@ -77,8 +79,10 @@ export const ConfirmSummary = ({
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
-  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const isAnySwapperQuoteAvailable = useAppSelector(selectIsAnySwapperQuoteAvailable)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -140,9 +144,17 @@ export const ConfirmSummary = ({
   }, [isAccountMetadataLoading, walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive])
 
   const quoteHasError = useMemo(() => {
-    if (!isAnyTradeQuoteLoaded) return false
+    if (!shouldShowTradeQuoteOrAwaitInput) return false
+    if (hasUserEnteredAmount && !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable) return true
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
+  }, [
+    activeQuoteErrors?.length,
+    hasUserEnteredAmount,
+    isAnySwapperQuoteAvailable,
+    shouldShowTradeQuoteOrAwaitInput,
+    isAnyTradeQuoteLoading,
+    quoteRequestErrors?.length,
+  ])
 
   const isLoading = useMemo(() => {
     return isParentLoading || isReceiveAddressByteCodeLoading || !buyAssetFeeAsset
@@ -193,7 +205,7 @@ export const ConfirmSummary = ({
     switch (true) {
       case isAccountMetadataLoading:
         return 'common.accountsLoading'
-      case !isAnyTradeQuoteLoaded:
+      case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
@@ -202,6 +214,8 @@ export const ConfirmSummary = ({
         return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
         return getQuoteErrorTranslation(tradeQuoteError!)
+      case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
+        return 'trade.noRateAvailable'
       case !isConnected || isDemoWallet:
         // We got a happy path quote, but we may still be in the context of the demo wallet
         return 'common.connectWallet'
@@ -212,11 +226,13 @@ export const ConfirmSummary = ({
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAnyTradeQuoteLoaded,
+    isAccountMetadataLoading,
+    shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
+    isAnyTradeQuoteLoading,
+    isAnySwapperQuoteAvailable,
     isConnected,
     isDemoWallet,
-    isAccountMetadataLoading,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {

@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
+import { Alert, AlertIcon, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'

@@ -49,17 +49,23 @@ export const zrxApi: SwapperApi = {
     config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, permit2 } = steps[0]
+    const {
+      buyAsset,
+      sellAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      transactionMetadata,
+    } = steps[0]
 
     const { value, to, data, estimatedGas } = await (async () => {
-      // If this is a Permit2 quote the comment below RE re-fetching does not apply. We must use the
-      // original transaction returned in the quote because the Permit2 signature is coupled to it.
-      if (permit2) {
+      // If this is a quote from the 0x V2 API the comment below RE re-fetching does not apply. We
+      // must use the original transaction returned in the quote because the Permit2 signature is
+      // coupled to it.
+      if (transactionMetadata) {
         return {
-          value: permit2.transaction.value?.toString() ?? '0',
-          to: permit2.transaction.to ?? '0x',
-          data: permit2.transaction.data ?? '0x',
-          estimatedGas: permit2.transaction.gas?.toString() ?? '0',
+          value: transactionMetadata.value?.toString() ?? '0',
+          to: transactionMetadata.to ?? '0x',
+          data: transactionMetadata.data ?? '0x',
+          estimatedGas: transactionMetadata.gas?.toString() ?? '0',
         }
       }
 

@@ -195,10 +195,8 @@ export type TradeQuoteStep = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
-  permit2?: {
-    eip712: TypedData
-    transaction: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
-  }
+  eip712?: TypedData
+  transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
 }
 
 type TradeQuoteBase = {

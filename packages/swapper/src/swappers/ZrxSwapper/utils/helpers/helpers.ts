@@ -1,9 +1,9 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
-import { isAddress } from 'viem'
+import { getAddress } from 'viem'
 
 import type { ZrxSupportedChainId } from '../../types'
 import { zrxSupportedChainIds } from '../../types'
@@ -31,19 +31,69 @@ export const baseUrlFromChainId = (zrxBaseUrl: string, chainId: ZrxSupportedChai
 }
 
 // converts an asset to zrx token (symbol or contract address)
-export const assetToToken = (asset: Asset): string => {
+export const assetToZrxToken = (asset: Asset): string => {
   const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
   return assetNamespace === 'slip44' ? ZRX_NATIVE_ASSET_ADDRESS : assetReference
 }
 
-export const tokenToAssetId = (token: string, chainId: ChainId): AssetId => {
-  // Native assets are returned as the symbol instead of an address
-  const assetNamespace = isAddress(token)
-    ? chainId === KnownChainIds.BnbSmartChainMainnet
-      ? ASSET_NAMESPACE.bep20
-      : ASSET_NAMESPACE.erc20
-    : ASSET_NAMESPACE.slip44
-  return toAssetId({ chainId, assetNamespace, assetReference: token })
+export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
+  const isDefaultAddress = getAddress(token) === ZRX_NATIVE_ASSET_ADDRESS
+
+  const { assetReference, assetNamespace } = (() => {
+    if (!isDefaultAddress)
+      return {
+        assetReference: token,
+        assetNamespace:
+          chainId === KnownChainIds.BnbSmartChainMainnet
+            ? ASSET_NAMESPACE.bep20
+            : ASSET_NAMESPACE.erc20,
+      }
+    switch (chainId as ZrxSupportedChainId) {
+      case KnownChainIds.EthereumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Ethereum,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.AvalancheMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.AvalancheC,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.OptimismMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Optimism,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.BnbSmartChainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.BnbSmartChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.PolygonMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Polygon,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.ArbitrumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Arbitrum,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case KnownChainIds.BaseMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Base,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      default:
+        throw Error(`chainId '${chainId}' not supported`)
+    }
+  })()
+
+  return toAssetId({
+    chainId,
+    assetNamespace,
+    assetReference,
+  })
 }
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ZrxSupportedChainId => {

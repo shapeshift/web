@@ -9,7 +9,7 @@ import {
   RadioGroup,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ReactChild } from 'react'
+import type { ReactElement } from 'react'
 import { Fragment } from 'react'
 import type { Control } from 'react-hook-form'
 import { useController } from 'react-hook-form'
@@ -17,7 +17,7 @@ import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { Text } from 'components/Text'
 import { useToggle } from 'hooks/useToggle/useToggle'
 
-export type Option = [string, string, ReactChild?]
+export type Option = [string, string, (ReactElement | string | number)?]
 
 const buttonHover = { bg: 'transparent' }
 

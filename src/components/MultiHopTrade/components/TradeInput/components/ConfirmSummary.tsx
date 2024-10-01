@@ -6,6 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
@@ -343,7 +344,7 @@ export const ConfirmSummary = ({
           description={manualAddressEntryDescription}
         />
 
-        <Button
+        <ButtonWalletPredicate
           isLoading={isAccountMetadataLoading}
           loadingText={buttonText}
           type='submit'
@@ -351,10 +352,11 @@ export const ConfirmSummary = ({
           size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
+          isValidWallet={true}
           mx={-2}
         >
           {buttonText}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </>
   )

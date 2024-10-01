@@ -3,6 +3,7 @@ import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
+import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
@@ -15,6 +16,7 @@ import { SEO } from 'components/Layout/Seo'
 import { ReactTable } from 'components/ReactTable/ReactTable'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { RawText, Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { calculateEarnings } from 'lib/utils/thorchain/lp'
@@ -65,6 +67,7 @@ const reactTableInitialState = {
 }
 
 export const YourPositions = () => {
+  const { isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
@@ -85,6 +88,7 @@ export const YourPositions = () => {
   }, [allUserLpData])
 
   const emptyIcon = useMemo(() => <PoolsIcon />, [])
+  const connectIcon = useMemo(() => <FaWallet />, [])
   const headerComponent = useMemo(() => <PoolsHeader />, [])
 
   const positions = useMemo(
@@ -311,7 +315,15 @@ export const YourPositions = () => {
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
 
   const body = useMemo(() => {
-    if (isEmpty) {
+    if (!isConnected)
+      return (
+        <ResultsEmpty
+          title='Connect Wallet'
+          body='Connect a wallet to get started with RFOX'
+          icon={connectIcon}
+        />
+      )
+    if (isEmpty)
       return (
         <ResultsEmpty
           title='pools.yourPositions.emptyTitle'
@@ -319,7 +331,7 @@ export const YourPositions = () => {
           icon={emptyIcon}
         />
       )
-    }
+
     return positions.length ? (
       <ReactTable
         data={positions}
@@ -333,7 +345,7 @@ export const YourPositions = () => {
         <Spinner />
       </Flex>
     )
-  }, [columns, emptyIcon, handlePoolClick, isEmpty, positions])
+  }, [columns, connectIcon, emptyIcon, handlePoolClick, isConnected, isEmpty, positions])
 
   return (
     <Main headerComponent={headerComponent} isSubPage>

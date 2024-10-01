@@ -107,18 +107,24 @@ export const Routes = memo(() => {
    * Memoize the route list to avoid unnecessary cascading re-renders
    * It should only re-render if the wallet changes
    */
-  const privateRoutesList = useMemo(
+  const appRoutesList = useMemo(
     () =>
       appRoutes.map(route => {
         const MainComponent = route.main
+        if (location.pathname.startsWith('/wallet'))
+          return (
+            <PrivateRoute
+              key={isUnstableRoute ? Date.now() : 'privateRoute'}
+              path={route.path}
+              hasWallet={hasWallet}
+            >
+              {MainComponent && <MainComponent />}
+            </PrivateRoute>
+          )
         return (
-          <PrivateRoute
-            key={isUnstableRoute ? Date.now() : 'privateRoute'}
-            path={route.path}
-            hasWallet={hasWallet}
-          >
+          <Route key={isUnstableRoute ? Date.now() : 'route'} path={route.path}>
             {MainComponent && <MainComponent />}
-          </PrivateRoute>
+          </Route>
         )
       }),
     // We *actually* want to be reactive on the location.pathname reference
@@ -164,24 +170,7 @@ export const Routes = memo(() => {
       <Route>
         <Layout>
           <Switch>
-            {appRoutes.map(route => {
-              const MainComponent = route.main
-              if (location.pathname.startsWith('/wallet'))
-                return (
-                  <PrivateRoute
-                    key={isUnstableRoute ? Date.now() : 'privateRoute'}
-                    path={route.path}
-                    hasWallet={hasWallet}
-                  >
-                    {MainComponent && <MainComponent />}
-                  </PrivateRoute>
-                )
-              return (
-                <Route key={isUnstableRoute ? Date.now() : 'route'} path={route.path}>
-                  {MainComponent && <MainComponent />}
-                </Route>
-              )
-            })}
+            {appRoutesList}
             <Redirect from='/' to='/trade' />
             <Route>
               <NotFound />

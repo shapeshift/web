@@ -155,7 +155,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const mixpanel = getMixPanel()
   const greenColor = useColorModeValue('green.600', 'green.200')
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const isDemoWallet = useWallet().state.isDemoWallet
   const queryClient = useQueryClient()
   const translate = useTranslate()
@@ -1210,6 +1210,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset, runeAsset, translate, opportunityType])
 
   const maybeOpportunityNotSupportedExplainer = useMemo(() => {
+    if (!isConnected) return null
     if (walletSupportsOpportunity) return null
     if (!poolAsset || !runeAsset) return null
 
@@ -1243,13 +1244,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       </Alert>
     )
   }, [
+    isConnected,
+    walletSupportsOpportunity,
     poolAsset,
     runeAsset,
-    translate,
-    walletSupportsAsset,
-    walletSupportsOpportunity,
-    walletSupportsRune,
     isDemoWallet,
+    walletSupportsRune,
+    walletSupportsAsset,
+    translate,
   ])
 
   const handleAssetChange = useCallback(
@@ -1370,6 +1372,8 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const errorCopy = useMemo(() => {
+    // Wallet not connected is *not* an error
+    if (!isConnected) return
     // Order matters here. Since we're dealing with two assets potentially, we want to show the most relevant error message possible i.e
     // 1. pool halted/disabled
     // 2. Asset unsupported by wallet
@@ -1401,6 +1405,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
     return null
   }, [
+    isConnected,
     isDemoWallet,
     isSmartContractAccountAddress,
     isThorchainLpDepositEnabled,
@@ -1417,6 +1422,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   ])
 
   const confirmCopy = useMemo(() => {
+    if (!isConnected) return translate('common.connectWallet')
     if (errorCopy) return errorCopy
     if (poolAsset && isApprovalRequired)
       return translate(
@@ -1427,7 +1433,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       )
 
     return translate('pools.addLiquidity')
-  }, [errorCopy, isAllowanceResetRequired, isApprovalRequired, poolAsset, translate])
+  }, [errorCopy, isAllowanceResetRequired, isApprovalRequired, isConnected, poolAsset, translate])
 
   const divider = useMemo(() => <StackDivider borderColor='border.base' />, [])
 

@@ -135,7 +135,7 @@
     "browserify-fs": "^1.0.0",
     "browserify-zlib": "^0.2.0",
     "bs58check": "^2.1.2",
-    "chakra-ui-steps": "^1.7.3",
+    "chakra-ui-steps": "^2.1.0",
     "crypto-browserify": "^3.12.0",
     "dayjs": "^1.11.3",
     "dompurify": "^2.3.8",

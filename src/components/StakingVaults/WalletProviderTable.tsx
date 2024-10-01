@@ -39,8 +39,6 @@ export const WalletProviderTable: React.FC<ProviderTableProps> = ({
     selectAggregatedEarnOpportunitiesByProvider(state, rowsFilter),
   )
 
-  console.log({ rows, isLoading })
-
   const renderProviders = useMemo(() => {
     if (!rows.length && !isLoading) {
       return (

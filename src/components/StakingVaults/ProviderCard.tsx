@@ -59,7 +59,7 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
   const isLoaded = !isLoading
 
   const {
-    state: { isConnected, wallet },
+    state: { wallet, isConnected },
   } = useWallet()
 
   const stakingOpportunities = useAppSelector(
@@ -68,43 +68,45 @@ export const ProviderCard: React.FC<ProviderCardProps> = ({
 
   const { isSnapInstalled } = useIsSnapInstalled()
 
-  const filteredDownStakingOpportunities = useMemo(() => {
-    if (!isConnected) return stakingOpportunities
+  const filteredDownStakingOpportunities = useMemo(
+    () =>
+      stakingOpportunities.filter(e => {
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
 
-    return stakingOpportunities.filter(e => {
-      const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
-
-      return (
-        staking.includes(e.id as OpportunityId) &&
-        walletSupportsChain({
-          chainId: e.chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: chainAccountIds,
-        })
-      )
-    })
-  }, [accountIdsByChainId, isConnected, isSnapInstalled, staking, stakingOpportunities, wallet])
+        return (
+          staking.includes(e.id as OpportunityId) &&
+          (!isConnected ||
+            walletSupportsChain({
+              chainId: e.chainId,
+              wallet,
+              isSnapInstalled,
+              checkConnectedAccountIds: chainAccountIds,
+            }))
+        )
+      }),
+    [accountIdsByChainId, isConnected, isSnapInstalled, staking, stakingOpportunities, wallet],
+  )
 
   const lpOpportunities = useAppSelector(selectAggregatedEarnUserLpOpportunities)
 
-  const filteredDownLpOpportunities = useMemo(() => {
-    if (!isConnected) return lpOpportunities
+  const filteredDownLpOpportunities = useMemo(
+    () =>
+      lpOpportunities.filter(e => {
+        const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
 
-    return lpOpportunities.filter(e => {
-      const chainAccountIds = accountIdsByChainId[e.chainId] ?? []
-
-      return (
-        lp.includes(e.assetId as OpportunityId) &&
-        walletSupportsChain({
-          chainId: e.chainId,
-          wallet,
-          isSnapInstalled,
-          checkConnectedAccountIds: chainAccountIds,
-        })
-      )
-    })
-  }, [accountIdsByChainId, isConnected, isSnapInstalled, lp, lpOpportunities, wallet])
+        return (
+          lp.includes(e.assetId as OpportunityId) &&
+          (!isConnected ||
+            walletSupportsChain({
+              chainId: e.chainId,
+              wallet,
+              isSnapInstalled,
+              checkConnectedAccountIds: chainAccountIds,
+            }))
+        )
+      }),
+    [accountIdsByChainId, isConnected, isSnapInstalled, lp, lpOpportunities, wallet],
+  )
 
   if (!filteredDownLpOpportunities.length && !filteredDownStakingOpportunities.length) return null
 

@@ -1044,6 +1044,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountFiatUserCurrency,
     currentAccountIdByChainId,
     dispatch,
+    isConnected,
     isVotingPowerLoading,
     poolAssetAccountAddress,
     poolAssetGasFeeFiatUserCurrency,

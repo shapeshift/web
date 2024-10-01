@@ -124,6 +124,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       )
     })
   }, [
+    isConnected,
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,

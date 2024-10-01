@@ -2,6 +2,7 @@ import type { FlexProps, GridProps } from '@chakra-ui/react'
 import { Box, Flex, Skeleton, Spinner, Stack, Tag } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -313,15 +314,15 @@ export const YourPositions = () => {
   )
 
   const isEmpty = useMemo(() => allLoaded && !activePositions.length, [allLoaded, activePositions])
+  const connectWalletBody: [string, InterpolationOptions] = useMemo(
+    () => ['common.connectWalletToGetStartedWith', { feature: 'THORChain LP' }],
+    [],
+  )
 
   const body = useMemo(() => {
     if (!isConnected)
       return (
-        <ResultsEmpty
-          title='Connect Wallet'
-          body='Connect a wallet to get started with RFOX'
-          icon={connectIcon}
-        />
+        <ResultsEmpty title='common.connectWallet' body={connectWalletBody} icon={connectIcon} />
       )
     if (isEmpty)
       return (
@@ -345,7 +346,16 @@ export const YourPositions = () => {
         <Spinner />
       </Flex>
     )
-  }, [columns, connectIcon, emptyIcon, handlePoolClick, isConnected, isEmpty, positions])
+  }, [
+    columns,
+    connectIcon,
+    connectWalletBody,
+    emptyIcon,
+    handlePoolClick,
+    isConnected,
+    isEmpty,
+    positions,
+  ])
 
   return (
     <Main headerComponent={headerComponent} isSubPage>

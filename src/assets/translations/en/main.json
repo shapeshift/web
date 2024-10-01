@@ -49,6 +49,7 @@
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",

@@ -131,7 +131,6 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
     ],
     [handleTradeClick, marketDataUserCurrencyById, translate],
   )
-  console.log({ isMarketDataLoaded })
   return (
     <Stack px={paddingX} pb={6}>
       <ReactTableNoPager

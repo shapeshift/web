@@ -2,6 +2,7 @@ import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { PropsWithChildren } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link } from 'react-router-dom'
@@ -11,7 +12,7 @@ import { Text } from 'components/Text'
 type ResultsEmptyProp = {
   icon?: JSX.Element
   title?: string
-  body?: string
+  body?: string | [string, InterpolationOptions]
   ctaHref?: string | null
   ctaText?: string
   buttonProps?: ButtonProps

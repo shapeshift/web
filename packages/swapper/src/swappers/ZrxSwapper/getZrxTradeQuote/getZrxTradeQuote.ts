@@ -19,8 +19,9 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchFromZrx, fetchFromZrxPermit2 } from '../utils/fetchFromZrx'
-import { assetToToken, isSupportedChainId, tokenToAssetId } from '../utils/helpers/helpers'
+import { assetToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
 export function getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
@@ -242,7 +243,7 @@ async function _getZrxPermit2TradeQuote(
 
   const eip712 = quotePermit2?.eip712 ?? null
 
-  if (!transaction || !eip712) {
+  if (!isNativeEvmAsset(sellAsset.assetId) && !eip712) {
     return Err(
       makeSwapErrorRight({
         message: 'Missing required Permit2 metadata from 0x response',
@@ -252,15 +253,22 @@ async function _getZrxPermit2TradeQuote(
     )
   }
 
-  const permit2: TradeQuoteStep['permit2'] = {
-    transaction: {
-      to: transaction.to,
-      data: transaction.data as `0x${string}`,
-      gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
-      gas: transaction.gas ? BigInt(transaction.gas) : undefined,
-      value: BigInt(transaction.value),
-    },
-    eip712: eip712 as unknown as TypedData,
+  if (!transaction) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Missing required transaction metadata from 0x response',
+        code: TradeQuoteError.InvalidResponse,
+        details: { transaction, eip712 },
+      }),
+    )
+  }
+
+  const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
+    to: transaction.to,
+    data: transaction.data as `0x${string}`,
+    gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
+    gas: transaction.gas ? BigInt(transaction.gas) : undefined,
+    value: BigInt(transaction.value),
   }
 
   // for the rate to be valid, both amounts must be converted to the same precision
@@ -273,7 +281,7 @@ async function _getZrxPermit2TradeQuote(
     .toFixed()
 
   // The integrator fee is set to the buy asset in fetchFromZrxPermit2, but paranoia
-  if (fees.integratorFee !== null && fees.integratorFee.token !== assetToToken(buyAsset)) {
+  if (fees.integratorFee !== null && fees.integratorFee.token !== assetToZrxToken(buyAsset)) {
     return Err(
       makeSwapErrorRight({
         message: `Unhandled integrator fee asset '${fees.integratorFee.token}'`,
@@ -301,11 +309,11 @@ async function _getZrxPermit2TradeQuote(
     const protocolFees = (() => {
       if (!fees.zeroExFee) return {}
 
-      const assetId = tokenToAssetId(fees.zeroExFee.token, sellAsset.chainId)
+      const assetId = zrxTokenToAssetId(fees.zeroExFee.token, sellAsset.chainId)
 
       return {
         [assetId]: {
-          requiresBalance: true,
+          requiresBalance: false,
           amountCryptoBaseUnit: fees.zeroExFee.amount,
           asset: assetsById[assetId],
         },
@@ -323,7 +331,7 @@ async function _getZrxPermit2TradeQuote(
       steps: [
         {
           estimatedExecutionTimeMs: undefined,
-          allowanceContract: PERMIT2_CONTRACT,
+          allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : PERMIT2_CONTRACT,
           buyAsset,
           sellAsset,
           accountNumber,
@@ -336,7 +344,8 @@ async function _getZrxPermit2TradeQuote(
           buyAmountAfterFeesCryptoBaseUnit: buyAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Zrx,
-          permit2,
+          eip712: eip712 as unknown as TypedData | undefined,
+          transactionMetadata,
         },
       ] as SingleHopTradeQuoteSteps,
     })

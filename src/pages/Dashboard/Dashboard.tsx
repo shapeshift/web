@@ -77,7 +77,8 @@ export const Dashboard = memo(() => {
   const history = useHistory()
 
   useEffect(() => {
-    if (!isConnected) walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+    if (!isConnected && !isMobile)
+      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [isConnected, walletDispatch])
 
   const handleSlideIndexChange = useCallback(

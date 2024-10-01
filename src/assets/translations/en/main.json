@@ -2606,14 +2606,16 @@
     "emptyBody": "No assets were found with the current filter. Try adjusting your selected chain to see more assets.",
     "categories": {
       "oneClickDefiAssets": {
-        "title": "One Click DeFi Assets"
+        "title": "One Click DeFi Assets",
+        "subtitle": "Get into DeFi positions with just a simple swap!"
       },
       "thorchainDefi": {
-        "title": "THORChain DeFi"
+        "title": "THORChain DeFi",
+        "subtitle": "Earn native yield on your assets with THORCHain Savers"
       },
       "trending": {
         "title": "Trending",
-        "subtitle": "These are top assets that have jumped %{percentage}% or more"
+        "subtitle": "These are the most viewed assets in the last 24 hours"
       },
       "tradingVolume": {
         "title": "Trading Volume",
@@ -2624,10 +2626,12 @@
         "subtitle": "These are top assets with the highest market capitalization in the last 24 hours"
       },
       "topMovers": {
-        "title": "Top Movers"
+        "title": "Top Movers",
+        "subtitle": "These are top assets that have jumped %{percentage}% or more"
       },
       "recentlyAdded": {
-        "title": "Recently Added"
+        "title": "Recently Added",
+        "subtitle": "These are the most recently referenced assets"
       }
     }
   }

@@ -79,9 +79,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.TRENDING]: {
         category: MARKETS_CATEGORIES.TRENDING,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`, {
-          percentage: '10',
-        }),
+        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={trendingData?.ids ?? []}
@@ -95,6 +93,9 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.TOP_MOVERS]: {
         category: MARKETS_CATEGORIES.TOP_MOVERS,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TOP_MOVERS}.title`),
+        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TOP_MOVERS}.subtitle`, {
+          percentage: '10',
+        }),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={topMoversData?.ids ?? []}
@@ -108,6 +109,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.RECENTLY_ADDED]: {
         category: MARKETS_CATEGORIES.RECENTLY_ADDED,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
+        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
           <AssetsGrid
             assetIds={recentlyAddedData?.ids ?? []}
@@ -121,6 +123,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.ONE_CLICK_DEFI]: {
         category: MARKETS_CATEGORIES.ONE_CLICK_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.title`),
+        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.subtitle`),
         component: ({ selectedChainId }: RowProps) => (
           <OneClickDefiAssets selectedChainId={selectedChainId} limit={limit} />
         ),
@@ -129,6 +132,7 @@ export const useRows = ({ limit }: { limit: number }) => {
       [MARKETS_CATEGORIES.THORCHAIN_DEFI]: {
         category: MARKETS_CATEGORIES.THORCHAIN_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.title`),
+        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.subtitle`),
         component: ({ selectedChainId }: RowProps) => (
           <ThorchainAssets selectedChainId={selectedChainId} limit={limit} />
         ),

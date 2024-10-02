@@ -5,19 +5,22 @@ import {
   Center,
   Flex,
   Grid,
+  Image,
   ModalBody,
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import type { Property } from 'csstype'
-import { useCallback, useMemo } from 'react'
+import type { EIP6963ProviderDetail } from 'mipd'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
+import { mipdStore } from 'lib/mipd'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -100,6 +103,47 @@ const WalletSelectItem = ({
   )
 }
 
+const MipdProviderSelectItem = ({
+  walletInfo,
+  provider,
+  connect,
+}: {
+  walletInfo: WalletInfo | null
+  provider: EIP6963ProviderDetail
+  connect: (adapter: KeyManager) => void
+}) => {
+  // There will be a slight bit of accomodating here in web since we don't rely on KeyManager but nothing crazy, (large american) coffee work
+  const handleConnect = useCallback(
+    () => connect(provider.info.name),
+    [connect, provider.info.name],
+  )
+
+  const icon = provider.info.icon
+  const activeWallet = provider.info.name === walletInfo?.name
+  const walletSubText = activeWallet ? 'common.connected' : null
+
+  return (
+    <Button
+      key={provider.info.name}
+      w='full'
+      size='md'
+      py={8}
+      isActive={activeWallet}
+      justifyContent='space-between'
+      onClick={handleConnect}
+      data-test={`connect-wallet-${provider.info.name}-button`}
+    >
+      <Flex alignItems='flex-start' flexDir='column'>
+        <RawText fontWeight='semibold'>{provider.info.name}</RawText>
+        <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
+      </Flex>
+      <Center width='25%'>
+        <Image width='24px' height='auto' src={icon} />
+      </Center>
+    </Button>
+  )
+}
+
 export const SelectModal = () => {
   const {
     state: { walletInfo },
@@ -108,6 +152,9 @@ export const SelectModal = () => {
     importWallet,
   } = useWallet()
   const translate = useTranslate()
+  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+
+  console.log({ mipdProviders })
 
   const wallets = useMemo(
     () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
@@ -132,6 +179,16 @@ export const SelectModal = () => {
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
+          <Text mb={3} color='text.subtle' translation={'Automagically Detected'} />
+          {mipdProviders.map(provider => (
+            <MipdProviderSelectItem
+              key={provider.info.name}
+              walletInfo={walletInfo}
+              provider={provider}
+              connect={name => connect(name, true)}
+            />
+          ))}
+          <Text mb={3} color='text.subtle' translation={'Others'} />
           {
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter

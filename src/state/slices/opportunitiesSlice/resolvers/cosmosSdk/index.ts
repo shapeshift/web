@@ -5,7 +5,7 @@ import { accountIdToFeeAssetId } from 'lib/utils/accounts'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import type { ReduxState } from 'state/reducer'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
-import { selectWalletAccountIds } from 'state/slices/common-selectors'
+import { selectEnabledWalletAccountIds } from 'state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 
 import type {
@@ -31,7 +31,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
 }> => {
   const state = reduxApi.getState() as ReduxState
 
-  const portfolioAccountIds = selectWalletAccountIds(state)
+  const portfolioAccountIds = selectEnabledWalletAccountIds(state)
 
   const cosmosSdkChainIdsWhitelist = [cosmosChainId]
   // Not AccountIds of all Cosmos SDK chains but only a subset of current and future Cosmos SDK chains we support/may support

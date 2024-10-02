@@ -30,10 +30,10 @@ import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import { portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
   selectStakingOpportunitiesById,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistory } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from 'state/store'
@@ -52,7 +52,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
   } = useWallet()
   const portfolioAccountMetadata = useSelector(selectPortfolioAccountMetadata)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const walletAccountIds = useSelector(selectWalletAccountIds)
+  const walletAccountIds = useSelector(selectEnabledWalletAccountIds)
   const { supportedChains } = usePlugins()
 
   const stakingOpportunitiesById = useSelector(selectStakingOpportunitiesById)
@@ -236,9 +236,7 @@ export const TransactionsProvider: React.FC<TransactionsProviderProps> = ({ chil
               const { onMessage } = txHistory.actions
 
               // refetch account on new tx
-              dispatch(
-                getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
-              )
+              dispatch(getAccount.initiate({ accountId }, { forceRefetch: true }))
 
               maybeRefetchVotingPower(msg, chainId)
               maybeRefetchOpportunities(msg, accountId)

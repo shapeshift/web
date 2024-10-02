@@ -27,8 +27,8 @@ import type { StakingId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectBIP44ParamsByAccountId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
   selectStakingOpportunityByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -75,7 +75,7 @@ export const FoxyDeposit: React.FC<{
   const chainAdapterManager = getChainAdapterManager()
   const { state: walletState } = useWallet()
   const { data: foxyAprData, isLoading: isFoxyAprLoading } = useGetFoxyAprQuery()
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {

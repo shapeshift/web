@@ -20,8 +20,8 @@ import {
   selectAssetEquityItemsByFilter,
   selectAssets,
   selectEquityTotalBalance,
+  selectIsPortfolioLoading,
   selectOpportunityApiPending,
-  selectPortfolioLoading,
   selectUnderlyingLpAssetsWithBalancesAndIcons,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -41,7 +41,7 @@ const stackDividerStyle = { marginLeft: 14 }
 
 export const Equity = ({ assetId, accountId }: EquityProps) => {
   const translate = useTranslate()
-  const portfolioLoading = useSelector(selectPortfolioLoading)
+  const portfolioLoading = useSelector(selectIsPortfolioLoading)
   const opportunitiesLoading = useAppSelector(selectOpportunityApiPending)
   const isLoading = portfolioLoading || opportunitiesLoading
   const assets = useAppSelector(selectAssets)

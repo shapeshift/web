@@ -12,7 +12,7 @@ import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
-  selectPortfolioLoading,
+  selectIsPortfolioLoading,
   selectWalletConnectedChainIdsSorted,
   selectWalletId,
 } from 'state/slices/selectors'
@@ -88,7 +88,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
 export const Accounts = () => {
   const { path } = useRouteMatch()
   const blanks = Array(4).fill(0)
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
   const portfolioChainIdsSortedUserCurrency = useSelector(selectWalletConnectedChainIdsSorted)
   const chainRows = useMemo(
     () =>

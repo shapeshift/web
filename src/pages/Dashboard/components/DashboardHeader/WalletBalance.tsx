@@ -10,7 +10,7 @@ import { Text } from 'components/Text'
 import {
   selectClaimableRewards,
   selectEarnBalancesUserCurrencyAmountFull,
-  selectPortfolioLoading,
+  selectIsPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -32,7 +32,7 @@ type WalletBalanceProps = {
 export const WalletBalance: React.FC<WalletBalanceProps> = memo(
   ({ label = 'defi.netWorth', alignItems }) => {
     const { isLoading: isOpportunitiesLoading } = useFetchOpportunities()
-    const isPortfolioLoading = useAppSelector(selectPortfolioLoading)
+    const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
     const claimableRewardsUserCurrencyBalanceFilter = useMemo(() => ({}), [])
     const claimableRewardsUserCurrencyBalance = useAppSelector(state =>
       selectClaimableRewards(state, claimableRewardsUserCurrencyBalanceFilter),

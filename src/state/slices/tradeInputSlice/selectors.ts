@@ -8,8 +8,8 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectWalletAccountIds,
 } from '../common-selectors'
 import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import {
@@ -87,7 +87,7 @@ export const selectFirstHopSellAccountId = createSelector(
   selectTradeInput,
   selectInputSellAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (tradeInput, sellAsset, accountIdAssetValues, accountIds) => {
     // return the users selection if it exists
     if (tradeInput.sellAssetAccountId) return tradeInput.sellAssetAccountId
@@ -107,7 +107,7 @@ export const selectFirstHopSellAccountId = createSelector(
 export const selectLastHopBuyAccountId = createSelector(
   selectTradeInput,
   selectInputBuyAsset,
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   selectAccountIdByAccountNumberAndChainId,
   selectFirstHopSellAccountId,
   selectPortfolioAccountMetadata,

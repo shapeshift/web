@@ -175,8 +175,6 @@ const ZapperTokenSchema: Type<ZapperToken> = z
   })
   .allowUnknownKeys()
 
-export type ZapperTokenWithBalances = Infer<typeof ZapperTokenSchema>
-
 const ZapperAssetBaseSchema = z
   .object({
     key: z.string(),

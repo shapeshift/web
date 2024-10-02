@@ -23,8 +23,8 @@ import { serializeUserStakingId, toValidatorId } from 'state/slices/opportunitie
 import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,7 +57,7 @@ export const CosmosDeposit: React.FC<CosmosDepositProps> = ({
 
   // user info
   const { state: walletState } = useWallet()
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   const validatorId = toValidatorId({ chainId, account: validatorAddress })
 

@@ -28,7 +28,6 @@ export const selectCurrencyFormat = (state: ReduxState) => state.preferences.cur
 export const selectChartTimeframe = (state: ReduxState) => state.preferences.chartTimeframe
 export const selectShowWelcomeModal = (state: ReduxState) => state.preferences.showWelcomeModal
 export const selectShowSnapsModal = (state: ReduxState) => state.preferences.showSnapsModal
-export const selectSnapInstalled = (state: ReduxState) => state.preferences.snapInstalled
 export const selectSelectedHomeView = (state: ReduxState) => state.preferences.selectedHomeView
 
 export const selectShowConsentBanner = (state: ReduxState) => {

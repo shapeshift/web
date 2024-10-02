@@ -1,10 +1,8 @@
 import { Box, Flex } from '@chakra-ui/react'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import orderBy from 'lodash/orderBy'
 import { memo, useEffect, useMemo } from 'react'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import type { ApiQuote } from 'state/apis/swapper/types'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
@@ -31,16 +29,6 @@ const motionBoxProps = {
   animate: { opacity: 1, height: 'auto' },
   exit: { opacity: 0, height: 0, overflow: 'hidden' },
   transition: { type: 'spring', stiffness: 100, damping: 20 },
-}
-
-export const sortQuotes = (
-  unorderedQuotes: ({ originalIndex: number } & ApiQuote)[],
-): ApiQuote[] => {
-  return orderBy(
-    unorderedQuotes,
-    ['originalIndex', 'inputOutputRatio', 'swapperName'],
-    ['asc', 'desc', 'asc'],
-  )
 }
 
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack }) => {

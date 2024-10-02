@@ -268,12 +268,6 @@ export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefine
   confirmedQuote => confirmedQuote?.id,
 )
 
-export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
-  selectActiveStepOrDefault,
-  selectActiveQuote,
-  (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
-)
-
 export const selectActiveQuoteErrors: Selector<
   ReduxState,
   ErrorWithMeta<TradeQuoteError>[] | undefined
@@ -334,19 +328,9 @@ export const selectFirstHopSellAsset: Selector<ReduxState, Asset | undefined> =
     firstHop ? firstHop.sellAsset : undefined,
   )
 
-export const selectFirstHopBuyAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(selectFirstHop, firstHop =>
-    firstHop ? firstHop.buyAsset : undefined,
-  )
-
 export const selectSecondHopSellAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectSecondHop, secondHop =>
     secondHop ? secondHop.sellAsset : undefined,
-  )
-
-export const selectSecondHopBuyAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(selectSecondHop, secondHop =>
-    secondHop ? secondHop.buyAsset : undefined,
   )
 
 // last hop !== second hop for single hop trades. Used to handling end-state of trades
@@ -397,18 +381,6 @@ export const selectLastHopSellFeeAsset: Selector<ReduxState, Asset | undefined> 
     lastHopSellFeeAsset => lastHopSellFeeAsset,
   )
 
-// when trading from fee asset, the value of TX in fee asset is deducted
-export const selectFirstHopTradeDeductionCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectFirstHopSellFeeAsset,
-    selectFirstHopSellAsset,
-    selectQuoteSellAmountCryptoPrecision,
-    (firstHopSellFeeAsset, firstHopSellAsset, sellAmountCryptoPrecision) =>
-      firstHopSellFeeAsset?.assetId === firstHopSellAsset?.assetId
-        ? bnOrZero(sellAmountCryptoPrecision).toFixed()
-        : bn(0).toFixed(),
-  )
-
 // TODO(woodenfurniture): update swappers to specify this as with protocol fees
 export const selectNetworkFeeRequiresBalance: Selector<ReduxState, boolean> = createSelector(
   selectActiveSwapperName,
@@ -423,38 +395,6 @@ export const selectSecondHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, strin
 
 export const selectLastHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectLastHop, lastHop => lastHop?.feeData.networkFeeCryptoBaseUnit)
-
-export const selectFirstHopNetworkFeeCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectNetworkFeeRequiresBalance,
-    selectFirstHopSellFeeAsset,
-    selectFirstHopNetworkFeeCryptoBaseUnit,
-    (networkFeeRequiresBalance, firstHopSellFeeAsset, firstHopNetworkFeeCryptoBaseUnit) =>
-      networkFeeRequiresBalance && firstHopSellFeeAsset
-        ? fromBaseUnit(bnOrZero(firstHopNetworkFeeCryptoBaseUnit), firstHopSellFeeAsset.precision)
-        : bn(0).toFixed(),
-  )
-
-export const selectSecondHopNetworkFeeCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectNetworkFeeRequiresBalance,
-    selectSecondHopSellFeeAsset,
-    selectSecondHopNetworkFeeCryptoBaseUnit,
-    (networkFeeRequiresBalance, secondHopSellFeeAsset, secondHopNetworkFeeCryptoBaseUnit) =>
-      networkFeeRequiresBalance && secondHopSellFeeAsset
-        ? fromBaseUnit(bnOrZero(secondHopNetworkFeeCryptoBaseUnit), secondHopSellFeeAsset.precision)
-        : bn(0).toFixed(),
-  )
-
-export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string> = createSelector(
-  selectNetworkFeeRequiresBalance,
-  selectLastHopSellFeeAsset,
-  selectLastHopNetworkFeeCryptoBaseUnit,
-  (networkFeeRequiresBalance, lastHopSellFeeAsset, lastHopNetworkFeeCryptoBaseUnit) =>
-    networkFeeRequiresBalance && lastHopSellFeeAsset
-      ? fromBaseUnit(bnOrZero(lastHopNetworkFeeCryptoBaseUnit), lastHopSellFeeAsset.precision)
-      : bn(0).toFixed(),
-)
 
 export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
   ReduxState,
@@ -582,15 +522,6 @@ export const selectBuyAmountAfterFeesUserCurrency = createSelector(
   (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
     if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
     return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
-  },
-)
-
-export const selectBuyAmountBeforeFeesUserCurrency = createSelector(
-  selectBuyAmountBeforeFeesCryptoPrecision,
-  selectInputBuyAssetUserCurrencyRate,
-  (buyAmountBeforeFeesCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!buyAmountBeforeFeesCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 

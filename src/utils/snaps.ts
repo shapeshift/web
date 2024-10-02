@@ -3,13 +3,6 @@ import assert from 'assert'
 import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers'
 
-export interface WalletEnableResult {
-  accounts: string[]
-  permissions: any[]
-  snaps: any
-  errors?: Error[]
-}
-
 type GetSnapsResult = Record<
   string,
   {

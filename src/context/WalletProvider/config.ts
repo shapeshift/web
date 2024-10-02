@@ -432,17 +432,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
 }
 
-// Copied from hdwallet-coinbase so we don't have to import the whole package just for the sake of this type
-// and can lazy load it instead
-type CoinbaseProviderConfig = {
-  appName: string
-  appLogoUrl: string
-  defaultJsonRpcUrl: string
-  defaultChainId: number
-  darkMode: boolean
-}
-
-type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
+type KeyManagerOptions = undefined | EthereumProviderOptions
 type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
 
 export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {

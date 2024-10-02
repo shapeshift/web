@@ -64,9 +64,6 @@ const WalletSelectItem = ({
 
   if (!isSupported) return null
 
-  const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET
-  if (walletType === KeyManager.Coinbase && !isCoinbaseEnabled) return null
-
   const isPhantomEnabled = getConfig().REACT_APP_FEATURE_PHANTOM_WALLET
   if (walletType === KeyManager.Phantom && !isPhantomEnabled) return null
 
@@ -110,7 +107,7 @@ const MipdProviderSelectItem = ({
 }: {
   walletInfo: WalletInfo | null
   provider: EIP6963ProviderDetail
-  connect: (adapter: KeyManager) => void
+  connect: (adapter: string) => void
 }) => {
   // There will be a slight bit of accomodating here in web since we don't rely on KeyManager but nothing crazy, (large american) coffee work
   const handleConnect = useCallback(
@@ -185,7 +182,7 @@ export const SelectModal = () => {
               key={provider.info.name}
               walletInfo={walletInfo}
               provider={provider}
-              connect={name => connect(name, true)}
+              connect={name => connect(name as KeyManager, true)}
             />
           ))}
         </Grid>
@@ -199,7 +196,7 @@ export const SelectModal = () => {
                 key={walletType}
                 walletType={walletType}
                 walletInfo={walletInfo}
-                connect={connect}
+                connect={name => connect(name, true)}
               />
             ))
           }

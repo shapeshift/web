@@ -103,7 +103,7 @@ export const ConnectWallet = () => {
 
   const handleMetaMaskConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    connect(KeyManager.MetaMask)
+    connect(KeyManager.MetaMask, true)
   }, [connect, dispatch])
 
   const renderChains = useMemo(() => {

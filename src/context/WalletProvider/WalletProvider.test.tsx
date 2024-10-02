@@ -120,7 +120,7 @@ describe('WalletProvider', () => {
       expect(result.current.state.isConnected).toBe(false)
 
       act(() => {
-        result.current.connect(type)
+        result.current.connect(type, true)
       })
 
       expect(result.current.state.modalType).toBe(type)

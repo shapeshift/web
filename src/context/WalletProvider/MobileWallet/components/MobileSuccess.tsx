@@ -51,7 +51,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
           localWallet.setLocalNativeWalletName(walletLabel)
           dispatch({
             type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: KeyManager.Mobile,
+            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
           })
           appDispatch(setWelcomeModal({ show: true }))
           return setIsSuccessful(true)

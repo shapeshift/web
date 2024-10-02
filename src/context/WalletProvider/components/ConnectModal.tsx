@@ -13,7 +13,7 @@ import { Text } from 'components/Text'
 
 export type ConnectModalProps = {
   headerText: string | [string, InterpolationOptions]
-  bodyText: string
+  bodyText: string | [string, InterpolationOptions]
   buttonText: string
   onPairDeviceClick: () => void
   loading: boolean

@@ -1,6 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
-import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -9,14 +8,11 @@ import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { MetaMaskAdapter as MetaMaskMultiChainAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
-import type { XDEFIAdapter } from '@shapeshiftoss/hdwallet-xdefi'
-import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
-import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
 import { DemoMenu } from './DemoWallet/DemoMenu'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
@@ -32,7 +28,6 @@ import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
-import { XDEFIConfig } from './XDEFI/config'
 
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
@@ -44,12 +39,6 @@ const NativeTestPhrase = lazy(() =>
   import('./NativeWallet/components/NativeTestPhrase').then(({ NativeTestPhrase }) => ({
     default: NativeTestPhrase,
   })),
-)
-const XDEFIFailure = lazy(() =>
-  import('./XDEFI/components/Failure').then(({ XDEFIFailure }) => ({ default: XDEFIFailure })),
-)
-const XDEFIConnect = lazy(() =>
-  import('./XDEFI/components/Connect').then(({ XDEFIConnect }) => ({ default: XDEFIConnect })),
 )
 const NativeSuccess = lazy(() =>
   import('./NativeWallet/components/NativeSuccess').then(({ NativeSuccess }) => ({
@@ -137,16 +126,6 @@ const KeepKeyMenu = lazy(() =>
 const NativeMenu = lazy(() =>
   import('components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
     default: NativeMenu,
-  })),
-)
-const CoinbaseConnect = lazy(() =>
-  import('./Coinbase/components/Connect').then(({ CoinbaseConnect }) => ({
-    default: CoinbaseConnect,
-  })),
-)
-const CoinbaseFailure = lazy(() =>
-  import('./Coinbase/components/Failure').then(({ CoinbaseFailure }) => ({
-    default: CoinbaseFailure,
   })),
 )
 const KeepKeyConnect = lazy(() =>
@@ -329,7 +308,6 @@ export type SupportedWalletInfo<T> = {
 }
 
 export type SupportedWalletInfoByKeyManager = {
-  [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
   // Native, Mobile, and Demo wallets are all native wallets
   [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
   [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
@@ -344,7 +322,6 @@ export type SupportedWalletInfoByKeyManager = {
     typeof MetaMaskAdapter | typeof MetaMaskMultiChainAdapter
   >
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
-  [KeyManager.XDefi]: SupportedWalletInfo<typeof XDEFIAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -427,20 +404,6 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     ],
   },
 
-  [KeyManager.XDefi]: {
-    ...XDEFIConfig,
-    routes: [
-      { path: '/xdefi/connect', component: XDEFIConnect },
-      { path: '/xdefi/failure', component: XDEFIFailure },
-    ],
-  },
-  [KeyManager.Coinbase]: {
-    ...CoinbaseConfig,
-    routes: [
-      { path: '/coinbase/connect', component: CoinbaseConnect },
-      { path: '/coinbase/failure', component: CoinbaseFailure },
-    ],
-  },
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],
@@ -482,18 +445,10 @@ type CoinbaseProviderConfig = {
 type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
 type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
 
-export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
+export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
   switch (keyManager) {
     case KeyManager.WalletConnectV2:
       return walletConnectV2ProviderConfig
-    case KeyManager.Coinbase:
-      return {
-        appName: 'ShapeShift',
-        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
-        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
-        defaultChainId: 1,
-        darkMode: isDarkMode,
-      }
     default:
       return undefined
   }

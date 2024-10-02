@@ -1,5 +1,5 @@
 import { getConfig } from 'config'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -17,6 +17,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { mipdStore } from 'lib/mipd'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -35,7 +36,12 @@ export interface MetaMaskSetupProps
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
-  const { dispatch, getAdapter, onProviderChange } = useWallet()
+  const {
+    dispatch,
+    getAdapter,
+    onProviderChange,
+    state: { modalType },
+  } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -140,6 +146,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
+  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  // TODO(gomes): we should store modalType as rdns to shave one line and benefit from getters
+  const maybeMipdProvider = mipdProviders.find(provider => provider.info.name === modalType)
+  console.log({ maybeMipdProvider })
+
   return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
@@ -151,9 +162,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     />
   ) : (
     <ConnectModal
-      headerText={'walletProvider.metaMask.connect.header'}
-      bodyText={'walletProvider.metaMask.connect.body'}
-      buttonText={'walletProvider.metaMask.connect.button'}
+      headerText={['walletProvider.mipd.connect.header', { name: maybeMipdProvider?.info.name }]}
+      bodyText={['walletProvider.mipd.connect.body', { name: maybeMipdProvider?.info.name }]}
+      buttonText={'walletProvider.mipd.connect.button'}
       onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}

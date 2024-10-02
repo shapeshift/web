@@ -11,7 +11,7 @@ export interface IWalletContext {
   state: InitialState
   getAdapter: GetAdapter
   dispatch: React.Dispatch<ActionTypes>
-  connect: (adapter: KeyManager) => void
+  connect: (adapter: KeyManager, isMipdProvider: boolean) => void
   create: (adapter: KeyManager) => void
   importWallet: (adapter: KeyManager) => void
   disconnect: () => void

@@ -1510,6 +1510,13 @@
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
+    "mipd": {
+      "connect": {
+        "header": "Pair %{name}",
+        "body": "Click Pair and login to %{name} from the popup window",
+        "button": "Pair"
+      }
+    },
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
@@ -1583,21 +1590,6 @@
       "acceptInstall": "Confirm & Install",
       "acceptUpdate": "Confirm & Update"
     },
-    "coinbase": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with Coinbase",
-        "connectFailure": "Unable to connect Coinbase wallet",
-        "multipleWallets": "Detected Ethereum provider is not Coinbase. Do you have multiple wallets installed?"
-      },
-      "connect": {
-        "header": "Pair Coinbase",
-        "body": "Click Pair and login to Coinbase from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect Coinbase wallet"
-      }
-    },
     "walletConnect": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with WalletConnect",
@@ -1610,26 +1602,6 @@
       },
       "failure": {
         "body": "Unable to connect WalletConnect wallet"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with XDEFI",
-        "connectFailure": "Unable to connect XDEFI wallet",
-        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed and switched on? Prioritize XDEFI in settings and press pair again."
-      },
-      "connect": {
-        "header": "Pair XDEFI",
-        "body": "Click Pair and login to XDEFI from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect XDEFI wallet"
-      },
-      "redirect": {
-        "header": "Open in XDEFI App",
-        "body": "Click to open ShapeShift dashboard in XDEFI",
-        "button": "Open"
       }
     },
     "shapeShift": {

@@ -159,6 +159,7 @@
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
+    "mipd": "^0.0.7",
     "mixpanel-browser": "^2.45.0",
     "myzod": "^1.10.1",
     "node-polyglot": "^2.4.0",

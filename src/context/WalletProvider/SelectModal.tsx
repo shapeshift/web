@@ -178,8 +178,8 @@ export const SelectModal = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
+        <Text mb={3} color='text.subtle' translation={'Automagically Detected'} />
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          <Text mb={3} color='text.subtle' translation={'Automagically Detected'} />
           {mipdProviders.map(provider => (
             <MipdProviderSelectItem
               key={provider.info.name}
@@ -188,7 +188,9 @@ export const SelectModal = () => {
               connect={name => connect(name, true)}
             />
           ))}
-          <Text mb={3} color='text.subtle' translation={'Others'} />
+        </Grid>
+        <Text mb={3} color='text.subtle' translation={'Others'} />
+        <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
           {
             // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
             // So not all of the supported wallets will have an initialized adapter

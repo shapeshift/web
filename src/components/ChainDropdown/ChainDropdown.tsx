@@ -15,7 +15,11 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { IconCircle } from 'components/IconCircle'
 import { GridIcon } from 'components/Icons/GridIcon'
-import { selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes } from 'state/slices/selectors'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import {
+  selectPortfolioTotalBalanceByChainIdIncludeStaking,
+  selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainRow } from './ChainRow'
@@ -34,7 +38,7 @@ const width = { base: 'full', md: 'auto' }
 const chevronDownIcon = <ChevronDownIcon />
 
 export const ChainDropdown: React.FC<ChainDropdownProps> = ({
-  chainIds,
+  chainIds: _chainIds,
   chainId,
   onClick,
   showAll,
@@ -45,7 +49,19 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   const totalPortfolioUserCurrencyBalance = useAppSelector(
     selectPortfolioTotalUserCurrencyBalanceExcludeEarnDupes,
   )
+  const fiatBalanceByChainId = useAppSelector(selectPortfolioTotalBalanceByChainIdIncludeStaking)
+
   const translate = useTranslate()
+
+  const chainIds = useMemo(() => {
+    if (!includeBalance) return _chainIds
+
+    return _chainIds.sort((a, b) => {
+      const aBalance = bnOrZero(fiatBalanceByChainId[a])
+      const bBalance = bnOrZero(fiatBalanceByChainId[b])
+      return bBalance.minus(aBalance).toNumber()
+    })
+  }, [_chainIds, fiatBalanceByChainId, includeBalance])
 
   const renderChains = useMemo(() => {
     return chainIds.map(chainId => (

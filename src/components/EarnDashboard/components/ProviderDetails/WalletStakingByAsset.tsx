@@ -71,7 +71,7 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
       } = opportunity
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
-      if (!isConnected && isDemoWallet) {
+      if (!isConnected || isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
         return
       }

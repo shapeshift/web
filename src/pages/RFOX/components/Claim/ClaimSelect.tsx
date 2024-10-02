@@ -8,6 +8,7 @@ import { AssetIcon } from 'components/AssetIcon'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
@@ -16,6 +17,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
 import type { RfoxClaimQuote } from './types'
 import { ClaimRoutePaths, type ClaimRouteProps } from './types'
@@ -60,6 +62,10 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
+  const {
+    state: { isConnected },
+  } = useWallet()
+
   const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -81,6 +87,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   const handleClaimClick = useCallback(() => history.push(ClaimRoutePaths.Confirm), [history])
 
   const claimBody = useMemo(() => {
+    if (!isConnected) return <ConnectWallet />
     if (!stakingAssetAccountAddress) return <ChainNotSupported chainId={stakingAsset?.chainId} />
     if (
       isUnstakingRequestLoading ||
@@ -117,6 +124,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       )
     })
   }, [
+    isConnected,
     stakingAssetAccountAddress,
     stakingAsset?.chainId,
     stakingAsset?.precision,

@@ -3,6 +3,7 @@ import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { useEffect } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectPortfolioLoadingStatus, selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -14,6 +15,9 @@ const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minute
 export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTimeframe) => {
   const dispatch = useAppDispatch()
   const symbol = useAppSelector(selectSelectedCurrency)
+  const {
+    state: { isConnected },
+  } = useWallet()
 
   useEffect(() => {
     assetIds.forEach(assetId => {
@@ -56,7 +60,7 @@ export const useFetchPriceHistories = (assetIds: AssetId[], timeframe: HistoryTi
       },
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
-      enabled: portfolioLoadingStatus !== 'loading',
+      enabled: !isConnected || portfolioLoadingStatus !== 'loading',
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

@@ -41,6 +41,7 @@ import { useAppSelector } from 'state/store'
 
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
 import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
 
@@ -53,7 +54,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   setConfirmedQuote,
 }) => {
   const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
@@ -212,6 +213,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('manualRuneAddress')
     trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
+
+  if (!isConnected)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ConnectWallet />
+        </CardBody>
+      </SlideTransition>
+    )
 
   if (!stakingAssetAccountAddress)
     return (

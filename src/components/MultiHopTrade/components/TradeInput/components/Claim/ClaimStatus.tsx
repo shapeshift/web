@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, Center, Heading, Link, Stack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { AnimatePresence } from 'framer-motion'
 import React, { useCallback, useMemo } from 'react'
@@ -7,7 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
-import { SlideTransition } from 'components/SlideTransition'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { SlideTransitionY } from 'components/SlideTransitionY'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
@@ -17,6 +17,8 @@ import { useAppSelector } from 'state/store'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
+
+const cardBorderRadius = { base: '2xl' }
 
 type ClaimStatusBodyProps = {
   amountCryptoPrecision: string
@@ -143,16 +145,24 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
   }, [activeClaim.accountId, activeClaim.destinationExplorerTxLink, claimTxHash, maybeSafeTx])
 
   return (
-    <SlideTransition>
-      <AnimatePresence mode='wait'>{StatusBody}</AnimatePresence>
-      <CardFooter flexDir='column' gap={2}>
-        <Button as={Link} href={txLink} size='lg' colorScheme='blue' variant='ghost' isExternal>
-          {translate('trade.viewTransaction')}
-        </Button>
-        <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
-          {translate('common.goBack')}
-        </Button>
-      </CardFooter>
-    </SlideTransition>
+    <TradeSlideTransition>
+      <Card
+        flex={1}
+        borderRadius={cardBorderRadius}
+        width='full'
+        variant='dashboard'
+        maxWidth='500px'
+      >
+        <AnimatePresence mode='wait'>{StatusBody}</AnimatePresence>
+        <CardFooter flexDir='column' gap={2}>
+          <Button as={Link} href={txLink} size='lg' colorScheme='blue' variant='ghost' isExternal>
+            {translate('trade.viewTransaction')}
+          </Button>
+          <Button size='lg' colorScheme='blue' onClick={handleGoBack}>
+            {translate('common.goBack')}
+          </Button>
+        </CardFooter>
+      </Card>
+    </TradeSlideTransition>
   )
 }

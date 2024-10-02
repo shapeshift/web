@@ -1,5 +1,4 @@
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
@@ -33,15 +32,7 @@ const ClaimStatus = makeSuspenseful(
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim: React.FC = () => {
-  return (
-    <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
-      <ClaimRoutes />
-    </MemoryRouter>
-  )
-}
-
-export const ClaimRoutes: React.FC = () => {
+export const Claim = ({ onClickBack }: { onClickBack: () => void }) => {
   const location = useLocation()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
@@ -49,8 +40,8 @@ export const ClaimRoutes: React.FC = () => {
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
 
   const renderClaimSelect = useCallback(() => {
-    return <ClaimSelect setActiveClaim={setActiveClaim} />
-  }, [])
+    return <ClaimSelect setActiveClaim={setActiveClaim} onClickBack={onClickBack} />
+  }, [onClickBack])
 
   const renderClaimConfirm = useCallback(() => {
     if (!activeClaim) return null
@@ -58,11 +49,12 @@ export const ClaimRoutes: React.FC = () => {
     return (
       <ClaimConfirm
         activeClaim={activeClaim}
+        onClickBack={onClickBack}
         setClaimTxHash={setClaimTxHash}
         setClaimTxStatus={setClaimTxStatus}
       />
     )
-  }, [activeClaim, setClaimTxHash, setClaimTxStatus])
+  }, [activeClaim, onClickBack, setClaimTxHash, setClaimTxStatus])
 
   const renderClaimStatus = useCallback(() => {
     if (!activeClaim) return null
@@ -79,7 +71,7 @@ export const ClaimRoutes: React.FC = () => {
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <AnimatePresence mode='wait' initial={false}>
+    <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Suspense>
           <Route
@@ -99,6 +91,6 @@ export const ClaimRoutes: React.FC = () => {
           />
         </Suspense>
       </Switch>
-    </AnimatePresence>
+    </MemoryRouter>
   )
 }

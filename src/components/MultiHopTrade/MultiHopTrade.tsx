@@ -1,8 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
+import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
+import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
@@ -66,6 +67,7 @@ type TradeRoutesProps = {
 }
 
 const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
+  const history = useHistory()
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -88,6 +90,11 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     )
   }, [location.pathname])
 
+  // Drilled down due to separate memory router context used in claims
+  const handleClickBack = useCallback(() => {
+    history.push(TradeRoutePaths.Input)
+  }, [history])
+
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
@@ -106,6 +113,9 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
             />
+          </Route>
+          <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
+            <Claim onClickBack={handleClickBack} />
           </Route>
         </Switch>
       </AnimatePresence>

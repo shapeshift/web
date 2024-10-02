@@ -22,7 +22,7 @@ import { Footer } from './components/Footer'
 import { Hops } from './components/Hops'
 import { useIsApprovalInitiallyNeeded } from './hooks/useIsApprovalInitiallyNeeded'
 
-const cardBorderRadius = { base: 'xl' }
+const cardBorderRadius = { base: '2xl' }
 const useDisclosureProps = {
   defaultIsOpen: true,
 }

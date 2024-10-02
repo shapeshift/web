@@ -1,7 +1,9 @@
-import { Box, CardBody, Skeleton } from '@chakra-ui/react'
+import { Box, Card, CardBody, CardHeader, Heading, Skeleton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { ClaimStatus } from 'components/ClaimRow/types'
+import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { Text } from 'components/Text'
 import { selectArbitrumWithdrawTxs } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -11,11 +13,14 @@ import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { useArbitrumClaimsByStatus } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
+const cardBorderRadius = { base: '2xl' }
+
 type ClaimSelectProps = {
+  onClickBack: () => void
   setActiveClaim: (claim: ClaimDetails) => void
 }
 
-export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
+export const ClaimSelect: React.FC<ClaimSelectProps> = ({ onClickBack, setActiveClaim }) => {
   const history = useHistory()
 
   const arbitrumWithdrawTxs = useAppSelector(selectArbitrumWithdrawTxs)
@@ -61,15 +66,29 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
   }, [claimsByStatus.Pending, isLoading, handleClaimClick])
 
   return (
-    <CardBody px={6}>
-      <Box mb={6}>
-        <Text as='h5' fontSize='md' translation='bridge.availableClaims' />
-        {AvailableClaims}
-      </Box>
-      <Box>
-        <Text as='h5' fontSize='md' translation='bridge.pendingClaims' />
-        {PendingClaims}
-      </Box>
-    </CardBody>
+    <TradeSlideTransition>
+      <Card
+        flex={1}
+        borderRadius={cardBorderRadius}
+        width='full'
+        variant='dashboard'
+        maxWidth='500px'
+      >
+        <CardHeader px={6} pt={4}>
+          <WithBackButton onBack={onClickBack}>
+            <Heading textAlign='center' fontSize='md'>
+              <Text translation='bridge.availableClaims' />
+            </Heading>
+          </WithBackButton>
+        </CardHeader>
+        <CardBody px={6}>
+          <Box mb={6}>{AvailableClaims}</Box>
+          <Box>
+            <Text as='h5' fontSize='md' translation='bridge.pendingClaims' />
+            {PendingClaims}
+          </Box>
+        </CardBody>
+      </Card>
+    </TradeSlideTransition>
   )
 }

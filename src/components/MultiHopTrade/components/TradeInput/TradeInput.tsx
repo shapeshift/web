@@ -16,7 +16,7 @@ import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -43,7 +43,6 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { Claim } from './components/Claim/Claim'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeInputBody } from './components/TradeInputBody'
@@ -73,7 +72,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const [selectedTab, setSelectedTab] = useState<TradeInputTab>(TradeInputTab.Trade)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
@@ -280,30 +278,22 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                     setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
                   >
                     <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                      <TradeInputHeader
-                        initialTab={selectedTab}
-                        onChangeTab={setSelectedTab}
-                        isLoading={isLoading}
-                        isCompact={isCompact}
-                      />
-                      {selectedTab === TradeInputTab.Trade && (
-                        <Box ref={bodyRef}>
-                          <TradeInputBody
-                            isLoading={isLoading}
-                            manualReceiveAddress={manualReceiveAddress}
-                            initialSellAssetAccountId={initialSellAssetAccountId}
-                            initialBuyAssetAccountId={initialBuyAssetAccountId}
-                            setSellAssetAccountId={setSellAssetAccountId}
-                            setBuyAssetAccountId={setBuyAssetAccountId}
-                          />
-                          <ConfirmSummary
-                            isCompact={isCompact}
-                            isLoading={isLoading}
-                            receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-                          />
-                        </Box>
-                      )}
-                      {selectedTab === TradeInputTab.Claim && <Claim />}
+                      <TradeInputHeader isLoading={isLoading} isCompact={isCompact} />
+                      <Box ref={bodyRef}>
+                        <TradeInputBody
+                          isLoading={isLoading}
+                          manualReceiveAddress={manualReceiveAddress}
+                          initialSellAssetAccountId={initialSellAssetAccountId}
+                          initialBuyAssetAccountId={initialBuyAssetAccountId}
+                          setSellAssetAccountId={setSellAssetAccountId}
+                          setBuyAssetAccountId={setBuyAssetAccountId}
+                        />
+                        <ConfirmSummary
+                          isCompact={isCompact}
+                          isLoading={isLoading}
+                          receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+                        />
+                      </Box>
                     </Stack>
                   </WarningAcknowledgement>
                 </StreamingAcknowledgement>
@@ -313,12 +303,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
             <WithLazyMount
               shouldUse={!isCompact && !isSmallerThanXl}
               component={CollapsibleQuoteList}
-              isOpen={
-                selectedTab === TradeInputTab.Trade &&
-                !isCompact &&
-                !isSmallerThanXl &&
-                hasUserEnteredAmount
-              }
+              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
               isLoading={isLoading}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
               height={totalHeight ?? 'full'}

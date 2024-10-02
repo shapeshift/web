@@ -797,7 +797,7 @@
     "claimPending": "Awaiting your claim of",
     "claimSuccess": "You have successfully claimed",
     "claimFailed": "Error attempting to claim",
-    "availableClaims": "Available",
+    "availableClaims": "Available Claims",
     "noAvailableClaims": "No claims available",
     "pendingClaims": "Pending",
     "noPendingClaims": "No claims pending",

@@ -147,7 +147,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   }, [])
 
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  // TODO(gomes): we should store modalType as rdns to shave one line and benefit from getters
+  // TODO(gomes): we should store full info in `modalType` instead of just the name
+  // to leverage rdns/uuid as id, as well as avoiding this lookup
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.name === modalType)
   console.log({ maybeMipdProvider })
 

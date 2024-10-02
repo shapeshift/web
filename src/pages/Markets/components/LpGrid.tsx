@@ -27,6 +27,7 @@ export const LpGrid: React.FC<{
   isLoading: boolean
   limit: number
 }> = ({ assetIds, selectedChainId, isLoading, limit }) => {
+  const { ref, inView } = useInView()
   const history = useHistory()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -36,7 +37,7 @@ export const LpGrid: React.FC<{
   )
   const { data: portalsAssets } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
-    enabled: true,
+    enabled: inView,
   })
 
   const filteredAssetIds = useMemo(
@@ -54,23 +55,25 @@ export const LpGrid: React.FC<{
     return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
 
   return (
-    <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
-      {filteredAssetIds.map((assetId, index) => {
-        const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
-        const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
+    <div ref={ref}>
+      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+        {filteredAssetIds.map((assetId, index) => {
+          const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
+          const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 
-        return (
-          <LpGridItem
-            key={assetId}
-            assetId={assetId}
-            index={index}
-            onClick={handleCardClick}
-            apy={maybePortalsApy}
-            volume={maybePortalsVolume}
-          />
-        )
-      })}
-    </Grid>
+          return (
+            <LpGridItem
+              key={assetId}
+              assetId={assetId}
+              index={index}
+              onClick={handleCardClick}
+              apy={maybePortalsApy}
+              volume={maybePortalsVolume}
+            />
+          )
+        })}
+      </Grid>
+    </div>
   )
 }
 

@@ -1,6 +1,6 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Circle, Flex } from '@chakra-ui/react'
+import { Box, Button, Circle, Flex } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/system'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { PropsWithChildren } from 'react'
@@ -43,7 +43,7 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
           <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
         )}
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
-        {typeof title === 'object' && title}
+        {typeof title === 'object' && <Box mt={4}>{title}</Box>}
         {ctaHref && ctaText && (
           <Button
             colorScheme='purple'

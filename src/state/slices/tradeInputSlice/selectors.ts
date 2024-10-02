@@ -194,17 +194,6 @@ export const selectInputSellAmountUserCurrency = createSelector(
   },
 )
 
-export const selectSellAssetBalanceFilter = createSelector(
-  selectFirstHopSellAccountId,
-  selectInputSellAsset,
-  (firstHopSellAccountId, sellAsset) => {
-    return {
-      accountId: firstHopSellAccountId,
-      assetId: sellAsset.assetId,
-    }
-  },
-)
-
 export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
   (state: ReduxState) =>
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, {

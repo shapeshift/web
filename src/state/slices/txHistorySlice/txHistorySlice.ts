@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
@@ -16,10 +16,9 @@ import {
   isSpammyTokenText,
 } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
-import type { ReduxState } from 'state/reducer'
 import type { Nominal } from 'types/common'
 
-import { deserializeTxIndex, getRelatedAssetIds, serializeTxIndex } from './utils'
+import { getRelatedAssetIds, serializeTxIndex } from './utils'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -138,36 +137,6 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
     }
   }
 }
-
-const checkTxHashReceived = (state: ReduxState, txHash: string) => {
-  return state.txHistory.txs.ids.some(txIndex => deserializeTxIndex(txIndex).txid === txHash)
-}
-
-// Resolves when a tx with a given txhash has been received. Used for signalling tx completion only.
-// Ignores the fact that there may be multiple txs received for a given txhash (thorchain swapper).
-export const waitForTransactionHash = createAsyncThunk<
-  void,
-  string,
-  { state: ReduxState; extra: { subscribe: (listener: (state: ReduxState) => void) => () => void } }
->('txHistory/waitForTransaction', (txHash, { getState, extra: { subscribe } }) => {
-  return new Promise(resolve => {
-    const transactionReceived = checkTxHashReceived(getState(), txHash)
-
-    // don't subscribe if the tx was already received - prevents race condition and infinite await
-    if (transactionReceived) {
-      resolve()
-      return
-    }
-
-    const unsubscribe = subscribe(state => {
-      const transactionReceived = checkTxHashReceived(state, txHash)
-      if (transactionReceived) {
-        unsubscribe()
-        resolve()
-      }
-    })
-  })
-})
 
 export const txHistory = createSlice({
   name: 'txHistory',

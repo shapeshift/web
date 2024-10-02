@@ -85,7 +85,7 @@ export const rFOXStakingMetadataResolver = async ({
     type: defiType,
   } as const
 
-  return await Promise.resolve({ data })
+  return { data }
 }
 
 export const rFOXStakingUserDataResolver = async ({

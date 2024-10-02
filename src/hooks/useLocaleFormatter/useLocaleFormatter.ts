@@ -22,12 +22,6 @@ type LocaleParts = {
   postfix: string
 }
 
-export type FiatParts = {
-  number?: string
-  prefix?: string
-  postfix?: string
-}
-
 export type NumberFormatOptions = {
   maximumFractionDigits?: number
   minimumFractionDigits?: number

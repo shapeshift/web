@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { getConfig } from 'config'
-import { type BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
+import { type BigNumber, bn } from 'lib/bignumber/bignumber'
 import { getAccountAddresses, toThorBaseUnit } from 'lib/utils/thorchain'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -188,12 +188,4 @@ export const getThorchainPoolInfo = async (assetId: AssetId): Promise<ThornodePo
   }
 
   return data
-}
-
-export const getLtvFromCollateralizationRatio = (
-  collateralizationRatio: BigNumber.Value,
-): string => {
-  const crDecimal = bnOrZero(collateralizationRatio).div(100)
-  const ltvPercentage = bn(1).div(crDecimal).times(100).toFixed(2)
-  return ltvPercentage
 }

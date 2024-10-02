@@ -54,7 +54,7 @@ const mockContract = getContract({
   abi: [],
   address: '' as Address,
   client: viemEthMainnetClient,
-}) as unknown as GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient, Address>
+}) as unknown as GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient>
 const token0Decimals = 18
 const mockToken0Reserves = new TokenAmount(
   new Token(1, '0x0000000000000000000000000000000000000000', token0Decimals),

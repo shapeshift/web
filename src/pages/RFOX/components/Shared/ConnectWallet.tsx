@@ -12,10 +12,10 @@ export const ConnectWallet: FC = () => {
   return (
     <Center flexDir={'column'}>
       <AssetIcon size='lg' assetId={foxAssetId} showNetworkIcon={false} mb={4} />
-      <ButtonWalletPredicate isValidWallet />
       <RawText fontSize='md' color='gray.400' mb={4} textAlign={'center'}>
         {translate('common.connectWalletToGetStartedWith', { feature: 'RFOX' })}
       </RawText>
+      <ButtonWalletPredicate isValidWallet />
     </Center>
   )
 }

@@ -39,13 +39,11 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
         </Circle>
       </Flex>
       <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
-        {typeof title === 'string' ? (
+        {typeof title === 'string' && (
           <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
-        ) : (
-          title
         )}
-
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
+        {typeof title === 'object' && title}
         {ctaHref && ctaText && (
           <Button
             colorScheme='purple'

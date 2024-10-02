@@ -60,9 +60,6 @@ export const CHAIN_ID_TO_OPENSEA_NETWORK_MAP = invert(OPENSEA_NETWORKS_TO_CHAIN_
   Record<ChainId, SupportedOpenseaNetwork>
 >
 
-export const openseaNetworkToChainId = (network: SupportedOpenseaNetwork): ChainId | undefined =>
-  OPENSEA_NETWORKS_TO_CHAIN_ID_MAP[network]
-
 export const chainIdToOpenseaNetwork = (chainId: ChainId): SupportedOpenseaNetwork | undefined =>
   CHAIN_ID_TO_OPENSEA_NETWORK_MAP[chainId]
 

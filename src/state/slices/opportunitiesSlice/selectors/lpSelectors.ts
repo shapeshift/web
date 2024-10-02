@@ -4,7 +4,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetWithBalance } from 'features/defi/components/Overview/Overview'
 import partition from 'lodash/partition'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from 'lib/math'
+import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
@@ -25,7 +25,6 @@ import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
 
-export const selectLpIds = (state: ReduxState) => state.opportunities.lp.ids
 export const selectLpOpportunitiesById = (state: ReduxState) => state.opportunities.lp.byId
 
 // A user LpOpportunity, parsed as an EarnOpportunityType
@@ -97,64 +96,6 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
       icons: opportunityMetadata.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
         .map(icon => icon ?? ''),
-    }
-
-    return opportunity
-  },
-)
-
-// The same as the previous selector, but parsed as an EarnOpportunityType
-// TODO: testme
-export const selectAggregatedEarnUserLpOpportunity = createDeepEqualOutputSelector(
-  selectLpOpportunitiesById,
-  selectLpIdParamFromFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectAssets,
-  selectMarketDataUserCurrency,
-  (
-    lpOpportunitiesById,
-    lpId,
-    aggregatedLpAssetBalance,
-    assets,
-    marketDataUserCurrency,
-  ): LpEarnOpportunityType | undefined => {
-    if (!lpId || !aggregatedLpAssetBalance) return
-
-    const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
-    const opportunityMetadata = lpOpportunitiesById[lpId]
-
-    if (!opportunityMetadata) return
-
-    const lpAsset = assets[lpId as AssetId]
-
-    if (!lpAsset) return
-
-    const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-        bnOrZero(aggregatedLpAssetBalance)
-          .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
-          .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-          .toFixed(6)
-          .toString(),
-      )
-
-    const opportunity = {
-      ...opportunityMetadata,
-      isLoaded: true,
-      contractAddress: fromAssetId(lpId as AssetId).assetReference,
-      chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken0AmountCryptoBaseUnit,
-      underlyingToken1AmountCryptoBaseUnit,
-      cryptoAmountPrecision: aggregatedLpAssetBalance,
-      // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
-      cryptoAmountBaseUnit: toBaseUnit(aggregatedLpAssetBalance, lpAsset.precision),
-      fiatAmount: bnOrZero(aggregatedLpAssetBalance)
-        .times(marketDataPrice ?? '0')
-        .toString(),
-      icons: opportunityMetadata.underlyingAssetIds
-        .map(assetId => assets[assetId]?.icon)
-        .map(icon => icon ?? ''),
-      opportunityName: opportunityMetadata.name,
     }
 
     return opportunity
@@ -311,14 +252,6 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
 
     return activeOpportunities.concat(inactiveOpportunities)
   },
-)
-
-export const selectActiveAggregatedEarnUserLpOpportunities = createDeepEqualOutputSelector(
-  selectAggregatedEarnUserLpOpportunities,
-  (aggregatedUserStakingOpportunities): LpEarnOpportunityType[] =>
-    aggregatedUserStakingOpportunities.filter(opportunity =>
-      bnOrZero(opportunity.fiatAmount).gt(0),
-    ),
 )
 
 export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSelector(

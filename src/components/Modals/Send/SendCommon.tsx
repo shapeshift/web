@@ -18,7 +18,6 @@ export enum SendFormFields {
   FeeType = 'feeType',
   EstimatedFees = 'estimatedFees',
   AmountCryptoPrecision = 'amountCryptoPrecision',
-  CryptoSymbol = 'cryptoSymbol',
   FiatAmount = 'fiatAmount',
   FiatSymbol = 'fiatSymbol',
   AmountFieldError = 'amountFieldError',

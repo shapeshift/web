@@ -11,7 +11,7 @@ import { Text } from 'components/Text'
 
 type ResultsEmptyProp = {
   icon?: JSX.Element
-  title?: string
+  title?: string | JSX.Element
   body?: string | [string, InterpolationOptions]
   ctaHref?: string | null
   ctaText?: string
@@ -39,7 +39,12 @@ export const ResultsEmpty: React.FC<ResultsEmptyProp> = ({
         </Circle>
       </Flex>
       <Flex alignItems='center' textAlign='center' flexDir='column' gap={2}>
-        <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
+        {typeof title === 'string' ? (
+          <Text fontWeight='bold' fontSize='lg' letterSpacing='0.02em' translation={title} />
+        ) : (
+          title
+        )}
+
         <Text color='text.subtle' letterSpacing='0.012em' translation={body} />
         {ctaHref && ctaText && (
           <Button

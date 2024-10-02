@@ -10,6 +10,7 @@ import { reactQueries } from 'react-queries'
 import { generatePath, useHistory } from 'react-router'
 import type { Column, Row } from 'react-table'
 import { Amount } from 'components/Amount/Amount'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { Display } from 'components/Display'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { Main } from 'components/Layout/Main'
@@ -319,10 +320,15 @@ export const YourPositions = () => {
     [],
   )
 
+  const connectWalletTitleButton = useMemo(() => <ButtonWalletPredicate isValidWallet />, [])
   const body = useMemo(() => {
     if (!isConnected)
       return (
-        <ResultsEmpty title='common.connectWallet' body={connectWalletBody} icon={connectIcon} />
+        <ResultsEmpty
+          title={connectWalletTitleButton}
+          body={connectWalletBody}
+          icon={connectIcon}
+        />
       )
     if (isEmpty)
       return (
@@ -350,6 +356,7 @@ export const YourPositions = () => {
     columns,
     connectIcon,
     connectWalletBody,
+    connectWalletTitleButton,
     emptyIcon,
     handlePoolClick,
     isConnected,

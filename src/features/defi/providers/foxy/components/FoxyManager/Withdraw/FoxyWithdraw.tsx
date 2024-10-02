@@ -25,8 +25,8 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
   selectBIP44ParamsByAccountId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -63,7 +63,7 @@ export const FoxyWithdraw: React.FC<{
   const chainAdapterManager = getChainAdapterManager()
   const chainAdapter = chainAdapterManager.get(KnownChainIds.EthereumMainnet)
   const { state: walletState } = useWallet()
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   useEffect(() => {
     ;(async () => {

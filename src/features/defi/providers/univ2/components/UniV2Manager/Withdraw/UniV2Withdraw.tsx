@@ -21,7 +21,7 @@ import type { LpId } from 'state/slices/opportunitiesSlice/types'
 import {
   selectAssetById,
   selectEarnUserLpOpportunity,
-  selectPortfolioLoading,
+  selectIsPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -68,7 +68,7 @@ export const UniV2Withdraw: React.FC<UniV2WithdrawProps> = ({
   )
 
   // user info
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   const handleBack = useCallback(() => {
     history.push({

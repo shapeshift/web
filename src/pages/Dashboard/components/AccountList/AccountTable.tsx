@@ -21,7 +21,7 @@ import { Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import type { AccountRowData } from 'state/slices/selectors'
-import { selectPortfolioAccountRows, selectPortfolioLoading } from 'state/slices/selectors'
+import { selectIsPortfolioLoading, selectPortfolioAccountRows } from 'state/slices/selectors'
 import { breakpoints } from 'theme/theme'
 
 type RowProps = Row<AccountRowData>
@@ -29,7 +29,7 @@ type RowProps = Row<AccountRowData>
 const stackTextAlign: ResponsiveValue<Property.TextAlign> = { base: 'right', lg: 'left' }
 
 export const AccountTable = memo(() => {
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector(selectPortfolioAccountRows)
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))

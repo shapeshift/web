@@ -1,18 +1,10 @@
 import type {
   GetTradeQuoteInput,
-  SwapErrorRight,
   SwapperName,
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { Result } from '@sniptt/monads'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { ReduxState } from 'state/reducer'
-
-export type QuoteHelperType = (
-  getTradeQuoteInput: GetTradeQuoteInput,
-  state: ReduxState,
-) => Promise<Result<TradeQuote, SwapErrorRight>>
 
 // The following are errors that affect all quotes.
 export enum TradeQuoteRequestError {
@@ -61,8 +53,3 @@ export type ApiQuote = {
 }
 
 export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
-
-export type TradeQuoteResponse = {
-  errors: ErrorWithMeta<TradeQuoteRequestError>[]
-  quotes: ApiQuote[]
-}

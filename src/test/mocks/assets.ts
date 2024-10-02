@@ -6,7 +6,6 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
-  foxOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'
@@ -90,20 +89,6 @@ export const fox: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
   icon: '/fox-token-logo.png',
   name: 'Fox',
-  precision: 18,
-  symbol: 'FOX',
-  relatedAssetKey: null,
-}
-
-export const foxOnArbitrum: Asset = {
-  chainId: arbitrumChainId,
-  assetId: foxOnArbitrumOneAssetId,
-  color: '#FFFFFF',
-  explorer: 'https://arbiscan.io',
-  explorerTxLink: 'https://arbiscan.io/tx/',
-  explorerAddressLink: 'https://arbiscan.io/address/',
-  icon: '/fox-token-logo.png',
-  name: 'Fox on Arbitrum One',
   precision: 18,
   symbol: 'FOX',
   relatedAssetKey: null,

@@ -1,6 +1,6 @@
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { assertUnreachable } from 'lib/utils'
 
-import { assertUnreachable } from '../lib/utils'
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {

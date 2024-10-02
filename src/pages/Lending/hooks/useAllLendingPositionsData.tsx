@@ -7,9 +7,9 @@ import { getThorchainLendingPosition } from 'lib/utils/thorchain/lending'
 import type { Borrower } from 'lib/utils/thorchain/lending/types'
 import {
   selectAccountIdsByAssetId,
+  selectEnabledWalletAccountIds,
   selectUserCurrencyRateByAssetId,
   selectUserCurrencyToUsdRate,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
@@ -24,7 +24,7 @@ export const useAllLendingPositionsData = ({ assetId }: UseAllLendingPositionsDa
     type: 'collateral',
   })
 
-  const accountIds = useAppSelector(selectWalletAccountIds)
+  const accountIds = useAppSelector(selectEnabledWalletAccountIds)
   const accounts = useMemo(
     () =>
       (lendingSupportedAssets ?? [])

@@ -1,9 +1,8 @@
 import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds, MarketData } from '@shapeshiftoss/types'
+import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { toHex } from 'viem'
-import type { EstimateFeesInput } from 'components/Modals/Send/utils'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getSupportedEvmChainIds } from 'lib/utils/evm'
@@ -14,16 +13,6 @@ import type {
 } from 'lib/utils/thorchain/lp/types'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-
-export type EstimatedFeesQueryKey = [
-  'estimateFees',
-  {
-    enabled: boolean
-    asset: Asset | undefined
-    assetMarketData: MarketData
-    estimateFeesInput: EstimateFeesInput | undefined
-  },
-]
 
 type UseQuoteEstimatedFeesProps = {
   enabled?: boolean

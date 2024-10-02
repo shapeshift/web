@@ -16,9 +16,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
   selectShowSnapsModal,
-  selectWalletAccountIds,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
@@ -98,7 +98,7 @@ export const Header = memo(() => {
   )
 
   const currentWalletId = useSelector(selectWalletId)
-  const walletAccountIds = useSelector(selectWalletAccountIds)
+  const walletAccountIds = useSelector(selectEnabledWalletAccountIds)
   const hasUtxoAccountIds = useMemo(
     () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
     [walletAccountIds],

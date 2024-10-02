@@ -9,7 +9,7 @@ import {
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import memoize from 'lodash/memoize'
-import type { Address, GetContractReturnType, PublicClient } from 'viem'
+import type { GetContractReturnType, PublicClient } from 'viem'
 import { getAddress, parseAbiItem } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -21,7 +21,7 @@ export const getToken0Volume24Hr = async ({
   uniswapLPContract,
 }: {
   blockNumber: number
-  uniswapLPContract: GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient, Address>
+  uniswapLPContract: GetContractReturnType<typeof I_UNISWAP_V2_PAIR_ABI, PublicClient>
 }) => {
   const currentBlockNumber = blockNumber
   const yesterdayBlockNumber = currentBlockNumber - 6500 // ~6500 blocks per day

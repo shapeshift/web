@@ -57,7 +57,16 @@ export const thorchainSaversOpportunityIdsResolver = async (): Promise<{
 
   const availablePools = thorchainPools.filter(pool => pool.status === 'Available')
 
-  const opportunityIds = availablePools.reduce<OpportunityId[]>((acc, currentPool) => {
+  const midgardPools = await getMidgardPools('7d')
+
+  const sortedPools = availablePools.sort((a, b) => {
+    const aApy = bnOrZero(midgardPools.find(pool => pool.asset === a.asset)?.saversAPR)
+    const bApy = bnOrZero(midgardPools.find(pool => pool.asset === b.asset)?.saversAPR)
+
+    return bApy.minus(aApy).toNumber()
+  })
+
+  const opportunityIds = sortedPools.reduce<OpportunityId[]>((acc, currentPool) => {
     const maybeOpportunityId = poolAssetIdToAssetId(currentPool.asset)
 
     if (

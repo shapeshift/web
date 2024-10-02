@@ -24,7 +24,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
-import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
+import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -209,8 +209,8 @@ export const Deposit: React.FC<DepositProps> = ({
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
-  const { isAllowanceResetRequired, isApprovalRequired: _isApprovalRequired } =
-    useIsApprovalRequired({
+  const { isAllowanceApprovalRequired: _isApprovalRequired, isAllowanceResetRequired } =
+    useAllowanceApprovalRequirements({
       assetId,
       amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
       spender: inboundAddress,

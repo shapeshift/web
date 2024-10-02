@@ -130,6 +130,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     supportsEIP1559,
+    permit2Signature,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
     const buildSignBroadcast =
@@ -160,6 +161,7 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
           config,
           assertGetEvmChainAdapter,
+          permit2Signature,
         })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {

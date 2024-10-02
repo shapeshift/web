@@ -7,7 +7,7 @@ import { SwapperName } from '../../../types'
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
 const maxAge = 5 * 1000 // 5 seconds
-const cachedUrls = ['/swap/v1/price']
+const cachedUrls = ['/swap/v1/price', '/swap/permit2/price']
 
 // A higher-order function to be applied to the proxied axios instance
 type AxiosInstanceHoF = (

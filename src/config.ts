@@ -78,6 +78,7 @@ const validators = {
   REACT_APP_FEATURE_SOLANA: bool({ default: false }),
   REACT_APP_FEATURE_BASE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_PERMIT2: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -174,6 +175,7 @@ const validators = {
   REACT_APP_PORTALS_BASE_URL: url(),
   REACT_APP_ZERION_BASE_URL: url(),
   REACT_APP_FEATURE_PHANTOM_WALLET: bool({ default: false }),
+  REACT_APP_ZRX_BASE_URL: url(),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

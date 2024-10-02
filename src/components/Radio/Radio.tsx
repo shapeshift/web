@@ -3,8 +3,8 @@ import type { ButtonGroupProps, ButtonProps, UseRadioProps } from '@chakra-ui/re
 import { Button, ButtonGroup, useId, useRadio, useRadioGroup } from '@chakra-ui/react'
 import type { ThemeTypings } from '@chakra-ui/styled-system'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
-import type { InterpolationOptions } from 'node-polyglot'
 import type Polyglot from 'node-polyglot'
+import type { InterpolationOptions } from 'node-polyglot'
 import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -21,9 +21,9 @@ interface RadioCardProps extends UseRadioProps {
 const RadioCard = memo((props: RadioCardProps) => {
   const { id, label, showCheck, checkColor, isChecked, radioProps, isLoading } = props
   const contextualId = useId(id)
-  const { getInputProps, getCheckboxProps } = useRadio({ id: contextualId, ...props })
+  const { getInputProps, getRadioProps } = useRadio({ id: contextualId, ...props })
   const input = getInputProps()
-  const checkbox = getCheckboxProps()
+  const checkbox = getRadioProps()
   const translate: (phrase: string, options?: number | InterpolationOptions) => string =
     useTranslate()
   const ariaLabel = typeof label === 'string' ? label : translate(...label)

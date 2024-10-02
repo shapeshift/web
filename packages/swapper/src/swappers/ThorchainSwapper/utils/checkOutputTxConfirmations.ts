@@ -6,7 +6,7 @@ import type { SwapperConfig } from '../../../types'
 import type { ThorNodeTxSchema } from '../types'
 import { ThorchainChain } from '../types'
 
-export const checkOutboundTxConfirmations = async (
+export const checkOutputTxConfirmations = async (
   buyTxHash: string,
   latestOutTx: ThorNodeTxSchema | undefined,
   config: SwapperConfig,

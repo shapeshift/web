@@ -29,7 +29,7 @@ export const selectIsWalletConnected = (state: ReduxState) =>
   state.portfolio.connectedWallet !== undefined
 export const selectWalletSupportedChainIds = (state: ReduxState) =>
   state.portfolio.connectedWallet?.supportedChainIds ?? []
-export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
+export const selectEnabledAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.enabledAccountIds,
   (walletId, enabledAccountIds) => {
@@ -38,23 +38,32 @@ export const selectWalletEnabledAccountIds = createDeepEqualOutputSelector(
   },
 )
 
-export const selectWalletAccountIds = createDeepEqualOutputSelector(
+export const selectEnabledWalletAccountIds = createDeepEqualOutputSelector(
   selectWalletId,
   (state: ReduxState) => state.portfolio.wallet.byId,
-  selectWalletEnabledAccountIds,
+  selectEnabledAccountIds,
   (walletId, walletById, enabledAccountIds): AccountId[] => {
     const walletAccountIds = (walletId && walletById[walletId]) ?? []
     return walletAccountIds.filter(accountId => (enabledAccountIds ?? []).includes(accountId))
   },
 )
 
+export const selectWalletAccountIds = createDeepEqualOutputSelector(
+  selectWalletId,
+  (state: ReduxState) => state.portfolio.wallet.byId,
+  (walletId, walletById): AccountId[] => {
+    const walletAccountIds = walletById?.[walletId ?? ''] ?? []
+    return walletAccountIds
+  },
+)
+
 export const selectEvmAccountIds = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   accountIds => accountIds.filter(accountId => isEvmChainId(fromAccountId(accountId).chainId)),
 )
 
 export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   accountIds => {
     const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
       const { chainId } = fromAccountId(accountId)
@@ -66,7 +75,7 @@ export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAccountBalancesBaseUnit = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState): PortfolioAccountBalancesById => state.portfolio.accountBalances.byId,
   (walletAccountIds, accountBalancesById) =>
     pickBy(accountBalancesById, (_balances, accountId: AccountId) =>

@@ -30,9 +30,9 @@ import {
   selectAssetById,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectHighestStakingBalanceAccountIdByStakingId,
+  selectIsPortfolioLoading,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioLoading,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -72,7 +72,7 @@ export const ThorchainSaversDeposit: React.FC<YearnDepositProps> = ({
   const isRunePool = assetId === thorchainAssetId
 
   // user info
-  const loading = useSelector(selectPortfolioLoading)
+  const loading = useSelector(selectIsPortfolioLoading)
 
   const opportunityId: StakingId | undefined = useMemo(
     () => (assetId ? toOpportunityId({ chainId, assetNamespace, assetReference }) : undefined),

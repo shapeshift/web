@@ -10,11 +10,11 @@ import {
   useGetZapperUniV2PoolAssetIdsQuery,
 } from 'state/apis/zapper/zapperApi'
 import {
+  selectEnabledWalletAccountIds,
   selectEvmAccountIds,
   selectPortfolioAccounts,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
 
@@ -24,7 +24,7 @@ export const useFetchOpportunities = () => {
   } = useWallet()
   const dispatch = useAppDispatch()
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
   const evmAccountIds = useSelector(selectEvmAccountIds)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const portfolioAccounts = useSelector(selectPortfolioAccounts)

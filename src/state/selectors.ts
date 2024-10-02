@@ -91,7 +91,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
-export const selectEndpointNameParamFromFilter = selectParamFromFilter('endpointName')
 export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
 export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')

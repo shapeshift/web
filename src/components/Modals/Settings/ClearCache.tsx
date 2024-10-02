@@ -19,7 +19,7 @@ import { RawText } from 'components/Text'
 import { reloadWebview } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { selectWalletAccountIds } from 'state/slices/selectors'
+import { selectEnabledWalletAccountIds } from 'state/slices/selectors'
 import { txHistory, txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { persistor, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -56,7 +56,7 @@ const ClearCacheButton = ({
 
 export const ClearCache = ({ appHistory }: ClearCacheProps) => {
   const dispatch = useAppDispatch()
-  const requestedAccountIds = useAppSelector(selectWalletAccountIds)
+  const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const translate = useTranslate()
   const history = useHistory()
   const { disconnect } = useWallet()
@@ -81,7 +81,9 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
   const handleClearTxHistory = useCallback(() => {
     dispatch(txHistory.actions.clear())
     dispatch(txHistoryApi.util.resetApiState())
-    dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountIds))
+    requestedAccountIds.forEach(requestedAccountId =>
+      dispatch(txHistoryApi.endpoints.getAllTxHistory.initiate(requestedAccountId)),
+    )
   }, [dispatch, requestedAccountIds])
 
   return (

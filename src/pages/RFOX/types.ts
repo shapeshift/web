@@ -1,6 +1,5 @@
 import type { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { Address, Log, ReadContractReturnType } from 'viem'
-import type { PartialFields } from 'lib/types'
 
 import type { setRuneAddressEvent, stakeEvent, unstakeEvent, withdrawEvent } from './constants'
 
@@ -64,8 +63,6 @@ export type Epoch = {
   /** A record of staking address to reward distribution for this epoch */
   distributionsByStakingAddress: Record<string, RewardDistribution>
 }
-
-export type PartialEpoch = PartialFields<Epoch, 'endBlock'>
 
 export type RFOXAccountLog =
   | Log<bigint, number, false, typeof setRuneAddressEvent, false>

@@ -36,12 +36,6 @@ import { WalletCard } from './components/WalletCard'
 
 const containerStyles = { touchAction: 'none' }
 
-export type WalletInfo = {
-  id?: string
-  name?: string
-  createdAt?: number
-}
-
 const scaleFade = keyframes`
   from { scale: 1.5; opacity: 0; }
   to { scale: 1; opacity: 1;}

@@ -49,6 +49,7 @@
     "overview": "Overview",
     "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
+    "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
@@ -2569,37 +2570,41 @@
   "markets": {
     "recommended": "Recommended",
     "watchlist": "My Watchlist",
-    "marketsBody": "Nunc vel efficitur ligula, vel sagittis est. Morbi et sapien a ligula venenatis consequat.",
+    "marketsBody": "Discover the most exciting cryptocurrencies. Track top movers, emerging tokens, DeFi opportunities, and so much more. Save, share, and trade your favorites.",
     "watchlistEmpty": {
       "emptyTitle": "No assets in Watchlist",
       "emptyBody": "It appears you haven't starred any assets just yet. Start adding assets to your watchlist now to track them!"
     },
     "emptyTitle": "No assets found",
-    "emptyBody": "No assets were found with the current filter. Try adjusting your selected chain to see more assets.",
+    "emptyBody": "No assets were found with the current filter. See more assets by adjusting the selected chain.",
     "categories": {
       "oneClickDefiAssets": {
-        "title": "One Click DeFi Assets"
+        "title": "One Click DeFi Assets",
+        "subtitle": "Discover the yield that suits you best! Shift effortlessly with Portals between Pools, Vaults, lending options, and LSDs."
       },
       "thorchainDefi": {
-        "title": "THORChain DeFi"
+        "title": "THORChain DeFi",
+        "subtitle": "Earn native yield on your assets with THORCHain Savers."
       },
       "trending": {
         "title": "Trending",
-        "subtitle": "These are top assets that have jumped %{percentage}% or more"
+        "subtitle": "The most viewed assets in the last 24 hours."
       },
       "tradingVolume": {
         "title": "Trading Volume",
-        "subtitle": "These are top assets with the highest trading volume in the last 24 hours"
+        "subtitle": "Top assets with the highest trading volume in the last 24 hours."
       },
       "marketCap": {
         "title": "Market Cap",
-        "subtitle": "These are top assets with the highest market capitalization in the last 24 hours"
+        "subtitle": "Top assets with the highest market capitalization in the last 24 hours."
       },
       "topMovers": {
-        "title": "Top Movers"
+        "title": "Top Movers",
+        "subtitle": "Top assets that have jumped %{percentage}% or more."
       },
       "recentlyAdded": {
-        "title": "Recently Added"
+        "title": "Recently Added",
+        "subtitle": "Discover recent launches."
       }
     }
   }

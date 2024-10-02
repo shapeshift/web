@@ -22,13 +22,7 @@ export const CommonStat: React.FC<CommonStatProps> = ({ label, value, align = 'f
         {typeof value === 'string' ? <RawText>{value}</RawText> : <>{value}</>}
       </Box>
       <Box fontSize='sm' fontWeight='normal'>
-        {typeof label === 'string' ? (
-          <RawText fontSize='sm' color='text.subtle'>
-            {label}
-          </RawText>
-        ) : (
-          <>{label}</>
-        )}
+        {typeof label === 'string' ? <RawText color='text.subtle'>{label}</RawText> : <>{label}</>}
       </Box>
     </Flex>
   )

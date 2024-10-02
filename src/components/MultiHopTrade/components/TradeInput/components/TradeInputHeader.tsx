@@ -1,7 +1,8 @@
-import { CardHeader, Flex, Heading, useMediaQuery } from '@chakra-ui/react'
+import { CardHeader, Flex, Heading, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
+import { FaArrowRight } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
@@ -54,6 +55,8 @@ const TradeInputHeaderRightComponent = ({
   )
 }
 
+const arrowRightIcon = <FaArrowRight />
+
 export const TradeInputHeader = ({
   initialTab,
   isCompact,
@@ -89,34 +92,57 @@ export const TradeInputHeader = ({
   }, [selectedTab, isLoading, isCompact])
 
   return (
-    <CardHeader px={6}>
-      <Flex alignItems='center' justifyContent='space-between'>
-        <Flex gap={4}>
-          <Heading
-            as='h5'
-            fontSize='md'
-            color={selectedTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
-            onClick={handleClickTrade}
-            cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
-          >
-            {translate('navBar.trade')}
-          </Heading>
-          {enableBridgeClaims && (
+    <>
+      <CardHeader px={6} bg='background.success' borderTopRadius='2xl'>
+        <Flex alignItems='center' justifyContent='space-between'>
+          <Flex gap={4}>
+            <Heading as='h5' fontSize='sm' color='green.500'>
+              {translate('bridge.claimsAvailable')}
+            </Heading>
+          </Flex>
+          <Flex gap={2} alignItems='center' height={6}>
+            <IconButton
+              onClick={handleClickClaim}
+              size='sm'
+              position='relative'
+              variant='ghost'
+              color='green.500'
+              zIndex={1}
+              aria-label={translate('bridge.claim')}
+              icon={arrowRightIcon}
+            />
+          </Flex>
+        </Flex>
+      </CardHeader>
+      <CardHeader px={6}>
+        <Flex alignItems='center' justifyContent='space-between'>
+          <Flex gap={4}>
             <Heading
               as='h5'
               fontSize='md'
-              color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
-              onClick={handleClickClaim}
-              cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+              color={selectedTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
+              onClick={handleClickTrade}
+              cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
             >
-              {translate('bridge.claim')}
+              {translate('navBar.trade')}
             </Heading>
-          )}
+            {enableBridgeClaims && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.Claim ? 'text.subtle' : undefined}
+                onClick={handleClickClaim}
+                cursor={selectedTab !== TradeInputTab.Claim ? 'pointer' : undefined}
+              >
+                {translate('bridge.claim')}
+              </Heading>
+            )}
+          </Flex>
+          <Flex gap={2} alignItems='center' height={6}>
+            {rightComponent}
+          </Flex>
         </Flex>
-        <Flex gap={2} alignItems='center' height={6}>
-          {rightComponent}
-        </Flex>
-      </Flex>
-    </CardHeader>
+      </CardHeader>
+    </>
   )
 }

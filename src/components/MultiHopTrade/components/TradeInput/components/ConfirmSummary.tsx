@@ -318,7 +318,7 @@ export const ConfirmSummary = ({
         gap={4}
         px={6}
         bg='background.surface.raised.accent'
-        borderBottomRadius='xl'
+        borderBottomRadius='2xl'
       >
         {nativeAssetBridgeWarning && (
           <Alert status='info' borderRadius='lg'>

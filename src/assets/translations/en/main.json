@@ -792,6 +792,7 @@
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
     },
     "claim": "Claim",
+    "claimsAvailable": "You have available claims",
     "claimReceiveAddress": "Claim Receive Address",
     "claimPending": "Awaiting your claim of",
     "claimSuccess": "You have successfully claimed",

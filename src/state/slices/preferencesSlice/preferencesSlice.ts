@@ -64,6 +64,7 @@ export type FeatureFlags = {
   RunePool: boolean
   Markets: boolean
   PhantomWallet: boolean
+  FoxPage: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -153,6 +154,7 @@ const initialState: Preferences = {
     RunePool: getConfig().REACT_APP_FEATURE_RUNEPOOL,
     Markets: getConfig().REACT_APP_FEATURE_MARKETS,
     PhantomWallet: getConfig().REACT_APP_FEATURE_PHANTOM_WALLET,
+    FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

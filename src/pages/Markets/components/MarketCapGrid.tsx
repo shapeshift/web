@@ -8,7 +8,8 @@ export const MarketCapGrid = ({
   selectedChainId,
   showSparkline,
   limit,
-}: RowProps & { limit: number }) => {
+  showMarketCap,
+}: RowProps & { limit: number; showMarketCap?: boolean }) => {
   const { ref, inView } = useInView()
   const {
     data: marketCapData,
@@ -26,6 +27,7 @@ export const MarketCapGrid = ({
         isLoading={isMarketCapDataLoading || isMarketCapDataPending}
         limit={limit}
         showSparkline={showSparkline}
+        showMarketCap={showMarketCap}
       />
     </div>
   )

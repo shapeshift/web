@@ -52,6 +52,7 @@ export const useRows = ({ limit }: { limit: number }) => {
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
+            showMarketCap
           />
         ),
       },

@@ -172,7 +172,8 @@
     "featureDisabled": "Bu özellik geçici olarak devre dışıdır.",
     "yes": "Evet",
     "activeAccount": "Aktif Hesap",
-    "update": "Güncelleme"
+    "update": "Güncelleme",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -286,11 +287,16 @@
   },
   "connectWalletPage": {
     "title": "Orijinal Çoklu Zincir Değişimi",
+    "primaryTitle": "Multichain DeFi'ye hoş geldiniz.",
+    "secondaryTitle": "Özel. Merkeziyetsiz. Gözetimsiz.",
+    "primaryDescription": "Zahmetsizce ticaret yapın, köprü kurun ve ödüller kazanın. Yerel Bitcoin, Dogecoin ve daha fazlasını deneyimleyin. Likidite ve DeFi Pozisyonlarını Tek Tıkla Yönetin.",
+    "snapDescription": "ShapeShift Multichain Snap'i indirin ve MetaMask'iniz için Bitcoin, Dogecoin ve daha fazlasının kilidini açın.",
     "shapeshift": "ShapeShift",
     "exploreThe": "DeFi Dünyası'nı",
     "defiUniverse": "Keşfedin",
     "body": "Ticaret yapın, köprü kurun ve kazanın. Özel. Topluluk sahibi. Gözetimsiz. Merkezi olmayan.",
     "header": "Başlamak için lütfen bir cüzdan bağlayın",
+    "cta": "Cüzdanı Bağla veya Oluştur",
     "viewADemo": "Demo Görüntüle",
     "dontHaveWallet": "Cüzdanın yok mu?",
     "welcomeBack": "Tekrar hoşgeldiniz!",
@@ -504,6 +510,8 @@
     "myRewardsBody": "Talep edilebilir ödüllere sahip aktif pozisyonlarınız burada görünecektir.",
     "viewAllPositions": "Tüm Pozisyonları Görüntüle",
     "liquidityPools": "Likidite Havuzları",
+    "liquidityLockupWarning": "%{time} kilitlenme süresi vardır. Kilitlenme süresince likiditenize erişemezsiniz.",
+    "liquidityLocked": "Likidite Kilitli (%{time})",
     "stakingVaults": "Staking ve Kasalar",
     "farming": "Çiftçilik",
     "totalEarningBalance": "Toplam Kazanç Bakiyesi",
@@ -934,6 +942,7 @@
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
     "disableThorNativeSmartContractReceive": "%{chainName} üzerindeki bir akıllı sözleşme adresine gönderdiğinizi tespit ettik. THORChain sınırlamaları nedeniyle, %{nativeAssetSymbol}'u bir akıllı sözleşme adresine almak desteklenmiyor. Lütfen başka bir adres girin",
+    "disableThorTaprootReceive": "Taproot Bitcoin adresine gönderdiğinizi tespit ettik. THORChain sınırlamaları nedeniyle, BTC'yi taproot adresine almak şu anda desteklenmiyor. Lütfen başka bir adres girin.",
     "toContinue": "devam edin.",
     "addressPlaceholder": "%{chainName} adresi",
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
@@ -1457,7 +1466,6 @@
         "button": "Eşleştir"
       },
       "failure": {
-        "header": "Hata",
         "body": "Keplr cüzdanına bağlanılamıyor"
       }
     },
@@ -1497,7 +1505,6 @@
         "pairExistingDeviceBody": "Farklı bir Ledger cihazı mı bağlanıyorsunuz? Yeni bir başlangıç ​​yapmak için 'Yeni cihazı eşleştir'e tıklayın."
       },
       "failure": {
-        "header": "Hata",
         "body": "Ledger cüzdanına bağlanılamıyor"
       },
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
@@ -1515,13 +1522,24 @@
         "button": "Eşleştir"
       },
       "failure": {
-        "header": "Hata",
         "body": "MetaMask cüzdanına bağlanılamıyor"
       },
       "redirect": {
         "header": "MetaMask Uygulamasında Aç",
         "body": "ShapeShift panosunu MetaMask'ta açmak için tıklayın",
         "button": "Aç"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Phantom ile iletişim kurulurken beklenmeyen bir hata oluştu",
+        "connectFailure": "Phantom cüzdanına bağlanılamıyor",
+        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı Phantom değil. Birden fazla cüzdanınız mı kurulu?"
+      },
+      "connect": {
+        "header": "Phantom'a eşle",
+        "body": "Eşleştir'e tıklayın ve açılan pencereden Phantom'a giriş yapın",
+        "button": "Pair"
       }
     },
     "metaMaskSnap": {
@@ -1539,8 +1557,6 @@
         "title": "Multichain Snap'in güncellenmesi gerekiyor",
         "subtitle": "ShapeShift'in çoklu zincir özelliklerini MetaMask ile kullanmaya devam etmek için 'Güncelle'ye tıklayın!"
       },
-      "secondaryTitle": "MetaMask için en iyi Çoklu Zincir deneyimi: ShapeShift tarafından desteklenmektedir",
-      "secondaryBody": "ShapeShift Multichain Snap ile aşağıdaki zincirlerde gönderin, alın, takip edin, ticaret yapın ve kazanın:",
       "connectMetaMask": "MetaMask'ı bağlayın",
       "andMore": "...ve dahası",
       "snapInstalledToast": "ShapeShift Çoklu Zincir MetaMask Snap Yüklendi",
@@ -1579,7 +1595,6 @@
         "button": "Eşleştir"
       },
       "failure": {
-        "header": "Coinbase cüzdanına bağlanılamıyor",
         "body": "Coinbase cüzdanına bağlanılamıyor"
       }
     },
@@ -1594,7 +1609,6 @@
         "button": "Eşle"
       },
       "failure": {
-        "header": "Hata",
         "body": "WalletConnect cüzdanına bağlanılamıyor"
       }
     },
@@ -1610,7 +1624,6 @@
         "button": "Eşle"
       },
       "failure": {
-        "header": "Hata",
         "body": "XDEFI cüzdanına bağlanılamıyor"
       },
       "redirect": {
@@ -2583,7 +2596,6 @@
   },
   "markets": {
     "recommended": "Önerilen",
-    "watchlist": "İzleme Listem",
-    "categories": "Kategoriler"
+    "watchlist": "İzleme Listem"
   }
 }

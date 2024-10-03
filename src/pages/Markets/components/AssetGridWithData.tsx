@@ -30,7 +30,7 @@ export const AssetGridWithData = ({
     isPending: isMarketCapDataPending,
   } = dataQuery({
     enabled: inView,
-    // ts isn't smart enough to narrow this down, and we don't want to pass it for all categories where this does nto apply
+    // ts isn't smart enough to narrow this down, and we don't want to pass it for all categories where this does not apply
     orderBy: orderBy!,
   })
 

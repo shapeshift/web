@@ -172,7 +172,8 @@
     "featureDisabled": "Эта функция временно отключена.",
     "yes": "Да",
     "activeAccount": "Активный аккаунт",
-    "update": "Обновление"
+    "update": "Обновление",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -286,11 +287,16 @@
   },
   "connectWalletPage": {
     "title": "Оригинальная мультичейн биржа",
+    "primaryTitle": "Добро пожаловать в Multichain DeFi.",
+    "secondaryTitle": "Личный. Децентрализованный. Не подлежащий лишению свободы.",
+    "primaryDescription": "Торгуйте, осуществляйте мосты и получайте вознаграждения без особых усилий. Опыт работы с нативными Bitcoin, Dogecoin и другими. Управляйте ликвидностью и позициями DeFi в один клик.",
+    "snapDescription": "Скачайте ShapeShift Multichain Snap и разблокируйте Bitcoin, Dogecoin и другие криптовалюты для вашего MetaMask.",
     "shapeshift": "ShapeShift",
     "exploreThe": "Исследуйте",
     "defiUniverse": "Вселенную DeFi",
     "body": "Торговля, бридж и заработок. Частный. В собственности общества. Децентрализованная.",
     "header": "Пожалуйста, подключите кошелек, чтобы начать",
+    "cta": "Подключите или создайте кошелек",
     "viewADemo": "Посмотреть демо-версию",
     "dontHaveWallet": "У вас нет кошелька?",
     "welcomeBack": "С возвращением!",
@@ -504,6 +510,8 @@
     "myRewardsBody": "Здесь будут отображаться ваши активные позиции с возможностью получения вознаграждения.",
     "viewAllPositions": "Посмотреть все позиции",
     "liquidityPools": "Пулы ликвидности",
+    "liquidityLockupWarning": "Существует период блокировки %{time}. Во время блокировки вы не можете получить доступ к своей ликвидности.",
+    "liquidityLocked": "Ликвидность заблокирована (%{time})",
     "stakingVaults": "Стейкинг и хранилища",
     "farming": "Фарминг",
     "totalEarningBalance": "Общий баланс заработков",
@@ -934,6 +942,7 @@
     "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
     "disableThorNativeSmartContractReceive": "Мы обнаружили, что вы отправляете на адрес смарт-контракта на %{chainName}. В связи с ограничениями THORChain получение %{nativeAssetSymbol} на адрес смарт-контракта не поддерживается. Пожалуйста, введите другой адрес",
+    "disableThorTaprootReceive": "Мы обнаружили, что вы отправляете на taproot Bitcoin-адрес. В связи с ограничениями THORChain получение BTC на taproot-адрес в настоящее время не поддерживается. Пожалуйста, введите другой адрес.",
     "toContinue": "для продолжения.",
     "addressPlaceholder": "%{chainName} адрес",
     "priceImpactWarning": "В связи с размером данной сделки по отношению к доступной ликвидности ожидаемое ценовое влияние данной сделки составляет %{priceImpactPercentage}%. Вы уверены, что хотите заключить сделку?",
@@ -1457,7 +1466,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек Keplr"
       }
     },
@@ -1497,7 +1505,6 @@
         "pairExistingDeviceBody": "Подключаете другое устройство Ledger? Нажмите \" Подключить новое устройство\", чтобы начать с чистого листа."
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек Ledger"
       },
       "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение.",
@@ -1515,13 +1522,24 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек MetaMask"
       },
       "redirect": {
         "header": "Открыто в приложении MetaMask",
         "body": "Нажмите, чтобы открыть приборную панель ShapeShift в MetaMask",
         "button": "Открыть"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Возникла непредвиденная ошибка при взаимодействии с Phantom",
+        "connectFailure": "Невозможно подключиться к кошельку Phantom",
+        "multipleWallets": "Обнаруженный провайдер Ethereum не является Phantom. У вас установлено несколько кошельков?"
+      },
+      "connect": {
+        "header": "Подключить Phantom",
+        "body": "Нажмите Подключить и авторизуйтесь в Phantom во всплывающем окне",
+        "button": "Подключить"
       }
     },
     "metaMaskSnap": {
@@ -1539,8 +1557,6 @@
         "title": "Multichain Snap нуждается в обновлении",
         "subtitle": "Нажмите «Обновить», чтобы продолжить использовать Multi Chain-функции ShapeShift с MetaMask!"
       },
-      "secondaryTitle": "Лучший опыт работы с Multichain для MetaMask: На платформе ShapeShift",
-      "secondaryBody": "Отправляйте, получайте, отслеживайте, обменивайте и зарабатывайте с помощью ShapeShift Multichain Snap на следующих цепочках:",
       "connectMetaMask": "Подключить MetaMask",
       "andMore": "...и многое другое",
       "snapInstalledToast": "Установлена привязка ShapeShift Multichain MetaMask",
@@ -1579,7 +1595,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Невозможно подключить кошелек Coinbase",
         "body": "Невозможно подключить кошелек Coinbase"
       }
     },
@@ -1594,7 +1609,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек WalletConnect"
       }
     },
@@ -1610,7 +1624,6 @@
         "button": "Подключить"
       },
       "failure": {
-        "header": "Ошибка",
         "body": "Невозможно подключить кошелек XDEFI"
       },
       "redirect": {
@@ -2583,7 +2596,6 @@
   },
   "markets": {
     "recommended": "Рекомендуем",
-    "watchlist": "Мой список наблюдения",
-    "categories": "Категории"
+    "watchlist": "Мой список наблюдения"
   }
 }

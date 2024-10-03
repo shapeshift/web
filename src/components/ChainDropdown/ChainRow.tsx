@@ -6,7 +6,7 @@ import { LazyLoadAvatar } from 'components/LazyLoadAvatar'
 import { chainIdToFeeAssetId } from 'lib/utils'
 import {
   selectAssetById,
-  selectPortfolioTotalBalanceByChainIdIncludeStaking,
+  selectPortfolioTotalChainIdBalanceIncludeStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -19,7 +19,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, includeBalance }) =
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainFiatBalance = useAppSelector(s =>
-    selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
+    selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
   )
   if (!feeAsset) return null
 

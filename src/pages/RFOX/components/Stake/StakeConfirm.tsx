@@ -170,10 +170,8 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
 
   const isApprovalTxPending = useMemo(
-    () =>
-      isApprovalMutationPending ||
-      (isApprovalMutationSuccess && approvalTx?.status !== TxStatus.Confirmed),
-    [approvalTx?.status, isApprovalMutationPending, isApprovalMutationSuccess],
+    () => isApprovalMutationPending || (isApprovalMutationSuccess && isApprovalRequired),
+    [isApprovalMutationPending, isApprovalMutationSuccess, isApprovalRequired],
   )
 
   const isApprovalTxSuccess = useMemo(

@@ -183,6 +183,13 @@ export const useTradeExecution = (
         }
         dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex, id: confirmedTradeId }))
 
+        // If this is a streaming swap, we need to set the streaming progress to 100% because the
+        // polling will dismount. This is ok because the tx will only ever complete after streaming
+        // is 100% complete.
+        dispatch(
+          tradeQuoteSlice.actions.setStreamingSwapMetaComplete({ hopIndex, id: confirmedTradeId }),
+        )
+
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)

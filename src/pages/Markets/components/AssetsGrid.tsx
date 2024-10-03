@@ -26,7 +26,8 @@ export const AssetsGrid: React.FC<{
   isLoading: boolean
   limit: number | undefined
   showSparkline?: boolean
-}> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline }) => {
+  showMarketCap?: boolean
+}> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline, showMarketCap }) => {
   const history = useHistory()
 
   const filteredAssetIds = useMemo(
@@ -81,7 +82,7 @@ export const AssetsGrid: React.FC<{
 
         return (
           <GridItem key={assetId} colSpan={colSpanSx}>
-            <AssetCard assetId={assetId} onClick={handleCardClick} />
+            <AssetCard assetId={assetId} onClick={handleCardClick} showMarketCap={showMarketCap} />
           </GridItem>
         )
       })}

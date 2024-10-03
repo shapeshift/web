@@ -2,39 +2,15 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/thorService'
-import axios from 'axios'
 import { getConfig } from 'config'
 import type { BN } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 import { fromThorBaseUnit } from '.'
 import { THOR_PRECISION } from './constants'
-import type {
-  MidgardEarningsHistoryPoolItem,
-  PoolShareDetail,
-  SlippageDetails,
-  ThorchainLiquidityProvidersResponseSuccess,
-} from './lp/types'
+import type { MidgardEarningsHistoryPoolItem, PoolShareDetail, SlippageDetails } from './lp/types'
 
 const thornodeUrl = getConfig().REACT_APP_THORCHAIN_NODE_URL
-
-export const getAllThorchainLiquidityProviderPositions = async (
-  assetId: AssetId,
-): Promise<ThorchainLiquidityProvidersResponseSuccess> => {
-  const poolAssetId = assetIdToPoolAssetId({ assetId })
-
-  if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
-
-  const { data } = await axios.get<ThorchainLiquidityProvidersResponseSuccess>(
-    `${
-      getConfig().REACT_APP_THORCHAIN_NODE_URL
-    }/lcd/thorchain/pool/${poolAssetId}/liquidity_providers`,
-  )
-
-  if (!data || 'error' in data) return []
-
-  return data
-}
 
 // formula: P(Ra + rA) / 2RA
 // https://dev.thorchain.org/concepts/math.html#lp-units-add

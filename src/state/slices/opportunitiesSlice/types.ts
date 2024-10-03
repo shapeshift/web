@@ -256,13 +256,6 @@ export type AggregatedOpportunitiesByProviderReturn = {
   opportunities: Record<DefiType, OpportunityId[]>
 }
 
-export type TagDescription = {
-  title: string
-  description?: string
-  icon?: JSX.Element
-  bullets?: string[]
-}
-
 // Mapping types
 
 export type MetadataResolverFunction = (

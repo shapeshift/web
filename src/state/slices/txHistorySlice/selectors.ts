@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { arbitrumChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { TxTransfer } from '@shapeshiftoss/chain-adapters'
 import { type AccountMetadata, HistoryTimeframe } from '@shapeshiftoss/types'
-import { TransferType } from '@shapeshiftoss/unchained-client'
 import intersection from 'lodash/intersection'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
@@ -17,17 +16,16 @@ import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import {
   selectAccountIdParamFromFilter,
-  selectAccountIdsParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
-  selectFromParamFromFilter,
+  selectParserParamFromFilter,
   selectSearchQueryFromFilter,
   selectTimeframeParamFromFilter,
   selectTxStatusParamFromFilter,
 } from 'state/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
-import { selectWalletAccountIds, selectWalletEnabledAccountIds } from '../common-selectors'
+import { selectEnabledAccountIds, selectEnabledWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 
@@ -94,7 +92,7 @@ const selectMatchingAssetsParamFromFilter = (_state: ReduxState, filter: TxHisto
   filter?.matchingAssets
 
 const selectWalletTxIdsByAccountIdAssetId = createSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState) => state.txHistory.txs.byAccountIdAssetId,
   (accountIds, txsByAccountIdAssetId): TxIdsByAccountIdAssetId =>
     pickBy(txsByAccountIdAssetId, (_, accountId) => accountIds.includes(accountId)),
@@ -140,70 +138,30 @@ export const selectTxIdsByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   selectTxStatusParamFromFilter,
-  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter): TxId[] => {
-    // filter by accountIdFilter, if it exists, otherwise data for all accountIds
-
-    const filtered = pickBy(data, (_, accountId) => {
-      if (accountIdFilter) return accountId === accountIdFilter
-      return true
-    })
-    const flattened = values(filtered)
+  selectParserParamFromFilter,
+  (txIds, txs, data, accountIdFilter, assetIdFilter, txStatusFilter, parser): TxId[] => {
+    const maybeFilteredByAccountId = accountIdFilter
+      ? pickBy(data, (_, accountId) => {
+          return accountId === accountIdFilter
+        })
+      : data
+    const flattened = values(maybeFilteredByAccountId)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
     const uniqueIds = uniq(flattened)
-    const uniqueIdsByStatus = txStatusFilter
-      ? uniqueIds.filter(txId => txs[txId].status === txStatusFilter)
+    const maybeFilteredByRfox = parser
+      ? uniqueIds.filter(txId => txs[txId].data?.parser === parser)
       : uniqueIds
-    const sortedIds = uniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+
+    const maybeUniqueIdsByStatus = txStatusFilter
+      ? maybeFilteredByRfox.filter(txId => txs[txId].status === txStatusFilter)
+      : maybeFilteredByRfox
+    const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
     return sortedIds
   },
 )((_state: ReduxState, filter) =>
   filter
     ? `${filter.accountId ?? 'accountId'}-${filter.txStatus ?? 'txStatus'}-${
-        filter.assetId ?? 'assetId'
-      }`
-    : 'txIdsByFilter',
-)
-
-export const selectReceivedTxsForAccountIdsByFilter = createCachedSelector(
-  selectTxIds,
-  selectTxs,
-  selectWalletTxIdsByAccountIdAssetId,
-  selectAccountIdsParamFromFilter,
-  selectFromParamFromFilter,
-  selectAssetIdParamFromFilter,
-  (txIds, txs, data, accountIdsFilter, fromFilter, assetIdFilter): TxId[] => {
-    const filteredByAccountIds = pickBy(data, (_, accountId) => {
-      return accountIdsFilter?.includes(accountId)
-    })
-
-    const filteredByAssetIdFlat = uniq(
-      values(filteredByAccountIds)
-        .flatMap(byAssetId =>
-          assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat(),
-        )
-        .filter(isSome),
-    )
-
-    const filteredByTxType = filteredByAssetIdFlat.filter(txId => {
-      // The logic here is only valid for single transfer transactions
-      return txs[txId].transfers[0].type === TransferType.Receive
-    })
-
-    const filteredBySender = fromFilter
-      ? filteredByTxType.filter(txId => {
-          // The logic here is only valid for single transfer transactions
-          return txs[txId].transfers[0].from[0] === fromFilter
-        })
-      : filteredByTxType
-
-    const sortedIds = filteredBySender.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
-
-    return sortedIds
-  },
-)((_state: ReduxState, filter) =>
-  filter
-    ? `${filter.accountIds?.join(',') ?? 'accountIds'}-${filter.from ?? 'from'}-${
         filter.assetId ?? 'assetId'
       }`
     : 'txIdsByFilter',
@@ -257,12 +215,6 @@ export const selectTxIdsBasedOnSearchTermAndFilters = createCachedSelector(
     : 'txIdsBasedOnSearchTermAndFilters',
 )
 
-export const selectLastNTxIds = createCachedSelector(
-  selectTxIdsByFilter,
-  (_state: ReduxState, count: number) => count,
-  (ids, count): TxId[] => ids.slice(0, count),
-)((_state: ReduxState, limit: number) => (limit !== undefined ? limit : 'undefined'))
-
 export const selectTxsByFilter = createCachedSelector(
   selectTxs,
   selectTxIdsByFilter,
@@ -274,11 +226,6 @@ export const selectTxsByFilter = createCachedSelector(
       }`
     : 'txsByFilter',
 )
-
-export const selectTxStatusById = createCachedSelector(
-  selectTxById,
-  (tx): Tx['status'] | undefined => tx?.status,
-)((_state: ReduxState, txId: TxId) => txId ?? 'undefined')
 
 /**
  * to be able to add an account for a chain, we want to ensure there is some tx history
@@ -356,7 +303,7 @@ export const selectTxsByQuery = createCachedSelector(
 
 export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   selectAccountIdParamFromFilter,
   selectTimeframeParamFromFilter,
   (hydrationMeta, walletAccountIds, accountId, timeframe) => {
@@ -396,7 +343,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
 
 export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
-  selectWalletEnabledAccountIds,
+  selectEnabledAccountIds,
   (hydrationMeta, walletEnabledAccountIds) => {
     return Object.entries(hydrationMeta)
       .filter(([_accountId, hydrationMetaForAccountId]) => hydrationMetaForAccountId?.isErrored)

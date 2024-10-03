@@ -1,4 +1,3 @@
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
@@ -171,9 +170,6 @@ export const isResolvedErr = <U, V, T extends Result<U, V>>(
   promise: PromiseSettledResult<T>,
 ): promise is PromiseRejectedResult => 'value' in promise && promise.value.isErr()
 
-export const setTimeoutAsync = (waitMs: number) =>
-  new Promise(resolve => setTimeout(resolve, waitMs))
-
 export function assertUnreachable(x: never): never {
   throw Error(`unhandled case: ${x}`)
 }
@@ -216,9 +212,6 @@ export const isUrl = (x: string) => {
     return false
   }
 }
-
-export const isSkipToken = (maybeSkipToken: unknown): maybeSkipToken is typeof skipToken =>
-  maybeSkipToken === skipToken
 
 export const getSupportedChainIdsByChainNamespace = () => {
   return Array.from(getChainAdapterManager().keys()).reduce<
@@ -286,9 +279,6 @@ export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
 
 export const chainIdToChainDisplayName = (chainId: ChainId): AssetId =>
   assertGetChainAdapter(chainId).getDisplayName()
-
-export const assetIdToFeeAssetId = (assetId: AssetId): AssetId | undefined =>
-  chainIdToFeeAssetId(fromAssetId(assetId).chainId)
 
 export const isKnownChainId = (chainId: ChainId): chainId is KnownChainIds =>
   Object.values(KnownChainIds).includes(chainId as KnownChainIds)

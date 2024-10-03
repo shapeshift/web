@@ -31,6 +31,8 @@ export const getHopTotalNetworkFeeUserCurrencyPrecision = (
 /**
  * Computes the total network fee across all hops
  * @param quote The trade quote
+ * @param getFeeAsset
+ * @param getFeeAssetRate
  * @returns The total network fee across all hops in fiat precision
  */
 export const getTotalNetworkFeeUserCurrencyPrecision = (

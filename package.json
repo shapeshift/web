@@ -9,6 +9,7 @@
     "version": "independent"
   },
   "scripts": {
+    "analyze": "ANALYZE=true yarn build:web",
     "bump": "yarn upgrade-interactive --latest --scope @shapeshiftoss",
     "build:web": "yarn build:packages && NODE_OPTIONS=--max-old-space-size=8192 IMAGE_INLINE_SIZE_LIMIT=0 INLINE_RUNTIME_CHUNK=false DISABLE_ESLINT_PLUGIN=true react-app-rewired --openssl-legacy-provider build && tsx ./scripts/writeHeaders.ts && ./scripts/sha256sums.sh && ./scripts/verifyWebpackHashes.sh && tsx ./scripts/writeBuildMetadata.ts",
     "build:packages": "yarn clean:packages && yarn workspace @shapeshiftoss/unchained-client generate && yarn tsc --build tsconfig.packages.json",
@@ -135,7 +136,7 @@
     "browserify-fs": "^1.0.0",
     "browserify-zlib": "^0.2.0",
     "bs58check": "^2.1.2",
-    "chakra-ui-steps": "^1.7.3",
+    "chakra-ui-steps": "^2.1.0",
     "crypto-browserify": "^3.12.0",
     "dayjs": "^1.11.3",
     "dompurify": "^2.3.8",
@@ -179,6 +180,7 @@
     "react-hook-form": "^7.51.5",
     "react-icons": "^4.10.1",
     "react-infinite-scroll-component": "^6.1.0",
+    "react-intersection-observer": "^9.13.1",
     "react-multi-ref": "^1.0.1",
     "react-number-format": "^4.9.3",
     "react-polyglot": "^0.7.2",
@@ -294,6 +296,7 @@
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "1.1.1",
     "webpack": "5.94.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-subresource-integrity": "^5.0.0",
     "workbox-webpack-plugin": "^7.1.0"
   },

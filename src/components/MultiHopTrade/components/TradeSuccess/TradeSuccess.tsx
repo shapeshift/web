@@ -25,7 +25,7 @@ const pairProps = { showFirst: true }
 export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
   const translate = useTranslate()
 
-  const { isOpen, onToggle } = useDisclosure({
+  const { isOpen, onToggle: handleToggle } = useDisclosure({
     defaultIsOpen: false,
   })
 
@@ -68,10 +68,10 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
             {translate('trade.doAnotherTrade')}
           </Button>
           <HStack width='full' justifyContent='space-between' mt={4}>
-            <Button variant='link' onClick={onToggle} px={2}>
+            <Button variant='link' onClick={handleToggle} px={2}>
               {translate('trade.showDetails')}
             </Button>
-            <TwirlyToggle isOpen={isOpen} onToggle={onToggle} />
+            <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
           </HStack>
           <Box mx={-4}>
             <Collapse in={isOpen}>{children}</Collapse>

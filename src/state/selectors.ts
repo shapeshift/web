@@ -2,6 +2,7 @@
 
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -53,6 +54,7 @@ type ParamFilter = Partial<{
   feeModel: ParameterModel
   timeframe: HistoryTimeframe
   onlyConnectedChains: boolean
+  parser: TxMetadata['parser']
   hopIndex: number
   tradeId: TradeQuote['id']
 }>
@@ -89,7 +91,6 @@ export const selectValidatorIdParamFromFilter = selectParamFromFilter('validator
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')
 export const selectDefiTypeParamFromFilter = selectParamFromFilter('defiType')
 export const selectQueryStatusParamFromFilter = selectParamFromFilter('queryStatus')
-export const selectEndpointNameParamFromFilter = selectParamFromFilter('endpointName')
 export const selectIncludeEarnBalancesParamFromFilter = selectParamFromFilter('includeEarnBalances')
 export const selectIncludeRewardsBalancesParamFromFilter =
   selectParamFromFilter('includeRewardsBalances')
@@ -98,6 +99,7 @@ export const selectTxStatusParamFromFilter = selectParamFromFilter('txStatus')
 export const selectFeeModelParamFromFilter = selectParamFromFilter('feeModel')
 export const selectTimeframeParamFromFilter = selectParamFromFilter('timeframe')
 export const selectOnlyConnectedChainsParamFromFilter = selectParamFromFilter('onlyConnectedChains')
+export const selectParserParamFromFilter = selectParamFromFilter('parser')
 
 export const selectHopIndexParamFromRequiredFilter = selectRequiredParamFromFilter('hopIndex')
 export const selectTradeIdParamFromRequiredFilter = selectRequiredParamFromFilter('tradeId')

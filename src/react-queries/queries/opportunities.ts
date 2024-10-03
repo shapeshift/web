@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   type AssetId,
@@ -22,37 +22,62 @@ import {
 import type { PortfolioAccount } from 'state/slices/portfolioSlice/portfolioSliceCommon'
 import type { AppDispatch } from 'state/store'
 
+type FetchAllArgs = {
+  dispatch: AppDispatch
+  accountId: AccountId | undefined
+  chainId: ChainId
+}
+
+const fetchAll = async ({ dispatch, accountId, chainId }: FetchAllArgs): Promise<void> => {
+  switch (chainId) {
+    case btcChainId:
+    case ltcChainId:
+    case dogeChainId:
+    case bchChainId:
+    case cosmosChainId:
+    case bscChainId:
+    case avalancheChainId:
+    case arbitrumChainId:
+    case ethChainId:
+    case thorchainChainId:
+      await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
+      await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
+      if (accountId) {
+        await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
+      }
+      break
+    default:
+      break
+  }
+}
+
 export const opportunities = createQueryKeys('opportunities', {
   all: (
     dispatch: AppDispatch,
     requestedAccountIds: AccountId[],
     portfolioAssetIds: AssetId[],
     portfolioAccounts: Record<AccountId, PortfolioAccount>,
+    requestedChainIds: ChainId[],
   ) => {
     return {
-      queryKey: ['allOpportunities', { requestedAccountIds, portfolioAssetIds, portfolioAccounts }],
+      queryKey: [
+        'allOpportunities',
+        { requestedAccountIds, requestedChainIds, portfolioAssetIds, portfolioAccounts },
+      ],
       queryFn: async () => {
+        // We don't have any AccountIds here, but still need to fetch opportunities meta
+        if (!requestedAccountIds?.length) {
+          await Promise.all(
+            requestedChainIds.map(async chainId => {
+              await fetchAll({ dispatch, accountId: undefined, chainId })
+            }),
+          )
+        }
+
         await Promise.all(
           requestedAccountIds.map(async accountId => {
             const { chainId } = fromAccountId(accountId)
-            switch (chainId) {
-              case btcChainId:
-              case ltcChainId:
-              case dogeChainId:
-              case bchChainId:
-              case cosmosChainId:
-              case bscChainId:
-              case avalancheChainId:
-              case arbitrumChainId:
-              case ethChainId:
-              case thorchainChainId:
-                await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
-                await fetchAllOpportunitiesMetadataByChainId(dispatch, chainId)
-                await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
-                break
-              default:
-                break
-            }
+            await fetchAll({ dispatch, accountId, chainId })
           }),
         )
 

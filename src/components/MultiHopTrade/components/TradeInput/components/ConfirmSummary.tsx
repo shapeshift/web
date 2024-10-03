@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Button, CardFooter, useMediaQuery } from '@chakra-ui/react'
+import { Alert, AlertIcon, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
@@ -6,6 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
@@ -31,7 +32,9 @@ import {
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHop,
-  selectIsAnyTradeQuoteLoaded,
+  selectIsAnySwapperQuoteAvailable,
+  selectIsAnyTradeQuoteLoading,
+  selectShouldShowTradeQuoteOrAwaitInput,
   selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteRequestErrors,
@@ -77,8 +80,10 @@ export const ConfirmSummary = ({
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
   const quoteResponseErrors = useAppSelector(selectTradeQuoteResponseErrors)
-  const isAnyTradeQuoteLoaded = useAppSelector(selectIsAnyTradeQuoteLoaded)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
+  const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
+  const isAnySwapperQuoteAvailable = useAppSelector(selectIsAnySwapperQuoteAvailable)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const activeSwapperName = useAppSelector(selectActiveSwapperName)
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -140,9 +145,17 @@ export const ConfirmSummary = ({
   }, [isAccountMetadataLoading, walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive])
 
   const quoteHasError = useMemo(() => {
-    if (!isAnyTradeQuoteLoaded) return false
+    if (!shouldShowTradeQuoteOrAwaitInput) return false
+    if (hasUserEnteredAmount && !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable) return true
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
-  }, [activeQuoteErrors?.length, isAnyTradeQuoteLoaded, quoteRequestErrors?.length])
+  }, [
+    activeQuoteErrors?.length,
+    hasUserEnteredAmount,
+    isAnySwapperQuoteAvailable,
+    shouldShowTradeQuoteOrAwaitInput,
+    isAnyTradeQuoteLoading,
+    quoteRequestErrors?.length,
+  ])
 
   const isLoading = useMemo(() => {
     return isParentLoading || isReceiveAddressByteCodeLoading || !buyAssetFeeAsset
@@ -193,7 +206,7 @@ export const ConfirmSummary = ({
     switch (true) {
       case isAccountMetadataLoading:
         return 'common.accountsLoading'
-      case !isAnyTradeQuoteLoaded:
+      case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return 'trade.previewTrade'
       case !!quoteRequestError:
@@ -202,6 +215,8 @@ export const ConfirmSummary = ({
         return getQuoteRequestErrorTranslation(quoteResponseError)
       case !!tradeQuoteError:
         return getQuoteErrorTranslation(tradeQuoteError!)
+      case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:
+        return 'trade.noRateAvailable'
       case !isConnected || isDemoWallet:
         // We got a happy path quote, but we may still be in the context of the demo wallet
         return 'common.connectWallet'
@@ -212,11 +227,13 @@ export const ConfirmSummary = ({
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAnyTradeQuoteLoaded,
+    isAccountMetadataLoading,
+    shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
+    isAnyTradeQuoteLoading,
+    isAnySwapperQuoteAvailable,
     isConnected,
     isDemoWallet,
-    isAccountMetadataLoading,
   ])
 
   const handleOpenCompactQuoteList = useCallback(() => {
@@ -327,7 +344,7 @@ export const ConfirmSummary = ({
           description={manualAddressEntryDescription}
         />
 
-        <Button
+        <ButtonWalletPredicate
           isLoading={isAccountMetadataLoading}
           loadingText={buttonText}
           type='submit'
@@ -335,10 +352,11 @@ export const ConfirmSummary = ({
           size='lg-multiline'
           data-test='trade-form-preview-button'
           isDisabled={shouldDisablePreviewButton}
+          isValidWallet={true}
           mx={-2}
         >
           {buttonText}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </>
   )

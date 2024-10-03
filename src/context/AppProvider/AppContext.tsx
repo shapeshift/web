@@ -1,4 +1,5 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
@@ -33,11 +34,11 @@ import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdsByChainId,
   selectAssetIds,
+  selectEnabledWalletAccountIds,
   selectPortfolioAssetIds,
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
   selectSelectedLocale,
-  selectWalletAccountIds,
 } from 'state/slices/selectors'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -57,9 +58,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const assetIds = useSelector(selectAssetIds)
-  const requestedAccountIds = useSelector(selectWalletAccountIds)
+  const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
   const routeAssetId = useRouteAssetId()
@@ -144,12 +145,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
         if (hasManagedAccounts) {
           requestedAccountIds.forEach(accountId => {
-            dispatch(
-              portfolioApi.endpoints.getAccount.initiate(
-                { accountId, upsertOnFetch: true },
-                { forceRefetch: true },
-              ),
-            )
+            dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
           })
 
           return
@@ -157,19 +153,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (!wallet || isLedger(wallet)) return
 
-        let chainIds = supportedChains.filter(chainId => {
-          return walletSupportsChain({
-            chainId,
-            wallet,
-            isSnapInstalled,
-            checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
-          })
-        })
+        const walletId = await wallet.getDeviceID()
+
+        let chainIds = new Set(
+          supportedChains.filter(chainId => {
+            return walletSupportsChain({
+              chainId,
+              wallet,
+              isSnapInstalled,
+              checkConnectedAccountIds: false, // don't check connected account ids, we're detecting runtime support for chains
+            })
+          }),
+        )
 
         const accountMetadataByAccountId: AccountMetadataById = {}
         const isMultiAccountWallet = wallet.supportsBip44Accounts()
         const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
-        for (let accountNumber = 0; chainIds.length > 0; accountNumber++) {
+        for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
           if (
             accountNumber > 0 &&
             // only some wallets support multi account
@@ -182,7 +182,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
           const input = {
             accountNumber,
-            chainIds,
+            chainIds: Array.from(chainIds),
             wallet,
             isSnapInstalled: Boolean(isSnapInstalled),
           }
@@ -192,64 +192,112 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           Object.assign(accountMetadataByAccountId, accountIdsAndMetadata)
 
           const { getAccount } = portfolioApi.endpoints
-          const accountPromises = accountIds.map(accountId =>
-            dispatch(getAccount.initiate({ accountId }, { forceRefetch: true })),
-          )
 
-          const accountResults = await Promise.allSettled(accountPromises)
+          const accountNumberAccountIdsByChainId = (
+            _accountIds: AccountId[],
+          ): Record<ChainId, AccountId[]> => {
+            return _accountIds.reduce(
+              (acc, _accountId) => {
+                const { chainId } = fromAccountId(_accountId)
 
-          let chainIdsWithActivity: string[] = []
-          accountResults.forEach((res, idx) => {
-            if (res.status === 'rejected') return
+                if (!acc[chainId]) {
+                  acc[chainId] = []
+                }
+                acc[chainId].push(_accountId)
 
-            const { data: account } = res.value
-            if (!account) return
+                return acc
+              },
+              {} as Record<ChainId, AccountId[]>,
+            )
+          }
 
-            const accountId = accountIds[idx]
-            const { chainId } = fromAccountId(accountId)
+          let chainIdsWithActivity: Set<ChainId> = new Set()
+          // This allows every run of AccountIds per chain/accountNumber to run in parallel vs. all sequentally, so
+          // we can run each item (usually one AccountId, except UTXOs which may contain many because of many scriptTypes) 's side effects immediately
+          const accountNumberAccountIdsPromises = Object.values(
+            accountNumberAccountIdsByChainId(accountIds),
+          ).map(async accountIds => {
+            const results = await Promise.allSettled(
+              accountIds.map(async id => {
+                const result = await dispatch(getAccount.initiate({ accountId: id }))
+                return result
+              }),
+            )
 
-            const { hasActivity } = account.accounts.byId[accountId]
+            results.forEach((res, idx) => {
+              if (res.status === 'rejected') return
 
-            const accountNumberHasChainActivity = !isUtxoChainId(chainId)
-              ? hasActivity
-              : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
-                // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
-                // being upserted for BTC and LTC
-                accountResults.some((res, _idx) => {
-                  if (res.status === 'rejected') return false
-                  const { data: account } = res.value
-                  if (!account) return false
-                  const accountId = accountIds[_idx]
-                  const { chainId: _chainId } = fromAccountId(accountId)
-                  if (chainId !== _chainId) return false
-                  return account.accounts.byId[accountId].hasActivity
-                })
+              const { data: account } = res.value
+              if (!account) return
 
-            // don't add accounts with no activity past account 0
-            if (accountNumber > 0 && !accountNumberHasChainActivity)
-              return delete accountMetadataByAccountId[accountId]
+              const accountId = accountIds[idx]
+              const { chainId } = fromAccountId(accountId)
 
-            // unique set to handle utxo chains with multiple account types per account
-            chainIdsWithActivity = Array.from(new Set([...chainIdsWithActivity, chainId]))
+              const { hasActivity } = account.accounts.byId[accountId]
 
-            dispatch(portfolio.actions.upsertPortfolio(account))
+              const accountNumberHasChainActivity = !isUtxoChainId(chainId)
+                ? hasActivity
+                : // For UTXO AccountIds, we need to check if *any* of the scriptTypes have activity, not only the current one
+                  // else, we might end up with partial account data, with only the first 1 or 2 out of 3 scriptTypes
+                  // being upserted for BTC and LTC
+                  results.some((res, _idx) => {
+                    if (res.status === 'rejected') return false
+                    const { data: account } = res.value
+                    if (!account) return false
+                    const accountId = accountIds[_idx]
+                    const { chainId: _chainId } = fromAccountId(accountId)
+                    if (chainId !== _chainId) return false
+                    return account.accounts.byId[accountId].hasActivity
+                  })
+
+              // don't add accounts with no activity past account 0
+              if (accountNumber > 0 && !accountNumberHasChainActivity) {
+                chainIdsWithActivity.delete(chainId)
+                delete accountMetadataByAccountId[accountId]
+              } else {
+                // handle utxo chains with multiple account types per account
+                chainIdsWithActivity.add(chainId)
+
+                dispatch(portfolio.actions.upsertPortfolio(account))
+                const chainIdAccountMetadata = Object.entries(accountMetadataByAccountId).reduce(
+                  (acc, [accountId, metadata]) => {
+                    const { chainId: _chainId } = fromAccountId(accountId)
+                    if (chainId === _chainId) {
+                      acc[accountId] = metadata
+                    }
+                    return acc
+                  },
+                  {} as AccountMetadataById,
+                )
+                dispatch(
+                  portfolio.actions.upsertAccountMetadata({
+                    accountMetadataByAccountId: chainIdAccountMetadata,
+                    walletId,
+                  }),
+                )
+                for (const accountId of Object.keys(accountMetadataByAccountId)) {
+                  dispatch(portfolio.actions.enableAccountId(accountId))
+                }
+              }
+            })
+
+            return results
           })
+
+          await Promise.allSettled(accountNumberAccountIdsPromises)
 
           chainIds = chainIdsWithActivity
         }
-
-        dispatch(
-          portfolio.actions.upsertAccountMetadata({
-            accountMetadataByAccountId,
-            walletId: await wallet.getDeviceID(),
-          }),
-        )
-
-        for (const accountId of Object.keys(accountMetadataByAccountId)) {
-          dispatch(portfolio.actions.enableAccountId(accountId))
-        }
       } finally {
         dispatch(portfolio.actions.setIsAccountMetadataLoading(false))
+        // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
+        const { getAllTxHistory } = txHistoryApi.endpoints
+
+        await Promise.all(
+          requestedAccountIds.map(requestedAccountId =>
+            dispatch(getAllTxHistory.initiate(requestedAccountId)),
+          ),
+        )
       }
     })()
   }, [
@@ -264,24 +312,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
+    if (!isConnected) return
 
     // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
-  }, [dispatch, portfolioLoadingStatus])
-
-  // once portfolio is done loading, fetch all transaction history
-  useEffect(() => {
-    ;(async () => {
-      if (!requestedAccountIds.length) return
-      if (portfolioLoadingStatus === 'loading') return
-
-      const { getAllTxHistory } = txHistoryApi.endpoints
-
-      await dispatch(getAllTxHistory.initiate(requestedAccountIds))
-    })()
-  }, [dispatch, requestedAccountIds, portfolioLoadingStatus])
+  }, [dispatch, isConnected, portfolioLoadingStatus])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({
@@ -304,7 +341,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       },
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
-      enabled: portfolioLoadingStatus !== 'loading',
+      enabled: !isConnected || portfolioLoadingStatus !== 'loading',
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

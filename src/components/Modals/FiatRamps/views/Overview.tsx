@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -271,6 +272,14 @@ export const Overview: React.FC<OverviewProps> = ({
     [asset?.symbol, fiatRampAction, translate],
   )
 
+  const description: string | [string, InterpolationOptions] | undefined = useMemo(() => {
+    if (!asset) return
+    if (!isConnected) return
+    if (isUnsupportedAsset)
+      return ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
+    return fundsTranslation
+  }, [asset, fundsTranslation, isConnected, isUnsupportedAsset, wallet])
+
   return asset ? (
     <>
       <FiatRampActionButtons action={fiatRampAction} setAction={setFiatRampAction} />
@@ -312,16 +321,9 @@ export const Overview: React.FC<OverviewProps> = ({
             )}
           </Button>
           <Flex flexDirection='column' mb='10px'>
-            <Text
-              translation={
-                isUnsupportedAsset
-                  ? ['fiatRamps.notSupported', { asset: asset.symbol, wallet: wallet?.getVendor() }]
-                  : fundsTranslation
-              }
-              color='text.subtle'
-              mt='15px'
-              mb='8px'
-            />
+            {description && (
+              <Text translation={description} color='text.subtle' mt='15px' mb='8px' />
+            )}
             {isConnected && !isDemoWallet ? (
               <>
                 {isUnsupportedAsset ? (

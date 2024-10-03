@@ -16,9 +16,9 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioDegradedState,
   selectShowSnapsModal,
-  selectWalletAccountIds,
   selectWalletId,
 } from 'state/slices/selectors'
 import { useAppDispatch } from 'state/store'
@@ -58,7 +58,7 @@ export const Header = memo(() => {
 
   const history = useHistory()
   const {
-    state: { isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -98,7 +98,7 @@ export const Header = memo(() => {
   )
 
   const currentWalletId = useSelector(selectWalletId)
-  const walletAccountIds = useSelector(selectWalletAccountIds)
+  const walletAccountIds = useSelector(selectEnabledWalletAccountIds)
   const hasUtxoAccountIds = useMemo(
     () => walletAccountIds.some(accountId => isUtxoAccountId(accountId)),
     [walletAccountIds],
@@ -230,7 +230,7 @@ export const Header = memo(() => {
                 </Suspense>
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              <TxWindow />
+              {isConnected && <TxWindow />}
               <Notifications />
               {isLargerThanMd && (
                 <Box display={displayProp2}>

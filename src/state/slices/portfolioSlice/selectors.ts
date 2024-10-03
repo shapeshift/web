@@ -50,6 +50,7 @@ import { selectBalanceThreshold } from 'state/slices/preferencesSlice/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
 import {
+  selectEnabledWalletAccountIds,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
@@ -81,7 +82,7 @@ import { AssetEquityType } from './portfolioSliceCommon'
 import { findAccountsByAssetId } from './utils'
 
 export const selectPortfolioAccounts = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (state: ReduxState) => state.portfolio.accounts.byId,
   (walletAccountIds, accountsById): PortfolioAccounts['byId'] => {
     return pickBy(accountsById, (_account, accountId: AccountId) =>
@@ -116,7 +117,7 @@ export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
 
 export const selectPortfolioAccountMetadata = createDeepEqualOutputSelector(
   (state: ReduxState): AccountMetadataById => state.portfolio.accountMetadata.byId,
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (accountMetadata, walletAccountIds): AccountMetadataById => {
     return pickBy(accountMetadata, (_, accountId: AccountId) =>
       walletAccountIds.includes(accountId),
@@ -267,7 +268,7 @@ export const selectPortfolioUserCurrencyBalanceByFilter = createCachedSelector(
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 export const selectFirstAccountIdByChainId = createCachedSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   (_s: ReduxState, chainId: ChainId) => chainId,
   getFirstAccountIdByChainId,
 )((_s: ReduxState, chainId) => chainId ?? 'chainId')
@@ -278,7 +279,7 @@ export const selectFirstAccountIdByChainId = createCachedSelector(
  * but can contain it
  */
 export const selectPortfolioAccountIdsByAssetIdFilter = createDeepEqualOutputSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   selectAssetIdParamFromFilter,
   selectWalletId,
   (accountIds, assetId, walletId): AccountId[] => {
@@ -375,7 +376,10 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
   )
 
 // we only set ids when chain adapters responds, so if these are present, the portfolio has loaded
-export const selectPortfolioLoading = createSelector(
+export const selectIsPortfolioLoading = createSelector(
+  // If at least one AccountId is loaded, consider the portfolio as loaded.
+  // This may not be true in the case the user has custom account management and their first fetched account is disabled,
+  // but this will display insta-loaded state for all (most) other cases
   selectWalletAccountIds,
   (ids): boolean => !Boolean(ids.length),
 )
@@ -616,7 +620,7 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
-export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSelector(
+export const selectPortfolioTotalChainIdBalanceIncludeStaking = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectChainIdParamFromFilter,
   (userCurrencyAccountBalances, chainId): string => {
@@ -632,6 +636,24 @@ export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSe
       .toFixed(2)
   },
 )((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
+
+export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createDeepEqualOutputSelector(
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  (userCurrencyAccountBalances): Record<ChainId, BigNumber> => {
+    return Object.entries(userCurrencyAccountBalances).reduce<Record<ChainId, BigNumber>>(
+      (acc, [accountId, accountBalanceByAssetId]) => {
+        const chainId = fromAccountId(accountId).chainId
+        if (!acc[chainId]) acc[chainId] = bn(0)
+        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          // use the outer accumulator
+          acc[chainId] = acc[chainId].plus(bnOrZero(assetBalance))
+        })
+        return acc
+      },
+      {},
+    )
+  },
+)
 
 export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
@@ -920,7 +942,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
 )
 
 export const selectAccountIdByAccountNumberAndChainId = createSelector(
-  selectWalletAccountIds,
+  selectEnabledWalletAccountIds,
   selectPortfolioAccountMetadata,
   (walletAccountIds, accountMetadata): PartialRecord<number, PartialRecord<ChainId, AccountId>> => {
     const result: PartialRecord<number, PartialRecord<ChainId, AccountId>> = {}

@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
@@ -16,10 +16,9 @@ import {
   isSpammyTokenText,
 } from 'state/apis/nft/constants'
 import type { State } from 'state/apis/types'
-import type { ReduxState } from 'state/reducer'
 import type { Nominal } from 'types/common'
 
-import { deserializeTxIndex, getRelatedAssetIds, serializeTxIndex } from './utils'
+import { getRelatedAssetIds, serializeTxIndex } from './utils'
 
 export type TxId = Nominal<string, 'TxId'>
 export type Tx = Transaction & { accountType?: UtxoAccountType }
@@ -139,36 +138,6 @@ const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: A
   }
 }
 
-const checkTxHashReceived = (state: ReduxState, txHash: string) => {
-  return state.txHistory.txs.ids.some(txIndex => deserializeTxIndex(txIndex).txid === txHash)
-}
-
-// Resolves when a tx with a given txhash has been received. Used for signalling tx completion only.
-// Ignores the fact that there may be multiple txs received for a given txhash (thorchain swapper).
-export const waitForTransactionHash = createAsyncThunk<
-  void,
-  string,
-  { state: ReduxState; extra: { subscribe: (listener: (state: ReduxState) => void) => () => void } }
->('txHistory/waitForTransaction', (txHash, { getState, extra: { subscribe } }) => {
-  return new Promise(resolve => {
-    const transactionReceived = checkTxHashReceived(getState(), txHash)
-
-    // don't subscribe if the tx was already received - prevents race condition and infinite await
-    if (transactionReceived) {
-      resolve()
-      return
-    }
-
-    const unsubscribe = subscribe(state => {
-      const transactionReceived = checkTxHashReceived(state, txHash)
-      if (transactionReceived) {
-        unsubscribe()
-        resolve()
-      }
-    })
-  })
-})
-
 export const txHistory = createSlice({
   name: 'txHistory',
   initialState,
@@ -206,95 +175,90 @@ export const txHistory = createSlice({
   },
 })
 
+const requestQueue = new PQueue({ concurrency: 2 })
+
 export const txHistoryApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'txHistoryApi',
   endpoints: build => ({
-    getAllTxHistory: build.query<null, AccountId[]>({
-      queryFn: async (accountIds, { dispatch, getState }) => {
-        const requestQueue = new PQueue({ concurrency: 2 })
+    getAllTxHistory: build.query<null, AccountId>({
+      queryFn: async (accountId, { dispatch, getState }) => {
+        const { chainId, account: pubkey } = fromAccountId(accountId)
+        const adapter = getChainAdapterManager().get(chainId)
 
-        await Promise.all(
-          accountIds.map(async accountId => {
-            const { chainId, account: pubkey } = fromAccountId(accountId)
-            const adapter = getChainAdapterManager().get(chainId)
+        if (!adapter) {
+          const data = `getAllTxHistory: no adapter available for chainId ${chainId}`
+          return { error: { data, status: 400 } }
+        }
 
-            if (!adapter) {
-              const data = `getAllTxHistory: no adapter available for chainId ${chainId}`
-              return { error: { data, status: 400 } }
+        const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
+          for await (const getTxHistory of getTxHistoryFns) {
+            try {
+              let currentCursor = ''
+
+              do {
+                const pageSize = 10
+                const requestCursor = currentCursor
+
+                const { cursor, transactions } = await getTxHistory({
+                  cursor: requestCursor,
+                  pubkey,
+                  pageSize,
+                  requestQueue,
+                })
+
+                const state = getState() as State
+                const txsById = state.txHistory.txs.byId
+
+                const hasTx = transactions.some(
+                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
+                )
+
+                const results: TransactionsByAccountId = { [accountId]: transactions }
+                dispatch(txHistory.actions.upsertTxsByAccountId(results))
+
+                /**
+                 * We have run into a transaction that already exists in the store, stop fetching more history
+                 *
+                 * Two edge cases exist currently:
+                 *
+                 * 1) If there was an error fetching transaction history after at least one page was fetched,
+                 * the user would be missing all transactions thereafter. The next time we fetch tx history,
+                 * we will think we ran into the latest existing transaction in the store and stop fetching.
+                 * This means we will never upsert those missing transactions until the cache is cleared and
+                 * they are successfully fetched again.
+                 *
+                 * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
+                 *
+                 * 2) Cached pending transactions will not be updated to completed if they are older than the
+                 * last page found containing cached transactions.
+                 *
+                 * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
+                 */
+                if (hasTx) return
+
+                currentCursor = cursor
+              } while (currentCursor)
+
+              // Mark this account as hydrated so downstream can determine the difference between an
+              // account starting part-way thru a time period and "still hydrating".
+              dispatch(txHistory.actions.setAccountIdHydrated(accountId))
+            } catch (err) {
+              console.error(err)
+              dispatch(txHistory.actions.setAccountIdErrored(accountId))
             }
+          }
+        }
 
-            const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
-              for await (const getTxHistory of getTxHistoryFns) {
-                try {
-                  let currentCursor = ''
-
-                  do {
-                    const pageSize = 10
-                    const requestCursor = currentCursor
-
-                    const { cursor, transactions } = await getTxHistory({
-                      cursor: requestCursor,
-                      pubkey,
-                      pageSize,
-                      requestQueue,
-                    })
-
-                    const state = getState() as State
-                    const txsById = state.txHistory.txs.byId
-
-                    const hasTx = transactions.some(
-                      tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
-                    )
-
-                    const results: TransactionsByAccountId = { [accountId]: transactions }
-                    dispatch(txHistory.actions.upsertTxsByAccountId(results))
-
-                    /**
-                     * We have run into a transaction that already exists in the store, stop fetching more history
-                     *
-                     * Two edge cases exist currently:
-                     *
-                     * 1) If there was an error fetching transaction history after at least one page was fetched,
-                     * the user would be missing all transactions thereafter. The next time we fetch tx history,
-                     * we will think we ran into the latest existing transaction in the store and stop fetching.
-                     * This means we will never upsert those missing transactions until the cache is cleared and
-                     * they are successfully fetched again.
-                     *
-                     * We should be able to use state.txHistory.hydrationMetadata[accountId].isErrored to trigger a refetch in this instance.
-                     *
-                     * 2) Cached pending transactions will not be updated to completed if they are older than the
-                     * last page found containing cached transactions.
-                     *
-                     * We can either invalidate tx history and refetch all, or refetch on a per transaction basis any cached pending txs
-                     */
-                    if (hasTx) return
-
-                    currentCursor = cursor
-                  } while (currentCursor)
-
-                  // Mark this account as hydrated so downstream can determine the difference between an
-                  // account starting part-way thru a time period and "still hydrating".
-                  dispatch(txHistory.actions.setAccountIdHydrated(accountId))
-                } catch (err) {
-                  console.error(err)
-                  dispatch(txHistory.actions.setAccountIdErrored(accountId))
-                }
-              }
-            }
-
-            if (chainId === thorchainChainId) {
-              // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
-              await fetch([
-                adapter.getTxHistory.bind(adapter),
-                (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),
-              ])
-            } else {
-              await fetch([adapter.getTxHistory.bind(adapter)])
-            }
-          }),
-        )
-
+        if (chainId === thorchainChainId) {
+          // fetch transaction history for both thorchain-1 (mainnet) and thorchain-mainnet-v1 (legacy)
+          await fetch([
+            adapter.getTxHistory.bind(adapter),
+            (adapter as thorchain.ChainAdapter).getTxHistoryV1.bind(adapter),
+          ])
+        } else {
+          await fetch([adapter.getTxHistory.bind(adapter)])
+        }
         return { data: null }
       },
     }),

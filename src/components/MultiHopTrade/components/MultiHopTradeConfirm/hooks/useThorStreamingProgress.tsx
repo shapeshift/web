@@ -92,20 +92,11 @@ export const useThorStreamingProgress = (
 
         // We don't have a quantity in the streaming swap data, and we never have.
         if (!streamingSwapDataRef.current?.quantity && !updatedStreamingSwapData.quantity) {
-          // This is a special case where it _is_ a streaming swap, but it's optimized over a single block, and so doesn't actually stream.
-          // In this case we never get initial streaming metadata, only the default empty response because it's immediately complete.
-          // An empty response means the streaming swap is complete.
-          if (updatedStreamingSwapData.tx_id) {
-            dispatch(
-              tradeQuoteSlice.actions.setStreamingSwapMeta({
-                hopIndex,
-                streamingSwapMetadata: getStreamingSwapMetadata({
-                  tx_id: updatedStreamingSwapData.tx_id,
-                }),
-                id: confirmedTradeId,
-              }),
-            )
-          }
+          // This is a special case where it _is_ a streaming swap, but it's one of the following cases:
+          // - optimized over a single block, and so doesn't actually stream.
+          // - the streaming swap metadata isn't ready yet
+          //
+          // In both cases its simpler to exit and not render the progress bar.
           return
         }
 
@@ -153,9 +144,11 @@ export const useThorStreamingProgress = (
   }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId])
 
   const result = useMemo(() => {
+    const numSuccessfulSwaps =
+      (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)
+
     const isComplete =
-      streamingSwapMeta !== undefined &&
-      streamingSwapMeta.attemptedSwapCount === streamingSwapMeta.totalSwapCount
+      streamingSwapMeta !== undefined && numSuccessfulSwaps >= streamingSwapMeta.totalSwapCount
 
     return {
       isComplete,

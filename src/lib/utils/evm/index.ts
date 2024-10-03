@@ -43,16 +43,6 @@ type CreateBuildCustomTxInputArgs = {
   wallet: HDWallet
 }
 
-type CreateBuildCustomApiTxInputArgs = {
-  accountNumber: number
-  adapter: EvmChainAdapter
-  from: string
-  to: string
-  data: string
-  value: string
-  supportsEIP1559: boolean
-}
-
 type GetErc20AllowanceArgs = {
   address: string
   from: string
@@ -98,14 +88,6 @@ export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
   const fees = await getFeesWithWalletEIP1559Support(args)
-  return { ...args, ...fees }
-}
-
-export const createBuildCustomApiTxInput = async (
-  args: CreateBuildCustomApiTxInputArgs,
-): Promise<evm.BuildCustomApiTxInput> => {
-  const { accountNumber, from, supportsEIP1559, ...rest } = args
-  const fees = await evm.getFees({ ...rest, from, supportsEIP1559 })
   return { ...args, ...fees }
 }
 

@@ -79,7 +79,7 @@ describe('useSendFees', () => {
       () =>
         ({
           control: {},
-        }) as UseFormReturn<any, any>,
+        }) as UseFormReturn<any>,
     )
   })
 

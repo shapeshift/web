@@ -118,6 +118,13 @@ const selectIsSwapperQuoteAvailable = createSelector(
   },
 )
 
+export const selectIsAnySwapperQuoteAvailable = createSelector(
+  selectIsSwapperQuoteAvailable,
+  isSwapperQuoteAvailable => {
+    return Object.values(isSwapperQuoteAvailable).some(identity)
+  },
+)
+
 // Returns the top-level errors related to the request for a trade quote. Not related to individual
 // quote responses.
 export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
@@ -261,12 +268,6 @@ export const selectConfirmedQuoteTradeId: Selector<ReduxState, string | undefine
   confirmedQuote => confirmedQuote?.id,
 )
 
-export const selectIsLastStep: Selector<ReduxState, boolean> = createSelector(
-  selectActiveStepOrDefault,
-  selectActiveQuote,
-  (activeStep, tradeQuote) => Boolean(tradeQuote && tradeQuote.steps.length - 1 === activeStep),
-)
-
 export const selectActiveQuoteErrors: Selector<
   ReduxState,
   ErrorWithMeta<TradeQuoteError>[] | undefined
@@ -327,19 +328,9 @@ export const selectFirstHopSellAsset: Selector<ReduxState, Asset | undefined> =
     firstHop ? firstHop.sellAsset : undefined,
   )
 
-export const selectFirstHopBuyAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(selectFirstHop, firstHop =>
-    firstHop ? firstHop.buyAsset : undefined,
-  )
-
 export const selectSecondHopSellAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectSecondHop, secondHop =>
     secondHop ? secondHop.sellAsset : undefined,
-  )
-
-export const selectSecondHopBuyAsset: Selector<ReduxState, Asset | undefined> =
-  createDeepEqualOutputSelector(selectSecondHop, secondHop =>
-    secondHop ? secondHop.buyAsset : undefined,
   )
 
 // last hop !== second hop for single hop trades. Used to handling end-state of trades
@@ -390,18 +381,6 @@ export const selectLastHopSellFeeAsset: Selector<ReduxState, Asset | undefined> 
     lastHopSellFeeAsset => lastHopSellFeeAsset,
   )
 
-// when trading from fee asset, the value of TX in fee asset is deducted
-export const selectFirstHopTradeDeductionCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectFirstHopSellFeeAsset,
-    selectFirstHopSellAsset,
-    selectQuoteSellAmountCryptoPrecision,
-    (firstHopSellFeeAsset, firstHopSellAsset, sellAmountCryptoPrecision) =>
-      firstHopSellFeeAsset?.assetId === firstHopSellAsset?.assetId
-        ? bnOrZero(sellAmountCryptoPrecision).toFixed()
-        : bn(0).toFixed(),
-  )
-
 // TODO(woodenfurniture): update swappers to specify this as with protocol fees
 export const selectNetworkFeeRequiresBalance: Selector<ReduxState, boolean> = createSelector(
   selectActiveSwapperName,
@@ -416,38 +395,6 @@ export const selectSecondHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, strin
 
 export const selectLastHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
   createSelector(selectLastHop, lastHop => lastHop?.feeData.networkFeeCryptoBaseUnit)
-
-export const selectFirstHopNetworkFeeCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectNetworkFeeRequiresBalance,
-    selectFirstHopSellFeeAsset,
-    selectFirstHopNetworkFeeCryptoBaseUnit,
-    (networkFeeRequiresBalance, firstHopSellFeeAsset, firstHopNetworkFeeCryptoBaseUnit) =>
-      networkFeeRequiresBalance && firstHopSellFeeAsset
-        ? fromBaseUnit(bnOrZero(firstHopNetworkFeeCryptoBaseUnit), firstHopSellFeeAsset.precision)
-        : bn(0).toFixed(),
-  )
-
-export const selectSecondHopNetworkFeeCryptoPrecision: Selector<ReduxState, string | undefined> =
-  createSelector(
-    selectNetworkFeeRequiresBalance,
-    selectSecondHopSellFeeAsset,
-    selectSecondHopNetworkFeeCryptoBaseUnit,
-    (networkFeeRequiresBalance, secondHopSellFeeAsset, secondHopNetworkFeeCryptoBaseUnit) =>
-      networkFeeRequiresBalance && secondHopSellFeeAsset
-        ? fromBaseUnit(bnOrZero(secondHopNetworkFeeCryptoBaseUnit), secondHopSellFeeAsset.precision)
-        : bn(0).toFixed(),
-  )
-
-export const selectLastHopNetworkFeeCryptoPrecision: Selector<ReduxState, string> = createSelector(
-  selectNetworkFeeRequiresBalance,
-  selectLastHopSellFeeAsset,
-  selectLastHopNetworkFeeCryptoBaseUnit,
-  (networkFeeRequiresBalance, lastHopSellFeeAsset, lastHopNetworkFeeCryptoBaseUnit) =>
-    networkFeeRequiresBalance && lastHopSellFeeAsset
-      ? fromBaseUnit(bnOrZero(lastHopNetworkFeeCryptoBaseUnit), lastHopSellFeeAsset.precision)
-      : bn(0).toFixed(),
-)
 
 export const selectFirstHopNetworkFeeUserCurrencyPrecision: Selector<
   ReduxState,
@@ -575,15 +522,6 @@ export const selectBuyAmountAfterFeesUserCurrency = createSelector(
   (buyAmountCryptoPrecision, buyAssetUserCurrencyRate) => {
     if (!buyAmountCryptoPrecision || !buyAssetUserCurrencyRate) return
     return bn(buyAmountCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
-  },
-)
-
-export const selectBuyAmountBeforeFeesUserCurrency = createSelector(
-  selectBuyAmountBeforeFeesCryptoPrecision,
-  selectInputBuyAssetUserCurrencyRate,
-  (buyAmountBeforeFeesCryptoPrecision, buyAssetUserCurrencyRate) => {
-    if (!buyAmountBeforeFeesCryptoPrecision || !buyAssetUserCurrencyRate) return
-    return bn(buyAmountBeforeFeesCryptoPrecision).times(buyAssetUserCurrencyRate).toFixed()
   },
 )
 
@@ -722,9 +660,23 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   },
 )
 
-export const selectIsAnyTradeQuoteLoaded = createSelector(
-  selectIsSwapperQuoteAvailable,
+export const selectShouldShowTradeQuoteOrAwaitInput = createSelector(
   selectHasUserEnteredAmount,
-  (isSwapperQuoteAvailable, hasUserEnteredAmount) =>
-    !hasUserEnteredAmount || Object.values(isSwapperQuoteAvailable).some(identity),
+  selectIsAnyTradeQuoteLoading,
+  selectIsAnySwapperQuoteAvailable,
+  (hasUserEnteredAmount, isAnyTradeQuoteLoading, isAnySwapperQuoteAvailable) => {
+    // Paranoia - if no amount entered, we're still awaiting input
+    if (!hasUserEnteredAmount) {
+      return true
+    }
+
+    // If we're still loading, return true if there is any quote available
+    if (isAnyTradeQuoteLoading) {
+      return isAnySwapperQuoteAvailable
+    }
+
+    // Otherwise, the quotes are fully loaded and ready to display, or we have an empty result which
+    // should default to true to allow the app to stop loading state.
+    return true
+  },
 )

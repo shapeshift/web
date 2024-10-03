@@ -10,7 +10,7 @@ import { isUtxoAccountId } from 'lib/utils/utxo'
 import {
   selectFeeAssetByChainId,
   selectPortfolioAccountsGroupedByNumberByChainId,
-  selectPortfolioTotalBalanceByChainIdIncludeStaking,
+  selectPortfolioTotalChainIdBalanceIncludeStaking,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -31,7 +31,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId }) => {
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
   const chainUserCurrencyBalance = useAppSelector(s =>
-    selectPortfolioTotalBalanceByChainIdIncludeStaking(s, filter),
+    selectPortfolioTotalChainIdBalanceIncludeStaking(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
     selectPortfolioAccountsGroupedByNumberByChainId(s, filter),

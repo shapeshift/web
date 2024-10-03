@@ -7,8 +7,8 @@ import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { colorMap } from 'lib/asset-service/service/colorMap'
 
-import { colorMap } from '../../lib/asset-service/service/colorMap'
 import generatedAssetData from '../../lib/asset-service/service/generatedAssetData.json'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
 import type {

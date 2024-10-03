@@ -141,8 +141,6 @@ export const createStore = () =>
 export const store = createStore()
 export const persistor = persistStore(store)
 
-export type ReduxStore = typeof store
-
 // dev QoL to access the store in the console
 if (window && getConfig().REACT_APP_REDUX_WINDOW) window.store = store
 

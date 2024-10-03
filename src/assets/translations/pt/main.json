@@ -172,7 +172,8 @@
     "featureDisabled": "Este recurso está temporariamente desativado.",
     "yes": "Sim",
     "activeAccount": "Conta ativa",
-    "update": "Atualização"
+    "update": "Atualização",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -286,11 +287,16 @@
   },
   "connectWalletPage": {
     "title": "A Original Corretora Multichain",
+    "primaryTitle": "Bem-vindo ao DeFi Multichain",
+    "secondaryTitle": "Privado. Descentralizado. Não custodial.",
+    "primaryDescription": "Negocie, faça pontes e ganhe recompensas sem esforço. Experimente Bitcoin nativo, Dogecoin e muito mais. Gerencie posições de liquidez e DeFi em um clique.",
+    "snapDescription": "Baixe o ShapeShift Multichain Snap e desbloqueie Bitcoin, Dogecoin e muito mais para sua MetaMask.",
     "shapeshift": "ShapeShift",
     "exploreThe": "Explore o",
     "defiUniverse": "Universo DeFi",
     "body": "Negocie, faça bridges e ganhe. Privado. Mantido pela comunidade. Autocustodial. Descentralizado.",
     "header": "Conecte sua carteira para iniciar",
+    "cta": "Conectar ou criar carteira",
     "viewADemo": "Ver uma demonstração",
     "dontHaveWallet": "Não tem uma carteira?",
     "welcomeBack": "Bem-vindo/a de volta!",
@@ -504,6 +510,8 @@
     "myRewardsBody": "Suas posições ativas com recompensas resgatáveis aparecerão aqui.",
     "viewAllPositions": "Ver todas as posições",
     "liquidityPools": "Pools de Liquidez",
+    "liquidityLockupWarning": "Há um período de bloqueio de %{time}. Durante o bloqueio, você não pode acessar sua liquidez.",
+    "liquidityLocked": "Liquidez bloqueada (%{time})",
     "stakingVaults": "Poupança e Cofres",
     "farming": "Farming",
     "totalEarningBalance": "Saldo Total de Investimentos",
@@ -934,6 +942,7 @@
     "receiveAddress": "Endereço de recebimento",
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
     "disableThorNativeSmartContractReceive": "Detectamos que você está enviando para um endereço de contrato inteligente em %{chainName}. Devido às limitações do THORChain, não há suporte para receber %{nativeAssetSymbol} para um endereço de contrato inteligente. Insira outro endereço",
+    "disableThorTaprootReceive": "Detectamos que você está enviando para um endereço taproot Bitcoin. Devido às limitações do THORChain, receber BTC para um endereço taproot não é suportado no momento. Insira outro endereço.",
     "toContinue": "para continuar.",
     "addressPlaceholder": "%{chainName} endereço",
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
@@ -1457,7 +1466,6 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar sua carteira Keplr"
       }
     },
@@ -1497,7 +1505,6 @@
         "pairExistingDeviceBody": "Conectando um dispositivo Ledger diferente? Clique em 'Parear novo dispositivo' para começar do zero."
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar a Ledger"
       },
       "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
@@ -1515,13 +1522,24 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar sua carteira MetaMask"
       },
       "redirect": {
         "header": "Conecte sua carteira MetaMask",
         "body": "Clique para autenticar a plataforma ShapeShift em sua carteira MetaMask",
         "button": "Abrir"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com o Phantom",
+        "connectFailure": "Não é possível conectar a carteira Phantom",
+        "multipleWallets": "O provedor de Ethereum detectado não é Phantom. Você tem várias carteiras instaladas?"
+      },
+      "connect": {
+        "header": "Parear Phantom",
+        "body": "Clique em Parear e faça login no Phantom na janela pop-up",
+        "button": "Parear"
       }
     },
     "metaMaskSnap": {
@@ -1539,8 +1557,6 @@
         "title": "Multichain Snap precisa de atualização",
         "subtitle": "Clique em 'Atualizar' para continuar usando os recursos multichain da ShapeShift na MetaMask!"
       },
-      "secondaryTitle": "A melhor experiência Multichain para MetaMask: Powered by ShapeShift",
-      "secondaryBody": "Envie, receba, rastreie, negocie e ganhe com o ShapeShift Multichain Snap nas seguintes redes:",
       "connectMetaMask": "Conecte a MetaMask",
       "andMore": "...e mais",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap instalado",
@@ -1579,7 +1595,6 @@
         "button": "Parear"
       },
       "failure": {
-        "header": "Não é possível conectar a carteira Coinbase",
         "body": "Não é possível conectar a carteira Coinbase"
       }
     },
@@ -1594,7 +1609,6 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar sua carteira WalletConnect"
       }
     },
@@ -1610,7 +1624,6 @@
         "button": "Emparelhar"
       },
       "failure": {
-        "header": "Erro",
         "body": "Não foi possível conectar a carteira XDEFI"
       },
       "redirect": {
@@ -2583,7 +2596,6 @@
   },
   "markets": {
     "recommended": "Recomendado",
-    "watchlist": "Minha Lista",
-    "categories": "Categorias"
+    "watchlist": "Minha Lista"
   }
 }

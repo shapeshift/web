@@ -657,7 +657,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     } as FeeDataEstimate<T>
   }
 
-  async parseTx(tx: unchained.evm.types.Tx, pubkey: string): Promise<Transaction> {
+  private async parseTx(tx: unchained.evm.types.Tx, pubkey: string): Promise<Transaction> {
     const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
     return {

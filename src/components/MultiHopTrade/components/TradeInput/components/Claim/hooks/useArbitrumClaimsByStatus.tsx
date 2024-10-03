@@ -59,7 +59,7 @@ const getArbitrumTx = async (txHash: string) => {
   return txData
 }
 
-export const useArbitrumClaimsByStatus = () => {
+export const useArbitrumClaimsByStatus = (isEnabled: boolean) => {
   const translate = useTranslate()
 
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
@@ -106,6 +106,7 @@ export const useArbitrumClaimsByStatus = () => {
             )
           },
           refetchInterval: 60_000,
+          isEnabled,
         }
       }),
       combine: (
@@ -118,7 +119,7 @@ export const useArbitrumClaimsByStatus = () => {
         >[],
       ) => mergeQueryOutputs(queries, results => results.flat()),
     }
-  }, [addresses, l2Provider])
+  }, [addresses, isEnabled, l2Provider])
 
   const { data: txs, isLoading: isLoadingTxs } = useQueries(arbitrumBridgeTxQueries)
 
@@ -184,10 +185,11 @@ export const useArbitrumClaimsByStatus = () => {
             }
           },
           refetchInterval: 60_000,
+          isEnabled,
         }
       }),
     }
-  }, [l1Provider, l2Provider, txs])
+  }, [isEnabled, l1Provider, l2Provider, txs])
 
   const claimStatuses = useQueries(queries)
 

@@ -24,7 +24,7 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
     [history, setActiveClaim],
   )
 
-  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus()
+  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus(true)
 
   const AvailableClaims = useMemo(() => {
     if (isLoading) return <Skeleton height={16} />

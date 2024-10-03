@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux'
 import { Routes } from 'Routes/Routes'
 import { ConsentBanner } from 'components/ConsentBanner'
 import { IconCircle } from 'components/IconCircle'
+import { useBridgeClaimNotification } from 'hooks/useBridgeClaimNotification/useBridgeClaimNotification'
 import { useHasAppUpdated } from 'hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from 'hooks/useModal/useModal'
 import { selectShowConsentBanner, selectShowWelcomeModal } from 'state/slices/selectors'
@@ -25,6 +26,8 @@ export const App = () => {
   const showWelcomeModal = useSelector(selectShowWelcomeModal)
   const showConsentBanner = useSelector(selectShowConsentBanner)
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
+
+  useBridgeClaimNotification()
 
   const handleCtaClick = useCallback(() => window.location.reload(), [])
 

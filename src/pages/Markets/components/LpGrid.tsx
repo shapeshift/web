@@ -87,8 +87,6 @@ export const OneClickDefiAssets: React.FC<{
     enabled: inView,
   })
 
-  console.log({ portalsAssets })
-
   return (
     <div ref={ref}>
       <LpGrid

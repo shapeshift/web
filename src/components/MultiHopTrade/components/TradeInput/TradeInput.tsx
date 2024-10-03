@@ -15,8 +15,8 @@ import {
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -256,43 +256,43 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   })()
 
   return (
-    <TradeSlideTransition>
-      <MessageOverlay show={isKeplr} title={overlayTitle}>
-        <Flex
-          width='full'
-          justifyContent='center'
-          maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
-        >
-          <Center width='inherit'>
-            <Card flex={1} width='full' maxWidth='500px' ref={tradeInputRef}>
-              <ArbitrumBridgeAcknowledgement
+    <MessageOverlay show={isKeplr} title={overlayTitle}>
+      <Flex
+        width='full'
+        justifyContent='center'
+        maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+      >
+        <Center width='inherit'>
+          <Card flex={1} width='full' maxWidth='500px' ref={tradeInputRef}>
+            <ArbitrumBridgeAcknowledgement
+              onAcknowledge={handleFormSubmit}
+              shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+              setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
+            >
+              <StreamingAcknowledgement
                 onAcknowledge={handleFormSubmit}
-                shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
-                setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
+                shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+                setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+                estimatedTimeMs={
+                  tradeQuoteStep?.estimatedExecutionTimeMs
+                    ? tradeQuoteStep.estimatedExecutionTimeMs
+                    : 0
+                }
               >
-                <StreamingAcknowledgement
-                  onAcknowledge={handleFormSubmit}
-                  shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-                  setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-                  estimatedTimeMs={
-                    tradeQuoteStep?.estimatedExecutionTimeMs
-                      ? tradeQuoteStep.estimatedExecutionTimeMs
-                      : 0
-                  }
+                <WarningAcknowledgement
+                  message={warningAcknowledgementMessage}
+                  onAcknowledge={handleWarningAcknowledgementSubmit}
+                  shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+                  setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
                 >
-                  <WarningAcknowledgement
-                    message={warningAcknowledgementMessage}
-                    onAcknowledge={handleWarningAcknowledgementSubmit}
-                    shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-                    setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-                  >
-                    <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                      <TradeInputHeader
-                        initialTab={TradeInputTab.Trade}
-                        onChangeTab={handleChangeTab}
-                        isLoading={isLoading}
-                        isCompact={isCompact}
-                      />
+                  <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
+                    <TradeInputHeader
+                      initialTab={TradeInputTab.Trade}
+                      onChangeTab={handleChangeTab}
+                      isLoading={isLoading}
+                      isCompact={isCompact}
+                    />
+                    <SlideTransition>
                       <Box ref={bodyRef}>
                         <TradeInputBody
                           isLoading={isLoading}
@@ -308,24 +308,24 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                           receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
                         />
                       </Box>
-                    </Stack>
-                  </WarningAcknowledgement>
-                </StreamingAcknowledgement>
-              </ArbitrumBridgeAcknowledgement>
-            </Card>
+                    </SlideTransition>
+                  </Stack>
+                </WarningAcknowledgement>
+              </StreamingAcknowledgement>
+            </ArbitrumBridgeAcknowledgement>
+          </Card>
 
-            <WithLazyMount
-              shouldUse={!isCompact && !isSmallerThanXl}
-              component={CollapsibleQuoteList}
-              isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-              isLoading={isLoading}
-              width={tradeInputRef.current?.offsetWidth ?? 'full'}
-              height={totalHeight ?? 'full'}
-              ml={4}
-            />
-          </Center>
-        </Flex>
-      </MessageOverlay>
-    </TradeSlideTransition>
+          <WithLazyMount
+            shouldUse={!isCompact && !isSmallerThanXl}
+            component={CollapsibleQuoteList}
+            isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+            isLoading={isLoading}
+            width={tradeInputRef.current?.offsetWidth ?? 'full'}
+            height={totalHeight ?? 'full'}
+            ml={4}
+          />
+        </Center>
+      </Flex>
+    </MessageOverlay>
   )
 }

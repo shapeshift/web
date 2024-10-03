@@ -2,6 +2,7 @@ import { Box, CardBody, Skeleton } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { ClaimStatus } from 'components/ClaimRow/types'
+import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { ClaimRow } from './ClaimRow'
@@ -57,15 +58,17 @@ export const ClaimSelect: React.FC<ClaimSelectProps> = ({ setActiveClaim }) => {
   }, [claimsByStatus.Pending, isLoading, handleClaimClick])
 
   return (
-    <CardBody px={6}>
-      <Box mb={6}>
-        <Text as='h5' fontSize='md' translation='bridge.availableClaims' />
-        {AvailableClaims}
-      </Box>
-      <Box>
-        <Text as='h5' fontSize='md' translation='bridge.pendingClaims' />
-        {PendingClaims}
-      </Box>
-    </CardBody>
+    <SlideTransition>
+      <CardBody px={6}>
+        <Box mb={6}>
+          <Text as='h5' fontSize='md' translation='bridge.availableClaims' />
+          {AvailableClaims}
+        </Box>
+        <Box>
+          <Text as='h5' fontSize='md' translation='bridge.pendingClaims' />
+          {PendingClaims}
+        </Box>
+      </CardBody>
+    </SlideTransition>
   )
 }

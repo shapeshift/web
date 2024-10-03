@@ -4,12 +4,8 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
+import { AssetGridWithData } from '../components/AssetGridWithData'
 import { OneClickDefiAssets, ThorchainAssets } from '../components/LpGrid'
-import { MarketCapGrid } from '../components/MarketCapGrid'
-import { RecentlyAddedGrid } from '../components/RecentlyAddedGrid'
-import { TopMoversGrid } from '../components/TopMoversGrid'
-import { TradingVolumeGrid } from '../components/TradingVolumeGrid'
-import { TrendingGrid } from '../components/TrendingGrid'
 import { MARKETS_CATEGORIES } from '../constants'
 
 export type RowProps = {
@@ -36,10 +32,12 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <TradingVolumeGrid
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TRADING_VOLUME}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
+            orderBy='volume_desc'
           />
         ),
       },
@@ -48,7 +46,9 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <MarketCapGrid
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.MARKET_CAP}
+            orderBy='market_cap_desc'
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -61,7 +61,8 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <TrendingGrid
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TRENDING}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -75,7 +76,8 @@ export const useRows = ({ limit }: { limit: number }) => {
           percentage: '10',
         }),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <TopMoversGrid
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TOP_MOVERS}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -87,7 +89,8 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <RecentlyAddedGrid
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.RECENTLY_ADDED}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}

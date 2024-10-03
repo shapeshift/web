@@ -16,6 +16,8 @@ import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
 import type { AppDispatch } from 'state/store'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
+import { MARKETS_CATEGORIES } from '../constants'
+
 const selectCoingeckoAssets = (
   data: CoingeckoAsset[],
   dispatch: AppDispatch,
@@ -91,7 +93,7 @@ const selectCoingeckoAssets = (
   )
 }
 
-export const useTopMoversQuery = (enabled: boolean = true) => {
+export const useTopMoversQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -105,7 +107,7 @@ export const useTopMoversQuery = (enabled: boolean = true) => {
   return topMoversQuery
 }
 
-export const useTrendingQuery = (enabled: boolean = true) => {
+export const useTrendingQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -119,7 +121,7 @@ export const useTrendingQuery = (enabled: boolean = true) => {
   return trendingQuery
 }
 
-export const useRecentlyAddedQuery = (enabled: boolean = true) => {
+export const useRecentlyAddedQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -151,4 +153,12 @@ export const useMarketsQuery = ({
   })
 
   return recentlyAddedQuery
+}
+
+export const CATEGORY_TO_QUERY_HOOK = {
+  [MARKETS_CATEGORIES.TOP_MOVERS]: useTopMoversQuery,
+  [MARKETS_CATEGORIES.TRENDING]: useTrendingQuery,
+  [MARKETS_CATEGORIES.RECENTLY_ADDED]: useRecentlyAddedQuery,
+  [MARKETS_CATEGORIES.MARKET_CAP]: useMarketsQuery,
+  [MARKETS_CATEGORIES.TRADING_VOLUME]: useMarketsQuery,
 }

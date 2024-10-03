@@ -58,7 +58,7 @@ export const Header = memo(() => {
 
   const history = useHistory()
   const {
-    state: { isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet, wallet },
     dispatch,
   } = useWallet()
   const appDispatch = useAppDispatch()
@@ -230,7 +230,7 @@ export const Header = memo(() => {
                 </Suspense>
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
-              <TxWindow />
+              {isConnected && <TxWindow />}
               <Notifications />
               {isLargerThanMd && (
                 <Box display={displayProp2}>

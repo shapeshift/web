@@ -115,7 +115,9 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
   }
 }
 
-export const coingeckoAssetPlatformToChainId = (platform: CoingeckoAssetPlatform): ChainId => {
+export const coingeckoAssetPlatformToChainId = (
+  platform: CoingeckoAssetPlatform,
+): ChainId | undefined => {
   switch (platform) {
     case CoingeckoAssetPlatform.Ethereum:
       return ethChainId
@@ -140,7 +142,7 @@ export const coingeckoAssetPlatformToChainId = (platform: CoingeckoAssetPlatform
     case CoingeckoAssetPlatform.Thorchain:
       return thorchainChainId
     default:
-      throw new Error(`Unsupported Coingecko asset platform: ${platform}`)
+      return undefined
   }
 }
 

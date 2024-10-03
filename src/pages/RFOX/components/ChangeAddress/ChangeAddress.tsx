@@ -11,12 +11,17 @@ import { ChangeAddressRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const ChangeAddressInput = makeSuspenseful(
   lazy(() =>
     import('./ChangeAddressInput').then(({ ChangeAddressInput }) => ({
       default: ChangeAddressInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressConfirm = makeSuspenseful(
@@ -25,6 +30,7 @@ const ChangeAddressConfirm = makeSuspenseful(
       default: ChangeAddressConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressStatus = makeSuspenseful(
@@ -33,6 +39,7 @@ const ChangeAddressStatus = makeSuspenseful(
       default: ChangeAddressStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ChangeAddressEntries = [

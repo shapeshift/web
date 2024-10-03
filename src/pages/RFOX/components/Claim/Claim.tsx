@@ -12,12 +12,17 @@ import { ClaimRoutePaths, type ClaimRouteProps } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const ClaimSelect = makeSuspenseful(
   lazy(() =>
     import('./ClaimSelect').then(({ ClaimSelect }) => ({
       default: ClaimSelect,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimConfirm = makeSuspenseful(
@@ -26,6 +31,7 @@ const ClaimConfirm = makeSuspenseful(
       default: ClaimConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimStatus = makeSuspenseful(
@@ -34,6 +40,7 @@ const ClaimStatus = makeSuspenseful(
       default: ClaimStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const ClaimEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]

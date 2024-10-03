@@ -73,6 +73,7 @@ export const useRows = ({ limit }: { limit: number }) => {
             isLoading={isMarketCapDataLoading}
             limit={limit}
             showSparkline={showSparkline}
+            showMarketCap
           />
         ),
       },

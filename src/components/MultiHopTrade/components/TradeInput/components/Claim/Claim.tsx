@@ -1,8 +1,9 @@
+import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
-import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
@@ -34,14 +35,6 @@ const ClaimStatus = makeSuspenseful(
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
 export const Claim: React.FC = () => {
-  return (
-    <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
-      <ClaimRoutes />
-    </MemoryRouter>
-  )
-}
-
-export const ClaimRoutes: React.FC = () => {
   const location = useLocation()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
@@ -79,26 +72,30 @@ export const ClaimRoutes: React.FC = () => {
   }, [activeClaim, claimTxHash, claimTxStatus])
 
   return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Switch location={location}>
-        <Suspense>
-          <Route
-            key={ClaimRoutePaths.Select}
-            path={ClaimRoutePaths.Select}
-            render={renderClaimSelect}
-          />
-          <Route
-            key={ClaimRoutePaths.Confirm}
-            path={ClaimRoutePaths.Confirm}
-            render={renderClaimConfirm}
-          />
-          <Route
-            key={ClaimRoutePaths.Status}
-            path={ClaimRoutePaths.Status}
-            render={renderClaimStatus}
-          />
-        </Suspense>
-      </Switch>
-    </AnimatePresence>
+    <TradeSlideTransition>
+      <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
+        <Switch location={location}>
+          <Card flex={1} width='full' maxWidth='500px'>
+            <Suspense>
+              <Route
+                key={ClaimRoutePaths.Select}
+                path={ClaimRoutePaths.Select}
+                render={renderClaimSelect}
+              />
+              <Route
+                key={ClaimRoutePaths.Confirm}
+                path={ClaimRoutePaths.Confirm}
+                render={renderClaimConfirm}
+              />
+              <Route
+                key={ClaimRoutePaths.Status}
+                path={ClaimRoutePaths.Status}
+                render={renderClaimStatus}
+              />
+            </Suspense>
+          </Card>
+        </Switch>
+      </MemoryRouter>
+    </TradeSlideTransition>
   )
 }

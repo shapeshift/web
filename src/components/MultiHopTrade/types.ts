@@ -8,6 +8,7 @@ export enum TradeRoutePaths {
   Quotes = '/trade/quotes',
   VerifyAddresses = '/trade/verify-addresses',
   QuoteList = '/trade/quote-list',
+  Claim = '/trade/claim',
 }
 
 export type GetReceiveAddressArgs = {

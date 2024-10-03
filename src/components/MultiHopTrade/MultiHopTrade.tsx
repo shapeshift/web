@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
+import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
@@ -20,6 +21,7 @@ const TradeRouteEntries = [
   TradeRoutePaths.Confirm,
   TradeRoutePaths.VerifyAddresses,
   TradeRoutePaths.QuoteList,
+  TradeRoutePaths.Claim,
 ]
 
 export type TradeCardProps = {
@@ -39,12 +41,21 @@ const GetTradeQuotes = () => {
 }
 
 export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardProps) => {
+  const location = useLocation()
   const dispatch = useAppDispatch()
   const methods = useForm({ mode: 'onChange' })
   const { assetSubId, chainId } = useParams<MatchParams>()
+  const [initialIndex, setInitialIndex] = useState<number | undefined>()
 
   const routeBuyAsset = useAppSelector(state => selectAssetById(state, `${chainId}/${assetSubId}`))
   const defaultBuyAsset = useAppSelector(state => selectAssetById(state, defaultBuyAssetId ?? ''))
+
+  // Handle deep linked route from other pages
+  useEffect(() => {
+    if (initialIndex !== undefined) return
+    const incomingIndex = TradeRouteEntries.indexOf(location.pathname as TradeRoutePaths)
+    setInitialIndex(incomingIndex === -1 ? 0 : incomingIndex)
+  }, [initialIndex, location])
 
   useEffect(() => {
     dispatch(tradeInput.actions.clear())
@@ -52,9 +63,12 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardPr
     else if (defaultBuyAsset) dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
   }, [defaultBuyAsset, defaultBuyAssetId, dispatch, routeBuyAsset])
 
+  // Prevent default behavior overriding deep linked route
+  if (initialIndex === undefined) return null
+
   return (
     <FormProvider {...methods}>
-      <MemoryRouter initialEntries={TradeRouteEntries} initialIndex={0}>
+      <MemoryRouter initialEntries={TradeRouteEntries} initialIndex={initialIndex}>
         <TradeRoutes isCompact={isCompact} />
       </MemoryRouter>
     </FormProvider>
@@ -106,6 +120,9 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
             />
+          </Route>
+          <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
+            <Claim />
           </Route>
         </Switch>
       </AnimatePresence>

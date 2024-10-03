@@ -16,6 +16,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { generatePath, matchPath, useHistory } from 'react-router-dom'
 import BlueFox from 'assets/blue-fox.svg'
 import GreenFox from 'assets/green-fox.svg'
 import OrangeFox from 'assets/orange-fox.svg'
@@ -30,6 +31,7 @@ import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet, listWallets } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from 'context/WalletProvider/MobileWallet/RevocableWallet'
+import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { WalletCard } from './components/WalletCard'
@@ -61,7 +63,8 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { create, importWallet, dispatch, getAdapter } = useWallet()
+  const { state, create, importWallet, dispatch, getAdapter } = useWallet()
+  const history = useHistory()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
@@ -69,6 +72,29 @@ export const MobileConnect = () => {
   const [hideWallets, setHideWallets] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
+  const query = useQuery<{ returnUrl: string }>()
+
+  const hasWallet = Boolean(state.walletInfo?.deviceId)
+
+  useEffect(() => {
+    // This handles reloading an asset's account page on Native/KeepKey. Without this, routing will break.
+    // /:accountId/:assetId really is /:accountId/:chainId/:assetSubId e.g /accounts/eip155:1:0xmyPubKey/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+    // The (/:chainId/:assetSubId) part is URI encoded as one entity in the regular app flow in <AssetAccountRow />, using generatePath()
+    // This applies a similar logic here, that works with history.push()
+    const match = matchPath<{ accountId?: string; chainId?: string; assetSubId?: string }>(
+      query.returnUrl,
+      {
+        path: '/accounts/:accountId/:chainId/:assetSubId',
+      },
+    )
+    const path = match
+      ? generatePath('/accounts/:accountId/:assetId', {
+          accountId: match?.params?.accountId ?? '',
+          assetId: `${match?.params?.chainId ?? ''}/${match?.params?.assetSubId ?? ''}`,
+        })
+      : query?.returnUrl
+    hasWallet && history.push(path ?? '/trade')
+  }, [history, hasWallet, query, state, dispatch])
 
   const handleCreate = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })

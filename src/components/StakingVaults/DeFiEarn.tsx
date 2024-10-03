@@ -1,11 +1,13 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { knownChainIds } from 'constants/chains'
 import type { Property } from 'csstype'
 import { useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { useQuery } from 'hooks/useQuery/useQuery'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectWalletConnectedChainIdsSorted } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -40,11 +42,14 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   header,
   ...rest
 }) => {
+  const { isConnected } = useWallet().state
   const { q } = useQuery<{ q?: string }>()
   const [searchQuery, setSearchQuery] = useState(q ?? '')
   const translate = useTranslate()
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>()
-  const portfolioChainIds = useAppSelector(selectWalletConnectedChainIdsSorted)
+  const chainIds = useAppSelector(state =>
+    isConnected ? selectWalletConnectedChainIdsSorted(state) : knownChainIds,
+  )
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
@@ -68,7 +73,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
             </TabList>
           </Flex>
           <ChainDropdown
-            chainIds={portfolioChainIds}
+            chainIds={chainIds}
             chainId={selectedChainId}
             onClick={setSelectedChainId}
             showAll

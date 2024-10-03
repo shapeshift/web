@@ -1,5 +1,6 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectIsPortfolioLoading } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -17,12 +18,13 @@ export const DefaultAssetList = ({
   popularAssets,
   onAssetClick,
 }: DefaultAssetListProps) => {
+  const { isConnected } = useWallet().state
   const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
   const { isLoading: isPopularAssetIdsLoading } = useGetPopularAssetsQuery()
 
   const groupIsLoading = useMemo(() => {
-    return [isPortfolioLoading, isPopularAssetIdsLoading]
-  }, [isPopularAssetIdsLoading, isPortfolioLoading])
+    return [isConnected && isPortfolioLoading, isPopularAssetIdsLoading]
+  }, [isConnected, isPopularAssetIdsLoading, isPortfolioLoading])
 
   const { allAssets, groups, groupCounts } = useMemo(() => {
     // only show popular assets if user wallet is empty

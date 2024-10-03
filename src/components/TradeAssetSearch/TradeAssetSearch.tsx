@@ -11,6 +11,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from 'components/ChainMenu'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { sortChainIdsByDisplayName } from 'lib/utils'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
@@ -49,6 +50,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   formProps,
   allowWalletUnsupportedAssets,
 }) => {
+  const { isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
@@ -100,9 +102,15 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    if (allowWalletUnsupportedAssets) return unfilteredPopularAssets
+    if (allowWalletUnsupportedAssets || !isConnected) return unfilteredPopularAssets
     return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
-  }, [activeChainId, popularAssetsByChainId, walletConnectedChainIds, allowWalletUnsupportedAssets])
+  }, [
+    popularAssetsByChainId,
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    isConnected,
+    walletConnectedChainIds,
+  ])
 
   const quickAccessAssets = useMemo(() => {
     if (activeChainId !== 'All') {
@@ -137,7 +145,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
-      if (allowWalletUnsupportedAssets) {
+      if (allowWalletUnsupportedAssets || !isConnected) {
         return knownChainIds
       }
 
@@ -147,7 +155,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
 
     return ['All', ...sortedChainIds]
-  }, [walletConnectedChainIds, allowWalletUnsupportedAssets])
+  }, [allowWalletUnsupportedAssets, isConnected, walletConnectedChainIds])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {

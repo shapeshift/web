@@ -40,7 +40,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     dispatch,
     getAdapter,
     onProviderChange,
-    state: { walletInfo, modalType },
+    state: { modalType },
   } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
@@ -53,17 +53,17 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const headerText: [string, InterpolationOptions] = useMemo(
     () => [
       'walletProvider.mipd.connect.header',
-      { name: maybeMipdProvider?.info.name ?? walletInfo?.name },
+      { name: maybeMipdProvider?.info.name ?? 'MetaMask' },
     ],
-    [maybeMipdProvider?.info.name, walletInfo?.name],
+    [maybeMipdProvider?.info.name],
   )
 
   const bodyText: [string, InterpolationOptions] = useMemo(
     () => [
       'walletProvider.mipd.connect.body',
-      { name: maybeMipdProvider?.info.name ?? walletInfo?.name },
+      { name: maybeMipdProvider?.info.name ?? 'MetaMask' },
     ],
-    [maybeMipdProvider?.info.name, walletInfo?.name],
+    [maybeMipdProvider?.info.name],
   )
 
   const setErrorLoading = useCallback((e: string | null) => {

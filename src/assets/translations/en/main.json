@@ -1521,8 +1521,7 @@
     "metaMask": {
       "errors": {
         "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
+        "connectFailure": "Unable to connect MetaMask wallet"
       },
       "connect": {
         "header": "Pair MetaMask",

@@ -27,7 +27,7 @@ export interface LedgerSetupProps
 }
 
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
-  const { dispatch: walletDispatch, getAdapter } = useWallet()
+  const { state, dispatch: walletDispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -102,7 +102,10 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Ledger },
         })
-        walletDispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        walletDispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: state.modalType },
+        })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
 
         // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
@@ -129,6 +132,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     isLedgerAccountManagementEnabled,
     localWallet,
     setErrorLoading,
+    state.modalType,
     walletDispatch,
   ])
 

@@ -230,7 +230,10 @@ export const useKeepKeyEventHandler = (
               icon: state.walletInfo.icon, // We're reconnecting the same wallet so we can reuse the walletInfo
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: { isConnected: true, modalType: state.modalType },
+          })
         }
       } catch (e) {
         console.error(e)
@@ -241,7 +244,10 @@ export const useKeepKeyEventHandler = (
       try {
         const id = keyring.getAlias(deviceId)
         if (id === state.walletInfo?.deviceId) {
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: { isConnected: false, modalType: state.modalType },
+          })
         }
         if (modal) {
           // Little trick to send the user back to the wallet select route

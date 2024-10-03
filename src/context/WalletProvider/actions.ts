@@ -40,7 +40,10 @@ export type ActionTypes =
         connectedType: KeyManager
       }
     }
-  | { type: WalletActions.SET_IS_CONNECTED; payload: boolean }
+  | {
+      type: WalletActions.SET_IS_CONNECTED
+      payload: { isConnected: boolean; modalType: KeyManager | string | null }
+    }
   | { type: WalletActions.SET_PROVIDER; payload: InitialState['provider'] }
   | { type: WalletActions.SET_IS_LOCKED; payload: boolean }
   | {

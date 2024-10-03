@@ -19,7 +19,7 @@ export interface KeplrSetupProps
 }
 
 export const KeplrConnect = ({ history }: KeplrSetupProps) => {
-  const { dispatch, getAdapter } = useWallet()
+  const { state, dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -56,7 +56,10 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Keplr },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: state.modalType },
+        })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Keplr, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
@@ -74,7 +77,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet])
+  }, [dispatch, getAdapter, history, localWallet, state.modalType])
 
   return (
     <ConnectModal

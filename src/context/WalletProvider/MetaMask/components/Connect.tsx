@@ -1,5 +1,6 @@
 import { getConfig } from 'config'
-import React, { useCallback, useState, useSyncExternalStore } from 'react'
+import type { InterpolationOptions } from 'node-polyglot'
+import React, { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -9,7 +10,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskImpersonator,
@@ -47,12 +47,23 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
 
+  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === modalType)
+
+  const headerText: [string, InterpolationOptions] = useMemo(
+    () => ['walletProvider.mipd.connect.header', { name: maybeMipdProvider?.info.name }],
+    [maybeMipdProvider?.info.name],
+  )
+
+  const bodyText: [string, InterpolationOptions] = useMemo(
+    () => ['walletProvider.mipd.connect.body', { name: maybeMipdProvider?.info.name }],
+    [maybeMipdProvider?.info.name],
+  )
+
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
     setLoading(false)
   }, [])
-
-  const isSnapsEnabled = useFeatureFlag('Snaps')
 
   const pairDevice = useCallback(async () => {
     setError(null)
@@ -65,7 +76,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       const wallet = await adapter.pairDevice()
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error('Call to hdwallet-metamask::pairDevice returned null or undefined')
+        throw new Error(
+          'Call to hdwallet-shapeshift-multichain::pairDevice returned null or undefined',
+        )
       }
 
       const { name, icon } = MetaMaskConfig
@@ -80,7 +93,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.MetaMask },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          // Do not early return here if (!maybeMipdProvider) - not all wallet announce themselves as EIP-6963 providers
+          // and we should let the app work the best it could without them
+          payload: { isConnected: true, modalType: maybeMipdProvider?.info.rdns ?? '' },
+        })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.MetaMask, deviceId)
 
@@ -102,10 +120,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
           const isCorrectVersion = snapVersion === getConfig().REACT_APP_SNAP_VERSION
 
-          if (isSnapsEnabled && isSnapInstalled && !isCorrectVersion && showSnapModal) {
+          if (isSnapInstalled && !isCorrectVersion && showSnapModal) {
             return history.push('/metamask/snap/update')
           }
-          if (isSnapsEnabled && !isSnapInstalled && showSnapModal) {
+          if (!isSnapInstalled && showSnapModal) {
             return history.push('/metamask/snap/install')
           }
 
@@ -126,10 +144,10 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     getAdapter,
     setErrorLoading,
     dispatch,
+    maybeMipdProvider?.info.rdns,
     localWallet,
     onProviderChange,
     isMetaMaskMobileWebView,
-    isSnapsEnabled,
     showSnapModal,
     history,
   ])
@@ -146,12 +164,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  // TODO(gomes): we should store full info in `modalType` instead of just the name
-  // to leverage rdns/uuid as id, as well as avoiding this lookup
-  const maybeMipdProvider = mipdProviders.find(provider => provider.info.name === modalType)
-  console.log({ maybeMipdProvider })
-
   return isMobile && !isMetaMaskMobileWebView ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
@@ -163,8 +175,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     />
   ) : (
     <ConnectModal
-      headerText={['walletProvider.mipd.connect.header', { name: maybeMipdProvider?.info.name }]}
-      bodyText={['walletProvider.mipd.connect.body', { name: maybeMipdProvider?.info.name }]}
+      headerText={headerText}
+      bodyText={bodyText}
       buttonText={'walletProvider.mipd.connect.button'}
       onPairDeviceClick={pairDevice}
       loading={loading}

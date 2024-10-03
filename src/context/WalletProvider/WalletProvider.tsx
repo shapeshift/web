@@ -3,15 +3,15 @@ import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
-import type { MetaMaskHDWallet } from '@shapeshiftoss/hdwallet-metamask'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
+import type { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { BrowserProvider } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -20,6 +20,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
+import { mipdStore } from 'lib/mipd'
 import { isSome } from 'lib/utils'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
@@ -90,6 +91,7 @@ export type InitialState = {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
+  connectedModalType: KeyManager | string | null
   isDemoWallet: boolean
   provider: MetaMaskLikeProvider | EthereumProviderType | null
   isLocked: boolean
@@ -121,6 +123,7 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
+  connectedModalType: null,
   isDemoWallet: false,
   provider: null,
   isLocked: false,
@@ -203,14 +206,18 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           deviceId,
           meta: {
             label: meta?.label ?? '',
-            address: (wallet as MetaMaskHDWallet).ethAddress ?? '',
+            address: (wallet as MetaMaskShapeShiftMultiChainHDWallet).ethAddress ?? '',
           },
         },
       }
     case WalletActions.SET_PROVIDER:
       return { ...state, provider: action.payload }
     case WalletActions.SET_IS_CONNECTED:
-      return { ...state, isConnected: action.payload }
+      return {
+        ...state,
+        isConnected: action.payload.isConnected,
+        connectedModalType: action.payload.modalType,
+      }
     case WalletActions.SET_IS_LOCKED:
       return { ...state, isLocked: action.payload }
     case WalletActions.SET_CONNECTOR_TYPE:
@@ -392,18 +399,25 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setLocalNativeWalletName,
   } = useLocalWallet()
 
+  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === state.modalType)
+
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
       let currentStateAdapters = state.adapters
 
       // Check if adapter is already in the state
+      // Note - for MM, we always re-instantiate/set, because the MIPD provider may have changed
       let adapterInstance = currentStateAdapters[keyManager]
 
-      if (!adapterInstance) {
+      if (!adapterInstance || !!maybeMipdProvider) {
         // If not, create a new instance of the adapter
         try {
           const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
-          const keyManagerOptions = getKeyManagerOptions(keyManager, isDarkMode)
+          const keyManagerOptions =
+            keyManager === KeyManager.MetaMask && maybeMipdProvider
+              ? maybeMipdProvider.info.rdns
+              : getKeyManagerOptions(keyManager, isDarkMode)
           // @ts-ignore tsc is drunk as well, not narrowing to the specific adapter and its KeyManager options here
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -424,7 +438,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [isDarkMode, state.adapters, state.keyring],
+    [isDarkMode, maybeMipdProvider, state.adapters, state.keyring],
   )
 
   const disconnect = useCallback(() => {
@@ -503,7 +517,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                       connectedType: KeyManager.Mobile,
                     },
                   })
-                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                  dispatch({
+                    type: WalletActions.SET_IS_CONNECTED,
+                    payload: { isConnected: true, modalType: localWalletType },
+                  })
                   // Turn off the loading spinner for the wallet button in
                   dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                 } else {
@@ -596,7 +613,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     connectedType: KeyManager.KeepKey,
                   },
                 })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
               } else {
                 disconnect()
               }
@@ -638,7 +658,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   },
                 })
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
               } catch (e) {
                 disconnect()
               }
@@ -680,7 +703,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   },
                 })
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
               } catch (e) {
                 disconnect()
               }
@@ -720,7 +746,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     connectedType: KeyManager.Keplr,
                   },
                 })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
               } catch (e) {
                 disconnect()
               }
@@ -762,7 +791,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   },
                 })
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
               } catch (e) {
                 disconnect()
               }
@@ -885,7 +917,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const supportedWallet = isMipdProvider
       ? SUPPORTED_WALLETS[KeyManager.MetaMask]
       : SUPPORTED_WALLETS[type as KeyManager]
-    console.log({ supportedWallet })
     const routeIndex = findIndex(supportedWallet.routes, ({ path }) =>
       String(path).endsWith('connect'),
     )
@@ -930,13 +961,16 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           connectedType: KeyManager.Demo,
         },
       })
-      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      dispatch({
+        type: WalletActions.SET_IS_CONNECTED,
+        payload: { isConnected: false, modalType: walletType },
+      })
     } catch (error) {
       console.error(error)
     } finally {
       dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
     }
-  }, [setLocalNativeWalletName, setLocalWalletTypeAndDeviceId, state.keyring])
+  }, [setLocalNativeWalletName, setLocalWalletTypeAndDeviceId, state.keyring, walletType])
 
   const create = useCallback((type: KeyManager) => {
     dispatch({

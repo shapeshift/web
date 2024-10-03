@@ -79,7 +79,10 @@ export const EnterPassword = () => {
             meta: { label: vault.meta.get('name') as string },
           },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: state.modalType },
+        })
         dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e) {
@@ -93,7 +96,7 @@ export const EnterPassword = () => {
         )
       }
     },
-    [deviceId, dispatch, setError, translate, keyring],
+    [keyring, deviceId, dispatch, state.modalType, setError, translate],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

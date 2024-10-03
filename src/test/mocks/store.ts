@@ -99,7 +99,6 @@ export const mockStore: ReduxState = {
       AdvancedSlippage: false,
       WalletConnectV2: false,
       CustomSendNonce: false,
-      Snaps: false,
       ThorchainLending: false,
       ThorchainLendingBorrow: false,
       ThorchainLendingRepay: false,

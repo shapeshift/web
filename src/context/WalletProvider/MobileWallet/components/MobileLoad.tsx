@@ -113,7 +113,7 @@ const Wallet = ({ wallet, onSelect, onRename, onDelete }: WalletProps) => {
 }
 
 export const MobileLoad = ({ history }: RouteComponentProps) => {
-  const { getAdapter, dispatch } = useWallet()
+  const { state, getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
@@ -164,7 +164,10 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
               connectedType: KeyManager.Mobile,
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: { isConnected: true, modalType: state.modalType },
+          })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
           localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
@@ -177,7 +180,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
         setError('walletProvider.shapeShift.load.error.pair')
       }
     },
-    [dispatch, getAdapter, localWallet],
+    [dispatch, getAdapter, localWallet, state.modalType],
   )
 
   const handleDelete = useCallback(

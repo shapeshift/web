@@ -18,7 +18,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
-  const { getAdapter, dispatch } = useWallet()
+  const { state, getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
 
   useEffect(() => {
@@ -50,7 +50,10 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
             connectedType: KeyManager.Native,
           },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: state.modalType },
+        })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         localWallet.setLocalNativeWalletName(walletLabel)

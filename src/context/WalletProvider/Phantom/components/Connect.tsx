@@ -21,7 +21,7 @@ export interface PhantomSetupProps
 }
 
 export const PhantomConnect = ({ history }: PhantomSetupProps) => {
-  const { dispatch, getAdapter, onProviderChange } = useWallet()
+  const { state, dispatch, getAdapter, onProviderChange } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -57,7 +57,10 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
           type: WalletActions.SET_WALLET,
           payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Phantom },
         })
-        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: state.modalType },
+        })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Phantom, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
@@ -68,7 +71,15 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet, onProviderChange, setErrorLoading])
+  }, [
+    dispatch,
+    getAdapter,
+    history,
+    localWallet,
+    onProviderChange,
+    setErrorLoading,
+    state.modalType,
+  ])
 
   return (
     <ConnectModal

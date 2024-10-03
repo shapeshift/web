@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { act, renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
@@ -28,7 +28,7 @@ vi.mock('friendly-challenge', () => ({
   WidgetInstance: {},
 }))
 
-vi.mock('@shapeshiftoss/hdwallet-metamask', () => ({
+vi.mock('@shapeshiftoss/hdwallet-shapeshift-multichain', () => ({
   MetaMaskAdapter: {
     useKeyring: vi.fn(),
   },
@@ -87,11 +87,17 @@ describe('WalletProvider', () => {
 
       expect(result.current.state.isConnected).toBe(false)
       act(() => {
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: '' },
+        })
       })
       expect(result.current.state.isConnected).toBe(true)
       act(() => {
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: false, modalType: '' },
+        })
       })
       expect(result.current.state.isConnected).toBe(false)
     })
@@ -163,7 +169,10 @@ describe('WalletProvider', () => {
             ...walletInfoPayload,
           },
         })
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: { isConnected: true, modalType: '' },
+        })
       })
 
       expect(result.current.state.wallet).toBeTruthy()

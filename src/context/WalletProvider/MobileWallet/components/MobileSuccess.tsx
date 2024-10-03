@@ -17,7 +17,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
   const appDispatch = useAppDispatch()
   const { setWelcomeModal } = preferences.actions
   const [isSuccessful, setIsSuccessful] = useStateIfMounted<boolean | null>(null)
-  const { getAdapter, dispatch } = useWallet()
+  const { state, getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const { vault } = location.state
 
@@ -46,7 +46,10 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
               connectedType: KeyManager.Mobile,
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: { isConnected: true, modalType: state.modalType },
+          })
           localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
           localWallet.setLocalNativeWalletName(walletLabel)
           dispatch({
@@ -67,7 +70,16 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
       // Make sure the component is completely unmounted before we revoke the mnemonic
       setTimeout(() => vault?.revoke(), 500)
     }
-  }, [appDispatch, dispatch, getAdapter, localWallet, setIsSuccessful, setWelcomeModal, vault])
+  }, [
+    appDispatch,
+    dispatch,
+    getAdapter,
+    localWallet,
+    setIsSuccessful,
+    setWelcomeModal,
+    state.modalType,
+    vault,
+  ])
 
   return (
     <>

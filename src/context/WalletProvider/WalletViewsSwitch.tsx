@@ -108,10 +108,6 @@ export const WalletViewsSwitch = () => {
    */
   const supportedWallet =
     SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
-  console.log({
-    supportedWallet,
-    modalType,
-  })
   const walletRoutesList = useMemo(
     () =>
       modalType

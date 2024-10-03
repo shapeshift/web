@@ -101,41 +101,49 @@ const WalletSelectItem = ({
 }
 
 const MipdProviderSelectItem = ({
-  walletInfo,
   provider,
   connect,
 }: {
-  walletInfo: WalletInfo | null
   provider: EIP6963ProviderDetail
   connect: (adapter: string) => void
 }) => {
-  // There will be a slight bit of accomodating here in web since we don't rely on KeyManager but nothing crazy, (large american) coffee work
+  const {
+    state: { connectedModalType },
+  } = useWallet()
+  const greenColor = useColorModeValue('green.500', 'green.200')
   const handleConnect = useCallback(
-    () => connect(provider.info.name),
-    [connect, provider.info.name],
+    () => connect(provider.info.rdns),
+    [connect, provider.info.rdns],
   )
 
+  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProvider = mipdProviders.find(provider => provider.info.rdns === connectedModalType)
+
   const icon = provider.info.icon
-  const activeWallet = provider.info.name === walletInfo?.name
+  const activeWallet = provider.info.name === mipdProvider?.info.name
   const walletSubText = activeWallet ? 'common.connected' : null
 
   return (
     <Button
-      key={provider.info.name}
+      key={provider.info.rdns}
       w='full'
       size='md'
       py={8}
       isActive={activeWallet}
       justifyContent='space-between'
       onClick={handleConnect}
-      data-test={`connect-wallet-${provider.info.name}-button`}
+      data-test={`connect-wallet-${provider.info.rdns}-button`}
     >
       <Flex alignItems='flex-start' flexDir='column'>
         <RawText fontWeight='semibold'>{provider.info.name}</RawText>
         <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
       </Flex>
       <Center width='25%'>
-        <Image width='24px' height='auto' src={icon} />
+        {activeWallet ? (
+          <CheckCircleIcon color={greenColor} />
+        ) : (
+          <Image width='24px' height='auto' src={icon} />
+        )}
       </Center>
     </Button>
   )
@@ -150,8 +158,6 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-
-  console.log({ mipdProviders })
 
   const wallets = useMemo(
     () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
@@ -168,6 +174,13 @@ export const SelectModal = () => {
     [importWallet],
   )
 
+  const handleConnectMipd = useCallback(
+    (rdns: string) => connect(rdns as KeyManager, true),
+    [connect],
+  )
+
+  const handleConnect = useCallback((name: KeyManager) => connect(name, true), [connect])
+
   return (
     <>
       <ModalHeader>
@@ -180,9 +193,8 @@ export const SelectModal = () => {
           {mipdProviders.map(provider => (
             <MipdProviderSelectItem
               key={provider.info.name}
-              walletInfo={walletInfo}
               provider={provider}
-              connect={name => connect(name as KeyManager, true)}
+              connect={handleConnectMipd}
             />
           ))}
         </Grid>
@@ -196,7 +208,7 @@ export const SelectModal = () => {
                 key={walletType}
                 walletType={walletType}
                 walletInfo={walletInfo}
-                connect={name => connect(name, true)}
+                connect={handleConnect}
               />
             ))
           }

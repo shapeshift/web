@@ -11941,6 +11941,7 @@ __metadata:
     react-hook-form: ^7.51.5
     react-icons: ^4.10.1
     react-infinite-scroll-component: ^6.1.0
+    react-intersection-observer: ^9.13.1
     react-multi-ref: ^1.0.1
     react-number-format: ^4.9.3
     react-polyglot: ^0.7.2
@@ -33244,6 +33245,19 @@ pvutils@latest:
   peerDependencies:
     react: ^0.14.9 || ^15.3.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: 5f5aae76c484b4039bada87070d5f8c54d2786697ae600be19a68f4e85158ff550122f15dccc5997d8b01fa487da47b9ffbc3e9d9a29f2cf71c77275f72551fd
+  languageName: node
+  linkType: hard
+
+"react-intersection-observer@npm:^9.13.1":
+  version: 9.13.1
+  resolution: "react-intersection-observer@npm:9.13.1"
+  peerDependencies:
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: 92b3e7d9293365635bf5ede89b912a670030c6244879dce36fa9437e6749c637151087fbcaa72cc160b2fa7045bd5ac861a8535e0a2b7b8f230f11f2e0391005
   languageName: node
   linkType: hard
 

@@ -15,26 +15,36 @@ export type PortalsAssets = {
   chainIds: ChainId[]
 }
 
-export const usePortalsAssetsQuery = ({ chainIds }: { chainIds: ChainId[] | undefined }) => {
+export const usePortalsAssetsQuery = ({
+  enabled,
+  chainIds,
+}: {
+  enabled: boolean
+  chainIds: ChainId[] | undefined
+}) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
   const { data: portalsPlatformsData } = useQuery({
     queryKey: ['portalsPlatforms'],
-    queryFn: () => fetchPortalsPlatforms(),
+    queryFn: enabled ? () => fetchPortalsPlatforms() : skipToken,
+    staleTime: Infinity,
   })
 
   return useQuery({
     queryKey: ['portalsAssets', { chainIds }],
-    queryFn: portalsPlatformsData
-      ? () =>
-          fetchPortalsTokens({
-            limit: 10,
-            chainIds,
-            sortBy: 'apy',
-            sortDirection: 'desc',
-          })
-      : skipToken,
+    queryFn:
+      enabled && portalsPlatformsData
+        ? () =>
+            fetchPortalsTokens({
+              limit: 10,
+              chainIds,
+              sortBy: 'apy',
+              sortDirection: 'desc',
+            })
+        : skipToken,
+    gcTime: 60 * 1000 * 5,
+    staleTime: 60 * 1000 * 5,
     select: tokens => {
       if (!portalsPlatformsData) return
 

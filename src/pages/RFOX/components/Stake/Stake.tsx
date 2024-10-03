@@ -15,12 +15,17 @@ const suspenseFallback = <div>Loading...</div>
 
 const stakingAssetId = foxOnArbitrumOneAssetId
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const StakeInput = makeSuspenseful(
   lazy(() =>
     import('./StakeInput').then(({ StakeInput }) => ({
       default: StakeInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const StakeConfirm = makeSuspenseful(
@@ -29,6 +34,7 @@ const StakeConfirm = makeSuspenseful(
       default: StakeConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const StakeStatus = makeSuspenseful(
@@ -37,6 +43,7 @@ const StakeStatus = makeSuspenseful(
       default: StakeStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const BridgeConfirm = makeSuspenseful(
@@ -45,6 +52,7 @@ const BridgeConfirm = makeSuspenseful(
       default: BridgeConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const BridgeStatus = makeSuspenseful(
@@ -53,6 +61,7 @@ const BridgeStatus = makeSuspenseful(
       default: BridgeStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm, StakeRoutePaths.Status]

@@ -1,6 +1,6 @@
 import { getConfig } from 'config'
 import { lazy } from 'react'
-import { FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaChartArea, FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -199,7 +199,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <AssetsIcon />,
+    icon: <FaChartArea />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,

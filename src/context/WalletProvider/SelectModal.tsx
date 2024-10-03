@@ -179,7 +179,9 @@ export const SelectModal = () => {
     [connect],
   )
 
-  const handleConnect = useCallback((name: KeyManager) => connect(name, true), [connect])
+  // TODO(gomes): dupes should use the underlying first-class hdwallet impl. but mipd should still be detected under the hood
+  // which is most likely an hdwallet concern
+  const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
 
   return (
     <>

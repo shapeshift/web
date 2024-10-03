@@ -1,10 +1,12 @@
 import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { lazy, Suspense, useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
+import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 
+import { TradeInputHeader } from '../TradeInputHeader'
 import type { ClaimDetails } from './hooks/useArbitrumClaimsByStatus'
 import { ClaimRoutePaths } from './types'
 
@@ -34,12 +36,22 @@ const ClaimStatus = makeSuspenseful(
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim: React.FC = () => {
+export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
   const location = useLocation()
+  const history = useHistory()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
+
+  const handleChangeTab = useCallback(
+    (newTab: TradeInputTab) => {
+      if (newTab === TradeInputTab.Trade) {
+        history.push(TradeRoutePaths.Input)
+      }
+    },
+    [history],
+  )
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
@@ -76,6 +88,12 @@ export const Claim: React.FC = () => {
       <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
         <Switch location={location}>
           <Card flex={1} width='full' maxWidth='500px'>
+            <TradeInputHeader
+              initialTab={TradeInputTab.Claim}
+              onChangeTab={handleChangeTab}
+              isLoading={false}
+              isCompact={isCompact}
+            />
             <Suspense>
               <Route
                 key={ClaimRoutePaths.Select}

@@ -58,7 +58,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
-  const wallet = useWallet().state.wallet
+  const { wallet, isConnected } = useWallet().state
   const assetIds = useSelector(selectAssetIds)
   const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
   const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
@@ -312,12 +312,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (portfolioLoadingStatus === 'loading') return
+    if (!isConnected) return
 
     // Fetch voting power in AppContext for swapper only - THORChain LP will be fetched JIT to avoid overfetching
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
-  }, [dispatch, portfolioLoadingStatus])
+  }, [dispatch, isConnected, portfolioLoadingStatus])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({
@@ -340,7 +341,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       },
       // once the portfolio is loaded, fetch market data for all portfolio assets
       // and start refetch timer to keep market data up to date
-      enabled: portfolioLoadingStatus !== 'loading',
+      enabled: !isConnected || portfolioLoadingStatus !== 'loading',
       refetchInterval: marketDataPollingInterval,
       // Do NOT refetch market data in background to avoid spamming coingecko
       refetchIntervalInBackground: false,

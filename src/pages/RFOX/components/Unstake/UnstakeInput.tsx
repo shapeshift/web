@@ -31,6 +31,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
+import { ConnectWallet } from '../Shared/ConnectWallet'
 import { UnstakeSummary } from './components/UnstakeSummary'
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
 import type { RfoxUnstakingQuote, UnstakeInputValues, UnstakeRouteProps } from './types'
@@ -92,8 +93,9 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   )
 
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
+
   const isChainSupportedByWallet = useWalletSupportsChain(
     fromAssetId(stakingAssetId).chainId,
     wallet,
@@ -295,6 +297,16 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     if (isChainSupportedByWallet) return
     return translate('trade.errors.quoteUnsupportedChain')
   }, [isChainSupportedByWallet, translate])
+
+  if (!isConnected)
+    return (
+      <SlideTransition>
+        <Stack>{headerComponent}</Stack>
+        <CardBody py={12}>
+          <ConnectWallet />
+        </CardBody>
+      </SlideTransition>
+    )
 
   if (!stakingAssetAccountAddress)
     return (

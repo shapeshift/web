@@ -84,7 +84,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   )
 
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const positions = useAppSelector(state =>
@@ -99,16 +99,18 @@ export const PositionTable: React.FC<PositionTableProps> = ({
 
   const filteredPositions = useMemo(
     () =>
-      positions.filter(position => {
-        const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
-        return walletSupportsChain({
-          checkConnectedAccountIds: chainAccountIds,
-          chainId: fromAssetId(position.assetId).chainId,
-          wallet,
-          isSnapInstalled,
-        })
-      }),
-    [accountIdsByChainId, isSnapInstalled, positions, wallet],
+      !isConnected
+        ? positions
+        : positions.filter(position => {
+            const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
+            return walletSupportsChain({
+              checkConnectedAccountIds: chainAccountIds,
+              chainId: fromAssetId(position.assetId).chainId,
+              wallet,
+              isSnapInstalled,
+            })
+          }),
+    [accountIdsByChainId, isConnected, isSnapInstalled, positions, wallet],
   )
 
   const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(

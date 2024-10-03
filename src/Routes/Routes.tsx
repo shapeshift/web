@@ -22,10 +22,10 @@ const Yat = makeSuspenseful(
 const NotFound = makeSuspenseful(
   lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
-const ConnectWallet = makeSuspenseful(
+const MobileConnect = makeSuspenseful(
   lazy(() =>
-    import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
-      default: ConnectWallet,
+    import('pages/MobileConnect/MobileConnect').then(({ MobileConnect }) => ({
+      default: MobileConnect,
     })),
   ),
 )
@@ -148,7 +148,7 @@ export const Routes = memo(() => {
         <Yat />
       </Route>
       <Route path='/connect-wallet'>
-        <ConnectWallet />
+        <MobileConnect />
       </Route>
       <Route path={'/legal/terms-of-service'}>
         <Layout>

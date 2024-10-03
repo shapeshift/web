@@ -1,15 +1,28 @@
 import type { ChildToParentMessageReader, ChildToParentTransactionEvent } from '@arbitrum/sdk'
 import { ChildToParentMessageStatus, ChildTransactionReceipt } from '@arbitrum/sdk'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { arbitrumChainId, ethAssetId, ethChainId, toAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  ethAssetId,
+  ethChainId,
+  fromAccountId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
+import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { evm } from '@shapeshiftoss/unchained-client'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
+import axios from 'axios'
+import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { mergeQueryOutputs } from 'react-queries/helpers'
 import { ClaimStatus } from 'components/ClaimRow/types'
 import { assertUnreachable } from 'lib/utils'
-import { selectAssetById } from 'state/slices/selectors'
+import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { selectAssetById, selectEnabledWalletAccountIds } from 'state/slices/selectors'
 import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
@@ -36,21 +49,85 @@ export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
 
 type ClaimsByStatus = Record<ClaimStatus, ClaimDetails[]>
 
-export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
+const getArbitrumTx = async (txHash: string) => {
+  const apiUrl = getConfig().REACT_APP_UNCHAINED_ETHEREUM_HTTP_URL
+  // using a timeout because if unchained hasn't seen a tx it will hang until eventual 520
+  const { data: txData } = await axios.get<evm.types.Tx>(`${apiUrl}/api/v1/tx/${txHash}`, {
+    timeout: 2000,
+  })
+
+  return txData
+}
+
+export const useArbitrumClaimsByStatus = () => {
   const translate = useTranslate()
 
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
 
   const l1Provider = getEthersV5Provider(KnownChainIds.EthereumMainnet)
   const l2Provider = getEthersV5Provider(KnownChainIds.ArbitrumMainnet)
 
+  const addresses = useMemo(() => {
+    const arbitrumAccountIds = enabledWalletAccountIds.filter(
+      accountId => fromAccountId(accountId).chainId === KnownChainIds.ArbitrumMainnet,
+    )
+
+    return arbitrumAccountIds.map(accountId => fromAccountId(accountId).account)
+  }, [enabledWalletAccountIds])
+
+  const arbitrumBridgeTxQueries = useMemo(() => {
+    return {
+      queries: (addresses ?? []).map(address => {
+        return {
+          queryKey: ['arbitrumBridgeTxs', { address }],
+          queryFn: async () => {
+            // `cast sig-event "event L2ToL1Tx(address,address indexed,uint256 indexed,uint256 indexed,uint256,uint256,uint256,uint256,bytes)"`
+            const eventSig = '0x3e7aafa77dbf186b7fd488006beff893744caa3c4f6f299e8a709fa2087374fc'
+
+            const arbitrumChainAdapter = assertGetEvmChainAdapter(KnownChainIds.ArbitrumMainnet)
+
+            const filter = {
+              address,
+              topics: [eventSig],
+            }
+            const logs = await l2Provider.getLogs(filter)
+
+            return Promise.all(
+              logs.map(async log => {
+                const [receipt, tx] = await Promise.all([
+                  l2Provider.getTransactionReceipt(log.transactionHash),
+                  getArbitrumTx(log.transactionHash).then(tx =>
+                    arbitrumChainAdapter.parseTx(tx, address),
+                  ),
+                ])
+                return { receipt, tx }
+              }),
+            )
+          },
+          refetchInterval: 60_000,
+        }
+      }),
+      combine: (
+        queries: UseQueryResult<
+          {
+            tx: Transaction
+            receipt: Awaited<ReturnType<typeof l2Provider.getTransactionReceipt>>
+          }[],
+          unknown
+        >[],
+      ) => mergeQueryOutputs(queries, results => results.flat()),
+    }
+  }, [addresses, l2Provider])
+
+  const { data: txs, isLoading: isLoadingTxs } = useQueries(arbitrumBridgeTxQueries)
+
   const queries = useMemo(() => {
     return {
-      queries: txs.map(tx => {
+      queries: (txs ?? []).map(({ tx, receipt }) => {
         return {
           queryKey: ['claimStatus', { txid: tx.txid }],
           queryFn: async () => {
-            const receipt = await l2Provider.getTransactionReceipt(tx.txid)
             const l2Receipt = new ChildTransactionReceipt(receipt)
             const events = l2Receipt.getChildToParentEvents()
             const messages = await l2Receipt.getChildToParentMessages(l1Provider)
@@ -157,6 +234,6 @@ export const useArbitrumClaimsByStatus = (txs: Tx[]) => {
 
   return {
     claimsByStatus,
-    isLoading: claimStatuses.some(claimStatus => claimStatus.isLoading),
+    isLoading: isLoadingTxs || claimStatuses.some(claimStatus => claimStatus.isLoading),
   }
 }

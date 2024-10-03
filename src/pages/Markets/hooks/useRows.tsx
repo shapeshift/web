@@ -1,18 +1,12 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper/dist/swappers/PortalsSwapper/constants'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
-import { AssetsGrid } from '../components/AssetsGrid'
+import { AssetGridWithData } from '../components/AssetGridWithData'
 import { OneClickDefiAssets, ThorchainAssets } from '../components/LpGrid'
 import { MARKETS_CATEGORIES } from '../constants'
-import {
-  useMarketsQuery,
-  useRecentlyAddedQuery,
-  useTopMoversQuery,
-  useTrendingQuery,
-} from '../hooks/useCoingeckoData'
-import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 
 export type RowProps = {
   selectedChainId: ChainId | undefined
@@ -21,21 +15,6 @@ export type RowProps = {
 
 export const useRows = ({ limit }: { limit: number }) => {
   const translate = useTranslate()
-
-  const { data: topMoversData, isLoading: isTopMoversDataLoading } = useTopMoversQuery()
-  const { data: trendingData, isLoading: isTrendingDataLoading } = useTrendingQuery()
-  const { data: recentlyAddedData, isLoading: isRecentlyAddedDataLoading } = useRecentlyAddedQuery()
-  const { data: highestVolumeData, isLoading: isHighestVolumeDataLoading } = useMarketsQuery({
-    orderBy: 'volume_desc',
-  })
-  const { data: marketCapData, isLoading: isMarketCapDataLoading } = useMarketsQuery({
-    orderBy: 'market_cap_desc',
-  })
-
-  // Fetch for all chains here so we know which chains to show in the dropdown
-  const { data: allPortalsAssets } = usePortalsAssetsQuery({
-    chainIds: undefined,
-  })
 
   const MARKETS_CATEGORY_TO_ROW: Record<
     MARKETS_CATEGORIES,
@@ -53,12 +32,12 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <AssetsGrid
-            assetIds={highestVolumeData?.ids ?? []}
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TRADING_VOLUME}
             selectedChainId={selectedChainId}
-            isLoading={isHighestVolumeDataLoading}
-            limit={limit}
             showSparkline={showSparkline}
+            limit={limit}
+            orderBy='volume_desc'
           />
         ),
       },
@@ -67,12 +46,12 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <AssetsGrid
-            assetIds={marketCapData?.ids ?? []}
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.MARKET_CAP}
+            orderBy='market_cap_desc'
             selectedChainId={selectedChainId}
-            isLoading={isMarketCapDataLoading}
-            limit={limit}
             showSparkline={showSparkline}
+            limit={limit}
             showMarketCap
           />
         ),
@@ -82,12 +61,11 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <AssetsGrid
-            assetIds={trendingData?.ids ?? []}
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TRENDING}
             selectedChainId={selectedChainId}
-            isLoading={isTrendingDataLoading}
-            limit={limit}
             showSparkline={showSparkline}
+            limit={limit}
           />
         ),
       },
@@ -98,12 +76,11 @@ export const useRows = ({ limit }: { limit: number }) => {
           percentage: '10',
         }),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <AssetsGrid
-            assetIds={topMoversData?.ids ?? []}
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.TOP_MOVERS}
             selectedChainId={selectedChainId}
-            isLoading={isTopMoversDataLoading}
-            limit={limit}
             showSparkline={showSparkline}
+            limit={limit}
           />
         ),
       },
@@ -112,12 +89,11 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.subtitle`),
         component: ({ selectedChainId, showSparkline }: RowProps) => (
-          <AssetsGrid
-            assetIds={recentlyAddedData?.ids ?? []}
+          <AssetGridWithData
+            category={MARKETS_CATEGORIES.RECENTLY_ADDED}
             selectedChainId={selectedChainId}
-            isLoading={isRecentlyAddedDataLoading}
-            limit={limit}
             showSparkline={showSparkline}
+            limit={limit}
           />
         ),
       },
@@ -128,7 +104,7 @@ export const useRows = ({ limit }: { limit: number }) => {
         component: ({ selectedChainId }: RowProps) => (
           <OneClickDefiAssets selectedChainId={selectedChainId} limit={limit} />
         ),
-        supportedChainIds: allPortalsAssets?.chainIds,
+        supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS.buy,
       },
       [MARKETS_CATEGORIES.THORCHAIN_DEFI]: {
         category: MARKETS_CATEGORIES.THORCHAIN_DEFI,
@@ -140,21 +116,7 @@ export const useRows = ({ limit }: { limit: number }) => {
         supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     }),
-    [
-      allPortalsAssets?.chainIds,
-      highestVolumeData?.ids,
-      isHighestVolumeDataLoading,
-      isMarketCapDataLoading,
-      isRecentlyAddedDataLoading,
-      isTopMoversDataLoading,
-      isTrendingDataLoading,
-      limit,
-      marketCapData?.ids,
-      recentlyAddedData?.ids,
-      topMoversData?.ids,
-      translate,
-      trendingData?.ids,
-    ],
+    [limit, translate],
   )
 
   return MARKETS_CATEGORY_TO_ROW

@@ -131,6 +131,7 @@ export class PortalsMarketService implements MarketService {
         page: 0,
       }
 
+      await throttle()
       const { data } = await axios.get<HistoryResponse>(url, {
         headers: {
           Authorization: `Bearer ${PORTALS_API_KEY}`,

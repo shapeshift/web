@@ -83,7 +83,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
       if (!wallet) {
         setErrorLoading('walletProvider.errors.walletNotFound')
         throw new Error(
-          'Call to hdwallet-shapeshift-multichain::pairDevice returned null or undefined',
+          'Call to hdwallet-metamask-multichain::pairDevice returned null or undefined',
         )
       }
 

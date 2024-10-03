@@ -1,7 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'

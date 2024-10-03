@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { act, renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
@@ -28,7 +28,7 @@ vi.mock('friendly-challenge', () => ({
   WidgetInstance: {},
 }))
 
-vi.mock('@shapeshiftoss/hdwallet-shapeshift-multichain', () => ({
+vi.mock('@shapeshiftoss/hdwallet-metamask-multichain', () => ({
   MetaMaskAdapter: {
     useKeyring: vi.fn(),
   },

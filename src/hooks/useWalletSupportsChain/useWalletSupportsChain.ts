@@ -32,8 +32,8 @@ import {
   supportsPolygon,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
@@ -120,7 +120,7 @@ export const useWalletSupportsChain = (
 ): boolean | null => {
   // We might be in a state where the wallet adapter is MetaMaskShapeShiftMultiChainHDWallet, but the actual underlying wallet
   // doesn't have multichain capabilities since snaps isn't installed
-  // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-shapeshift-multichain able to do feature detection
+  // This should obviously belong at hdwallet-core, and feature detection should be made async, with hdwallet-metamask-multichain able to do feature detection
   // programatically depending on whether the snaps is installed or not, but in the meantime, this will make things happy
   // If this evaluates to false, the wallet feature detection will be short circuit in supportsBTC, supportsCosmos and supports Thorchain methods
   const { isSnapInstalled } = useIsSnapInstalled()

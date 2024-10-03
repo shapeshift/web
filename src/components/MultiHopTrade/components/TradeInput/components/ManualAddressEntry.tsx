@@ -1,6 +1,6 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'

@@ -942,7 +942,7 @@
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse",
     "disableThorNativeSmartContractReceive": "Nous avons détecté que vous envoyez vers une adresse de contrat intelligent sur %{chainName}. En raison de limitations liées à THORChain, la réception en %{nativeAssetSymbol} vers une adresse de contrat intelligent n'est pas prise en charge. Veuillez saisir une autre adresse",
-    "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez saisir une autre adresse.",
+    "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers une adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez saisir une autre adresse.",
     "toContinue": "pour continuer.",
     "addressPlaceholder": "Adresse %{chainName}",
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",

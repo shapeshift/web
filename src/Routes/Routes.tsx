@@ -8,10 +8,11 @@ import { Layout } from 'components/Layout/Layout'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { isMobile } from 'lib/globals'
 import { preferences } from 'state/slices/preferencesSlice/preferencesSlice'
 import { selectSelectedLocale } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { PrivateRoute } from './PrivateRoute'
 
 const Flags = makeSuspenseful(
   lazy(() => import('pages/Flags/Flags').then(({ Flags }) => ({ default: Flags }))),
@@ -110,19 +111,15 @@ export const Routes = memo(() => {
     () =>
       appRoutes.map(route => {
         const MainComponent = route.main
-        if (isMobile && !state.isConnected) {
-          const to = {
-            pathname: '/connect-wallet',
-            search: `returnUrl=${location?.pathname ?? '/trade'}`,
-          }
 
-          // eslint-disable-next-line react-memo/require-usememo
-          return <Redirect to={to} />
-        }
         return (
-          <Route key={isUnstableRoute ? Date.now() : 'route'} path={route.path}>
+          <PrivateRoute
+            key={isUnstableRoute ? Date.now() : 'privateRoute'}
+            path={route.path}
+            hasWallet={hasWallet}
+          >
             {MainComponent && <MainComponent />}
-          </Route>
+          </PrivateRoute>
         )
       }),
     // We *actually* want to be reactive on the location.pathname reference

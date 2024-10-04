@@ -1,6 +1,6 @@
 import type { FlexProps, TabProps } from '@chakra-ui/react'
 import { Flex, Tab, TabIndicator, TabList, Tabs, useMediaQuery } from '@chakra-ui/react'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Switch, useHistory, useRouteMatch } from 'react-router'
 import SwipeableViews from 'react-swipeable-views'
@@ -10,9 +10,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 import { NftTable } from 'components/Nfts/NftTable'
 import { RawText } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile } from 'lib/globals'
 import { Accounts } from 'pages/Accounts/Accounts'
 import { TransactionHistory } from 'pages/TransactionHistory/TransactionHistory'
@@ -64,10 +62,6 @@ enum MobileTab {
 }
 
 export const Dashboard = memo(() => {
-  const {
-    dispatch: walletDispatch,
-    state: { isConnected },
-  } = useWallet()
   const translate = useTranslate()
   const [slideIndex, setSlideIndex] = useState(0)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -75,11 +69,6 @@ export const Dashboard = memo(() => {
   const isNftsEnabled = useFeatureFlag('Jaypegz')
   const appIsMobile = isMobile || !isLargerThanMd
   const history = useHistory()
-
-  useEffect(() => {
-    if (!isConnected && !isMobile)
-      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [isConnected, walletDispatch])
 
   const handleSlideIndexChange = useCallback(
     (index: number) => {

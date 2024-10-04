@@ -171,7 +171,9 @@
     },
     "featureDisabled": "この機能は一時的に無効になっています。",
     "yes": "はい",
-    "activeAccount": "アクティブアカウント"
+    "activeAccount": "アクティブアカウント",
+    "update": "アップデート",
+    "apy": "年利"
   },
   "consentBanner": {
     "body": {
@@ -285,12 +287,16 @@
   },
   "connectWalletPage": {
     "title": "オリジナルのマルチチェーン取引所",
+    "primaryTitle": "マルチチェーン DeFi へようこそ。",
+    "secondaryTitle": "プライベート。分散型。非管理型。",
+    "primaryDescription": "簡単に取引、ブリッジ、報酬を獲得できます。ネイティブビットコイン、ドージコインなどを体験してください。ワンクリックで流動性と DeFi ポジションを管理します。",
+    "snapDescription": "ShapeShift Multichain Snap をダウンロードして、MetaMask で Bitcoin、Dogecoin などをアンロックしましょう。",
     "shapeshift": "ShapeShift",
     "exploreThe": "をエクスプローラーしてください",
     "defiUniverse": "DeFi空間",
     "body": "取引し、ブリッジし、獲得しましょう。プライベートであり、コミュニティが所有した、ノンカストディアルな分散型の取引所です。",
     "header": "始めるにはウォレットを接続してください",
-    "cta": "ウォレットを接続する",
+    "cta": "ウォレットを接続または作成する",
     "viewADemo": "デモを見る",
     "dontHaveWallet": "ウォレットをお持ちではありませんか？",
     "welcomeBack": "おかえりなさい！",
@@ -504,6 +510,8 @@
     "myRewardsBody": "獲得可能な報酬を伴うアクティブなポジションがここに表示されます。",
     "viewAllPositions": "すべてのポジションを表示",
     "liquidityPools": "流動性プール",
+    "liquidityLockupWarning": "%{time} のロックアップ期間があります。ロックアップ中は流動性にアクセスできません。",
+    "liquidityLocked": "流動性がロックされました (%{time})",
     "stakingVaults": "ステーキングとボールト",
     "farming": "ファーミング",
     "totalEarningBalance": "総収益残高",
@@ -608,6 +616,8 @@
     "buyCryptoShort": "売買",
     "lending": "貸し出し",
     "pools": "プール",
+    "rFOX": "rFOX",
+    "markets": "市場",
     "actionMenu": {
       "send": {
         "title": "送信",
@@ -629,8 +639,7 @@
         "title": "QRコードをスキャンする",
         "body": "簡単にスキャンして暗号通貨を送受信する"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "送信済み",
@@ -840,7 +849,6 @@
     "pending": "取引保留中",
     "complete": "取引完了",
     "approveAsset": "%{symbol} との相互を承認する",
-    "needPermission": "%{symbol} を使用するには許可が必要です",
     "whyNeedThis": "なぜこれを行う必要があるのか?",
     "estimatedGasFee": "ガス代の目安",
     "receiveInclFee": "受け取り（手数料含む）",
@@ -934,6 +942,7 @@
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
     "disableThorNativeSmartContractReceive": "%{chainName} のスマート コントラクト アドレスに送信しようとしていることが検出されました。THORChain の制限により、スマート コントラクト アドレスへの %{nativeAssetSymbol} の受信はサポートされていません。別のアドレスを入力してください。",
+    "disableThorTaprootReceive": "タップルート Bitcoin アドレスに送信しようとしていることが検出されました。THORChain の制限により、タップルートアドレスへの BTC の受信は現在サポートされていません。別のアドレスを入力してください。",
     "toContinue": "続ける。",
     "addressPlaceholder": "%{chainName} アドレス",
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
@@ -1147,6 +1156,9 @@
         "average": "平均",
         "fast": "速い",
         "enterAmount": "金額を入力します"
+      },
+      "status": {
+        "pendingBody": "%{amount} %{symbol} を送信します"
       }
     },
     "receive": {
@@ -1227,6 +1239,7 @@
     },
     "approve": {
       "header": "%{spenderName} に %{asset} の使用を許可します",
+      "resetHeader": "%{asset} の %{spenderName} の手当をリセットします",
       "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "%{asset} を使用するには許可が必要です",
       "learnMore": "なぜこれを行う必要があるのか?",
@@ -1453,7 +1466,6 @@
         "button": "ペアリング"
       },
       "failure": {
-        "header": "エラー",
         "body": "Keplrウォレットに接続できません"
       }
     },
@@ -1469,7 +1481,8 @@
         "connect": "接続する"
       },
       "verify": {
-        "confirmOnDevice": "デバイス上で確認する"
+        "confirmOnDevice": "デバイス上で確認する",
+        "addressMismatch": "アドレスが一致しません。正しいデバイスが接続されていることを確認して、もう一度お試しください。"
       },
       "success": {
         "header": "Ledgerが接続されました",
@@ -1492,7 +1505,6 @@
         "pairExistingDeviceBody": "別の Ledger デバイスを接続しますか? 「新しいデバイスをペアリング」をクリックして最初からやり直してください。"
       },
       "failure": {
-        "header": "エラー",
         "body": "Ledgerウォレットに接続できません"
       },
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
@@ -1510,13 +1522,24 @@
         "button": "ペアリング"
       },
       "failure": {
-        "header": "エラー",
         "body": "MetaMaskウォレットに接続できません"
       },
       "redirect": {
         "header": "MetaMaskアプリで開く",
         "body": "クリックしてMetaMaskのShapeShiftダッシュボードを開きます",
         "button": "開く"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Phantomとの通信中に予期しないエラーが発生しました",
+        "connectFailure": "Phantomウォレットに接続できません",
+        "multipleWallets": "検出された Ethereum プロバイダーは Phantom ではありません。複数のウォレットがインストールされていますか?"
+      },
+      "connect": {
+        "header": "ペアPhantom",
+        "body": "ポップアップウィンドウから「ペア」をクリックし、Phantomにログインします。",
+        "button": "ペア"
       }
     },
     "metaMaskSnap": {
@@ -1530,8 +1553,10 @@
         "title": "MetaMaskからマルチチェーンのサポートが削除されました。",
         "subtitle": "MetaMaskにマルチチェーンスナップを再追加して、次のチェーンを使用して送信、受信、追跡、取引、および収益を獲得します。"
       },
-      "secondaryTitle": "MetaMaskの最高のマルチチェーンエクスペリエンス: ShapeShiftを活用",
-      "secondaryBody": "以下のチェーン上のShapeShiftマルチチェーンスナップを使用して、送信、受信、追跡、取引、および収益を獲得します。",
+      "update": {
+        "title": "マルチチェーンスナップを更新する必要があります",
+        "subtitle": "MetaMask で ShapeShift のマルチチェーン機能を引き続き使用するには、「更新」をクリックしてください。"
+      },
       "connectMetaMask": "MetaMaskを接続する",
       "andMore": "など",
       "snapInstalledToast": "ShapeShiftマルチチェーンMetaMaskスナップがインストールされています",
@@ -1541,6 +1566,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "マルチチェーンスナップをインストールする",
+      "updateTitle": "マルチチェーンスナップの更新",
       "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
@@ -1554,7 +1580,8 @@
       "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
       "readAndUnderstood": "読んで理解しました",
       "seedBackedUp": "MetaMaskシードフレーズをバックアップしました",
-      "acceptInstall": "確認してインストールする"
+      "acceptInstall": "確認してインストールする",
+      "acceptUpdate": "確認&更新"
     },
     "coinbase": {
       "errors": {
@@ -1568,7 +1595,6 @@
         "button": "ペアリング"
       },
       "failure": {
-        "header": "Coinbaseウォレットに接続できません",
         "body": "Coinbaseウォレットに接続できません"
       }
     },
@@ -1583,7 +1609,6 @@
         "button": "ペアリング"
       },
       "failure": {
-        "header": "エラー",
         "body": "WalletConnectウォレットに接続できません"
       }
     },
@@ -1599,7 +1624,6 @@
         "button": "ペアリング"
       },
       "failure": {
-        "header": "エラー",
         "body": "XDEFIウォレットに接続できません"
       },
       "redirect": {
@@ -1887,7 +1911,7 @@
   "ledgerOpenApp": {
     "title": "%{appName} アプリを開く",
     "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。",
-    "signingDescription": "アプリを開くと、デバイスに署名プロンプトが自動的に表示されます。"
+    "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,6 +2534,7 @@
     "newAddressInfo": "これは次の報酬サイクルで更新されます",
     "confirmAndUpdateAddress": "アドレスの確認と更新",
     "unstakeFrom": "r%{assetSymbol} からステーク解除",
+    "claimPending": "%{amount} %{symbol} の請求をお待ちしています",
     "claimSuccess": "%{amount} %{symbol} の請求が完了しました。",
     "claimReceiveAddress": "請求受取アドレス",
     "noRewardsYet": "まだ報酬はありません",
@@ -2568,5 +2593,9 @@
     "emissionsPoolHelper": "発行プール（このエポック中で）",
     "foxBurnAmount": "FOX バーン量 (このエポック中の)",
     "pendingDistribution": "配布保留中"
+  },
+  "markets": {
+    "recommended": "推奨",
+    "watchlist": "ウォッチリスト"
   }
 }

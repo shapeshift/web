@@ -149,7 +149,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     )
     if (!chainIds.size) return
     ;(async () => {
-      dispatch(portfolio.actions.setIsAccountMetadataLoading(true))
+      dispatch(portfolio.actions.setIsAccountsMetadataLoading(true))
 
       // Fetch portfolio for all managed accounts if they exist instead of going through the initial account detection flow.
       // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
@@ -285,18 +285,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         await Promise.allSettled(accountNumberAccountIdsPromises)
         chainIds = chainIdsWithActivity
-
-        dispatch(portfolio.actions.setIsAccountMetadataLoading(false))
-        // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
-        const { getAllTxHistory } = txHistoryApi.endpoints
-
-        await Promise.all(
-          requestedAccountIds.map(requestedAccountId =>
-            dispatch(getAllTxHistory.initiate(requestedAccountId)),
-          ),
-        )
       }
-    })()
+    })().then(async () => {
+      dispatch(portfolio.actions.setIsAccountsMetadataLoading(false))
+      // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
+      const { getAllTxHistory } = txHistoryApi.endpoints
+
+      await Promise.all(
+        requestedAccountIds.map(requestedAccountId =>
+          dispatch(getAllTxHistory.initiate(requestedAccountId)),
+        ),
+      )
+    })
   }, [
     dispatch,
     wallet,

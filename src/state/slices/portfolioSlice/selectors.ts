@@ -1155,5 +1155,5 @@ export const selectWalletConnectedChainIdsSorted = createDeepEqualOutputSelector
   },
 )
 
-export const selectIsAccountMetadataLoading = (state: ReduxState) =>
-  state.portfolio.isAccountMetadataLoading
+export const selectIsAccountsMetadataLoading = (state: ReduxState) =>
+  state.portfolio.isAccountsMetadataLoading

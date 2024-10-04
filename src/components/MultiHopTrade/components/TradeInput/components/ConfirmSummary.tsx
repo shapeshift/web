@@ -8,6 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
+import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -20,7 +21,7 @@ import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAsset,
-  selectIsAccountMetadataLoading,
+  selectIsAccountsMetadataLoading,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
@@ -96,13 +97,15 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
+  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
 
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
+
+  const { sellAssetAccountId: initialSellAssetAccountId } = useAccountIds()
 
   const isTaprootReceiveAddress = useMemo(
     () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
@@ -137,12 +140,17 @@ export const ConfirmSummary = ({
   ])
 
   const displayManualAddressEntry = useMemo(() => {
-    if (isAccountMetadataLoading) return false
+    if (isAccountsMetadataLoading && !initialSellAssetAccountId) return false
     if (!walletSupportsBuyAssetChain) return true
     if (disableThorNativeSmartContractReceive) return true
 
     return false
-  }, [isAccountMetadataLoading, walletSupportsBuyAssetChain, disableThorNativeSmartContractReceive])
+  }, [
+    isAccountsMetadataLoading,
+    initialSellAssetAccountId,
+    walletSupportsBuyAssetChain,
+    disableThorNativeSmartContractReceive,
+  ])
 
   const quoteHasError = useMemo(() => {
     if (!shouldShowTradeQuoteOrAwaitInput) return false
@@ -163,7 +171,7 @@ export const ConfirmSummary = ({
 
   const shouldDisablePreviewButton = useMemo(() => {
     return (
-      isAccountMetadataLoading ||
+      (isAccountsMetadataLoading && !initialSellAssetAccountId) ||
       // don't allow executing a quote with errors
       quoteHasError ||
       // don't execute trades while address is validating
@@ -185,7 +193,8 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
-    isAccountMetadataLoading,
+    isAccountsMetadataLoading,
+    initialSellAssetAccountId,
     quoteHasError,
     manualReceiveAddressIsValidating,
     manualReceiveAddressIsEditing,
@@ -204,7 +213,7 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isAccountMetadataLoading:
+      case isAccountsMetadataLoading && !initialSellAssetAccountId:
         return 'common.accountsLoading'
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -227,7 +236,8 @@ export const ConfirmSummary = ({
     quoteRequestErrors,
     quoteResponseErrors,
     activeQuoteErrors,
-    isAccountMetadataLoading,
+    isAccountsMetadataLoading,
+    initialSellAssetAccountId,
     shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
     isAnyTradeQuoteLoading,
@@ -345,7 +355,7 @@ export const ConfirmSummary = ({
         />
 
         <ButtonWalletPredicate
-          isLoading={isAccountMetadataLoading}
+          isLoading={isAccountsMetadataLoading && !initialSellAssetAccountId}
           loadingText={buttonText}
           type='submit'
           colorScheme={quoteHasError ? 'red' : 'blue'}

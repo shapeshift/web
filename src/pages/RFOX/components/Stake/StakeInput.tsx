@@ -563,7 +563,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             borderBottomRadius='xl'
           >
             <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
+              isValidWallet={Boolean(isChainSupportedByWallet || isAccountsMetadataLoading)}
               isDisabled={Boolean(
                 errors.amountFieldInput ||
                   (!runeAddress && !currentRuneAddress) ||

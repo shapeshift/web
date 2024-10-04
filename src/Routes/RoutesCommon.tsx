@@ -1,6 +1,6 @@
 import { getConfig } from 'config'
 import { lazy } from 'react'
-import { FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaChartArea, FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
@@ -15,7 +15,7 @@ import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { RFOX } from 'pages/RFOX/RFOX'
 
-import type { Route as NestedRoute } from './helpers'
+import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 const Home = makeSuspenseful(
@@ -130,7 +130,7 @@ const TransactionHistory = makeSuspenseful(
  * THIS IS CRITICAL FOR MIXPANEL TO NOT COLLECT USER ADDRESSES
  */
 
-export const routes: NestedRoute[] = [
+export const routes: Route[] = [
   {
     path: '/home',
     label: 'navBar.home',
@@ -199,7 +199,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <AssetsIcon />,
+    icon: <FaChartArea />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,

@@ -71,6 +71,9 @@ const reactAppRewireConfig = {
     // we should probably align with whatever solution is chosen.)
     _.merge(config, {
       resolve: {
+        alias: {
+          '@ledgerhq/cryptoassets': false,
+        },
         fallback: {
           crypto: require.resolve('crypto-browserify'),
           http: require.resolve('stream-http'),

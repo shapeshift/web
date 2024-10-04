@@ -15,7 +15,7 @@ import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { RFOX } from 'pages/RFOX/RFOX'
 
-import type { Route as NestedRoute } from './helpers'
+import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 const Home = makeSuspenseful(
@@ -130,7 +130,7 @@ const TransactionHistory = makeSuspenseful(
  * THIS IS CRITICAL FOR MIXPANEL TO NOT COLLECT USER ADDRESSES
  */
 
-export const routes: NestedRoute[] = [
+export const routes: Route[] = [
   {
     path: '/home',
     label: 'navBar.home',

@@ -1,4 +1,5 @@
 import { getConfig } from 'config'
+import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -16,7 +17,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore } from 'lib/mipd'
+import { mipdStore, staticMipdProviders } from 'lib/mipd'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -46,7 +47,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMemo(
+    () => uniqBy(detectedMipdProviders.concat(staticMipdProviders), 'info.rdns'),
+    [detectedMipdProviders],
+  )
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === modalType)
 
   const headerText: [string, InterpolationOptions] = useMemo(

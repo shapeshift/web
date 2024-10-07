@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import type { Property } from 'csstype'
+import uniqBy from 'lodash/uniqBy'
 import type { EIP6963ProviderDetail } from 'mipd'
 import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
@@ -20,7 +21,7 @@ import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { mipdStore } from 'lib/mipd'
+import { mipdStore, staticMipdProviders } from 'lib/mipd'
 import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -117,13 +118,16 @@ const MipdProviderSelectItem = ({
     [connect, provider.info.rdns],
   )
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  const mipdProvider = mipdProviders.find(provider => provider.info.rdns === connectedRdns)
+  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const connectedMipdProvider = detectedMipdProviders.find(
+    provider => provider.info.rdns === connectedRdns,
+  )
 
   const icon = provider.info.icon
-  const activeWallet = provider.info.name === mipdProvider?.info.name
+  const activeWallet = provider.info.name === connectedMipdProvider?.info.name
   const walletSubText = activeWallet ? 'common.connected' : null
 
+  console.log({ provider })
   return (
     <Button
       key={provider.info.rdns}
@@ -159,6 +163,10 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMemo(
+    () => uniqBy(detectedMipdProviders.concat(staticMipdProviders), 'info.rdns'),
+    [detectedMipdProviders],
+  )
 
   const wallets = useMemo(
     () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
@@ -184,12 +192,12 @@ export const SelectModal = () => {
   // which is most likely an hdwallet concern
   const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
 
-  console.log({ mipdProviders: detectedMipdProviders })
+  console.log({ detectedMipdProviders })
 
   const allProviders = useMemo(
     () => (
       <>
-        {detectedMipdProviders
+        {mipdProviders
           .filter(
             // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
@@ -222,7 +230,7 @@ export const SelectModal = () => {
         }
       </>
     ),
-    [handleConnect, handleConnectMipd, detectedMipdProviders, walletInfo, wallets],
+    [handleConnect, handleConnectMipd, mipdProviders, walletInfo, wallets],
   )
 
   return (

@@ -1,7 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
@@ -15,6 +15,8 @@ import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSl
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
 import type { AppDispatch } from 'state/store'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+
+import { MARKETS_CATEGORIES } from '../constants'
 
 const selectCoingeckoAssets = (
   data: CoingeckoAsset[],
@@ -91,13 +93,13 @@ const selectCoingeckoAssets = (
   )
 }
 
-export const useTopMoversQuery = () => {
+export const useTopMoversQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
   const topMoversQuery = useQuery({
     queryKey: ['coinGeckoTopMovers'],
-    queryFn: getCoingeckoTopMovers,
+    queryFn: enabled ? getCoingeckoTopMovers : skipToken,
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })
@@ -105,13 +107,13 @@ export const useTopMoversQuery = () => {
   return topMoversQuery
 }
 
-export const useTrendingQuery = () => {
+export const useTrendingQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
   const trendingQuery = useQuery({
     queryKey: ['coinGeckoTrending'],
-    queryFn: getCoingeckoTrending,
+    queryFn: enabled ? getCoingeckoTrending : skipToken,
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })
@@ -119,13 +121,13 @@ export const useTrendingQuery = () => {
   return trendingQuery
 }
 
-export const useRecentlyAddedQuery = () => {
+export const useRecentlyAddedQuery = ({ enabled = true }: { enabled?: boolean }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoRecentlyAdded'],
-    queryFn: getCoingeckoRecentlyAdded,
+    queryFn: enabled ? getCoingeckoRecentlyAdded : skipToken,
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })
@@ -133,16 +135,30 @@ export const useRecentlyAddedQuery = () => {
   return recentlyAddedQuery
 }
 
-export const useMarketsQuery = ({ orderBy }: { orderBy: 'market_cap_desc' | 'volume_desc' }) => {
+export const useMarketsQuery = ({
+  enabled = true,
+  orderBy,
+}: {
+  orderBy: 'market_cap_desc' | 'volume_desc'
+  enabled?: boolean
+}) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoMarkets', orderBy],
-    queryFn: () => getCoingeckoMarkets(orderBy),
+    queryFn: enabled ? () => getCoingeckoMarkets(orderBy) : skipToken,
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })
 
   return recentlyAddedQuery
+}
+
+export const CATEGORY_TO_QUERY_HOOK = {
+  [MARKETS_CATEGORIES.TOP_MOVERS]: useTopMoversQuery,
+  [MARKETS_CATEGORIES.TRENDING]: useTrendingQuery,
+  [MARKETS_CATEGORIES.RECENTLY_ADDED]: useRecentlyAddedQuery,
+  [MARKETS_CATEGORIES.MARKET_CAP]: useMarketsQuery,
+  [MARKETS_CATEGORIES.TRADING_VOLUME]: useMarketsQuery,
 }

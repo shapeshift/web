@@ -620,7 +620,7 @@ export const selectCryptoHumanBalanceIncludingStakingByFilter = createCachedSele
   genericBalanceIncludingStakingByFilter,
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
-export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSelector(
+export const selectPortfolioTotalChainIdBalanceIncludeStaking = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
   selectChainIdParamFromFilter,
   (userCurrencyAccountBalances, chainId): string => {
@@ -636,6 +636,24 @@ export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createCachedSe
       .toFixed(2)
   },
 )((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
+
+export const selectPortfolioTotalBalanceByChainIdIncludeStaking = createDeepEqualOutputSelector(
+  selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,
+  (userCurrencyAccountBalances): Record<ChainId, BigNumber> => {
+    return Object.entries(userCurrencyAccountBalances).reduce<Record<ChainId, BigNumber>>(
+      (acc, [accountId, accountBalanceByAssetId]) => {
+        const chainId = fromAccountId(accountId).chainId
+        if (!acc[chainId]) acc[chainId] = bn(0)
+        Object.values(accountBalanceByAssetId).forEach(assetBalance => {
+          // use the outer accumulator
+          acc[chainId] = acc[chainId].plus(bnOrZero(assetBalance))
+        })
+        return acc
+      },
+      {},
+    )
+  },
+)
 
 export const selectPortfolioAccountBalanceByAccountNumberAndChainId = createCachedSelector(
   selectPortfolioAccountsUserCurrencyBalancesIncludingStaking,

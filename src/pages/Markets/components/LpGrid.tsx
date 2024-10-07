@@ -1,9 +1,10 @@
 import { Grid } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
+import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -26,6 +27,7 @@ export const LpGrid: React.FC<{
   isLoading: boolean
   limit: number
 }> = ({ assetIds, selectedChainId, isLoading, limit }) => {
+  const { ref, inView } = useInView()
   const history = useHistory()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -35,6 +37,7 @@ export const LpGrid: React.FC<{
   )
   const { data: portalsAssets } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
+    enabled: inView,
   })
 
   const filteredAssetIds = useMemo(
@@ -52,23 +55,25 @@ export const LpGrid: React.FC<{
     return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
 
   return (
-    <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
-      {filteredAssetIds.map((assetId, index) => {
-        const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
-        const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
+    <div ref={ref}>
+      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+        {filteredAssetIds.map((assetId, index) => {
+          const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
+          const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 
-        return (
-          <LpGridItem
-            key={assetId}
-            assetId={assetId}
-            index={index}
-            onClick={handleCardClick}
-            apy={maybePortalsApy}
-            volume={maybePortalsVolume}
-          />
-        )
-      })}
-    </Grid>
+          return (
+            <LpGridItem
+              key={assetId}
+              assetId={assetId}
+              index={index}
+              onClick={handleCardClick}
+              apy={maybePortalsApy}
+              volume={maybePortalsVolume}
+            />
+          )
+        })}
+      </Grid>
+    </div>
   )
 }
 
@@ -76,17 +81,21 @@ export const OneClickDefiAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
 }> = ({ limit, selectedChainId }) => {
+  const { ref, inView } = useInView()
   const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
+    enabled: inView,
   })
 
   return (
-    <LpGrid
-      assetIds={portalsAssets?.ids ?? []}
-      selectedChainId={selectedChainId}
-      isLoading={isPortalsAssetsLoading}
-      limit={limit}
-    />
+    <div ref={ref}>
+      <LpGrid
+        assetIds={portalsAssets?.ids ?? []}
+        selectedChainId={selectedChainId}
+        isLoading={isPortalsAssetsLoading}
+        limit={limit}
+      />
+    </div>
   )
 }
 
@@ -94,15 +103,17 @@ export const ThorchainAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
 }> = ({ limit, selectedChainId }) => {
+  const { ref, inView } = useInView()
   const dispatch = useAppDispatch()
   const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
     queryKey: ['thorchainAssets'],
-    queryFn: thorchainSaversOpportunityIdsResolver,
+    queryFn: inView ? thorchainSaversOpportunityIdsResolver : skipToken,
     staleTime: Infinity,
     select: pools => pools.data,
   })
 
   useEffect(() => {
+    if (!inView) return
     ;(async () => {
       await dispatch(
         opportunitiesApi.endpoints.getOpportunityIds.initiate(
@@ -126,14 +137,16 @@ export const ThorchainAssets: React.FC<{
         ),
       )
     })()
-  }, [dispatch])
+  }, [dispatch, inView])
 
   return (
-    <LpGrid
-      assetIds={thorchainAssetIdsData ?? []}
-      selectedChainId={selectedChainId}
-      isLoading={isThorchainAssetIdsDataLoading}
-      limit={limit}
-    />
+    <div ref={ref}>
+      <LpGrid
+        assetIds={thorchainAssetIdsData ?? []}
+        selectedChainId={selectedChainId}
+        isLoading={isThorchainAssetIdsDataLoading}
+        limit={limit}
+      />
+    </div>
   )
 }

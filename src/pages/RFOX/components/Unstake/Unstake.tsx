@@ -15,12 +15,17 @@ import { UnstakeRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 
+const defaultBoxSpinnerStyle = {
+  height: '500px',
+}
+
 const UnstakeInput = makeSuspenseful(
   lazy(() =>
     import('./UnstakeInput').then(({ UnstakeInput }) => ({
       default: UnstakeInput,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeConfirm = makeSuspenseful(
@@ -29,6 +34,7 @@ const UnstakeConfirm = makeSuspenseful(
       default: UnstakeConfirm,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeStatus = makeSuspenseful(
@@ -37,6 +43,7 @@ const UnstakeStatus = makeSuspenseful(
       default: UnstakeStatus,
     })),
   ),
+  defaultBoxSpinnerStyle,
 )
 
 const UnstakeEntries = [

@@ -3,10 +3,7 @@ import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import type {
-  MetaMaskAdapter,
-  MetaMaskAdapter as MetaMaskMultiChainAdapter,
-} from '@shapeshiftoss/hdwallet-metamask-multichain'
+import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -320,9 +317,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
-  [KeyManager.MetaMask]: SupportedWalletInfo<
-    typeof MetaMaskAdapter | typeof MetaMaskMultiChainAdapter
-  >
+  [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
 }
 

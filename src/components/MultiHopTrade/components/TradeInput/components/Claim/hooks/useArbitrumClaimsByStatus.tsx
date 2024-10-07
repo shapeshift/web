@@ -14,12 +14,14 @@ import type { Tx } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from 'state/store'
 
 const AVERAGE_BLOCK_TIME_BLOCKS = 1000
+
 type ClaimStatusResult = {
   event: ChildToParentTransactionEvent
   message: ChildToParentMessageReader
   status: ChildToParentMessageStatus
   timeRemainingSeconds: number | undefined
 }
+
 export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
   accountId: AccountId
   amountCryptoBaseUnit: string
@@ -48,7 +50,7 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
       queries: arbitrumWithdrawTxs.map(tx => {
         return {
           queryKey: ['claimStatus', { txid: tx.txid }],
-          queryFn: async () => {
+          queryFn: async (): Promise<ClaimStatusResult> => {
             const receipt = await l2Provider.getTransactionReceipt(tx.txid)
             const l2Receipt = new ChildTransactionReceipt(receipt)
             const events = l2Receipt.getChildToParentEvents()
@@ -96,10 +98,14 @@ export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
               timeRemainingSeconds,
             }
           },
-          refetchInterval: 60_000,
-          isEnabled: !Boolean(props?.skip),
         }
       }),
+      // Periodically refetch until the status is known to be ChildToParentMessageStatus.EXECUTED
+      refetchInterval: (latestData: ClaimStatusResult | undefined) =>
+        latestData?.status === ChildToParentMessageStatus.EXECUTED ? false : 60_000,
+      isEnabled: !Boolean(props?.skip),
+      staleTime: Infinity,
+      gcTime: Infinity,
     }
   }, [arbitrumWithdrawTxs, props?.skip, l2Provider, l1Provider])
 

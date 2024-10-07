@@ -193,7 +193,7 @@ export const SelectModal = () => {
             // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
             provider =>
-              provider.info.rdns !== 'app.keplr' ||
+              provider.info.rdns !== 'app.keplr' &&
               // And similarly for Phantom, the EIP-1193 provider is only an EVM provider, but we have our own implementation with EVMs + Bitcoin + Solana
               provider.info.rdns !== 'app.phantom',
           )

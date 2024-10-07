@@ -100,8 +100,8 @@ export const FoxTokenBalances = () => {
   }
 
   return (
-    <Box>
-      <ButtonGroup variant='transparent' spacing={0} mb={4}>
+    <Box mb={10}>
+      <ButtonGroup variant='transparent' mb={4} spacing={0}>
         <HStack spacing={1} p={1} borderRadius='md' {...hstackProps}>
           {filters.map(filter => {
             const feeAsset = getFeeAssetByAssetId(assets, filter.assetId)

@@ -7,7 +7,6 @@ import { getConfig } from 'config'
 import pDebounce from 'p-debounce'
 import { useCallback, useEffect, useState } from 'react'
 import { getSnapVersion } from 'utils/snaps'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from 'lib/mipd'
 

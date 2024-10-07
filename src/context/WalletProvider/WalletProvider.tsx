@@ -161,6 +161,7 @@ export const getMaybeProvider = async (
   if (!isKeyManagerWithProvider(localWalletType)) return null
 
   if (localWalletType === KeyManager.MetaMask) {
+    // TODO(gomes): get by rdns and hasta la vista detectEthereumProvider()
     return (await detectEthereumProvider()) as MetaMaskLikeProvider
   }
   if (localWalletType === KeyManager.Phantom) {

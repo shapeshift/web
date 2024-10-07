@@ -15,6 +15,7 @@ import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
 const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }
+const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
 
 export const FoxHeader = () => {
   const translate = useTranslate()
@@ -49,8 +50,7 @@ export const FoxHeader = () => {
           defaultAccountId={selectedAssetAccountId}
           assetId={assetId}
           onChange={setAssetAccountId}
-          // eslint-disable-next-line react-memo/require-usememo
-          buttonProps={{ variant: 'solid', width: 'full' }}
+          buttonProps={accountDropdownButtonProps}
         />
       </InlineCopyButton>
     )

@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -168,7 +168,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
         const accountMetadataByAccountId: AccountMetadataById = {}
         const isMultiAccountWallet = wallet.supportsBip44Accounts()
-        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+        const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
         for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
           if (
             accountNumber > 0 &&

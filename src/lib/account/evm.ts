@@ -23,7 +23,7 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { canAddMetaMaskAccount } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { isSmartContractAddress } from 'lib/address/utils'
@@ -48,7 +48,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
     if (chainId === baseChainId && !supportsBase(wallet)) continue
     if (
-      wallet instanceof MetaMaskShapeShiftMultiChainHDWallet &&
+      wallet instanceof MetaMaskMultiChainHDWallet &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })
     ) {
       continue

@@ -3,7 +3,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers'
@@ -97,7 +97,7 @@ export const checkIsMetaMaskDesktop = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
     const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
     if (isMetaMaskMobileWebView) return false
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
 
@@ -109,13 +109,14 @@ export const checkIsMetaMaskDesktop = pMemoize(
     return true
   },
   {
-    cacheKey: ([_wallet]) => (_wallet as MetaMaskShapeShiftMultiChainHDWallet | null)?._isMetaMask,
+    cacheKey: ([_wallet]) => (_wallet as MetaMaskMultiChainHDWallet | null)?._isMetaMask,
   },
 )
 
 export const checkIsMetaMaskImpersonator = pMemoize(
   async (wallet: HDWallet | null): Promise<boolean> => {
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    console.log({ wallet })
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
     // We don't want to run this hook altogether if using any wallet other than MM
     if (!isMetaMaskMultichainWallet) return false
 
@@ -126,7 +127,7 @@ export const checkIsMetaMaskImpersonator = pMemoize(
     return METAMASK_IMPERSONATORS.some(impersonator => impersonator in provider)
   },
   {
-    cacheKey: ([_wallet]) => (_wallet as MetaMaskShapeShiftMultiChainHDWallet | null)?._isMetaMask,
+    cacheKey: ([_wallet]) => (_wallet as MetaMaskMultiChainHDWallet | null)?._isMetaMask,
   },
 )
 
@@ -180,7 +181,7 @@ export const canAddMetaMaskAccount = ({
   wallet: HDWallet
   isSnapInstalled: boolean
 }) => {
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
   if (!isMetaMaskMultichainWallet)
     throw new Error(

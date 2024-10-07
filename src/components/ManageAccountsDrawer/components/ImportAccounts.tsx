@@ -13,7 +13,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -175,7 +175,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
   const isSnapInstalled = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const isMetaMaskMultichainWallet = useMemo(
-    () => wallet instanceof MetaMaskShapeShiftMultiChainHDWallet,
+    () => wallet instanceof MetaMaskMultiChainHDWallet,
     [wallet],
   )
   const chainNamespaceDisplayName = asset?.networkName ?? ''

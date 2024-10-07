@@ -1,7 +1,7 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -105,7 +105,7 @@ export const Header = memo(() => {
   )
 
   useEffect(() => {
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
     if (!(currentWalletId && isMetaMaskMultichainWallet && isSnapInstalled === false)) return
 
     // We have just detected that the user doesn't have the snap installed currently

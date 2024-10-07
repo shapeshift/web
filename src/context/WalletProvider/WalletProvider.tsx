@@ -3,7 +3,7 @@ import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
-import type { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
@@ -206,7 +206,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
           deviceId,
           meta: {
             label: meta?.label ?? '',
-            address: (wallet as MetaMaskShapeShiftMultiChainHDWallet).ethAddress ?? '',
+            address: (wallet as MetaMaskMultiChainHDWallet).ethAddress ?? '',
           },
         },
       }

@@ -1,6 +1,6 @@
 import { AddIcon, EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, List, Skeleton, Stack } from '@chakra-ui/react'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -34,7 +34,7 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const [isMultiAccountWallet, setIsMultiAccountWallet] = useState<boolean>(false)
 
   const isSnapInstalled = useIsSnapInstalled()
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
   useEffect(() => {
     if (!wallet) return
     if (isMetaMaskMultichainWallet && !isSnapInstalled) return setIsMultiAccountWallet(false)

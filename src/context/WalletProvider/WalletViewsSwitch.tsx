@@ -111,8 +111,7 @@ export const WalletViewsSwitch = () => {
   const walletRoutesList = useMemo(
     () =>
       modalType
-        ? // This is just for demo purposes only, we'll want to have a programmatic display of the wallet name, whilst still using MM as an underlying KeyManager
-          supportedWallet.routes.map(route => {
+        ? supportedWallet.routes.map(route => {
             const Component = route.component
             return !Component ? null : (
               <Route

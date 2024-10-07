@@ -3,15 +3,14 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { getConfig } from 'config'
 import pDebounce from 'p-debounce'
 import { useCallback, useEffect, useState } from 'react'
 import { getSnapVersion } from 'utils/snaps'
+import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
-const snapId = getConfig().REACT_APP_SNAP_ID
 const snapVersion = getConfig().REACT_APP_SNAP_VERSION
 
 // Many many user-agents to detect mobile MM and other in-app dApp browsers
@@ -22,7 +21,7 @@ export const checkIsMetaMaskMobileWebView = () =>
   isBrowser() && /(MetaMaskMobile)/i.test(window.navigator.userAgent ?? '')
 
 export const checkIsSnapInstalled = pDebounce.promise(
-  (): Promise<boolean | null> => shapeShiftSnapInstalled(snapId),
+  (): Promise<boolean | null> => getSnapVersion().then(Boolean),
 )
 
 export const checkIsMetaMaskDesktop = (wallet: HDWallet | null): boolean => {
@@ -44,11 +43,12 @@ export const useIsSnapInstalled = (): {
   const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
 
   const {
-    state: { wallet, isConnected, isDemoWallet },
+    state: { modalType, wallet, isConnected, isDemoWallet },
   } = useWallet()
 
   const checkSnapInstallation = useCallback(async () => {
     if (!isConnected || isDemoWallet) return
+    if (modalType !== KeyManager.MetaMask) return
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
     if (!isMetaMaskDesktop) return
 
@@ -57,7 +57,7 @@ export const useIsSnapInstalled = (): {
 
     setIsCorrectVersion(version === snapVersion)
     setIsSnapInstalled(_isSnapInstalled)
-  }, [isConnected, isDemoWallet, wallet])
+  }, [isConnected, isDemoWallet, modalType, wallet])
 
   useEffect(() => {
     // Call the function immediately

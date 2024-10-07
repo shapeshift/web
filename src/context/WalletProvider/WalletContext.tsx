@@ -21,7 +21,7 @@ export interface IWalletContext {
   onProviderChange: (
     localWalletType: KeyManagerWithProvider,
     wallet: HDWallet | null,
-  ) => Promise<InitialState['provider'] | undefined>
+  ) => InitialState['provider'] | undefined
 }
 
 export const WalletContext = createContext<IWalletContext | null>(null)

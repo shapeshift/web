@@ -3,7 +3,7 @@ import { useColorModeValue } from '@chakra-ui/react'
 import detectEthereumProvider from '@metamask/detect-provider'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
-import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { Dummy } from '@shapeshiftoss/hdwallet-native/dist/crypto/isolation/engines'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
@@ -399,6 +399,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setLocalNativeWalletName,
   } = useLocalWallet()
 
+  console.log({ walletType, localWalletDeviceId })
+
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === state.modalType)
 
@@ -452,22 +454,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   }, [state.wallet])
 
   // Register a MetaMask-like (EIP-1193) provider on wallet connect or load
-  const onProviderChange = useCallback(
-    async (
+  const onEip1193ProviderChange = useCallback(
+    (
       localWalletType: KeyManagerWithProvider | null,
       // consuming state.wallet in setProviderEvents below won't cut it because of stale closure references
       // so we need to explicitly pass the wallet for which we're setting the provider events
       wallet: HDWallet | null,
-    ): Promise<InitialState['provider'] | undefined> => {
+    ): InitialState['provider'] | undefined => {
       if (!localWalletType) return
+      const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+      if (!isMetaMaskMultichainWallet) return
       try {
-        const maybeProvider = await getMaybeProvider(localWalletType)
+        const provider = wallet.provider
 
-        if (maybeProvider) {
-          setProviderEvents(maybeProvider, localWalletType, wallet)
-          dispatch({ type: WalletActions.SET_PROVIDER, payload: maybeProvider })
-          return maybeProvider
-        }
+        setProviderEvents(provider, localWalletType, wallet)
+        dispatch({ type: WalletActions.SET_PROVIDER, payload: provider })
+        return provider
       } catch (e) {
         if (!isMobile) console.error(e)
       }
@@ -641,7 +643,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
             const localMetaMaskWallet = await metamaskAdapter?.pairDevice()
             // Set the provider again on refresh to ensure event handlers are properly set
-            await onProviderChange(KeyManager.MetaMask, localMetaMaskWallet ?? null)
+            onEip1193ProviderChange(KeyManager.MetaMask, localMetaMaskWallet ?? null)
             if (localMetaMaskWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
               try {
@@ -686,7 +688,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
             const localPhantomWallet = await phantomAdapter?.pairDevice()
             // Set the provider again on refresh to ensure event handlers are properly set
-            await onProviderChange(KeyManager.Phantom, localPhantomWallet ?? null)
+            onEip1193ProviderChange(KeyManager.Phantom, localPhantomWallet ?? null)
             if (localPhantomWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.Phantom]
               try {
@@ -774,7 +776,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
             const localWalletConnectWallet = await walletConnectV2Adapter?.pairDevice()
             // Re-trigger the modal on refresh
-            await onProviderChange(KeyManager.WalletConnectV2, localWalletConnectWallet ?? null)
+            onEip1193ProviderChange(KeyManager.WalletConnectV2, localWalletConnectWallet ?? null)
             if (localWalletConnectWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.WalletConnectV2]
               try {
@@ -1030,7 +1032,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      onProviderChange,
+      onProviderChange: onEip1193ProviderChange,
       connectDemo,
     }),
     [
@@ -1042,7 +1044,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       disconnect,
       load,
       setDeviceState,
-      onProviderChange,
+      onEip1193ProviderChange,
       connectDemo,
     ],
   )

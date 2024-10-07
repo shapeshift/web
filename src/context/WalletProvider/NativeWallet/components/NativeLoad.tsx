@@ -111,7 +111,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
 
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        localWallet.setLocalWallet(KeyManager.Native, deviceId)
         localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')

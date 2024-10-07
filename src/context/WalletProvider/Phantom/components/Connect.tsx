@@ -62,7 +62,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
           payload: { isConnected: true, modalType: state.modalType },
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Phantom, deviceId)
+        localWallet.setLocalWallet(KeyManager.Phantom, deviceId)
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e, 'Phantom Connect: There was an error initializing the wallet')

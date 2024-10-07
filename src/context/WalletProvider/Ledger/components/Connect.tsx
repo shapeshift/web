@@ -106,7 +106,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
           type: WalletActions.SET_IS_CONNECTED,
           payload: { isConnected: true, modalType: state.modalType },
         })
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Ledger, deviceId)
+        localWallet.setLocalWallet(KeyManager.Ledger, deviceId)
 
         // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
         // The Account drawer will be opened further down the tree

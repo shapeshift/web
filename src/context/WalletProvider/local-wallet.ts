@@ -11,8 +11,8 @@ import type { KeyManager } from './KeyManager'
 export const useLocalWallet = () => {
   const dispatch = useAppDispatch()
 
-  const setLocalWalletTypeAndDeviceId = (type: KeyManager, deviceId: string) => {
-    dispatch(localWalletSlice.actions.setWalletTypeAndDeviceId({ type, deviceId }))
+  const setLocalWallet = (type: KeyManager, deviceId: string) => {
+    dispatch(localWalletSlice.actions.setLocalWallet({ type, deviceId }))
   }
 
   const clearLocalWallet = () => {
@@ -26,7 +26,7 @@ export const useLocalWallet = () => {
   const localWalletDeviceId = useAppSelector(selectWalletDeviceId)
 
   return {
-    setLocalWalletTypeAndDeviceId,
+    setLocalWallet,
     clearLocalWallet,
     setLocalNativeWalletName,
     nativeLocalWalletName,

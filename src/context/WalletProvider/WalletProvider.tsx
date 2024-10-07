@@ -395,7 +395,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const {
     localWalletType: walletType,
     localWalletDeviceId,
-    setLocalWalletTypeAndDeviceId,
+    setLocalWallet: setLocalWalletTypeAndDeviceId,
     setLocalNativeWalletName,
   } = useLocalWallet()
 

@@ -117,10 +117,7 @@ export const KeepKeyConnect = () => {
         type: WalletActions.SET_IS_CONNECTED,
         payload: { isConnected: true, modalType: state.modalType },
       })
-      localWallet.setLocalWalletTypeAndDeviceId(
-        KeyManager.KeepKey,
-        state.keyring.getAlias(deviceId),
-      )
+      localWallet.setLocalWallet(KeyManager.KeepKey, state.keyring.getAlias(deviceId))
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       console.error(e)

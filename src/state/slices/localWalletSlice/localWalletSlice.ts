@@ -19,10 +19,7 @@ export const localWalletSlice = createSlice({
   initialState,
   reducers: {
     clear: () => initialState,
-    setWalletTypeAndDeviceId: (
-      state,
-      action: PayloadAction<{ type: KeyManager; deviceId: string }>,
-    ) => {
+    setLocalWallet: (state, action: PayloadAction<{ type: KeyManager; deviceId: string }>) => {
       state.walletType = action.payload.type
       state.walletDeviceId = action.payload.deviceId
     },

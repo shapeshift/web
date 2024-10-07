@@ -16,12 +16,13 @@ const stackProps: StackProps = {
   borderRadius: '10',
   overflow: 'hidden',
 }
+const containerPaddingX = { base: 4, xl: 0 }
 
 export const FoxToken = () => {
   const translate = useTranslate()
 
   return (
-    <Box>
+    <Box py={4} px={containerPaddingX}>
       <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
         <AssetIcon assetId={foxAssetId} showNetworkIcon={false} me={2} />
         {translate('foxPage.foxToken')}

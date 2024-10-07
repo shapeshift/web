@@ -127,7 +127,6 @@ const MipdProviderSelectItem = ({
   const activeWallet = provider.info.name === connectedMipdProvider?.info.name
   const walletSubText = activeWallet ? 'common.connected' : null
 
-  console.log({ provider })
   return (
     <Button
       key={provider.info.rdns}
@@ -191,8 +190,6 @@ export const SelectModal = () => {
   // TODO(gomes): dupes should use the underlying first-class hdwallet impl. but mipd should still be detected under the hood
   // which is most likely an hdwallet concern
   const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
-
-  console.log({ detectedMipdProviders })
 
   const allProviders = useMemo(
     () => (

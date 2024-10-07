@@ -8,6 +8,7 @@ import { useHistory } from 'react-router'
 import { IconCircle } from 'components/IconCircle'
 import { useArbitrumClaimsByStatus } from 'components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimsByStatus'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 const flexGap = { base: 2, md: 3 }
 const flexDir: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
@@ -19,7 +20,16 @@ export const useBridgeClaimNotification = () => {
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
 
+  const {
+    state: { deviceId: walletDeviceId },
+  } = useWallet()
+
   const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ skip: isDisabled })
+
+  // Re-enable the notification when wallet changes
+  useEffect(() => {
+    setIsDisabled(false)
+  }, [walletDeviceId])
 
   useEffect(() => {
     if (isLoading || isDisabled) return

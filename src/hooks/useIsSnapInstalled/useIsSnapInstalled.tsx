@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getSnapVersion } from 'utils/snaps'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { METAMASK_RDNS } from 'lib/mipd'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapVersion = getConfig().REACT_APP_SNAP_VERSION
@@ -28,7 +29,7 @@ export const checkIsMetaMaskDesktop = (wallet: HDWallet | null): boolean => {
   const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
   // We don't want to run this hook altogether if using any wallet other than MM
   if (!isMetaMaskMultichainWallet) return false
-  if (wallet.providerRdns !== 'io.metamask') return false
+  if (wallet.providerRdns !== METAMASK_RDNS) return false
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   if (isMetaMaskMobileWebView) return false
 
@@ -48,7 +49,7 @@ export const useIsSnapInstalled = (): {
 
   const checkSnapInstallation = useCallback(async () => {
     if (!isConnected || isDemoWallet) return
-    if (modalType !== KeyManager.MetaMask) return
+    if (modalType !== METAMASK_RDNS) return
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
     if (!isMetaMaskDesktop) return
 

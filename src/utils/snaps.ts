@@ -1,6 +1,6 @@
 import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers'
-import { mipdStore } from 'lib/mipd'
+import { METAMASK_RDNS, mipdStore } from 'lib/mipd'
 
 type GetSnapsResult = Record<
   string,
@@ -15,7 +15,7 @@ type GetSnapsResult = Record<
 export const enableShapeShiftSnap = async (): Promise<void> => {
   const mipdProvider = mipdStore
     .getProviders()
-    .find(provider => provider.info.rdns === 'io.metamask')
+    .find(provider => provider.info.rdns === METAMASK_RDNS)
   if (!mipdProvider) throw new Error("EIP-1193 provider isn't MetaMask")
 
   const provider = mipdProvider.provider as Eip1193Provider
@@ -37,7 +37,7 @@ export const getSnapVersion = async (): Promise<string | null> => {
   const snapId = getConfig().REACT_APP_SNAP_ID
   const mipdProvider = mipdStore
     .getProviders()
-    .find(provider => provider.info.rdns === 'io.metamask')
+    .find(provider => provider.info.rdns === METAMASK_RDNS)
   if (!mipdProvider) return null
 
   const provider = mipdProvider.provider as Eip1193Provider

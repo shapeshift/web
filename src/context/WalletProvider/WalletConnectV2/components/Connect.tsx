@@ -47,7 +47,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
 
           if (!wallet) throw new WalletNotFoundError()
 
-          await onProviderChange(KeyManager.WalletConnectV2, wallet)
+          onProviderChange(KeyManager.WalletConnectV2, wallet)
 
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
           dispatch({
@@ -66,7 +66,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
             type: WalletActions.SET_IS_CONNECTED,
             payload: { isConnected: true, modalType: state.modalType },
           })
-          localWallet.setLocalWallet(KeyManager.WalletConnectV2, deviceId)
+          localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
         }
       }
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

@@ -55,7 +55,7 @@ export const useNativeSuccess = ({ vault }: UseNativeSuccessPropTypes) => {
           payload: { isConnected: true, modalType: state.modalType },
         })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        localWallet.setLocalWallet(KeyManager.Native, deviceId)
+        localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
         localWallet.setLocalNativeWalletName(walletLabel)
         setIsSuccessful(true)
         //Set to show the native onboarding

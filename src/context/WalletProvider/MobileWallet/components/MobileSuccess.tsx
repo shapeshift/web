@@ -50,7 +50,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
             type: WalletActions.SET_IS_CONNECTED,
             payload: { isConnected: true, modalType: state.modalType },
           })
-          localWallet.setLocalWallet(KeyManager.Mobile, deviceId)
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(walletLabel)
           dispatch({
             type: WalletActions.SET_CONNECTOR_TYPE,

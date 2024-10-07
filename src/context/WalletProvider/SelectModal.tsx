@@ -21,6 +21,8 @@ import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
 import { mipdStore } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -107,9 +109,8 @@ const MipdProviderSelectItem = ({
   provider: EIP6963ProviderDetail
   connect: (adapter: string) => void
 }) => {
-  const {
-    state: { connectedModalType },
-  } = useWallet()
+  const connectedRdns = useAppSelector(selectWalletRdns)
+
   const greenColor = useColorModeValue('green.500', 'green.200')
   const handleConnect = useCallback(
     () => connect(provider.info.rdns),
@@ -117,7 +118,7 @@ const MipdProviderSelectItem = ({
   )
 
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  const mipdProvider = mipdProviders.find(provider => provider.info.rdns === connectedModalType)
+  const mipdProvider = mipdProviders.find(provider => provider.info.rdns === connectedRdns)
 
   const icon = provider.info.icon
   const activeWallet = provider.info.name === mipdProvider?.info.name
@@ -157,7 +158,7 @@ export const SelectModal = () => {
     importWallet,
   } = useWallet()
   const translate = useTranslate()
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
 
   const wallets = useMemo(
     () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
@@ -183,12 +184,12 @@ export const SelectModal = () => {
   // which is most likely an hdwallet concern
   const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
 
-  console.log({ mipdProviders })
+  console.log({ mipdProviders: detectedMipdProviders })
 
   const allProviders = useMemo(
     () => (
       <>
-        {mipdProviders
+        {detectedMipdProviders
           .filter(
             // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
             // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
@@ -221,7 +222,7 @@ export const SelectModal = () => {
         }
       </>
     ),
-    [handleConnect, handleConnectMipd, mipdProviders, walletInfo, wallets],
+    [handleConnect, handleConnectMipd, detectedMipdProviders, walletInfo, wallets],
   )
 
   return (

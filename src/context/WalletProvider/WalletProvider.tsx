@@ -91,7 +91,6 @@ export type InitialState = {
   initialRoute: string | null
   walletInfo: WalletInfo | null
   isConnected: boolean
-  connectedModalType: KeyManager | string | null
   isDemoWallet: boolean
   provider: MetaMaskLikeProvider | EthereumProviderType | null
   isLocked: boolean
@@ -123,7 +122,6 @@ const initialState: InitialState = {
   initialRoute: null,
   walletInfo: null,
   isConnected: false,
-  connectedModalType: null,
   isDemoWallet: false,
   provider: null,
   isLocked: false,
@@ -216,7 +214,6 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       return {
         ...state,
         isConnected: action.payload.isConnected,
-        connectedModalType: action.payload.modalType,
       }
     case WalletActions.SET_IS_LOCKED:
       return { ...state, isLocked: action.payload }
@@ -395,21 +392,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const {
     localWalletType: walletType,
     localWalletDeviceId,
-    setLocalWallet: setLocalWalletTypeAndDeviceId,
+    rdns,
+    setLocalWallet,
     setLocalNativeWalletName,
   } = useLocalWallet()
 
-  console.log({ walletType, localWalletDeviceId })
-
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === state.modalType)
+  const maybeMipdProvider = mipdProviders.find(
+    provider => provider.info.rdns === (state.modalType ?? rdns),
+  )
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
       let currentStateAdapters = state.adapters
 
       // Check if adapter is already in the state
-      // Note - for MM, we always re-instantiate/set, because the MIPD provider may have changed
+      // Note - for MM (and other mipd providers), we always re-instantiate/set, because the MIPD provider may have changed
       let adapterInstance = currentStateAdapters[keyManager]
 
       if (!adapterInstance || !!maybeMipdProvider) {
@@ -637,7 +635,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({
                 type: WalletActions.SET_CONNECTOR_TYPE,
-                payload: { modalType: localWalletType, isMipdProvider: true },
+                payload: { modalType: rdns, isMipdProvider: true },
               })
             }
 
@@ -662,7 +660,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: { isConnected: true, modalType: rdns },
                 })
               } catch (e) {
                 disconnect()
@@ -934,7 +932,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     const { name, icon, adapters } = SUPPORTED_WALLETS[KeyManager.Demo]
     // For the demo wallet, we use the name, DemoWallet, as the deviceId
     const deviceId = name
-    setLocalWalletTypeAndDeviceId(KeyManager.Demo, deviceId)
+    setLocalWallet({ type: KeyManager.Demo, deviceId })
     setLocalNativeWalletName(name)
     dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: true })
 
@@ -972,7 +970,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     } finally {
       dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
     }
-  }, [setLocalNativeWalletName, setLocalWalletTypeAndDeviceId, state.keyring, walletType])
+  }, [setLocalNativeWalletName, setLocalWallet, state.keyring, walletType])
 
   const create = useCallback((type: KeyManager) => {
     dispatch({

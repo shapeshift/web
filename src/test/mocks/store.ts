@@ -251,5 +251,6 @@ export const mockStore: ReduxState = {
     walletType: null,
     walletDeviceId: null,
     nativeWalletName: null,
+    rdns: null,
   },
 }

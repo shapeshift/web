@@ -47,7 +47,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
           throw new Error('Call to hdwallet-phantom::pairDevice returned null or undefined')
         }
 
-        await onProviderChange(KeyManager.Phantom, wallet)
+        onProviderChange(KeyManager.Phantom, wallet)
 
         const { name, icon } = PhantomConfig
         const deviceId = await wallet.getDeviceID()
@@ -62,7 +62,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
           payload: { isConnected: true, modalType: state.modalType },
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        localWallet.setLocalWallet(KeyManager.Phantom, deviceId)
+        localWallet.setLocalWallet({ type: KeyManager.Phantom, deviceId })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e, 'Phantom Connect: There was an error initializing the wallet')

@@ -29,6 +29,8 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { mipdStore } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 export const entries = [WalletConnectedRoutes.Connected]
 
@@ -92,13 +94,12 @@ const WalletButton: FC<WalletButtonProps> = ({
   const bgColor = useColorModeValue('gray.200', 'gray.800')
   const [ensName, setEnsName] = useState<string | null>('')
 
-  const {
-    state: { connectedModalType },
-  } = useWallet()
+  const maybeRdns = useAppSelector(selectWalletRdns)
+
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
   const maybeMipdProvider = useMemo(
-    () => mipdProviders.find(provider => provider.info.rdns === connectedModalType),
-    [connectedModalType, mipdProviders],
+    () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
+    [mipdProviders, maybeRdns],
   )
 
   useEffect(() => {
@@ -177,10 +178,10 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
   const { isConnected, isDemoWallet, walletInfo, connectedType, isLocked, isLoadingLocalWallet } =
     state
 
+  const maybeRdns = useAppSelector(selectWalletRdns)
+
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  const maybeMipdProvider = mipdProviders.find(
-    provider => provider.info.rdns === state.connectedModalType,
-  )
+  const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === maybeRdns)
 
   const hasWallet = Boolean(walletInfo?.deviceId)
   const handleConnect = useCallback(() => {

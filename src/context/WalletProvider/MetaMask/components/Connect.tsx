@@ -105,9 +105,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: { isConnected: true, modalType: maybeMipdProvider?.info.rdns ?? '' },
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        localWallet.setLocalWallet(KeyManager.MetaMask, deviceId)
+        localWallet.setLocalWallet({
+          type: KeyManager.MetaMask,
+          deviceId,
+          rdns: maybeMipdProvider?.info.rdns,
+        })
 
-        const provider = await onProviderChange(KeyManager.MetaMask, wallet)
+        const provider = onProviderChange(KeyManager.MetaMask, wallet)
 
         if (!provider) {
           throw new Error('walletProvider.metaMask.errors.connectFailure')

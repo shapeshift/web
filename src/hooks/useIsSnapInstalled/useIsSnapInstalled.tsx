@@ -5,7 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { getConfig } from 'config'
 import pDebounce from 'p-debounce'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getSnapVersion } from 'utils/snaps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from 'lib/mipd'
@@ -70,7 +70,12 @@ export const useIsSnapInstalled = (): {
     return () => clearInterval(intervalId)
   }, [checkSnapInstallation, wallet])
 
-  return { isSnapInstalled, isCorrectVersion }
+  const data = useMemo(
+    () => ({ isSnapInstalled, isCorrectVersion }),
+    [isSnapInstalled, isCorrectVersion],
+  )
+
+  return data
 }
 
 export const canAddMetaMaskAccount = ({

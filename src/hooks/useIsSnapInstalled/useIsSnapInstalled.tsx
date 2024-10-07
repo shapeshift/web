@@ -36,14 +36,6 @@ export const checkIsMetaMaskDesktop = (wallet: HDWallet | null): boolean => {
   return true
 }
 
-export const checkIsMetaMaskImpersonator = (wallet: HDWallet | null): boolean => {
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
-  // We don't want to run this hook altogether if using any wallet other than MM
-  if (!isMetaMaskMultichainWallet) return false
-
-  return wallet.providerRdns !== 'io.metamask'
-}
-
 export const useIsSnapInstalled = (): {
   isSnapInstalled: boolean | null
   isCorrectVersion: boolean | null
@@ -58,8 +50,6 @@ export const useIsSnapInstalled = (): {
   const checkSnapInstallation = useCallback(async () => {
     if (!isConnected || isDemoWallet) return
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
-    const isMetaMaskImpersonator = checkIsMetaMaskImpersonator(wallet)
-    if (isMetaMaskImpersonator) return
     if (!isMetaMaskDesktop) return
 
     const version = await getSnapVersion()

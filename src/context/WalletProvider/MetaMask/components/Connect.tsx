@@ -12,7 +12,6 @@ import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   checkIsMetaMaskMobileWebView,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -115,10 +114,9 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         }
 
         await (async () => {
-          const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-          const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
-          // Wallets other than MM desktop - including MM impersonators - don't support MM snaps
-          if (!isMetaMaskDesktop || isMetaMaskImpersonator || isMetaMaskMobileWebView)
+          const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
+          // Wallets other than MM desktop don't support MM snaps
+          if (!isMetaMaskDesktop || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           const isSnapInstalled = await checkIsSnapInstalled()
 

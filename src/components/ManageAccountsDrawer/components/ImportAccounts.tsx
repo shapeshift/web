@@ -172,7 +172,7 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
     dispatch: walletDispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-  const isSnapInstalled = useIsSnapInstalled()
+  const { isSnapInstalled } = useIsSnapInstalled()
   const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
   const isMetaMaskMultichainWallet = useMemo(
     () => wallet instanceof MetaMaskMultiChainHDWallet,

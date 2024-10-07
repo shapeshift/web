@@ -114,7 +114,6 @@ export const WalletViewsSwitch = () => {
         ? // This is just for demo purposes only, we'll want to have a programmatic display of the wallet name, whilst still using MM as an underlying KeyManager
           supportedWallet.routes.map(route => {
             const Component = route.component
-            console.log({ Component, route })
             return !Component ? null : (
               <Route
                 exact

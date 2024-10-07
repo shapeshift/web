@@ -183,29 +183,27 @@ export const SelectModal = () => {
   // which is most likely an hdwallet concern
   const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
 
-  return (
-    <>
-      <ModalHeader>
-        <Text translation={'walletProvider.selectModal.header'} />
-      </ModalHeader>
-      <ModalBody>
-        <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
-        <Text mb={3} color='text.subtle' translation={'Automagically Detected'} />
-        <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          {mipdProviders.map(provider => (
+  const allProviders = useMemo(
+    () => (
+      <>
+        {mipdProviders
+          // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
+          // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there
+          .filter(provider => provider.info.rdns !== 'app.keplr')
+          .map(provider => (
             <MipdProviderSelectItem
               key={provider.info.name}
               provider={provider}
               connect={handleConnectMipd}
             />
           ))}
-        </Grid>
-        <Text mb={3} color='text.subtle' translation={'Others'} />
-        <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          {
-            // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
-            // So not all of the supported wallets will have an initialized adapter
-            wallets.map(walletType => (
+        {
+          // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
+          // So not all of the supported wallets will have an initialized adapter
+          wallets
+            // Remove MM dupe and leverage MIPD provider for MetaMask, ensuring MM is consistently working with multiple wallets installed
+            .filter(keyManager => keyManager !== KeyManager.MetaMask)
+            .map(walletType => (
               <WalletSelectItem
                 key={walletType}
                 walletType={walletType}
@@ -213,7 +211,21 @@ export const SelectModal = () => {
                 connect={handleConnect}
               />
             ))
-          }
+        }
+      </>
+    ),
+    [handleConnect, handleConnectMipd, mipdProviders, walletInfo, wallets],
+  )
+
+  return (
+    <>
+      <ModalHeader>
+        <Text translation={'walletProvider.selectModal.header'} />
+      </ModalHeader>
+      <ModalBody>
+        <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
+        <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
+          {allProviders}
         </Grid>
         <Flex
           direction={flexDirProp}

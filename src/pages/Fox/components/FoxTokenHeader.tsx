@@ -1,4 +1,5 @@
 import { ArrowUpIcon } from '@chakra-ui/icons'
+import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
@@ -24,6 +25,22 @@ const columnsProps = {
   base: 1,
   sm: 2,
   md: 4,
+}
+const stackProps: StackProps = {
+  width: '100%',
+  flexDir: 'column',
+  flex: 1,
+  spacing: 0,
+}
+
+const containerProps: FlexProps = {
+  py: 4,
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  flexDir: {
+    base: 'column',
+    md: 'row',
+  },
 }
 
 export const FoxTokenHeader = () => {
@@ -63,9 +80,9 @@ export const FoxTokenHeader = () => {
   }, [history])
 
   return (
-    <Flex py={8} alignItems='center' justifyContent='space-between'>
-      <SimpleGrid columns={columnsProps} spacing='26px' width='100%'>
-        <Stack spacing={0} flex={1} flexDir={'column'}>
+    <Flex {...containerProps}>
+      <SimpleGrid my={4} columns={columnsProps} spacing='26px' width='100%'>
+        <Stack {...stackProps}>
           <Text
             fontSize='md'
             color='text.subtle'
@@ -78,7 +95,7 @@ export const FoxTokenHeader = () => {
           </Skeleton>
         </Stack>
 
-        <Stack spacing={0} flex={1} flexDir={'column'}>
+        <Stack {...stackProps}>
           <Text
             fontSize='md'
             color='text.subtle'
@@ -99,7 +116,7 @@ export const FoxTokenHeader = () => {
           </Skeleton>
         </Stack>
 
-        <Stack spacing={0} flex={1} flexDir={'column'}>
+        <Stack {...stackProps}>
           <Text
             fontSize='md'
             color='text.subtle'
@@ -112,7 +129,7 @@ export const FoxTokenHeader = () => {
           </Skeleton>
         </Stack>
 
-        <Stack spacing={0} flex={1} flexDir={'column'}>
+        <Stack {...stackProps}>
           <Text
             fontSize='md'
             color='text.subtle'

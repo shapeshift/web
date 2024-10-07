@@ -10,6 +10,7 @@ type FoxPageContextType = {
   selectedAssetAccountId: AccountId | undefined
   assetId: AssetId
   setAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
+  assetAccountNumber: number | undefined
 }
 
 const FoxPageContext = createContext<FoxPageContextType | undefined>(undefined)
@@ -25,7 +26,7 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren<{ assetId: AssetI
     [assetAccountId, assetId],
   )
 
-  const stakingAssetAccountNumber = useAppSelector(state =>
+  const assetAccountNumber = useAppSelector(state =>
     filter ? selectAccountNumberByAccountId(state, filter) : undefined,
   )
 
@@ -34,11 +35,11 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren<{ assetId: AssetI
   )
 
   const selectedAssetAccountId = useMemo(() => {
-    if (!(filter && stakingAssetAccountNumber !== undefined)) return
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[stakingAssetAccountNumber]
+    if (!(filter && assetAccountNumber !== undefined)) return
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
     const matchingAccountId = accountNumberAccountIds?.[fromAssetId(assetId).chainId]
     return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, assetId, stakingAssetAccountNumber])
+  }, [accountIdsByAccountNumberAndChainId, filter, assetId, assetAccountNumber])
 
   const value: FoxPageContextType = useMemo(
     () => ({
@@ -46,8 +47,9 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren<{ assetId: AssetI
       setAssetAccountId,
       assetId,
       assetAccountId,
+      assetAccountNumber,
     }),
-    [assetId, selectedAssetAccountId, assetAccountId],
+    [assetId, selectedAssetAccountId, assetAccountId, assetAccountNumber],
   )
 
   return <FoxPageContext.Provider value={value}>{children}</FoxPageContext.Provider>

@@ -1,4 +1,4 @@
-import type { CardProps } from '@chakra-ui/react'
+import type { CardProps, StackProps } from '@chakra-ui/react'
 import { Box, Card, CardBody, Flex, Heading, Stack, useToken } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { LinearGradient } from '@visx/gradient'
@@ -291,7 +291,7 @@ export const FeeOutput: React.FC<FeeOutputProps> = ({ tradeSizeUSD, foxHolding, 
             {isFree ? (
               <Text fontSize='3xl' translation='common.free' color='green.500' />
             ) : (
-              <Flex gap={2} align='center'>
+              <Flex gap={2} align='center' justifyContent='center'>
                 <Amount.Fiat
                   fiatType='USD'
                   fontSize='3xl'
@@ -334,9 +334,10 @@ const feeExplainerCardBody = { base: 4, md: 8 }
 type FeeExplainerProps = CardProps & {
   feeModel: ParameterModel
   inputAmountUsd: string | undefined
+  stackProps?: StackProps
 }
 
-export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
+export const FeeExplainer: React.FC<FeeExplainerProps> = ({ stackProps, ...props }) => {
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[props.feeModel])
   const simulateBodyTranslation: TextPropTypes['translation'] = useMemo(
@@ -363,7 +364,13 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = props => {
   const [foxHolding, setFoxHolding] = useState(bnOrZero(votingPower).toNumber())
 
   return (
-    <Stack maxWidth='600px' width='full' mx='auto' spacing={0}>
+    <Stack
+      maxWidth={stackProps?.maxWidth ?? '600px'}
+      width='full'
+      mx='auto'
+      spacing={0}
+      {...stackProps}
+    >
       <Card flexDir='column' borderBottomRadius={0} {...props}>
         <CardBody flex='1' p={feeExplainerCardBody}>
           <Heading as='h5' mb={2}>

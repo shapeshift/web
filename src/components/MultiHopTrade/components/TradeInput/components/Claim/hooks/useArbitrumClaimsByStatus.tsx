@@ -34,7 +34,7 @@ export type ClaimDetails = Omit<ClaimStatusResult, 'status'> & {
 
 type ClaimsByStatus = Record<ClaimStatus, ClaimDetails[]>
 
-export const useArbitrumClaimsByStatus = (props?: { isDisabled?: boolean }) => {
+export const useArbitrumClaimsByStatus = (props?: { skip?: boolean }) => {
   const translate = useTranslate()
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -97,11 +97,11 @@ export const useArbitrumClaimsByStatus = (props?: { isDisabled?: boolean }) => {
             }
           },
           refetchInterval: 60_000,
-          isEnabled: !props?.isDisabled,
+          isEnabled: !Boolean(props?.skip),
         }
       }),
     }
-  }, [props?.isDisabled, l1Provider, l2Provider, arbitrumWithdrawTxs])
+  }, [arbitrumWithdrawTxs, props?.skip, l2Provider, l1Provider])
 
   const claimStatuses = useQueries(queries)
 

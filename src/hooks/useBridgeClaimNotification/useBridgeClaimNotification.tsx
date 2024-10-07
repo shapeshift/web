@@ -19,7 +19,7 @@ export const useBridgeClaimNotification = () => {
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
 
-  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ isDisabled })
+  const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ skip: isDisabled })
 
   useEffect(() => {
     if (isLoading || isDisabled) return

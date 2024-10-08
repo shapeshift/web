@@ -83,16 +83,16 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     if (adapter) {
       // Remove all provider event listeners from previously connected wallets
       await removeAccountsAndChainListeners()
-      const wallet = await adapter.pairDevice()
-      if (!wallet) {
-        setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error(
-          'Call to hdwallet-metamask-multichain::pairDevice returned null or undefined',
-        )
-      }
-
-      const { name, icon } = MetaMaskConfig
       try {
+        const wallet = await adapter.pairDevice()
+        if (!wallet) {
+          setErrorLoading('walletProvider.errors.walletNotFound')
+          throw new Error(
+            'Call to hdwallet-metamask-multichain::pairDevice returned null or undefined',
+          )
+        }
+
+        const { name, icon } = MetaMaskConfig
         const deviceId = await wallet.getDeviceID()
 
         const isLocked = await wallet.isLocked()

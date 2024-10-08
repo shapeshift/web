@@ -162,9 +162,15 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const supportedStaticProviders = useMemo(() => {
+    // Mobile app doesn't support MM and the like
+    if (isMobileApp) return []
+    if (isMobile) return staticMipdProviders.filter(provider => provider.supportsMobileBrowser)
+    return staticMipdProviders
+  }, [])
   const mipdProviders = useMemo(
-    () => uniqBy(detectedMipdProviders.concat(staticMipdProviders), 'info.rdns'),
-    [detectedMipdProviders],
+    () => uniqBy(detectedMipdProviders.concat(supportedStaticProviders), 'info.rdns'),
+    [detectedMipdProviders, supportedStaticProviders],
   )
 
   const wallets = useMemo(

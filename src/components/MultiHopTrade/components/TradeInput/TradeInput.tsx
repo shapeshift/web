@@ -30,7 +30,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectHasUserEnteredAmount,
   selectInputSellAsset,
-  selectIsAccountMetadataLoading,
+  selectIsAccountMetadataLoadingByAccountId,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -80,7 +80,9 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
+  const isAccountMetadataLoadingByAccountId = useAppSelector(
+    selectIsAccountMetadataLoadingByAccountId,
+  )
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -118,7 +120,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      !Object.entries(isAccountMetadataLoading).some(
+      !Object.entries(isAccountMetadataLoadingByAccountId).some(
         ([accountId, isLoading]) =>
           fromAccountId(accountId).chainId === sellAsset.chainId && !isLoading,
       ) ||
@@ -129,7 +131,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAccountMetadataLoading,
+      isAccountMetadataLoadingByAccountId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,

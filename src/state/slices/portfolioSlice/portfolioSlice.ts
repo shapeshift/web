@@ -47,7 +47,7 @@ export const portfolio = createSlice({
       state,
       { payload }: { payload: { accountId: AccountId; isLoading: boolean } },
     ) => {
-      state.isAccountMetadataLoading[payload.accountId] = payload.isLoading
+      state.isAccountMetadataLoadingByAccountId[payload.accountId] = payload.isLoading
     },
     setWalletMeta: (
       state,

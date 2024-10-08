@@ -16,7 +16,10 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAccountIdsByAssetId, selectIsAccountMetadataLoading } from 'state/slices/selectors'
+import {
+  selectAccountIdsByAssetId,
+  selectIsAccountMetadataLoadingByAccountId,
+} from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -62,12 +65,14 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
     )
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
-    const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
+    const isAccountMetadataLoadingByAccountId = useAppSelector(
+      selectIsAccountMetadataLoadingByAccountId,
+    )
 
     const shouldShowManualReceiveAddressInput = useMemo(() => {
       // Some AccountIds are loading for that chain - don't show the manual address input since these will eventually be populated
       if (
-        Object.entries(isAccountMetadataLoading).some(
+        Object.entries(isAccountMetadataLoadingByAccountId).some(
           ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && isLoading,
         )
       )
@@ -79,7 +84,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       // We want to display the manual address entry if the wallet doesn't support the buy asset chain
       return !walletSupportsBuyAssetChain
     }, [
-      isAccountMetadataLoading,
+      isAccountMetadataLoadingByAccountId,
       shouldForceManualAddressEntry,
       manualReceiveAddress,
       wallet,

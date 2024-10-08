@@ -33,6 +33,7 @@ export const localWalletSlice = createSlice({
       state.walletType = null
       state.walletDeviceId = null
       state.nativeWalletName = null
+      state.rdns = null
     },
     setNativeWalletName: (state, action: PayloadAction<string>) => {
       state.nativeWalletName = action.payload

@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
-  CowSwapOrder,
   EvmMessageToSign,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -21,17 +20,17 @@ import { SwapperName } from '../../types'
 import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type {
-  CowSwapGetTradesResponse,
-  CowSwapGetTransactionsResponse,
-  CowSwapQuoteResponse,
-} from './types'
+import type { CowSwapOrder } from './types'
 import {
-  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   CoWSwapBuyTokenDestination,
+  type CowSwapGetTradesResponse,
+  type CowSwapGetTransactionsResponse,
   CoWSwapOrderKind,
+  type CowSwapQuoteResponse,
+  CoWSwapSellTokenSource,
   CoWSwapSigningScheme,
-} from './utils/constants'
+} from './types'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,

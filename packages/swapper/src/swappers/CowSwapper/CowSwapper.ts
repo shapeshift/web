@@ -11,7 +11,8 @@ import type {
 } from '../../types'
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { COW_SWAP_SETTLEMENT_ADDRESS, CoWSwapSigningScheme } from './utils/constants'
+import { CoWSwapSigningScheme } from './types'
+import { COW_SWAP_SETTLEMENT_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import { domain, getCowswapNetwork, getSignTypeDataPayload } from './utils/helpers/helpers'
 

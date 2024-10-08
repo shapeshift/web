@@ -9,11 +9,10 @@ import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } fr
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { CowSwapQuoteError, CowSwapQuoteResponse } from '../types'
+import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
-  CoWSwapOrderKind,
   SUPPORTED_CHAIN_IDS,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'

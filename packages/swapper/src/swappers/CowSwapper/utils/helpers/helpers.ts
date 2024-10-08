@@ -19,11 +19,11 @@ import type { TypedData } from 'eip-712'
 import type { TypedDataDomain, TypedDataField } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
 
-import type { CowSwapOrder, SwapErrorRight } from '../../../../types'
+import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
-import type { AffiliateAppDataFragment, CowSwapQuoteResponse } from '../../types'
+import type { AffiliateAppDataFragment, CowSwapOrder, CowSwapQuoteResponse } from '../../types'
 import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [

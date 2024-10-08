@@ -28,9 +28,9 @@ import type {
 } from './types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  ERC20_TOKEN_BALANCE,
-  ORDER_KIND_SELL,
-  SIGNING_SCHEME,
+  CoWSwapBuyTokenDestination,
+  CoWSwapOrderKind,
+  CoWSwapSigningScheme,
 } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
@@ -108,7 +108,7 @@ export const cowApi: SwapperApi = {
         appDataHash,
         partiallyFillable: false,
         from,
-        kind: ORDER_KIND_SELL,
+        kind: CoWSwapOrderKind.Sell,
         sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       },
     )
@@ -148,11 +148,11 @@ export const cowApi: SwapperApi = {
       buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
-      sellTokenBalance: ERC20_TOKEN_BALANCE,
-      buyTokenBalance: ERC20_TOKEN_BALANCE,
+      sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+      buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
       quoteId: id,
       appDataHash,
-      signingScheme: SIGNING_SCHEME,
+      signingScheme: CoWSwapSigningScheme.EIP712,
     }
 
     return { chainId, orderToSign }

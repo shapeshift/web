@@ -13,7 +13,7 @@ import type { CowSwapQuoteError, CowSwapQuoteResponse } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
-  ORDER_KIND_SELL,
+  CoWSwapOrderKind,
   SUPPORTED_CHAIN_IDS,
 } from '../utils/constants'
 import { cowService } from '../utils/cowService'
@@ -83,7 +83,7 @@ export async function getCowSwapTradeQuote(
       appDataHash,
       partiallyFillable: false,
       from: receiveAddress,
-      kind: ORDER_KIND_SELL,
+      kind: CoWSwapOrderKind.Sell,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
   )

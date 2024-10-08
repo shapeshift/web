@@ -17,7 +17,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore, staticMipdProviders } from 'lib/mipd'
+import { METAMASK_RDNS, mipdStore, staticMipdProviders } from 'lib/mipd'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -53,6 +53,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     [detectedMipdProviders],
   )
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === modalType)
+
+  console.log({ modalType })
 
   const headerText: [string, InterpolationOptions] = useMemo(
     () => [
@@ -177,7 +179,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     return window.location.assign(`${METAMASK_DEEP_LINK_BASE_URL}/${mmDeeplinkTarget}`)
   }, [])
 
-  return isMobile && !isMetaMaskMobileWebView ? (
+  return isMobile && !isMetaMaskMobileWebView && modalType === METAMASK_RDNS ? (
     <RedirectModal
       headerText={'walletProvider.metaMask.redirect.header'}
       bodyText={'walletProvider.metaMask.redirect.body'}

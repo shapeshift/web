@@ -43,6 +43,12 @@ export const portfolio = createSlice({
     setIsAccountsMetadataLoading: (state, { payload }: { payload: boolean }) => {
       state.isAccountsMetadataLoading = payload
     },
+    setIsAccountMetadataLoading: (
+      state,
+      { payload }: { payload: { accountId: AccountId; isLoading: boolean } },
+    ) => {
+      state.isAccountMetadataLoading[payload.accountId] = payload.isLoading
+    },
     setWalletMeta: (
       state,
       { payload }: { payload: Omit<WalletMetaPayload, 'walletSupportedChainIds'> | undefined },
@@ -181,6 +187,7 @@ export const portfolioApi = createApi({
   endpoints: build => ({
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
+        dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: true }))
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
         const assetIds = state.assets.ids
@@ -326,6 +333,7 @@ export const portfolioApi = createApi({
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
           return { data }
         } catch (e) {
           console.error(e)
@@ -333,6 +341,7 @@ export const portfolioApi = createApi({
           data.accounts.ids.push(accountId)
           data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
           dispatch(portfolio.actions.upsertPortfolio(data))
+          dispatch(portfolio.actions.setIsAccountMetadataLoading({ accountId, isLoading: false }))
           return { data }
         }
       },

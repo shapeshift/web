@@ -1,4 +1,5 @@
 import { Box, Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -29,7 +30,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectHasUserEnteredAmount,
   selectInputSellAsset,
-  selectIsAccountsMetadataLoading,
+  selectIsAccountMetadataLoading,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -79,7 +80,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const isAccountMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
@@ -116,7 +117,11 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   const isLoading = useMemo(
     () =>
-      (isAccountMetadataLoading && !initialSellAssetAccountId) ||
+      // No account meta loaded for that chain
+      !Object.entries(isAccountMetadataLoading).some(
+        ([accountId, isLoading]) =>
+          fromAccountId(accountId).chainId === sellAsset.chainId && !isLoading,
+      ) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -125,11 +130,11 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       isVotingPowerLoading,
     [
       isAccountMetadataLoading,
-      initialSellAssetAccountId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,
+      sellAsset.chainId,
     ],
   )
 

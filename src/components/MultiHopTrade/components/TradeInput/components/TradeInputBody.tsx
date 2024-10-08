@@ -23,6 +23,7 @@ import {
   selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
+  selectIsAccountMetadataLoading,
   selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
@@ -68,6 +69,7 @@ export const TradeInputBody = ({
     state: { wallet },
   } = useWallet()
 
+  const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
   const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
@@ -109,7 +111,7 @@ export const TradeInputBody = ({
     // Don't do any default asset business as some accounts meta is still loading, or a wrong default asset may be set,
     // which takes over the "default default" sellAsset - double default intended:
     // https://github.com/shapeshift/web/blob/ba43c41527156f8c7e0f1170472ff362e091b450/src/state/slices/tradeInputSlice/tradeInputSlice.ts#L27
-    if (isAccountsMetadataLoading) return
+    if (Object.values(isAccountMetadataLoading).some(Boolean)) return
     if (!defaultSellAsset) return
 
     if (walletConnectedChainIds.includes(sellAsset.chainId)) return
@@ -117,6 +119,7 @@ export const TradeInputBody = ({
     setSellAsset(defaultSellAsset)
   }, [
     defaultSellAsset,
+    isAccountMetadataLoading,
     isAccountsMetadataLoading,
     sellAsset,
     setSellAsset,

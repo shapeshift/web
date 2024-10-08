@@ -352,6 +352,7 @@ export const ConfirmSummary = ({
           shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}
+          chainId={buyAsset.chainId}
         />
 
         <ButtonWalletPredicate

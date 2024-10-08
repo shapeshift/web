@@ -1,4 +1,5 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
+import { type ChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask'
 import type { FC } from 'react'
@@ -15,7 +16,7 @@ import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAccountIdsByAssetId, selectIsAccountsMetadataLoading } from 'state/slices/selectors'
+import { selectAccountIdsByAssetId, selectIsAccountMetadataLoading } from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -23,12 +24,16 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 type ManualAddressEntryProps = {
   description?: string
   shouldForceManualAddressEntry?: boolean
+  chainId: ChainId
 }
 
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
-  ({ description, shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
+  ({
+    description,
+    shouldForceManualAddressEntry,
+    chainId,
+  }: ManualAddressEntryProps): JSX.Element | null => {
     const dispatch = useAppDispatch()
-    const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
 
     const {
       formState: { isValidating },
@@ -57,8 +62,16 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
     )
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
+    const isAccountMetadataLoading = useAppSelector(selectIsAccountMetadataLoading)
+
     const shouldShowManualReceiveAddressInput = useMemo(() => {
-      if (isAccountsMetadataLoading) return false
+      // Some AccountIds are loading for that chain - don't show the manual address input since these will eventually be populated
+      if (
+        Object.entries(isAccountMetadataLoading).some(
+          ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && isLoading,
+        )
+      )
+        return false
       if (shouldForceManualAddressEntry) return true
       if (manualReceiveAddress) return false
       // Ledger "supports" all chains, but may not have them connected
@@ -66,12 +79,13 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       // We want to display the manual address entry if the wallet doesn't support the buy asset chain
       return !walletSupportsBuyAssetChain
     }, [
-      buyAssetAccountIds.length,
+      isAccountMetadataLoading,
+      shouldForceManualAddressEntry,
       manualReceiveAddress,
       wallet,
+      buyAssetAccountIds.length,
       walletSupportsBuyAssetChain,
-      shouldForceManualAddressEntry,
-      isAccountsMetadataLoading,
+      chainId,
     ])
 
     const chainAdapterManager = getChainAdapterManager()

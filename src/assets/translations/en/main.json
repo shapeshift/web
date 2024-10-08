@@ -1516,21 +1516,16 @@
         "header": "Pair %{name}",
         "body": "Click Pair and login to %{name} from the popup window",
         "button": "Pair"
+      },
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with %{name}",
+        "connectFailure": "Unable to connect %{name}"
+      },
+      "failure": {
+        "body": "Unable to connect %{name}"
       }
     },
     "metaMask": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet"
-      },
-      "connect": {
-        "header": "Pair MetaMask",
-        "body": "Click Pair and login to MetaMask from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect MetaMask wallet"
-      },
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",

@@ -3,6 +3,7 @@ import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import type { RouteComponentProps } from 'react-router-dom'
 import { getSnapVersion } from 'utils/snaps'
@@ -35,6 +36,7 @@ export interface MetaMaskSetupProps
 }
 
 export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
+  const translate = useTranslate()
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   const {
     dispatch,
@@ -119,7 +121,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         const provider = onProviderChange(KeyManager.MetaMask, wallet)
 
         if (!provider) {
-          throw new Error('walletProvider.metaMask.errors.connectFailure')
+          throw new Error(
+            translate('walletProvider.mipd.errors.connectFailure', {
+              name: maybeMipdProvider?.info.name ?? 'MetaMask',
+            }),
+          )
         }
 
         await (async () => {
@@ -147,7 +153,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           console.error(e)
           setErrorLoading(e?.message)
         } else {
-          setErrorLoading('walletProvider.metaMask.errors.unknown')
+          setErrorLoading(
+            translate('walletProvider.mipd.errors.unknown', {
+              name: maybeMipdProvider?.info.name ?? 'MetaMask',
+            }),
+          )
           history.push('/metamask/failure')
         }
       }
@@ -155,11 +165,13 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }, [
     getAdapter,
-    setErrorLoading,
     dispatch,
     maybeMipdProvider?.info.rdns,
+    maybeMipdProvider?.info.name,
     localWallet,
     onProviderChange,
+    setErrorLoading,
+    translate,
     isMetaMaskMobileWebView,
     showSnapModal,
     history,

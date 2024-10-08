@@ -138,7 +138,7 @@ export const MobileConnect = () => {
             payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
           })
 
-          localWallet.setLocalWallet({ keyManager: KeyManager.Mobile, deviceId })
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)

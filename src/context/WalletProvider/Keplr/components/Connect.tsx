@@ -60,7 +60,7 @@ export const KeplrConnect = ({ history }: KeplrSetupProps) => {
           type: WalletActions.SET_IS_CONNECTED,
           payload: { isConnected: true, modalType: state.modalType },
         })
-        localWallet.setLocalWallet(KeyManager.Keplr, deviceId)
+        localWallet.setLocalWallet({ type: KeyManager.Keplr, deviceId })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         /** Reinitialize wallet when user changes accounts */

@@ -170,7 +170,7 @@ export const MobileLoad = ({ history }: RouteComponentProps) => {
           })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
-          localWallet.setLocalWallet(KeyManager.Mobile, deviceId)
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)

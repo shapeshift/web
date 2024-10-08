@@ -26,10 +26,10 @@ import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile } from 'lib/globals'
+import { METAMASK_RDNS } from 'lib/mipd'
 import { isSome } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -101,7 +101,7 @@ export const ConnectWallet = () => {
 
   const handleMetaMaskConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    connect(KeyManager.MetaMask, true)
+    connect(METAMASK_RDNS, true)
   }, [connect, dispatch])
 
   const renderChains = useMemo(() => {

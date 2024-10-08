@@ -2641,6 +2641,10 @@
     "title": "FOX Token Dashboard",
     "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you fee discounts, a share in revenues on Thorchain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
-    "24hrPriceChange": "24h Price Change"
+    "24hrPriceChange": "24h Price Change",
+    "rfox": {
+      "title": "rFOX Staking",
+      "whatIs": "What is rFOX Staking?"
+    }
   }
 }

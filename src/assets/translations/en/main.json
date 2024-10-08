@@ -802,7 +802,9 @@
     "pendingClaims": "Pending",
     "noPendingClaims": "No claims pending",
     "availableIn": "Available in %{time}",
-    "confirmAndClaim": "Confirm & Claim"
+    "confirmAndClaim": "Confirm & Claim",
+    "viewClaims": "View Claims",
+    "availableClaimsNotification": "You have bridge claims ready!"
   },
   "trade": {
     "trade": "Trade",

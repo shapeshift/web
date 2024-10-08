@@ -54,8 +54,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   )
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === modalType)
 
-  console.log({ modalType })
-
   const headerText: [string, InterpolationOptions] = useMemo(
     () => [
       'walletProvider.mipd.connect.header',

@@ -9,6 +9,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getSnapVersion } from 'utils/snaps'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 const POLL_INTERVAL = 3000 // tune me to make this "feel" right
 const snapVersion = getConfig().REACT_APP_SNAP_VERSION
@@ -43,12 +45,14 @@ export const useIsSnapInstalled = (): {
   const [isCorrectVersion, setIsCorrectVersion] = useState<boolean | null>(null)
 
   const {
-    state: { modalType, wallet, isConnected, isDemoWallet },
+    state: { wallet, isConnected, isDemoWallet },
   } = useWallet()
 
+  const connectedRdns = useAppSelector(selectWalletRdns)
+
   const checkSnapInstallation = useCallback(async () => {
-    if (!isConnected || isDemoWallet) return
-    if (modalType !== METAMASK_RDNS) return
+    if (!isConnected || isDemoWallet) return setIsSnapInstalled(false)
+    if (connectedRdns !== METAMASK_RDNS) return setIsSnapInstalled(false)
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
     if (!isMetaMaskDesktop) return
 
@@ -57,7 +61,7 @@ export const useIsSnapInstalled = (): {
 
     setIsCorrectVersion(version === snapVersion)
     setIsSnapInstalled(_isSnapInstalled)
-  }, [isConnected, isDemoWallet, modalType, wallet])
+  }, [connectedRdns, isConnected, isDemoWallet, wallet])
 
   useEffect(() => {
     // Call the function immediately

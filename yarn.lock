@@ -11554,7 +11554,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-types@npm:^1.0.10":
+"@shapeshiftoss/metamask-snaps-types@npm:1.0.10":
   version: 1.0.10
   resolution: "@shapeshiftoss/metamask-snaps-types@npm:1.0.10"
   dependencies:
@@ -11566,21 +11566,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/metamask-snaps-types@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@shapeshiftoss/metamask-snaps-types@npm:1.0.11"
-  dependencies:
-    "@metamask/types": ^1.1.0
-    "@shapeshiftoss/hdwallet-core": ^1.55.1
-    "@shapeshiftoss/hdwallet-native": ^1.55.1
-    "@shapeshiftoss/unchained-client": ^10.1.1
-  checksum: b1ab73cd7d7a9f5ba76e5b1271f8885721c4a5490a36ddbd26c0237fcf0e5a534472c527b1d09dcf31875fa5b9f944403c778b0e050198a853ed0ea607e542f5
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/metamask-snaps@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@shapeshiftoss/metamask-snaps@npm:1.0.11"
+"@shapeshiftoss/metamask-snaps@npm:1.0.10":
+  version: 1.0.10
+  resolution: "@shapeshiftoss/metamask-snaps@npm:1.0.10"
   dependencies:
     "@ethersproject/providers": ^5.7.0
     "@metamask/detect-provider": ^2.0.0
@@ -11591,7 +11579,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-core": ^1.55.1
     "@shapeshiftoss/hdwallet-native": ^1.55.1
     "@shapeshiftoss/logger": ^1.1.2
-    "@shapeshiftoss/metamask-snaps-types": ^1.0.11
+    "@shapeshiftoss/metamask-snaps-types": ^1.0.10
     "@shapeshiftoss/types": ^8.3.0
     "@shapeshiftoss/unchained-client": 10.1.1
     eth-rpc-errors: ^4.0.3
@@ -11608,7 +11596,7 @@ __metadata:
     eslint-plugin-react: "*"
     eslint-plugin-react-hooks: "*"
     webpack: "*"
-  checksum: 5d1cf541f2dea151cc294307056627328595ed6ceb2b7045bd4e9320d19942b0258be49bced4514de9e1c3a1f005f458b2afa9ba676b26d696914867542493db
+  checksum: 57ed54d80903a83ef738d1c9c4487059f7f371f7e0271afd14176883ca91b5d012df861ec8c447b6c7d10f7dd9dfc034921ff70bdbdc829c6046b398e372bf31
   languageName: node
   linkType: hard
 

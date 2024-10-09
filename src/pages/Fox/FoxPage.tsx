@@ -7,6 +7,7 @@ import { SEO } from 'components/Layout/Seo'
 
 import { FoxHeader } from './components/FoxHeader'
 import { FoxToken } from './components/FoxToken'
+import { RFOXSection } from './components/RFOXSection'
 import { FoxPageProvider } from './hooks/useFoxPageContext'
 
 export const FoxPage = () => {
@@ -19,6 +20,7 @@ export const FoxPage = () => {
       <Main headerComponent={headerComponent}>
         <Divider mb={4} />
         <FoxToken />
+        <RFOXSection />
       </Main>
     </FoxPageProvider>
   )

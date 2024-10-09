@@ -163,10 +163,11 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     setLoading(false)
   }, [
     getAdapter,
-    dispatch,
+    maybeMipdProvider?.provider,
     maybeMipdProvider?.info.rdns,
     maybeMipdProvider?.info.name,
-    maybeMipdProvider?.provider,
+    modalType,
+    dispatch,
     localWallet,
     setErrorLoading,
     translate,

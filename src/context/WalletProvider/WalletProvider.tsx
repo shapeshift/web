@@ -637,6 +637,49 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
+          case KeyManager.Coinbase:
+            // Get the adapter again in each switch case to narrow down the adapter type
+            const coinbaseAdapter = await getAdapter(localWalletType)
+
+            if (coinbaseAdapter) {
+              currentAdapters[localWalletType] = coinbaseAdapter
+              dispatch({ type: WalletActions.SET_ADAPTERS, payload: currentAdapters })
+              // Fixes issue with wallet `type` being null when the wallet is loaded from state
+              dispatch({
+                type: WalletActions.SET_CONNECTOR_TYPE,
+                payload: { modalType: localWalletType, isMipdProvider: false },
+              })
+            }
+
+            const localCoinbaseWallet = await coinbaseAdapter?.pairDevice()
+            if (localCoinbaseWallet) {
+              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
+              try {
+                await localCoinbaseWallet.initialize()
+                const deviceId = await localCoinbaseWallet.getDeviceID()
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet: localCoinbaseWallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: KeyManager.Coinbase,
+                  },
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: { isConnected: true, modalType: localWalletType },
+                })
+              } catch (e) {
+                disconnect()
+              }
+            } else {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
 
           case KeyManager.Keplr:
             // Get the adapter again in each switch case to narrow down the adapter type

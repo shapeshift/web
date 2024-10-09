@@ -1,4 +1,5 @@
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
+import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -19,6 +20,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.WalletConnectV2]: WalletConnectV2Adapter
   [KeyManager.MetaMask]: MetaMaskAdapter
   [KeyManager.Phantom]: PhantomAdapter
+  [KeyManager.Coinbase]: CoinbaseAdapter
 }
 
 export enum NativeWalletRoutes {

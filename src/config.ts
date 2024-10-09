@@ -88,7 +88,6 @@ const validators = {
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
-  REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_LEDGER_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: '' }),

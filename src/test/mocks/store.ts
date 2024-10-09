@@ -95,7 +95,6 @@ export const mockStore: ReduxState = {
       OneInch: false,
       CovalentJaypegs: false,
       Chatwoot: false,
-      CoinbaseWallet: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
       CustomSendNonce: false,

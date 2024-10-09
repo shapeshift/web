@@ -1,5 +1,6 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
+import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -12,6 +13,7 @@ import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { walletConnectV2ProviderConfig } from 'context/WalletProvider/WalletConnectV2/config'
 
+import { CoinbaseConfig } from './Coinbase/config'
 import { DemoConfig } from './DemoWallet/config'
 import { DemoMenu } from './DemoWallet/DemoMenu'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
@@ -125,6 +127,16 @@ const KeepKeyMenu = lazy(() =>
 const NativeMenu = lazy(() =>
   import('components/Layout/Header/NavBar/Native/NativeMenu').then(({ NativeMenu }) => ({
     default: NativeMenu,
+  })),
+)
+const CoinbaseConnect = lazy(() =>
+  import('./Coinbase/components/Connect').then(({ CoinbaseConnect }) => ({
+    default: CoinbaseConnect,
+  })),
+)
+const CoinbaseFailure = lazy(() =>
+  import('./Coinbase/components/Failure').then(({ CoinbaseFailure }) => ({
+    default: CoinbaseFailure,
   })),
 )
 const KeepKeyConnect = lazy(() =>
@@ -307,6 +319,7 @@ export type SupportedWalletInfo<T> = {
 }
 
 export type SupportedWalletInfoByKeyManager = {
+  [KeyManager.Coinbase]: SupportedWalletInfo<typeof CoinbaseAdapter>
   // Native, Mobile, and Demo wallets are all native wallets
   [KeyManager.Native]: SupportedWalletInfo<typeof NativeAdapter>
   [KeyManager.Mobile]: SupportedWalletInfo<typeof NativeAdapter>
@@ -400,7 +413,13 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/phantom/failure', component: PhantomFailure },
     ],
   },
-
+  [KeyManager.Coinbase]: {
+    ...CoinbaseConfig,
+    routes: [
+      { path: '/coinbase/connect', component: CoinbaseConnect },
+      { path: '/coinbase/failure', component: CoinbaseFailure },
+    ],
+  },
   [KeyManager.Demo]: {
     ...DemoConfig,
     routes: [],

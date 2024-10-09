@@ -1,9 +1,9 @@
-import { Box, Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -16,7 +16,6 @@ import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
-import { SlideTransition } from 'components/SlideTransition'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -64,7 +63,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const bodyRef = useRef<HTMLDivElement | null>(null)
   const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const { handleSubmit } = useFormContext()
@@ -264,75 +262,73 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <Flex
-        width='full'
-        justifyContent='center'
-        maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
+      <ArbitrumBridgeAcknowledgement
+        onAcknowledge={handleFormSubmit}
+        shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
       >
-        <Center width='inherit'>
-          <Card flex={1} width='full' maxWidth='500px' ref={tradeInputRef}>
-            <ArbitrumBridgeAcknowledgement
-              onAcknowledge={handleFormSubmit}
-              shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
-              setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
+        <StreamingAcknowledgement
+          onAcknowledge={handleFormSubmit}
+          shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+          setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+          estimatedTimeMs={
+            tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
+          }
+        >
+          <WarningAcknowledgement
+            message={warningAcknowledgementMessage}
+            onAcknowledge={handleWarningAcknowledgementSubmit}
+            shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+            setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+          >
+            <Flex
+              width='full'
+              justifyContent='center'
+              maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
             >
-              <StreamingAcknowledgement
-                onAcknowledge={handleFormSubmit}
-                shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-                setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-                estimatedTimeMs={
-                  tradeQuoteStep?.estimatedExecutionTimeMs
-                    ? tradeQuoteStep.estimatedExecutionTimeMs
-                    : 0
-                }
-              >
-                <WarningAcknowledgement
-                  message={warningAcknowledgementMessage}
-                  onAcknowledge={handleWarningAcknowledgementSubmit}
-                  shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-                  setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+              <Center width='inherit'>
+                <Card
+                  flex={1}
+                  width='full'
+                  maxWidth='500px'
+                  ref={tradeInputRef}
+                  as='form'
+                  onSubmit={handleTradeQuoteConfirm}
                 >
-                  <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                    <SharedTradeInputHeader
-                      initialTab={TradeInputTab.Trade}
-                      onChangeTab={handleChangeTab}
-                      isLoading={isLoading}
-                      isCompact={isCompact}
-                    />
-                    <SlideTransition>
-                      <Box ref={bodyRef}>
-                        <TradeInputBody
-                          isLoading={isLoading}
-                          manualReceiveAddress={manualReceiveAddress}
-                          initialSellAssetAccountId={initialSellAssetAccountId}
-                          initialBuyAssetAccountId={initialBuyAssetAccountId}
-                          setSellAssetAccountId={setSellAssetAccountId}
-                          setBuyAssetAccountId={setBuyAssetAccountId}
-                        />
-                        <ConfirmSummary
-                          isCompact={isCompact}
-                          isLoading={isLoading}
-                          receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-                        />
-                      </Box>
-                    </SlideTransition>
-                  </Stack>
-                </WarningAcknowledgement>
-              </StreamingAcknowledgement>
-            </ArbitrumBridgeAcknowledgement>
-          </Card>
-
-          <WithLazyMount
-            shouldUse={!isCompact && !isSmallerThanXl}
-            component={CollapsibleQuoteList}
-            isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-            isLoading={isLoading}
-            width={tradeInputRef.current?.offsetWidth ?? 'full'}
-            height={totalHeight ?? 'full'}
-            ml={4}
-          />
-        </Center>
-      </Flex>
+                  <SharedTradeInputHeader
+                    initialTab={TradeInputTab.Trade}
+                    onChangeTab={handleChangeTab}
+                    isLoading={isLoading}
+                    isCompact={isCompact}
+                  />
+                  <TradeInputBody
+                    isLoading={isLoading}
+                    manualReceiveAddress={manualReceiveAddress}
+                    initialSellAssetAccountId={initialSellAssetAccountId}
+                    initialBuyAssetAccountId={initialBuyAssetAccountId}
+                    setSellAssetAccountId={setSellAssetAccountId}
+                    setBuyAssetAccountId={setBuyAssetAccountId}
+                  />
+                  <ConfirmSummary
+                    isCompact={isCompact}
+                    isLoading={isLoading}
+                    receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+                  />
+                </Card>
+                <WithLazyMount
+                  shouldUse={!isCompact && !isSmallerThanXl}
+                  component={CollapsibleQuoteList}
+                  isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+                  isLoading={isLoading}
+                  width={tradeInputRef.current?.offsetWidth ?? 'full'}
+                  height={totalHeight ?? 'full'}
+                  ml={4}
+                />
+              </Center>
+            </Flex>
+          </WarningAcknowledgement>
+        </StreamingAcknowledgement>
+      </ArbitrumBridgeAcknowledgement>
     </MessageOverlay>
   )
 }

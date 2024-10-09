@@ -67,20 +67,36 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
+    fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+  })
+  const {
+    sellAssetAccountId: initialSellAssetAccountId,
+    buyAssetAccountId: initialBuyAssetAccountId,
+    setSellAssetAccountId,
+    setBuyAssetAccountId,
+  } = useAccountIds()
+
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [shouldShowStreamingAcknowledgement, setShouldShowStreamingAcknowledgement] =
     useState(false)
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
-  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const sellAsset = useAppSelector(selectInputSellAsset)
+
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -89,34 +105,12 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
 
-  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
-  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const activeQuote = useAppSelector(selectActiveQuote)
-
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],
   )
-
-  const {
-    sellAssetAccountId: initialSellAssetAccountId,
-    buyAssetAccountId: initialBuyAssetAccountId,
-    setSellAssetAccountId,
-    setBuyAssetAccountId,
-  } = useAccountIds()
-
-  const useReceiveAddressArgs = useMemo(
-    () => ({
-      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-    }),
-    [wallet],
-  )
-
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
   const isLoading = useMemo(
     () =>
@@ -137,11 +131,45 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     ],
   )
 
-  const translate = useTranslate()
   const overlayTitle = useMemo(
     () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
     [translate],
   )
+
+  useEffect(() => {
+    // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
+    // user has not yet confirmed the previous one
+    if (shouldShowWarningAcknowledgement) setShouldShowWarningAcknowledgement(false)
+    // We also need to reset the streaming acknowledgement if the active quote has changed
+    if (shouldShowStreamingAcknowledgement) setShouldShowStreamingAcknowledgement(false)
+    if (shouldShowArbitrumBridgeAcknowledgement) setShouldShowArbitrumBridgeAcknowledgement(false)
+    // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeQuote])
+
+  const isEstimatedExecutionTimeOverThreshold = useMemo(() => {
+    if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
+
+    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
+      return true
+
+    return false
+  }, [tradeQuoteStep?.estimatedExecutionTimeMs])
+
+  const warningAcknowledgementMessage = useMemo(() => {
+    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
+      ?.recommendedMinimumCryptoBaseUnit
+    if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
+    const recommendedMinimumCryptoPrecision = fromBaseUnit(
+      recommendedMinimumCryptoBaseUnit,
+      sellAsset.precision,
+    )
+    const message = translate('trade.errors.unsafeQuote', {
+      symbol: sellAsset.symbol,
+      recommendedMin: recommendedMinimumCryptoPrecision,
+    })
+    return message
+  }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -191,26 +219,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     wallet,
   ])
 
-  useEffect(() => {
-    // Reset the trade warning if the active quote has changed, i.e. a better quote has come in and the
-    // user has not yet confirmed the previous one
-    if (shouldShowWarningAcknowledgement) setShouldShowWarningAcknowledgement(false)
-    // We also need to reset the streaming acknowledgement if the active quote has changed
-    if (shouldShowStreamingAcknowledgement) setShouldShowStreamingAcknowledgement(false)
-    if (shouldShowArbitrumBridgeAcknowledgement) setShouldShowArbitrumBridgeAcknowledgement(false)
-    // We need to ignore changes to shouldShowWarningAcknowledgement or this effect will react to itself
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeQuote])
-
-  const isEstimatedExecutionTimeOverThreshold = useMemo(() => {
-    if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
-
-    if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
-      return true
-
-    return false
-  }, [tradeQuoteStep?.estimatedExecutionTimeMs])
-
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
   const handleChangeTab = useCallback(
@@ -244,21 +252,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     },
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
-
-  const warningAcknowledgementMessage = useMemo(() => {
-    const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
-      ?.recommendedMinimumCryptoBaseUnit
-    if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
-    const recommendedMinimumCryptoPrecision = fromBaseUnit(
-      recommendedMinimumCryptoBaseUnit,
-      sellAsset.precision,
-    )
-    const message = translate('trade.errors.unsafeQuote', {
-      symbol: sellAsset.symbol,
-      recommendedMin: recommendedMinimumCryptoPrecision,
-    })
-    return message
-  }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>

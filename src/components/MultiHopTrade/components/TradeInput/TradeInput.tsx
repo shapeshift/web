@@ -1,4 +1,3 @@
-import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -16,7 +15,7 @@ import {
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -44,15 +43,10 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
-import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
+import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
-import { ConfirmSummary } from './components/ConfirmSummary'
-import { WithLazyMount } from './components/WithLazyMount'
-import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -68,8 +62,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
-  const totalHeight = useSharedHeight(tradeInputRef)
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -242,15 +235,6 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
 
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      if (newTab === TradeInputTab.Claim) {
-        history.push(TradeRoutePaths.Claim)
-      }
-    },
-    [history],
-  )
-
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
   const handleWarningAcknowledgementSubmit = useCallback(() => {
     if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
@@ -295,59 +279,28 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
             shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
             setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
           >
-            <Flex
-              width='full'
-              justifyContent='center'
-              maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
-            >
-              <Center width='inherit'>
-                <Card
-                  flex={1}
-                  width='full'
-                  maxWidth='500px'
-                  ref={tradeInputRef}
-                  as='form'
-                  onSubmit={handleTradeQuoteConfirm}
-                >
-                  <SharedTradeInputHeader
-                    initialTab={TradeInputTab.Trade}
-                    onChangeTab={handleChangeTab}
-                    isLoading={isLoading}
-                    isCompact={isCompact}
-                  />
-                  <SharedTradeInputBody
-                    activeQuote={activeQuote}
-                    buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-                    buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-                    buyAsset={buyAsset}
-                    sellAsset={sellAsset}
-                    isLoading={isLoading}
-                    manualReceiveAddress={manualReceiveAddress}
-                    initialSellAssetAccountId={initialSellAssetAccountId}
-                    initialBuyAssetAccountId={initialBuyAssetAccountId}
-                    setSellAssetAccountId={setSellAssetAccountId}
-                    setBuyAssetAccountId={setBuyAssetAccountId}
-                    setBuyAsset={setBuyAsset}
-                    setSellAsset={setSellAsset}
-                    handleSwitchAssets={handleSwitchAssets}
-                  />
-                  <ConfirmSummary
-                    isCompact={isCompact}
-                    isLoading={isLoading}
-                    receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-                  />
-                </Card>
-                <WithLazyMount
-                  shouldUse={!isCompact && !isSmallerThanXl}
-                  component={CollapsibleQuoteList}
-                  isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
-                  isLoading={isLoading}
-                  width={tradeInputRef.current?.offsetWidth ?? 'full'}
-                  height={totalHeight ?? 'full'}
-                  ml={4}
-                />
-              </Center>
-            </Flex>
+            <SharedTradeInput
+              activeQuote={activeQuote}
+              buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+              buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+              buyAsset={buyAsset}
+              hasUserEnteredAmount={hasUserEnteredAmount}
+              initialBuyAssetAccountId={initialBuyAssetAccountId}
+              initialSellAssetAccountId={initialSellAssetAccountId}
+              isCompact={isCompact}
+              isLoading={isLoading}
+              manualReceiveAddress={manualReceiveAddress}
+              sellAsset={sellAsset}
+              sideComponent={CollapsibleQuoteList}
+              tradeInputRef={tradeInputRef}
+              walletReceiveAddress={walletReceiveAddress}
+              handleSwitchAssets={handleSwitchAssets}
+              onSubmit={handleTradeQuoteConfirm}
+              setBuyAsset={setBuyAsset}
+              setBuyAssetAccountId={setBuyAssetAccountId}
+              setSellAsset={setSellAsset}
+              setSellAssetAccountId={setSellAssetAccountId}
+            />
           </WarningAcknowledgement>
         </StreamingAcknowledgement>
       </ArbitrumBridgeAcknowledgement>

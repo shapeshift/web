@@ -1,5 +1,5 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
-import { type ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { type ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask'
 import type { FC } from 'react'
@@ -18,7 +18,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import {
   selectAccountIdsByAssetId,
-  selectIsAccountMetadataLoadingByAccountId,
+  selectIsAnyAccountMetadataLoadingForChainId,
 } from 'state/slices/selectors'
 import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -65,18 +65,17 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
     )
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
-    const isAccountMetadataLoadingByAccountId = useAppSelector(
-      selectIsAccountMetadataLoadingByAccountId,
+    const isAnyAccountMetadataLoadingByChainIdFilter = useMemo(() => ({ chainId }), [chainId])
+    const isAnyAccountMetadataLoadingByChainId = useAppSelector(state =>
+      selectIsAnyAccountMetadataLoadingForChainId(
+        state,
+        isAnyAccountMetadataLoadingByChainIdFilter,
+      ),
     )
 
     const shouldShowManualReceiveAddressInput = useMemo(() => {
       // Some AccountIds are loading for that chain - don't show the manual address input since these will eventually be populated
-      if (
-        Object.entries(isAccountMetadataLoadingByAccountId).some(
-          ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && isLoading,
-        )
-      )
-        return false
+      if (isAnyAccountMetadataLoadingByChainId) return false
       if (shouldForceManualAddressEntry) return true
       if (manualReceiveAddress) return false
       // Ledger "supports" all chains, but may not have them connected
@@ -84,13 +83,12 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       // We want to display the manual address entry if the wallet doesn't support the buy asset chain
       return !walletSupportsBuyAssetChain
     }, [
-      isAccountMetadataLoadingByAccountId,
+      isAnyAccountMetadataLoadingByChainId,
       shouldForceManualAddressEntry,
       manualReceiveAddress,
       wallet,
       buyAssetAccountIds.length,
       walletSupportsBuyAssetChain,
-      chainId,
     ])
 
     const chainAdapterManager = getChainAdapterManager()

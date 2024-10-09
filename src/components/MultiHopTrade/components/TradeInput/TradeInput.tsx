@@ -1,5 +1,4 @@
 import { Box, Card, Center, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -30,7 +29,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectHasUserEnteredAmount,
   selectInputSellAsset,
-  selectIsAccountMetadataLoadingByAccountId,
+  selectIsAnyAccountMetadataLoadedForChainId,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -80,13 +79,17 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-  const isAccountMetadataLoadingByAccountId = useAppSelector(
-    selectIsAccountMetadataLoadingByAccountId,
-  )
-
   const sellAsset = useAppSelector(selectInputSellAsset)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
+
+  const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
+    () => ({ chainId: sellAsset.chainId }),
+    [sellAsset.chainId],
+  )
+  const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
+    selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
+  )
 
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -120,10 +123,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      !Object.entries(isAccountMetadataLoadingByAccountId).some(
-        ([accountId, isLoading]) =>
-          fromAccountId(accountId).chainId === sellAsset.chainId && !isLoading,
-      ) ||
+      !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -131,12 +131,11 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading,
     [
-      isAccountMetadataLoadingByAccountId,
+      isAnyAccountMetadataLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,
-      sellAsset.chainId,
     ],
   )
 

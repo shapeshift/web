@@ -1159,3 +1159,21 @@ export const selectIsAccountsMetadataLoading = (state: ReduxState) =>
   state.portfolio.isAccountsMetadataLoading
 export const selectIsAccountMetadataLoadingByAccountId = (state: ReduxState) =>
   state.portfolio.isAccountMetadataLoadingByAccountId
+export const selectIsAnyAccountMetadataLoadingForChainId = createSelector(
+  selectIsAccountMetadataLoadingByAccountId,
+  selectChainIdParamFromFilter,
+  (isAccountMetadataLoadingByAccountId, chainId): boolean => {
+    return Object.entries(isAccountMetadataLoadingByAccountId).some(
+      ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && isLoading,
+    )
+  },
+)
+export const selectIsAnyAccountMetadataLoadedForChainId = createSelector(
+  selectIsAccountMetadataLoadingByAccountId,
+  selectChainIdParamFromFilter,
+  (isAccountMetadataLoadingByAccountId, chainId): boolean => {
+    return Object.entries(isAccountMetadataLoadingByAccountId).some(
+      ([accountId, isLoading]) => fromAccountId(accountId).chainId === chainId && !isLoading,
+    )
+  },
+)

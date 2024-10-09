@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 
-import { TradeInputHeader } from '../TradeInputHeader'
+import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimSelect } from './ClaimSelect'
 import { ClaimStatus } from './ClaimStatus'
@@ -64,7 +64,7 @@ export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Card flex={1} width='full' maxWidth='500px'>
-          <TradeInputHeader
+          <SharedTradeInputHeader
             initialTab={TradeInputTab.Claim}
             onChangeTab={handleChangeTab}
             isLoading={false}

@@ -43,10 +43,10 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeInputBody } from './components/TradeInputBody'
-import { TradeInputHeader } from './components/TradeInputHeader'
 import { WithLazyMount } from './components/WithLazyMount'
 import { useSharedHeight } from './hooks/useSharedHeight'
 
@@ -247,7 +247,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
-  const warningAcknowledgementMessage = (() => {
+  const warningAcknowledgementMessage = useMemo(() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
     if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
@@ -260,7 +260,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
       recommendedMin: recommendedMinimumCryptoPrecision,
     })
     return message
-  })()
+  }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
@@ -293,7 +293,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                   setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
                 >
                   <Stack spacing={0} as='form' onSubmit={handleTradeQuoteConfirm}>
-                    <TradeInputHeader
+                    <SharedTradeInputHeader
                       initialTab={TradeInputTab.Trade}
                       onChangeTab={handleChangeTab}
                       isLoading={isLoading}

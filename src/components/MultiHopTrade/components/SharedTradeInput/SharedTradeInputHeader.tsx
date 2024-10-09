@@ -9,16 +9,16 @@ import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQu
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { TradeInputTab } from '../../../types'
-import { SlippagePopover } from '../../SlippagePopover'
-import { CountdownSpinner } from './TradeQuotes/components/CountdownSpinner'
+import { TradeInputTab } from '../../types'
+import { SlippagePopover } from '../SlippagePopover'
+import { CountdownSpinner } from '../TradeInput/components/TradeQuotes/components/CountdownSpinner'
 
 type TradeInputHeaderRightComponentProps = {
   isCompact: boolean | undefined
   isLoading: boolean
 }
 
-type FakeTabHeaderProps = {
+type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
   isCompact: boolean | undefined
   isLoading: boolean
@@ -54,12 +54,12 @@ const TradeInputHeaderRightComponent = ({
   )
 }
 
-export const TradeInputHeader = ({
+export const SharedTradeInputHeader = ({
   initialTab,
   isCompact,
   isLoading,
   onChangeTab,
-}: FakeTabHeaderProps) => {
+}: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
   const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
 

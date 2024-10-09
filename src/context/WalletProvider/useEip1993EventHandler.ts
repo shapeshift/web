@@ -21,10 +21,12 @@ export const useEip1993EventHandler = ({
 }: Pick<IWalletContext, 'state' | 'getAdapter' | 'dispatch'>) => {
   const { rdns: _rdns, localWalletType } = useLocalWallet()
   const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
-  const rdns = useMemo(
-    () => (localWalletType === KeyManager.Phantom ? 'app.phantom' : _rdns),
-    [_rdns, localWalletType],
-  )
+  const rdns = useMemo(() => {
+    // Uses rdns magic to detect provider for our first-class wallets
+    if (localWalletType === KeyManager.Phantom) return 'app.phantom'
+    if (localWalletType === KeyManager.Coinbase) return 'com.coinbase.wallet'
+    return _rdns
+  }, [_rdns, localWalletType])
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === rdns)
 
   const currentRdnsRef = useRef(rdns)
@@ -35,7 +37,12 @@ export const useEip1993EventHandler = ({
   const handleAccountsOrChainChanged = useCallback(
     async (accountsOrChains: string[] | string) => {
       if (!maybeMipdProvider || !state.adapters) return
-      if (![KeyManager.MetaMask, KeyManager.Phantom].includes(localWalletType as KeyManager)) return
+      if (
+        ![KeyManager.MetaMask, KeyManager.Phantom, KeyManager.Coinbase].includes(
+          localWalletType as KeyManager,
+        )
+      )
+        return
       // Never ever under any circumstances remove me. We attach event handlers to EIP-1993 providers,
       // and trying to detach them as we did previously is a guaranteed spaghetti code disaster and a recipe for bugs.
       // This ensures that we do *not* try to run this fn with stale event listeners from previously connected EIP-1993 wallets.

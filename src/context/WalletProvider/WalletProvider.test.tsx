@@ -34,6 +34,10 @@ vi.mock('@shapeshiftoss/hdwallet-metamask-multichain', () => ({
   },
 }))
 
+vi.mock('./useEip1993EventHandler', () => ({
+  useEip1993EventHandler: vi.fn(),
+}))
+
 const walletInfoPayload = {
   name: SUPPORTED_WALLETS.native.name,
   icon: SUPPORTED_WALLETS.native.icon,

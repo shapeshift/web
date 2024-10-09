@@ -13,6 +13,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { AssetIcon } from 'components/AssetIcon'
+import { Text } from 'components/Text'
 import { chainIdToChainDisplayName } from 'lib/utils'
 import { AccountEntryRow } from 'pages/Accounts/components/AccountEntryRow'
 import { getFeeAssetByAssetId } from 'state/slices/assetsSlice/utils'
@@ -99,6 +100,36 @@ export const FoxTokenBalances = () => {
     })
   }
 
+  const filteredAssetsAccountsWithBalances = useMemo(() => {
+    const entries = filteredAssets.reduce<JSX.Element[]>((acc, filteredAssetId) => {
+      if (!selectedAssetAccountId) return acc
+      const filteredAssetChainId = fromAssetId(filteredAssetId).chainId
+
+      if (!filteredAssetChainId) return acc
+      const filteredAssetAccountId = accountIdsByChainId[filteredAssetChainId]
+
+      if (assetAccountNumber === undefined) return acc
+      if (!filteredAssetAccountId?.[assetAccountNumber]) return acc
+
+      acc.push(
+        <AccountEntryRow
+          key={filteredAssetId}
+          accountId={filteredAssetAccountId[assetAccountNumber]}
+          assetId={filteredAssetId}
+          showNetworkIcon={true}
+        />,
+      )
+
+      return acc
+    }, [])
+
+    if (!entries.length) {
+      return <Text translation='foxPage.noAccounts' color='text.subtle' />
+    }
+
+    return <>{entries.map(account => account)}</>
+  }, [accountIdsByChainId, assetAccountNumber, filteredAssets, selectedAssetAccountId])
+
   return (
     <Box mb={10}>
       <ButtonGroup variant='transparent' mb={4} spacing={0}>
@@ -138,27 +169,7 @@ export const FoxTokenBalances = () => {
       </ButtonGroup>
       <Card>
         <CardBody>
-          <List>
-            {filteredAssets.map(filteredAssetId => {
-              if (!selectedAssetAccountId) return null
-              const filteredAssetChainId = fromAssetId(filteredAssetId).chainId
-
-              if (!filteredAssetChainId) return null
-              const filteredAssetAccountId = accountIdsByChainId[filteredAssetChainId]
-
-              if (!filteredAssetAccountId) return null
-              if (assetAccountNumber === undefined) return null
-
-              return (
-                <AccountEntryRow
-                  key={filteredAssetId}
-                  accountId={filteredAssetAccountId[assetAccountNumber]}
-                  assetId={filteredAssetId}
-                  showNetworkIcon={true}
-                />
-              )
-            })}
-          </List>
+          <List>{filteredAssetsAccountsWithBalances}</List>
         </CardBody>
       </Card>
     </Box>

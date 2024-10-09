@@ -2,6 +2,7 @@ import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -27,11 +28,15 @@ import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import {
   selectHasUserEnteredAmount,
+  selectInputBuyAsset,
   selectInputSellAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
 } from 'state/slices/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
+  selectBuyAmountAfterFeesCryptoPrecision,
+  selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
@@ -42,10 +47,10 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
-import { TradeInputBody } from './components/TradeInputBody'
 import { WithLazyMount } from './components/WithLazyMount'
 import { useSharedHeight } from './hooks/useSharedHeight'
 
@@ -88,15 +93,18 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
+  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-  const sellAsset = useAppSelector(selectInputSellAsset)
-  const activeQuote = useAppSelector(selectActiveQuote)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -170,6 +178,19 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     })
     return message
   }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
+
+  const setBuyAsset = useCallback(
+    (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
+    [dispatch],
+  )
+  const setSellAsset = useCallback(
+    (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset)),
+    [dispatch],
+  )
+  const handleSwitchAssets = useCallback(
+    () => dispatch(tradeInput.actions.switchAssets()),
+    [dispatch],
+  )
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -294,13 +315,21 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
                     isLoading={isLoading}
                     isCompact={isCompact}
                   />
-                  <TradeInputBody
+                  <SharedTradeInputBody
+                    activeQuote={activeQuote}
+                    buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+                    buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+                    buyAsset={buyAsset}
+                    sellAsset={sellAsset}
                     isLoading={isLoading}
                     manualReceiveAddress={manualReceiveAddress}
                     initialSellAssetAccountId={initialSellAssetAccountId}
                     initialBuyAssetAccountId={initialBuyAssetAccountId}
                     setSellAssetAccountId={setSellAssetAccountId}
                     setBuyAssetAccountId={setBuyAssetAccountId}
+                    setBuyAsset={setBuyAsset}
+                    setSellAsset={setSellAsset}
+                    handleSwitchAssets={handleSwitchAssets}
                   />
                   <ConfirmSummary
                     isCompact={isCompact}

@@ -23,6 +23,7 @@ import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -236,24 +237,6 @@ export type TradeQuote = TradeQuoteBase & {
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
-export type CowSwapOrder = {
-  sellToken: string
-  buyToken: string
-  sellAmount: string
-  buyAmount: string
-  validTo: number
-  appData: string
-  appDataHash: string
-  feeAmount: string
-  kind: string
-  partiallyFillable: boolean
-  receiver: string
-  sellTokenBalance: string
-  buyTokenBalance: string
-  quoteId: number
-  signingScheme: 'eip712' | 'ethsign'
-}
-
 export type GetUnsignedTxArgs = {
   tradeQuote: TradeQuote
   chainId: ChainId
@@ -348,11 +331,6 @@ export type EvmTransactionRequest = {
   data: string
   chainId: number
 } & evm.types.Fees
-
-export type CowMessageToSign = {
-  chainId: ChainId
-  orderToSign: CowSwapOrder
-}
 
 // TODO: one day this might be a union to support various implementations or generic 💀
 export type EvmMessageToSign = CowMessageToSign

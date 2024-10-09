@@ -104,9 +104,14 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
         data: any,
         config?: AxiosRequestConfig<any>,
       ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
+      delete: <T = any>(
+        url: string,
+        data: any,
+        config?: AxiosRequestConfig<any>,
+      ) => Promise<Result<AxiosResponse<T>, SwapErrorRight>>
     }
   >(service, {
-    get: (trappedAxios, method: 'get' | 'post') => {
+    get: (trappedAxios, method: 'get' | 'post' | 'delete') => {
       const originalMethodPromise = trappedAxios[method]
       return async (...args: [url: string, dataOrConfig?: any, dataOrConfig?: any]) => {
         // getMixPanel()?.track(MixPanelEvent.SwapperApiRequest, {

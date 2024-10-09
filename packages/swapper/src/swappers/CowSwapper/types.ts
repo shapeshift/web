@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
 export type CowSwapQuoteResponse = {
@@ -24,11 +25,35 @@ enum CowSwapQuoteErrorType {
   SellAmountDoesNotCoverFee = 'SellAmountDoesNotCoverFee',
   NoLiquidity = 'NoLiquidity',
 }
+
 export type CowSwapQuoteError = {
   errorType: CowSwapQuoteErrorType
   description: string
   // This is not documented by CoW API so we shouldn't make assumptions about the shape, nor presence of this guy
   data?: any
+}
+
+export enum CoWSwapOrderKind {
+  Buy = 'buy',
+  Sell = 'sell',
+}
+
+export enum CoWSwapSigningScheme {
+  EIP712 = 'eip712',
+  EIP1271 = 'eip1271',
+  EthSign = 'ethsign',
+  PreSign = 'presign',
+}
+
+export enum CoWSwapSellTokenSource {
+  ERC20 = 'erc20',
+  External = 'external',
+  Internal = 'internal',
+}
+
+export enum CoWSwapBuyTokenDestination {
+  ERC20 = 'erc20',
+  Internal = 'internal',
 }
 
 export enum CowNetwork {
@@ -55,4 +80,27 @@ export type AffiliateAppDataFragment = {
     bps: number
     recipient: string
   }
+}
+
+export type CowSwapOrder = {
+  sellToken: string
+  buyToken: string
+  sellAmount: string
+  buyAmount: string
+  validTo: number
+  appData: string
+  appDataHash: string
+  feeAmount: string
+  kind: string
+  partiallyFillable: boolean
+  receiver: string
+  sellTokenBalance: CoWSwapSellTokenSource
+  buyTokenBalance: CoWSwapBuyTokenDestination
+  quoteId: number
+  signingScheme: CoWSwapSigningScheme
+}
+
+export type CowMessageToSign = {
+  chainId: ChainId
+  orderToSign: CowSwapOrder
 }

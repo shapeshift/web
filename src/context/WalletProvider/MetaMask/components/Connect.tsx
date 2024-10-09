@@ -11,7 +11,6 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskMobileWebView,
@@ -41,7 +40,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const {
     dispatch,
     getAdapter,
-    onProviderChange,
     state: { modalType },
   } = useWallet()
   const localWallet = useLocalWallet()
@@ -83,8 +81,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (adapter) {
-      // Remove all provider event listeners from previously connected wallets
-      await removeAccountsAndChainListeners()
       try {
         const wallet = await adapter.pairDevice()
         if (!wallet) {
@@ -118,9 +114,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           rdns: maybeMipdProvider?.info.rdns,
         })
 
-        const provider = onProviderChange(KeyManager.MetaMask, wallet)
-
-        if (!provider) {
+        if (!maybeMipdProvider?.provider) {
           throw new Error(
             translate('walletProvider.mipd.errors.connectFailure', {
               name: maybeMipdProvider?.info.name ?? 'MetaMask',
@@ -168,8 +162,8 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
     dispatch,
     maybeMipdProvider?.info.rdns,
     maybeMipdProvider?.info.name,
+    maybeMipdProvider?.provider,
     localWallet,
-    onProviderChange,
     setErrorLoading,
     translate,
     isMetaMaskMobileWebView,

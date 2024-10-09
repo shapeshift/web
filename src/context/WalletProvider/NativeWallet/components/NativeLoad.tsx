@@ -22,7 +22,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { NativeConfig } from '../config'
@@ -82,9 +81,6 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state

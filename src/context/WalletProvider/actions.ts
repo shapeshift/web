@@ -11,7 +11,7 @@ export enum WalletActions {
   SET_CONNECTOR_TYPE = 'SET_CONNECTOR_TYPE',
   SET_INITIAL_ROUTE = 'SET_INITIAL_ROUTE',
   SET_IS_CONNECTED = 'SET_IS_CONNECTED',
-  SET_PROVIDER = 'SET_PROVIDER',
+  SET_WCV2_PROVIDER = 'SET_WCV2_PROVIDER',
   SET_IS_LOCKED = 'SET_IS_LOCKED',
   SET_WALLET_MODAL = 'SET_WALLET_MODAL',
   RESET_STATE = 'RESET_STATE',
@@ -44,7 +44,7 @@ export type ActionTypes =
       type: WalletActions.SET_IS_CONNECTED
       payload: { isConnected: boolean; modalType: KeyManager | string | null }
     }
-  | { type: WalletActions.SET_PROVIDER; payload: InitialState['provider'] }
+  | { type: WalletActions.SET_WCV2_PROVIDER; payload: InitialState['wcV2Provider'] }
   | { type: WalletActions.SET_IS_LOCKED; payload: boolean }
   | {
       type: WalletActions.SET_CONNECTOR_TYPE

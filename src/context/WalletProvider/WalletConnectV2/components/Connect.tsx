@@ -1,4 +1,4 @@
-import type EthereumProvider from '@walletconnect/ethereum-provider'
+import type EthereumProvider from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'
@@ -9,7 +9,6 @@ import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { WalletConnectV2Config } from 'context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from 'context/WalletProvider/WalletConnectV2/Error'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from 'lib/utils'
 
@@ -24,7 +23,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
   // This is a bit blunt, and we might want to consider a more targeted approach.
   // https://github.com/orgs/WalletConnect/discussions/3010
   clearWalletConnectLocalStorage()
-  const { dispatch, state, getAdapter, onProviderChange } = useWallet()
+  const { dispatch, state, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
 
@@ -37,9 +36,6 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
     try {
       if (adapter) {
         if (!state.wallet || !isWalletConnectWallet(state.wallet)) {
-          // Remove all provider event listeners from previously connected wallets
-          await removeAccountsAndChainListeners()
-
           setLoading(true)
 
           // trigger the web3 modal
@@ -47,11 +43,9 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
 
           if (!wallet) throw new WalletNotFoundError()
 
-          onProviderChange(KeyManager.WalletConnectV2, wallet)
-
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
           dispatch({
-            type: WalletActions.SET_PROVIDER,
+            type: WalletActions.SET_WCV2_PROVIDER,
             payload: wallet.provider as unknown as EthereumProvider,
           })
 
@@ -77,7 +71,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
         history.push('/walletconnect/failure')
       }
     }
-  }, [dispatch, getAdapter, history, localWallet, onProviderChange, state.modalType, state.wallet])
+  }, [dispatch, getAdapter, history, localWallet, state.modalType, state.wallet])
 
   return (
     <ConnectModal

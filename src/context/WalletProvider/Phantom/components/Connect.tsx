@@ -4,7 +4,6 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -21,7 +20,7 @@ export interface PhantomSetupProps
 }
 
 export const PhantomConnect = ({ history }: PhantomSetupProps) => {
-  const { state, dispatch, getAdapter, onProviderChange } = useWallet()
+  const { state, dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,16 +37,11 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
     const adapter = await getAdapter(KeyManager.Phantom)
     if (adapter) {
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         const wallet = await adapter.pairDevice()
         if (!wallet) {
           setErrorLoading('walletProvider.errors.walletNotFound')
           throw new Error('Call to hdwallet-phantom::pairDevice returned null or undefined')
         }
-
-        onProviderChange(KeyManager.Phantom, wallet)
 
         const { name, icon } = PhantomConfig
         const deviceId = await wallet.getDeviceID()
@@ -71,15 +65,7 @@ export const PhantomConnect = ({ history }: PhantomSetupProps) => {
       }
     }
     setLoading(false)
-  }, [
-    dispatch,
-    getAdapter,
-    history,
-    localWallet,
-    onProviderChange,
-    setErrorLoading,
-    state.modalType,
-  ])
+  }, [dispatch, getAdapter, history, localWallet, setErrorLoading, state.modalType])
 
   return (
     <ConnectModal

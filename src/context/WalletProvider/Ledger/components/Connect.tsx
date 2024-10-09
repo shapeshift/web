@@ -7,7 +7,6 @@ import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { portfolio, portfolioApi } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -65,9 +64,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     const adapter = await getAdapter(KeyManager.Ledger)
     if (adapter) {
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         // Pair the device, which gets approval from the browser to communicate with the Ledger USB device
         const wallet = await adapter.pairDevice()
 

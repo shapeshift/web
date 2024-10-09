@@ -8,6 +8,7 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
+import { getConfig } from 'config'
 import { lazy } from 'react'
 import type { RouteProps } from 'react-router-dom'
 import { WalletConnectedRoutes } from 'components/Layout/Header/NavBar/hooks/useMenuRoutes'
@@ -448,11 +449,29 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
 }
 
-type KeyManagerOptions = undefined | EthereumProviderOptions
+// Copied from hdwallet-coinbase so we don't have to import the whole package just for the sake of this type
+// and can lazy load it instead
+type CoinbaseProviderConfig = {
+  appName: string
+  appLogoUrl: string
+  defaultJsonRpcUrl: string
+  defaultChainId: number
+  darkMode: boolean
+}
+
+type KeyManagerOptions = undefined | CoinbaseProviderConfig | EthereumProviderOptions
 type GetKeyManagerOptions = (keyManager: KeyManager, isDarkMode: boolean) => KeyManagerOptions
 
-export const getKeyManagerOptions: GetKeyManagerOptions = keyManager => {
+export const getKeyManagerOptions: GetKeyManagerOptions = (keyManager, isDarkMode) => {
   switch (keyManager) {
+    case KeyManager.Coinbase:
+      return {
+        appName: 'ShapeShift',
+        appLogoUrl: 'https://avatars.githubusercontent.com/u/52928763?s=50&v=4',
+        defaultJsonRpcUrl: getConfig().REACT_APP_ETHEREUM_NODE_URL,
+        defaultChainId: 1,
+        darkMode: isDarkMode,
+      }
     case KeyManager.WalletConnectV2:
       return walletConnectV2ProviderConfig
     default:

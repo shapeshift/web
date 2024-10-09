@@ -1,4 +1,4 @@
-import type { AssetReference } from '@shapeshiftoss/caip'
+import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
 import type {
   CoWSwapBuyTokenDestination,
   CoWSwapOrderKind,
@@ -25,12 +25,14 @@ export type LimitOrderRequest = {
   quoteId: number
   appData: string
   appDataHash: string
+  chainId: ChainId
 }
 
 export type CancelLimitOrdersRequest = {
   orderUids: string[]
   signature: string
   signingScheme: CoWSwapSigningScheme
+  chainId: ChainId
 }
 
 export type OrderExecutionStatus =
@@ -68,6 +70,7 @@ type ProtocolFee = {
 
 export type GetOrdersRequest = {
   owner: string
+  chainId: ChainId
   offset?: number
   limit?: number
 }

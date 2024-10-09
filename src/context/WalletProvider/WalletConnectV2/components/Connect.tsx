@@ -1,4 +1,4 @@
-import type EthereumProvider from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
+import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { clearWalletConnectLocalStorage } from 'plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 import React, { useCallback, useState } from 'react'
 import type { RouteComponentProps } from 'react-router-dom'

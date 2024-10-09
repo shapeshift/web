@@ -2,7 +2,7 @@ import { ArrowUpIcon } from '@chakra-ui/icons'
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -12,8 +12,9 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
@@ -45,6 +46,8 @@ const containerProps: FlexProps = {
 
 export const FoxTokenHeader = () => {
   const { assetId, selectedAssetAccountId } = useFoxPageContext()
+  const appDispatch = useAppDispatch()
+
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const send = useModal('send')
   const fiatRamps = useModal('fiatRamps')
@@ -78,6 +81,12 @@ export const FoxTokenHeader = () => {
   const handleStakeClick = useCallback(() => {
     history.push('/rfox')
   }, [history])
+
+  useEffect(() => {
+    if (marketData.price !== '0') return
+
+    appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+  }, [marketData, assetId, appDispatch])
 
   return (
     <Flex {...containerProps}>

@@ -1,5 +1,5 @@
 import type { FlexProps } from '@chakra-ui/react'
-import { Card, CardBody, Heading, SimpleGrid, Stack } from '@chakra-ui/react'
+import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { foxOnArbitrumOneAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -44,7 +44,7 @@ export const RFOXSimulator = () => {
   })
 
   const poolShare = useMemo(() => {
-    if (!totalStakedCryptoResult.data) return '0'
+    if (!totalStakedCryptoResult.data) return
 
     return bnOrZero(foxHolding)
       .div(bnOrZero(totalStakedCryptoResult.data).plus(foxHolding))
@@ -63,8 +63,8 @@ export const RFOXSimulator = () => {
   const { data: lastEpoch } = useEpochHistoryQuery({ select: selectLastEpoch })
 
   const estimatedFoxBurn = useMemo(() => {
-    if (!lastEpoch) return '0'
-    if (!stakingAsset) return '0'
+    if (!lastEpoch) return
+    if (!stakingAsset) return
 
     return bnOrZero(shapeShiftRevenues)
       .times(lastEpoch.burnRate)
@@ -73,8 +73,9 @@ export const RFOXSimulator = () => {
   }, [lastEpoch, shapeShiftRevenues, foxMarketData.price, stakingAsset])
 
   const estimatedRewards = useMemo(() => {
-    if (!lastEpoch) return '0'
-    if (!stakingAsset) return '0'
+    if (!lastEpoch) return
+    if (!stakingAsset) return
+    if (!poolShare) return
 
     return bnOrZero(shapeShiftRevenues)
       .times(lastEpoch.distributionRate)
@@ -114,7 +115,9 @@ export const RFOXSimulator = () => {
             <Card>
               <CardBody py={4} px={4}>
                 <Text fontSize='md' color='text.subtle' translation='pools.shareOfPool' />
-                <Amount.Percent fontSize='24px' value={poolShare} />
+                <Skeleton isLoaded={Boolean(poolShare)}>
+                  <Amount.Percent fontSize='24px' value={poolShare} />
+                </Skeleton>
               </CardBody>
             </Card>
             <Card>
@@ -124,21 +127,27 @@ export const RFOXSimulator = () => {
                   color='text.subtle'
                   translation='foxPage.rfox.estimatedRewards'
                 />
-                <Amount.Crypto
-                  fontSize='24px'
-                  value={estimatedRewards}
-                  symbol={runeAsset?.symbol ?? ''}
-                />
+
+                <Skeleton isLoaded={Boolean(estimatedRewards)}>
+                  <Amount.Crypto
+                    fontSize='24px'
+                    value={estimatedRewards}
+                    symbol={runeAsset?.symbol ?? ''}
+                  />
+                </Skeleton>
               </CardBody>
             </Card>
             <Card>
               <CardBody py={4} px={4}>
                 <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalFoxBurn' />
-                <Amount.Crypto
-                  fontSize='24px'
-                  value={estimatedFoxBurn}
-                  symbol={stakingAsset?.symbol ?? ''}
-                />
+
+                <Skeleton isLoaded={Boolean(estimatedFoxBurn)}>
+                  <Amount.Crypto
+                    fontSize='24px'
+                    value={estimatedFoxBurn}
+                    symbol={stakingAsset?.symbol ?? ''}
+                  />
+                </Skeleton>
               </CardBody>
             </Card>
             <Card>

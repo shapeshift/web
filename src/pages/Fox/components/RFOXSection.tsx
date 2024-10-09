@@ -14,7 +14,6 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import {
-  foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
@@ -24,7 +23,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
+import { RFOXIcon } from 'components/Icons/RFOX'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from 'lib/bignumber/bignumber'
@@ -71,6 +70,11 @@ const headerSx: FlexProps['sx'] = {
 }
 
 const headerTitleMb = { base: 4, md: 0 }
+const rfoxIconStyles = {
+  path: {
+    fill: 'url(#rfoxGradient)',
+  },
+}
 
 export const RFOXSection = () => {
   const translate = useTranslate()
@@ -179,7 +183,7 @@ export const RFOXSection = () => {
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              <AssetIcon assetId={foxAssetId} showNetworkIcon={false} me={2} />
+              <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('foxPage.rfox.title')}
               <Tag colorScheme='green' verticalAlign='middle' ml={2}>
                 <Amount.Percent value={apyQuery.data ?? 0} suffix='APY' />

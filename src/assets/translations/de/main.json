@@ -172,7 +172,8 @@
     "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert.",
     "yes": "Ja",
     "activeAccount": "Aktives Konto",
-    "update": "Aktualisiere"
+    "update": "Aktualisiere",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -286,12 +287,16 @@
   },
   "connectWalletPage": {
     "title": "Die originale Multichain-Börse",
+    "primaryTitle": "Willkommen bei Multichain DeFi.",
+    "secondaryTitle": "Privat. Dezentral. Nicht fremd-verwahrt.",
+    "primaryDescription": "Handeln, Bridgen und mühelos Belohnungen verdienen. Erleben Sie natives Bitcoin, Dogecoin und mehr. Verwalten Sie Liquidität und DeFi-Positionen mit einem Klick.",
+    "snapDescription": "Laden Sie den ShapeShift Multichain Snap herunter und schalten Sie Bitcoin, Dogecoin und mehr für Ihre MetaMask frei.",
     "shapeshift": "ShapeShift",
     "exploreThe": "Entdecken Sie das",
     "defiUniverse": "DeFi Universum",
     "body": "Handeln, wechseln und verdienen. Privat. Gemeinschaftseigentum. Nicht haftpflichtig. Dezentral.",
     "header": "Bitte verbinden Sie eine Wallet, um loszulegen",
-    "cta": "Wallet verbinden",
+    "cta": "Wallet verbinden oder erstellen",
     "viewADemo": "Sehen Sie sich eine Demo an",
     "dontHaveWallet": "Sie haben keine Wallet?",
     "welcomeBack": "Willkommen zurück!",
@@ -505,6 +510,8 @@
     "myRewardsBody": "Ihre aktiven Positionen mit beanspruchbaren Prämien werden hier angezeigt.",
     "viewAllPositions": "Alle Positionen anzeigen",
     "liquidityPools": "Liquidity Pools",
+    "liquidityLockupWarning": "Es gibt eine Sperrfrist von %{time}. Während der Sperre können Sie nicht auf Ihre Liquidität zugreifen.",
+    "liquidityLocked": "Liquidität gesperrt (%{time})",
     "stakingVaults": "Staking & Vaults",
     "farming": "Farming",
     "totalEarningBalance": "Gesamtertragskontostand",
@@ -935,6 +942,7 @@
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
     "disableThorNativeSmartContractReceive": "Wir haben festgestellt, dass Sie an eine Smart-Contract-Adresse auf %{chainName} senden. Aufgrund von THORChain-Einschränkungen wird der Empfang von %{nativeAssetSymbol} an eine Smart-Contract-Adresse nicht unterstützt. Bitte geben Sie eine andere Adresse ein.",
+    "disableThorTaprootReceive": "Wir haben festgestellt, dass Sie an eine Taproot-Bitcoin-Adresse senden. Aufgrund von THORChain-Einschränkungen wird der Empfang von BTC an eine Taproot-Adresse derzeit nicht unterstützt. Bitte geben Sie eine andere Adresse ein.",
     "toContinue": " weiter zu machen.",
     "addressPlaceholder": "%{chainName} Adresse",
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
@@ -1458,7 +1466,6 @@
         "button": "Koppeln"
       },
       "failure": {
-        "header": "Fehler",
         "body": "Keplr Wallet kann nicht verbunden werden"
       }
     },
@@ -1498,7 +1505,6 @@
         "pairExistingDeviceBody": "Sie möchten ein anderes Ledger Gerät verbinden? Klicken Sie auf „Neues Gerät koppeln“, um neu zu beginnen."
       },
       "failure": {
-        "header": "Fehler",
         "body": "Ledger Wallet kann nicht verbunden werden"
       },
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
@@ -1516,13 +1522,24 @@
         "button": "Paar"
       },
       "failure": {
-        "header": "Fehler",
         "body": "MetaMask Wallet kann nicht verbunden werden"
       },
       "redirect": {
         "header": "In der MetaMask Applikation \n öffnen",
         "body": "Klicken Sie hier, um das ShapeShift Dashboard in MetaMask zu öffnen",
         "button": "Öffnen"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "Bei der Kommunikation mit Phantom ist ein unerwarteter Fehler aufgetreten",
+        "connectFailure": "Verbindung zum Phantom Wallet nicht möglich",
+        "multipleWallets": "Der erkannte Ethereum-Anbieter ist nicht Phantom. Haben Sie mehrere Wallets installiert?"
+      },
+      "connect": {
+        "header": "Kopple Phantom",
+        "body": "Klicken Sie auf „Koppeln“ und melden Sie sich im Popup-Fenster bei Phantom an.",
+        "button": "Kopple"
       }
     },
     "metaMaskSnap": {
@@ -1540,8 +1557,6 @@
         "title": "Multichain Snap muss aktualisiert werden",
         "subtitle": "Klicken Sie auf „Aktualisiere“, um die Multichain-Funktionen von ShapeShift weiterhin mit MetaMask zu verwenden!"
       },
-      "secondaryTitle": "Das beste Multichain-Erlebnis für MetaMask: Unterstützt von ShapeShift",
-      "secondaryBody": "Senden, empfangen, verfolgen, handeln und verdienen Sie mit dem ShapeShift Multichain Snap auf den folgenden Ketten:",
       "connectMetaMask": "MetaMask verbinden",
       "andMore": "...und mehr",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap installiert",
@@ -1580,7 +1595,6 @@
         "button": "Koppeln"
       },
       "failure": {
-        "header": "Verbindung zum Coinbase-Wallet nicht möglich",
         "body": "Verbindung zum Coinbase-Wallet nicht möglich"
       }
     },
@@ -1595,7 +1609,6 @@
         "button": "Koppeln"
       },
       "failure": {
-        "header": "Fehler",
         "body": "WalletConnect Wallet kann nicht verbunden werden"
       }
     },
@@ -1611,7 +1624,6 @@
         "button": "Koppeln"
       },
       "failure": {
-        "header": "Fehler",
         "body": "XDEFI Wallet kann nicht verbunden werden"
       },
       "redirect": {
@@ -2584,7 +2596,6 @@
   },
   "markets": {
     "recommended": "Empfohlen",
-    "watchlist": "Meine Merkliste",
-    "categories": "Kategorien"
+    "watchlist": "Meine Merkliste"
   }
 }

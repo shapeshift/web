@@ -7,7 +7,6 @@ import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
-import { colorMap } from 'lib/asset-service/service/colorMap'
 
 import generatedAssetData from '../../lib/asset-service/service/generatedAssetData.json'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
@@ -230,7 +229,7 @@ export const portalTokenToAsset = ({
 
   return {
     ...explorerData,
-    color: colorMap[assetId] ?? '#FFFFFF',
+    color: assets[assetId]?.color ?? '#FFFFFF',
     // This looks weird but we need this - l.165 check above nulls the type safety of this object, so we cast it back
     ...(iconOrIcons as { icon: string } | { icons: string[]; icon: undefined }),
     name,

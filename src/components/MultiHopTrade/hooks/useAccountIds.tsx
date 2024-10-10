@@ -1,6 +1,10 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
-import { selectFirstHopSellAccountId, selectLastHopBuyAccountId } from 'state/slices/selectors'
+import { useCallback, useEffect, useMemo } from 'react'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+  selectWalletId,
+} from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -12,21 +16,28 @@ export const useAccountIds = (): {
 } => {
   const dispatch = useAppDispatch()
 
+  const walletId = useAppSelector(selectWalletId)
   // Default sellAssetAccountId selection
   const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAssetAccountId = useAppSelector(selectLastHopBuyAccountId)
+
+  // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet
+  useEffect(() => {
+    dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
+    dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
+  }, [dispatch, walletId])
 
   // Setters - the selectors above initially select a *default* value, but eventually onAccountIdChange may fire if the user changes the account
 
   const setSellAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setSellAssetAccountNumber(accountId)),
+      dispatch(tradeInput.actions.setSellAssetAccountId(accountId)),
     [dispatch],
   )
 
   const setBuyAssetAccountId = useCallback(
     (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setBuyAssetAccountNumber(accountId)),
+      dispatch(tradeInput.actions.setBuyAssetAccountId(accountId)),
     [dispatch],
   )
 

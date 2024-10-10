@@ -1,7 +1,6 @@
-import detectEthereumProvider from '@metamask/detect-provider'
-import assert from 'assert'
 import { getConfig } from 'config'
 import type { Eip1193Provider } from 'ethers'
+import { METAMASK_RDNS, mipdStore } from 'lib/mipd'
 
 type GetSnapsResult = Record<
   string,
@@ -14,11 +13,14 @@ type GetSnapsResult = Record<
 >
 
 export const enableShapeShiftSnap = async (): Promise<void> => {
-  const provider = (await detectEthereumProvider()) as Eip1193Provider
+  const mipdProvider = mipdStore
+    .getProviders()
+    .find(provider => provider.info.rdns === METAMASK_RDNS)
+  if (!mipdProvider) throw new Error("EIP-1193 provider isn't MetaMask")
+
+  const provider = mipdProvider.provider as Eip1193Provider
 
   const snapVersion = getConfig().REACT_APP_SNAP_VERSION
-  const isSnapFeatureEnabled = getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS
-  assert(isSnapFeatureEnabled, 'Snap feature flag is disabled')
   const snapId = getConfig().REACT_APP_SNAP_ID
 
   await provider.request({
@@ -33,8 +35,12 @@ export const enableShapeShiftSnap = async (): Promise<void> => {
 
 export const getSnapVersion = async (): Promise<string | null> => {
   const snapId = getConfig().REACT_APP_SNAP_ID
-  const provider = (await detectEthereumProvider()) as Eip1193Provider
-  if (!(provider as any).isMetaMask) return null
+  const mipdProvider = mipdStore
+    .getProviders()
+    .find(provider => provider.info.rdns === METAMASK_RDNS)
+  if (!mipdProvider) return null
+
+  const provider = mipdProvider.provider as Eip1193Provider
 
   const snaps: GetSnapsResult = await provider.request({
     method: 'wallet_getSnaps',

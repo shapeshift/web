@@ -5,19 +5,26 @@ import {
   Center,
   Flex,
   Grid,
+  Image,
   ModalBody,
   ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { getConfig } from 'config'
 import type { Property } from 'csstype'
-import { useCallback, useMemo } from 'react'
+import uniqBy from 'lodash/uniqBy'
+import type { EIP6963ProviderDetail } from 'mipd'
+import type { ReactElement } from 'react'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
+import { mipdStore, staticMipdProviders } from 'lib/mipd'
+import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
 import { KeyManager } from './KeyManager'
@@ -37,8 +44,6 @@ const WalletSelectItem = ({
   walletInfo: WalletInfo | null
   connect: (adapter: KeyManager) => void
 }) => {
-  const greenColor = useColorModeValue('green.500', 'green.200')
-
   const option = SUPPORTED_WALLETS[walletType]
   // some wallets (e.g. keepkey) do not exist on mobile
 
@@ -55,14 +60,14 @@ const WalletSelectItem = ({
 
   const handleConnect = useCallback(() => connect(walletType), [connect, walletType])
 
+  const OptionIcon = option.icon
+  const Icon = useMemo(() => <OptionIcon width='24px' height='auto' />, [OptionIcon])
+
   const isLedgerEnabled = useFeatureFlag('LedgerWallet')
 
   if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
 
   if (!isSupported) return null
-
-  const isCoinbaseEnabled = getConfig().REACT_APP_FEATURE_COINBASE_WALLET
-  if (walletType === KeyManager.Coinbase && !isCoinbaseEnabled) return null
 
   const isPhantomEnabled = getConfig().REACT_APP_FEATURE_PHANTOM_WALLET
   if (walletType === KeyManager.Phantom && !isPhantomEnabled) return null
@@ -70,33 +75,86 @@ const WalletSelectItem = ({
   const isWalletConnectV2Enabled = getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2
   if (walletType === KeyManager.WalletConnectV2 && !isWalletConnectV2Enabled) return null
 
-  const Icon = option.icon
   const activeWallet = walletInfo?.name === option.name
-  const walletSubText = activeWallet ? 'common.connected' : null
+
+  return (
+    <SelectItem
+      key={walletType}
+      isActive={activeWallet}
+      onClick={handleConnect}
+      name={option.name}
+      Icon={Icon}
+    />
+  )
+}
+
+const SelectItem = ({
+  key,
+  isActive,
+  onClick,
+  name,
+  Icon,
+}: {
+  key: string
+  isActive: boolean
+  onClick: () => void
+  name: string
+  Icon: ReactElement
+}) => {
+  const greenColor = useColorModeValue('green.500', 'green.200')
+  const walletSubText = isActive ? 'common.connected' : null
 
   return (
     <Button
-      key={walletType}
+      key={key}
       w='full'
       size='md'
       py={8}
-      isActive={activeWallet}
+      isActive={isActive}
       justifyContent='space-between'
-      onClick={handleConnect}
-      data-test={`connect-wallet-${walletType}-button`}
+      onClick={onClick}
+      data-test={`connect-wallet-${key}-button`}
     >
       <Flex alignItems='flex-start' flexDir='column'>
-        <RawText fontWeight='semibold'>{option.name}</RawText>
+        <RawText fontWeight='semibold'>{name}</RawText>
         <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
       </Flex>
-      <Center width='25%'>
-        {activeWallet ? (
-          <CheckCircleIcon color={greenColor} />
-        ) : (
-          <Icon width='24px' height='auto' />
-        )}
-      </Center>
+      <Center width='25%'>{isActive ? <CheckCircleIcon color={greenColor} /> : Icon}</Center>
     </Button>
+  )
+}
+const MipdProviderSelectItem = ({
+  provider,
+  connect,
+}: {
+  provider: EIP6963ProviderDetail
+  connect: (adapter: string) => void
+}) => {
+  const connectedRdns = useAppSelector(selectWalletRdns)
+
+  const handleConnect = useCallback(
+    () => connect(provider.info.rdns),
+    [connect, provider.info.rdns],
+  )
+
+  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const connectedMipdProvider = detectedMipdProviders.find(
+    provider => provider.info.rdns === connectedRdns,
+  )
+
+  const icon = provider.info.icon
+  const activeWallet = provider.info.name === connectedMipdProvider?.info.name
+
+  const Icon = useMemo(() => <Image width='24px' height='auto' src={icon} />, [icon])
+
+  return (
+    <SelectItem
+      key={provider.info.rdns}
+      isActive={activeWallet}
+      onClick={handleConnect}
+      name={provider.info.name}
+      Icon={Icon}
+    />
   )
 }
 
@@ -108,6 +166,17 @@ export const SelectModal = () => {
     importWallet,
   } = useWallet()
   const translate = useTranslate()
+  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const supportedStaticProviders = useMemo(() => {
+    // Mobile app doesn't support MM and the like
+    if (isMobileApp) return []
+    if (isMobile) return staticMipdProviders.filter(provider => provider.supportsMobileBrowser)
+    return staticMipdProviders
+  }, [])
+  const mipdProviders = useMemo(
+    () => uniqBy(detectedMipdProviders.concat(supportedStaticProviders), 'info.rdns'),
+    [detectedMipdProviders, supportedStaticProviders],
+  )
 
   const wallets = useMemo(
     () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
@@ -124,6 +193,54 @@ export const SelectModal = () => {
     [importWallet],
   )
 
+  const handleConnectMipd = useCallback(
+    (rdns: string) => connect(rdns as KeyManager, true),
+    [connect],
+  )
+
+  // TODO(gomes): dupes should use the underlying first-class hdwallet impl. but mipd should still be detected under the hood
+  // which is most likely an hdwallet concern
+  const handleConnect = useCallback((name: KeyManager) => connect(name, false), [connect])
+
+  const allProviders = useMemo(
+    () => (
+      <>
+        {mipdProviders
+          .filter(
+            // EIP-1193 provider for Keplr is for EVM, but our implementation is for Cosmos SDK
+            // TODO(gomes): leverage EIP-1193 provider in keplr hdwallet as a quick win to get EVM support there and keep only our own
+            provider =>
+              provider.info.rdns !== 'app.keplr' &&
+              // And similarly for Phantom, the EIP-1193 provider is only an EVM provider, but we have our own implementation with EVMs + Bitcoin + Solana
+              provider.info.rdns !== 'app.phantom',
+          )
+          .map(provider => (
+            <MipdProviderSelectItem
+              key={provider.info.name}
+              provider={provider}
+              connect={handleConnectMipd}
+            />
+          ))}
+        {
+          // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
+          // So not all of the supported wallets will have an initialized adapter
+          wallets
+            // Remove MM dupe and leverage MIPD provider for MetaMask, ensuring MM is consistently working with multiple wallets installed
+            .filter(keyManager => keyManager !== KeyManager.MetaMask)
+            .map(walletType => (
+              <WalletSelectItem
+                key={walletType}
+                walletType={walletType}
+                walletInfo={walletInfo}
+                connect={handleConnect}
+              />
+            ))
+        }
+      </>
+    ),
+    [handleConnect, handleConnectMipd, mipdProviders, walletInfo, wallets],
+  )
+
   return (
     <>
       <ModalHeader>
@@ -132,18 +249,7 @@ export const SelectModal = () => {
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
-          {
-            // TODO: KeepKey adapter may fail due to the USB interface being in use by another tab
-            // So not all of the supported wallets will have an initialized adapter
-            wallets.map(walletType => (
-              <WalletSelectItem
-                key={walletType}
-                walletType={walletType}
-                walletInfo={walletInfo}
-                connect={connect}
-              />
-            ))
-          }
+          {allProviders}
         </Grid>
         <Flex
           direction={flexDirProp}

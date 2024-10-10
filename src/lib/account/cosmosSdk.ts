@@ -1,6 +1,6 @@
 import { CHAIN_REFERENCE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import { supportsCosmos, supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { canAddMetaMaskAccount } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -21,7 +21,7 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
         if (!supportsThorchain(wallet)) continue
       }
       if (
-        wallet instanceof MetaMaskShapeShiftMultiChainHDWallet &&
+        wallet instanceof MetaMaskMultiChainHDWallet &&
         !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })
       ) {
         continue

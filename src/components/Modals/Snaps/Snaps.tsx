@@ -1,6 +1,5 @@
 import { Modal, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 
@@ -12,7 +11,6 @@ export type SnapsModalProps = {
 
 export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   const { close, isOpen } = useModal('snaps')
-  const isSnapsEnabled = useFeatureFlag('Snaps')
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
 
   useEffect(() => {
@@ -25,7 +23,6 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
     close()
   }, [close])
 
-  if (!isSnapsEnabled) return null
   if (isSnapInstalled === null) return null
   if (isCorrectVersion === null) return null
 

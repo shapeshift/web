@@ -4,7 +4,6 @@ import { useTranslate } from 'react-polyglot'
 import { ManageAccountsMenuItem } from 'components/Layout/Header/NavBar/ManageAccountsMenuItem'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   useIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
@@ -26,11 +25,8 @@ export const MetaMaskMenu: React.FC<MetaMaskMenuProps> = ({ onClose }) => {
 
   useEffect(() => {
     if (!wallet) return
-    ;(async () => {
-      const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-      const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
-      setIsMetaMask(isMetaMaskDesktop && !isMetaMaskImpersonator)
-    })()
+    const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
+    setIsMetaMask(isMetaMaskDesktop)
   }, [wallet])
 
   const handleClick = useCallback(() => {

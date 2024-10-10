@@ -18,3 +18,7 @@ export const selectNativeWalletName = createSelector(
   selectLocalWalletState,
   (localWalletState): string | null => localWalletState.nativeWalletName,
 )
+export const selectWalletRdns = createSelector(
+  selectLocalWalletState,
+  (localWalletState): string | null => localWalletState.rdns,
+)

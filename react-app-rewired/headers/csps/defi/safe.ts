@@ -2,6 +2,7 @@ import type { Csp } from '../../types'
 
 export const csp: Csp = {
   'connect-src': [
+    'https://app.safe.global',
     'https://safe-transaction-mainnet.safe.global',
     'https://safe-transaction-avalanche.safe.global',
     'https://safe-transaction-optimism.safe.global',

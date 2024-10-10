@@ -1,8 +1,8 @@
 import { toAccountId } from '@shapeshiftoss/caip'
 import { utxoAccountParams, utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
@@ -20,7 +20,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       const adapter = assertGetUtxoChainAdapter(chainId)
 
       let supportedAccountTypes = adapter.getSupportedAccountTypes()
-      if (wallet instanceof MetaMaskShapeShiftMultiChainHDWallet) {
+      if (wallet instanceof MetaMaskMultiChainHDWallet) {
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }

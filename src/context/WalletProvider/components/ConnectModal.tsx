@@ -7,12 +7,13 @@ import {
   ModalHeader,
   Spinner,
 } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { ReactNode } from 'react'
 import { Text } from 'components/Text'
 
 export type ConnectModalProps = {
-  headerText: string
-  bodyText: string
+  headerText: string | [string, InterpolationOptions]
+  bodyText: string | [string, InterpolationOptions]
   buttonText: string
   onPairDeviceClick: () => void
   loading: boolean

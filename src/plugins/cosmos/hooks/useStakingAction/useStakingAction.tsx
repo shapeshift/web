@@ -8,7 +8,6 @@ import {
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -46,13 +45,10 @@ export const useStakingAction = () => {
     try {
       // Native and KeepKey hdwallets only support offline signing, not broadcasting signed TXs like e.g Metamask
 
-      const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-      const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+      const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
       if (
         !wallet.supportsOfflineSigning() &&
-        (!isMetaMaskDesktop ||
-          isMetaMaskImpersonator ||
-          (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+        (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
       ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }

@@ -111,7 +111,7 @@ export const KeepKeyConnect = () => {
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
-        payload: { isConnected: true },
+        payload: true,
       })
       localWallet.setLocalWallet({
         type: KeyManager.KeepKey,

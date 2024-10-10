@@ -212,7 +212,9 @@ export const SelectModal = () => {
             provider =>
               provider.info.rdns !== 'app.keplr' &&
               // And similarly for Phantom, the EIP-1193 provider is only an EVM provider, but we have our own implementation with EVMs + Bitcoin + Solana
-              provider.info.rdns !== 'app.phantom',
+              provider.info.rdns !== 'app.phantom' &&
+              // Ensure we leverage the first-class implementation
+              provider.info.rdns !== 'com.coinbase.wallet',
           )
           .map(provider => (
             <MipdProviderSelectItem

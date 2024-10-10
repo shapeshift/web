@@ -5,17 +5,40 @@ import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
 import { descriptions } from './descriptions'
-import { localAssetData, relatedAssetIndex } from './localAssetData'
+import { localAssetData } from './localAssetData'
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
+
+const RELATED_ASSET_INDEX_URL =
+  'https://raw.githack.com/shapeshift/web/develop/src/lib/asset-service/service/relatedAssetIndex.json'
 
 export class AssetService {
   readonly assetsById: AssetsById
   readonly relatedAssetIndex: Record<AssetId, AssetId[]>
 
-  constructor() {
-    this.assetsById = localAssetData
+  private constructor(assetsById: AssetsById, relatedAssetIndex: Record<AssetId, AssetId[]>) {
+    this.assetsById = assetsById
     this.relatedAssetIndex = relatedAssetIndex
+  }
+
+  private static relatedAssetIndexCache: Record<AssetId, AssetId[]> | null = null
+
+  static async initialize(): Promise<AssetService> {
+    if (!AssetService.relatedAssetIndexCache) {
+      AssetService.relatedAssetIndexCache =
+        await AssetService.fetchRelatedAssetIndex(RELATED_ASSET_INDEX_URL)
+    }
+    return new AssetService(localAssetData, AssetService.relatedAssetIndexCache)
+  }
+
+  private static async fetchRelatedAssetIndex(url: string): Promise<Record<AssetId, AssetId[]>> {
+    try {
+      const response = await axios.get<Record<AssetId, AssetId[]>>(url)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching relatedAssetIndex:', error)
+      return {}
+    }
   }
 
   get assetIds(): AssetId[] {

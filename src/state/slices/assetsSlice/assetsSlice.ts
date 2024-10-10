@@ -23,9 +23,9 @@ let service: AssetService | undefined = undefined
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = () => {
+const getAssetService = async () => {
   if (!service) {
-    service = new AssetService()
+    service = await AssetService.initialize()
   }
 
   return service
@@ -85,9 +85,9 @@ export const assetApi = createApi({
   endpoints: build => ({
     getAssets: build.query<UpsertAssetsPayload, void>({
       // all assets
-      queryFn: (_, { getState, dispatch }) => {
+      queryFn: async (_, { getState, dispatch }) => {
         const flags = selectFeatureFlags(getState() as ReduxState)
-        const service = getAssetService()
+        const service = await getAssetService()
 
         dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
 
@@ -123,7 +123,7 @@ export const assetApi = createApi({
         if (!assetId) {
           throw new Error('assetId not provided')
         }
-        const service = getAssetService()
+        const service = await getAssetService()
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal, ids } = (getState() as any).assets as AssetsState
         const byId = cloneDeep(byIdOriginal)

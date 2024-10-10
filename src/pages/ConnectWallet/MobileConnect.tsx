@@ -61,7 +61,7 @@ const BodyText: React.FC<TextProps> = props => (
 )
 
 export const MobileConnect = () => {
-  const { create, importWallet, dispatch, getAdapter, state } = useWallet()
+  const { create, importWallet, dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const [wallets, setWallets] = useState<RevocableWallet[]>([])
@@ -130,7 +130,7 @@ export const MobileConnect = () => {
           })
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: true, modalType: state.modalType },
+            payload: true,
           })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           dispatch({
@@ -148,7 +148,7 @@ export const MobileConnect = () => {
         setError('walletProvider.shapeShift.load.error.pair')
       }
     },
-    [dispatch, getAdapter, localWallet, state.modalType],
+    [dispatch, getAdapter, localWallet],
   )
 
   const handleToggleWallets = useCallback(() => {

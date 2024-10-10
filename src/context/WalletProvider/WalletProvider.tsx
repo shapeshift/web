@@ -164,7 +164,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_IS_CONNECTED:
       return {
         ...state,
-        isConnected: action.payload.isConnected,
+        isConnected: action.payload,
       }
     case WalletActions.SET_IS_LOCKED:
       return { ...state, isLocked: action.payload }
@@ -445,7 +445,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   })
                   dispatch({
                     type: WalletActions.SET_IS_CONNECTED,
-                    payload: { isConnected: true, modalType: localWalletType },
+                    payload: true,
                   })
                   // Turn off the loading spinner for the wallet button in
                   dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
@@ -541,7 +541,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: true,
                 })
               } else {
                 disconnect()
@@ -584,7 +584,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: rdns },
+                  payload: true,
                 })
               } catch (e) {
                 disconnect()
@@ -627,7 +627,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: true,
                 })
               } catch (e) {
                 disconnect()
@@ -670,7 +670,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: true,
                 })
               } catch (e) {
                 disconnect()
@@ -713,7 +713,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: true,
                 })
               } catch (e) {
                 disconnect()
@@ -756,7 +756,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
-                  payload: { isConnected: true, modalType: localWalletType },
+                  payload: true,
                 })
               } catch (e) {
                 disconnect()
@@ -838,14 +838,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
-        payload: { isConnected: false, modalType: walletType },
+        payload: { isConnected: false },
       })
     } catch (error) {
       console.error(error)
     } finally {
       dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
     }
-  }, [setLocalNativeWalletName, setLocalWallet, state.keyring, walletType])
+  }, [setLocalNativeWalletName, setLocalWallet, state.keyring])
 
   const create = useCallback((type: KeyManager) => {
     dispatch({

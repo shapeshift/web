@@ -42,7 +42,7 @@ export type ActionTypes =
     }
   | {
       type: WalletActions.SET_IS_CONNECTED
-      payload: { isConnected: boolean; modalType: KeyManager | string | null }
+      payload: boolean
     }
   | { type: WalletActions.SET_WCV2_PROVIDER; payload: InitialState['wcV2Provider'] }
   | { type: WalletActions.SET_IS_LOCKED; payload: boolean }

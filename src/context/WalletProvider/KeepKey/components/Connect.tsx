@@ -111,7 +111,7 @@ export const KeepKeyConnect = () => {
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
-        payload: { isConnected: true, modalType: state.modalType },
+        payload: { isConnected: true },
       })
       localWallet.setLocalWallet({
         type: KeyManager.KeepKey,
@@ -124,7 +124,7 @@ export const KeepKeyConnect = () => {
     }
 
     setLoading(false)
-  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring, state.modalType])
+  }, [dispatch, getAdapter, localWallet, setErrorLoading, state.keyring])
   return (
     <>
       <ModalHeader>

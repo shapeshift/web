@@ -154,7 +154,7 @@ export const routes: Route[] = [
     disable: !getConfig().REACT_APP_FEATURE_RFOX,
   },
   {
-    path: '/fox-benefits',
+    path: '/fox',
     label: 'navBar.foxBenefits',
     icon: <FoxIcon />,
     main: FoxPage,

@@ -45,7 +45,7 @@ const containerProps: FlexProps = {
 }
 
 export const FoxTokenHeader = () => {
-  const { assetId, selectedAssetAccountId } = useFoxPageContext()
+  const { assetId, assetAccountId } = useFoxPageContext()
   const appDispatch = useAppDispatch()
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
@@ -64,27 +64,23 @@ export const FoxTokenHeader = () => {
 
   const handleSendClick = useCallback(
     () =>
-      isConnected
-        ? send.open({ assetId, accountId: selectedAssetAccountId })
-        : handleWalletModalOpen(),
-    [selectedAssetAccountId, assetId, handleWalletModalOpen, isConnected, send],
+      isConnected ? send.open({ assetId, accountId: assetAccountId }) : handleWalletModalOpen(),
+    [assetAccountId, assetId, handleWalletModalOpen, isConnected, send],
   )
 
-  const handleBuySellClick = useCallback(() => {
+  const handleBuyClick = useCallback(() => {
     fiatRamps.open({
       assetId,
       fiatRampAction: FiatRampAction.Buy,
-      accountId: selectedAssetAccountId,
+      accountId: assetAccountId,
     })
-  }, [selectedAssetAccountId, assetId, fiatRamps])
+  }, [assetAccountId, assetId, fiatRamps])
 
   const handleStakeClick = useCallback(() => {
     history.push('/rfox')
   }, [history])
 
   useEffect(() => {
-    if (marketData.price !== '0') return
-
     appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
   }, [marketData, assetId, appDispatch])
 
@@ -158,7 +154,7 @@ export const FoxTokenHeader = () => {
           variant='solid'
           size='sm'
           leftIcon={faCreditCardIcon}
-          onClick={handleBuySellClick}
+          onClick={handleBuyClick}
         >
           <Text translation='assets.assetCards.assetActions.buy' />
         </Button>

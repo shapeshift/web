@@ -1,10 +1,10 @@
 import type { StackProps } from '@chakra-ui/react'
 import { Box, Heading } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { FeeExplainer } from 'components/FeeExplainer/FeeExplainer'
 
+import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { FoxTokenBalances } from './FoxTokenBalances'
 import { FoxTokenHeader } from './FoxTokenHeader'
 
@@ -20,11 +20,12 @@ const containerPaddingX = { base: 4, xl: 0 }
 
 export const FoxToken = () => {
   const translate = useTranslate()
+  const { assetId } = useFoxPageContext()
 
   return (
     <Box py={4} px={containerPaddingX}>
       <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-        <AssetIcon assetId={foxAssetId} showNetworkIcon={false} me={2} />
+        <AssetIcon assetId={assetId} showNetworkIcon={false} me={2} />
         {translate('foxPage.foxToken')}
       </Heading>
 

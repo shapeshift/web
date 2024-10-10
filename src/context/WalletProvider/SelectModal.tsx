@@ -14,6 +14,7 @@ import { getConfig } from 'config'
 import type { Property } from 'csstype'
 import uniqBy from 'lodash/uniqBy'
 import type { EIP6963ProviderDetail } from 'mipd'
+import type { ReactElement } from 'react'
 import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
@@ -43,8 +44,6 @@ const WalletSelectItem = ({
   walletInfo: WalletInfo | null
   connect: (adapter: KeyManager) => void
 }) => {
-  const greenColor = useColorModeValue('green.500', 'green.200')
-
   const option = SUPPORTED_WALLETS[walletType]
   // some wallets (e.g. keepkey) do not exist on mobile
 
@@ -61,6 +60,9 @@ const WalletSelectItem = ({
 
   const handleConnect = useCallback(() => connect(walletType), [connect, walletType])
 
+  const OptionIcon = option.icon
+  const Icon = useMemo(() => <OptionIcon width='24px' height='auto' />, [OptionIcon])
+
   const isLedgerEnabled = useFeatureFlag('LedgerWallet')
 
   if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
@@ -73,36 +75,54 @@ const WalletSelectItem = ({
   const isWalletConnectV2Enabled = getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2
   if (walletType === KeyManager.WalletConnectV2 && !isWalletConnectV2Enabled) return null
 
-  const Icon = option.icon
   const activeWallet = walletInfo?.name === option.name
-  const walletSubText = activeWallet ? 'common.connected' : null
 
   return (
-    <Button
+    <SelectItem
       key={walletType}
-      w='full'
-      size='md'
-      py={8}
       isActive={activeWallet}
-      justifyContent='space-between'
       onClick={handleConnect}
-      data-test={`connect-wallet-${walletType}-button`}
-    >
-      <Flex alignItems='flex-start' flexDir='column'>
-        <RawText fontWeight='semibold'>{option.name}</RawText>
-        <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
-      </Flex>
-      <Center width='25%'>
-        {activeWallet ? (
-          <CheckCircleIcon color={greenColor} />
-        ) : (
-          <Icon width='24px' height='auto' />
-        )}
-      </Center>
-    </Button>
+      name={option.name}
+      Icon={Icon}
+    />
   )
 }
 
+const SelectItem = ({
+  key,
+  isActive,
+  onClick,
+  name,
+  Icon,
+}: {
+  key: string
+  isActive: boolean
+  onClick: () => void
+  name: string
+  Icon: ReactElement
+}) => {
+  const greenColor = useColorModeValue('green.500', 'green.200')
+  const walletSubText = isActive ? 'common.connected' : null
+
+  return (
+    <Button
+      key={key}
+      w='full'
+      size='md'
+      py={8}
+      isActive={isActive}
+      justifyContent='space-between'
+      onClick={onClick}
+      data-test={`connect-wallet-${key}-button`}
+    >
+      <Flex alignItems='flex-start' flexDir='column'>
+        <RawText fontWeight='semibold'>{name}</RawText>
+        <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
+      </Flex>
+      <Center width='25%'>{isActive ? <CheckCircleIcon color={greenColor} /> : Icon}</Center>
+    </Button>
+  )
+}
 const MipdProviderSelectItem = ({
   provider,
   connect,
@@ -112,7 +132,6 @@ const MipdProviderSelectItem = ({
 }) => {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
-  const greenColor = useColorModeValue('green.500', 'green.200')
   const handleConnect = useCallback(
     () => connect(provider.info.rdns),
     [connect, provider.info.rdns],
@@ -125,31 +144,17 @@ const MipdProviderSelectItem = ({
 
   const icon = provider.info.icon
   const activeWallet = provider.info.name === connectedMipdProvider?.info.name
-  const walletSubText = activeWallet ? 'common.connected' : null
+
+  const Icon = useMemo(() => <Image width='24px' height='auto' src={icon} />, [icon])
 
   return (
-    <Button
+    <SelectItem
       key={provider.info.rdns}
-      w='full'
-      size='md'
-      py={8}
       isActive={activeWallet}
-      justifyContent='space-between'
       onClick={handleConnect}
-      data-test={`connect-wallet-${provider.info.rdns}-button`}
-    >
-      <Flex alignItems='flex-start' flexDir='column'>
-        <RawText fontWeight='semibold'>{provider.info.name}</RawText>
-        <Text fontSize='xs' color='text.subtle' translation={walletSubText} />
-      </Flex>
-      <Center width='25%'>
-        {activeWallet ? (
-          <CheckCircleIcon color={greenColor} />
-        ) : (
-          <Image width='24px' height='auto' src={icon} />
-        )}
-      </Center>
-    </Button>
+      name={provider.info.name}
+      Icon={Icon}
+    />
   )
 }
 

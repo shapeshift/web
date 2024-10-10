@@ -3,9 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent } from 'react'
-import { useCallback } from 'react'
-import { useHistory } from 'react-router'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
@@ -61,18 +59,8 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   setSellAsset,
   setSellAssetAccountId,
 }) => {
-  const history = useHistory()
   const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      if (newTab === TradeInputTab.Claim) {
-        history.push(TradeRoutePaths.Claim)
-      }
-    },
-    [history],
-  )
 
   return (
     <Flex
@@ -92,7 +80,6 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
           <SharedTradeInputHeader
             initialTab={TradeInputTab.Trade}
             rightContent={headerRightContent}
-            onChangeTab={handleChangeTab}
           />
           <SharedTradeInputBody
             activeQuote={activeQuote}

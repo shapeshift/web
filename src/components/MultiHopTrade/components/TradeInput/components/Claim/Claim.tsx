@@ -1,8 +1,8 @@
 import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { TradeInputTab } from 'components/MultiHopTrade/types'
 
 import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
@@ -15,20 +15,10 @@ const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, Clai
 
 export const Claim = () => {
   const location = useLocation()
-  const history = useHistory()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      if (newTab === TradeInputTab.Trade) {
-        history.push(TradeRoutePaths.Input)
-      }
-    },
-    [history],
-  )
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
@@ -64,7 +54,7 @@ export const Claim = () => {
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Card flex={1} width='full' maxWidth='500px'>
-          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={handleChangeTab} />
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} />
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}

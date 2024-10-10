@@ -1,4 +1,3 @@
-import { Divider } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
@@ -16,7 +15,6 @@ export const FoxPage = () => {
     <FoxPageProvider>
       <SEO title={translate('navBar.foxBenefits')} />
       <Main headerComponent={headerComponent}>
-        <Divider mb={4} />
         <FoxToken />
       </Main>
     </FoxPageProvider>

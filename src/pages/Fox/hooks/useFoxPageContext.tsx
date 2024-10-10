@@ -45,7 +45,7 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children })
     () => ({
       setAssetAccountId,
       assetId: foxAssetId,
-      assetAccountNumber,
+      assetAccountNumber: assetAccountNumber ?? 0,
       assetAccountId: selectedAssetAccountId,
     }),
     [selectedAssetAccountId, assetAccountNumber],

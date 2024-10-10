@@ -40,26 +40,26 @@ type SharedTradeInputProps = {
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   activeQuote,
-  isCompact,
-  tradeInputRef,
-  isLoading,
-  onSubmit,
-  sideComponent,
-  buyAsset,
-  sellAsset,
-  setBuyAsset,
-  setSellAsset,
-  handleSwitchAssets,
-  hasUserEnteredAmount,
-  manualReceiveAddress,
-  initialSellAssetAccountId,
-  initialBuyAssetAccountId,
-  setSellAssetAccountId,
-  setBuyAssetAccountId,
   buyAmountAfterFeesCryptoPrecision,
   buyAmountAfterFeesUserCurrency,
-  walletReceiveAddress,
+  buyAsset,
+  hasUserEnteredAmount,
   headerRightContent,
+  initialBuyAssetAccountId,
+  initialSellAssetAccountId,
+  isCompact,
+  isLoading,
+  manualReceiveAddress,
+  sellAsset,
+  sideComponent,
+  tradeInputRef,
+  walletReceiveAddress,
+  handleSwitchAssets,
+  onSubmit,
+  setBuyAsset,
+  setBuyAssetAccountId,
+  setSellAsset,
+  setSellAssetAccountId,
 }) => {
   const history = useHistory()
   const totalHeight = useSharedHeight(tradeInputRef)
@@ -91,24 +91,24 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
         >
           <SharedTradeInputHeader
             initialTab={TradeInputTab.Trade}
-            onChangeTab={handleChangeTab}
             rightContent={headerRightContent}
+            onChangeTab={handleChangeTab}
           />
           <SharedTradeInputBody
             activeQuote={activeQuote}
             buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
             buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+            buyAsset={buyAsset}
+            initialBuyAssetAccountId={initialBuyAssetAccountId}
+            initialSellAssetAccountId={initialSellAssetAccountId}
             isLoading={isLoading}
             manualReceiveAddress={manualReceiveAddress}
-            initialSellAssetAccountId={initialSellAssetAccountId}
-            initialBuyAssetAccountId={initialBuyAssetAccountId}
-            setSellAssetAccountId={setSellAssetAccountId}
-            setBuyAssetAccountId={setBuyAssetAccountId}
-            buyAsset={buyAsset}
             sellAsset={sellAsset}
-            setBuyAsset={setBuyAsset}
-            setSellAsset={setSellAsset}
             handleSwitchAssets={handleSwitchAssets}
+            setBuyAsset={setBuyAsset}
+            setBuyAssetAccountId={setBuyAssetAccountId}
+            setSellAsset={setSellAsset}
+            setSellAssetAccountId={setSellAssetAccountId}
           />
           <ConfirmSummary
             isCompact={isCompact}

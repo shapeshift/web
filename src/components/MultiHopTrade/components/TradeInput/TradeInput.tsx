@@ -47,6 +47,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
+import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -172,6 +173,10 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
     return message
   }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
 
+  const headerRightContent = useMemo(() => {
+    return <TradeSettingsMenu isLoading={isLoading} isCompact={isCompact} />
+  }, [isCompact, isLoading])
+
   const setBuyAsset = useCallback(
     (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
     [dispatch],
@@ -285,6 +290,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
               buyAsset={buyAsset}
               hasUserEnteredAmount={hasUserEnteredAmount}
+              headerRightContent={headerRightContent}
               initialBuyAssetAccountId={initialBuyAssetAccountId}
               initialSellAssetAccountId={initialSellAssetAccountId}
               isCompact={isCompact}

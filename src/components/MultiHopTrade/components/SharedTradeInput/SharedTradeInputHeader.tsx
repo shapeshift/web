@@ -1,63 +1,19 @@
-import { CardHeader, Flex, Heading, useMediaQuery } from '@chakra-ui/react'
-import { DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL, swappers } from '@shapeshiftoss/swapper'
-import { assertUnreachable } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { CardHeader, Flex, Heading } from '@chakra-ui/react'
+import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectActiveQuote, selectActiveSwapperName } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { TradeInputTab } from '../../types'
-import { SlippagePopover } from '../SlippagePopover'
-import { CountdownSpinner } from '../TradeInput/components/TradeQuotes/components/CountdownSpinner'
-
-type TradeInputHeaderRightComponentProps = {
-  isCompact: boolean | undefined
-  isLoading: boolean
-}
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
-  isCompact: boolean | undefined
-  isLoading: boolean
+  rightContent?: JSX.Element
   onChangeTab: (newTab: TradeInputTab) => void
-}
-
-const TradeInputHeaderRightComponent = ({
-  isCompact,
-  isLoading,
-}: TradeInputHeaderRightComponentProps) => {
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const activeSwapperName = useAppSelector(selectActiveSwapperName)
-  const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
-
-  const pollingInterval = useMemo(() => {
-    if (!activeSwapperName) return DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-    return swappers[activeSwapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL
-  }, [activeSwapperName])
-
-  const isRefetching = useMemo(
-    () => Boolean(activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName] === true),
-    [activeSwapperName, isTradeQuoteApiQueryPending],
-  )
-
-  return (
-    <>
-      {activeQuote && (isCompact || isSmallerThanXl) && (
-        <CountdownSpinner isLoading={isLoading || isRefetching} initialTimeMs={pollingInterval} />
-      )}
-      <SlippagePopover />
-    </>
-  )
 }
 
 export const SharedTradeInputHeader = ({
   initialTab,
-  isCompact,
-  isLoading,
+  rightContent,
   onChangeTab,
 }: SharedTradeInputHeaderProps) => {
   const translate = useTranslate()
@@ -74,19 +30,6 @@ export const SharedTradeInputHeader = ({
     setSelectedTab(TradeInputTab.Claim)
     onChangeTab(TradeInputTab.Claim)
   }, [onChangeTab])
-
-  const rightComponent = useMemo(() => {
-    return (() => {
-      switch (selectedTab) {
-        case TradeInputTab.Trade:
-          return <TradeInputHeaderRightComponent isLoading={isLoading} isCompact={isCompact} />
-        case TradeInputTab.Claim:
-          return null
-        default:
-          assertUnreachable(selectedTab)
-      }
-    })()
-  }, [selectedTab, isLoading, isCompact])
 
   return (
     <CardHeader px={6}>
@@ -114,7 +57,7 @@ export const SharedTradeInputHeader = ({
           )}
         </Flex>
         <Flex gap={2} alignItems='center' height={6}>
-          {rightComponent}
+          {rightContent}
         </Flex>
       </Flex>
     </CardHeader>

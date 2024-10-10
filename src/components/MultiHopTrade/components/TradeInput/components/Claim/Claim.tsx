@@ -13,7 +13,7 @@ import { ClaimRoutePaths } from './types'
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
+export const Claim = () => {
   const location = useLocation()
   const history = useHistory()
 
@@ -64,12 +64,7 @@ export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Card flex={1} width='full' maxWidth='500px'>
-          <SharedTradeInputHeader
-            initialTab={TradeInputTab.Claim}
-            onChangeTab={handleChangeTab}
-            isLoading={false}
-            isCompact={isCompact}
-          />
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={handleChangeTab} />
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}

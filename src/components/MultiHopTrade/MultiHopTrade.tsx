@@ -122,7 +122,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             />
           </Route>
           <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
-            <Claim isCompact={isCompact} />
+            <Claim />
           </Route>
         </Switch>
       </AnimatePresence>

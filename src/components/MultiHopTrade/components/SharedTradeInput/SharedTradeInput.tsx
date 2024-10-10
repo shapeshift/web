@@ -20,6 +20,7 @@ type SharedTradeInputProps = {
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset
   hasUserEnteredAmount: boolean
+  headerRightContent: JSX.Element
   initialBuyAssetAccountId: AccountId | undefined
   initialSellAssetAccountId: AccountId | undefined
   isCompact: boolean | undefined
@@ -58,6 +59,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   buyAmountAfterFeesCryptoPrecision,
   buyAmountAfterFeesUserCurrency,
   walletReceiveAddress,
+  headerRightContent,
 }) => {
   const history = useHistory()
   const totalHeight = useSharedHeight(tradeInputRef)
@@ -90,8 +92,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
           <SharedTradeInputHeader
             initialTab={TradeInputTab.Trade}
             onChangeTab={handleChangeTab}
-            isLoading={isLoading}
-            isCompact={isCompact}
+            rightContent={headerRightContent}
           />
           <SharedTradeInputBody
             activeQuote={activeQuote}

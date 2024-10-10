@@ -83,7 +83,7 @@ vi.mock('./generatedAssetData.json', () => ({
 describe('AssetService', () => {
   describe('description', () => {
     it('should return the overridden description if it exists - english default', async () => {
-      const assetService = new AssetService()
+      const assetService = await AssetService.initialize()
 
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: 'overridden en description',
@@ -92,7 +92,7 @@ describe('AssetService', () => {
     })
 
     it('should return the overridden description if it exists - locale', async () => {
-      const assetService = new AssetService()
+      const assetService = await AssetService.initialize()
 
       await expect(assetService.description(EthAsset.assetId, 'es')).resolves.toEqual({
         description: 'overridden es description',
@@ -105,7 +105,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = new AssetService()
+      const assetService = await AssetService.initialize()
       const description = { en: 'a blue fox' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
@@ -118,7 +118,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = new AssetService()
+      const assetService = await AssetService.initialize()
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
@@ -127,7 +127,7 @@ describe('AssetService', () => {
     })
 
     it('should throw if not found', async () => {
-      const assetService = new AssetService()
+      const assetService = await AssetService.initialize()
       vi.mocked(mockedAxios.get).mockRejectedValue({ data: null })
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',

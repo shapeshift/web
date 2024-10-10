@@ -141,7 +141,7 @@ describe('market service', () => {
 
   describe('findAll', () => {
     it('can return from first market service and skip the next', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const findAllArgs = { count: Number() }
       await marketServiceManager.findAll(findAllArgs)
       expect(coingeckoMock).toBeCalled() // constructor
@@ -150,7 +150,7 @@ describe('market service', () => {
     })
 
     it('can call the next market service if the first fails', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       const findAllArgs = { count: Number() }
       const result = await marketServiceManager.findAll(findAllArgs)
@@ -160,7 +160,7 @@ describe('market service', () => {
     })
 
     it('errors if no data found', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
@@ -174,7 +174,7 @@ describe('market service', () => {
     })
 
     it('returns market service data if exists', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
       expect(result).toEqual(mockCGFindAllData)
     })
@@ -184,7 +184,7 @@ describe('market service', () => {
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
       expect(result).toEqual(mockFoxyMarketData)
     })
@@ -195,7 +195,7 @@ describe('market service', () => {
     const btcArgs = { assetId: btcAssetId }
 
     it('can return from first market service and skip the next', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockCGFindByAssetIdData)
     })
@@ -205,7 +205,7 @@ describe('market service', () => {
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
       expect(result).toEqual(mockFoxyMarketData)
     })
@@ -218,7 +218,7 @@ describe('market service', () => {
       mockYearnTokenFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(btcArgs)
       expect(result).toBeNull()
     })
@@ -231,7 +231,7 @@ describe('market service', () => {
     }
 
     it('can return from first market service and skip the next', async () => {
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )
@@ -243,7 +243,7 @@ describe('market service', () => {
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )
@@ -258,7 +258,7 @@ describe('market service', () => {
       mockYearnTokenFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
-      const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
+      const marketServiceManager = await MarketServiceManager.initialize(marketServiceManagerArgs)
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )

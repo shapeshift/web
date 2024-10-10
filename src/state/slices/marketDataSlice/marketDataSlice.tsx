@@ -145,7 +145,8 @@ export const marketApi = createApi({
       // top 1000 assets
       queryFn: async (_, { dispatch }) => {
         try {
-          const data = await getMarketServiceManager().findAll({ count: 1000 })
+          const marketServiceManager = await getMarketServiceManager()
+          const data = await marketServiceManager.findAll({ count: 1000 })
           dispatch(marketData.actions.setCryptoMarketData(data))
           return { data }
         } catch (e) {
@@ -157,7 +158,8 @@ export const marketApi = createApi({
     findByAssetId: build.query<null, AssetId>({
       // named function for profiling+debugging purposes
       queryFn: async function findByAssetId(assetId: AssetId, { dispatch }) {
-        const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
+        const marketServiceManager = await getMarketServiceManager()
+        const currentMarketData = await marketServiceManager.findByAssetId({ assetId })
 
         if (currentMarketData) {
           const payload = { [assetId]: currentMarketData }
@@ -173,7 +175,8 @@ export const marketApi = createApi({
       queryFn: async function findPriceHistoryByAssetId(args, { dispatch }) {
         const { assetId, timeframe } = args
 
-        const historyDataByAssetId = await getMarketServiceManager()
+        const marketServiceManager = await getMarketServiceManager()
+        const historyDataByAssetId = await marketServiceManager
           .findPriceHistoryByAssetId({
             timeframe,
             assetId,

@@ -244,7 +244,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   )
   const relatedAssetIndexPath = path.join(
     __dirname,
-    '../../../src/lib/asset-service/service/relatedAssetIndex.json',
+    '../../../scripts/generateAssetData/relatedAssetIndex.json',
   )
 
   const generatedAssetData: AssetsById = JSON.parse(

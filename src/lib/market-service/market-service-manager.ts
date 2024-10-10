@@ -38,16 +38,15 @@ export class MarketServiceManager {
   marketProviders: MarketService[]
   assetService: AssetService
 
-  constructor(args: MarketServiceManagerArgs) {
+  private constructor(marketProviders: MarketService[], assetService: AssetService) {
+    this.marketProviders = marketProviders
+    this.assetService = assetService
+  }
+
+  static async initialize(args: MarketServiceManagerArgs): Promise<MarketServiceManager> {
     const { providerUrls, provider } = args
 
-    // TODO(0xdef1cafe): after chain agnosticism, we need to dependency inject a chainReference here
-    // YearnVaultMarketCapService deps
-    // const network = yearnChainReference ?? 1 // 1 for mainnet
-    // const provider = new JsonRpcProvider(providerUrls.jsonRpcProviderUrl)
-    // const yearnSdk = new Yearn(network, { provider })
-
-    this.marketProviders = [
+    const marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
       new CoinGeckoMarketService(),
@@ -61,7 +60,9 @@ export class MarketServiceManager {
       // TODO: Debank market provider
     ]
 
-    this.assetService = new AssetService()
+    const assetService = await AssetService.initialize()
+
+    return new MarketServiceManager(marketProviders, assetService)
   }
 
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {

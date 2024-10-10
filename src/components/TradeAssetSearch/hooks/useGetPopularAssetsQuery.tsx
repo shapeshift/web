@@ -8,7 +8,8 @@ import { store } from 'state/store'
 const queryKey = ['getPopularAssetsQuery']
 
 export const queryFn = async () => {
-  const assetIds = await getMarketServiceManager().findAllSortedByVolumeDesc(100)
+  const marketServiceManager = await getMarketServiceManager()
+  const assetIds = await marketServiceManager.findAllSortedByVolumeDesc(100)
   const result: Record<ChainId | 'All', Asset[]> = {
     All: [],
   }

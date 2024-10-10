@@ -61,9 +61,9 @@ const thorchainErrorResponse = {
 let service: AssetService | undefined = undefined
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const getAssetService = () => {
+const getAssetService = async () => {
   if (!service) {
-    service = new AssetService()
+    service = await AssetService.initialize()
   }
 
   return service
@@ -78,7 +78,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().assetsById[btcAssetId]
+      const btcAssetMock = (await getAssetService()).assetsById[btcAssetId]
       const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
@@ -96,7 +96,7 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().assetsById[btcAssetId]
+      const btcAssetMock = (await getAssetService()).assetsById[btcAssetId]
       expect(
         (
           await getMaybeThorchainSaversDepositQuote({

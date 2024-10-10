@@ -100,6 +100,7 @@ export const Header = memo(() => {
   )
 
   const connectedRdns = useAppSelector(selectWalletRdns)
+  const previousConnectedRdns = usePrevious(connectedRdns)
   const currentWalletId = useAppSelector(selectWalletId)
   const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const hasNonEvmAccountIds = useMemo(
@@ -125,7 +126,7 @@ export const Header = memo(() => {
       isSnapInstalled === false &&
       previousIsCorrectVersion === true
     ) {
-      if (connectedRdns === METAMASK_RDNS) {
+      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
         // they uninstalled the snap
         toast({
           status: 'success',
@@ -136,13 +137,14 @@ export const Header = memo(() => {
       const walletId = currentWalletId
       if (!walletId) return
       appDispatch(portfolio.actions.clearWalletMetadata(walletId))
-      if (connectedRdns === METAMASK_RDNS) {
+      if (previousConnectedRdns === METAMASK_RDNS && connectedRdns === METAMASK_RDNS) {
         return snapModal.open({ isRemoved: true })
       }
     }
     if (
       previousSnapInstall === false &&
       isSnapInstalled === true &&
+      previousConnectedRdns === METAMASK_RDNS &&
       connectedRdns === METAMASK_RDNS
     ) {
       history.push(`/assets/${btcAssetId}`)
@@ -163,6 +165,7 @@ export const Header = memo(() => {
     history,
     isCorrectVersion,
     isSnapInstalled,
+    previousConnectedRdns,
     previousIsCorrectVersion,
     previousSnapInstall,
     showSnapModal,

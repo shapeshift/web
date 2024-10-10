@@ -51,8 +51,8 @@ export const useIsSnapInstalled = (): {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const checkSnapInstallation = useCallback(async () => {
-    if (!isConnected || isDemoWallet) return setIsSnapInstalled(false)
-    if (connectedRdns !== METAMASK_RDNS) return setIsSnapInstalled(false)
+    if (connectedRdns !== METAMASK_RDNS) return setIsSnapInstalled(null)
+    if (!isConnected || isDemoWallet) return setIsSnapInstalled(null)
     const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
     if (!isMetaMaskDesktop) return
 

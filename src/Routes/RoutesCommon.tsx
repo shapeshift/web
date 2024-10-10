@@ -1,7 +1,8 @@
 import { getConfig } from 'config'
 import { lazy } from 'react'
-import { FaChartArea, FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
+import { TbGraph } from 'react-icons/tb'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -199,7 +200,7 @@ export const routes: Route[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <FaChartArea />,
+    icon: <TbGraph />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,
@@ -253,6 +254,7 @@ export const routes: Route[] = [
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
+    hide: true,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({

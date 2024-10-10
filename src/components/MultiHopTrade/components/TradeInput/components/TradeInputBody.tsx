@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -24,7 +25,6 @@ import {
   selectInputBuyAsset,
   selectInputSellAsset,
   selectIsAccountMetadataLoadingByAccountId,
-  selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -72,7 +72,7 @@ export const TradeInputBody = ({
   const isAccountMetadataLoadingByAccountId = useAppSelector(
     selectIsAccountMetadataLoadingByAccountId,
   )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)

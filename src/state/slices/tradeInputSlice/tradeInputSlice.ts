@@ -78,10 +78,10 @@ export const tradeInput = createSlice({
 
       state.sellAsset = action.payload
     },
-    setSellAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {
+    setSellAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
       state.sellAssetAccountId = action.payload
     },
-    setBuyAssetAccountNumber: (state, action: PayloadAction<AccountId | undefined>) => {
+    setBuyAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
       state.buyAssetAccountId = action.payload
     },
     setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {

@@ -1,6 +1,7 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import type { ResponsiveArray } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   Center,
   Flex,
@@ -179,7 +180,8 @@ export const SelectModal = () => {
   )
 
   const wallets = useMemo(
-    () => Object.values(KeyManager).filter(key => key !== KeyManager.Demo),
+    () =>
+      Object.values(KeyManager).filter(key => key !== KeyManager.Demo && key !== KeyManager.Native),
     [],
   )
 
@@ -250,6 +252,14 @@ export const SelectModal = () => {
       </ModalHeader>
       <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.selectModal.body'} />
+        <Box mb={4}>
+          <WalletSelectItem
+            key={KeyManager.Native}
+            walletType={KeyManager.Native}
+            walletInfo={walletInfo}
+            connect={handleConnect}
+          />
+        </Box>
         <Grid mb={6} gridTemplateColumns={gridTemplateColumnsProp} gridGap={4}>
           {allProviders}
         </Grid>

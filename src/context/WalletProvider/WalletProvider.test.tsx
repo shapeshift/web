@@ -93,14 +93,14 @@ describe('WalletProvider', () => {
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: true, modalType: '' },
+          payload: true,
         })
       })
       expect(result.current.state.isConnected).toBe(true)
       act(() => {
         result.current.dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: false, modalType: '' },
+          payload: false,
         })
       })
       expect(result.current.state.isConnected).toBe(false)
@@ -175,7 +175,7 @@ describe('WalletProvider', () => {
         })
         result.current.dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: true, modalType: '' },
+          payload: true,
         })
       })
 

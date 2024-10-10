@@ -26,7 +26,7 @@ export interface LedgerSetupProps
 }
 
 export const LedgerConnect = ({ history }: LedgerSetupProps) => {
-  const { state, dispatch: walletDispatch, getAdapter } = useWallet()
+  const { dispatch: walletDispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -100,7 +100,7 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
         })
         walletDispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: true, modalType: state.modalType },
+          payload: true,
         })
         localWallet.setLocalWallet({ type: KeyManager.Ledger, deviceId })
 
@@ -128,7 +128,6 @@ export const LedgerConnect = ({ history }: LedgerSetupProps) => {
     isLedgerAccountManagementEnabled,
     localWallet,
     setErrorLoading,
-    state.modalType,
     walletDispatch,
   ])
 

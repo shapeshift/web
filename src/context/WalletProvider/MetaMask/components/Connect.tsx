@@ -107,9 +107,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
         })
         dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          // Do not early return here if (!maybeMipdProvider) - not all wallet announce themselves as EIP-6963 providers
-          // and we should let the app work the best it could without them
-          payload: { isConnected: true, modalType: maybeMipdProvider?.info.rdns ?? '' },
+          payload: true,
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         localWallet.setLocalWallet({

@@ -838,7 +838,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
-        payload: { isConnected: false },
+        payload: false,
       })
     } catch (error) {
       console.error(error)

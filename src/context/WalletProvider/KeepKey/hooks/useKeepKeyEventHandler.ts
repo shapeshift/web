@@ -232,7 +232,7 @@ export const useKeepKeyEventHandler = (
           })
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: true, modalType: state.modalType },
+            payload: true,
           })
         }
       } catch (e) {
@@ -246,7 +246,7 @@ export const useKeepKeyEventHandler = (
         if (id === state.walletInfo?.deviceId) {
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: false, modalType: state.modalType },
+            payload: false,
           })
         }
         if (modal) {

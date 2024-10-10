@@ -41,7 +41,7 @@ const walletButtonLeftIcon = (
 )
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { state, getAdapter, dispatch } = useWallet()
+  const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -101,7 +101,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           })
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: true, modalType: state.modalType },
+            payload: true,
           })
           // The wallet is already initialized so we can close the modal
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })

@@ -20,7 +20,7 @@ export interface CoinbaseSetupProps
 }
 
 export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
-  const { state, dispatch, getAdapter } = useWallet()
+  const { dispatch, getAdapter } = useWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -54,7 +54,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
         })
         dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: true, modalType: state.modalType },
+          payload: true,
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
         localWallet.setLocalWallet({ type: KeyManager.Coinbase, deviceId })
@@ -66,7 +66,7 @@ export const CoinbaseConnect = ({ history }: CoinbaseSetupProps) => {
       }
     }
     setLoading(false)
-  }, [dispatch, getAdapter, history, localWallet, state.modalType])
+  }, [dispatch, getAdapter, history, localWallet])
 
   return (
     <ConnectModal

@@ -48,7 +48,7 @@ export const MobileSuccess = ({ location }: MobileSetupProps) => {
           })
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: true, modalType: state.modalType },
+            payload: true,
           })
           localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(walletLabel)

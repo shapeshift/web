@@ -58,7 +58,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
           })
           dispatch({
             type: WalletActions.SET_IS_CONNECTED,
-            payload: { isConnected: true, modalType: state.modalType },
+            payload: true,
           })
           localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
         }
@@ -71,7 +71,7 @@ export const WalletConnectV2Connect = ({ history }: WalletConnectSetupProps) => 
         history.push('/walletconnect/failure')
       }
     }
-  }, [dispatch, getAdapter, history, localWallet, state.modalType, state.wallet])
+  }, [dispatch, getAdapter, history, localWallet, state.wallet])
 
   return (
     <ConnectModal

@@ -81,7 +81,7 @@ export const EnterPassword = () => {
         })
         dispatch({
           type: WalletActions.SET_IS_CONNECTED,
-          payload: { isConnected: true, modalType: state.modalType },
+          payload: true,
         })
         dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
@@ -96,7 +96,7 @@ export const EnterPassword = () => {
         )
       }
     },
-    [keyring, deviceId, dispatch, state.modalType, setError, translate],
+    [keyring, deviceId, dispatch, setError, translate],
   )
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

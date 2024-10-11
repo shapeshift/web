@@ -121,6 +121,8 @@ export const mockStore: ReduxState = {
       Portals: false,
       Markets: false,
       PhantomWallet: false,
+      FoxPage: false,
+      FoxPageFoxSection: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

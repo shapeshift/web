@@ -7,6 +7,7 @@ import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { ExploreIcon } from 'components/Icons/Explore'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { HomeIcon } from 'components/Icons/Home'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { RFOXIcon } from 'components/Icons/RFOX'
@@ -14,6 +15,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
+import { FoxPage } from 'pages/Fox/FoxPage'
 import { RFOX } from 'pages/RFOX/RFOX'
 
 import type { Route } from './helpers'
@@ -151,6 +153,16 @@ export const routes: Route[] = [
     main: RFOX,
     category: RouteCategory.Featured,
     disable: !getConfig().REACT_APP_FEATURE_RFOX,
+  },
+  {
+    path: '/fox',
+    label: 'navBar.foxBenefits',
+    icon: <FoxIcon />,
+    main: FoxPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_FOX_PAGE,
   },
   {
     path: '/trade',

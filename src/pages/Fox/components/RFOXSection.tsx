@@ -163,15 +163,31 @@ export const RFOXSection = () => {
     )
   }, [isCurrentEpochRewardsCryptoBaseUnitQueryLoading, isCurrentEpochRewardsCryptoBaseUnitFetching])
 
-  const lifetimeRewardsCryptoBaseUnitResult = useLifetimeRewardsQuery({
+  const {
+    data: lifetimeRewards,
+    isLoading: isLifetimeRewardsQueryLoading,
+    isFetching: isLifetimeRewardsFetching,
+  } = useLifetimeRewardsQuery({
     stakingAssetAccountAddress,
   })
 
-  const timeInPoolHumanResult = useTimeInPoolQuery({
+  const isLifetimeRewardsLoading = useMemo(() => {
+    return isLifetimeRewardsQueryLoading || isLifetimeRewardsFetching
+  }, [isLifetimeRewardsQueryLoading, isLifetimeRewardsFetching])
+
+  const {
+    data: timeInPoolHuman,
+    isLoading: isTimeInPoolQueryLoading,
+    isFetching: isTimeInPoolFetching,
+  } = useTimeInPoolQuery({
     stakingAssetAccountAddress,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
+
+  const isTimeInPoolLoading = useMemo(() => {
+    return isTimeInPoolQueryLoading || isTimeInPoolFetching
+  }, [isTimeInPoolQueryLoading, isTimeInPoolFetching])
 
   const affiliateRevenueResult = useAffiliateRevenueQuery<string>({
     startTimestamp: currentEpochMetadataResult.data?.epochStartTimestamp,
@@ -259,20 +275,10 @@ export const RFOXSection = () => {
               translation='RFOX.lifetimeRewards'
               mb={1}
             />
-            <Skeleton
-              isLoaded={
-                !Boolean(
-                  lifetimeRewardsCryptoBaseUnitResult.isLoading ||
-                    lifetimeRewardsCryptoBaseUnitResult.isFetching,
-                )
-              }
-            >
+            <Skeleton isLoaded={!Boolean(isLifetimeRewardsLoading)}>
               <Amount.Crypto
                 fontSize='2xl'
-                value={fromBaseUnit(
-                  lifetimeRewardsCryptoBaseUnitResult.data?.toString(),
-                  runeAsset.precision ?? 0,
-                )}
+                value={fromBaseUnit(lifetimeRewards?.toString(), runeAsset.precision ?? 0)}
                 symbol={runeAsset.symbol ?? ''}
               />
             </Skeleton>
@@ -286,12 +292,8 @@ export const RFOXSection = () => {
               translation='RFOX.timeInPool'
               mb={1}
             />
-            <Skeleton
-              isLoaded={
-                !Boolean(timeInPoolHumanResult.isLoading || timeInPoolHumanResult.isFetching)
-              }
-            >
-              <CText fontSize='2xl'>{timeInPoolHumanResult.data ?? 'N/A'}</CText>
+            <Skeleton isLoaded={!Boolean(isTimeInPoolLoading)}>
+              <CText fontSize='2xl'>{timeInPoolHuman ?? 'N/A'}</CText>
             </Skeleton>
           </Stack>
 

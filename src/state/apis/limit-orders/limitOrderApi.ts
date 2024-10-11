@@ -7,11 +7,11 @@ import axios from 'axios'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type {
   CancelLimitOrdersRequest,
+  CompetitionOrderStatus,
   GetOrdersRequest,
   LimitOrder,
   LimitOrderRequest,
   Order,
-  OrderStatusResponse,
   Trade,
 } from './types'
 
@@ -52,7 +52,7 @@ export const limitOrderApi = createApi({
       },
     }),
     getOrderStatus: build.query<
-      OrderStatusResponse,
+      CompetitionOrderStatus,
       { orderId: string; chainId: ChainId; config: SwapperConfig }
     >({
       queryFn: async ({ orderId, chainId, config }) => {
@@ -60,7 +60,7 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const result = await axios.get<OrderStatusResponse>(
+        const result = await axios.get<CompetitionOrderStatus>(
           `${baseUrl}/${network}/api/v1/orders/${orderId}/status`,
         )
         return { data: result.data }

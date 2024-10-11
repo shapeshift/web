@@ -10,26 +10,26 @@ export type LimitOrder = string
 export type LimitOrderRequest = {
   sellToken: AssetReference
   buyToken: AssetReference
-  receiver: string
+  receiver?: string
   sellAmount: string
   buyAmount: string
   validTo: number
   feeAmount: string
   kind: CoWSwapOrderKind
   partiallyFillable: boolean
-  sellTokenBalance: CoWSwapSellTokenSource
-  buyTokenBalance: CoWSwapBuyTokenDestination
+  sellTokenBalance?: CoWSwapSellTokenSource
+  buyTokenBalance?: CoWSwapBuyTokenDestination
   signingScheme: CoWSwapSigningScheme
   signature: string
-  from: string
-  quoteId: number
+  from?: string
+  quoteId?: number
   appData: string
-  appDataHash: string
+  appDataHash?: string
   chainId: ChainId
 }
 
 export type CancelLimitOrdersRequest = {
-  orderUids: string[]
+  orderUids?: string[]
   signature: string
   signingScheme: CoWSwapSigningScheme
   chainId: ChainId
@@ -51,21 +51,39 @@ type ExecutedAmounts = {
 
 export type OrderExecution = {
   solver: string
-  executedAmounts: ExecutedAmounts
+  executedAmounts?: ExecutedAmounts
 }
 
-export type OrderStatusResponse = {
+export type CompetitionOrderStatus = {
   type: OrderExecutionStatus
-  value: OrderExecution[]
+  value?: OrderExecution[]
 }
 
-type ProtocolFee = {
-  policy: {
-    factor: number
-    maxVolumeFactor: number
-  }
-  amount: string
-  token: string
+type Quote = {
+  sellAmount: string
+  buyAmount: string
+  fee: string
+}
+
+type SurplusFeePolicy = {
+  factor: number
+  maxVolumeFactor: number
+}
+
+type VolumeFeePolicy = {
+  factor: number
+}
+
+type PriceImprovementFeePolicy = {
+  factor: number
+  maxVolumeFactor: number
+  quote: Quote
+}
+
+type ExecutedProtocolFee = {
+  policy?: SurplusFeePolicy | VolumeFeePolicy | PriceImprovementFeePolicy
+  amount?: string
+  token?: string
 }
 
 export type GetOrdersRequest = {
@@ -86,7 +104,7 @@ export type Trade = {
   sellAmountBeforeFees: string
   buyAmount: string
   txHash: string
-  executedProtocolFees: ProtocolFee[]
+  executedProtocolFees: ExecutedProtocolFee[]
 }
 
 type EthflowData = {
@@ -102,7 +120,7 @@ enum PlacementError {
 
 type OnchainOrderData = {
   sender: string
-  placementError: PlacementError
+  placementError?: PlacementError
 }
 
 type OrderClass = 'market' | 'limit' | 'liquidity'
@@ -117,14 +135,14 @@ export type Order = {
   feeAmount: string
   kind: CoWSwapOrderKind
   partiallyFillable: boolean
-  sellTokenBalance: CoWSwapSellTokenSource
-  buyTokenBalance: CoWSwapBuyTokenDestination
+  sellTokenBalance?: CoWSwapSellTokenSource
+  buyTokenBalance?: CoWSwapBuyTokenDestination
   signingScheme: CoWSwapSigningScheme
   signature: string
-  from: string
-  quoteId: number
+  from?: string
+  quoteId?: number
   appData: string
-  appDataHash: string
+  appDataHash?: string
   creationDate: string
   class: OrderClass
   owner: string
@@ -135,11 +153,11 @@ export type Order = {
   executedFeeAmount: string
   invalidated: boolean
   status: OrderExecutionStatus
-  fullFeeAmount: string
-  isLiquidityOrder: boolean
-  ethflowData: EthflowData
-  onchainUser: string
-  onchainOrderData: OnchainOrderData
-  executedSurplusFee: string
-  fullAppData: string
+  fullFeeAmount?: string
+  isLiquidityOrder?: boolean
+  ethflowData?: EthflowData
+  onchainUser?: string
+  onchainOrderData?: OnchainOrderData
+  executedSurplusFee?: string
+  fullAppData?: string
 }

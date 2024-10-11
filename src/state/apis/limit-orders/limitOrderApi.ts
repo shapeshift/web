@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { SwapperConfig } from '@shapeshiftoss/swapper'
 import { getCowswapNetwork } from '@shapeshiftoss/swapper'
-import { cowService } from '@shapeshiftoss/swapper/src/swappers/CowSwapper/utils/cowService'
+import axios from 'axios'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type {
@@ -30,12 +30,8 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(payload.chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const maybeResult = await cowService.post<LimitOrder>(
-          `${baseUrl}/${network}/api/v1/orders/`,
-          payload,
-        )
-        if (maybeResult.isErr()) throw maybeResult.unwrapErr()
-        const { data: order } = maybeResult.unwrap()
+        const result = await axios.post<LimitOrder>(`${baseUrl}/${network}/api/v1/orders/`, payload)
+        const order = result.data
         return { data: order }
       },
     }),
@@ -48,13 +44,9 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(payload.chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const maybeResult = await cowService.delete<void>(
-          `${baseUrl}/${network}/api/v1/orders/cancel`,
-          payload,
-        )
-        if (maybeResult.isErr()) throw maybeResult.unwrapErr()
+        const result = await axios.post<void>(`${baseUrl}/${network}/api/v1/orders/cancel`, payload)
         // If the result is a 200 then the order was successfully canceled
-        return { data: true }
+        return { data: result.status === 200 }
       },
     }),
     getOrderStatus: build.query<
@@ -66,12 +58,10 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const maybeResult = await cowService.get<OrderStatusResponse>(
+        const result = await axios.get<OrderStatusResponse>(
           `${baseUrl}/${network}/api/v1/orders/${orderId}/status`,
         )
-        if (maybeResult.isErr()) throw maybeResult.unwrapErr()
-        const { data } = maybeResult.unwrap()
-        return { data }
+        return { data: result.data }
       },
     }),
     getTrades: build.query<
@@ -83,10 +73,8 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const maybeResult = await cowService.get<Trade[]>(`${baseUrl}/${network}/api/v1/trades`)
-        if (maybeResult.isErr()) throw maybeResult.unwrapErr()
-        const { data } = maybeResult.unwrap()
-        return { data }
+        const result = await axios.get<Trade[]>(`${baseUrl}/${network}/api/v1/trades`)
+        return { data: result.data }
       },
     }),
     getOrders: build.query<Order[], { payload: GetOrdersRequest; config: SwapperConfig }>({
@@ -95,13 +83,11 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(payload.chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const maybeResult = await cowService.post<Order[]>(
+        const result = await axios.post<Order[]>(
           `${baseUrl}/${network}/api/v1/account/${payload.owner}/orders`,
           { limit: payload.limit, offset: payload.offset },
         )
-        if (maybeResult.isErr()) throw maybeResult.unwrapErr()
-        const { data } = maybeResult.unwrap()
-        return { data }
+        return { data: result.data }
       },
     }),
   }),

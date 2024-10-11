@@ -1,8 +1,8 @@
 import { type AccountId, type AssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
-  selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
+  selectFirstAccountIdByChainId,
 } from 'state/slices/portfolioSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -28,27 +28,18 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children })
     filter ? selectAccountNumberByAccountId(state, filter) : undefined,
   )
 
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdByAccountNumberAndChainId,
+  const firstAssetAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, fromAssetId(foxAssetId).chainId),
   )
-
-  const selectedAssetAccountId = useMemo(() => {
-    const accountNumberAccountIds =
-      assetAccountNumber !== undefined
-        ? accountIdsByAccountNumberAndChainId[assetAccountNumber]
-        : accountIdsByAccountNumberAndChainId[0]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(foxAssetId).chainId]
-    return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber])
 
   const value: FoxPageContextType = useMemo(
     () => ({
       setAssetAccountId,
       assetId: foxAssetId,
       assetAccountNumber: assetAccountNumber ?? 0,
-      assetAccountId: selectedAssetAccountId,
+      assetAccountId: assetAccountId ?? firstAssetAccountId,
     }),
-    [selectedAssetAccountId, assetAccountNumber],
+    [assetAccountId, assetAccountNumber, firstAssetAccountId],
   )
 
   return <FoxPageContext.Provider value={value}>{children}</FoxPageContext.Provider>

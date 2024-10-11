@@ -80,7 +80,7 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const history = useHistory()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
-  const { selectedAssetAccountId, assetAccountNumber } = useFoxPageContext()
+  const { assetAccountId, assetAccountNumber } = useFoxPageContext()
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -101,10 +101,8 @@ export const RFOXSection = () => {
 
   const filter = useMemo(
     () =>
-      selectedAssetAccountId
-        ? { assetId: foxOnArbitrumOneAssetId, accountId: selectedAssetAccountId }
-        : undefined,
-    [selectedAssetAccountId],
+      assetAccountId ? { assetId: foxOnArbitrumOneAssetId, accountId: assetAccountId } : undefined,
+    [assetAccountId],
   )
 
   const rfoxAssetAccountId = useMemo(() => {

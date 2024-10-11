@@ -110,11 +110,6 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
           payload: true,
         })
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
-        localWallet.setLocalWallet({
-          type: KeyManager.MetaMask,
-          deviceId,
-          rdns: maybeMipdProvider?.info.rdns,
-        })
 
         if (!maybeMipdProvider?.provider) {
           throw new Error(
@@ -123,6 +118,12 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
             }),
           )
         }
+
+        localWallet.setLocalWallet({
+          type: KeyManager.MetaMask,
+          deviceId,
+          rdns: maybeMipdProvider?.info.rdns,
+        })
 
         await (async () => {
           const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)

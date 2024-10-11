@@ -18,6 +18,7 @@ const stackProps: StackProps = {
   overflow: 'hidden',
 }
 const containerPaddingX = { base: 4, xl: 0 }
+const DEFAULT_FEE_EXPLAINER_INPUT_AMOUNT = '1400'
 
 export const FoxToken = () => {
   const translate = useTranslate()
@@ -38,7 +39,7 @@ export const FoxToken = () => {
         <FoxTokenHeader />
         <FoxTokenBalances />
         <FeeExplainer
-          inputAmountUsd={'1400'}
+          inputAmountUsd={DEFAULT_FEE_EXPLAINER_INPUT_AMOUNT}
           boxShadow='none'
           feeModel={'SWAPPER'}
           maxWidth='100%'

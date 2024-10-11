@@ -44,7 +44,9 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(payload.chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const result = await axios.post<void>(`${baseUrl}/${network}/api/v1/orders/cancel`, payload)
+        const result = await axios.delete<void>(`${baseUrl}/${network}/api/v1/orders`, {
+          data: payload,
+        })
         // If the result is a 200 then the order was successfully canceled
         return { data: result.status === 200 }
       },

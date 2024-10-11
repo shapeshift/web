@@ -426,8 +426,6 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     action: 'withdrawLiquidity',
   })
 
-  console.log({ isEstimatedRuneFeesDataLoading, isEstimatedPoolAssetFeesDataLoading })
-
   const poolAssetFeeAssetProtocolFeeCryptoPrecision = useMemo(() => {
     if (!poolAssetFeeAsset || !poolAssetFeeAssetOutboundFeeCryptoBaseUnit) return bn(0)
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)

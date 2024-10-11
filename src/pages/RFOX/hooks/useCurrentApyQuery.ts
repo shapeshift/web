@@ -1,4 +1,5 @@
-import { foxAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
@@ -11,21 +12,25 @@ import type { EpochWithIpfsHash } from './useEpochHistoryQuery'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
+type useCurrentApyQueryProps = {
+  stakingAssetId: AssetId
+}
+
 /**
  * Get the estimated APY of RFOX
  */
-export const useCurrentApyQuery = () => {
-  useFetchPriceHistories([thorchainAssetId, foxAssetId], HistoryTimeframe.MONTH)
+export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) => {
+  useFetchPriceHistories([thorchainAssetId, stakingAssetId], HistoryTimeframe.MONTH)
 
   const runePriceHistory = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, thorchainAssetId, HistoryTimeframe.MONTH),
   )
-  const foxPriceHistory = useAppSelector(state =>
-    selectPriceHistoryByAssetTimeframe(state, foxAssetId, HistoryTimeframe.MONTH),
+  const stakingAssetPriceHistory = useAppSelector(state =>
+    selectPriceHistoryByAssetTimeframe(state, stakingAssetId, HistoryTimeframe.MONTH),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const foxAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const totalStakedCryptoCurrencyResult = useTotalStakedQuery<string>({
     select: (totalStaked: bigint) => {
@@ -34,14 +39,14 @@ export const useCurrentApyQuery = () => {
   })
 
   const select = useCallback(
-    (data: EpochWithIpfsHash[]): string | undefined => {
+    (epochs: EpochWithIpfsHash[]): string | undefined => {
       if (!runePriceHistory) return
-      if (!foxPriceHistory) return
+      if (!stakingAssetPriceHistory) return
       if (!runeAsset) return
-      if (!foxAsset) return
+      if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyResult?.data) return
 
-      const previousEpoch = data[data.length - 1]
+      const previousEpoch = epochs[epochs.length - 1]
 
       const closestRunePrice = runePriceHistory.find(
         (price, index) =>
@@ -49,27 +54,33 @@ export const useCurrentApyQuery = () => {
           runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
       )
 
-      const closestFoxPrice = foxPriceHistory.find(
+      const closestFoxPrice = stakingAssetPriceHistory.find(
         (price, index) =>
           price.date <= previousEpoch.endTimestamp &&
           runePriceHistory[index + 1]?.date > previousEpoch.endTimestamp,
       )
 
-      const totalRuneFiatValue = bnOrZero(
+      const totalRuneUsdValue = bnOrZero(
         fromBaseUnit(previousEpoch.totalRevenue, runeAsset.precision),
       )
         .times(previousEpoch.distributionRate)
         .times(closestRunePrice?.price ?? 0)
 
-      const totalFoxFiatValue = bnOrZero(
-        fromBaseUnit(totalStakedCryptoCurrencyResult.data, foxAsset.precision),
+      const totalFoxUsdValue = bnOrZero(
+        fromBaseUnit(totalStakedCryptoCurrencyResult.data, stakingAsset.precision),
       ).times(closestFoxPrice?.price ?? 0)
 
-      const estimatedApy = totalRuneFiatValue.dividedBy(totalFoxFiatValue).times(12).toFixed(4)
+      const estimatedApy = totalRuneUsdValue.dividedBy(totalFoxUsdValue).times(12).toFixed(4)
 
       return estimatedApy
     },
-    [runePriceHistory, foxPriceHistory, runeAsset, foxAsset, totalStakedCryptoCurrencyResult],
+    [
+      runePriceHistory,
+      stakingAssetPriceHistory,
+      runeAsset,
+      stakingAsset,
+      totalStakedCryptoCurrencyResult,
+    ],
   )
 
   const query = useEpochHistoryQuery({ select })

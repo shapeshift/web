@@ -6,8 +6,8 @@ export const RFOXIcon = createIcon({
     <>
       <defs>
         <linearGradient id='rfoxGradient' gradientTransform='rotate(45)'>
-          <stop offset='0%' stop-color='#3761F9' />
-          <stop offset='100%' stop-color='#62FFFF' />
+          <stop offset='0%' stopColor='#3761F9' />
+          <stop offset='100%' stopColor='#62FFFF' />
         </linearGradient>
       </defs>
       <path

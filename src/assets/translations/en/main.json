@@ -2646,14 +2646,13 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
-      "title": "rFOX Staking",
       "whatIs": "What is rFOX Staking?",
       "totalFoxBurn": "Total FOX Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Input number of deposit something",
       "estimatedRewards": "Estimated Rewards",
       "depositAmount": "Deposit Amount",
-      "shapeshiftRevenues": "ShapeShift Revenues",
+      "shapeshiftRevenue": "ShapeShift Revenues",
       "30days": "30 days"
     }
   }

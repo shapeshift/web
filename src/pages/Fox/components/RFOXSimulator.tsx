@@ -1,15 +1,17 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
-import { foxOnArbitrumOneAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo, useState } from 'react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import { type EpochWithIpfsHash, useEpochHistoryQuery } from 'pages/RFOX/hooks/useEpochHistoryQuery'
+import { selectLastEpoch } from 'pages/RFOX/helpers'
+import { useEpochHistoryQuery } from 'pages/RFOX/hooks/useEpochHistoryQuery'
 import { useTotalStakedQuery } from 'pages/RFOX/hooks/useGetTotalStaked'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
+import { selectAssetById, selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { RFOXSliders } from './RFOXSliders'
@@ -20,20 +22,24 @@ const columnsProps = {
   base: 1,
   md: 2,
 }
+const DEFAULT_SHAPESHIFT_REVENUES = 100000
+const DEFAULT_DEPOSIT_AMOUNT = 14000
 
-export const RFOXSimulator = () => {
+type RFOXSimulatorProps = {
+  stakingAssetId: AssetId
+}
+
+export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const translate = useTranslate()
-  const [shapeShiftRevenues, setShapeShiftRevenues] = useState(100000)
-  const [foxHolding, setFoxHolding] = useState(14000)
+  const [shapeShiftRevenue, setShapeShiftRevenue] = useState(DEFAULT_SHAPESHIFT_REVENUES)
+  const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT_AMOUNT)
 
-  const foxMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, foxOnArbitrumOneAssetId),
+  const stakingAssetUsdPrice = useAppSelector(state =>
+    selectUsdRateByAssetId(state, stakingAssetId),
   )
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
+  const runeUsdPrice = useAppSelector(state => selectUsdRateByAssetId(state, thorchainAssetId))
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -46,43 +52,38 @@ export const RFOXSimulator = () => {
   const poolShare = useMemo(() => {
     if (!totalStakedCryptoResult.data) return
 
-    return bnOrZero(foxHolding)
-      .div(bnOrZero(totalStakedCryptoResult.data).plus(foxHolding))
+    return bnOrZero(depositAmount)
+      .div(bnOrZero(totalStakedCryptoResult.data).plus(depositAmount))
       .toFixed(4)
-  }, [totalStakedCryptoResult.data, foxHolding])
-
-  const selectLastEpoch = useCallback(
-    (data: EpochWithIpfsHash[]): EpochWithIpfsHash | undefined => {
-      const lastEpoch = data[data.length - 1]
-
-      return lastEpoch
-    },
-    [],
-  )
+  }, [totalStakedCryptoResult.data, depositAmount])
 
   const { data: lastEpoch } = useEpochHistoryQuery({ select: selectLastEpoch })
 
   const estimatedFoxBurn = useMemo(() => {
     if (!lastEpoch) return
     if (!stakingAsset) return
+    if (!stakingAssetUsdPrice) return
 
-    return bnOrZero(shapeShiftRevenues)
+    return bnOrZero(shapeShiftRevenue)
       .times(lastEpoch.burnRate)
-      .div(foxMarketData.price)
+      .div(stakingAssetUsdPrice)
       .toFixed(0)
-  }, [lastEpoch, shapeShiftRevenues, foxMarketData.price, stakingAsset])
+  }, [lastEpoch, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
 
   const estimatedRewards = useMemo(() => {
     if (!lastEpoch) return
     if (!stakingAsset) return
     if (!poolShare) return
+    if (!runeUsdPrice) return
 
-    return bnOrZero(shapeShiftRevenues)
+    return bnOrZero(shapeShiftRevenue)
       .times(lastEpoch.distributionRate)
       .times(poolShare)
-      .div(runeMarketData.price)
+      .div(runeUsdPrice)
       .toFixed(2)
-  }, [lastEpoch, shapeShiftRevenues, runeMarketData.price, stakingAsset, poolShare])
+  }, [lastEpoch, shapeShiftRevenue, runeUsdPrice, stakingAsset, poolShare])
+
+  if (!(runeAsset && stakingAsset)) return null
 
   return (
     <Stack
@@ -101,11 +102,11 @@ export const RFOXSimulator = () => {
           <Text color='text.subtle' translation={'foxPage.rfox.simulateSubtle'} />
 
           <RFOXSliders
-            setShapeShiftRevenues={setShapeShiftRevenues}
-            shapeShiftRevenues={shapeShiftRevenues}
-            setFoxHolding={setFoxHolding}
-            foxHolding={foxHolding}
-            maxFoxHolding={totalStakedCryptoResult.data}
+            setShapeShiftRevenue={setShapeShiftRevenue}
+            shapeShiftRevenue={shapeShiftRevenue}
+            setDepositAmount={setDepositAmount}
+            depositAmount={depositAmount}
+            maxDepositAmount={totalStakedCryptoResult.data}
           />
         </CardBody>
       </Card>
@@ -132,7 +133,7 @@ export const RFOXSimulator = () => {
                   <Amount.Crypto
                     fontSize='24px'
                     value={estimatedRewards}
-                    symbol={runeAsset?.symbol ?? ''}
+                    symbol={runeAsset.symbol ?? ''}
                   />
                 </Skeleton>
               </CardBody>
@@ -141,11 +142,11 @@ export const RFOXSimulator = () => {
               <CardBody py={4} px={4}>
                 <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalFoxBurn' />
 
-                <Skeleton isLoaded={Boolean(estimatedFoxBurn)}>
+                <Skeleton isLoaded={Boolean(estimatedFoxBurn !== undefined)}>
                   <Amount.Crypto
                     fontSize='24px'
                     value={estimatedFoxBurn}
-                    symbol={stakingAsset?.symbol ?? ''}
+                    symbol={stakingAsset.symbol ?? ''}
                   />
                 </Skeleton>
               </CardBody>

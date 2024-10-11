@@ -11,7 +11,8 @@ import type {
 } from '../../types'
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import { COW_SWAP_SETTLEMENT_ADDRESS, SIGNING_SCHEME } from './utils/constants'
+import { CoWSwapSigningScheme } from './types'
+import { COW_SWAP_SETTLEMENT_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import { domain, getCowswapNetwork, getSignTypeDataPayload } from './utils/helpers/helpers'
 
@@ -54,7 +55,7 @@ export const cowSwapper: Swapper = {
       `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
       {
         ...orderToSign,
-        signingScheme: SIGNING_SCHEME,
+        signingScheme: CoWSwapSigningScheme.EIP712,
         signature,
         appData,
         appDataHash,

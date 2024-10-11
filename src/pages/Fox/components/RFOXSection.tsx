@@ -82,6 +82,7 @@ export const RFOXSection = () => {
   const history = useHistory()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const { assetAccountNumber } = useFoxPageContext()
+  const stakingAssetId = foxOnArbitrumOneAssetId
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
 
@@ -89,7 +90,7 @@ export const RFOXSection = () => {
     data: apy,
     isLoading: isApyQueryLoading,
     isFetching: isApyFetching,
-  } = useCurrentApyQuery({ stakingAssetId: foxOnArbitrumOneAssetId })
+  } = useCurrentApyQuery({ stakingAssetId })
 
   const isApyLoading = useMemo(() => {
     return isApyQueryLoading || isApyFetching
@@ -103,17 +104,16 @@ export const RFOXSection = () => {
     selectAccountIdByAccountNumberAndChainId,
   )
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
 
   const stakingAssetAccountId = useMemo(() => {
     const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
-    const matchingAccountId =
-      accountNumberAccountIds?.[fromAssetId(foxOnArbitrumOneAssetId).chainId]
+    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
     return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber])
+  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -308,7 +308,7 @@ export const RFOXSection = () => {
             </Skeleton>
           </Stack>
         </SimpleGrid>
-        <RFOXSimulator stakingAssetId={foxOnArbitrumOneAssetId} />
+        <RFOXSimulator stakingAssetId={stakingAssetId} />
       </Box>
     </>
   )

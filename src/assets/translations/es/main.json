@@ -441,9 +441,7 @@
         "cannotDepositWhilePendingTx": "No se puede depositar mientras Txs están pendientes",
         "cannotWithdrawWhilePendingTx": "No se puede retirar mientras Txs están pendientes",
         "dangerousWithdrawWarning": "La tarifa de THORChain podría resultar en la pérdida total de los fondos retirados. Considere retirar una cantidad mayor para evitar este problema.",
-        "agreeRunePool": {
-          "1": "Entiendo que RUNEPool tiene un bloqueo mínimo de 90 días y un mayor riesgo de pérdida impermanente."
-        }
+        "agreeRunePool": {}
       }
     },
     "memoNote": {

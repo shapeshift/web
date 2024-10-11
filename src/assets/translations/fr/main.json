@@ -441,9 +441,7 @@
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
         "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
-        "agreeRunePool": {
-          "1": "Je comprends que RUNEPool a à la fois un blocage minimum de 90 jours et un risque accru de pertes impermanentes."
-        }
+        "agreeRunePool": {}
       }
     },
     "memoNote": {

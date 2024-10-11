@@ -441,9 +441,7 @@
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
         "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün.",
-        "agreeRunePool": {
-          "1": "RUNEPool'un hem 90 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu biliyorum."
-        }
+        "agreeRunePool": {}
       }
     },
     "memoNote": {

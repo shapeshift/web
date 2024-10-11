@@ -895,6 +895,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     runeTxFeeCryptoPrecision,
   ])
 
+  // Show the highest minimum withdraw limit (pool asset vs rune) if withdraw amounts do not meet the minimum limit
   // Protocol fee buffers explained here: https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L461
   const minimumWithdrawError = useMemo(() => {
     if (!poolAsset || !runeAsset) return
@@ -911,6 +912,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     )
     const runeWithrawAmountFiatUserCurrency = bnOrZero(actualRuneWithdrawAmountFiatUserCurrency)
 
+    // display pool asset min withdraw limit if withdraw amount is less AND it is a higher min limit than rune
     if (
       poolAssetWithrawAmountFiatUserCurrency.gt(0) &&
       minimumPoolAssetWithdrawAmountFiatUserCurrency.gte(poolAssetWithrawAmountFiatUserCurrency) &&
@@ -923,6 +925,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
       return translate('trade.errors.amountTooSmall', { minLimit })
     }
 
+    // display rune min withdraw limit if rune withdraw amount is less AND it is a higher min limit than pool asset
     if (
       runeWithrawAmountFiatUserCurrency.gt(0) &&
       minimumRuneWithdrawAmountFiatUserCurrency.gte(runeWithrawAmountFiatUserCurrency) &&

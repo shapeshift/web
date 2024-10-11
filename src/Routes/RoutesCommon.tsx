@@ -1,11 +1,13 @@
 import { getConfig } from 'config'
 import { lazy } from 'react'
-import { FaChartArea, FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
+import { TbGraph } from 'react-icons/tb'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
 import { ExploreIcon } from 'components/Icons/Explore'
+import { FoxIcon } from 'components/Icons/FoxIcon'
 import { HomeIcon } from 'components/Icons/Home'
 import { PoolsIcon } from 'components/Icons/Pools'
 import { RFOXIcon } from 'components/Icons/RFOX'
@@ -13,6 +15,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { TxHistoryIcon } from 'components/Icons/TxHistory'
 import { WalletIcon } from 'components/Icons/WalletIcon'
 import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
+import { FoxPage } from 'pages/Fox/FoxPage'
 import { RFOX } from 'pages/RFOX/RFOX'
 
 import type { Route } from './helpers'
@@ -152,6 +155,16 @@ export const routes: Route[] = [
     disable: !getConfig().REACT_APP_FEATURE_RFOX,
   },
   {
+    path: '/fox',
+    label: 'navBar.foxBenefits',
+    icon: <FoxIcon />,
+    main: FoxPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().REACT_APP_FEATURE_FOX_PAGE,
+  },
+  {
     path: '/trade',
     label: 'navBar.trade',
     shortLabel: 'navBar.tradeShort',
@@ -199,7 +212,7 @@ export const routes: Route[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <FaChartArea />,
+    icon: <TbGraph />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,
@@ -253,6 +266,7 @@ export const routes: Route[] = [
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
+    hide: true,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({

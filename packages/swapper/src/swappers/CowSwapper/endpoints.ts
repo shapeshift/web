@@ -8,7 +8,6 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
-  CowSwapOrder,
   EvmMessageToSign,
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
@@ -21,17 +20,17 @@ import { SwapperName } from '../../types'
 import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
-import type {
-  CowSwapGetTradesResponse,
-  CowSwapGetTransactionsResponse,
-  CowSwapQuoteResponse,
-} from './types'
+import type { CowSwapOrder } from './types'
 import {
-  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  ERC20_TOKEN_BALANCE,
-  ORDER_KIND_SELL,
-  SIGNING_SCHEME,
-} from './utils/constants'
+  CoWSwapBuyTokenDestination,
+  type CowSwapGetTradesResponse,
+  type CowSwapGetTransactionsResponse,
+  CoWSwapOrderKind,
+  type CowSwapQuoteResponse,
+  CoWSwapSellTokenSource,
+  CoWSwapSigningScheme,
+} from './types'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,
@@ -108,7 +107,7 @@ export const cowApi: SwapperApi = {
         appDataHash,
         partiallyFillable: false,
         from,
-        kind: ORDER_KIND_SELL,
+        kind: CoWSwapOrderKind.Sell,
         sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       },
     )
@@ -148,11 +147,11 @@ export const cowApi: SwapperApi = {
       buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
-      sellTokenBalance: ERC20_TOKEN_BALANCE,
-      buyTokenBalance: ERC20_TOKEN_BALANCE,
+      sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+      buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
       quoteId: id,
       appDataHash,
-      signingScheme: SIGNING_SCHEME,
+      signingScheme: CoWSwapSigningScheme.EIP712,
     }
 
     return { chainId, orderToSign }

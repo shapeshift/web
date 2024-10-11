@@ -66,6 +66,7 @@ export type FeatureFlags = {
   PhantomWallet: boolean
   FoxPage: boolean
   FoxPageRFOX: boolean
+  FoxPageFoxSection: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -156,7 +157,11 @@ const initialState: Preferences = {
     Markets: getConfig().REACT_APP_FEATURE_MARKETS,
     PhantomWallet: getConfig().REACT_APP_FEATURE_PHANTOM_WALLET,
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
+<<<<<<< HEAD
     FoxPageRFOX: getConfig().REACT_APP_FEATURE_FOX_PAGE_RFOX,
+=======
+    FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
+>>>>>>> fox-page
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

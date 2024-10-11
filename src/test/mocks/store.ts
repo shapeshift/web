@@ -46,7 +46,8 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
-    isAccountMetadataLoading: false,
+    isAccountsMetadataLoading: false,
+    isAccountMetadataLoadingByAccountId: {},
     accounts: {
       byId: {},
       ids: [],
@@ -122,6 +123,7 @@ export const mockStore: ReduxState = {
       PhantomWallet: false,
       FoxPage: false,
       FoxPageRFOX: false,
+      FoxPageFoxSection: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

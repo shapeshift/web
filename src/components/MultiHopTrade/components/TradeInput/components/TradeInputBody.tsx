@@ -23,6 +23,8 @@ import {
   selectHighestMarketCapFeeAsset,
   selectInputBuyAsset,
   selectInputSellAsset,
+  selectIsAccountMetadataLoadingByAccountId,
+  selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
@@ -67,6 +69,10 @@ export const TradeInputBody = ({
     state: { wallet },
   } = useWallet()
 
+  const isAccountMetadataLoadingByAccountId = useAppSelector(
+    selectIsAccountMetadataLoadingByAccountId,
+  )
+  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
@@ -104,12 +110,23 @@ export const TradeInputBody = ({
 
   // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
   useEffect(() => {
+    // Don't do any default asset business as some accounts meta is still loading, or a wrong default asset may be set,
+    // which takes over the "default default" sellAsset - double default intended:
+    // https://github.com/shapeshift/web/blob/ba43c41527156f8c7e0f1170472ff362e091b450/src/state/slices/tradeInputSlice/tradeInputSlice.ts#L27
+    if (Object.values(isAccountMetadataLoadingByAccountId).some(Boolean)) return
     if (!defaultSellAsset) return
 
     if (walletConnectedChainIds.includes(sellAsset.chainId)) return
 
     setSellAsset(defaultSellAsset)
-  }, [defaultSellAsset, sellAsset, setSellAsset, walletConnectedChainIds])
+  }, [
+    defaultSellAsset,
+    isAccountMetadataLoadingByAccountId,
+    isAccountsMetadataLoading,
+    sellAsset,
+    setSellAsset,
+    walletConnectedChainIds,
+  ])
 
   const handleSellAssetClick = useCallback(() => {
     sellAssetSearch.open({

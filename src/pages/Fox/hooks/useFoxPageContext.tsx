@@ -1,4 +1,4 @@
-import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -7,7 +7,7 @@ import {
 import { useAppSelector } from 'state/store'
 
 type FoxPageContextType = {
-  selectedAssetAccountId: AccountId | undefined
+  assetAccountId: AccountId | undefined
   assetId: AssetId
   setAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
   assetAccountNumber: number | undefined
@@ -15,15 +15,13 @@ type FoxPageContextType = {
 
 const FoxPageContext = createContext<FoxPageContextType | undefined>(undefined)
 
-export const FoxPageProvider: React.FC<React.PropsWithChildren<{ assetId: AssetId }>> = ({
-  children,
-  assetId,
-}) => {
+export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [assetAccountId, setAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(
-    () => (assetAccountId && assetId ? { assetId, accountId: assetAccountId } : undefined),
-    [assetAccountId, assetId],
+    () =>
+      assetAccountId && foxAssetId ? { assetId: foxAssetId, accountId: assetAccountId } : undefined,
+    [assetAccountId],
   )
 
   const assetAccountNumber = useAppSelector(state =>
@@ -35,21 +33,22 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren<{ assetId: AssetI
   )
 
   const selectedAssetAccountId = useMemo(() => {
-    if (!(filter && assetAccountNumber !== undefined)) return
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(assetId).chainId]
+    const accountNumberAccountIds =
+      assetAccountNumber !== undefined
+        ? accountIdsByAccountNumberAndChainId[assetAccountNumber]
+        : accountIdsByAccountNumberAndChainId[0]
+    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(foxAssetId).chainId]
     return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, filter, assetId, assetAccountNumber])
+  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber])
 
   const value: FoxPageContextType = useMemo(
     () => ({
-      selectedAssetAccountId,
       setAssetAccountId,
-      assetId,
-      assetAccountId,
-      assetAccountNumber,
+      assetId: foxAssetId,
+      assetAccountNumber: assetAccountNumber ?? 0,
+      assetAccountId: selectedAssetAccountId,
     }),
-    [assetId, selectedAssetAccountId, assetAccountId, assetAccountNumber],
+    [selectedAssetAccountId, assetAccountNumber],
   )
 
   return <FoxPageContext.Provider value={value}>{children}</FoxPageContext.Provider>

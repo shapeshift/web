@@ -2,6 +2,7 @@ import { getConfig } from 'config'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
+import { TbGraph } from 'react-icons/tb'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { AssetsIcon } from 'components/Icons/Assets'
 import { DefiIcon } from 'components/Icons/DeFi'
@@ -17,7 +18,7 @@ import { assetIdPaths } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { FoxPage } from 'pages/Fox/FoxPage'
 import { RFOX } from 'pages/RFOX/RFOX'
 
-import type { Route as NestedRoute } from './helpers'
+import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 const Home = makeSuspenseful(
@@ -132,7 +133,7 @@ const TransactionHistory = makeSuspenseful(
  * THIS IS CRITICAL FOR MIXPANEL TO NOT COLLECT USER ADDRESSES
  */
 
-export const routes: NestedRoute[] = [
+export const routes: Route[] = [
   {
     path: '/home',
     label: 'navBar.home',
@@ -154,7 +155,7 @@ export const routes: NestedRoute[] = [
     disable: !getConfig().REACT_APP_FEATURE_RFOX,
   },
   {
-    path: '/fox-benefits',
+    path: '/fox',
     label: 'navBar.foxBenefits',
     icon: <FoxIcon />,
     main: FoxPage,
@@ -211,7 +212,7 @@ export const routes: NestedRoute[] = [
   {
     path: '/markets',
     label: 'navBar.markets',
-    icon: <AssetsIcon />,
+    icon: <TbGraph />,
     main: MarketsPage,
     category: RouteCategory.Featured,
     priority: 4,
@@ -265,6 +266,7 @@ export const routes: NestedRoute[] = [
     path: '/assets',
     label: 'navBar.assets',
     main: Assets,
+    hide: true,
     icon: <AssetsIcon />,
     category: RouteCategory.Explore,
     routes: assetIdPaths.map(assetIdPath => ({

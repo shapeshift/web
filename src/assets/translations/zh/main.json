@@ -171,7 +171,9 @@
     },
     "featureDisabled": "此功能暂时禁用。",
     "yes": "是的",
-    "activeAccount": "活跃账户"
+    "activeAccount": "活跃账户",
+    "update": "更新",
+    "apy": "APY"
   },
   "consentBanner": {
     "body": {
@@ -285,12 +287,16 @@
   },
   "connectWalletPage": {
     "title": "最初的多链交易所",
+    "primaryTitle": "欢迎来到多链 DeFi。",
+    "secondaryTitle": "隐私的、去中心化、非托管的。",
+    "primaryDescription": "轻松交易、桥接并赚取奖励。体验原生比特币、狗狗币等。一键管理流动性和 DeFi 头寸。",
+    "snapDescription": "为你的 MetaMask 下载 ShapeShift Multichain Snap 并解锁比特币、狗狗币等。",
     "shapeshift": "ShapeShift",
     "exploreThe": "探索",
     "defiUniverse": "DeFi 宇宙",
     "body": "交易、跨链桥和赚取收益。隐私的。社区所有。无监护。去中心化的。",
     "header": "请连接钱包以开始",
-    "cta": "连接钱包",
+    "cta": "连接或创建钱包",
     "viewADemo": "查看演示",
     "dontHaveWallet": "没有钱包？",
     "welcomeBack": "欢迎回来！",
@@ -504,6 +510,8 @@
     "myRewardsBody": "你的活跃仓位以及可领取的奖励将显示在此处。",
     "viewAllPositions": "查看所有仓位",
     "liquidityPools": "流动资金池",
+    "liquidityLockupWarning": "锁定期为 %{time}。在锁定期间，你无法动用你的流动性。",
+    "liquidityLocked": "流动性锁定 (%{time})",
     "stakingVaults": "质押 & 金库",
     "farming": "收益挖矿",
     "totalEarningBalance": "总盈利余额",
@@ -608,6 +616,8 @@
     "buyCryptoShort": "买/卖",
     "lending": "贷款",
     "pools": "池",
+    "rFOX": "rFOX",
+    "markets": "市场",
     "actionMenu": {
       "send": {
         "title": "发送",
@@ -629,8 +639,7 @@
         "title": "扫描二维码",
         "body": "轻松扫描以发送或接收加密货币"
       }
-    },
-    "rFOX": "rFOX"
+    }
   },
   "transactionRow": {
     "send": "已发送",
@@ -840,7 +849,6 @@
     "pending": "交易待处理",
     "complete": "交易完成",
     "approveAsset": "授权与 %{symbol} 交互",
-    "needPermission": "需要你的授权才能使用你的 %{symbol}",
     "whyNeedThis": "为什么我需要这样做？",
     "estimatedGasFee": "预估手续费",
     "receiveInclFee": "接收（含手续费）",
@@ -934,6 +942,7 @@
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
     "disableThorNativeSmartContractReceive": "我们检测到你正在向 %{chainName} 上的智能合约地址发送。由于 THORChain 的限制，不支持将 %{nativeAssetSymbol} 接收至智能合约地址。请输入其他地址",
+    "disableThorTaprootReceive": "我们检测到你正在向 taproot 比特币地址发送。由于 THORChain 的限制，目前不支持将 BTC 接收至 taproot 地址。请输入其他地址。",
     "toContinue": "来继续。",
     "addressPlaceholder": "%{chainName} 地址",
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
@@ -1147,6 +1156,9 @@
         "average": "中速",
         "fast": "快速",
         "enterAmount": "输入金额"
+      },
+      "status": {
+        "pendingBody": "正在发送 %{amount} %{symbol}"
       }
     },
     "receive": {
@@ -1227,6 +1239,7 @@
     },
     "approve": {
       "header": "允许 %{spenderName} 使用你的 %{asset}",
+      "resetHeader": "重置 %{asset} 的 %{spenderName} 限额",
       "shapeshiftRouterName": "ShapeShift DAO 路由",
       "body": "需要你的授权才能使用你的 %{asset}",
       "learnMore": "为什么我需要这样做？",
@@ -1453,7 +1466,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 Keplr 钱包"
       }
     },
@@ -1469,7 +1481,8 @@
         "connect": "连接"
       },
       "verify": {
-        "confirmOnDevice": "在设备上确认"
+        "confirmOnDevice": "在设备上确认",
+        "addressMismatch": "地址不匹配。请检查你是否连接了正确的设备，然后重试。"
       },
       "success": {
         "header": "Ledger 已连接",
@@ -1492,7 +1505,6 @@
         "pairExistingDeviceBody": "正在连接其他 Ledger 设备？单击“配对新设备”即可重新开始。"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接Ledger钱包"
       },
       "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。",
@@ -1510,13 +1522,24 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 MetaMask 钱包"
       },
       "redirect": {
         "header": "在 MetaMask 应用程序中打开",
         "body": "在 MetaMask 中单击打开 ShapeShift 仪表板",
         "button": "打开"
+      }
+    },
+    "phantom": {
+      "errors": {
+        "unknown": "与 Phantom 通信时发生意外错误",
+        "connectFailure": "无法连接 Phantom 钱包",
+        "multipleWallets": "检测到的以太坊提供商不是 Phantom。你是否安装了多个钱包？"
+      },
+      "connect": {
+        "header": "匹配 Phantom ",
+        "body": "单击“匹配”并从弹出窗口登录 Phantom",
+        "button": "匹配"
       }
     },
     "metaMaskSnap": {
@@ -1530,8 +1553,10 @@
         "title": "你已从 MetaMask 中删除了多链支持！",
         "subtitle": "在 MetaMask 上重新添加多链 Snap，发送、接收、跟踪、交易和赚取收益可通过以下链："
       },
-      "secondaryTitle": "MetaMask 的最佳多链体验：由 ShapeShift 提供支持",
-      "secondaryBody": "使用 ShapeShift Multichain Snap 发送、接收、跟踪、交易和赚取收益在以下链：",
+      "update": {
+        "title": "多链 Snap 需要更新",
+        "subtitle": "单击“更新”以继续使用 ShapeShift 的多链功能和 MetaMask！"
+      },
       "connectMetaMask": "连接 MetaMask",
       "andMore": "...和更多",
       "snapInstalledToast": "ShapeShift 多链 MetaMask Snap 已安装 ",
@@ -1541,6 +1566,7 @@
     },
     "metaMaskSnapConfirm": {
       "title": "安装多链 Snap",
+      "updateTitle": "更新多链 Snap",
       "warningExperimental": "ShapeShift 多链 Snap 是一项新的实验性功能，“按原样”提供",
       "warningBackup": "确保你已备份 MetaMask 助记词。你使用此 Snap 发送到非 EVM 链的任何资金都将直接到你在MetaMask 设置的默认帐户。",
       "agreeIntro": "在继续之前，请阅读以下内容：",
@@ -1554,7 +1580,8 @@
       "agreeItem4": "启用 ShapeShift Multichain Snap 即表示你承认使用它的风险由你自行承担",
       "readAndUnderstood": "我已阅读并理解",
       "seedBackedUp": "我已备份我的 MetaMask 助记词",
-      "acceptInstall": "确认并安装"
+      "acceptInstall": "确认并安装",
+      "acceptUpdate": "确认并更新"
     },
     "coinbase": {
       "errors": {
@@ -1568,7 +1595,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "无法连接 Coinbase 钱包",
         "body": "无法连接 Coinbase 钱包"
       }
     },
@@ -1583,7 +1609,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 WalletConnect 钱包"
       }
     },
@@ -1599,7 +1624,6 @@
         "button": "匹配"
       },
       "failure": {
-        "header": "错误",
         "body": "无法连接 XDEFI 钱包"
       },
       "redirect": {
@@ -1887,7 +1911,7 @@
   "ledgerOpenApp": {
     "title": "打开 %{appName} 应用",
     "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。",
-    "signingDescription": "打开应用程序后，你的设备中会自动弹出签名提示"
+    "devicePrompt": "你的设备将提示你完成当前操作所需的任何必要步骤。"
   },
   "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
@@ -2510,6 +2534,7 @@
     "newAddressInfo": "这将更新下一个奖励周期",
     "confirmAndUpdateAddress": "确认并更新地址",
     "unstakeFrom": "从 r%{assetSymbol} 取消质押",
+    "claimPending": "等待你领取 %{amount} %{symbol}",
     "claimSuccess": "你已成功领取 %{amount} %{symbol}。",
     "claimReceiveAddress": "领取接收地址",
     "noRewardsYet": "尚无奖励",
@@ -2568,5 +2593,9 @@
     "emissionsPoolHelper": "排放池（本期）",
     "foxBurnAmount": "FOX 销毁量（本周期）",
     "pendingDistribution": "等待分配"
+  },
+  "markets": {
+    "recommended": "推荐的",
+    "watchlist": "我的关注列表"
   }
 }

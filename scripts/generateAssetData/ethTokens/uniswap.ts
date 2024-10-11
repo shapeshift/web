@@ -2,7 +2,9 @@ import { ethChainId as chainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 
-import { colorMap } from '../../../src/lib/asset-service/service/colorMap'
+import colormap from '../color-map.json'
+
+export const colorMap: Record<string, string> = colormap
 
 type UniswapToken = {
   chainId: number

@@ -1,3 +1,4 @@
+import type { BoxProps } from '@chakra-ui/react'
 import { Box } from '@chakra-ui/react'
 import type { ComponentProps, FC } from 'react'
 import { Suspense, useMemo } from 'react'
@@ -12,15 +13,17 @@ const suspenseSpinnerStyle = {
   height: '100vh',
 }
 
-export function makeSuspenseful<T extends FC<any>>(Component: T) {
+export function makeSuspenseful<T extends FC<any>>(Component: T, spinnerStyle: BoxProps = {}) {
   return (props: ComponentProps<T>) => {
+    const boxSpinnerStyle = useMemo(() => ({ ...suspenseSpinnerStyle, ...spinnerStyle }), [])
+
     const suspenseSpinner = useMemo(
       () => (
-        <Box style={suspenseSpinnerStyle}>
+        <Box sx={boxSpinnerStyle}>
           <CircularProgress />
         </Box>
       ),
-      [],
+      [boxSpinnerStyle],
     )
 
     return (

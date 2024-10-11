@@ -1,6 +1,22 @@
-import { adapters, ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  arbitrumChainId,
+  arbitrumNovaChainId,
+  ASSET_NAMESPACE,
+  avalancheChainId,
+  baseChainId,
+  bscChainId,
+  cosmosChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+  thorchainChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { CoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
 import axios from 'axios'
+import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
@@ -117,4 +133,20 @@ export const getCoingeckoMarkets = async (
   await Promise.allSettled(data.map((marketData, i) => getCoinDetails(marketData, i, all)))
 
   return all.filter(mover => Boolean(mover.assetId))
+}
+
+export const getCoingeckoSupportedChainIds = () => {
+  return [
+    ethChainId,
+    avalancheChainId,
+    optimismChainId,
+    bscChainId,
+    polygonChainId,
+    gnosisChainId,
+    arbitrumChainId,
+    baseChainId,
+    cosmosChainId,
+    thorchainChainId,
+    ...(getConfig().REACT_APP_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
+  ]
 }

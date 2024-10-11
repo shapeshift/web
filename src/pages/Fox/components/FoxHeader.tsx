@@ -1,6 +1,6 @@
 import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -19,7 +19,7 @@ const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
 
 export const FoxHeader = () => {
   const translate = useTranslate()
-  const { assetId, setAssetAccountId, selectedAssetAccountId } = useFoxPageContext()
+  const { assetId, setAssetAccountId, assetAccountId } = useFoxPageContext()
   const accountIdsFilter = useMemo(() => ({ assetId }), [assetId])
   const accountIds = useAppSelector(state =>
     selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
@@ -31,30 +31,23 @@ export const FoxHeader = () => {
     history.push('/explore')
   }, [history])
 
-  useEffect(() => {
-    if (!accountIds.length) setAssetAccountId(undefined)
-    if (accountIds.length === 1) {
-      setAssetAccountId(accountIds[0])
-    }
-  }, [accountIds, setAssetAccountId])
-
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null
 
     return (
       <InlineCopyButton
-        isDisabled={!selectedAssetAccountId}
-        value={selectedAssetAccountId ? fromAccountId(selectedAssetAccountId).account : ''}
+        isDisabled={!assetAccountId}
+        value={assetAccountId ? fromAccountId(assetAccountId).account : ''}
       >
         <AccountDropdown
-          defaultAccountId={selectedAssetAccountId}
+          defaultAccountId={assetAccountId}
           assetId={assetId}
           onChange={setAssetAccountId}
           buttonProps={accountDropdownButtonProps}
         />
       </InlineCopyButton>
     )
-  }, [accountIds.length, setAssetAccountId, selectedAssetAccountId, assetId])
+  }, [accountIds.length, setAssetAccountId, assetAccountId, assetId])
 
   return (
     <>

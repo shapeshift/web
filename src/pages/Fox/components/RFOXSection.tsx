@@ -205,7 +205,7 @@ export const RFOXSection = () => {
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
               <RFOXIcon me={2} boxSize='32px' sx={rfoxIconStyles} />
               {translate('RFOX.staking')}
-              <Skeleton isLoaded={Boolean(isApyLoading)} ml={2}>
+              <Skeleton isLoaded={!Boolean(isApyLoading)} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>
                   <Amount.Percent value={apy ?? 0} suffix='APY' />
                 </Tag>

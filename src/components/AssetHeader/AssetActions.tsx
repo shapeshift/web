@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, isNft } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -104,6 +104,10 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     history.push(`/trade/${assetId}`)
   }, [assetId, history])
 
+  const isSplToken = useMemo(() => {
+    return fromAssetId(assetId).assetNamespace === 'spl'
+  }, [assetId])
+
   if (isMobile) {
     return (
       <Flex width='full' display={ButtonRowDisplay}>
@@ -204,7 +208,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
           onClick={handleSendClick}
           leftIcon={arrowUpIcon}
           width={buttonWidthProps}
-          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
+          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId) || isSplToken}
           data-test='asset-action-send'
           flex={buttonFlexProps}
         >

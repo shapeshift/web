@@ -119,7 +119,6 @@ export type TxMetadata =
   | unchained.evm.TxMetadata
   | unchained.cosmossdk.TxMetadata
   | unchained.utxo.TxMetadata
-  | unchained.solana.TxMetadata
 
 export type Transaction = Omit<unchained.StandardTx, 'address' | 'transfers'> & {
   pubkey: string

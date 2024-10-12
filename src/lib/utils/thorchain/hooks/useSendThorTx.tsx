@@ -32,7 +32,10 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { THORCHAIN_POOL_MODULE_ADDRESS } from 'lib/utils/thorchain/constants'
+import {
+  THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT,
+  THORCHAIN_POOL_MODULE_ADDRESS,
+} from 'lib/utils/thorchain/constants'
 import { useGetEstimatedFeesQuery } from 'pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 import {
@@ -145,9 +148,10 @@ export const useSendThorTx = ({
   }, [inboundAddressData, transactionType])
 
   const outboundFeeCryptoBaseUnit = useMemo(() => {
+    if (assetId === thorchainAssetId) return THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT
     if (!feeAsset || !inboundAddressData) return
     return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), feeAsset.precision)
-  }, [feeAsset, inboundAddressData])
+  }, [assetId, feeAsset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
     if (!memo) return

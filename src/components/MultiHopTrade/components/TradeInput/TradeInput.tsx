@@ -15,6 +15,7 @@ import {
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -56,9 +57,10 @@ const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
+  onChangeTab: (newTab: TradeInputTab) => void
 }
 
-export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
+export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInputProps) => {
   const {
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
@@ -306,6 +308,7 @@ export const TradeInput = ({ isCompact, tradeInputRef }: TradeInputProps) => {
               setBuyAssetAccountId={setBuyAssetAccountId}
               setSellAsset={setSellAsset}
               setSellAssetAccountId={setSellAssetAccountId}
+              onChangeTab={onChangeTab}
             />
           </WarningAcknowledgement>
         </StreamingAcknowledgement>

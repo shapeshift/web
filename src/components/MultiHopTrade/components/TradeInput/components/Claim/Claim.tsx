@@ -13,7 +13,7 @@ import { ClaimRoutePaths } from './types'
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim = () => {
+export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const location = useLocation()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
@@ -54,7 +54,7 @@ export const Claim = () => {
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Card flex={1} width='full' maxWidth='500px'>
-          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} />
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}

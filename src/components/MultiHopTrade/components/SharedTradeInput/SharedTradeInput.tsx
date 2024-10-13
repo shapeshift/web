@@ -29,6 +29,7 @@ type SharedTradeInputProps = {
   tradeInputRef: React.RefObject<HTMLDivElement>
   walletReceiveAddress: string | undefined
   handleSwitchAssets: () => void
+  onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
   setBuyAsset: (asset: Asset) => void
   setBuyAssetAccountId: (accountId: string) => void
@@ -53,6 +54,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   tradeInputRef,
   walletReceiveAddress,
   handleSwitchAssets,
+  onChangeTab,
   onSubmit,
   setBuyAsset,
   setBuyAssetAccountId,
@@ -80,6 +82,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
           <SharedTradeInputHeader
             initialTab={TradeInputTab.Trade}
             rightContent={headerRightContent}
+            onChangeTab={onChangeTab}
           />
           <SharedTradeInputBody
             activeQuote={activeQuote}

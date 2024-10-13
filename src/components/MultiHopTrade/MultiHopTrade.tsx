@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
-import { MemoryRouter, Route, Switch, useLocation, useParams } from 'react-router-dom'
+import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -14,7 +15,7 @@ import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { TradeRoutePaths } from './types'
+import { TradeInputTab, TradeRoutePaths } from './types'
 
 const TradeRouteEntries = [
   TradeRoutePaths.Input,
@@ -80,6 +81,7 @@ type TradeRoutesProps = {
 }
 
 const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
+  const history = useHistory()
   const location = useLocation()
   const dispatch = useAppDispatch()
 
@@ -102,12 +104,32 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     )
   }, [location.pathname])
 
+  const handleChangeTab = useCallback(
+    (newTab: TradeInputTab) => {
+      switch (newTab) {
+        case TradeInputTab.Trade:
+          history.push(TradeRoutePaths.Input)
+          break
+        case TradeInputTab.Claim:
+          history.push(TradeRoutePaths.Claim)
+          break
+        default:
+          assertUnreachable(newTab)
+      }
+    },
+    [history],
+  )
+
   return (
     <>
       <AnimatePresence mode='wait' initial={false}>
         <Switch location={location}>
           <Route key={TradeRoutePaths.Input} path={TradeRoutePaths.Input}>
-            <TradeInput isCompact={isCompact} tradeInputRef={tradeInputRef} />
+            <TradeInput
+              isCompact={isCompact}
+              tradeInputRef={tradeInputRef}
+              onChangeTab={handleChangeTab}
+            />
           </Route>
           <Route key={TradeRoutePaths.Confirm} path={TradeRoutePaths.Confirm}>
             <MultiHopTradeConfirm />
@@ -122,7 +144,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             />
           </Route>
           <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
-            <Claim />
+            <Claim onChangeTab={handleChangeTab} />
           </Route>
         </Switch>
       </AnimatePresence>

@@ -1,22 +1,21 @@
 import { CardHeader, Flex, Heading } from '@chakra-ui/react'
-import { assertUnreachable } from '@shapeshiftoss/utils'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useHistory } from 'react-router'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
-import { TradeInputTab, TradeRoutePaths } from '../../types'
+import { TradeInputTab } from '../../types'
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
   rightContent?: JSX.Element
+  onChangeTab: (newTab: TradeInputTab) => void
 }
 
 export const SharedTradeInputHeader = ({
   initialTab,
   rightContent,
+  onChangeTab,
 }: SharedTradeInputHeaderProps) => {
-  const history = useHistory()
   const translate = useTranslate()
   const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
 
@@ -25,18 +24,9 @@ export const SharedTradeInputHeader = ({
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
       setSelectedTab(newTab)
-      switch (newTab) {
-        case TradeInputTab.Trade:
-          history.push(TradeRoutePaths.Input)
-          break
-        case TradeInputTab.Claim:
-          history.push(TradeRoutePaths.Claim)
-          break
-        default:
-          assertUnreachable(newTab)
-      }
+      onChangeTab(newTab)
     },
-    [history],
+    [onChangeTab],
   )
 
   const handleClickTrade = useCallback(() => {

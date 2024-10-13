@@ -51,6 +51,10 @@ import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
+const acknowledgementBoxProps = {
+  display: 'flex',
+  justifyContent: 'center',
+}
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 
@@ -271,6 +275,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAcknowledge={handleFormSubmit}
         shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
+        boxProps={acknowledgementBoxProps}
       >
         <StreamingAcknowledgement
           onAcknowledge={handleFormSubmit}
@@ -279,12 +284,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
           estimatedTimeMs={
             tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
           }
+          boxProps={acknowledgementBoxProps}
         >
           <WarningAcknowledgement
             message={warningAcknowledgementMessage}
             onAcknowledge={handleWarningAcknowledgementSubmit}
             shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
             setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+            boxProps={acknowledgementBoxProps}
           >
             <SharedTradeInput
               activeQuote={activeQuote}

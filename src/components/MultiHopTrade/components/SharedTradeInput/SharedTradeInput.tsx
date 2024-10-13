@@ -66,6 +66,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
 
   return (
     <Flex
+      id='test-flex'
       width='full'
       justifyContent='center'
       maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}

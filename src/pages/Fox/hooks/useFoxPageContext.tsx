@@ -10,7 +10,7 @@ type FoxPageContextType = {
   assetAccountId: AccountId | undefined
   assetId: AssetId
   setAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
-  assetAccountNumber: number | undefined
+  assetAccountNumber: number
 }
 
 const FoxPageContext = createContext<FoxPageContextType | undefined>(undefined)

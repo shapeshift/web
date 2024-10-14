@@ -5,6 +5,7 @@ import { SEO } from 'components/Layout/Seo'
 
 import { FoxHeader } from './components/FoxHeader'
 import { FoxToken } from './components/FoxToken'
+import { RFOXSection } from './components/RFOXSection'
 import { FoxPageProvider } from './hooks/useFoxPageContext'
 
 export const FoxPage = () => {
@@ -16,6 +17,7 @@ export const FoxPage = () => {
       <SEO title={translate('navBar.foxBenefits')} />
       <Main headerComponent={headerComponent}>
         <FoxToken />
+        <RFOXSection />
       </Main>
     </FoxPageProvider>
   )

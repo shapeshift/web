@@ -320,10 +320,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, isConnected, portfolioLoadingStatus])
 
   // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet
-  useEffect(() => {
-    dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
-    dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
-  }, [dispatch, walletId])
+  // useEffect(() => {
+  // dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
+  // dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
+  // }, [dispatch, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({

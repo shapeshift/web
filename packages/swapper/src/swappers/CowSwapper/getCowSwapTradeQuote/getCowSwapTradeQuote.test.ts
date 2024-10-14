@@ -14,12 +14,12 @@ import {
   WETH,
   XDAI,
 } from '../../utils/test-data/assets'
-import type { CowSwapQuoteResponse } from '../types'
 import {
-  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-  DEFAULT_ADDRESS,
-  ERC20_TOKEN_BALANCE,
-} from '../utils/constants'
+  CoWSwapBuyTokenDestination,
+  type CowSwapQuoteResponse,
+  CoWSwapSellTokenSource,
+} from '../types'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS, DEFAULT_ADDRESS } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'
@@ -356,8 +356,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '985442057341242012',
               buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
-              sellTokenBalance: ERC20_TOKEN_BALANCE,
-              buyTokenBalance: ERC20_TOKEN_BALANCE,
+              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
             },
           },
         } as unknown as AxiosResponse<CowSwapQuoteResponse>),
@@ -400,8 +400,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '938195228120306016256',
               buyAmount: '46868859830863283',
               feeAmount: '61804771879693983744',
-              sellTokenBalance: ERC20_TOKEN_BALANCE,
-              buyTokenBalance: ERC20_TOKEN_BALANCE,
+              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
             },
           },
         } as unknown as AxiosResponse<CowSwapQuoteResponse>),
@@ -444,8 +444,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '20998812',
               buyAmount: '21005367357465608755',
               feeAmount: '1188',
-              sellTokenBalance: ERC20_TOKEN_BALANCE,
-              buyTokenBalance: ERC20_TOKEN_BALANCE,
+              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
             },
           },
         } as unknown as AxiosResponse<CowSwapQuoteResponse>),
@@ -488,8 +488,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '492056',
               buyAmount: '141649103137616',
               feeAmount: '7944',
-              sellTokenBalance: ERC20_TOKEN_BALANCE,
-              buyTokenBalance: ERC20_TOKEN_BALANCE,
+              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
             },
           },
         } as unknown as AxiosResponse<CowSwapQuoteResponse>),
@@ -532,8 +532,8 @@ describe('getCowTradeQuote', () => {
               sellAmount: '9854420573412420',
               buyAmount: '145018118182475950905',
               feeAmount: '1455794265875791',
-              sellTokenBalance: ERC20_TOKEN_BALANCE,
-              buyTokenBalance: ERC20_TOKEN_BALANCE,
+              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
             },
           },
         } as unknown as AxiosResponse<CowSwapQuoteResponse>),

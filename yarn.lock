@@ -9978,6 +9978,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@passkeys/core@npm:^3.3.5":
+  version: 3.3.5
+  resolution: "@passkeys/core@npm:3.3.5"
+  checksum: 2db380a8b0af1fb3bdbfacd515808c827719d4747c01926f763e6a0026be6da5e89efd8286dda77f416cb43cb562c8fb950e7d1fb1122775d8103be30cba9f44
+  languageName: node
+  linkType: hard
+
+"@passkeys/react@npm:^2.5.2":
+  version: 2.5.2
+  resolution: "@passkeys/react@npm:2.5.2"
+  peerDependencies:
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: b005b4ad3662b02989ded5d26fc4318a18eb6ee022e32df243bfaf1ae6805e22675887482529d329fc8fbf40cf3cb9279b3f8935348d54aaef7373eb207f8237
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.1.0":
   version: 2.1.0
   resolution: "@peculiar/asn1-schema@npm:2.1.0"
@@ -11758,6 +11775,8 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": ^6.29.2
     "@lifi/sdk": ^3.1.5
     "@lukemorales/query-key-factory": ^1.3.4
+    "@passkeys/core": ^3.3.5
+    "@passkeys/react": ^2.5.2
     "@peculiar/webcrypto": ^1.3.3
     "@react-spring/web": ^9.7.4
     "@reduxjs/toolkit": ^1.9.7

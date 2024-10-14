@@ -4,6 +4,8 @@ import {
   createLocalStorageManager,
   createStandaloneToast,
 } from '@chakra-ui/react'
+import { createWallet } from '@passkeys/core'
+import { WalletProvider as PassKeysWalletProvider } from '@passkeys/react'
 import { captureException } from '@sentry/react'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
@@ -42,6 +44,14 @@ const manager = createLocalStorageManager('ss-theme')
 
 const splashScreen = <SplashScreen />
 
+const wallet = createWallet({
+  providers: {
+    ethereum: true,
+  },
+})
+
+console.log({ wallet })
+
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(
@@ -70,25 +80,27 @@ export function AppProviders({ children }: ProvidersProps) {
                   <ScrollToTop />
                   <BrowserRouterProvider>
                     <I18nProvider>
-                      <WalletProvider>
-                        <ModalProvider>
-                          <WalletConnectV2Provider>
-                            <KeepKeyProvider>
-                              <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
-                                <WagmiProvider config={wagmiConfig}>
-                                  <TransactionsProvider>
-                                    <AppProvider>
-                                      <FoxEthProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
-                                      </FoxEthProvider>
-                                    </AppProvider>
-                                  </TransactionsProvider>
-                                </WagmiProvider>
-                              </ErrorBoundary>
-                            </KeepKeyProvider>
-                          </WalletConnectV2Provider>
-                        </ModalProvider>
-                      </WalletProvider>
+                      <PassKeysWalletProvider wallet={wallet}>
+                        <WalletProvider>
+                          <ModalProvider>
+                            <WalletConnectV2Provider>
+                              <KeepKeyProvider>
+                                <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
+                                  <WagmiProvider config={wagmiConfig}>
+                                    <TransactionsProvider>
+                                      <AppProvider>
+                                        <FoxEthProvider>
+                                          <DefiManagerProvider>{children}</DefiManagerProvider>
+                                        </FoxEthProvider>
+                                      </AppProvider>
+                                    </TransactionsProvider>
+                                  </WagmiProvider>
+                                </ErrorBoundary>
+                              </KeepKeyProvider>
+                            </WalletConnectV2Provider>
+                          </ModalProvider>
+                        </WalletProvider>
+                      </PassKeysWalletProvider>
                     </I18nProvider>
                   </BrowserRouterProvider>
                 </HashRouter>

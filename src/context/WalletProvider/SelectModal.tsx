@@ -80,7 +80,7 @@ const WalletSelectItem = ({
 
   return (
     <SelectItem
-      key={walletType}
+      id={walletType}
       isActive={activeWallet}
       onClick={handleConnect}
       name={option.name}
@@ -90,13 +90,13 @@ const WalletSelectItem = ({
 }
 
 const SelectItem = ({
-  key,
+  id,
   isActive,
   onClick,
   name,
   Icon,
 }: {
-  key: string
+  id: string
   isActive: boolean
   onClick: () => void
   name: string
@@ -107,14 +107,14 @@ const SelectItem = ({
 
   return (
     <Button
-      key={key}
+      key={id}
       w='full'
       size='md'
       py={8}
       isActive={isActive}
       justifyContent='space-between'
       onClick={onClick}
-      data-test={`connect-wallet-${key}-button`}
+      data-test={`connect-wallet-${id}-button`}
     >
       <Flex alignItems='flex-start' flexDir='column'>
         <RawText fontWeight='semibold'>{name}</RawText>
@@ -150,7 +150,7 @@ const MipdProviderSelectItem = ({
 
   return (
     <SelectItem
-      key={provider.info.rdns}
+      id={provider.info.rdns}
       isActive={activeWallet}
       onClick={handleConnect}
       name={provider.info.name}
@@ -168,7 +168,6 @@ export const SelectModal = () => {
   } = useWallet()
   const translate = useTranslate()
   const detectedMipdProviders = useMipdProviders()
-  console.log({ detectedMipdProviders })
   const supportedStaticProviders = useMemo(() => {
     // Mobile app doesn't support MM and the like
     if (isMobileApp) return []

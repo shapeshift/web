@@ -248,7 +248,7 @@ export const Header = memo(() => {
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
               <Notifications />
-              <WalletWidget style={{ zIndex: 9999 }} />
+              <WalletWidget variant='dark' style={{ zIndex: 9999 }} />
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

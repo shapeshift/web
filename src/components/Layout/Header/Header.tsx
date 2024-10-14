@@ -1,5 +1,6 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, useMediaQuery, usePrevious, useToast } from '@chakra-ui/react'
+import { WalletWidget } from '@passkeys/react'
 import { btcAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -247,6 +248,7 @@ export const Header = memo(() => {
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
               <Notifications />
+              <WalletWidget style={{ zIndex: 9999 }} />
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

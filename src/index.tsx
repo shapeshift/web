@@ -130,7 +130,6 @@ rootElement.classList.add('app-height')
 root.render(
   <React.StrictMode>
     <AppProviders>
-      <WalletWidget />
       <App />
     </AppProviders>
   </React.StrictMode>,

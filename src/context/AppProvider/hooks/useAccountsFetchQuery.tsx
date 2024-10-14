@@ -25,25 +25,12 @@ export const useAccountsFetchQuery = () => {
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
   const { deviceId, wallet } = useWallet().state
 
-  // TODO(gomes): this was wrong and still is. selectEnabledWalletAccountIds will populate accountIds as they start getting enabled
-  // This is currently fixed by not including hasManagedAccounts in the queryKey deps, as well as explicitly disabling the queryFn if there are managed accounts and
-  // having a separate effect as a side-effect, but ideally, we should have an *actual* mechanism to detect managed accounts, since regular accounts discovery also goes through the same process
   const hasManagedAccounts = useMemo(() => {
     // MM without snap doesn't allow account management - if the user just installed the snap, we know they don't have managed accounts
     if (!previousIsSnapInstalled && isSnapInstalled) return false
     // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
     return enabledWalletAccountIds.length > 0
   }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
-
-  // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
-  // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
-  useEffect(() => {
-    if (!hasManagedAccounts) return
-
-    enabledWalletAccountIds.forEach(accountId => {
-      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    })
-  }, [dispatch, enabledWalletAccountIds, hasManagedAccounts])
 
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
@@ -115,7 +102,9 @@ export const useAccountsFetchQuery = () => {
       ).map(async accountIds => {
         const results = await Promise.allSettled(
           accountIds.map(async id => {
-            const result = await dispatch(getAccount.initiate({ accountId: id }))
+            const result = await dispatch(
+              getAccount.initiate({ accountId: id, upsertOnFetch: true }),
+            )
             return result
           }),
         )
@@ -204,6 +193,18 @@ export const useAccountsFetchQuery = () => {
     ],
     queryFn: deviceId && !hasManagedAccounts ? queryFn : skipToken,
   })
+
+  // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
+  // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
+  useEffect(() => {
+    // Initial accounts fetch query is loading - we know we're not in the context of managed accounts just yet
+    if (query.isLoading || query.isFetching) return
+    if (!hasManagedAccounts) return
+
+    enabledWalletAccountIds.forEach(accountId => {
+      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
+    })
+  }, [dispatch, enabledWalletAccountIds, hasManagedAccounts, query.isFetching, query.isLoading])
 
   return query
 }

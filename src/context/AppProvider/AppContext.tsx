@@ -11,7 +11,6 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -39,7 +38,9 @@ import {
   selectPortfolioLoadingStatus,
   selectSelectedCurrency,
   selectSelectedLocale,
+  selectWalletId,
 } from 'state/slices/selectors'
+import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { txHistoryApi } from 'state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -59,10 +60,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch()
   const { supportedChains } = usePlugins()
   const { wallet, isConnected } = useWallet().state
-  const assetIds = useSelector(selectAssetIds)
-  const requestedAccountIds = useSelector(selectEnabledWalletAccountIds)
-  const portfolioLoadingStatus = useSelector(selectPortfolioLoadingStatus)
-  const portfolioAssetIds = useSelector(selectPortfolioAssetIds)
+  const assetIds = useAppSelector(selectAssetIds)
+  const requestedAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
+  const portfolioAssetIds = useAppSelector(selectPortfolioAssetIds)
+  const walletId = useAppSelector(selectWalletId)
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
@@ -316,6 +318,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
   }, [dispatch, isConnected, portfolioLoadingStatus])
+
+  // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet
+  useEffect(() => {
+    dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
+    dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
+  }, [dispatch, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({

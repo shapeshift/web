@@ -22,6 +22,7 @@ import { useAppSelector } from 'state/store'
 type AccountEntryRowProps = {
   accountId: AccountId
   assetId: AssetId
+  showNetworkIcon?: boolean
 } & ButtonProps
 
 const fontSizeProps = { base: 'sm', md: 'md' }
@@ -31,6 +32,7 @@ const cryptoDisplayProps = { base: 'block', md: 'none' }
 export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
   assetId,
+  showNetworkIcon,
   ...buttonProps
 }) => {
   const history = useHistory()
@@ -59,10 +61,10 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
 
   const assetIdOrIconSrcProps = useMemo(
     () =>
-      asset?.icons
-        ? { assetId, name: title, pairProps: { showFirst: true } }
-        : { src: icon, name: title, bg: asset?.color },
-    [asset?.icons, assetId, icon, title, asset?.color],
+      assetId
+        ? { assetId, name: title, showNetworkIcon, pairProps: { showFirst: true } }
+        : { src: icon, name: title, showNetworkIcon, bg: asset?.color },
+    [assetId, icon, title, asset?.color, showNetworkIcon],
   )
 
   const AccountEntryRowLeftIcon = useMemo(

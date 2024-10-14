@@ -174,6 +174,9 @@ const validators = {
   REACT_APP_PORTALS_BASE_URL: url(),
   REACT_APP_ZERION_BASE_URL: url(),
   REACT_APP_FEATURE_PHANTOM_WALLET: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_PAGE_RFOX: bool({ default: false }),
+  REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION: bool({ default: true }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

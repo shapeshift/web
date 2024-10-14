@@ -13,11 +13,11 @@ import {
   Tag,
   Text as CText,
 } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
-import type { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
 import qs from 'qs'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -25,9 +25,16 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { fromBaseUnit } from 'lib/math'
 import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
-import { selectAggregatedEarnUserStakingEligibleOpportunities } from 'state/slices/selectors'
+import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
+import {
+  selectAggregatedEarnUserStakingOpportunityByStakingId,
+  selectAssetById,
+} from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+
+import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }
@@ -52,6 +59,7 @@ const columnsProps = {
 }
 
 export const FoxFarming = () => {
+  const { assetAccountId } = useFoxPageContext()
   const translate = useTranslate()
   const isFoxFarmingEnabled = useFeatureFlag('FoxPageFoxFarmingSection')
   const history = useHistory()
@@ -61,14 +69,30 @@ export const FoxFarming = () => {
     dispatch,
   } = useWallet()
 
-  const eligibleOpportunities = useAppSelector(selectAggregatedEarnUserStakingEligibleOpportunities)
-
-  const foxFarmingEvergreen = eligibleOpportunities.find(
-    eligibleOpportunity =>
-      eligibleOpportunity.contractAddress === ETH_FOX_STAKING_EVERGREEN_CONTRACT,
+  const foxFarmingOpportunityFilter = useMemo(
+    () => ({
+      stakingId: toOpportunityId({
+        assetNamespace: 'erc20',
+        assetReference: ETH_FOX_STAKING_EVERGREEN_CONTRACT,
+        chainId: fromAccountId(assetAccountId ?? '').chainId,
+      }),
+    }),
+    [assetAccountId],
   )
 
-  console.log({ foxFarmingEvergreen })
+  const opportunity = useAppSelector(state =>
+    selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
+  )
+
+  const underlyingAsset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
+  )
+
+  const rewardAsset = useAppSelector(state =>
+    selectAssetById(state, opportunity?.rewardAssetIds[0] ?? ''),
+  )
+
+  console.log({ opportunity })
 
   const handleClick = useCallback(
     (opportunity: LpEarnOpportunityType, action: DefiAction) => {
@@ -81,7 +105,9 @@ export const FoxFarming = () => {
         assetId,
         highestBalanceAccountAddress,
       } = opportunity
+      console.log({ opportunity })
       const { assetReference, assetNamespace } = fromAssetId(assetId)
+      console.log({ assetReference, assetNamespace })
 
       if (!isConnected || isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -108,12 +134,23 @@ export const FoxFarming = () => {
   )
 
   const handleManageClick = useCallback(() => {
-    console.log('click')
-  }, [])
+    if (!opportunity) return
+
+    handleClick(opportunity, DefiAction.Overview)
+  }, [opportunity, handleClick])
 
   const handleClaimClick = useCallback(() => {
-    console.log('claim')
-  }, [])
+    if (!opportunity) return
+
+    handleClick(opportunity, DefiAction.Claim)
+  }, [opportunity, handleClick])
+
+  const rewardsCryptoAmount = useMemo(() => {
+    if (opportunity?.rewardsCryptoBaseUnit === undefined) return
+    if (!rewardAsset) return
+
+    return fromBaseUnit(opportunity.rewardsCryptoBaseUnit?.amounts[0], rewardAsset?.precision ?? 0)
+  }, [opportunity, rewardAsset])
 
   if (!isFoxFarmingEnabled) return null
 
@@ -128,9 +165,9 @@ export const FoxFarming = () => {
                 🧑‍🌾
               </CText>
               {translate('foxPage.foxFarming.title')}
-              <Skeleton isLoaded={true} ml={2}>
+              <Skeleton isLoaded={Boolean(opportunity)} ml={2}>
                 <Tag colorScheme='green' verticalAlign='middle'>
-                  <Amount.Percent value={0.02} suffix='APY' />
+                  <Amount.Percent value={opportunity?.apy ?? ''} suffix='APY' />
                 </Tag>
               </Skeleton>
             </Heading>
@@ -152,8 +189,8 @@ export const FoxFarming = () => {
                     translation='foxPage.foxFarming.totalClaimableRewards'
                   />
 
-                  <Skeleton isLoaded={true}>
-                    <Amount.Crypto value={'100'} symbol={'FOX'} />
+                  <Skeleton isLoaded={Boolean(rewardsCryptoAmount && rewardAsset)}>
+                    <Amount.Crypto value={rewardsCryptoAmount} symbol={rewardAsset?.symbol ?? ''} />
                   </Skeleton>
                 </Box>
 
@@ -175,8 +212,15 @@ export const FoxFarming = () => {
                 translation='foxPage.foxFarming.totalStakingValue'
                 mb={1}
               />
-              <Skeleton isLoaded={true}>
-                <Amount.Crypto fontSize='2xl' value={'100'} symbol={'FOX'} />
+              <Skeleton isLoaded={Boolean(opportunity && underlyingAsset)}>
+                <Amount.Crypto
+                  fontSize='2xl'
+                  value={fromBaseUnit(
+                    opportunity?.stakedAmountCryptoBaseUnit,
+                    underlyingAsset?.precision ?? 0,
+                  )}
+                  symbol={underlyingAsset?.symbol ?? ''}
+                />
               </Skeleton>
             </Box>
             <Button onClick={handleManageClick} colorScheme='gray' size='sm'>

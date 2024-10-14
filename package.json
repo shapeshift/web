@@ -85,6 +85,8 @@
     "@ledgerhq/hw-transport-webusb": "^6.29.2",
     "@lifi/sdk": "^3.1.5",
     "@lukemorales/query-key-factory": "^1.3.4",
+    "@passkeys/core": "^3.3.5",
+    "@passkeys/react": "^2.5.2",
     "@react-spring/web": "^9.7.4",
     "@reduxjs/toolkit": "^1.9.7",
     "@sentry-internal/browser-utils": "^8.26.0",

@@ -1,6 +1,7 @@
 import './wdyr'
 import 'lib/polyfills'
 
+import { WalletWidget } from '@passkeys/react'
 import {
   breadcrumbsIntegration,
   browserApiErrorsIntegration,
@@ -129,6 +130,7 @@ rootElement.classList.add('app-height')
 root.render(
   <React.StrictMode>
     <AppProviders>
+      <WalletWidget />
       <App />
     </AppProviders>
   </React.StrictMode>,

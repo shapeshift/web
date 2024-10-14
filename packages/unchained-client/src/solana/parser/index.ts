@@ -48,6 +48,7 @@ export class TransactionParser<T extends Tx> {
       blockHeight: tx.blockHeight,
       blockTime: tx.timestamp,
       chainId: this.chainId,
+      // all transactions from unchained are finalized with at least 1 confirmation (unused throughout web)
       confirmations: 1,
       status: this.getStatus(tx),
       trade: parserResult?.trade,

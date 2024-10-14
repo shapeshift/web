@@ -14,15 +14,15 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
       const messageType = e[1].message_type as NativeEvents
-      console.log(e)
       switch (messageType) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
-          console.log('handleEvent', { deviceId })
 
-          // Don't handle events from previously disconnected wallets, unless there isn't a pending
-          // wallet to connect (i.e via "switch wallet")
-          if (deviceId !== state.nativeWalletPendingDeviceId) {
+          // Don't show password input for previous wallet when switching
+          if (
+            state.nativeWalletPendingDeviceId !== null &&
+            deviceId !== state.nativeWalletPendingDeviceId
+          ) {
             break
           }
 

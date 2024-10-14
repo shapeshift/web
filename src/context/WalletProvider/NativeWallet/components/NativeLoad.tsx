@@ -92,8 +92,7 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
           payload: deviceId,
         })
         // not calling disconnect from useWallet because we don't want to modify state
-        state.wallet?.disconnect?.()
-
+        await state.wallet?.disconnect?.()
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
@@ -120,12 +119,9 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
-        // Clear the pending state of the native wallet on error
-        dispatch({
-          type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
-          payload: null,
-        })
         setError('walletProvider.shapeShift.load.error.pair')
+      } finally {
+        dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
       }
     } else {
       setError('walletProvider.shapeShift.load.error.pair')

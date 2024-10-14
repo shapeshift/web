@@ -204,7 +204,6 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       return {
         ...state,
         deviceId,
-        nativeWalletPendingDeviceId: null,
         isDemoWallet: Boolean(isDemoWallet),
         wallet,
         connectedType,
@@ -267,9 +266,6 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       }
       return newState
     case WalletActions.NATIVE_PASSWORD_OPEN:
-      // reset wallet meta in redux store
-      store.dispatch(localWalletSlice.actions.clearLocalWallet())
-      store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       return {
         ...state,
         modal: action.payload.modal,
@@ -377,9 +373,19 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         initialRoute: KeepKeyRoutes.Disconnect,
       }
     case WalletActions.SET_NATIVE_PENDING_DEVICE_ID:
+      store.dispatch(localWalletSlice.actions.clearLocalWallet())
+      store.dispatch(portfolioSlice.actions.setWalletMeta(undefined))
       return {
         ...state,
+        isConnected: false,
+        deviceId: '',
+        walletInfo: null,
         nativeWalletPendingDeviceId: action.payload,
+      }
+    case WalletActions.RESET_NATIVE_PENDING_DEVICE_ID:
+      return {
+        ...state,
+        nativeWalletPendingDeviceId: null,
       }
     default:
       return state

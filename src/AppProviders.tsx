@@ -67,20 +67,20 @@ export function AppProviders({ children }: ProvidersProps) {
     [],
   )
   return (
-    <HelmetProvider>
-      <ReduxProvider store={store}>
-        <QueryClientProvider>
-          <PluginProvider>
-            <ColorModeScript storageKey='ss-theme' />
-            <ChatwootWidget />
-            <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-              <ToastContainer />
-              <PersistGate loading={splashScreen} persistor={persistor}>
-                <HashRouter basename='/'>
-                  <ScrollToTop />
-                  <BrowserRouterProvider>
-                    <I18nProvider>
-                      <PassKeysWalletProvider wallet={wallet}>
+    <PassKeysWalletProvider wallet={wallet}>
+      <HelmetProvider>
+        <ReduxProvider store={store}>
+          <QueryClientProvider>
+            <PluginProvider>
+              <ColorModeScript storageKey='ss-theme' />
+              <ChatwootWidget />
+              <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+                <ToastContainer />
+                <PersistGate loading={splashScreen} persistor={persistor}>
+                  <HashRouter basename='/'>
+                    <ScrollToTop />
+                    <BrowserRouterProvider>
+                      <I18nProvider>
                         <WalletProvider>
                           <ModalProvider>
                             <WalletConnectV2Provider>
@@ -100,15 +100,15 @@ export function AppProviders({ children }: ProvidersProps) {
                             </WalletConnectV2Provider>
                           </ModalProvider>
                         </WalletProvider>
-                      </PassKeysWalletProvider>
-                    </I18nProvider>
-                  </BrowserRouterProvider>
-                </HashRouter>
-              </PersistGate>
-            </ChakraProvider>
-          </PluginProvider>
-        </QueryClientProvider>
-      </ReduxProvider>
-    </HelmetProvider>
+                      </I18nProvider>
+                    </BrowserRouterProvider>
+                  </HashRouter>
+                </PersistGate>
+              </ChakraProvider>
+            </PluginProvider>
+          </QueryClientProvider>
+        </ReduxProvider>
+      </HelmetProvider>
+    </PassKeysWalletProvider>
   )
 }

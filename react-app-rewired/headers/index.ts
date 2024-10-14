@@ -32,7 +32,7 @@ const baseHeaders: Record<string, string> = {
   'Cache-Control': 'no-transform', // This will prevent middleboxes from munging our JS and breaking SRI if we're ever served over HTTP.
   'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
   'Permissions-Policy': 'document-domain=()',
-  'Referrer-Policy': 'no-referrer',
+  'Referrer-Policy': 'unsafe-url',
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
 }

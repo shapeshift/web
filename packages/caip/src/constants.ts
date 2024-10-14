@@ -93,7 +93,7 @@ export const ASSET_NAMESPACE = {
   bep1155: 'bep1155',
   slip44: 'slip44',
   ibc: 'ibc',
-  spl: 'spl',
+  splToken: 'token',
 } as const
 
 export const ASSET_REFERENCE = {
@@ -158,7 +158,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
     ASSET_NAMESPACE.bep1155,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [ASSET_NAMESPACE.ibc, ASSET_NAMESPACE.slip44],
-  [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.spl, ASSET_NAMESPACE.slip44],
+  [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.splToken, ASSET_NAMESPACE.slip44],
 })
 
 // We should prob change this once we add more chains

@@ -30,13 +30,16 @@ export const useEip1993EventHandler = ({
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === rdns)
 
   const currentRdnsRef = useRef(rdns)
+  const providerRef = useRef(maybeMipdProvider)
+
   useEffect(() => {
     currentRdnsRef.current = rdns
-  }, [rdns])
+    providerRef.current = maybeMipdProvider
+  }, [maybeMipdProvider, maybeMipdProvider?.provider, rdns])
 
   const handleAccountsOrChainChanged = useCallback(
     async (accountsOrChains: string[] | string) => {
-      if (!maybeMipdProvider || !state.adapters) return
+      if (!providerRef.current || !state.adapters) return
       if (
         ![KeyManager.MetaMask, KeyManager.Phantom, KeyManager.Coinbase].includes(
           localWalletType as KeyManager,
@@ -46,7 +49,7 @@ export const useEip1993EventHandler = ({
       // Never ever under any circumstances remove me. We attach event handlers to EIP-1993 providers,
       // and trying to detach them as we did previously is a guaranteed spaghetti code disaster and a recipe for bugs.
       // This ensures that we do *not* try to run this fn with stale event listeners from previously connected EIP-1993 wallets.
-      if (maybeMipdProvider.info.rdns !== currentRdnsRef.current) return
+      if (providerRef.current.info.rdns !== currentRdnsRef.current) return
 
       // Note, we NEED to use store.getState instead of the walletType variable above
       // The reason is handleAccountsOrChainChanged exists in the context of a closure, hence will keep a stale reference forever
@@ -93,32 +96,36 @@ export const useEip1993EventHandler = ({
         },
       })
     },
-    [dispatch, getAdapter, localWalletType, maybeMipdProvider, state.adapters],
+    [dispatch, getAdapter, localWalletType, state.adapters],
   )
 
   const setProviderEvents = useCallback(() => {
     // Always remove before setting
-    maybeMipdProvider?.provider.removeListener?.('accountsChanged', handleAccountsOrChainChanged)
-    maybeMipdProvider?.provider.removeListener?.('chainChanged', handleAccountsOrChainChanged)
+    providerRef.current?.provider.removeListener?.('accountsChanged', handleAccountsOrChainChanged)
+    providerRef.current?.provider.removeListener?.('chainChanged', handleAccountsOrChainChanged)
 
-    maybeMipdProvider?.provider.on?.('accountsChanged', (e: string[]) => {
-      return handleAccountsOrChainChanged(e)
-    })
-    maybeMipdProvider?.provider.on?.('chainChanged', (e: string) => {
-      return handleAccountsOrChainChanged(e)
-    })
-  }, [handleAccountsOrChainChanged, maybeMipdProvider?.provider])
+    providerRef.current?.provider.on?.('accountsChanged', handleAccountsOrChainChanged)
+    providerRef.current?.provider.on?.('chainChanged', handleAccountsOrChainChanged)
+  }, [handleAccountsOrChainChanged])
 
   // Register a MetaMask-like (EIP-1193) provider's event handlers on mipd provider change
   useEffect(() => {
     const isMetaMaskMultichainWallet = state.wallet instanceof MetaMaskMultiChainHDWallet
     const isPhantomHdWallet = state.wallet instanceof PhantomHDWallet
     if (!(isMetaMaskMultichainWallet || isPhantomHdWallet)) return
-    if (!maybeMipdProvider) return
+    if (!providerRef.current) return
     try {
       setProviderEvents()
     } catch (e) {
       if (!isMobile) console.error(e)
     }
-  }, [maybeMipdProvider, setProviderEvents, state.wallet])
+
+    return () => {
+      providerRef.current?.provider.removeListener?.(
+        'accountsChanged',
+        handleAccountsOrChainChanged,
+      )
+      providerRef.current?.provider.removeListener?.('chainChanged', handleAccountsOrChainChanged)
+    }
+  }, [handleAccountsOrChainChanged, maybeMipdProvider, setProviderEvents, state.wallet])
 }

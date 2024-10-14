@@ -65,6 +65,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const portfolioAssetIds = useAppSelector(selectPortfolioAssetIds)
   const walletId = useAppSelector(selectWalletId)
+  const prevWalletId = usePrevious(walletId)
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const previousIsSnapInstalled = usePrevious(isSnapInstalled)
@@ -321,9 +322,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet
   useEffect(() => {
+    if (!prevWalletId) return
+    if (walletId === prevWalletId) return
+
     dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
     dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
-  }, [dispatch, walletId])
+  }, [dispatch, prevWalletId, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes
   useQueries({

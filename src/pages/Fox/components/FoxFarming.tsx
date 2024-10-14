@@ -13,11 +13,13 @@ import {
   Tag,
   Text as CText,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
+import { useQuery } from '@tanstack/react-query'
 import { DefiAction } from 'features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useFoxFarming } from 'features/defi/providers/fox-farming/hooks/useFoxFarming'
 import qs from 'qs'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useLocation } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -25,19 +27,31 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
-import type { LpEarnOpportunityType } from 'state/slices/opportunitiesSlice/types'
+import { formatSecondsToDuration } from 'lib/utils/time'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
+import { foxEthLpAssetId } from 'state/slices/opportunitiesSlice/constants'
+import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
+import {
+  DefiProvider,
+  DefiType,
+  type LpEarnOpportunityType,
+} from 'state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAggregatedEarnUserStakingOpportunityByStakingId,
   selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectStakingOpportunitiesById,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }
+const headerTitleMaxWidth = { base: '100%', md: '50%' }
 const headerSx: FlexProps['sx'] = {
   alignItems: { base: 'flex-start', md: 'center' },
   justifyContent: 'space-between',
@@ -64,25 +78,78 @@ export const FoxFarming = () => {
   const isFoxFarmingEnabled = useFeatureFlag('FoxPageFoxFarmingSection')
   const history = useHistory()
   const location = useLocation()
+  const appDispatch = useAppDispatch()
   const {
     state: { isConnected, isDemoWallet },
     dispatch,
   } = useWallet()
 
-  const foxFarmingOpportunityFilter = useMemo(
-    () => ({
-      stakingId: toOpportunityId({
+  useEffect(() => {
+    appDispatch(marketApi.endpoints.findByAssetId.initiate(foxEthLpAssetId))
+  }, [appDispatch])
+
+  const foxEthMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId),
+  )
+
+  const opportunityId = useMemo(
+    () =>
+      toOpportunityId({
         assetNamespace: 'erc20',
         assetReference: ETH_FOX_STAKING_EVERGREEN_CONTRACT,
-        chainId: fromAccountId(assetAccountId ?? '').chainId,
+        chainId: assetAccountId ? fromAccountId(assetAccountId).chainId : ethChainId,
       }),
-    }),
     [assetAccountId],
+  )
+
+  const foxFarmingOpportunityFilter = useMemo(
+    () => ({
+      stakingId: opportunityId,
+    }),
+    [opportunityId],
+  )
+
+  const opportunitiesById = useAppSelector(selectStakingOpportunitiesById)
+
+  const { getPeriodFinish } = useFoxFarming(ETH_FOX_STAKING_EVERGREEN_CONTRACT)
+
+  const {
+    data: periodFinish,
+    isLoading: isGetPeriodFinishQueryLoading,
+    isFetching: isGetPeriodFetchingLoading,
+  } = useQuery({
+    queryKey: ['getPeriodFinish'],
+    queryFn: () => getPeriodFinish(),
+  })
+
+  const isGetPeriodFinishLoading = useMemo(
+    () => isGetPeriodFinishQueryLoading || isGetPeriodFetchingLoading,
+    [isGetPeriodFinishQueryLoading, isGetPeriodFetchingLoading],
   )
 
   const opportunity = useAppSelector(state =>
     selectAggregatedEarnUserStakingOpportunityByStakingId(state, foxFarmingOpportunityFilter),
   )
+
+  useEffect(() => {
+    if (!assetAccountId) return
+    if (!foxEthMarketData) return
+    if (opportunity) return
+
+    appDispatch(
+      opportunitiesApi.endpoints.getOpportunityUserData.initiate(
+        [
+          {
+            opportunityId,
+            accountId: assetAccountId,
+            defiProvider: DefiProvider.EthFoxStaking,
+            defiType: DefiType.Staking,
+          },
+        ],
+        { forceRefetch: true },
+      ),
+    )
+  }, [opportunityId, opportunity, assetAccountId, appDispatch, foxEthMarketData])
 
   const underlyingAsset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),
@@ -91,8 +158,6 @@ export const FoxFarming = () => {
   const rewardAsset = useAppSelector(state =>
     selectAssetById(state, opportunity?.rewardAssetIds[0] ?? ''),
   )
-
-  console.log({ opportunity })
 
   const handleClick = useCallback(
     (opportunity: LpEarnOpportunityType, action: DefiAction) => {
@@ -105,9 +170,7 @@ export const FoxFarming = () => {
         assetId,
         highestBalanceAccountAddress,
       } = opportunity
-      console.log({ opportunity })
       const { assetReference, assetNamespace } = fromAssetId(assetId)
-      console.log({ assetReference, assetNamespace })
 
       if (!isConnected || isDemoWallet) {
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -152,6 +215,22 @@ export const FoxFarming = () => {
     return fromBaseUnit(opportunity.rewardsCryptoBaseUnit?.amounts[0], rewardAsset?.precision ?? 0)
   }, [opportunity, rewardAsset])
 
+  const totalStakingValue = useMemo(() => {
+    if (!opportunity) return '0'
+
+    return fromBaseUnit(opportunity?.stakedAmountCryptoBaseUnit, underlyingAsset?.precision ?? 0)
+  }, [opportunity, underlyingAsset?.precision])
+
+  const nextEpochHuman = useMemo(() => {
+    if (!periodFinish) return
+
+    return formatSecondsToDuration(
+      bnOrZero(periodFinish.toString())
+        .minus(Date.now() / 1000)
+        .toNumber(),
+    )
+  }, [periodFinish])
+
   if (!isFoxFarmingEnabled) return null
 
   return (
@@ -159,9 +238,9 @@ export const FoxFarming = () => {
       <Divider mb={4} />
       <Box py={4} px={containerPaddingX}>
         <Flex sx={headerSx}>
-          <Box mb={headerTitleMb} maxWidth='50%'>
+          <Box mb={headerTitleMb} maxWidth={headerTitleMaxWidth}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
-              <CText as='span' me={1}>
+              <CText as='span' me={2}>
                 🧑‍🌾
               </CText>
               {translate('foxPage.foxFarming.title')}
@@ -182,7 +261,7 @@ export const FoxFarming = () => {
           <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
               <Flex alignItems='center' justifyContent='space-between'>
-                <Box>
+                <Box width='100%'>
                   <Text
                     fontSize='md'
                     color='text.subtle'
@@ -194,9 +273,11 @@ export const FoxFarming = () => {
                   </Skeleton>
                 </Box>
 
-                <Button onClick={handleClaimClick} colorScheme='gray' size='sm'>
-                  {translate('common.claim')}
-                </Button>
+                {rewardsCryptoAmount !== '0' && Boolean(rewardsCryptoAmount && rewardAsset) ? (
+                  <Button onClick={handleClaimClick} colorScheme='gray' size='sm'>
+                    {translate('common.claim')}
+                  </Button>
+                ) : null}
               </Flex>
             </CardBody>
           </Card>
@@ -215,10 +296,7 @@ export const FoxFarming = () => {
               <Skeleton isLoaded={Boolean(opportunity && underlyingAsset)}>
                 <Amount.Crypto
                   fontSize='2xl'
-                  value={fromBaseUnit(
-                    opportunity?.stakedAmountCryptoBaseUnit,
-                    underlyingAsset?.precision ?? 0,
-                  )}
+                  value={totalStakingValue}
                   symbol={underlyingAsset?.symbol ?? ''}
                 />
               </Skeleton>
@@ -236,8 +314,8 @@ export const FoxFarming = () => {
               translation='foxPage.foxFarming.nextEpoch'
               mb={1}
             />
-            <Skeleton isLoaded={true}>
-              <Amount.Crypto fontSize='2xl' value={'100'} symbol={'FOX'} />
+            <Skeleton isLoaded={Boolean(!isGetPeriodFinishLoading && nextEpochHuman)}>
+              <CText fontSize='2xl'>{nextEpochHuman}</CText>
             </Skeleton>
           </Stack>
         </SimpleGrid>

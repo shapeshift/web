@@ -312,6 +312,11 @@ export const useFoxFarming = (
     return txid
   }, [accountNumber, adapter, contractAddress, foxFarmingContract.abi, skip, userAddress, wallet])
 
+  const getPeriodFinish = useCallback(async () => {
+    const periodFinish = await foxFarmingContract.read.periodFinish()
+    return periodFinish
+  }, [foxFarmingContract])
+
   return {
     allowance,
     approve,
@@ -322,6 +327,7 @@ export const useFoxFarming = (
     stake,
     unstake,
     claimRewards,
+    getPeriodFinish,
     foxFarmingContract,
     skip,
   }

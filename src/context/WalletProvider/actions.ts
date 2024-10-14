@@ -28,6 +28,7 @@ export enum WalletActions {
   OPEN_KEEPKEY_RECOVERY = 'OPEN_KEEPKEY_RECOVERY',
   OPEN_KEEPKEY_CHARACTER_REQUEST = 'OPEN_KEEPKEY_CHARACTER_REQUEST',
   DOWNLOAD_UPDATER = 'DOWNLOAD_UPDATER',
+  SET_NATIVE_PENDING_DEVICE_ID = 'SET_NATIVE_PENDING_DEVICE_ID',
 }
 
 export type ActionTypes =
@@ -107,3 +108,7 @@ export type ActionTypes =
       }
     }
   | { type: WalletActions.OPEN_KEEPKEY_DISCONNECT }
+  | {
+      type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID
+      payload: string
+    }

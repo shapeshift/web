@@ -1,7 +1,11 @@
 import type { EIP6963ProviderDetail } from 'mipd'
 import { createStore } from 'mipd'
+import { useSyncExternalStore } from 'react'
 
 export const mipdStore = createStore()
+
+export const useMipdProviders = () =>
+  useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
 
 export const METAMASK_RDNS = 'io.metamask'
 

@@ -16,14 +16,14 @@ import type { Property } from 'csstype'
 import uniqBy from 'lodash/uniqBy'
 import type { EIP6963ProviderDetail } from 'mipd'
 import type { ReactElement } from 'react'
-import { useCallback, useMemo, useSyncExternalStore } from 'react'
+import { useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile as isMobileApp } from 'lib/globals'
-import { mipdStore, staticMipdProviders } from 'lib/mipd'
+import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
 import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -138,7 +138,7 @@ const MipdProviderSelectItem = ({
     [connect, provider.info.rdns],
   )
 
-  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useMipdProviders()
   const connectedMipdProvider = detectedMipdProviders.find(
     provider => provider.info.rdns === connectedRdns,
   )
@@ -167,7 +167,8 @@ export const SelectModal = () => {
     importWallet,
   } = useWallet()
   const translate = useTranslate()
-  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useMipdProviders()
+  console.log({ detectedMipdProviders })
   const supportedStaticProviders = useMemo(() => {
     // Mobile app doesn't support MM and the like
     if (isMobileApp) return []

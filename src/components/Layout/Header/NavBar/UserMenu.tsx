@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { viemEthMainnetClient } from '@shapeshiftoss/contracts'
 import type { FC } from 'react'
-import { memo, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter } from 'react-router-dom'
@@ -28,7 +28,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore } from 'lib/mipd'
+import { mipdStore, useMipdProviders } from 'lib/mipd'
 import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -96,7 +96,7 @@ const WalletButton: FC<WalletButtonProps> = ({
 
   const maybeRdns = useAppSelector(selectWalletRdns)
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMipdProviders()
   const maybeMipdProvider = useMemo(
     () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
     [mipdProviders, maybeRdns],
@@ -180,7 +180,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
 
   const maybeRdns = useAppSelector(selectWalletRdns)
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMipdProviders()
   const maybeMipdProvider = mipdProviders.find(provider => provider.info.rdns === maybeRdns)
 
   const hasWallet = Boolean(walletInfo?.deviceId)

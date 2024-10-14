@@ -2,9 +2,9 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
-import { mipdStore } from 'lib/mipd'
+import { useMipdProviders } from 'lib/mipd'
 import { selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { store } from 'state/store'
 
@@ -20,7 +20,7 @@ export const useEip1993EventHandler = ({
   dispatch,
 }: Pick<IWalletContext, 'state' | 'getAdapter' | 'dispatch'>) => {
   const { rdns: _rdns, localWalletType } = useLocalWallet()
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMipdProviders()
   const rdns = useMemo(() => {
     // Uses rdns magic to detect provider for our first-class wallets
     if (localWalletType === KeyManager.Phantom) return 'app.phantom'

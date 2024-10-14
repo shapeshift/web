@@ -10,7 +10,7 @@ import { PublicWalletXpubs } from 'constants/PublicWalletXpubs'
 import type { BrowserProvider } from 'ethers'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
-import React, { useCallback, useEffect, useMemo, useReducer, useSyncExternalStore } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 import type { Entropy } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from 'context/WalletProvider/KeepKey/components/RecoverySettings'
 import { useKeepKeyEventHandler } from 'context/WalletProvider/KeepKey/hooks/useKeepKeyEventHandler'
@@ -18,7 +18,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
-import { mipdStore } from 'lib/mipd'
+import { useMipdProviders } from 'lib/mipd'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
@@ -349,7 +349,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     setLocalNativeWalletName,
   } = useLocalWallet()
 
-  const mipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const mipdProviders = useMipdProviders()
   const maybeMipdProvider = mipdProviders.find(
     provider => provider.info.rdns === (state.modalType ?? rdns),
   )

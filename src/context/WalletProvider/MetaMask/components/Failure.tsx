@@ -1,15 +1,15 @@
 import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useMemo, useSyncExternalStore } from 'react'
+import { useMemo } from 'react'
 import { FailureModal } from 'context/WalletProvider/components/FailureModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore, staticMipdProviders } from 'lib/mipd'
+import { mipdStore, staticMipdProviders, useMipdProviders } from 'lib/mipd'
 
 export const MetaMaskFailure = () => {
   const {
     state: { modalType },
   } = useWallet()
-  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useMipdProviders()
   const mipdProviders = useMemo(
     () => uniqBy(detectedMipdProviders.concat(staticMipdProviders), 'info.rdns'),
     [detectedMipdProviders],

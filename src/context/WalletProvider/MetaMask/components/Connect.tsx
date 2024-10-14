@@ -1,7 +1,7 @@
 import { getConfig } from 'config'
 import uniqBy from 'lodash/uniqBy'
 import type { InterpolationOptions } from 'node-polyglot'
-import React, { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ import {
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { METAMASK_RDNS, mipdStore, staticMipdProviders } from 'lib/mipd'
+import { METAMASK_RDNS, staticMipdProviders, useMipdProviders } from 'lib/mipd'
 import { selectShowSnapsModal } from 'state/slices/selectors'
 
 import { ConnectModal } from '../../components/ConnectModal'
@@ -47,7 +47,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(selectShowSnapsModal)
 
-  const detectedMipdProviders = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+  const detectedMipdProviders = useMipdProviders()
   const mipdProviders = useMemo(
     () => uniqBy(detectedMipdProviders.concat(staticMipdProviders), 'info.rdns'),
     [detectedMipdProviders],

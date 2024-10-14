@@ -187,7 +187,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Solana,
             chainReference: CHAIN_REFERENCE.SolanaMainnet,
-            assetNamespace: 'spl',
+            assetNamespace: 'token',
             assetReference: platforms[CoingeckoAssetPlatform.Solana],
           })
           prev[solanaChainId][assetId] = id

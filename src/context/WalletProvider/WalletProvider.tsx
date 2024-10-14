@@ -204,6 +204,7 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
       return {
         ...state,
         deviceId,
+        nativeWalletPendingDeviceId: null,
         isDemoWallet: Boolean(isDemoWallet),
         wallet,
         connectedType,
@@ -275,7 +276,6 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         modalType: KeyManager.Native,
         showBackButton: !state.isLoadingLocalWallet,
         deviceId: action.payload.deviceId,
-        nativeWalletPendingDeviceId: null,
         walletInfo: null,
         initialRoute: NativeWalletRoutes.EnterPassword,
       }

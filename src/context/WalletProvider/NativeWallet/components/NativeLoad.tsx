@@ -120,6 +120,11 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
         localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
+        // Clear the pending state of the native wallet on error
+        dispatch({
+          type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
+          payload: null,
+        })
         setError('walletProvider.shapeShift.load.error.pair')
       }
     } else {

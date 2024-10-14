@@ -1,5 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, solanaChainId, solAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  solanaChainId,
+  solAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
@@ -135,7 +141,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
           tokens: data.tokens.map(token => ({
             assetId: toAssetId({
               chainId: this.chainId,
-              assetNamespace: 'spl',
+              assetNamespace: ASSET_NAMESPACE.splToken,
               assetReference: token.id,
             }),
             balance: token.balance,

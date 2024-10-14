@@ -49,6 +49,7 @@
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
     "connectWallet": "Connecter un porte-monnaie",
+    "connectWalletToGetStartedWith": "Connectez un porte-monnaie pour commencer à utiliser %{feature}",
     "connectedWallet": "Porte-monnaie connecté",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
@@ -156,6 +157,7 @@
     "asymmetric": "Asymétrique (%{assetSymbol})",
     "import": "Importer",
     "accountsLoading": "Chargement des comptes",
+    "noAccounts": "Aucun compte pour les filtres sélectionnés.",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -441,7 +443,9 @@
         "cannotDepositWhilePendingTx": "Impossible de déposer tant que des Txs sont en attente",
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
         "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
-        "agreeRunePool": {}
+        "agreeRunePool": {
+          "1": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes."
+        }
       }
     },
     "memoNote": {
@@ -615,6 +619,7 @@
     "lending": "Prêts",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "foxBenefits": "Avantages FOX",
     "markets": "Marchés",
     "actionMenu": {
       "send": {
@@ -799,7 +804,9 @@
     "pendingClaims": "En cours",
     "noPendingClaims": "Aucune réclamation en cours",
     "availableIn": "Disponible dans %{time}",
-    "confirmAndClaim": "Confirmer et réclamer"
+    "confirmAndClaim": "Confirmer et réclamer",
+    "viewClaims": "Voir les réclamations",
+    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !"
   },
   "trade": {
     "trade": "Échanger",
@@ -2594,6 +2601,43 @@
   },
   "markets": {
     "recommended": "Recommandé",
-    "watchlist": "Mes actifs suivis"
+    "watchlist": "Mes actifs suivis",
+    "marketsBody": "Découvrez les cryptomonnaies les plus intéressantes. Suivez les meilleures performances, les jetons émergents, les opportunités DeFi et bien plus encore. Enregistrez, partagez et échangez vos favoris.",
+    "watchlistEmpty": {
+      "emptyTitle": "Aucun actif dans la liste de suivi",
+      "emptyBody": "Il semble que vous n'ayez pas encore ajouté d'actifs favori. Commencez à ajouter des actifs à votre liste de suivi dès maintenant pour les surveiller !"
+    },
+    "emptyTitle": "Aucun actif trouvé",
+    "emptyBody": "Aucun actif n'a été trouvé avec le filtre actuel. Affichez plus d'éléments en ajustant la chaîne sélectionnée.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Actifs DeFi en un clic",
+        "subtitle": "Découvrez le rendement qui vous convient le mieux ! Passez sans effort entre les pools, les coffres-forts, les options de prêts et les LSD grâce à Portals."
+      },
+      "thorchainDefi": {
+        "title": "DeFi THORChain",
+        "subtitle": "Gagnez un rendement natif sur vos actifs avec les THORCHain Savers."
+      },
+      "trending": {
+        "title": "Tendance",
+        "subtitle": "Les actifs les plus consultés au cours des dernières 24 heures."
+      },
+      "tradingVolume": {
+        "title": "Volume d'échanges",
+        "subtitle": "Principaux actifs avec le volume de transactions le plus élevé au cours des dernières 24 heures."
+      },
+      "marketCap": {
+        "title": "Capitalisation de marché",
+        "subtitle": "Principaux actifs avec la capitalisation de marché la plus élevée au cours des dernières 24 heures."
+      },
+      "topMovers": {
+        "title": "Plus fortes variations",
+        "subtitle": "Principaux actifs qui ont varié de %{percentage}% ou plus."
+      },
+      "recentlyAdded": {
+        "title": "Ajoutés récemment",
+        "subtitle": "Découvrez les lancements récents."
+      }
+    }
   }
 }

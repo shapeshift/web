@@ -3,7 +3,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { FailureModal } from 'context/WalletProvider/components/FailureModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore, staticMipdProviders, useMipdProviders } from 'lib/mipd'
+import { staticMipdProviders, useMipdProviders } from 'lib/mipd'
 
 export const MetaMaskFailure = () => {
   const {

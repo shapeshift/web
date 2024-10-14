@@ -28,7 +28,7 @@ import { RawText, Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { mipdStore, useMipdProviders } from 'lib/mipd'
+import { useMipdProviders } from 'lib/mipd'
 import { selectWalletRdns } from 'state/slices/localWalletSlice/selectors'
 import { useAppSelector } from 'state/store'
 

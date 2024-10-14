@@ -50,8 +50,6 @@ const wallet = createWallet({
   },
 })
 
-console.log({ wallet })
-
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
   const handleError = useCallback(

@@ -126,7 +126,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         }
       case solanaChainId:
         return {
-          assetNamespace: ASSET_NAMESPACE.spl,
+          assetNamespace: ASSET_NAMESPACE.splToken,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: solana.explorer,
           explorerAddressLink: solana.explorerAddressLink,

@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
+import { assertUnreachable } from 'lib/utils'
 
 export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
   const { keyring, modal, modalType } = state
@@ -12,9 +13,19 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
   useEffect(() => {
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
-      switch (e[1].message_type) {
+      const messageType = e[1].message_type as NativeEvents
+      console.log(e)
+      switch (messageType) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
+          console.log('handleEvent', { deviceId })
+
+          // Don't handle events from previously disconnected wallets, unless there isn't a pending
+          // wallet to connect (i.e via "switch wallet")
+          if (deviceId !== state.nativeWalletPendingDeviceId) {
+            break
+          }
+
           dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
 
           break
@@ -25,7 +36,7 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
           break
         default:
           // If there wasn't an enum value, then we'll check the message type
-          break
+          assertUnreachable(messageType)
       }
     }
 
@@ -44,5 +55,5 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
       keyring.off(['Native', '*', NativeEvents.MNEMONIC_REQUIRED], handleEvent)
       keyring.off(['Native', '*', NativeEvents.READY], handleEvent)
     }
-  }, [modalType, dispatch, keyring, modal])
+  }, [modalType, keyring, modal, state.nativeWalletPendingDeviceId, dispatch])
 }

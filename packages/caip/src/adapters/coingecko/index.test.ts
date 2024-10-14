@@ -166,7 +166,7 @@ describe('adapters:coingecko', () => {
       const usdcOnSolana = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Solana,
         chainReference: CHAIN_REFERENCE.SolanaMainnet,
-        assetNamespace: 'spl',
+        assetNamespace: 'token',
         assetReference: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
       })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([

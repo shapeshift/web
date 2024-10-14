@@ -230,7 +230,7 @@ export const RFOXSection = () => {
             <Text fontSize='md' color='text.subtle' mt={2} translation='foxPage.rfox.whatIs' />
           </Box>
 
-          <Card>
+          <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
               <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
 

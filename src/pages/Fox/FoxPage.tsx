@@ -3,6 +3,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
+import { FoxFarming } from './components/FoxFarming'
 import { FoxHeader } from './components/FoxHeader'
 import { FoxToken } from './components/FoxToken'
 import { RFOXSection } from './components/RFOXSection'
@@ -18,6 +19,7 @@ export const FoxPage = () => {
       <Main headerComponent={headerComponent}>
         <FoxToken />
         <RFOXSection />
+        <FoxFarming />
       </Main>
     </FoxPageProvider>
   )

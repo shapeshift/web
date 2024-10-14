@@ -2654,6 +2654,13 @@
       "depositAmount": "Deposit Amount",
       "shapeshiftRevenue": "ShapeShift Revenue",
       "30days": "30 days"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Tired of migrating your FOX from farm to farm? Just stake your Uniswap LP FOX<>WETH and earn FOX in perpetuity.",
+      "totalClaimableRewards": "Total Claimable Rewards",
+      "totalStakingValue": "Total Staking Value",
+      "nextEpoch": "Next Epoch"
     }
   }
 }

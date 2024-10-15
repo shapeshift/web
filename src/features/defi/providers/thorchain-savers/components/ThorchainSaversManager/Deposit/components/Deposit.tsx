@@ -1,9 +1,11 @@
+import type { ResponsiveValue } from '@chakra-ui/react'
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
+import type * as CSS from 'csstype'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -76,6 +78,9 @@ type DepositProps = StepComponentProps & {
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
+const infoAcknowledgementBoxProps = {
+  position: 'static' as ResponsiveValue<CSS.Property.Position>,
+}
 
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
@@ -861,7 +866,7 @@ export const Deposit: React.FC<DepositProps> = ({
       onAcknowledge={handleAcknowledge}
       shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
       setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
-      position='static'
+      boxProps={infoAcknowledgementBoxProps}
     >
       <ReusableDeposit
         accountId={accountId}

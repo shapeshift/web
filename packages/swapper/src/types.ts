@@ -128,7 +128,6 @@ type CommonTradeInput = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sendAddress?: string
-  receiveAddress: string
   receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
@@ -136,10 +135,12 @@ type CommonTradeInput = {
   slippageTolerancePercentageDecimal?: string
 } & (
   | {
+      receiveAddress: string
       accountNumber: number
       isConnected: true
     }
   | {
+      receiveAddress: undefined
       accountNumber: undefined
       isConnected: false
     }
@@ -147,8 +148,18 @@ type CommonTradeInput = {
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmChainId
-  supportsEIP1559: boolean
-}
+} & (
+    | {
+        supportsEIP1559: boolean
+        accountNumber: number
+        isConnected: true
+      }
+    | {
+        supportsEIP1559: false
+        accountNumber: undefined
+        isConnected: false
+      }
+  )
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId

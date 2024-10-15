@@ -20,9 +20,7 @@ export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  receiveAddress: string
   slippageTolerancePercentageDecimal?: string
-  receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
   // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
@@ -34,11 +32,15 @@ export type GetTradeQuoteInputArgs = {
   pubKey?: string | undefined
 } & (
   | {
+      receiveAccountNumber?: number
+      receiveAddress: string
       sellAccountNumber: number
       wallet: HDWallet
       isConnected: true
     }
   | {
+      receiveAccountNumber?: number
+      receiveAddress: undefined
       sellAccountNumber: undefined
       wallet: undefined
       isConnected: false

@@ -9,6 +9,7 @@ import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { LimitOrder } from './components/LimitOrder/LimitOrder'
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
 import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
 import { Claim } from './components/TradeInput/components/Claim/Claim'
@@ -23,6 +24,7 @@ const TradeRouteEntries = [
   TradeRoutePaths.VerifyAddresses,
   TradeRoutePaths.QuoteList,
   TradeRoutePaths.Claim,
+  TradeRoutePaths.LimitOrder,
 ]
 
 export type TradeCardProps = {
@@ -110,6 +112,9 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
         case TradeInputTab.Trade:
           history.push(TradeRoutePaths.Input)
           break
+        case TradeInputTab.LimitOrder:
+          history.push(TradeRoutePaths.LimitOrder)
+          break
         case TradeInputTab.Claim:
           history.push(TradeRoutePaths.Claim)
           break
@@ -145,6 +150,13 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
           </Route>
           <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>
             <Claim onChangeTab={handleChangeTab} />
+          </Route>
+          <Route key={TradeRoutePaths.LimitOrder} path={TradeRoutePaths.LimitOrder}>
+            <LimitOrder
+              isCompact={isCompact}
+              tradeInputRef={tradeInputRef}
+              onChangeTab={handleChangeTab}
+            />
           </Route>
         </Switch>
       </AnimatePresence>

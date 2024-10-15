@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent } from 'react'
-import { TradeInputTab } from 'components/MultiHopTrade/types'
+import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
@@ -27,6 +27,7 @@ type SharedTradeInputProps = {
   sellAsset: Asset
   sideComponent: React.ComponentType<any>
   tradeInputRef: React.RefObject<HTMLDivElement>
+  tradeInputTab: TradeInputTab
   walletReceiveAddress: string | undefined
   handleSwitchAssets: () => void
   onChangeTab: (newTab: TradeInputTab) => void
@@ -51,6 +52,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   manualReceiveAddress,
   sellAsset,
   sideComponent,
+  tradeInputTab,
   tradeInputRef,
   walletReceiveAddress,
   handleSwitchAssets,
@@ -81,7 +83,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
           onSubmit={onSubmit}
         >
           <SharedTradeInputHeader
-            initialTab={TradeInputTab.Trade}
+            initialTab={tradeInputTab}
             rightContent={headerRightContent}
             onChangeTab={onChangeTab}
           />

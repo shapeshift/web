@@ -2664,6 +2664,15 @@
       "totalClaimableRewards": "Total Claimable Rewards",
       "totalStakingValue": "Total Staking Value",
       "nextEpoch": "Next Epoch"
+    },
+    "governance": {
+      "title": "Governance",
+      "description": {
+        "0": "Join us on the forum",
+        "1": "on the forum",
+        "2": "and shape the future of the DAO."
+      },
+      "totalVotingPower": "Total Voting Power"
     }
   }
 }

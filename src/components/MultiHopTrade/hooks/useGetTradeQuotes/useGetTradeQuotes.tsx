@@ -112,7 +112,9 @@ const getMixPanelDataFromApiQuotes = (
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { isConnected, wallet },
+  } = useWallet()
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -173,13 +175,22 @@ export const useGetTradeQuotes = () => {
     () =>
       Boolean(
         hasFocus &&
-          wallet &&
-          sellAccountId &&
-          sellAccountMetadata &&
-          receiveAddress &&
-          !isVotingPowerLoading,
+          ((wallet &&
+            sellAccountId &&
+            sellAccountMetadata &&
+            receiveAddress &&
+            !isVotingPowerLoading) ||
+            !isConnected),
       ),
-    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [
+      hasFocus,
+      wallet,
+      sellAccountId,
+      sellAccountMetadata,
+      receiveAddress,
+      isVotingPowerLoading,
+      isConnected,
+    ],
   )
 
   useEffect(() => {
@@ -196,11 +207,12 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      !wallet ||
-      !sellAccountId ||
-      !sellAccountMetadata ||
-      !receiveAddress ||
-      isVotingPowerLoading
+      (isConnected &&
+        (!wallet ||
+          !sellAccountId ||
+          !sellAccountMetadata ||
+          !receiveAddress ||
+          isVotingPowerLoading))
     ) {
       setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))

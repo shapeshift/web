@@ -28,6 +28,7 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
       <Route {...rest} path='/buy-crypto' />
       <Route {...rest} path='/assets' />
       <Route {...rest} path='/flags' />
+      <Route {...rest} path='/trade' />
       {hasWallet ? <Route {...rest} /> : <Redirect to={to} />}
     </Switch>
   )

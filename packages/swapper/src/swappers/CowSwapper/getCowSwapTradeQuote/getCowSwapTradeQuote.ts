@@ -145,7 +145,8 @@ export async function getCowSwapTradeQuote(
         source: SwapperName.CowSwap,
         buyAsset,
         sellAsset,
-        accountNumber,
+        // TODO(gomes): tackle me
+        accountNumber: accountNumber!,
       },
     ],
   }

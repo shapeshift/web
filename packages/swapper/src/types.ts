@@ -129,13 +129,21 @@ type CommonTradeInput = {
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sendAddress?: string
   receiveAddress: string
-  accountNumber: number
   receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
-}
+} & (
+  | {
+      accountNumber: number
+      isConnected: true
+    }
+  | {
+      accountNumber: undefined
+      isConnected: false
+    }
+)
 
 export type GetEvmTradeQuoteInput = CommonTradeInput & {
   chainId: EvmChainId
@@ -149,9 +157,17 @@ export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
 export type GetUtxoTradeQuoteInput = CommonTradeInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
-  accountNumber: number
   xpub: string
-}
+} & (
+    | {
+        accountNumber: number
+        isConnected: true
+      }
+    | {
+        accountNumber: undefined
+        isConnected: false
+      }
+  )
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput

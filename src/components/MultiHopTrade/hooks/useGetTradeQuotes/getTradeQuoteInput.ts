@@ -20,7 +20,6 @@ export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  sellAccountNumber: number
   wallet: HDWallet
   receiveAddress: string
   slippageTolerancePercentageDecimal?: string
@@ -34,7 +33,16 @@ export type GetTradeQuoteInputArgs = {
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
-}
+} & (
+  | {
+      sellAccountNumber: number
+      isConnected: true
+    }
+  | {
+      sellAccountNumber: undefined
+      isConnected: false
+    }
+)
 
 export const getTradeQuoteInput = async ({
   sellAsset,

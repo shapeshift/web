@@ -182,6 +182,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const tradeQuoteQuery = useQuery({
     queryKey: tradeQuoteQueryKey,
+    // @ts-ignore TODO(gomes): tackle me
     queryFn: isTradeQuoteQueryEnabled(tradeQuoteInputWithWallet)
       ? () => getTradeQuoteWithWallet(tradeQuoteInputWithWallet, swapperDeps)
       : skipToken,

@@ -291,7 +291,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber,
+                  // TODO(gomes): tackle me
+                  accountNumber: accountNumber!,
                   allowanceContract: router,
                   feeData: {
                     networkFeeCryptoBaseUnit,
@@ -399,7 +400,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber,
+                  // TODO(gomes): tackle me
+                  accountNumber: accountNumber!,
                   allowanceContract: '0x0', // not applicable to UTXOs
                   feeData,
                 },
@@ -490,7 +492,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber,
+                  // TODO(gomes): tackle me
+                  accountNumber: accountNumber!,
                   allowanceContract: '0x0', // not applicable to cosmos
                   feeData: {
                     networkFeeCryptoBaseUnit: feeData.fast.txFee,

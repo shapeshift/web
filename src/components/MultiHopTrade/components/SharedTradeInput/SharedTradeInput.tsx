@@ -8,7 +8,6 @@ import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
-import { ConfirmSummary } from '../TradeInput/components/ConfirmSummary'
 import { WithLazyMount } from '../TradeInput/components/WithLazyMount'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
@@ -28,7 +27,7 @@ type SharedTradeInputProps = {
   sideComponent: React.ComponentType<any>
   tradeInputRef: React.RefObject<HTMLDivElement>
   tradeInputTab: TradeInputTab
-  walletReceiveAddress: string | undefined
+  footerContent: JSX.Element
   handleSwitchAssets: () => void
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
@@ -54,7 +53,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   sideComponent,
   tradeInputTab,
   tradeInputRef,
-  walletReceiveAddress,
+  footerContent,
   handleSwitchAssets,
   onChangeTab,
   onSubmit,
@@ -103,11 +102,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             setSellAsset={setSellAsset}
             setSellAssetAccountId={setSellAssetAccountId}
           />
-          <ConfirmSummary
-            isCompact={isCompact}
-            isLoading={isLoading}
-            receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-          />
+          {footerContent}
         </Card>
         <WithLazyMount
           shouldUse={!isCompact && !isSmallerThanXl}

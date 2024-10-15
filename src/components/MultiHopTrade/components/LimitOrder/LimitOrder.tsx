@@ -51,7 +51,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
+  const { manualReceiveAddress } = useReceiveAddress({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
@@ -180,7 +180,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         sideComponent={CollapsibleLimitOrderList}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.LimitOrder}
-        walletReceiveAddress={walletReceiveAddress}
+        footerContent={<></>}
         handleSwitchAssets={handleSwitchAssets}
         onSubmit={handleTradeQuoteConfirm}
         setBuyAsset={setBuyAsset}

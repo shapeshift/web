@@ -47,6 +47,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
+import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
@@ -264,6 +265,16 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  const footerContent = useMemo(() => {
+    return (
+      <ConfirmSummary
+        isCompact={isCompact}
+        isLoading={isLoading}
+        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+      />
+    )
+  }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <ArbitrumBridgeAcknowledgement
@@ -304,7 +315,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
               sideComponent={CollapsibleQuoteList}
               tradeInputRef={tradeInputRef}
               tradeInputTab={TradeInputTab.Trade}
-              walletReceiveAddress={walletReceiveAddress}
               handleSwitchAssets={handleSwitchAssets}
               onSubmit={handleTradeQuoteConfirm}
               setBuyAsset={setBuyAsset}
@@ -312,6 +322,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
               setSellAsset={setSellAsset}
               setSellAssetAccountId={setSellAssetAccountId}
               onChangeTab={onChangeTab}
+              footerContent={footerContent}
             />
           </WarningAcknowledgement>
         </StreamingAcknowledgement>

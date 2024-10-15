@@ -82,7 +82,7 @@ export const FoxGovernance = () => {
                     translation='foxPage.governance.totalVotingPower'
                   />
 
-                  <Skeleton isLoaded={false}>
+                  <Skeleton isLoaded={true}>
                     <Amount.Crypto value={'100'} symbol={'FOX'} />
                   </Skeleton>
                 </Box>

@@ -42,7 +42,7 @@ const walletButtonLeftIcon = (
 )
 
 export const NativeLoad = ({ history }: RouteComponentProps) => {
-  const { getAdapter, dispatch } = useWallet()
+  const { getAdapter, dispatch, state } = useWallet()
   const localWallet = useLocalWallet()
   const [error, setError] = useState<string | null>(null)
   const [wallets, setWallets] = useState<VaultInfo[]>([])
@@ -85,6 +85,14 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         // Remove all provider event listeners from previously connected wallets
         await removeAccountsAndChainListeners()
 
+        // Set a pending device ID so the event handler doesn't redirect the user to password input
+        // for the previous wallet
+        dispatch({
+          type: WalletActions.SET_NATIVE_PENDING_DEVICE_ID,
+          payload: deviceId,
+        })
+        // not calling disconnect from useWallet because we don't want to modify state
+        await state.wallet?.disconnect?.()
         const wallet = await adapter.pairDevice(deviceId)
         if (!(await wallet?.isInitialized())) {
           // This will trigger the password modal and the modal will set the wallet on state
@@ -112,6 +120,8 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
         localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')
+      } finally {
+        dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
       }
     } else {
       setError('walletProvider.shapeShift.load.error.pair')

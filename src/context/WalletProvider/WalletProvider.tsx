@@ -352,8 +352,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const mipdProviders = useMipdProviders()
 
   const maybeMipdProvider = useMemo(() => {
-    return mipdProviders.find(provider => provider.info.rdns === rdns)
-  }, [mipdProviders, rdns])
+    return mipdProviders.find(provider => provider.info.rdns === (state.modalType ?? rdns))
+  }, [mipdProviders, rdns, state.modalType])
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
@@ -562,7 +562,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               // Fixes issue with wallet `type` being null when the wallet is loaded from state
               dispatch({
                 type: WalletActions.SET_CONNECTOR_TYPE,
-                payload: { modalType: rdns, isMipdProvider: true },
+                payload: { modalType: metamaskAdapter.providerRdns, isMipdProvider: true },
               })
             }
 
@@ -779,7 +779,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.adapters, state.keyring, maybeMipdProvider])
+  }, [state.adapters, state.keyring])
 
   const connect = useCallback((type: KeyManager | string, isMipdProvider: boolean) => {
     // TODO(gomes): here we'll probably need to add some isMipdProvider checks too

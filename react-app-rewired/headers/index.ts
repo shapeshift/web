@@ -11,7 +11,7 @@ export { serializeCsp } from './util'
  * the _headers file.
  */
 export const cspHeader: Csp = {
-  'frame-ancestors': ["'none'"],
+  'frame-ancestors': ['https://embedded.passkeys.foundation/'],
   // 'report-uri': ['https://shapeshift.report-uri.com/r/d/csp/wizard'],
 }
 

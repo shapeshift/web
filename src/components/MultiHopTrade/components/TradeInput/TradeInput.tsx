@@ -15,8 +15,7 @@ import {
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import type { TradeInputTab } from 'components/MultiHopTrade/types'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -304,6 +303,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
               sellAsset={sellAsset}
               sideComponent={CollapsibleQuoteList}
               tradeInputRef={tradeInputRef}
+              tradeInputTab={TradeInputTab.Trade}
               walletReceiveAddress={walletReceiveAddress}
               handleSwitchAssets={handleSwitchAssets}
               onSubmit={handleTradeQuoteConfirm}

@@ -20,6 +20,7 @@ export const SharedTradeInputHeader = ({
   const [selectedTab, setSelectedTab] = useState<TradeInputTab>(initialTab)
 
   const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
+  const enableLimitOrders = useFeatureFlag('LimitOrders')
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
@@ -31,6 +32,10 @@ export const SharedTradeInputHeader = ({
 
   const handleClickTrade = useCallback(() => {
     handleChangeTab(TradeInputTab.Trade)
+  }, [handleChangeTab])
+
+  const handleClickLimitOrder = useCallback(() => {
+    handleChangeTab(TradeInputTab.LimitOrder)
   }, [handleChangeTab])
 
   const handleClickClaim = useCallback(() => {
@@ -50,6 +55,17 @@ export const SharedTradeInputHeader = ({
           >
             {translate('navBar.trade')}
           </Heading>
+          {enableLimitOrders && (
+            <Heading
+              as='h5'
+              fontSize='md'
+              color={selectedTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
+              onClick={handleClickLimitOrder}
+              cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
+            >
+              {translate('limitOrder.heading')}
+            </Heading>
+          )}
           {enableBridgeClaims && (
             <Heading
               as='h5'

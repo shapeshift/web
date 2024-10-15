@@ -53,6 +53,8 @@ export const oneInchApi: SwapperApi = {
 
     const { receiveAddress, affiliateBps } = tradeQuote
 
+    if (!receiveAddress) throw new Error('receiveAddress is required for OneInchSwapper quotes')
+
     const {
       tx: { value, to, data },
     } = await fetchOneInchSwap({

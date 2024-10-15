@@ -17,7 +17,7 @@ export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string
+  receiveAddress: T extends 'price' ? string | undefined : string
   affiliateBps: string
   slippageTolerancePercentageDecimal?: string
 }

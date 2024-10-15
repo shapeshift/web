@@ -222,7 +222,7 @@ export type TradeQuoteStep = {
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string
+  receiveAddress: string | undefined
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked

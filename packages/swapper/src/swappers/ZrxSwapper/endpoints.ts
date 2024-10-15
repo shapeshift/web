@@ -42,6 +42,8 @@ export const zrxApi: SwapperApi = {
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
 
+    if (!receiveAddress) throw new Error('receiveAddress is required for ZrxSwapper quotes')
+
     // We need to re-fetch the quote from 0x here because actual quote fetches include validation of
     // approvals, which prevent quotes during trade input from succeeding if the user hasn't already
     // approved the token they are getting a quote for.

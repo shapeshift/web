@@ -5,6 +5,7 @@ export * as ws from './websocket'
 export * as evm from './evm'
 export * as utxo from './utxo'
 export * as cosmossdk from './cosmossdk'
+export * as solana from './solana'
 
 export * as ethereum from './evm/ethereum'
 export * as avalanche from './evm/avalanche'

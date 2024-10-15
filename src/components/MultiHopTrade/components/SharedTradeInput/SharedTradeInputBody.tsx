@@ -8,6 +8,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -22,21 +23,13 @@ import { isToken } from 'lib/utils'
 import {
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
-  selectInputBuyAsset,
-  selectInputSellAsset,
   selectIsAccountMetadataLoadingByAccountId,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import {
-  selectActiveQuote,
-  selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { TradeAssetInput } from '../../TradeAssetInput'
-import { SellAssetInput } from './SellAssetInput'
+import { TradeAssetInput } from '../TradeAssetInput'
+import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 const formControlProps = {
   borderRadius: 0,
@@ -46,57 +39,55 @@ const formControlProps = {
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
-type TradeInputBodyProps = {
+type SharedTradeInputBodyProps = {
+  activeQuote: TradeQuote | undefined
   isLoading: boolean | undefined
   manualReceiveAddress: string | undefined
-  initialSellAssetAccountId: AccountId | undefined
-  initialBuyAssetAccountId: AccountId | undefined
+  sellAssetAccountId: AccountId | undefined
+  buyAssetAccountId: AccountId | undefined
   setSellAssetAccountId: (accountId: AccountId) => void
   setBuyAssetAccountId: (accountId: AccountId) => void
+  buyAmountAfterFeesCryptoPrecision: string | undefined
+  buyAmountAfterFeesUserCurrency: string | undefined
+  buyAsset: Asset
+  sellAsset: Asset
+  setBuyAsset: (asset: Asset) => void
+  setSellAsset: (asset: Asset) => void
+  handleSwitchAssets: () => void
 }
 
-export const TradeInputBody = ({
+export const SharedTradeInputBody = ({
+  buyAmountAfterFeesCryptoPrecision,
+  buyAmountAfterFeesUserCurrency,
+  buyAsset,
+  sellAsset,
   isLoading,
   manualReceiveAddress,
-  initialSellAssetAccountId,
-  initialBuyAssetAccountId,
+  sellAssetAccountId,
+  buyAssetAccountId,
   setSellAssetAccountId,
   setBuyAssetAccountId,
-}: TradeInputBodyProps) => {
+  setBuyAsset,
+  setSellAsset,
+  handleSwitchAssets,
+  activeQuote,
+}: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
-  const dispatch = useAppDispatch()
   const {
     state: { wallet },
   } = useWallet()
 
-  const isAccountMetadataLoadingByAccountId = useAppSelector(
-    selectIsAccountMetadataLoadingByAccountId,
-  )
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAsset = useAppSelector(selectInputSellAsset)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isAccountMetadataLoadingByAccountId = useAppSelector(
+    selectIsAccountMetadataLoadingByAccountId,
+  )
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const buyAssetSearch = useModal('buyTradeAssetSearch')
   const sellAssetSearch = useModal('sellTradeAssetSearch')
-
-  const setBuyAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
-    [dispatch],
-  )
-  const setSellAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset)),
-    [dispatch],
-  )
-  const handleSwitchAssets = useCallback(
-    () => dispatch(tradeInput.actions.switchAssets()),
-    [dispatch],
-  )
 
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
@@ -104,7 +95,7 @@ export const TradeInputBody = ({
 
     return [1]
   }, [sellAsset.assetId])
-  const activeQuote = useAppSelector(selectActiveQuote)
+
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
 
@@ -174,7 +165,7 @@ export const TradeInputBody = ({
   return (
     <Stack spacing={0}>
       <SellAssetInput
-        accountId={initialSellAssetAccountId}
+        accountId={sellAssetAccountId}
         asset={sellAsset}
         label={translate('trade.payWith')}
         onAccountIdChange={setSellAssetAccountId}
@@ -219,7 +210,7 @@ export const TradeInputBody = ({
         // Disable account selection when user set a manual receive address
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
         isReadOnly={true}
-        accountId={initialBuyAssetAccountId}
+        accountId={buyAssetAccountId}
         assetId={buyAsset.assetId}
         assetSymbol={buyAsset.symbol}
         assetIcon={buyAsset.icon}

@@ -14,7 +14,6 @@ import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { KeepKeyConfig } from '../config'
@@ -59,9 +58,6 @@ export const KeepKeyConnect = () => {
 
     const wallet = await (async () => {
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         const sdk = await setupKeepKeySDK()
 
         // There is no need to instantiate KkRestAdapter and attempt pairing if SDK is undefined
@@ -113,11 +109,14 @@ export const KeepKeyConnect = () => {
           connectedType: KeyManager.KeepKey,
         },
       })
-      dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-      localWallet.setLocalWalletTypeAndDeviceId(
-        KeyManager.KeepKey,
-        state.keyring.getAlias(deviceId),
-      )
+      dispatch({
+        type: WalletActions.SET_IS_CONNECTED,
+        payload: true,
+      })
+      localWallet.setLocalWallet({
+        type: KeyManager.KeepKey,
+        deviceId: state.keyring.getAlias(deviceId),
+      })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {
       console.error(e)

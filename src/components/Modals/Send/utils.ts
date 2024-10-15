@@ -7,7 +7,6 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import {
   checkIsMetaMaskDesktop,
-  checkIsMetaMaskImpersonator,
   checkIsSnapInstalled,
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -104,15 +103,12 @@ export const handleSend = async ({
 
   const acccountMetadataFilter = { accountId: sendInput.accountId }
   const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, acccountMetadataFilter)
-  const isMetaMaskDesktop = await checkIsMetaMaskDesktop(wallet)
-  const isMetaMaskImpersonator = await checkIsMetaMaskImpersonator(wallet)
+  const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
-    // MM impersonators don't support Cosmos SDK chains
-    (!isMetaMaskDesktop ||
-      isMetaMaskImpersonator ||
-      (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+    // MM only supports snap things... if the snap is installed
+    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }

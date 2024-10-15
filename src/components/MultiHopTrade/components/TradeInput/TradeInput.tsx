@@ -46,6 +46,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
@@ -261,6 +262,42 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  const bodyContent = useMemo(() => {
+    return (
+      <SharedTradeInputBody
+        activeQuote={activeQuote}
+        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+        buyAsset={buyAsset}
+        buyAssetAccountId={buyAssetAccountId}
+        sellAssetAccountId={sellAssetAccountId}
+        isLoading={isLoading}
+        manualReceiveAddress={manualReceiveAddress}
+        sellAsset={sellAsset}
+        handleSwitchAssets={handleSwitchAssets}
+        setBuyAsset={setBuyAsset}
+        setBuyAssetAccountId={setBuyAssetAccountId}
+        setSellAsset={setSellAsset}
+        setSellAssetAccountId={setSellAssetAccountId}
+      />
+    )
+  }, [
+    activeQuote,
+    buyAmountAfterFeesCryptoPrecision,
+    buyAmountAfterFeesUserCurrency,
+    buyAsset,
+    buyAssetAccountId,
+    handleSwitchAssets,
+    isLoading,
+    manualReceiveAddress,
+    sellAsset,
+    sellAssetAccountId,
+    setBuyAsset,
+    setBuyAssetAccountId,
+    setSellAsset,
+    setSellAssetAccountId,
+  ])
+
   const footerContent = useMemo(() => {
     return (
       <ConfirmSummary
@@ -298,29 +335,17 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <SharedTradeInput
-        activeQuote={activeQuote}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-        buyAsset={buyAsset}
+        bodyContent={bodyContent}
+        footerContent={footerContent}
         hasUserEnteredAmount={hasUserEnteredAmount}
         headerRightContent={headerRightContent}
-        buyAssetAccountId={buyAssetAccountId}
-        sellAssetAccountId={sellAssetAccountId}
         isCompact={isCompact}
         isLoading={isLoading}
-        manualReceiveAddress={manualReceiveAddress}
-        sellAsset={sellAsset}
         sideComponent={CollapsibleQuoteList}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.Trade}
-        handleSwitchAssets={handleSwitchAssets}
         onSubmit={handleTradeQuoteConfirm}
-        setBuyAsset={setBuyAsset}
-        setBuyAssetAccountId={setBuyAssetAccountId}
-        setSellAsset={setSellAsset}
-        setSellAssetAccountId={setSellAssetAccountId}
         onChangeTab={onChangeTab}
-        footerContent={footerContent}
       />
     </MessageOverlay>
   )

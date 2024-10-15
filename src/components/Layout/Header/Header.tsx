@@ -248,6 +248,7 @@ export const Header = memo(() => {
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
               <Notifications />
+              {/* eslint-disable-next-line react-memo/require-usememo */}
               <WalletWidget theme={{ variant: 'dark' }} shape='squared' style={{ zIndex: 9999 }} />
               {isLargerThanMd && (
                 <Box display={displayProp2}>

@@ -49,6 +49,7 @@
     "overview": "Genel Bakış",
     "getStarted": "Başlayın",
     "connectWallet": "Cüzdan Bağla",
+    "connectWalletToGetStartedWith": "%{feature} ile başlamak için bir cüzdan bağlayın",
     "connectedWallet": "Cüzdan Bağlandı",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
@@ -156,6 +157,7 @@
     "asymmetric": "Asimetrik (%{assetSymbol})",
     "import": "İçe aktar",
     "accountsLoading": "Hesaplar Yükleniyor",
+    "noAccounts": "Seçilen filtrelere ait hesap bulunamadı.",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -441,7 +443,9 @@
         "cannotDepositWhilePendingTx": "Tx'ler beklemedeyken para yatırılamaz",
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
         "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün.",
-        "agreeRunePool": {}
+        "agreeRunePool": {
+          "1": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum."
+        }
       }
     },
     "memoNote": {
@@ -615,6 +619,7 @@
     "lending": "Borç Verme",
     "pools": "Havuzlar",
     "rFOX": "rFOX",
+    "foxBenefits": "FOX Avantajları",
     "markets": "Piyasalar",
     "actionMenu": {
       "send": {
@@ -799,7 +804,9 @@
     "pendingClaims": "Bekleyen",
     "noPendingClaims": "Bekleyen hiçbir talep yok",
     "availableIn": "%{time} içinde mevcut",
-    "confirmAndClaim": "Onayla ve Talep Et"
+    "confirmAndClaim": "Onayla ve Talep Et",
+    "viewClaims": "Talepleri Görüntüle",
+    "availableClaimsNotification": "Köprü talepleriniz hazır!"
   },
   "trade": {
     "trade": "Takas",
@@ -2594,6 +2601,43 @@
   },
   "markets": {
     "recommended": "Önerilen",
-    "watchlist": "İzleme Listem"
+    "watchlist": "İzleme Listem",
+    "marketsBody": "En heyecan verici kripto paraları keşfedin. En çok hareket edenleri, yükselen token'ları, DeFi fırsatlarını ve çok daha fazlasını takip edin. Favorilerinizi kaydedin, paylaşın ve ticaretini yapın.",
+    "watchlistEmpty": {
+      "emptyTitle": "İzleme Listesinde varlık yok",
+      "emptyBody": "Görünüşe göre henüz hiçbir varlığı yıldızlamadınız. Varlıkları takip etmek için onları şimdi izleme listenize eklemeye başlayın!"
+    },
+    "emptyTitle": "Hiçbir varlık bulunamadı",
+    "emptyBody": "Mevcut filtreyle hiçbir varlık bulunamadı. Seçilen zinciri ayarlayarak daha fazla varlık görün.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Tek Tıkla DeFi Varlıkları",
+        "subtitle": "Size en uygun getiriyi keşfedin! Portallar ile Havuzlar, Kasalar, borç verme seçenekleri ve LSD'ler arasında zahmetsizce geçiş yapın."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "THORCHain Savers ile varlıklarınızdan yerel getiri elde edin."
+      },
+      "trending": {
+        "title": "Trendler",
+        "subtitle": "Son 24 saatte en çok görüntülenen varlıklar."
+      },
+      "tradingVolume": {
+        "title": "Ticaret Hacmi",
+        "subtitle": "Son 24 saatte en yüksek işlem hacmine sahip varlıklar."
+      },
+      "marketCap": {
+        "title": "Piyasa Değeri",
+        "subtitle": "Son 24 saatte en yüksek piyasa değerine sahip en önemli varlıklar."
+      },
+      "topMovers": {
+        "title": "En Çok Hareket Edenler",
+        "subtitle": "%{percentage}% veya daha fazla artış gösteren en iyi varlıklar."
+      },
+      "recentlyAdded": {
+        "title": "Son Eklenenler",
+        "subtitle": "Son lansmanları keşfedin."
+      }
+    }
   }
 }

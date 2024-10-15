@@ -125,6 +125,7 @@ export const mockStore: ReduxState = {
       FoxPageRFOX: false,
       FoxPageFoxSection: false,
       FoxPageFoxFarmingSection: false,
+      LimitOrders: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

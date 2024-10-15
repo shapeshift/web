@@ -79,12 +79,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
-  const {
-    sellAssetAccountId: initialSellAssetAccountId,
-    buyAssetAccountId: initialBuyAssetAccountId,
-    setSellAssetAccountId,
-    setBuyAssetAccountId,
-  } = useAccountIds()
+  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
+    useAccountIds()
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -300,8 +296,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
               buyAsset={buyAsset}
               hasUserEnteredAmount={hasUserEnteredAmount}
               headerRightContent={headerRightContent}
-              initialBuyAssetAccountId={initialBuyAssetAccountId}
-              initialSellAssetAccountId={initialSellAssetAccountId}
+              buyAssetAccountId={buyAssetAccountId}
+              sellAssetAccountId={sellAssetAccountId}
               isCompact={isCompact}
               isLoading={isLoading}
               manualReceiveAddress={manualReceiveAddress}

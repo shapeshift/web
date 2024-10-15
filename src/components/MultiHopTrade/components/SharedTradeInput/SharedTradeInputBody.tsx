@@ -43,8 +43,8 @@ type SharedTradeInputBodyProps = {
   activeQuote: TradeQuote | undefined
   isLoading: boolean | undefined
   manualReceiveAddress: string | undefined
-  initialSellAssetAccountId: AccountId | undefined
-  initialBuyAssetAccountId: AccountId | undefined
+  sellAssetAccountId: AccountId | undefined
+  buyAssetAccountId: AccountId | undefined
   setSellAssetAccountId: (accountId: AccountId) => void
   setBuyAssetAccountId: (accountId: AccountId) => void
   buyAmountAfterFeesCryptoPrecision: string | undefined
@@ -63,8 +63,8 @@ export const SharedTradeInputBody = ({
   sellAsset,
   isLoading,
   manualReceiveAddress,
-  initialSellAssetAccountId,
-  initialBuyAssetAccountId,
+  sellAssetAccountId,
+  buyAssetAccountId,
   setSellAssetAccountId,
   setBuyAssetAccountId,
   setBuyAsset,
@@ -165,7 +165,7 @@ export const SharedTradeInputBody = ({
   return (
     <Stack spacing={0}>
       <SellAssetInput
-        accountId={initialSellAssetAccountId}
+        accountId={sellAssetAccountId}
         asset={sellAsset}
         label={translate('trade.payWith')}
         onAccountIdChange={setSellAssetAccountId}
@@ -210,7 +210,7 @@ export const SharedTradeInputBody = ({
         // Disable account selection when user set a manual receive address
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
         isReadOnly={true}
-        accountId={initialBuyAssetAccountId}
+        accountId={buyAssetAccountId}
         assetId={buyAsset.assetId}
         assetSymbol={buyAsset.symbol}
         assetIcon={buyAsset.icon}

@@ -19,8 +19,8 @@ type SharedTradeInputProps = {
   buyAsset: Asset
   hasUserEnteredAmount: boolean
   headerRightContent: JSX.Element
-  initialBuyAssetAccountId: AccountId | undefined
-  initialSellAssetAccountId: AccountId | undefined
+  buyAssetAccountId: AccountId | undefined
+  sellAssetAccountId: AccountId | undefined
   isCompact: boolean | undefined
   isLoading: boolean
   manualReceiveAddress: string | undefined
@@ -44,8 +44,8 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   buyAsset,
   hasUserEnteredAmount,
   headerRightContent,
-  initialBuyAssetAccountId,
-  initialSellAssetAccountId,
+  buyAssetAccountId,
+  sellAssetAccountId,
   isCompact,
   isLoading,
   manualReceiveAddress,
@@ -90,8 +90,8 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
             buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
             buyAsset={buyAsset}
-            initialBuyAssetAccountId={initialBuyAssetAccountId}
-            initialSellAssetAccountId={initialSellAssetAccountId}
+            buyAssetAccountId={buyAssetAccountId}
+            sellAssetAccountId={sellAssetAccountId}
             isLoading={isLoading}
             manualReceiveAddress={manualReceiveAddress}
             sellAsset={sellAsset}

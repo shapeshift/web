@@ -9,7 +9,7 @@ export type LocalWalletState = {
   rdns: string | null
 }
 
-const initialState: LocalWalletState = {
+export const initialState: LocalWalletState = {
   walletType: null,
   walletDeviceId: null,
   nativeWalletName: null,

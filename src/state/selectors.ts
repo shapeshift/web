@@ -15,6 +15,7 @@ import type {
   DefiProvider,
   DefiType,
   LpId,
+  OpportunityId,
   StakingId,
   UserStakingId,
   ValidatorId,
@@ -57,6 +58,7 @@ type ParamFilter = Partial<{
   parser: TxMetadata['parser']
   hopIndex: number
   tradeId: TradeQuote['id']
+  opportunityId: OpportunityId
 }>
 
 type ParamFilterKey = keyof ParamFilter
@@ -86,6 +88,7 @@ export const selectAssetIdParamFromFilter = selectParamFromFilter('assetId')
 export const selectChainIdParamFromFilter = selectParamFromFilter('chainId')
 export const selectUserStakingIdParamFromFilter = selectParamFromFilter('userStakingId')
 export const selectStakingIdParamFromFilter = selectParamFromFilter('stakingId')
+export const selectOpportunityIdParamFromFilter = selectParamFromFilter('opportunityId')
 export const selectLpIdParamFromFilter = selectParamFromFilter('lpId')
 export const selectValidatorIdParamFromFilter = selectParamFromFilter('validatorId')
 export const selectDefiProviderParamFromFilter = selectParamFromFilter('defiProvider')

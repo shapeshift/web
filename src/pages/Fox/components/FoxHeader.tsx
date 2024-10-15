@@ -1,6 +1,6 @@
 import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
@@ -30,6 +30,14 @@ export const FoxHeader = () => {
   const handleBack = useCallback(() => {
     history.push('/explore')
   }, [history])
+
+  // @TODO: this doesn't work
+  useEffect(() => {
+    if (!accountIds.length) setAssetAccountId(undefined)
+    if (accountIds.length === 1) {
+      setAssetAccountId(accountIds[0])
+    }
+  }, [accountIds, setAssetAccountId])
 
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null

@@ -19,7 +19,7 @@ import {
   fromAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -38,12 +38,13 @@ import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuer
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from 'pages/RFOX/types'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { RFOXSimulator } from './RFOXSimulator'
@@ -83,8 +84,13 @@ export const RFOXSection = () => {
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const { assetAccountNumber } = useFoxPageContext()
   const stakingAssetId = foxOnArbitrumOneAssetId
+  const appDispatch = useAppDispatch()
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  useEffect(() => {
+    appDispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
+  }, [appDispatch, stakingAssetId])
 
   const {
     data: apy,

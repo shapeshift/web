@@ -21,6 +21,7 @@
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
+    "@solana/web3.js": "^1.95.3",
     "bech32": "^2.0.0",
     "coinselect": "^3.1.13",
     "multicoin-address-validator": "^0.5.12",

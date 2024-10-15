@@ -350,9 +350,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   } = useLocalWallet()
 
   const mipdProviders = useMipdProviders()
-  const maybeMipdProvider = mipdProviders.find(
-    provider => provider.info.rdns === (state.modalType ?? rdns),
-  )
+
+  const maybeMipdProvider = useMemo(() => {
+    return mipdProviders.find(provider => provider.info.rdns === rdns)
+  }, [mipdProviders, rdns])
 
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
@@ -778,7 +779,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
       })()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.adapters, state.keyring])
+  }, [state.adapters, state.keyring, maybeMipdProvider])
 
   const connect = useCallback((type: KeyManager | string, isMipdProvider: boolean) => {
     // TODO(gomes): here we'll probably need to add some isMipdProvider checks too

@@ -254,7 +254,7 @@ export const ConfirmSummary = ({
   ])
 
   const isLoading = useMemo(() => {
-    return isParentLoading || !isReceiveAddressByteCodeLoading
+    return isParentLoading || isReceiveAddressByteCodeLoading
   }, [isReceiveAddressByteCodeLoading, isParentLoading])
 
   return (

@@ -25,22 +25,22 @@ import { breakpoints } from 'theme/theme'
 import { ManualAddressEntry } from '../TradeInput/components/ManualAddressEntry'
 
 type SharedTradeInputFooterProps = {
-  isCompact: boolean | undefined
-  isLoading: boolean
-  receiveAddress: string | undefined
   affiliateBps: string | undefined
   affiliateFeeAfterDiscountUserCurrency: string | undefined
   buyAmountAfterFeesCryptoPrecision: string | undefined
-  intermediaryTransactionOutputs: AmountDisplayMeta[] | undefined
   buyAsset: Asset
-  children: JSX.Element
+  children?: JSX.Element
   hasUserEnteredAmount: boolean
   inputAmountUsd: string | undefined
+  intermediaryTransactionOutputs: AmountDisplayMeta[] | undefined
+  isCompact: boolean | undefined
   isError: boolean
+  isLoading: boolean
   manualAddressEntryDescription: string | undefined
   priceImpactPercentage: BigNumber | undefined
   quoteStatusTranslation: string | [string, InterpolationOptions]
   rate: string | undefined
+  receiveAddress: string | undefined
   recipientAddressDescription: string | undefined
   sellAsset: Asset
   sellAssetAccountId: string | undefined
@@ -58,16 +58,15 @@ export const SharedTradeInputFooter = ({
   affiliateBps,
   affiliateFeeAfterDiscountUserCurrency,
   buyAmountAfterFeesCryptoPrecision,
-  intermediaryTransactionOutputs,
   buyAsset,
   children,
   hasUserEnteredAmount,
   inputAmountUsd,
+  intermediaryTransactionOutputs,
   isCompact,
   isError,
   isLoading: isParentLoading,
   manualAddressEntryDescription,
-  onRateClick,
   priceImpactPercentage,
   quoteStatusTranslation,
   rate,
@@ -82,6 +81,7 @@ export const SharedTradeInputFooter = ({
   swapSource,
   totalNetworkFeeFiatPrecision,
   totalProtocolFees,
+  onRateClick,
 }: SharedTradeInputFooterProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {

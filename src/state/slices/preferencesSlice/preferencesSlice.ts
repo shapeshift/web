@@ -67,6 +67,7 @@ export type FeatureFlags = {
   FoxPage: boolean
   FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
+  LimitOrders: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -159,6 +160,7 @@ const initialState: Preferences = {
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
     FoxPageRFOX: getConfig().REACT_APP_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
+    LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

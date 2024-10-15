@@ -987,6 +987,9 @@
       "slippage": "Slippage: %{slippageFormatted}"
     }
   },
+  "limitOrder": {
+    "heading": "Limit Order"
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "My Assets",

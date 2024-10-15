@@ -27,6 +27,7 @@ import { useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const acknowledgementBoxProps = {
@@ -156,6 +157,47 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     [handleFormSubmit],
   )
 
+  const bodyContent = useMemo(() => {
+    return (
+      <SharedTradeInputBody
+        activeQuote={activeQuote}
+        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+        buyAsset={buyAsset}
+        buyAssetAccountId={buyAssetAccountId}
+        sellAssetAccountId={sellAssetAccountId}
+        isLoading={isLoading}
+        manualReceiveAddress={manualReceiveAddress}
+        sellAsset={sellAsset}
+        handleSwitchAssets={handleSwitchAssets}
+        setBuyAsset={setBuyAsset}
+        setBuyAssetAccountId={setBuyAssetAccountId}
+        setSellAsset={setSellAsset}
+        setSellAssetAccountId={setSellAssetAccountId}
+      />
+    )
+  }, [
+    activeQuote,
+    buyAmountAfterFeesCryptoPrecision,
+    buyAmountAfterFeesUserCurrency,
+    buyAsset,
+    buyAssetAccountId,
+    handleSwitchAssets,
+    isLoading,
+    manualReceiveAddress,
+    sellAsset,
+    sellAssetAccountId,
+    setBuyAsset,
+    setBuyAssetAccountId,
+    setSellAsset,
+    setSellAssetAccountId,
+  ])
+
+  const footerContent = useMemo(() => {
+    // TODO: Implement me using SharedTradeInputFooter
+    return <></>
+  }, [])
+
   return (
     <WarningAcknowledgement
       message={warningAcknowledgementMessage}
@@ -165,28 +207,16 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
       boxProps={acknowledgementBoxProps}
     >
       <SharedTradeInput
-        activeQuote={activeQuote}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-        buyAsset={buyAsset}
+        bodyContent={bodyContent}
+        footerContent={footerContent}
         hasUserEnteredAmount={hasUserEnteredAmount}
         headerRightContent={headerRightContent}
-        buyAssetAccountId={buyAssetAccountId}
-        sellAssetAccountId={sellAssetAccountId}
         isCompact={isCompact}
         isLoading={isLoading}
-        manualReceiveAddress={manualReceiveAddress}
-        sellAsset={sellAsset}
         sideComponent={CollapsibleLimitOrderList}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.LimitOrder}
-        footerContent={<></>}
-        handleSwitchAssets={handleSwitchAssets}
         onSubmit={handleTradeQuoteConfirm}
-        setBuyAsset={setBuyAsset}
-        setBuyAssetAccountId={setBuyAssetAccountId}
-        setSellAsset={setSellAsset}
-        setSellAssetAccountId={setSellAssetAccountId}
         onChangeTab={onChangeTab}
       />
     </WarningAcknowledgement>

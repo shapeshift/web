@@ -49,6 +49,8 @@ export async function getTradeQuote(
 
   const buyTokenPercentageFee = convertBasisPointsToPercentage(affiliateBps).toNumber()
 
+  if (!receiveAddress) throw new Error('receiveAddress is required')
+
   const params: OneInchQuoteApiInput = {
     fromTokenAddress: getOneInchTokenAddress(sellAsset),
     toTokenAddress: getOneInchTokenAddress(buyAsset),

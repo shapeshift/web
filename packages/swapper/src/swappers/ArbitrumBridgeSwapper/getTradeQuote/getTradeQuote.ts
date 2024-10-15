@@ -45,6 +45,7 @@ export const getTradeQuoteWithWallet = async (
       buyAsset: input.buyAsset,
       // This is a quote with wallet, so isConnected is always true
       accountNumber: input.accountNumber!,
+      receiveAddress: input.receiveAddress!,
       isConnected: true,
       supportsEIP1559,
     },

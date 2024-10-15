@@ -19,7 +19,7 @@ export type FetchArbitrumBridgeSwapInput = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: string
+  receiveAddress: string | undefined
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
   sendAddress: string
@@ -72,7 +72,7 @@ export const fetchArbitrumBridgeSwap = async ({
         childProvider,
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
+        destinationAddress: receiveAddress ?? '',
       })
 
       const { networkFeeCryptoBaseUnit } = await evm.getFees({
@@ -92,7 +92,7 @@ export const fetchArbitrumBridgeSwap = async ({
       const request = await bridger.getWithdrawalRequest({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
+        destinationAddress: receiveAddress ?? '',
       })
 
       const { networkFeeCryptoBaseUnit } = await evm.getFees({
@@ -172,7 +172,7 @@ export const fetchArbitrumBridgeSwap = async ({
         amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         erc20ParentAddress,
         from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
+        destinationAddress: receiveAddress ?? '',
       })
 
       const { networkFeeCryptoBaseUnit } = await evm.getFees({

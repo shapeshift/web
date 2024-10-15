@@ -36,6 +36,7 @@ import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useMemo } from 'react'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { METAMASK_RDNS } from 'lib/mipd'
 import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
@@ -64,7 +65,14 @@ export const walletSupportsChain = ({
   // e.g MM without snaps installed
   const hasRuntimeSupport = (() => {
     // Non-EVM ChainIds are only supported with the MM multichain snap installed
-    if (isMetaMask(wallet) && !isSnapInstalled && !isEvmChainId(chainId)) return false
+    if (
+      isMetaMask(wallet) &&
+      // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
+      // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
+      (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
+      !isEvmChainId(chainId)
+    )
+      return false
 
     // We are now sure we have runtime support for the chain.
     // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or

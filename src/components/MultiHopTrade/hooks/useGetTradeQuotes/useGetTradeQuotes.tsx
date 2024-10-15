@@ -219,7 +219,7 @@ export const useGetTradeQuotes = () => {
       return
     }
     ;(async () => {
-      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+      const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
       const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
@@ -238,7 +238,7 @@ export const useGetTradeQuotes = () => {
         sellAsset,
         sellAccountNumber,
         receiveAccountNumber,
-        sellAccountType: sellAccountMetadata.accountType,
+        sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet,
         receiveAddress,
@@ -248,7 +248,10 @@ export const useGetTradeQuotes = () => {
         potentialAffiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+        pubKey:
+          wallet && isLedger(wallet) && sellAccountId
+            ? fromAccountId(sellAccountId).account
+            : undefined,
       })
 
       setTradeQuoteInput(updatedTradeQuoteInput)
@@ -268,6 +271,7 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
+    isConnected,
   ])
 
   const getTradeQuoteArgs = useCallback(

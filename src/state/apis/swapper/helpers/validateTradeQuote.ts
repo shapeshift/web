@@ -41,6 +41,7 @@ export const validateTradeQuote = (
     isTradingActiveOnBuyPool,
     sendAddress,
     inputSellAmountCryptoBaseUnit,
+    isConnected,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
@@ -51,6 +52,7 @@ export const validateTradeQuote = (
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
+    isConnected: boolean
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -108,8 +110,8 @@ export const validateTradeQuote = (
     return { errors: [tradeQuoteError], warnings: [] }
   }
 
-  // This should really never happen but in case it does:
-  if (!sendAddress) throw new Error('sendAddress is required')
+  // This should really never happen in case the wallet *is* connected but in case it does:
+  if (isConnected && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!

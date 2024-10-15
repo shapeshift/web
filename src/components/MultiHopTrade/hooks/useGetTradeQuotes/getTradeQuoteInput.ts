@@ -20,7 +20,6 @@ export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  wallet: HDWallet
   receiveAddress: string
   slippageTolerancePercentageDecimal?: string
   receiveAccountNumber?: number
@@ -36,10 +35,12 @@ export type GetTradeQuoteInputArgs = {
 } & (
   | {
       sellAccountNumber: number
+      wallet: HDWallet
       isConnected: true
     }
   | {
       sellAccountNumber: undefined
+      wallet: undefined
       isConnected: false
     }
 )
@@ -50,6 +51,7 @@ export const getTradeQuoteInput = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
+  isConnected,
   receiveAddress,
   receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
@@ -78,16 +80,19 @@ export const getTradeQuoteInput = async ({
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+      const supportsEIP1559 = wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
-      const sendAddress = await sellAssetChainAdapter.getAddress({
-        accountNumber: sellAccountNumber,
-        wallet,
-        pubKey,
-      })
+      const sendAddress = wallet
+        ? await sellAssetChainAdapter.getAddress({
+            accountNumber: sellAccountNumber,
+            wallet,
+            pubKey,
+          })
+        : undefined
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as EvmChainId,
+        isConnected,
         supportsEIP1559,
         sendAddress,
         receiveAccountNumber,
@@ -96,13 +101,16 @@ export const getTradeQuoteInput = async ({
 
     case CHAIN_NAMESPACE.CosmosSdk: {
       const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
-      const sendAddress = await sellAssetChainAdapter.getAddress({
-        accountNumber: sellAccountNumber,
-        wallet,
-        pubKey,
-      })
+      const sendAddress = wallet
+        ? await sellAssetChainAdapter.getAddress({
+            accountNumber: sellAccountNumber,
+            wallet,
+            pubKey,
+          })
+        : undefined
       return {
         ...tradeQuoteInputCommonArgs,
+        isConnected,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
         receiveAccountNumber,
@@ -110,6 +118,13 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
+      if (!wallet || !isConnected)
+        return {
+          ...tradeQuoteInputCommonArgs,
+          chainId: sellAsset.chainId as UtxoChainId,
+          accountType: sellAccountType,
+        }
+
       if (!sellAccountType) {
         throw Error('missing account type')
       }

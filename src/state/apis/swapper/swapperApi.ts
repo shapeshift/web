@@ -187,6 +187,7 @@ export const swapperApi = createApi({
               isTradingActiveOnBuyPool,
               sendAddress,
               inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              isConnected: tradeQuoteInput.isConnected,
             })
             return {
               id: quoteSource,

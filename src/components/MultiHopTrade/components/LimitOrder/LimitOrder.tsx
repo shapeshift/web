@@ -1,5 +1,7 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { noop } from 'lodash'
 import type { FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -28,6 +30,7 @@ import { useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
+import { SharedTradeInputFooter } from '../SharedTradeInput/SharedTradeInputFooter'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -48,7 +51,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
-  const { manualReceiveAddress } = useReceiveAddress({
+  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
@@ -190,9 +193,48 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   ])
 
   const footerContent = useMemo(() => {
-    // TODO: Implement me using SharedTradeInputFooter
-    return <></>
-  }, [])
+    return (
+      <SharedTradeInputFooter
+        isCompact={isCompact}
+        isLoading={isLoading}
+        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+        inputAmountUsd={'12.34'}
+        affiliateBps={'300'}
+        affiliateFeeAfterDiscountUserCurrency={'0.01'}
+        quoteStatusTranslation={'trade.previewTrade'}
+        manualAddressEntryDescription={undefined}
+        onRateClick={noop}
+        shouldDisablePreviewButton={false}
+        isError={false}
+        shouldForceManualAddressEntry={false}
+        recipientAddressDescription={undefined}
+        priceImpactPercentage={undefined}
+        swapSource={SwapperName.CowSwap}
+        rate={activeQuote?.rate}
+        swapperName={SwapperName.CowSwap}
+        slippageDecimal={'0.01'}
+        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+        intermediaryTransactionOutputs={undefined}
+        buyAsset={buyAsset}
+        hasUserEnteredAmount={hasUserEnteredAmount}
+        totalProtocolFees={undefined}
+        sellAsset={sellAsset}
+        sellAssetAccountId={sellAssetAccountId}
+        totalNetworkFeeFiatPrecision={'1.1234'}
+      />
+    )
+  }, [
+    activeQuote?.rate,
+    buyAmountAfterFeesCryptoPrecision,
+    buyAsset,
+    hasUserEnteredAmount,
+    isCompact,
+    isLoading,
+    manualReceiveAddress,
+    sellAsset,
+    sellAssetAccountId,
+    walletReceiveAddress,
+  ])
 
   return (
     <>

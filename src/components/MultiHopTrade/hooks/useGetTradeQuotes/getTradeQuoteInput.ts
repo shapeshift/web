@@ -2,13 +2,8 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import type {
-  Asset,
-  CosmosSdkChainId,
-  EvmChainId,
-  UtxoAccountType,
-  UtxoChainId,
-} from '@shapeshiftoss/types'
+import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
@@ -39,7 +34,7 @@ export type GetTradeQuoteInputArgs = {
       isConnected: true
     }
   | {
-      receiveAccountNumber?: number
+      receiveAccountNumber?: undefined
       receiveAddress: undefined
       sellAccountNumber: undefined
       wallet: undefined
@@ -82,7 +77,8 @@ export const getTradeQuoteInput = async ({
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const supportsEIP1559 = wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+      const supportsEIP1559 =
+        wallet && isConnected && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress = wallet
         ? await sellAssetChainAdapter.getAddress({
@@ -91,14 +87,27 @@ export const getTradeQuoteInput = async ({
             pubKey,
           })
         : undefined
-      return {
-        ...tradeQuoteInputCommonArgs,
-        chainId: sellAsset.chainId as EvmChainId,
-        isConnected,
-        supportsEIP1559: isConnected ? supportsEIP1559! : undefined,
-        sendAddress,
-        receiveAccountNumber,
-      }
+      return isConnected
+        ? {
+            ...tradeQuoteInputCommonArgs,
+            chainId: sellAsset.chainId as EvmChainId,
+            isConnected,
+            supportsEIP1559: supportsEIP1559!,
+            receiveAddress,
+            accountNumber: sellAccountNumber,
+            sendAddress,
+            receiveAccountNumber,
+          }
+        : {
+            ...tradeQuoteInputCommonArgs,
+            chainId: sellAsset.chainId as EvmChainId,
+            isConnected,
+            supportsEIP1559: undefined,
+            receiveAddress: undefined,
+            accountNumber: undefined,
+            sendAddress,
+            receiveAccountNumber,
+          }
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
@@ -110,13 +119,25 @@ export const getTradeQuoteInput = async ({
             pubKey,
           })
         : undefined
-      return {
-        ...tradeQuoteInputCommonArgs,
-        isConnected,
-        chainId: sellAsset.chainId as CosmosSdkChainId,
-        sendAddress,
-        receiveAccountNumber,
-      }
+      return isConnected
+        ? {
+            ...tradeQuoteInputCommonArgs,
+            isConnected,
+            receiveAddress,
+            accountNumber: sellAccountNumber,
+            chainId: sellAsset.chainId as CosmosSdkChainId,
+            sendAddress,
+            receiveAccountNumber,
+          }
+        : {
+            ...tradeQuoteInputCommonArgs,
+            isConnected,
+            receiveAddress: undefined,
+            accountNumber: undefined,
+            chainId: sellAsset.chainId as CosmosSdkChainId,
+            sendAddress,
+            receiveAccountNumber: undefined,
+          }
     }
 
     case CHAIN_NAMESPACE.Utxo: {
@@ -124,7 +145,12 @@ export const getTradeQuoteInput = async ({
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
-          accountType: sellAccountType,
+          // Assumes a SegWit Native send, which works for all UTXOs - this may not be what users use for their actual swap when connecting a wallet,
+          // but this ensures this works for all UTXOs
+          accountType: UtxoAccountType.P2pkh,
+          receiveAddress: undefined,
+          accountNumber: undefined,
+          isConnected: false,
         }
 
       if (!sellAccountType) {
@@ -144,6 +170,9 @@ export const getTradeQuoteInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,
+        isConnected,
+        receiveAddress,
+        accountNumber: sellAccountNumber,
         accountType: sellAccountType,
         xpub,
         sendAddress,

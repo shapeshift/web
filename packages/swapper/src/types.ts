@@ -167,14 +167,16 @@ export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
 
 export type GetUtxoTradeQuoteInput = CommonTradeInput & {
   chainId: UtxoChainId
-  accountType: UtxoAccountType
-  xpub: string
 } & (
     | {
+        accountType: UtxoAccountType
+        xpub: string
         accountNumber: number
         isConnected: true
       }
     | {
+        accountType: undefined
+        xpub: undefined
         accountNumber: undefined
         isConnected: false
       }

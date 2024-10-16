@@ -266,6 +266,9 @@ export const useTradeExecution = (
                 accountNumber,
               } as evm.BuildCustomTxInput)
 
+              if (!receiverAddress) throw Error('Missing receiver address')
+              if (!from) throw Error('Missing sender address')
+
               const output = await signAndBroadcast({
                 adapter,
                 txToSign,
@@ -303,6 +306,9 @@ export const useTradeExecution = (
                 txToSign,
                 wallet,
               })
+
+              if (!receiverAddress) throw Error('Missing receiver address')
+              if (!senderAddress) throw Error('Missing sender address')
 
               const output = await adapter.broadcastTransaction({
                 senderAddress,
@@ -346,6 +352,9 @@ export const useTradeExecution = (
                 txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
               })
+              if (!tradeQuote.receiveAddress) throw Error('Missing receiver address')
+              if (!from) throw Error('Missing sender address')
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress: tradeQuote.receiveAddress,

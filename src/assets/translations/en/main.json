@@ -987,6 +987,9 @@
       "slippage": "Slippage: %{slippageFormatted}"
     }
   },
+  "limitOrder": {
+    "heading": "Limit Order"
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "My Assets",
@@ -1515,20 +1518,21 @@
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Pair MetaMask",
-        "body": "Click Pair and login to MetaMask from the popup window",
+        "header": "Pair %{name}",
+        "body": "Click Pair and login to %{name} from the popup window",
         "button": "Pair"
       },
-      "failure": {
-        "body": "Unable to connect MetaMask wallet"
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with %{name}",
+        "connectFailure": "Unable to connect %{name}"
       },
+      "failure": {
+        "body": "Unable to connect %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",
@@ -1615,26 +1619,6 @@
       },
       "failure": {
         "body": "Unable to connect WalletConnect wallet"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with XDEFI",
-        "connectFailure": "Unable to connect XDEFI wallet",
-        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed and switched on? Prioritize XDEFI in settings and press pair again."
-      },
-      "connect": {
-        "header": "Pair XDEFI",
-        "body": "Click Pair and login to XDEFI from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect XDEFI wallet"
-      },
-      "redirect": {
-        "header": "Open in XDEFI App",
-        "body": "Click to open ShapeShift dashboard in XDEFI",
-        "button": "Open"
       }
     },
     "shapeShift": {

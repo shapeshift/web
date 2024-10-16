@@ -2,7 +2,7 @@ import { usePrevious } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -51,7 +51,7 @@ export const useAccountsFetchQuery = () => {
 
     const accountMetadataByAccountId: AccountMetadataById = {}
     const isMultiAccountWallet = wallet.supportsBip44Accounts()
-    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+    const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
     for (let accountNumber = 0; chainIds.size > 0; accountNumber++) {
       if (
         accountNumber > 0 &&

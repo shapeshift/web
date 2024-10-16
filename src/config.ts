@@ -88,7 +88,6 @@ const validators = {
   // A flag encapsulating all WalletConnect to dApps - v1 and v2
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
-  REACT_APP_FEATURE_COINBASE_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_LEDGER_WALLET: bool({ default: false }),
   REACT_APP_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   REACT_APP_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: '' }),
@@ -152,7 +151,6 @@ const validators = {
   REACT_APP_FEATURE_CHATWOOT: bool({ default: false }),
   REACT_APP_FEATURE_ADVANCED_SLIPPAGE: bool({ default: false }),
   REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
-  REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS: bool({ default: false }),
   REACT_APP_SNAP_ID: str(),
   REACT_APP_SNAP_VERSION: str(),
   REACT_APP_FEATURE_THORCHAIN_LENDING: bool({ default: false }),
@@ -177,6 +175,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_RFOX: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION: bool({ default: true }),
+  REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

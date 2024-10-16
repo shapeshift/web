@@ -12,8 +12,8 @@ import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
-import type { Strategy } from './validators'
-import { SnapshotSchema, VotingPowerSchema } from './validators'
+import type { Proposal, Strategy } from './validators'
+import { ProposalSchema, SnapshotSchema, VotingPowerSchema } from './validators'
 
 type FoxVotingPowerCryptoBalance = string
 
@@ -25,11 +25,13 @@ export const initialState: SnapshotState = {
     THORCHAIN_LP: undefined,
   },
   strategies: undefined,
+  proposals: undefined,
 }
 
 export type SnapshotState = {
   votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
+  proposals: Proposal[] | undefined
 }
 
 export const snapshot = createSlice({
@@ -45,6 +47,9 @@ export const snapshot = createSlice({
     },
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
+    },
+    setProposals: (state, { payload }: { payload: Proposal[] }) => {
+      state.proposals = payload
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
@@ -139,6 +144,65 @@ export const snapshotApi = createApi({
           console.error(e)
 
           return { error: { data: e, status: 400 } }
+        }
+      },
+    }),
+    getProposals: build.query<Proposal[], void>({
+      queryFn: async (_, { dispatch }) => {
+        const query = `
+          query Proposals {
+            proposals(
+              first: 20,
+              skip: 0,
+              where: {
+                space: "${SNAPSHOT_SPACE}",
+              },
+              orderBy: "created",
+              orderDirection: desc
+            ) {
+              id
+              author
+              created
+              network
+              symbol
+              type
+              title
+              body
+              discussion
+              choices
+              labels
+              start
+              end
+              quorum
+              quorumType
+              privacy
+              snapshot
+              state
+              link
+              app
+              scores
+              scores_state
+              scores_total
+              scores_updated
+              votes
+              flagged
+            }
+          }
+        `
+        const { data: resData } = await axios.post(
+          'https://hub.snapshot.org/graphql',
+          { query },
+          { headers: { Accept: 'application/json' } },
+        )
+        console.log(resData)
+        try {
+          const { proposals } = ProposalSchema.parse(resData).data
+          console.log(proposals)
+          dispatch(snapshot.actions.setProposals(proposals))
+          return { data: proposals }
+        } catch (e) {
+          console.error('snapshotApi getProposals', e)
+          return { data: [] }
         }
       },
     }),

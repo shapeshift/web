@@ -87,3 +87,44 @@ export const VotingPowerSchema = object({
 })
 
 export type VotingPower = Infer<typeof VotingPowerSchema>
+
+// ###### proposals type
+
+const ProposalData = object({
+  id: string(),
+  ipfs: string().optional(),
+  author: string(),
+  created: number(),
+  updated: number().optional().nullable(),
+  network: string(),
+  symbol: string(),
+  type: string().optional(),
+  title: string(),
+  body: string().optional(),
+  discussion: string(),
+  choices: array(string()),
+  labels: array(string()),
+  start: number(),
+  end: number(),
+  quorum: number(),
+  quorumType: string(),
+  privacy: string().optional(),
+  snapshot: number().optional(),
+  state: string().optional(),
+  link: string().optional(),
+  app: string().optional(),
+  scores: array(number()).optional(),
+  scores_state: string().optional(),
+  scores_total: number().optional(),
+  scores_updated: number().optional(),
+  votes: number().optional(),
+  flagged: boolean().optional(),
+})
+
+export const ProposalSchema = object({
+  data: object({
+    proposals: array(ProposalData),
+  }),
+})
+
+export type Proposal = Infer<typeof ProposalData>

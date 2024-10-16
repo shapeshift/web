@@ -8,18 +8,31 @@ import {
   Heading,
   Link,
   Skeleton,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text as CText,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useDispatch } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectActiveProposals,
+  selectClosedProposals,
+  selectIsSnapshotApiQueriesPending,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
+import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { useFoxPageContext } from '../hooks/useFoxPageContext'
+import { FoxGovernanceProposal } from './FoxGovernanceProposal'
 
 const containerPaddingX = { base: 4, xl: 0 }
 const headerTitleMb = { base: 4, md: 0 }
@@ -34,14 +47,71 @@ const headerSx: FlexProps['sx'] = {
   },
 }
 
+const flexPropsMd1 = { base: '1 0 auto', md: 1 }
+const flexPropsMdAuto = { base: 1, md: 'auto' }
+const widthBaseFull = { base: 'full' }
+const widthMdAuto = { base: 'full', md: 'auto' }
+const tabListPaddingLeft = { base: 6, md: 0 }
+
 export const FoxGovernance = () => {
-  const { assetAccountId } = useFoxPageContext()
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
+  const dispatch = useDispatch()
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   const votingPower = useAppSelector(state => selectVotingPower(state, { feeModel: 'SWAPPER' }))
+  const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const activeProposals = useAppSelector(selectActiveProposals)
+  const closedProposals = useAppSelector(selectClosedProposals)
+
+  const firstFifthClosedProposals = useMemo(() => closedProposals.slice(0, 5), [closedProposals])
+
+  useEffect(() => {
+    dispatch(snapshotApi.endpoints.getProposals.initiate())
+  }, [dispatch])
+
+  const ActiveProposals = useCallback(() => {
+    if (!activeProposals.length)
+      return <Text color='text.subtle' translation='foxPage.governance.noActiveProposals' />
+
+    return (
+      <>
+        {activeProposals.map(proposal => (
+          <FoxGovernanceProposal
+            key={proposal.id}
+            title={proposal.title}
+            description={proposal.body ?? ''}
+            options={proposal.choices}
+            results={proposal.scores ?? []}
+            totalScore={proposal.scores_total ?? 0}
+            link={proposal.link ?? ''}
+          />
+        ))}
+      </>
+    )
+  }, [activeProposals])
+
+  const ClosedProposals = useCallback(() => {
+    if (!firstFifthClosedProposals.length)
+      return <Text color='text.subtle' translation='foxPage.governance.noClosedProposals' />
+
+    return (
+      <>
+        {firstFifthClosedProposals.map(proposal => (
+          <FoxGovernanceProposal
+            key={proposal.id}
+            title={proposal.title}
+            description={proposal.body ?? ''}
+            options={proposal.choices}
+            results={proposal.scores ?? []}
+            totalScore={proposal.scores_total ?? 0}
+            link={proposal.link ?? ''}
+          />
+        ))}
+      </>
+    )
+  }, [firstFifthClosedProposals])
 
   if (!isFoxGovernanceEnabled) return null
   if (!foxEthAsset) return null
@@ -67,7 +137,7 @@ export const FoxGovernance = () => {
               <Link
                 colorScheme='blue'
                 color='blue.300'
-                href='https://governance.shapeshift.com/'
+                href='https://forum.shapeshift.com/'
                 isExternal
                 mx={1}
               >
@@ -91,7 +161,9 @@ export const FoxGovernance = () => {
                     translation='foxPage.governance.totalVotingPower'
                   />
 
-                  <Skeleton isLoaded={Boolean(votingPower !== undefined)}>
+                  <Skeleton
+                    isLoaded={Boolean(votingPower !== undefined && !isVotingPowerQueriesPending)}
+                  >
                     <Amount.Crypto value={votingPower ?? '0'} symbol={foxEthAsset.symbol ?? ''} />
                   </Skeleton>
                 </Box>
@@ -99,6 +171,25 @@ export const FoxGovernance = () => {
             </CardBody>
           </Card>
         </Flex>
+
+        <Tabs isLazy lazyBehavior='keepMounted' variant='soft-rounded' size='sm'>
+          <Flex flex={flexPropsMd1} width={widthBaseFull}>
+            <TabList m={0} width={widthMdAuto} pl={tabListPaddingLeft}>
+              <Tab flex={flexPropsMdAuto} me={2}>
+                {translate('common.active')}
+              </Tab>
+              <Tab flex={flexPropsMdAuto}>{translate('common.closed')}</Tab>
+            </TabList>
+          </Flex>
+          <TabPanels>
+            <TabPanel px={0}>
+              <ActiveProposals />
+            </TabPanel>
+            <TabPanel px={0}>
+              <ClosedProposals />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Box>
     </>
   )

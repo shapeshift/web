@@ -16,6 +16,7 @@
     "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
+    "closed": "Closed",
     "loadMore": "Load More",
     "saveChanges": "Save Changes",
     "new": "New",
@@ -2672,7 +2673,9 @@
         "1": "on the forum",
         "2": "and shape the future of the DAO."
       },
-      "totalVotingPower": "Total Voting Power"
+      "totalVotingPower": "Total Voting Power",
+      "noActiveProposals": "No active proposals available",
+      "noClosedProposals": "No closed proposals available"
     }
   }
 }

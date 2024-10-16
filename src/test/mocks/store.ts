@@ -250,6 +250,7 @@ export const mockStore: ReduxState = {
       THORCHAIN_LP: undefined,
     },
     strategies: undefined,
+    proposals: undefined,
   },
   localWalletSlice: {
     _persist: {

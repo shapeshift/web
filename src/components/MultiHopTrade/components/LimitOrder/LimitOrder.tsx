@@ -59,6 +59,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
+  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
@@ -101,6 +102,11 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
       isVotingPowerLoading,
     ],
   )
+
+  const sellAmountUserCurrency = useMemo(() => {
+    // TODO: Implement me
+    return '0'
+  }, [])
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -164,11 +170,14 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
         buyAssetAccountId={buyAssetAccountId}
-        sellAssetAccountId={sellAssetAccountId}
         isLoading={isLoading}
         manualReceiveAddress={manualReceiveAddress}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+        sellAmountUserCurrency={sellAmountUserCurrency}
         sellAsset={sellAsset}
+        sellAssetAccountId={sellAssetAccountId}
         handleSwitchAssets={handleSwitchAssets}
+        onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setBuyAsset={setBuyAsset}
         setBuyAssetAccountId={setBuyAssetAccountId}
         setSellAsset={setSellAsset}
@@ -184,6 +193,8 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     handleSwitchAssets,
     isLoading,
     manualReceiveAddress,
+    sellAmountCryptoPrecision,
+    sellAmountUserCurrency,
     sellAsset,
     sellAssetAccountId,
     setBuyAsset,

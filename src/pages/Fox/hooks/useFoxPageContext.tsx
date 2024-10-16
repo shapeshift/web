@@ -19,8 +19,9 @@ const FoxPageContext = createContext<FoxPageContextType | undefined>(undefined)
 export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [assetAccountId, setAssetAccountId] = useState<AccountId | undefined>()
   const accountIdsFilter = useMemo(() => ({ assetId: foxAssetId }), [])
-  const accountIds = useAppSelector(state =>
-    selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
+  const accountIds = useAppSelector(
+    state => selectPortfolioAccountIdsByAssetIdFilter(state, accountIdsFilter),
+    () => false,
   )
 
   const filter = useMemo(
@@ -29,7 +30,6 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children })
   )
 
   useEffect(() => {
-    console.log('run useEffect')
     if (!accountIds.length) setAssetAccountId(undefined)
     if (accountIds.length === 1) {
       setAssetAccountId(accountIds[0])
@@ -51,7 +51,7 @@ export const FoxPageProvider: React.FC<React.PropsWithChildren> = ({ children })
       assetAccountNumber: assetAccountNumber ?? 0,
       assetAccountId: assetAccountId ?? firstAssetAccountId,
     }),
-    [assetAccountId, assetAccountNumber, firstAssetAccountId],
+    [assetAccountId, assetAccountNumber, firstAssetAccountId, setAssetAccountId],
   )
 
   return <FoxPageContext.Provider value={value}>{children}</FoxPageContext.Provider>

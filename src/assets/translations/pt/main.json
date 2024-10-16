@@ -49,6 +49,7 @@
     "overview": "Visão Geral",
     "getStarted": "Começar",
     "connectWallet": "Conectar Carteira",
+    "connectWalletToGetStartedWith": "Conecte uma carteira para começar a usar %{feature}",
     "connectedWallet": "Carteira Conectada",
     "connectedWalletSettings": "Configurar Carteira",
     "noWallet": "Carteira não conectada",
@@ -156,6 +157,7 @@
     "asymmetric": "Assimétrico (%{assetSymbol})",
     "import": "Importar",
     "accountsLoading": "Carregando contas",
+    "noAccounts": "Nenhuma conta para os filtros selecionados.",
     "carousel": {
       "next": "Próximo",
       "prev": "Anterior",
@@ -442,7 +444,7 @@
         "cannotWithdrawWhilePendingTx": "Não é possível sacar enquanto as Txs estiverem pendentes",
         "dangerousWithdrawWarning": "A taxa da THORChain pode resultar na perda total dos fundos retirados. Considere sacar uma quantia maior para evitar esse problema.",
         "agreeRunePool": {
-          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 90 dias e um risco maior de perda temporária."
+          "1": "Entendo que o RUNEPool tem um bloqueio mínimo de 30 dias e um risco maior de perda impermanente."
         }
       }
     },
@@ -617,6 +619,7 @@
     "lending": "Empréstimo",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "foxBenefits": "Benefícios FOX",
     "markets": "Mercados",
     "actionMenu": {
       "send": {
@@ -801,7 +804,9 @@
     "pendingClaims": "Pendente",
     "noPendingClaims": "Nenhum resgate pendente",
     "availableIn": "Disponível em %{time}",
-    "confirmAndClaim": "Confirmar e Resgate"
+    "confirmAndClaim": "Confirmar e Resgate",
+    "viewClaims": "Ver resgates",
+    "availableClaimsNotification": "Você tem resgates de pontes prontas!"
   },
   "trade": {
     "trade": "Swap",
@@ -2596,6 +2601,43 @@
   },
   "markets": {
     "recommended": "Recomendado",
-    "watchlist": "Minha Lista"
+    "watchlist": "Minha Lista",
+    "marketsBody": "Descubra as criptomoedas mais empolgantes. Acompanhe os principais ganhadores, tokens emergentes, oportunidades DeFi e muito mais. Salve, compartilhe e negocie seus favoritos.",
+    "watchlistEmpty": {
+      "emptyTitle": "Nenhum ativo na watchlist",
+      "emptyBody": "Parece que você ainda não marcou nenhum ativo com estrela. Comece a adicionar ativos à sua watchlist agora para rastreá-los!"
+    },
+    "emptyTitle": "Nenhum ativo encontrado",
+    "emptyBody": "Nenhum ativo foi encontrado com o filtro atual. Veja mais ativos ajustando a rede selecionada.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Ativos DeFi com um clique",
+        "subtitle": "Descubra o rendimento que mais combina com você! Mude sem esforço com Portais entre Pools, Vaults, opções de empréstimo e LSDs."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "Ganhe rendimento nativo em seus ativos com o THORCHain Savers."
+      },
+      "trending": {
+        "title": "Trending",
+        "subtitle": "Os ativos mais visualizados nas últimas 24 horas."
+      },
+      "tradingVolume": {
+        "title": "Volume de negociação",
+        "subtitle": "Principais ativos com maior volume de negociação nas últimas 24 horas."
+      },
+      "marketCap": {
+        "title": "Capitalização de mercado",
+        "subtitle": "Principais ativos com maior capitalização de mercado nas últimas 24 horas."
+      },
+      "topMovers": {
+        "title": "Principais ganhadores",
+        "subtitle": "Principais ativos que subiram %{percentage}% ou mais."
+      },
+      "recentlyAdded": {
+        "title": "Adicionado recentemente",
+        "subtitle": "Descubra os lançamentos recentes."
+      }
+    }
   }
 }

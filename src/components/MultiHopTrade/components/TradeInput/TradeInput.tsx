@@ -277,7 +277,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <Flex
-        id='test-flex'
         width='full'
         justifyContent='center'
         maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}

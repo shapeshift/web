@@ -6,12 +6,7 @@ import type { TradeAssetInputProps } from 'components/MultiHopTrade/components/T
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { bnOrZero, positiveOrZero } from 'lib/bignumber/bignumber'
-import {
-  selectInputSellAmountCryptoPrecision,
-  selectInputSellAmountUserCurrency,
-  selectIsInputtingFiatSellAmount,
-  selectMarketDataByFilter,
-} from 'state/slices/selectors'
+import { selectIsInputtingFiatSellAmount, selectMarketDataByFilter } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -21,11 +16,14 @@ export type SellAssetInputProps = {
   accountId?: AccountId
   label: string
   asset: Asset
-  onAccountIdChange: AccountDropdownProps['onChange']
   labelPostFix?: TradeAssetInputProps['labelPostFix']
   percentOptions: number[]
   isReadOnly?: TradeAssetInputProps['isReadOnly']
   isLoading?: boolean
+  sellAmountCryptoPrecision: string
+  sellAmountUserCurrency: string | undefined
+  onAccountIdChange: AccountDropdownProps['onChange']
+  onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
 }
 
 export const SellAssetInput = memo(
@@ -33,13 +31,14 @@ export const SellAssetInput = memo(
     accountId,
     asset,
     label,
-    onAccountIdChange,
     percentOptions,
     isLoading,
+    sellAmountCryptoPrecision,
+    sellAmountUserCurrency,
+    onAccountIdChange,
+    onChangeSellAmountCryptoPrecision,
     ...rest
   }: SellAssetInputProps) => {
-    const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-    const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
     const [rawSellAmountCryptoPrecision, setRawSellAmountCryptoPrecision] =
       useState(sellAmountCryptoPrecision)
     const [rawSellAmountUserCurrency, setRawSellAmountUserCurrency] =
@@ -61,12 +60,10 @@ export const SellAssetInput = memo(
 
     // sync redux with local state
     useEffect(() => {
-      dispatch(
-        tradeInput.actions.setSellAmountCryptoPrecision(
-          positiveOrZero(debouncedSellAmountCryptoPrecision).toString(),
-        ),
+      onChangeSellAmountCryptoPrecision(
+        positiveOrZero(debouncedSellAmountCryptoPrecision).toString(),
       )
-    }, [debouncedSellAmountCryptoPrecision, dispatch])
+    }, [debouncedSellAmountCryptoPrecision, dispatch, onChangeSellAmountCryptoPrecision])
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {

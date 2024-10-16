@@ -201,7 +201,7 @@ export async function getTradeQuote(
           const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
             chainId: stepChainId,
             lifiStep,
-            supportsEIP1559,
+            supportsEIP1559: Boolean(supportsEIP1559),
             deps,
           })
 

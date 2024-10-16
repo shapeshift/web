@@ -95,7 +95,7 @@ export const getTradeQuoteInput = async ({
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as EvmChainId,
         isConnected,
-        supportsEIP1559,
+        supportsEIP1559: isConnected ? supportsEIP1559! : undefined,
         sendAddress,
         receiveAccountNumber,
       }

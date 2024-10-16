@@ -155,7 +155,7 @@ export type GetEvmTradeQuoteInput = CommonTradeInput & {
         isConnected: true
       }
     | {
-        supportsEIP1559: false
+        supportsEIP1559: undefined
         accountNumber: undefined
         isConnected: false
       }

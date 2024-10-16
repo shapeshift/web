@@ -216,7 +216,7 @@ export const getL1quote = async (
       const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const { networkFeeCryptoBaseUnit } = await getEvmTxFees({
         adapter: sellAdapter,
-        supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+        supportsEIP1559: Boolean((input as GetEvmTradeQuoteInput).supportsEIP1559),
       })
 
       const maybeRoutes = await Promise.allSettled(

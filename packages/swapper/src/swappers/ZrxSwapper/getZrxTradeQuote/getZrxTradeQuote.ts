@@ -104,7 +104,7 @@ export async function getZrxTradeQuote(
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
       gasLimit: bnOrZero(gas).times(1.2).toFixed(),

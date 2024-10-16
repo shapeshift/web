@@ -81,7 +81,7 @@ export async function getTradeQuote(
 
   try {
     const swap = await fetchArbitrumBridgeSwap({
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       chainId,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,

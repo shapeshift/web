@@ -32,6 +32,7 @@ import {
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectIsInputtingFiatSellAmount,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -99,6 +100,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
@@ -277,6 +279,13 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
 
+  const handleIsInputtingFiatSellAmountChange = useCallback(
+    (isInputtingFiatSellAmount: boolean) => {
+      dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+    },
+    [dispatch],
+  )
+
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody
@@ -286,6 +295,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         buyAsset={buyAsset}
         buyAssetAccountId={buyAssetAccountId}
         sellAssetAccountId={sellAssetAccountId}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         manualReceiveAddress={manualReceiveAddress}
         sellAsset={sellAsset}
@@ -296,6 +306,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         setBuyAssetAccountId={setBuyAssetAccountId}
         setSellAsset={setSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
       />
     )
@@ -305,14 +316,16 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     buyAmountAfterFeesUserCurrency,
     buyAsset,
     buyAssetAccountId,
-    handleChangeSellAmountCryptoPrecision,
-    handleSwitchAssets,
+    isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
     sellAssetAccountId,
+    handleChangeSellAmountCryptoPrecision,
+    handleIsInputtingFiatSellAmountChange,
+    handleSwitchAssets,
     setBuyAsset,
     setBuyAssetAccountId,
     setSellAsset,

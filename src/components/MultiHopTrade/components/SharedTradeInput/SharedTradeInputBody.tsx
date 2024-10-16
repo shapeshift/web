@@ -45,6 +45,7 @@ type SharedTradeInputBodyProps = {
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset
   buyAssetAccountId: AccountId | undefined
+  isInputtingFiatSellAmount: boolean
   isLoading: boolean | undefined
   manualReceiveAddress: string | undefined
   sellAmountCryptoPrecision: string
@@ -52,6 +53,7 @@ type SharedTradeInputBodyProps = {
   sellAsset: Asset
   sellAssetAccountId: AccountId | undefined
   handleSwitchAssets: () => void
+  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   setBuyAsset: (asset: Asset) => void
   setBuyAssetAccountId: (accountId: AccountId) => void
@@ -65,6 +67,7 @@ export const SharedTradeInputBody = ({
   buyAmountAfterFeesUserCurrency,
   buyAsset,
   buyAssetAccountId,
+  isInputtingFiatSellAmount,
   isLoading,
   manualReceiveAddress,
   sellAmountCryptoPrecision,
@@ -72,6 +75,7 @@ export const SharedTradeInputBody = ({
   sellAsset,
   sellAssetAccountId,
   handleSwitchAssets,
+  onChangeIsInputtingFiatSellAmount,
   onChangeSellAmountCryptoPrecision,
   setBuyAsset,
   setBuyAssetAccountId,
@@ -173,13 +177,15 @@ export const SharedTradeInputBody = ({
       <SellAssetInput
         accountId={sellAssetAccountId}
         asset={sellAsset}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         label={translate('trade.payWith')}
         labelPostFix={sellTradeAssetSelect}
-        onAccountIdChange={setSellAssetAccountId}
         percentOptions={percentOptions}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
+        onChangeAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
       />
       <Flex alignItems='center' justifyContent='center' my={-2}>

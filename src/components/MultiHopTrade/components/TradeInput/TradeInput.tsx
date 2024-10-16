@@ -2,7 +2,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { Asset } from '@shapeshiftoss/types'
-import type { FormEvent } from 'react'
+import type { FC, FormEvent, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -50,10 +50,6 @@ import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const acknowledgementBoxProps = {
-  display: 'flex',
-  justifyContent: 'center',
-}
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 
@@ -264,13 +260,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
-  return (
-    <MessageOverlay show={isKeplr} title={overlayTitle}>
+  const inputAcknowledgementParentComponent: FC<PropsWithChildren> = useMemo(() => {
+    return ({ children }) => (
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
         shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
-        boxProps={acknowledgementBoxProps}
       >
         <StreamingAcknowledgement
           onAcknowledge={handleFormSubmit}
@@ -279,43 +274,56 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
           estimatedTimeMs={
             tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
           }
-          boxProps={acknowledgementBoxProps}
         >
           <WarningAcknowledgement
             message={warningAcknowledgementMessage}
             onAcknowledge={handleWarningAcknowledgementSubmit}
             shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
             setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-            boxProps={acknowledgementBoxProps}
           >
-            <SharedTradeInput
-              activeQuote={activeQuote}
-              buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-              buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-              buyAsset={buyAsset}
-              hasUserEnteredAmount={hasUserEnteredAmount}
-              headerRightContent={headerRightContent}
-              buyAssetAccountId={buyAssetAccountId}
-              sellAssetAccountId={sellAssetAccountId}
-              isCompact={isCompact}
-              isLoading={isLoading}
-              manualReceiveAddress={manualReceiveAddress}
-              sellAsset={sellAsset}
-              sideComponent={CollapsibleQuoteList}
-              tradeInputRef={tradeInputRef}
-              tradeInputTab={TradeInputTab.Trade}
-              walletReceiveAddress={walletReceiveAddress}
-              handleSwitchAssets={handleSwitchAssets}
-              onSubmit={handleTradeQuoteConfirm}
-              setBuyAsset={setBuyAsset}
-              setBuyAssetAccountId={setBuyAssetAccountId}
-              setSellAsset={setSellAsset}
-              setSellAssetAccountId={setSellAssetAccountId}
-              onChangeTab={onChangeTab}
-            />
+            {children}
           </WarningAcknowledgement>
         </StreamingAcknowledgement>
       </ArbitrumBridgeAcknowledgement>
+    )
+  }, [
+    handleFormSubmit,
+    shouldShowArbitrumBridgeAcknowledgement,
+    shouldShowStreamingAcknowledgement,
+    tradeQuoteStep?.estimatedExecutionTimeMs,
+    warningAcknowledgementMessage,
+    handleWarningAcknowledgementSubmit,
+    shouldShowWarningAcknowledgement,
+  ])
+
+  return (
+    <MessageOverlay show={isKeplr} title={overlayTitle}>
+      <SharedTradeInput
+        activeQuote={activeQuote}
+        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+        buyAsset={buyAsset}
+        hasUserEnteredAmount={hasUserEnteredAmount}
+        headerRightContent={headerRightContent}
+        buyAssetAccountId={buyAssetAccountId}
+        sellAssetAccountId={sellAssetAccountId}
+        isCompact={isCompact}
+        isLoading={isLoading}
+        manualReceiveAddress={manualReceiveAddress}
+        sellAsset={sellAsset}
+        sideComponent={CollapsibleQuoteList}
+        tradeInputRef={tradeInputRef}
+        tradeInputTab={TradeInputTab.Trade}
+        walletReceiveAddress={walletReceiveAddress}
+        handleSwitchAssets={handleSwitchAssets}
+        onSubmit={handleTradeQuoteConfirm}
+        setBuyAsset={setBuyAsset}
+        setBuyAssetAccountId={setBuyAssetAccountId}
+        setSellAsset={setSellAsset}
+        setSellAssetAccountId={setSellAssetAccountId}
+        onChangeTab={onChangeTab}
+        inputAcknowledgementParentComponent={inputAcknowledgementParentComponent}
+      />
     </MessageOverlay>
   )
 }

@@ -2,7 +2,7 @@ import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { FormEvent } from 'react'
+import { type FormEvent, type PropsWithChildren, useMemo } from 'react'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { breakpoints } from 'theme/theme'
 
@@ -36,6 +36,7 @@ type SharedTradeInputProps = {
   setBuyAssetAccountId: (accountId: string) => void
   setSellAsset: (asset: Asset) => void
   setSellAssetAccountId: (accountId: string) => void
+  inputAcknowledgementParentComponent?: React.FC<PropsWithChildren>
 }
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
@@ -62,9 +63,63 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   setBuyAssetAccountId,
   setSellAsset,
   setSellAssetAccountId,
+  inputAcknowledgementParentComponent: InputAcknowledgementParentComponent,
 }) => {
   const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+
+  const tradeInput = useMemo(() => {
+    return (
+      <>
+        <SharedTradeInputHeader
+          initialTab={tradeInputTab}
+          rightContent={headerRightContent}
+          onChangeTab={onChangeTab}
+        />
+        <SharedTradeInputBody
+          activeQuote={activeQuote}
+          buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+          buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+          buyAsset={buyAsset}
+          buyAssetAccountId={buyAssetAccountId}
+          sellAssetAccountId={sellAssetAccountId}
+          isLoading={isLoading}
+          manualReceiveAddress={manualReceiveAddress}
+          sellAsset={sellAsset}
+          handleSwitchAssets={handleSwitchAssets}
+          setBuyAsset={setBuyAsset}
+          setBuyAssetAccountId={setBuyAssetAccountId}
+          setSellAsset={setSellAsset}
+          setSellAssetAccountId={setSellAssetAccountId}
+        />
+        <ConfirmSummary
+          isCompact={isCompact}
+          isLoading={isLoading}
+          receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+        />
+      </>
+    )
+  }, [
+    tradeInputTab,
+    headerRightContent,
+    onChangeTab,
+    activeQuote,
+    buyAmountAfterFeesCryptoPrecision,
+    buyAmountAfterFeesUserCurrency,
+    buyAsset,
+    buyAssetAccountId,
+    sellAssetAccountId,
+    isLoading,
+    manualReceiveAddress,
+    sellAsset,
+    handleSwitchAssets,
+    setBuyAsset,
+    setBuyAssetAccountId,
+    setSellAsset,
+    setSellAssetAccountId,
+    isCompact,
+    walletReceiveAddress,
+  ])
 
   return (
     <Flex
@@ -82,32 +137,11 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
           as='form'
           onSubmit={onSubmit}
         >
-          <SharedTradeInputHeader
-            initialTab={tradeInputTab}
-            rightContent={headerRightContent}
-            onChangeTab={onChangeTab}
-          />
-          <SharedTradeInputBody
-            activeQuote={activeQuote}
-            buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-            buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-            buyAsset={buyAsset}
-            buyAssetAccountId={buyAssetAccountId}
-            sellAssetAccountId={sellAssetAccountId}
-            isLoading={isLoading}
-            manualReceiveAddress={manualReceiveAddress}
-            sellAsset={sellAsset}
-            handleSwitchAssets={handleSwitchAssets}
-            setBuyAsset={setBuyAsset}
-            setBuyAssetAccountId={setBuyAssetAccountId}
-            setSellAsset={setSellAsset}
-            setSellAssetAccountId={setSellAssetAccountId}
-          />
-          <ConfirmSummary
-            isCompact={isCompact}
-            isLoading={isLoading}
-            receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-          />
+          {InputAcknowledgementParentComponent ? (
+            <InputAcknowledgementParentComponent>{tradeInput}</InputAcknowledgementParentComponent>
+          ) : (
+            tradeInput
+          )}
         </Card>
         <WithLazyMount
           shouldUse={!isCompact && !isSmallerThanXl}

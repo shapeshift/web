@@ -1,86 +1,25 @@
-import type { BoxProps, ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
-import { Box, Button, Checkbox, Link, useColorModeValue } from '@chakra-ui/react'
-import type { AnimationDefinition, MotionStyle } from 'framer-motion'
-import { AnimatePresence, motion } from 'framer-motion'
+import type { ComponentWithAs, IconProps, ThemeTypings } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Checkbox,
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalOverlay,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { PropsWithChildren } from 'react'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { FiAlertTriangle } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 import { StreamIcon } from 'components/Icons/Stream'
 import { RawText, Text } from 'components/Text'
 import { formatSecondsToDuration } from 'lib/utils/time'
 
-const initialProps = { opacity: 0 }
-const animateProps = { opacity: 1 }
-const exitProps = { opacity: 0, transition: { duration: 0.5 } }
-const transitionProps = { delay: 0.2, duration: 0.1 }
-const motionStyle: MotionStyle = {
-  backgroundColor: 'var(--chakra-colors-blanket)',
-  position: 'absolute',
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  zIndex: 4,
-}
-
-const AcknowledgementOverlay: React.FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <motion.div
-      key='overlay'
-      style={motionStyle}
-      initial={initialProps}
-      animate={animateProps}
-      exit={exitProps}
-      transition={transitionProps}
-    >
-      {children}
-    </motion.div>
-  )
-}
-
-const popoverVariants = {
-  initial: {
-    y: '100%',
-  },
-  animate: {
-    y: 0,
-    transition: {
-      type: 'spring',
-      bounce: 0.2,
-      duration: 0.55,
-    },
-  },
-  exit: {
-    y: '100%',
-    opacity: 0,
-    transition: {
-      duration: 0.2,
-    },
-  },
-}
-
-const popoverStyle: MotionStyle = {
-  backgroundColor: 'var(--chakra-colors-background-surface-overlay-base)',
-  position: 'absolute',
-  borderTopLeftRadius: 'var(--chakra-radii-2xl)',
-  borderTopRightRadius: 'var(--chakra-radii-2xl)',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  zIndex: 5,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  paddingLeft: '2rem',
-  paddingRight: '2rem',
-  paddingBottom: '2rem',
-  paddingTop: '4rem',
-}
-
 type AcknowledgementProps = {
-  children: React.ReactNode
   content?: JSX.Element
   message: string | JSX.Element
   onAcknowledge: (() => void) | undefined
@@ -91,7 +30,6 @@ type AcknowledgementProps = {
   buttonTranslation?: string | [string, InterpolationOptions]
   icon?: ComponentWithAs<'svg', IconProps>
   disableButton?: boolean
-  boxProps?: BoxProps
 }
 
 type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
@@ -100,10 +38,8 @@ type StreamingAcknowledgementProps = Omit<AcknowledgementProps, 'message'> & {
 type ArbitrumAcknowledgementProps = Omit<AcknowledgementProps, 'message'>
 
 const cancelHoverProps = { bg: 'rgba(255, 255, 255, 0.2)' }
-const boxBorderRadius = { base: 'none', md: 'xl' }
 
 export const Acknowledgement = ({
-  children,
   content,
   message,
   onAcknowledge,
@@ -114,10 +50,8 @@ export const Acknowledgement = ({
   buttonTranslation,
   disableButton,
   icon: CustomIcon,
-  boxProps,
 }: AcknowledgementProps) => {
   const translate = useTranslate()
-  const [isShowing, setIsShowing] = useState(false)
 
   const understandHoverProps = useMemo(
     () => ({ bg: `${buttonColorScheme}.600` }),
@@ -135,88 +69,51 @@ export const Acknowledgement = ({
     setShouldShowAcknowledgement(false)
   }, [setShouldShowAcknowledgement])
 
-  const handleAnimationComplete = useCallback((def: AnimationDefinition) => {
-    if (def === 'exit') {
-      setIsShowing(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    // enters with overflow: hidden
-    // exit after animation complete return to overflow: visible
-    if (shouldShowAcknowledgement) {
-      setIsShowing(true)
-    }
-  }, [shouldShowAcknowledgement])
-
   return (
-    <Box
-      position={boxProps?.position ?? 'relative'}
-      borderRadius={boxBorderRadius}
-      overflow={isShowing ? 'hidden' : 'visible'}
-      width={'100%'}
-      {...boxProps}
-    >
-      <AnimatePresence mode='wait' initial={false}>
-        {shouldShowAcknowledgement && (
-          <AcknowledgementOverlay>
-            <motion.div
-              layout
-              key='message'
-              variants={popoverVariants}
-              initial='initial'
-              animate='animate'
-              exit='exit'
-              style={popoverStyle}
-              onAnimationComplete={handleAnimationComplete}
-            >
-              {CustomIcon ? (
-                <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />
-              ) : (
-                <Box as={FiAlertTriangle} color={`${iconColorScheme}.500`} size='80px' mb={4} />
-              )}
-              <Text
-                translation={'warningAcknowledgement.attention'}
-                fontWeight='semibold'
-                fontSize='2xl'
-              />
-              <Box
-                textAlign={'center'}
-                maxWidth='100%'
-                mb={8}
-                fontWeight='medium'
-                color='text.subtle'
-              >
-                <RawText>{message}</RawText>
-                {content}
-              </Box>
-              <Button
-                size='lg'
-                mb={2}
-                colorScheme={buttonColorScheme}
-                width='full'
-                onClick={handleAcknowledge}
-                isDisabled={disableButton}
-                _hover={understandHoverProps}
-              >
-                <Text translation={buttonTranslation ?? 'warningAcknowledgement.understand'} />
-              </Button>
-              <Button
-                size='lg'
-                width='full'
-                colorScheme='gray'
-                onClick={handleCancel}
-                _hover={cancelHoverProps}
-              >
-                {translate('common.cancel')}
-              </Button>
-            </motion.div>
-          </AcknowledgementOverlay>
-        )}
-      </AnimatePresence>
+    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>
+          {CustomIcon ? (
+            <CustomIcon color={`${iconColorScheme}.500`} boxSize='80px' mb={4} />
+          ) : (
+            <Box as={FiAlertTriangle} color={`${iconColorScheme}.500`} size='80px' mb={4} />
+          )}
+          <Text
+            translation={'warningAcknowledgement.attention'}
+            fontWeight='semibold'
+            fontSize='2xl'
+          />
+          <Box textAlign={'center'} maxWidth='100%' fontWeight='medium' color='text.subtle'>
+            <RawText>{message}</RawText>
+            {content}
+          </Box>
+        </ModalBody>
 
-      {children}
-    </Box>
+        <ModalFooter display='flex' flexDirection='column' alignItems='center'>
+          <Button
+            size='lg'
+            mb={2}
+            colorScheme={buttonColorScheme}
+            width='full'
+            onClick={handleAcknowledge}
+            isDisabled={disableButton}
+            _hover={understandHoverProps}
+          >
+            <Text translation={buttonTranslation ?? 'warningAcknowledgement.understand'} />
+          </Button>
+          <Button
+            size='lg'
+            width='full'
+            colorScheme='gray'
+            onClick={handleCancel}
+            _hover={cancelHoverProps}
+          >
+            {translate('common.cancel')}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   )
 }
 

@@ -57,6 +57,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
 
+  const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
@@ -170,6 +171,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
         buyAssetAccountId={buyAssetAccountId}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         manualReceiveAddress={manualReceiveAddress}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
@@ -177,6 +179,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         sellAsset={sellAsset}
         sellAssetAccountId={sellAssetAccountId}
         handleSwitchAssets={handleSwitchAssets}
+        onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setBuyAsset={setBuyAsset}
         setBuyAssetAccountId={setBuyAssetAccountId}
@@ -190,13 +193,14 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     buyAmountAfterFeesUserCurrency,
     buyAsset,
     buyAssetAccountId,
-    handleSwitchAssets,
+    isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
     sellAssetAccountId,
+    handleSwitchAssets,
     setBuyAsset,
     setBuyAssetAccountId,
     setSellAsset,

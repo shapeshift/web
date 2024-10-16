@@ -10,10 +10,14 @@ import {
   Skeleton,
   Text as CText,
 } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
@@ -35,7 +39,12 @@ export const FoxGovernance = () => {
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
 
+  const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
+
+  const votingPower = useAppSelector(state => selectVotingPower(state, { feeModel: 'SWAPPER' }))
+
   if (!isFoxGovernanceEnabled) return null
+  if (!foxEthAsset) return null
 
   return (
     <>
@@ -82,8 +91,8 @@ export const FoxGovernance = () => {
                     translation='foxPage.governance.totalVotingPower'
                   />
 
-                  <Skeleton isLoaded={true}>
-                    <Amount.Crypto value={'100'} symbol={'FOX'} />
+                  <Skeleton isLoaded={Boolean(votingPower !== undefined)}>
+                    <Amount.Crypto value={votingPower ?? '0'} symbol={foxEthAsset.symbol ?? ''} />
                   </Skeleton>
                 </Box>
               </Flex>

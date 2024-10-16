@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { RouteProps } from 'react-router-dom'
 import { Redirect, Route, Switch } from 'react-router-dom'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 
 type PrivateRouteProps = {
   hasWallet: boolean
@@ -8,6 +9,8 @@ type PrivateRouteProps = {
 
 export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
   const { location } = rest
+
+  const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
 
   const to = useMemo(
     () => ({
@@ -28,7 +31,7 @@ export const PrivateRoute = ({ hasWallet, ...rest }: PrivateRouteProps) => {
       <Route {...rest} path='/buy-crypto' />
       <Route {...rest} path='/assets' />
       <Route {...rest} path='/flags' />
-      <Route {...rest} path='/trade' />
+      {isPublicTradeRouteEnabled ? <Route {...rest} path='/trade' /> : null}
       {hasWallet ? <Route {...rest} /> : <Redirect to={to} />}
     </Switch>
   )

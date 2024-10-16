@@ -1,3 +1,4 @@
+import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -43,16 +44,22 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
-import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
+import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
+import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
+import { WithLazyMount } from './components/WithLazyMount'
+import { useSharedHeight } from './hooks/useSharedHeight'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const acknowledgementBoxProps = {
   display: 'flex',
   justifyContent: 'center',
+  width: '500px',
 }
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
@@ -264,58 +271,90 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  const totalHeight = useSharedHeight(tradeInputRef)
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
-      <ArbitrumBridgeAcknowledgement
-        onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
-        setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
-        boxProps={acknowledgementBoxProps}
+      <Flex
+        id='test-flex'
+        width='full'
+        justifyContent='center'
+        maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
       >
-        <StreamingAcknowledgement
-          onAcknowledge={handleFormSubmit}
-          shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-          setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-          estimatedTimeMs={
-            tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
-          }
-          boxProps={acknowledgementBoxProps}
-        >
-          <WarningAcknowledgement
-            message={warningAcknowledgementMessage}
-            onAcknowledge={handleWarningAcknowledgementSubmit}
-            shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-            setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+        <Center width='inherit'>
+          <ArbitrumBridgeAcknowledgement
+            onAcknowledge={handleFormSubmit}
+            shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+            setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
             boxProps={acknowledgementBoxProps}
           >
-            <SharedTradeInput
-              activeQuote={activeQuote}
-              buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-              buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-              buyAsset={buyAsset}
-              hasUserEnteredAmount={hasUserEnteredAmount}
-              headerRightContent={headerRightContent}
-              buyAssetAccountId={buyAssetAccountId}
-              sellAssetAccountId={sellAssetAccountId}
-              isCompact={isCompact}
-              isLoading={isLoading}
-              manualReceiveAddress={manualReceiveAddress}
-              sellAsset={sellAsset}
-              sideComponent={CollapsibleQuoteList}
-              tradeInputRef={tradeInputRef}
-              tradeInputTab={TradeInputTab.Trade}
-              walletReceiveAddress={walletReceiveAddress}
-              handleSwitchAssets={handleSwitchAssets}
-              onSubmit={handleTradeQuoteConfirm}
-              setBuyAsset={setBuyAsset}
-              setBuyAssetAccountId={setBuyAssetAccountId}
-              setSellAsset={setSellAsset}
-              setSellAssetAccountId={setSellAssetAccountId}
-              onChangeTab={onChangeTab}
-            />
-          </WarningAcknowledgement>
-        </StreamingAcknowledgement>
-      </ArbitrumBridgeAcknowledgement>
+            <StreamingAcknowledgement
+              onAcknowledge={handleFormSubmit}
+              shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+              setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+              estimatedTimeMs={
+                tradeQuoteStep?.estimatedExecutionTimeMs
+                  ? tradeQuoteStep.estimatedExecutionTimeMs
+                  : 0
+              }
+              boxProps={acknowledgementBoxProps}
+            >
+              <WarningAcknowledgement
+                message={warningAcknowledgementMessage}
+                onAcknowledge={handleWarningAcknowledgementSubmit}
+                shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+                setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+                boxProps={acknowledgementBoxProps}
+              >
+                <Card
+                  flex={1}
+                  maxWidth='500px'
+                  ref={tradeInputRef}
+                  as='form'
+                  onSubmit={handleTradeQuoteConfirm}
+                >
+                  <SharedTradeInputHeader
+                    initialTab={TradeInputTab.Trade}
+                    rightContent={headerRightContent}
+                    onChangeTab={onChangeTab}
+                  />
+                  <SharedTradeInputBody
+                    activeQuote={activeQuote}
+                    buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+                    buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+                    buyAsset={buyAsset}
+                    buyAssetAccountId={buyAssetAccountId}
+                    sellAssetAccountId={sellAssetAccountId}
+                    isLoading={isLoading}
+                    manualReceiveAddress={manualReceiveAddress}
+                    sellAsset={sellAsset}
+                    handleSwitchAssets={handleSwitchAssets}
+                    setBuyAsset={setBuyAsset}
+                    setBuyAssetAccountId={setBuyAssetAccountId}
+                    setSellAsset={setSellAsset}
+                    setSellAssetAccountId={setSellAssetAccountId}
+                  />
+                  <ConfirmSummary
+                    isCompact={isCompact}
+                    isLoading={isLoading}
+                    receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+                  />
+                </Card>
+              </WarningAcknowledgement>
+            </StreamingAcknowledgement>
+          </ArbitrumBridgeAcknowledgement>
+          <WithLazyMount
+            shouldUse={!isCompact && !isSmallerThanXl}
+            component={CollapsibleQuoteList}
+            isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+            isLoading={isLoading}
+            width={tradeInputRef.current?.offsetWidth ?? 'full'}
+            height={totalHeight ?? 'full'}
+            ml={4}
+          />
+        </Center>
+      </Flex>
     </MessageOverlay>
   )
 }

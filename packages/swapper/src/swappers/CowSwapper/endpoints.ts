@@ -5,6 +5,7 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
@@ -77,6 +78,8 @@ export const cowApi: SwapperApi = {
         SwapperName.CowSwap,
       ),
     } = tradeQuote
+
+    if (receiveAddress === zeroAddress) throw new Error('No receive address found in quote')
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference

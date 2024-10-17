@@ -303,7 +303,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuoteOrRate = {
   ],
 }
 
-describe('getCowTradeQuote', () => {
+describe('getCowSwapTradeQuote', () => {
   it('should throw an exception if sell asset is not an erc20', async () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,

@@ -3,9 +3,15 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuoteOrRate } from '../../../types'
+import type {
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  SwapperConfig,
+  TradeQuoteOrRate,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -92,7 +98,7 @@ export async function getCowSwapTradeQuote(
       appData,
       appDataHash,
       partiallyFillable: false,
-      from: receiveAddress,
+      from: receiveAddress ?? zeroAddress,
       kind: CoWSwapOrderKind.Sell,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },

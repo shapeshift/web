@@ -123,64 +123,68 @@ export type BuyAssetBySellIdInput = {
   config: SwapperConfig
 }
 
-type CommonTradeInput = {
+type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sendAddress?: string
-  receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
-} & (
-  | {
-      receiveAddress: string
-      accountNumber: number
-      isConnected: true
-    }
-  | {
-      receiveAddress: undefined
-      accountNumber: undefined
-      isConnected: false
-    }
-)
+}
 
-export type GetEvmTradeQuoteInput = CommonTradeInput & {
+type CommonTradeInputWithWalletInfo = CommonTradeInputBase & {
+  sendAddress?: string
+  receiveAccountNumber?: number
+  receiveAddress: string
+  accountNumber: number
+  isConnected: true
+}
+
+type CommonTradeInputEmptyWalletInfo = CommonTradeInputBase & {
+  sendAddress?: undefined
+  receiveAccountNumber?: undefined
+  receiveAddress: undefined
+  accountNumber: undefined
+  isConnected: false
+}
+
+type CommonTradeInput = CommonTradeInputWithWalletInfo | CommonTradeInputEmptyWalletInfo
+
+export type GetEvmTradeQuoteInputWithWalletInfo = CommonTradeInputWithWalletInfo & {
   chainId: EvmChainId
-} & (
-    | {
-        supportsEIP1559: boolean
-        accountNumber: number
-        isConnected: true
-      }
-    | {
-        supportsEIP1559: undefined
-        accountNumber: undefined
-        isConnected: false
-      }
-  )
+  supportsEIP1559: boolean
+}
+export type GetEvmTradeQuoteInputEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
+  chainId: EvmChainId
+  supportsEIP1559: undefined
+}
+export type GetEvmTradeQuoteInput =
+  | GetEvmTradeQuoteInputWithWalletInfo
+  | GetEvmTradeQuoteInputEmptyWalletInfo
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetUtxoTradeQuoteInput = CommonTradeInput & {
+type GetUtxoTradeQuoteEmputWithWalletInfo = CommonTradeInputWithWalletInfo & {
   chainId: UtxoChainId
-} & (
-    | {
-        accountType: UtxoAccountType
-        xpub: string
-        accountNumber: number
-        isConnected: true
-      }
-    | {
-        accountType: undefined
-        xpub: undefined
-        accountNumber: undefined
-        isConnected: false
-      }
-  )
+  accountType: UtxoAccountType
+  accountNumber: number
+  xpub: string
+}
+
+type GetUtxoTradeQuoteEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
+  chainId: UtxoChainId
+  // We need a dummy script type when getting a quote without a wallet
+  accountType: UtxoAccountType.P2pkh
+  accountNumber: undefined
+  xpub: undefined
+}
+
+export type GetUtxoTradeQuoteInput =
+  | GetUtxoTradeQuoteEmputWithWalletInfo
+  | GetUtxoTradeQuoteEmptyWalletInfo
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput

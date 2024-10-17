@@ -87,6 +87,7 @@ export const getTradeQuoteInput = async ({
             pubKey,
           })
         : undefined
+
       return isConnected
         ? {
             ...tradeQuoteInputCommonArgs,
@@ -95,7 +96,7 @@ export const getTradeQuoteInput = async ({
             supportsEIP1559: supportsEIP1559!,
             receiveAddress,
             accountNumber: sellAccountNumber,
-            sendAddress,
+            ...(sendAddress ? { sendAddress } : {}),
             receiveAccountNumber,
           }
         : {
@@ -105,7 +106,7 @@ export const getTradeQuoteInput = async ({
             supportsEIP1559: undefined,
             receiveAddress: undefined,
             accountNumber: undefined,
-            sendAddress,
+            sendAddress: undefined,
             receiveAccountNumber,
           }
     }
@@ -126,7 +127,7 @@ export const getTradeQuoteInput = async ({
             receiveAddress,
             accountNumber: sellAccountNumber,
             chainId: sellAsset.chainId as CosmosSdkChainId,
-            sendAddress,
+            ...(sendAddress ? { sendAddress } : {}),
             receiveAccountNumber,
           }
         : {
@@ -135,21 +136,22 @@ export const getTradeQuoteInput = async ({
             receiveAddress: undefined,
             accountNumber: undefined,
             chainId: sellAsset.chainId as CosmosSdkChainId,
-            sendAddress,
+            sendAddress: undefined,
             receiveAccountNumber: undefined,
           }
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!wallet || !isConnected)
+      if (!isConnected)
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
-          // Assumes a SegWit Native send, which works for all UTXOs - this may not be what users use for their actual swap when connecting a wallet,
+          // Assumes a SegWit send, which works for all UTXOs - this may not be what users use for their actual swap when connecting a wallet,
           // but this ensures this works for all UTXOs
           accountType: UtxoAccountType.P2pkh,
           receiveAddress: undefined,
           accountNumber: undefined,
+          xpub: undefined,
           isConnected: false,
         }
 

@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputWithWalletInfo,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -17,7 +18,10 @@ import { makeSwapErrorRight } from '../../../utils'
 import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & {
+export type GetEvmTradeQuoteInputWithWallet = Omit<
+  GetEvmTradeQuoteInputWithWalletInfo,
+  'supportsEIP1559'
+> & {
   wallet: HDWallet
 }
 
@@ -41,12 +45,6 @@ export const getTradeQuoteWithWallet = async (
   return getTradeQuote(
     {
       ...input,
-      sellAsset: input.sellAsset,
-      buyAsset: input.buyAsset,
-      // This is a quote with wallet, so isConnected is always true
-      accountNumber: input.accountNumber!,
-      receiveAddress: input.receiveAddress!,
-      isConnected: true,
       supportsEIP1559,
     },
     deps,

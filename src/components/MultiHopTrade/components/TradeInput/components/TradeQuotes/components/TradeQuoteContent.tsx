@@ -1,5 +1,5 @@
 import { Box, CardBody, CardFooter, Flex, Skeleton, Tooltip } from '@chakra-ui/react'
-import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
@@ -24,7 +24,7 @@ export type TradeQuoteContentProps = {
   networkFeeUserCurrencyPrecision: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
-  tradeQuote: TradeQuote | TradeRate | undefined
+  tradeQuote: TradeQuoteOrRate | undefined
 }
 
 export const TradeQuoteContent = ({

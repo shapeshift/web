@@ -1,6 +1,6 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Progress, Stack } from '@chakra-ui/react'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
@@ -9,7 +9,7 @@ import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
 
 export type StreamingSwapProps = {
   hopIndex: number
-  activeTradeId: TradeQuote['id']
+  activeTradeId: TradeQuoteOrRate['id']
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {

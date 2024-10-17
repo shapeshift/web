@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { TradeRate } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   type SupportedTradeQuoteStepIndex,
   type SwapperName,
-  type TradeQuote,
+  type TradeQuoteOrRate,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -16,7 +15,7 @@ import { selectMarketDataUsd, selectUsdRateByAssetId } from 'state/slices/market
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuoteOrRate['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
   const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)
@@ -36,7 +35,7 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
 
 const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
-  quote: TradeQuote | TradeRate,
+  quote: TradeQuoteOrRate,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
   quote.steps.reduce((acc, step) => {
@@ -54,10 +53,7 @@ const getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
  * @param quote The trade quote
  * @returns The total network fee across all hops in USD precision
  */
-const _getTotalNetworkFeeUsdPrecision = (
-  state: ReduxState,
-  quote: TradeQuote | TradeRate,
-): BigNumber => {
+const _getTotalNetworkFeeUsdPrecision = (state: ReduxState, quote: TradeQuoteOrRate): BigNumber => {
   const marketDataUsd = selectMarketDataUsd(state)
 
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
@@ -99,7 +95,7 @@ export const getInputOutputRatioFromQuote = ({
   quote,
 }: {
   state: ReduxState
-  quote: TradeQuote | TradeRate
+  quote: TradeQuoteOrRate
   swapperName: SwapperName
 }): number => {
   // A quote always has a first step

@@ -12,6 +12,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeQuoteOrRate,
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -31,7 +32,7 @@ export type ArbitrumBridgeTradeRate = TradeRate & ArbitrumBridgeSpecificMetadata
 export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
 
 export const isArbitrumBridgeTradeQuote = (
-  quote: (TradeQuote | TradeRate) | undefined,
+  quote: TradeQuoteOrRate | undefined,
 ): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
 
 export const getTradeQuoteWithWallet = async (

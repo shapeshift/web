@@ -1,6 +1,6 @@
 import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent } from 'react'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -13,7 +13,7 @@ import { WithLazyMount } from '../TradeInput/components/WithLazyMount'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
 type SharedTradeInputProps = {
-  activeQuote: TradeQuote | TradeRate | undefined
+  activeQuote: TradeQuoteOrRate | undefined
   buyAmountAfterFeesCryptoPrecision: string | undefined
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset

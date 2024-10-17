@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -247,9 +247,9 @@ const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined>
       ]
     },
   )
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuoteOrRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
-const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
+const selectActiveQuote: Selector<ReduxState, TradeQuoteOrRate | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,
     selectConfirmedQuote,
@@ -263,7 +263,7 @@ const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined
     },
   )
 
-const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefined> =
+const selectSecondHop: Selector<ReduxState, TradeQuoteOrRate['steps'][number] | undefined> =
   createDeepEqualOutputSelector(selectActiveQuote, quote => (quote ? quote.steps[1] : undefined))
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =

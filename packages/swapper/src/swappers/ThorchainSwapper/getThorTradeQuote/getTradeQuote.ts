@@ -7,6 +7,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeQuoteOrRate,
   TradeRate,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
@@ -56,7 +57,7 @@ export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
 
 export const isThorTradeQuote = (
-  quote: TradeQuote | TradeRate | undefined,
+  quote: TradeQuoteOrRate | undefined,
 ): quote is ThorTradeQuote | ThorTradeRate => !!quote && 'tradeType' in quote
 
 export const getThorTradeQuote = async (

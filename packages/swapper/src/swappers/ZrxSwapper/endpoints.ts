@@ -11,8 +11,7 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
-  TradeRate,
+  TradeQuoteOrRate,
 } from '../../types'
 import { checkEvmSwapStatus } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
@@ -22,7 +21,7 @@ export const zrxApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { assertGetEvmChainAdapter }: SwapperDeps,
-  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,

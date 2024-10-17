@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetUnsignedEvmMessageArgs, SwapperConfig, TradeQuote } from '../../types'
+import type { GetUnsignedEvmMessageArgs, SwapperConfig, TradeQuoteOrRate } from '../../types'
 import {
   BTC,
   ETH,
@@ -254,7 +254,7 @@ describe('cowApi', () => {
             accountNumber: 0,
           },
         ],
-      } as unknown as TradeQuote
+      } as unknown as TradeQuoteOrRate
 
       const cowSwapQuoteResponse = {
         quote: {

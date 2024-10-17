@@ -12,7 +12,7 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
+  TradeQuoteOrRate,
 } from '../../types'
 import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -24,7 +24,7 @@ export const oneInchApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps)
 
     return tradeQuoteResult.map(tradeQuote => {

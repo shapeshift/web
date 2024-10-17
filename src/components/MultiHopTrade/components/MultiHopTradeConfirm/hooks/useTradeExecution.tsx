@@ -7,7 +7,7 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
   EvmTransactionRequest,
   SupportedTradeQuoteStepIndex,
-  TradeQuote,
+  TradeQuoteOrRate,
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
@@ -38,7 +38,7 @@ import { useMixpanel } from './useMixpanel'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
-  confirmedTradeId: TradeQuote['id'],
+  confirmedTradeId: TradeQuoteOrRate['id'],
 ) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()

@@ -289,6 +289,8 @@ export type TradeRate = TradeRateBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
 
+export type TradeQuoteOrRate = TradeQuote | TradeRate
+
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
 export type GetUnsignedTxArgs = {
@@ -375,7 +377,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<(TradeQuote | TradeRate)[], SwapErrorRight>
+type TradeQuoteResult = Result<TradeQuoteOrRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -432,13 +434,13 @@ export type SwapperApi = {
   ) => Promise<StdSignDoc>
 }
 
-export type QuoteResult = Result<(TradeQuote | TradeRate)[], SwapErrorRight> & {
+export type QuoteResult = Result<TradeQuoteOrRate[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
 export type CommonTradeExecutionInput = {
   swapperName: SwapperName
-  tradeQuote: TradeQuote
+  tradeQuote: TradeQuoteOrRate
   stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
 }

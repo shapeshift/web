@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type {
   MultiHopTradeQuote,
   MultiHopTradeRate,
-  TradeQuote,
+  TradeQuoteOrRate,
   TradeRate,
 } from '@shapeshiftoss/swapper'
 
@@ -10,8 +10,7 @@ import type {
 export const chainSupportsTxHistory = (_chainId: ChainId): boolean => true
 
 export const isMultiHopTradeQuote = (
-  quote: TradeQuote | TradeRate,
+  quote: TradeQuoteOrRate,
 ): quote is MultiHopTradeQuote | MultiHopTradeRate => quote.steps.length > 1
 
-export const isTradeRate = (quote: TradeQuote | TradeRate): quote is TradeRate =>
-  !quote.receiveAddress
+export const isTradeRate = (quote: TradeQuoteOrRate): quote is TradeRate => !quote.receiveAddress

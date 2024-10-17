@@ -14,8 +14,7 @@ import type {
   GetUnsignedEvmMessageArgs,
   SwapErrorRight,
   SwapperApi,
-  TradeQuote,
-  TradeRate,
+  TradeQuoteOrRate,
 } from '../../types'
 import { SwapperName } from '../../types'
 import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
@@ -48,7 +47,7 @@ export const cowApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     { config },
-  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, config)
 
     return tradeQuoteResult.map(tradeQuote => {

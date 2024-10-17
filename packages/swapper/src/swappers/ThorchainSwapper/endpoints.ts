@@ -24,8 +24,7 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
-  TradeRate,
+  TradeQuoteOrRate,
   UtxoFeeData,
 } from '../../types'
 import { checkSafeTransactionStatus } from '../../utils'
@@ -51,7 +50,7 @@ export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput | GetTradeRateInput,
     deps: SwapperDeps,
-  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const { affiliateBps } = input
 
     return await getThorTradeQuote(

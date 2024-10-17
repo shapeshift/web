@@ -20,6 +20,7 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import EventEmitter from 'events'
+import { isTradeRate } from 'components/MultiHopTrade/utils'
 import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'
@@ -69,6 +70,9 @@ export class TradeExecution {
 
       const chainId = hop.sellAsset.chainId
 
+      if (isTradeRate(tradeQuote)) {
+        throw new Error('Cannot execute a trade rate')
+      }
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,
         chainId,

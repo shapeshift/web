@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   SwapperName,
@@ -44,7 +44,7 @@ export const validateTradeQuote = (
     isConnected,
   }: {
     swapperName: SwapperName
-    quote: TradeQuote | TradeRate | undefined
+    quote: TradeQuoteOrRate | undefined
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean

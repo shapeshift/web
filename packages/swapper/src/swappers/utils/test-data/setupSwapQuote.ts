@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { GetTradeQuoteInput, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, TradeQuoteOrRate } from '../../../types'
 import { SwapperName } from '../../../types'
 import { DEFAULT_SLIPPAGE } from '../constants'
 import { FOX_MAINNET, WETH } from './assets'
@@ -9,7 +9,7 @@ import { FOX_MAINNET, WETH } from './assets'
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
-  const tradeQuote: TradeQuote = {
+  const tradeQuote: TradeQuoteOrRate = {
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: '0',

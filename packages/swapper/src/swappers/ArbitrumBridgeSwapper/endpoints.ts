@@ -19,8 +19,7 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
-  TradeRate,
+  TradeQuoteOrRate,
 } from '../../types'
 import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -87,7 +86,7 @@ export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps)
 
     return tradeQuoteResult.map(tradeQuote => {

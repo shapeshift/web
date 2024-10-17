@@ -114,6 +114,8 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
     const { receiveAddress } = tradeQuote
 
+    if (!receiveAddress) throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
+
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 

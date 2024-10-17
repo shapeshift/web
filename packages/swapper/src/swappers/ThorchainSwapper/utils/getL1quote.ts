@@ -63,6 +63,16 @@ export const getL1quote = async (
     isConnected,
   } = input
 
+  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+  // this won't be an issue anymore
+  if (isConnected && !(receiveAddress && accountNumber !== undefined))
+    return Err(
+      makeSwapErrorRight({
+        message: 'missing address',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
+
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
   if (chainNamespace === CHAIN_NAMESPACE.Solana) {
@@ -296,7 +306,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  // TODO(gomes): tackle me
+                  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+                  // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
                   accountNumber: accountNumber!,
                   allowanceContract: router,
                   feeData: {
@@ -416,7 +427,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  // TODO(gomes): tackle me
+                  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+                  // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
                   accountNumber: accountNumber!,
                   allowanceContract: '0x0', // not applicable to UTXOs
                   feeData,
@@ -508,7 +520,8 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  // TODO(gomes): tackle me
+                  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+                  // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
                   accountNumber: accountNumber!,
                   allowanceContract: '0x0', // not applicable to cosmos
                   feeData: {

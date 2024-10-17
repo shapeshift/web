@@ -6,8 +6,8 @@ import type { AxiosError } from 'axios'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
 import {
@@ -38,7 +38,18 @@ export async function getCowSwapTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     potentialAffiliateBps,
     affiliateBps,
+    isConnected,
   } = input
+
+  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+  // this won't be an issue anymore
+  if (isConnected && !(receiveAddress && accountNumber !== undefined))
+    return Err(
+      makeSwapErrorRight({
+        message: 'missing address',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -145,7 +156,8 @@ export async function getCowSwapTradeQuote(
         source: SwapperName.CowSwap,
         buyAsset,
         sellAsset,
-        // TODO(gomes): tackle me
+        // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+        // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
         accountNumber: accountNumber!,
       },
     ],

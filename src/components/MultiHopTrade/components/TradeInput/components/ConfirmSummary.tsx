@@ -140,12 +140,14 @@ export const ConfirmSummary = ({
   ])
 
   const displayManualAddressEntry = useMemo(() => {
+    if (!isConnected) return false
     if (isAccountsMetadataLoading && !initialSellAssetAccountId) return false
     if (!walletSupportsBuyAssetChain) return true
     if (disableThorNativeSmartContractReceive) return true
 
     return false
   }, [
+    isConnected,
     isAccountsMetadataLoading,
     initialSellAssetAccountId,
     walletSupportsBuyAssetChain,

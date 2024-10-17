@@ -15,8 +15,8 @@ import {
   type SingleHopTradeQuoteSteps,
   type SwapErrorRight,
   SwapperName,
-  type TradeQuote,
   TradeQuoteError,
+  type TradeQuoteOrRate,
 } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -28,7 +28,7 @@ export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeQuoteOrRate, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -212,7 +212,7 @@ export async function getPortalsTradeQuote(
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a
       // buffer of ~15% to the gas limit
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
@@ -222,7 +222,7 @@ export async function getPortalsTradeQuote(
       .div(100)
       .toString()
 
-    const tradeQuote: TradeQuote = {
+    const tradeQuote: TradeQuoteOrRate = {
       id: orderId,
       receiveAddress: input.receiveAddress,
       affiliateBps,

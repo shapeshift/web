@@ -19,9 +19,9 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
+  TradeQuoteOrRate,
 } from '../../types'
-import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
+import { checkEvmSwapStatus, getHopByIndex, isTradeRate } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
@@ -86,7 +86,7 @@ export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -114,6 +114,8 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
     const { receiveAddress } = tradeQuote
 
+    if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
+
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
@@ -125,6 +127,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
       sendAddress: from,
+      priceOrQuote: 'quote',
       assertGetEvmChainAdapter,
     })
 

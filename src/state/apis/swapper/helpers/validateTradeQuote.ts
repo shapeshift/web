@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   SwapperName,
@@ -41,9 +41,10 @@ export const validateTradeQuote = (
     isTradingActiveOnBuyPool,
     sendAddress,
     inputSellAmountCryptoBaseUnit,
+    hasWallet,
   }: {
     swapperName: SwapperName
-    quote: TradeQuote | undefined
+    quote: TradeQuoteOrRate | undefined
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean
@@ -51,6 +52,7 @@ export const validateTradeQuote = (
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
+    hasWallet: boolean
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -108,8 +110,8 @@ export const validateTradeQuote = (
     return { errors: [tradeQuoteError], warnings: [] }
   }
 
-  // This should really never happen but in case it does:
-  if (!sendAddress) throw new Error('sendAddress is required')
+  // This should really never happen in case the wallet *is* connected but in case it does:
+  if (hasWallet && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!

@@ -12,7 +12,7 @@ import type {
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
-  TradeQuote,
+  TradeQuoteOrRate,
 } from '../../types'
 import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -24,7 +24,7 @@ export const oneInchApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps)
 
     return tradeQuoteResult.map(tradeQuote => {
@@ -52,6 +52,10 @@ export const oneInchApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
 
     const { receiveAddress, affiliateBps } = tradeQuote
+
+    // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+    // this won't be an issue anymore
+    if (!receiveAddress) throw new Error('receiveAddress is required for OneInchSwapper quotes')
 
     const {
       tx: { value, to, data },

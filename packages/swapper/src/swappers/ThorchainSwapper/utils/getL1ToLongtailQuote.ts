@@ -19,7 +19,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote, ThorTradeRate } from '../getThorTradeQuote/getTradeQuote'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
@@ -31,12 +31,13 @@ export const getL1ToLongtailQuote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
   const {
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerancePercentageDecimal,
+    hasWallet,
   } = input
 
   const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
@@ -134,18 +135,28 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      const updatedMemo = addL1ToLongtailPartsToMemo({
-        sellAssetChainId,
-        aggregator: bestAggregator,
-        finalAssetAssetId: buyAsset.assetId,
-        finalAssetAmountOut: quotedAmountOut.toString(),
-        slippageBps: convertDecimalPercentageToBasisPoints(
-          slippageTolerancePercentageDecimal ??
-            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-        ).toString(),
-        quotedMemo: quote.memo,
-        longtailTokens,
-      })
+      if (hasWallet && !quote.memo)
+        return Err(
+          makeSwapErrorRight({
+            message: '[getL1ToLongtailQuote] - quote memo is missing',
+            code: TradeQuoteError.InternalError,
+          }),
+        )
+
+      const updatedMemo = hasWallet
+        ? addL1ToLongtailPartsToMemo({
+            sellAssetChainId,
+            aggregator: bestAggregator,
+            finalAssetAssetId: buyAsset.assetId,
+            finalAssetAmountOut: quotedAmountOut.toString(),
+            slippageBps: convertDecimalPercentageToBasisPoints(
+              slippageTolerancePercentageDecimal ??
+                getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+            ).toString(),
+            quotedMemo: quote.memo,
+            longtailTokens,
+          })
+        : ''
 
       return Ok({
         ...quote,

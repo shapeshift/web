@@ -18,7 +18,7 @@ import {
   type GetTradeQuoteInput,
   type SwapErrorRight,
   type SwapperApi,
-  type TradeQuote,
+  type TradeQuoteOrRate,
   TradeQuoteError,
 } from '../../types'
 import {
@@ -42,7 +42,7 @@ export const lifiApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<TradeQuoteOrRate[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({

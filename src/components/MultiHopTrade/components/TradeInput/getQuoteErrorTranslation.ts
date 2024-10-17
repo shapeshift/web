@@ -50,6 +50,7 @@ export const getQuoteErrorTranslation = (
       case TradeQuoteValidationError.QueryFailed:
       case SwapperTradeQuoteError.QueryFailed:
       case TradeQuoteValidationError.QuoteSellAmountInvalid:
+      case SwapperTradeQuoteError.InvalidResponse:
         return 'trade.errors.quoteError'
       default:
         assertUnreachable(error)

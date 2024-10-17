@@ -49,7 +49,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
+import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
@@ -569,10 +569,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   })
 
   const {
-    allowanceCryptoBaseUnitResult,
-    isApprovalRequired: _isApprovalRequired,
+    isLoading: isApprovalRequirementsLoading,
+    isAllowanceApprovalRequired: _isApprovalRequired,
     isAllowanceResetRequired,
-  } = useIsApprovalRequired({
+  } = useAllowanceApprovalRequirements({
     amountCryptoBaseUnit:
       poolAsset && actualAssetDepositAmountCryptoPrecision
         ? toBaseUnit(actualAssetDepositAmountCryptoPrecision, poolAsset.precision)
@@ -1623,7 +1623,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             isVotingPowerLoading ||
             isTradingActiveLoading ||
             isSmartContractAccountAddressLoading ||
-            allowanceCryptoBaseUnitResult.isLoading ||
+            isApprovalRequirementsLoading ||
             isApprovalTxPending ||
             (isSweepNeeded === undefined && isSweepNeededLoading && !isApprovalRequired) ||
             (runeTxFeeCryptoBaseUnit === undefined && isEstimatedPoolAssetFeesDataLoading) ||

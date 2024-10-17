@@ -11,8 +11,15 @@ import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { bn } from '@shapeshiftoss/utils'
-import { Connection, PublicKey } from '@solana/web3.js'
+import { BigNumber, bn } from '@shapeshiftoss/utils'
+import {
+  ComputeBudgetProgram,
+  Connection,
+  PublicKey,
+  SystemProgram,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -279,22 +286,32 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {
     const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
 
+    const serializedTx = this.buildEstimationSerializedTx(input)
     const computeUnits = await this.providers.http.estimateFees({
-      estimateFeesBody: { message: input.chainSpecific?.message },
+      estimateFeesBody: { serializedTx },
     })
 
     return {
       fast: {
-        txFee: bn(microLamportsToLamports(fast)).times(computeUnits).plus(baseFee).toFixed(),
-        chainSpecific: { computeUnits },
+        txFee: bn(microLamportsToLamports(fast))
+          .times(computeUnits)
+          .plus(baseFee)
+          .toFixed(0, BigNumber.ROUND_HALF_UP),
+        chainSpecific: { computeUnits, priorityFee: fast },
       },
       average: {
-        txFee: bn(microLamportsToLamports(average)).times(computeUnits).plus(baseFee).toFixed(),
-        chainSpecific: { computeUnits },
+        txFee: bn(microLamportsToLamports(average))
+          .times(computeUnits)
+          .plus(baseFee)
+          .toFixed(0, BigNumber.ROUND_HALF_UP),
+        chainSpecific: { computeUnits, priorityFee: average },
       },
       slow: {
-        txFee: bn(microLamportsToLamports(slow)).times(computeUnits).plus(baseFee).toFixed(),
-        chainSpecific: { computeUnits },
+        txFee: bn(microLamportsToLamports(slow))
+          .times(computeUnits)
+          .plus(baseFee)
+          .toFixed(0, BigNumber.ROUND_HALF_UP),
+        chainSpecific: { computeUnits, priorityFee: slow },
       },
     }
   }
@@ -342,7 +359,37 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     this.providers.ws.close('txs')
   }
 
-  protected async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
+  private buildEstimationSerializedTx(input: GetFeeDataInput<KnownChainIds.SolanaMainnet>): string {
+    const instructions = input.chainSpecific.instructions ?? []
+
+    const value = Number(input.value)
+    if (!isNaN(value) && value > 0 && input.to) {
+      instructions.push(
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(input.chainSpecific.from),
+          toPubkey: new PublicKey(input.to),
+          lamports: value,
+        }),
+      )
+    }
+
+    // max compute limits for fee estimation
+    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: 1400000 }))
+    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
+
+    const message = new TransactionMessage({
+      payerKey: new PublicKey(input.chainSpecific.from),
+      instructions,
+      // static block hash as fee estimation replaces the block hash with latest to save us a client side call
+      recentBlockhash: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZAMdL4VZHirAn',
+    }).compileToV0Message()
+
+    const transaction = new VersionedTransaction(message)
+
+    return Buffer.from(transaction.serialize()).toString('base64')
+  }
+
+  private async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
     const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
     return {

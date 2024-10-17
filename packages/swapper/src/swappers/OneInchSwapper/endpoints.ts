@@ -53,6 +53,8 @@ export const oneInchApi: SwapperApi = {
 
     const { receiveAddress, affiliateBps } = tradeQuote
 
+    // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+    // this won't be an issue anymore
     if (!receiveAddress) throw new Error('receiveAddress is required for OneInchSwapper quotes')
 
     const {

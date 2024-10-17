@@ -111,40 +111,39 @@ export const MultiHopTradeConfirm = memo(() => {
           onAcknowledge={handleTradeConfirm}
           shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
           setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-        >
-          <CardHeader px={6} pt={4}>
-            <WithBackButton onBack={handleBack}>
-              <Heading textAlign='center' fontSize='md'>
-                <Text
-                  translation={
-                    [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-                      confirmedTradeExecutionState,
-                    )
-                      ? 'trade.confirmDetails'
-                      : 'trade.trade'
-                  }
-                />
-              </Heading>
-            </WithBackButton>
-          </CardHeader>
-          {isTradeComplete ? (
-            <TradeSuccess handleBack={handleBack}>
-              <Hops isFirstHopOpen isSecondHopOpen />
-            </TradeSuccess>
-          ) : (
-            <>
-              <CardBody py={0} px={0}>
-                <Hops
-                  isFirstHopOpen={isFirstHopOpen}
-                  isSecondHopOpen={isSecondHopOpen}
-                  onToggleFirstHop={onToggleFirstHop}
-                  onToggleSecondHop={onToggleSecondHop}
-                />
-              </CardBody>
-              <Footer isLoading={isLoading} handleSubmit={handleSubmit} />
-            </>
-          )}
-        </WarningAcknowledgement>
+        />
+        <CardHeader px={6} pt={4}>
+          <WithBackButton onBack={handleBack}>
+            <Heading textAlign='center' fontSize='md'>
+              <Text
+                translation={
+                  [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+                    confirmedTradeExecutionState,
+                  )
+                    ? 'trade.confirmDetails'
+                    : 'trade.trade'
+                }
+              />
+            </Heading>
+          </WithBackButton>
+        </CardHeader>
+        {isTradeComplete ? (
+          <TradeSuccess handleBack={handleBack}>
+            <Hops isFirstHopOpen isSecondHopOpen />
+          </TradeSuccess>
+        ) : (
+          <>
+            <CardBody py={0} px={0}>
+              <Hops
+                isFirstHopOpen={isFirstHopOpen}
+                isSecondHopOpen={isSecondHopOpen}
+                onToggleFirstHop={onToggleFirstHop}
+                onToggleSecondHop={onToggleSecondHop}
+              />
+            </CardBody>
+            <Footer isLoading={isLoading} handleSubmit={handleSubmit} />
+          </>
+        )}
       </Card>
     </TradeSlideTransition>
   )

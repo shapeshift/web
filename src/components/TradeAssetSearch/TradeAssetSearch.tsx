@@ -187,12 +187,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [])
 
   return (
-    <CustomAssetAcknowledgement
-      asset={assetToImport}
-      handleAssetClick={handleAssetClick}
-      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
-    >
+    <>
+      <CustomAssetAcknowledgement
+        asset={assetToImport}
+        handleAssetClick={handleAssetClick}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
       <Stack
         gap={4}
         px={4}
@@ -242,6 +243,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
         />
       )}
-    </CustomAssetAcknowledgement>
+    </>
   )
 }

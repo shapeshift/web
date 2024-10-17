@@ -114,6 +114,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
     const { receiveAddress } = tradeQuote
 
+    // TODO(gomes): when we actually split between TradeQuote and TradeRate, this won't be an issue anymore
     if (!receiveAddress) throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
 
     const assertion = await assertValidTrade({ buyAsset, sellAsset })

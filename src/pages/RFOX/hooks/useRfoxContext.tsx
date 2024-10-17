@@ -32,9 +32,7 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
 
   const filter = useMemo(
     () =>
-      stakingAssetAccountId && stakingAssetId
-        ? { assetId: stakingAssetAccountId, accountId: stakingAssetAccountId }
-        : undefined,
+      stakingAssetAccountId && stakingAssetId ? { accountId: stakingAssetAccountId } : undefined,
     [stakingAssetAccountId, stakingAssetId],
   )
 

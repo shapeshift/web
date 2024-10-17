@@ -329,119 +329,113 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         onAcknowledge={handleSubmit}
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
-      >
-        <FormProvider {...methods}>
-          <Stack>
-            {headerComponent}
-            <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-              <Stack>
-                <AmountSlider
-                  sliderValue={sliderValue}
-                  handlePercentageSliderChange={handlePercentageSliderChange}
-                  onPercentageClick={handlePercentageClick}
-                  handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
-                >
-                  <Flex
-                    width='full'
-                    justifyContent='space-between'
-                    fontSize='xs'
-                    color='text.subtle'
-                  >
-                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                      <Amount.Fiat value={0} />
-                    </Skeleton>
-                    <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
-                      {/* Actually defined at display time, see isLoaded above */}
-                      <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
-                    </Skeleton>
-                  </Flex>
-                </AmountSlider>
-              </Stack>
-            </Skeleton>
-            <FormDivider />
-            <TradeAssetInput
-              amountFieldInputRules={amountFieldInputRules}
-              assetIcon={stakingAsset?.icon ?? ''}
-              assetId={stakingAssetId}
-              assetSymbol={stakingAsset?.symbol ?? ''}
-              cryptoAmount={amountCryptoPrecision}
-              fiatAmount={amountUserCurrency}
-              formControlProps={formControlProps}
-              // TODO(gomes): bring me back when multi account is implemented
-              isAccountSelectionDisabled
-              isAccountSelectionHidden
-              isFiat={isFiat}
-              isReadOnly
-              isSendMaxDisabled={true}
-              layout='stacked'
-              onAccountIdChange={handleAccountIdChange}
-              onToggleIsFiat={handleToggleIsFiat}
-              percentOptions={percentOptions}
-              rightComponent={ReadOnlyAsset}
-              showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-            />
-
-            <Collapse in={hasEnteredValue}>
-              {stakingAssetAccountId && (
-                <UnstakeSummary
-                  amountCryptoPrecision={amountCryptoPrecision ?? 0}
-                  stakingAssetAccountId={stakingAssetAccountId}
-                  stakingAssetId={stakingAssetId}
-                  isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
-                />
-              )}
-              <CardFooter
-                borderTopWidth={1}
-                borderColor='border.subtle'
-                flexDir='column'
-                gap={4}
-                px={6}
-                py={4}
-                bg='background.surface.raised.accent'
+      />
+      <FormProvider {...methods}>
+        <Stack>
+          {headerComponent}
+          <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+            <Stack>
+              <AmountSlider
+                sliderValue={sliderValue}
+                handlePercentageSliderChange={handlePercentageSliderChange}
+                onPercentageClick={handlePercentageClick}
+                handlePercentageSliderChangeEnd={handlePercentageSliderChangeEnd}
               >
-                {isGetUnstakeFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.gasFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isUnstakeFeesLoading && unstakeFees)}>
-                        <Amount.Fiat value={unstakeFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-              </CardFooter>
-            </Collapse>
-          </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet)}
-              isDisabled={Boolean(
-                !hasEnteredValue ||
-                  !isUnstakeFeesSuccess ||
-                  Boolean(errors.amountFieldInput) ||
-                  !cooldownPeriod,
-              )}
-              size='lg'
-              mx={-2}
-              onClick={handleWarning}
-              colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
-              isLoading={isUnstakeFeesLoading}
+                <Flex width='full' justifyContent='space-between' fontSize='xs' color='text.subtle'>
+                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                    <Amount.Fiat value={0} />
+                  </Skeleton>
+                  <Skeleton isLoaded={isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}>
+                    {/* Actually defined at display time, see isLoaded above */}
+                    <Amount.Fiat value={userStakingBalanceUserCurrency ?? 0} />
+                  </Skeleton>
+                </Flex>
+              </AmountSlider>
+            </Stack>
+          </Skeleton>
+          <FormDivider />
+          <TradeAssetInput
+            amountFieldInputRules={amountFieldInputRules}
+            assetIcon={stakingAsset?.icon ?? ''}
+            assetId={stakingAssetId}
+            assetSymbol={stakingAsset?.symbol ?? ''}
+            cryptoAmount={amountCryptoPrecision}
+            fiatAmount={amountUserCurrency}
+            formControlProps={formControlProps}
+            // TODO(gomes): bring me back when multi account is implemented
+            isAccountSelectionDisabled
+            isAccountSelectionHidden
+            isFiat={isFiat}
+            isReadOnly
+            isSendMaxDisabled={true}
+            layout='stacked'
+            onAccountIdChange={handleAccountIdChange}
+            onToggleIsFiat={handleToggleIsFiat}
+            percentOptions={percentOptions}
+            rightComponent={ReadOnlyAsset}
+            showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+          />
+
+          <Collapse in={hasEnteredValue}>
+            {stakingAssetAccountId && (
+              <UnstakeSummary
+                amountCryptoPrecision={amountCryptoPrecision ?? 0}
+                stakingAssetAccountId={stakingAssetAccountId}
+                stakingAssetId={stakingAssetId}
+                isLoading={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+              />
+            )}
+            <CardFooter
+              borderTopWidth={1}
+              borderColor='border.subtle'
+              flexDir='column'
+              gap={4}
+              px={6}
+              py={4}
+              bg='background.surface.raised.accent'
             >
-              {errors.amountFieldInput?.message ||
-                chainNotSupportedByWalletCopy ||
-                translate('RFOX.unstake')}
-            </ButtonWalletPredicate>
-          </CardFooter>
-        </FormProvider>
-      </WarningAcknowledgement>
+              {isGetUnstakeFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.gasFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isUnstakeFeesLoading && unstakeFees)}>
+                      <Amount.Fiat value={unstakeFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+            </CardFooter>
+          </Collapse>
+        </Stack>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <ButtonWalletPredicate
+            isValidWallet={Boolean(isChainSupportedByWallet)}
+            isDisabled={Boolean(
+              !hasEnteredValue ||
+                !isUnstakeFeesSuccess ||
+                Boolean(errors.amountFieldInput) ||
+                !cooldownPeriod,
+            )}
+            size='lg'
+            mx={-2}
+            onClick={handleWarning}
+            colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
+            isLoading={isUnstakeFeesLoading}
+          >
+            {errors.amountFieldInput?.message ||
+              chainNotSupportedByWalletCopy ||
+              translate('RFOX.unstake')}
+          </ButtonWalletPredicate>
+        </CardFooter>
+      </FormProvider>
     </SlideTransition>
   )
 }

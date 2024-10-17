@@ -480,114 +480,113 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         shouldShowAcknowledgement={showWarning}
         setShouldShowAcknowledgement={setShowWarning}
         buttonTranslation={'common.yes'}
-      >
-        <FormProvider {...methods}>
-          <Stack>
-            {headerComponent}
-            <TradeAssetInput
-              amountFieldInputRules={amountFieldInputRules}
-              assetId={selectedAsset?.assetId}
-              accountId={selectedAssetAccountId}
-              assetSymbol={selectedAsset?.symbol ?? ''}
-              assetIcon={selectedAsset?.icon ?? ''}
-              percentOptions={percentOptions}
-              isAccountSelectionDisabled
-              // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
-              // this *is* effectively disabled, however, onAccountIdChange *needs* to be a noop, or else the top-level
-              // dropdown will break, as this component calls onAccountIdChange once on first render - regardless of whether account selection is disabled or not
-              onAccountIdChange={noop}
-              onToggleIsFiat={handleToggleIsFiat}
-              onChange={handleAmountChange}
-              isFiat={isFiat}
-              formControlProps={formControlProps}
-              layout='stacked'
-              label={translate('transactionRow.amount')}
-              labelPostFix={assetSelectComponent}
-              isSendMaxDisabled={false}
-              cryptoAmount={amountCryptoPrecision}
-              fiatAmount={amountUserCurrency}
-            />
-            <FormDivider />
-            <AddressSelection
-              selectedAddress={runeAddress}
-              onRuneAddressChange={handleRuneAddressChange}
-              setStepIndex={setStepIndex}
-            />
-            <Collapse in={collapseIn}>
-              {stakingAssetAccountId && (
-                <StakeSummary
-                  stakingAssetId={stakingAssetId}
-                  stakingAssetAccountId={stakingAssetAccountId}
-                  stakingAmountCryptoPrecision={amountCryptoPrecision}
-                />
-              )}
-              <CardFooter
-                borderTopWidth={1}
-                borderColor='border.subtle'
-                flexDir='column'
-                gap={4}
-                px={6}
-                py={4}
-                bg='background.surface.raised.accent'
-              >
-                {isGetApprovalFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.approvalFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
-                        <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-                {isGetStakeFeesEnabled && (
-                  <Row fontSize='sm' fontWeight='medium'>
-                    <Row.Label>{translate('common.gasFee')}</Row.Label>
-                    <Row.Value>
-                      <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
-                        <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
-                      </Skeleton>
-                    </Row.Value>
-                  </Row>
-                )}
-              </CardFooter>
-            </Collapse>
-          </Stack>
-          <CardFooter
-            borderTopWidth={1}
-            borderColor='border.subtle'
-            flexDir='column'
-            gap={4}
-            px={6}
-            bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
-          >
-            <ButtonWalletPredicate
-              isValidWallet={Boolean(isChainSupportedByWallet || isAccountsMetadataLoading)}
-              isDisabled={Boolean(
-                errors.amountFieldInput ||
-                  (!runeAddress && !currentRuneAddress) ||
-                  !isValidStakingAmount ||
-                  !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
-                  isAccountsMetadataLoading ||
-                  !cooldownPeriod,
-              )}
-              size='lg'
-              mx={-2}
-              onClick={handleWarning}
-              isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
-              colorScheme={
-                Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
-                !isAccountsMetadataLoading
-                  ? 'red'
-                  : 'blue'
-              }
+      />
+      <FormProvider {...methods}>
+        <Stack>
+          {headerComponent}
+          <TradeAssetInput
+            amountFieldInputRules={amountFieldInputRules}
+            assetId={selectedAsset?.assetId}
+            accountId={selectedAssetAccountId}
+            assetSymbol={selectedAsset?.symbol ?? ''}
+            assetIcon={selectedAsset?.icon ?? ''}
+            percentOptions={percentOptions}
+            isAccountSelectionDisabled
+            // Since we disable AccountId selection at asset-selection in profit of top-level page account dropdown,
+            // this *is* effectively disabled, however, onAccountIdChange *needs* to be a noop, or else the top-level
+            // dropdown will break, as this component calls onAccountIdChange once on first render - regardless of whether account selection is disabled or not
+            onAccountIdChange={noop}
+            onToggleIsFiat={handleToggleIsFiat}
+            onChange={handleAmountChange}
+            isFiat={isFiat}
+            formControlProps={formControlProps}
+            layout='stacked'
+            label={translate('transactionRow.amount')}
+            labelPostFix={assetSelectComponent}
+            isSendMaxDisabled={false}
+            cryptoAmount={amountCryptoPrecision}
+            fiatAmount={amountUserCurrency}
+          />
+          <FormDivider />
+          <AddressSelection
+            selectedAddress={runeAddress}
+            onRuneAddressChange={handleRuneAddressChange}
+            setStepIndex={setStepIndex}
+          />
+          <Collapse in={collapseIn}>
+            {stakingAssetAccountId && (
+              <StakeSummary
+                stakingAssetId={stakingAssetId}
+                stakingAssetAccountId={stakingAssetAccountId}
+                stakingAmountCryptoPrecision={amountCryptoPrecision}
+              />
+            )}
+            <CardFooter
+              borderTopWidth={1}
+              borderColor='border.subtle'
+              flexDir='column'
+              gap={4}
+              px={6}
+              py={4}
+              bg='background.surface.raised.accent'
             >
-              {submitButtonText}
-            </ButtonWalletPredicate>
-          </CardFooter>
-        </FormProvider>
-      </InfoAcknowledgement>
+              {isGetApprovalFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.approvalFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isGetApprovalFeesLoading && approvalFees)}>
+                      <Amount.Fiat value={approvalFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+              {isGetStakeFeesEnabled && (
+                <Row fontSize='sm' fontWeight='medium'>
+                  <Row.Label>{translate('common.gasFee')}</Row.Label>
+                  <Row.Value>
+                    <Skeleton isLoaded={Boolean(!isStakeFeesLoading && stakeFees)}>
+                      <Amount.Fiat value={stakeFees?.txFeeFiat ?? 0} />
+                    </Skeleton>
+                  </Row.Value>
+                </Row>
+              )}
+            </CardFooter>
+          </Collapse>
+        </Stack>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <ButtonWalletPredicate
+            isValidWallet={Boolean(isChainSupportedByWallet || isAccountsMetadataLoading)}
+            isDisabled={Boolean(
+              errors.amountFieldInput ||
+                (!runeAddress && !currentRuneAddress) ||
+                !isValidStakingAmount ||
+                !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
+                isAccountsMetadataLoading ||
+                !cooldownPeriod,
+            )}
+            size='lg'
+            mx={-2}
+            onClick={handleWarning}
+            isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
+            colorScheme={
+              Boolean(errors.amountFieldInput || errors.manualRuneAddress) &&
+              !isAccountsMetadataLoading
+                ? 'red'
+                : 'blue'
+            }
+          >
+            {submitButtonText}
+          </ButtonWalletPredicate>
+        </CardFooter>
+      </FormProvider>
     </SlideTransition>
   )
 }

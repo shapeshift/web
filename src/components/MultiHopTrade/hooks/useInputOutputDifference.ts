@@ -1,11 +1,13 @@
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
-import { getHopByIndex, type TradeQuote } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useInputOutputDifferenceDecimalPercentage = (tradeQuote: TradeQuote | undefined) => {
+export const useInputOutputDifferenceDecimalPercentage = (
+  tradeQuote: TradeQuote | TradeRate | undefined,
+) => {
   const numSteps = tradeQuote?.steps.length ?? 0
   const sellAsset = tradeQuote?.steps[0].sellAsset
   const buyAsset = tradeQuote?.steps[numSteps - 1].buyAsset

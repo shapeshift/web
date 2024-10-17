@@ -234,28 +234,58 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
-        sellAsset,
-        sellAccountNumber,
-        receiveAccountNumber,
-        sellAccountType: sellAccountMetadata?.accountType,
-        buyAsset,
-        wallet: wallet ?? undefined,
-        isConnected,
-        receiveAddress,
-        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-        allowMultiHop: true,
-        affiliateBps,
-        potentialAffiliateBps,
-        // Pass in the user's slippage preference if it's set, else let the swapper use its default
-        slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey:
-          wallet && isLedger(wallet) && sellAccountId
-            ? fromAccountId(sellAccountId).account
-            : undefined,
-      })
+      if (isConnected) {
+        // This should never happen but...
+        if (!wallet) throw new Error('wallet is required')
+        if (!sellAccountNumber) throw new Error('sellAccountNumber is required')
+        if (!receiveAddress) throw new Error('receiveAddress is required')
 
-      setTradeQuoteInput(updatedTradeQuoteInput)
+        const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
+          sellAsset,
+          sellAccountNumber,
+          receiveAccountNumber,
+          sellAccountType: sellAccountMetadata?.accountType,
+          buyAsset,
+          wallet: wallet ?? undefined,
+          isConnected,
+          receiveAddress,
+          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: true,
+          affiliateBps,
+          potentialAffiliateBps,
+          // Pass in the user's slippage preference if it's set, else let the swapper use its default
+          slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
+          pubKey:
+            wallet && isLedger(wallet) && sellAccountId
+              ? fromAccountId(sellAccountId).account
+              : undefined,
+        })
+
+        setTradeQuoteInput(updatedTradeQuoteInput)
+      } else {
+        const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
+          sellAsset,
+          sellAccountNumber,
+          receiveAccountNumber,
+          sellAccountType: sellAccountMetadata?.accountType,
+          buyAsset,
+          wallet: wallet ?? undefined,
+          isConnected,
+          receiveAddress,
+          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: true,
+          affiliateBps,
+          potentialAffiliateBps,
+          // Pass in the user's slippage preference if it's set, else let the swapper use its default
+          slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
+          pubKey:
+            wallet && isLedger(wallet) && sellAccountId
+              ? fromAccountId(sellAccountId).account
+              : undefined,
+        })
+
+        setTradeQuoteInput(updatedTradeQuoteInput)
+      }
     })()
   }, [
     buyAsset,

@@ -16,6 +16,7 @@ import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { isTradeRate } from 'components/MultiHopTrade/utils'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -207,6 +208,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!wallet) throw Error('missing wallet')
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
+
+      if (isTradeRate(activeQuote)) throw new Error('Cannot submit a trade rate')
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 

@@ -34,10 +34,10 @@ export type GetTradeQuoteInputArgs = {
       isConnected: true
     }
   | {
-      receiveAccountNumber?: undefined
-      receiveAddress: undefined
-      sellAccountNumber: undefined
-      wallet: undefined
+      receiveAccountNumber?: number
+      receiveAddress: string | undefined
+      sellAccountNumber: number | undefined
+      wallet: HDWallet | undefined
       isConnected: false
     }
 )
@@ -80,15 +80,18 @@ export const getTradeQuoteInput = async ({
       const supportsEIP1559 =
         wallet && isConnected && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
-      const sendAddress = wallet
-        ? await sellAssetChainAdapter.getAddress({
-            accountNumber: sellAccountNumber,
-            wallet,
-            pubKey,
-          })
-        : undefined
+      const sendAddress =
+        wallet && sellAccountNumber
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
 
-      return isConnected
+      if (wallet && !receiveAccountNumber) throw new Error('missing receiveAccountNumber')
+
+      return wallet && isConnected && receiveAccountNumber
         ? {
             ...tradeQuoteInputCommonArgs,
             chainId: sellAsset.chainId as EvmChainId,
@@ -102,24 +105,25 @@ export const getTradeQuoteInput = async ({
         : {
             ...tradeQuoteInputCommonArgs,
             chainId: sellAsset.chainId as EvmChainId,
-            isConnected,
+            isConnected: false,
             supportsEIP1559: undefined,
             receiveAddress: undefined,
             accountNumber: undefined,
             sendAddress: undefined,
-            receiveAccountNumber,
+            receiveAccountNumber: undefined,
           }
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
       const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
-      const sendAddress = wallet
-        ? await sellAssetChainAdapter.getAddress({
-            accountNumber: sellAccountNumber,
-            wallet,
-            pubKey,
-          })
-        : undefined
+      const sendAddress =
+        wallet && sellAccountNumber
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
       return isConnected
         ? {
             ...tradeQuoteInputCommonArgs,

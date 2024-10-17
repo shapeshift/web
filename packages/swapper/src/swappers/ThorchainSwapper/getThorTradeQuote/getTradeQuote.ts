@@ -55,8 +55,9 @@ export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 
 export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
 
-export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
-  !!quote && 'tradeType' in quote
+export const isThorTradeQuote = (
+  quote: TradeQuote | TradeRate | undefined,
+): quote is ThorTradeQuote | ThorTradeRate => !!quote && 'tradeType' in quote
 
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,

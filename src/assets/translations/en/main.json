@@ -2660,7 +2660,7 @@
     },
     "foxFarming": {
       "title": "FOX Farming+",
-      "description": "Tired of migrating your FOX from farm to farm? Just stake your Uniswap LP FOX<>WETH and earn FOX in perpetuity.",
+      "description": "Tired of migrating your %{rewardAssetSymbol} from farm to farm? Just stake your %{assetSymbol} and earn %{rewardAssetSymbol} in perpetuity.",
       "totalClaimableRewards": "Total Claimable Rewards",
       "totalStakingValue": "Total Staking Value",
       "nextEpoch": "Next Epoch"

@@ -16,7 +16,6 @@ import {
   selectAssetIdParamFromFilter,
   selectDefiProviderParamFromFilter,
   selectDefiTypeParamFromFilter,
-  selectOpportunityIdParamFromFilter,
   selectStakingIdParamFromFilter,
   selectUserStakingIdParamFromFilter,
   selectValidatorIdParamFromFilter,
@@ -74,10 +73,12 @@ export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelect
 export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
-  (walletAccountIds, userStakingById) =>
-    pickBy(userStakingById, (_userStaking, userStakingId) =>
+  (walletAccountIds, userStakingById) => {
+    console.log({ walletAccountIds, userStakingById })
+    return pickBy(userStakingById, (_userStaking, userStakingId) =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
-    ),
+    )
+  },
 )
 
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
@@ -560,64 +561,10 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       opportunityName: userStakingOpportunity.name,
       icons: makeOpportunityIcons({ opportunity: userStakingOpportunity, assets }),
-    }
-
-    return earnUserStakingOpportunity
-  },
-)
-
-// A staking opportunity by opportunityId parsed as an EarnOpportunityType
-// TODO: testme
-export const selectEarnUserStakingOpportunityByOpportunityId = createDeepEqualOutputSelector(
-  selectUserStakingOpportunitiesById,
-  selectStakingOpportunitiesById,
-  selectOpportunityIdParamFromFilter,
-  selectUserStakingIdParamFromFilter,
-  selectMarketDataUserCurrency,
-  selectAssets,
-  (
-    userStakingOpportunitiesById,
-    stakingOpportunitiesById,
-    opportunityId,
-    userStakingId,
-    marketData,
-    assets,
-  ): StakingEarnOpportunityType | undefined => {
-    if (!userStakingOpportunitiesById || !stakingOpportunitiesById || !marketData || !opportunityId)
-      return
-
-    const userStakingOpportunity = userStakingId
-      ? userStakingOpportunitiesById[userStakingId]
-      : undefined
-    const stakingOpportunity = stakingOpportunitiesById[opportunityId]
-
-    if (!stakingOpportunity) return
-
-    const asset = assets[stakingOpportunity.assetId]
-    const underlyingAsset = assets[stakingOpportunity.underlyingAssetId]
-
-    const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
-
-    const earnUserStakingOpportunity: StakingEarnOpportunityType = {
-      ...userStakingOpportunity,
-      ...stakingOpportunity,
-      isLoaded: userStakingOpportunity?.isLoaded ?? true,
-      chainId: fromAssetId(stakingOpportunity.assetId).chainId,
-      cryptoAmountBaseUnit: userStakingOpportunity?.stakedAmountCryptoBaseUnit ?? '0',
-      cryptoAmountPrecision: bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
-        .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-        .toFixed(),
-      fiatAmount: bnOrZero(userStakingOpportunity?.stakedAmountCryptoBaseUnit)
-        .div(bn(10).pow(bnOrZero(asset?.precision ?? underlyingAsset?.precision)))
-        .times(marketDataPrice ?? '0')
-        .toString(),
-      stakedAmountCryptoBaseUnit: userStakingOpportunity?.stakedAmountCryptoBaseUnit ?? '0',
-      opportunityName: stakingOpportunity.name,
-      icons: makeOpportunityIcons({ opportunity: stakingOpportunity, assets }),
-      contractAddress: isFoxEthStakingAssetId(stakingOpportunity.assetId)
-        ? fromAssetId(stakingOpportunity.assetId).assetReference
+      contractAddress: isFoxEthStakingAssetId(userStakingOpportunity.assetId)
+        ? fromAssetId(userStakingOpportunity.assetId).assetReference
         : undefined,
-      rewardAddress: isFoxEthStakingAssetId(stakingOpportunity.assetId)
+      rewardAddress: isFoxEthStakingAssetId(userStakingOpportunity.assetId)
         ? fromAssetId(foxAssetId).assetReference
         : undefined,
     }

@@ -2,7 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
 import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { ethAssetId, isNft } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -14,6 +14,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isSplToken } from 'lib/utils/solana'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -103,10 +104,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const handleTradeClick = useCallback(() => {
     history.push(`/trade/${assetId}`)
   }, [assetId, history])
-
-  const isSplToken = useMemo(() => {
-    return fromAssetId(assetId).assetNamespace === ASSET_NAMESPACE.splToken
-  }, [assetId])
 
   if (isMobile) {
     return (
@@ -208,7 +205,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
           onClick={handleSendClick}
           leftIcon={arrowUpIcon}
           width={buttonWidthProps}
-          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId) || isSplToken}
+          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId) || isSplToken(assetId)}
           data-test='asset-action-send'
           flex={buttonFlexProps}
         >

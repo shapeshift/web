@@ -37,7 +37,7 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerancePercentageDecimal,
-    isConnected,
+    hasWallet,
   } = input
 
   const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
@@ -135,7 +135,7 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      if (isConnected && !quote.memo)
+      if (hasWallet && !quote.memo)
         return Err(
           makeSwapErrorRight({
             message: '[getL1ToLongtailQuote] - quote memo is missing',
@@ -143,7 +143,7 @@ export const getL1ToLongtailQuote = async (
           }),
         )
 
-      const updatedMemo = isConnected
+      const updatedMemo = hasWallet
         ? addL1ToLongtailPartsToMemo({
             sellAssetChainId,
             aggregator: bestAggregator,

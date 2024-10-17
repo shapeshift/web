@@ -113,8 +113,9 @@ const getMixPanelDataFromApiQuotes = (
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const {
-    state: { isConnected, wallet },
+    state: { walletInfo, wallet },
   } = useWallet()
+  const hasWallet = Boolean(walletInfo?.deviceId)
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -180,7 +181,7 @@ export const useGetTradeQuotes = () => {
             sellAccountMetadata &&
             receiveAddress &&
             !isVotingPowerLoading) ||
-            !isConnected),
+            !hasWallet),
       ),
     [
       hasFocus,
@@ -189,7 +190,7 @@ export const useGetTradeQuotes = () => {
       sellAccountMetadata,
       receiveAddress,
       isVotingPowerLoading,
-      isConnected,
+      hasWallet,
     ],
   )
 
@@ -207,12 +208,8 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      (isConnected &&
-        (!wallet ||
-          !sellAccountId ||
-          !sellAccountMetadata ||
-          !receiveAddress ||
-          isVotingPowerLoading))
+      (hasWallet &&
+        (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
     ) {
       setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
@@ -234,9 +231,8 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      if (isConnected) {
+      if (hasWallet) {
         // This should never happen but...
-        if (!wallet) throw new Error('wallet is required')
         if (!sellAccountNumber) throw new Error('sellAccountNumber is required')
         if (!receiveAddress) throw new Error('receiveAddress is required')
 
@@ -246,8 +242,8 @@ export const useGetTradeQuotes = () => {
           receiveAccountNumber,
           sellAccountType: sellAccountMetadata?.accountType,
           buyAsset,
-          wallet: wallet ?? undefined,
-          isConnected,
+          wallet: wallet!,
+          hasWallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
@@ -270,7 +266,7 @@ export const useGetTradeQuotes = () => {
           sellAccountType: sellAccountMetadata?.accountType,
           buyAsset,
           wallet: wallet ?? undefined,
-          isConnected,
+          hasWallet,
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
@@ -302,7 +298,7 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
-    isConnected,
+    hasWallet,
   ])
 
   const getTradeQuoteArgs = useCallback(

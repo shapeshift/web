@@ -44,12 +44,11 @@ export async function getCowSwapTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     potentialAffiliateBps,
     affiliateBps,
-    isConnected,
+    hasWallet,
   } = input
 
-  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
-  // this won't be an issue anymore
-  if (isConnected && !(receiveAddress && accountNumber !== undefined))
+  // This should never happen, and we have additional checks at execution time re: receiveAddress === zeroAddress but...
+  if (hasWallet && !(receiveAddress && accountNumber !== undefined))
     return Err(
       makeSwapErrorRight({
         message: 'missing address',

@@ -51,12 +51,12 @@ export async function getTradeQuote(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    isConnected,
+    hasWallet,
   } = input
 
   // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
   // this won't be an issue anymore
-  if (isConnected && !(receiveAddress && sendAddress))
+  if (hasWallet && !(receiveAddress && sendAddress))
     return Err(
       makeSwapErrorRight({
         message: 'missing address',

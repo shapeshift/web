@@ -63,12 +63,11 @@ export const getL1quote = async (
     receiveAddress,
     affiliateBps: requestedAffiliateBps,
     potentialAffiliateBps,
-    isConnected,
+    hasWallet,
   } = input
 
-  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
-  // this won't be an issue anymore
-  if (isConnected && !(receiveAddress && accountNumber !== undefined))
+  // This should never happen, and we have additional checks at execution time re: missing addies, but...
+  if (hasWallet && !(receiveAddress && accountNumber !== undefined))
     return Err(
       makeSwapErrorRight({
         message: 'missing address',
@@ -244,7 +243,7 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorEvmTradeQuote | ThorEvmTradeRate> => {
-            if (isConnected && !quote.memo) throw new Error('no memo provided')
+            if (hasWallet && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
@@ -258,7 +257,7 @@ export const getL1quote = async (
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
             const memo = (() => {
-              if (!isConnected) return ''
+              if (!hasWallet) return ''
               if (!quote.memo) throw new Error('no memo provided')
 
               if (isStreaming) return quote.memo
@@ -352,7 +351,7 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): Promise<ThorTradeUtxoOrCosmosQuote | ThorTradeUtxoOrCosmosRate> => {
-            if (isConnected && !quote.memo) throw new Error('no memo provided')
+            if (hasWallet && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
@@ -366,7 +365,7 @@ export const getL1quote = async (
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
             const memo = (() => {
-              if (!isConnected) return ''
+              if (!hasWallet) return ''
               if (!quote.memo) throw new Error('no memo provided')
 
               if (isStreaming) return quote.memo
@@ -383,10 +382,10 @@ export const getL1quote = async (
               config: deps.config,
             })
 
-            if (isConnected && !pubkey) throw new Error('xpub is required')
+            if (hasWallet && !pubkey) throw new Error('xpub is required')
 
             const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-            const feeData = isConnected
+            const feeData = hasWallet
               ? await getUtxoTxFees({
                   sellAmountCryptoBaseUnit,
                   vault,

@@ -93,7 +93,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     )
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
-  const { wallet, isConnected } = useWallet().state
+  const { wallet, walletInfo } = useWallet().state
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
     () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
@@ -142,7 +142,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
-      isConnected,
+      hasWallet: Boolean(walletInfo?.deviceId),
     }),
     [
       buyAsset,
@@ -150,9 +150,9 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       confirmedQuote.bridgeAmountCryptoBaseUnit,
       confirmedQuote.buyAssetAccountId,
       confirmedQuote.sellAssetAccountId,
-      isConnected,
       sellAsset,
       sellAssetAccountNumber,
+      walletInfo?.deviceId,
     ],
   )
 

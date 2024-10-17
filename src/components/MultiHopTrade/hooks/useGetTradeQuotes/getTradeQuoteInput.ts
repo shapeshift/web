@@ -31,14 +31,14 @@ export type GetTradeQuoteInputArgs = {
       receiveAddress: string
       sellAccountNumber: number
       wallet: HDWallet
-      isConnected: true
+      hasWallet: true
     }
   | {
       receiveAccountNumber?: number
       receiveAddress: string | undefined
       sellAccountNumber: number | undefined
       wallet: HDWallet | undefined
-      isConnected: false
+      hasWallet: false
     }
 )
 
@@ -48,7 +48,7 @@ export const getTradeQuoteInput = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
-  isConnected,
+  hasWallet,
   receiveAddress,
   receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
@@ -78,7 +78,7 @@ export const getTradeQuoteInput = async ({
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const supportsEIP1559 =
-        wallet && isConnected && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        hasWallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress =
         wallet && sellAccountNumber
@@ -91,11 +91,11 @@ export const getTradeQuoteInput = async ({
 
       if (wallet && !receiveAccountNumber) throw new Error('missing receiveAccountNumber')
 
-      return wallet && isConnected && receiveAccountNumber
+      return hasWallet && receiveAccountNumber
         ? {
             ...tradeQuoteInputCommonArgs,
             chainId: sellAsset.chainId as EvmChainId,
-            isConnected,
+            hasWallet,
             supportsEIP1559: supportsEIP1559!,
             receiveAddress,
             accountNumber: sellAccountNumber,
@@ -105,7 +105,7 @@ export const getTradeQuoteInput = async ({
         : {
             ...tradeQuoteInputCommonArgs,
             chainId: sellAsset.chainId as EvmChainId,
-            isConnected: false,
+            hasWallet: false,
             supportsEIP1559: undefined,
             receiveAddress: undefined,
             accountNumber: undefined,
@@ -124,10 +124,10 @@ export const getTradeQuoteInput = async ({
               pubKey,
             })
           : undefined
-      return isConnected
+      return hasWallet
         ? {
             ...tradeQuoteInputCommonArgs,
-            isConnected,
+            hasWallet,
             receiveAddress,
             accountNumber: sellAccountNumber,
             chainId: sellAsset.chainId as CosmosSdkChainId,
@@ -136,7 +136,7 @@ export const getTradeQuoteInput = async ({
           }
         : {
             ...tradeQuoteInputCommonArgs,
-            isConnected,
+            hasWallet,
             receiveAddress: undefined,
             accountNumber: undefined,
             chainId: sellAsset.chainId as CosmosSdkChainId,
@@ -146,7 +146,7 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!isConnected)
+      if (!hasWallet)
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
@@ -156,7 +156,7 @@ export const getTradeQuoteInput = async ({
           receiveAddress: undefined,
           accountNumber: undefined,
           xpub: undefined,
-          isConnected: false,
+          hasWallet: false,
         }
 
       if (!sellAccountType) {
@@ -176,7 +176,7 @@ export const getTradeQuoteInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,
-        isConnected,
+        hasWallet,
         receiveAddress,
         accountNumber: sellAccountNumber,
         accountType: sellAccountType,

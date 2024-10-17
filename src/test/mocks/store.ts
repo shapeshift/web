@@ -125,6 +125,7 @@ export const mockStore: ReduxState = {
       FoxPageRFOX: false,
       FoxPageFoxSection: false,
       FoxPageFoxFarmingSection: false,
+      FoxPageGovernance: false,
       LimitOrders: false,
     },
     selectedLocale: 'en',
@@ -249,6 +250,7 @@ export const mockStore: ReduxState = {
       THORCHAIN_LP: undefined,
     },
     strategies: undefined,
+    proposals: undefined,
   },
   localWalletSlice: {
     _persist: {

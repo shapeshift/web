@@ -28,7 +28,20 @@ export const selectVotingPower = createSelector(
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
+    console.log({ accountIdsbyChainId, votingPowerByModel })
 
     return votingPowerByModel[feeModel!]
   },
 )
+
+export const selectProposals = (state: ReduxState) => state.snapshot.proposals
+export const selectActiveProposals = createSelector(selectProposals, proposals => {
+  if (!proposals) return []
+
+  return proposals.filter(proposal => proposal.state === 'active')
+})
+export const selectClosedProposals = createSelector(selectProposals, proposals => {
+  if (!proposals) return []
+
+  return proposals.filter(proposal => proposal.state === 'closed')
+})

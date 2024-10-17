@@ -74,7 +74,6 @@ export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
   (walletAccountIds, userStakingById) => {
-    console.log({ walletAccountIds, userStakingById })
     return pickBy(userStakingById, (_userStaking, userStakingId) =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
     )

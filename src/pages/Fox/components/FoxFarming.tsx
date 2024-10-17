@@ -134,7 +134,7 @@ export const FoxFarming = () => {
   )
 
   const fetchOpportunityData = useCallback(async () => {
-    if (!foxEthMarketData) return
+    if (foxEthMarketData.price === '0') return
 
     await appDispatch(
       opportunitiesApi.endpoints.getOpportunityIds.initiate(
@@ -176,7 +176,7 @@ export const FoxFarming = () => {
     }
 
     return true
-  }, [assetAccountId, appDispatch, foxEthMarketData, opportunityId])
+  }, [assetAccountId, appDispatch, foxEthMarketData.price, opportunityId])
 
   useEffect(() => {
     queryClient.invalidateQueries({
@@ -184,15 +184,15 @@ export const FoxFarming = () => {
     })
   }, [assetAccountId, queryClient])
 
-  const { isLoading: iisOpportunityDataLoading, isFetching: isOpportunityDataFetching } = useQuery({
+  const { isLoading: isOpportunityDataLoading, isFetching: isOpportunityDataFetching } = useQuery({
     queryKey: ['fetchOpportunityData', assetAccountId],
     queryFn: fetchOpportunityData,
-    enabled: Boolean(foxEthMarketData),
+    enabled: Boolean(foxEthMarketData.price !== '0'),
   })
 
   const isOpportunityLoading = useMemo(
-    () => iisOpportunityDataLoading || isOpportunityDataFetching,
-    [iisOpportunityDataLoading, isOpportunityDataFetching],
+    () => isOpportunityDataLoading || isOpportunityDataFetching,
+    [isOpportunityDataLoading, isOpportunityDataFetching],
   )
 
   const underlyingAsset = useAppSelector(state =>
@@ -306,12 +306,14 @@ export const FoxFarming = () => {
                 </Tag>
               </Skeleton>
             </Heading>
-            <CText fontSize='md' color='text.subtle' mt={2}>
-              {translate('foxPage.foxFarming.description', {
-                assetSymbol: underlyingAsset?.symbol,
-                rewardAssetSymbol: rewardAsset?.symbol,
-              })}
-            </CText>
+            <Skeleton isLoaded={Boolean(opportunity)}>
+              <CText fontSize='md' color='text.subtle' mt={2}>
+                {translate('foxPage.foxFarming.description', {
+                  assetSymbol: underlyingAsset?.symbol,
+                  rewardAssetSymbol: rewardAsset?.symbol,
+                })}
+              </CText>
+            </Skeleton>
           </Box>
 
           <Card width='100%' maxWidth='400px'>

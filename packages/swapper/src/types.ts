@@ -177,6 +177,7 @@ type GetUtxoTradeQuoteEmputWithWalletInfo = CommonTradeInputWithWalletInfo & {
 type GetUtxoTradeQuoteEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
   chainId: UtxoChainId
   // We need a dummy script type when getting a quote without a wallet
+  // so we always use SegWit (which works across all UTXO chains)
   accountType: UtxoAccountType.P2pkh
   accountNumber: undefined
   xpub: undefined
@@ -228,7 +229,7 @@ export type TradeQuoteStep = {
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string | undefined
+  receiveAddress: string
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked

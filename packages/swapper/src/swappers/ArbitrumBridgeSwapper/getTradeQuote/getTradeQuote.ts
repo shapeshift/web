@@ -87,6 +87,7 @@ export async function getTradeQuote(
       sendAddress: sendAddress ?? '',
       receiveAddress,
       assertGetEvmChainAdapter,
+      priceOrQuote: 'price',
     })
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit

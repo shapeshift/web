@@ -15,15 +15,16 @@ import { arbitrum } from 'viem/chains'
 
 import { BRIDGE_TYPE } from '../types'
 
-export type FetchArbitrumBridgeSwapInput = {
+export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: string | undefined
+  receiveAddress: T extends 'price' ? string | undefined : string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: string
+  sendAddress: T extends 'price' ? string | undefined : string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  priceOrQuote: T
 }
 
 // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
@@ -31,7 +32,7 @@ export type FetchArbitrumBridgeSwapInput = {
 // Values set by looking at a couple of different ERC-20 deposits
 const fallbackTokenGasLimit = bn(240_000)
 
-export const fetchArbitrumBridgeSwap = async ({
+export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   chainId,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -40,13 +41,19 @@ export const fetchArbitrumBridgeSwap = async ({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-}: FetchArbitrumBridgeSwapInput): Promise<{
+  priceOrQuote,
+}: FetchArbitrumBridgeSwapInput<T>): Promise<{
   request:
     | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
     | undefined
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
+  if (priceOrQuote === 'quote' && !receiveAddress)
+    throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
+  if (priceOrQuote === 'quote' && !sendAddress)
+    throw new Error('sendAddress is required for Arbitrum Bridge quotes')
+
   const adapter = assertGetEvmChainAdapter(chainId)
 
   const l2Network = await getArbitrumNetwork(arbitrum.id)

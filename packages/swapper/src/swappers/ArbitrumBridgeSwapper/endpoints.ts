@@ -125,6 +125,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
       sendAddress: from,
+      priceOrQuote: 'quote',
       assertGetEvmChainAdapter,
     })
 

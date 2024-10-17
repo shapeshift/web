@@ -394,7 +394,7 @@ export const getL1quote = async (
                 })
               : {
                   networkFeeCryptoBaseUnit: undefined,
-                  protocolFees: {},
+                  protocolFees: getProtocolFees(quote),
                 }
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({

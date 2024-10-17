@@ -260,6 +260,11 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
+  // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
+  // ArbitrumBridgeAcknowledgement, but never both. While the current implementation works, its by
+  // accident and we should implement better control flow to handle this in a more robust way so if
+  // we make any changes to these we aren't left in a broken state.
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <ArbitrumBridgeAcknowledgement

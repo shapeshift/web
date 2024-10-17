@@ -49,6 +49,9 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
+  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+  // this won't be an issue anymore
+
   if (priceOrQuote === 'quote' && !receiveAddress)
     throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
   if (priceOrQuote === 'quote' && !sendAddress)

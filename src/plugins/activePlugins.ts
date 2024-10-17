@@ -13,6 +13,7 @@ import litecoin from 'plugins/litecoin'
 import mobile from 'plugins/mobile'
 import optimism from 'plugins/optimism'
 import polygon from 'plugins/polygon'
+import solana from 'plugins/solana'
 import thorchain from 'plugins/thorchain'
 import walletConnectToDapps from 'plugins/walletConnectToDapps'
 
@@ -34,4 +35,5 @@ export const activePlugins = [
   arbitrum,
   arbitrumNova,
   base,
+  solana,
 ]

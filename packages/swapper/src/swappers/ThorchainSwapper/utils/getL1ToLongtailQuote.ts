@@ -37,6 +37,7 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerancePercentageDecimal,
+    isConnected,
   } = input
 
   const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
@@ -134,18 +135,28 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      const updatedMemo = addL1ToLongtailPartsToMemo({
-        sellAssetChainId,
-        aggregator: bestAggregator,
-        finalAssetAssetId: buyAsset.assetId,
-        finalAssetAmountOut: quotedAmountOut.toString(),
-        slippageBps: convertDecimalPercentageToBasisPoints(
-          slippageTolerancePercentageDecimal ??
-            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-        ).toString(),
-        quotedMemo: quote.memo,
-        longtailTokens,
-      })
+      if (isConnected && !quote.memo)
+        return Err(
+          makeSwapErrorRight({
+            message: '[getL1ToLongtailQuote] - quote memo is missing',
+            code: TradeQuoteError.InternalError,
+          }),
+        )
+
+      const updatedMemo = isConnected
+        ? addL1ToLongtailPartsToMemo({
+            sellAssetChainId,
+            aggregator: bestAggregator,
+            finalAssetAssetId: buyAsset.assetId,
+            finalAssetAmountOut: quotedAmountOut.toString(),
+            slippageBps: convertDecimalPercentageToBasisPoints(
+              slippageTolerancePercentageDecimal ??
+                getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+            ).toString(),
+            quotedMemo: quote.memo,
+            longtailTokens,
+          })
+        : ''
 
       return Ok({
         ...quote,

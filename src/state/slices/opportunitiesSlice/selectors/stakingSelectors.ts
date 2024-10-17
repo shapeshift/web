@@ -73,10 +73,11 @@ export const selectStakingOpportunitiesByAccountId = createDeepEqualOutputSelect
 export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
   (state: ReduxState) => state.opportunities.userStaking.byId,
-  (walletAccountIds, userStakingById) =>
-    pickBy(userStakingById, (_userStaking, userStakingId) =>
+  (walletAccountIds, userStakingById) => {
+    return pickBy(userStakingById, (_userStaking, userStakingId) =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
-    ),
+    )
+  },
 )
 
 export const selectStakingOpportunitiesById = (state: ReduxState) =>
@@ -559,6 +560,12 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       opportunityName: userStakingOpportunity.name,
       icons: makeOpportunityIcons({ opportunity: userStakingOpportunity, assets }),
+      contractAddress: isFoxEthStakingAssetId(userStakingOpportunity.assetId)
+        ? fromAssetId(userStakingOpportunity.assetId).assetReference
+        : undefined,
+      rewardAddress: isFoxEthStakingAssetId(userStakingOpportunity.assetId)
+        ? fromAssetId(foxAssetId).assetReference
+        : undefined,
     }
 
     return earnUserStakingOpportunity

@@ -21,7 +21,7 @@ import type {
   SwapperDeps,
   TradeQuoteOrRate,
 } from '../../types'
-import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
+import { checkEvmSwapStatus, getHopByIndex, isTradeRate } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
@@ -114,9 +114,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
     const { receiveAddress } = tradeQuote
 
-    // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
-    // this won't be an issue anymore
-    if (!receiveAddress) throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
+    if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
 
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)

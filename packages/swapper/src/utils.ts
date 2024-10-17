@@ -17,6 +17,7 @@ import type {
   SwapErrorRight,
   SwapperName,
   TradeQuoteOrRate,
+  TradeRate,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -285,3 +286,5 @@ export const getRate = ({
   const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
+
+export const isTradeRate = (quote: TradeQuoteOrRate): quote is TradeRate => !quote.receiveAddress

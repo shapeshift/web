@@ -280,6 +280,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
 
     const computeUnits = await this.providers.http.estimateFees({
+      // @ts-ignore wtf? revert me when fixed
       estimateFeesBody: { message: input.chainSpecific?.message },
     })
 

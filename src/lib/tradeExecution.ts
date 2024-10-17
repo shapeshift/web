@@ -13,6 +13,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
+  isTradeRate,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
@@ -20,7 +21,6 @@ import {
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
 import EventEmitter from 'events'
-import { isTradeRate } from 'components/MultiHopTrade/utils'
 import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
 import { selectFirstHopSellAccountId } from 'state/slices/selectors'

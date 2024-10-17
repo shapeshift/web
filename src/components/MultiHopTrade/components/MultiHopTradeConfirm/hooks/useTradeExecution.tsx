@@ -9,13 +9,17 @@ import type {
   SupportedTradeQuoteStepIndex,
   TradeQuoteOrRate,
 } from '@shapeshiftoss/swapper'
-import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  isTradeRate,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { isTradeRate } from 'components/MultiHopTrade/utils'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { MixPanelEvent } from 'lib/mixpanel/types'

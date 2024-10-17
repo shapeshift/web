@@ -2639,5 +2639,9 @@
       "shapeshiftRevenue": "ShapeShift Revenue",
       "30days": "30 days"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Limit Orders",
+    "viewOrders": "View Orders"
   }
 }

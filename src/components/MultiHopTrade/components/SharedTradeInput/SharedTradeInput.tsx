@@ -17,7 +17,8 @@ type SharedTradeInputProps = {
   buyAmountAfterFeesCryptoPrecision: string | undefined
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset
-  hasUserEnteredAmount: boolean
+  hasUserEnteredAmount?: boolean
+  shouldOpenSideComponent?: boolean
   headerRightContent: JSX.Element
   buyAssetAccountId: AccountId | undefined
   sellAssetAccountId: AccountId | undefined
@@ -44,6 +45,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   buyAmountAfterFeesUserCurrency,
   buyAsset,
   hasUserEnteredAmount,
+  shouldOpenSideComponent,
   headerRightContent,
   buyAssetAccountId,
   sellAssetAccountId,
@@ -112,7 +114,9 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
         <WithLazyMount
           shouldUse={!isCompact && !isSmallerThanXl}
           component={sideComponent}
-          isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+          isOpen={
+            !isCompact && !isSmallerThanXl && (hasUserEnteredAmount || shouldOpenSideComponent)
+          }
           isLoading={isLoading}
           width={tradeInputRef.current?.offsetWidth ?? 'full'}
           height={totalHeight ?? 'full'}

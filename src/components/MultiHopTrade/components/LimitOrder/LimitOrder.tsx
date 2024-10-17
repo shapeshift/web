@@ -1,3 +1,4 @@
+import { Button } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FormEvent } from 'react'
@@ -7,15 +8,14 @@ import { ethereum, fox } from 'test/mocks/assets'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import {
-  selectHasUserEnteredAmount,
-  selectIsAnyAccountMetadataLoadedForChainId,
-} from 'state/slices/selectors'
+import { selectIsAnyAccountMetadataLoadedForChainId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectBuyAmountAfterFeesCryptoPrecision,
@@ -27,6 +27,7 @@ import { useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -35,9 +36,6 @@ type LimitOrderProps = {
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
-
-// TODO: Implement me
-const CollapsibleLimitOrderList = () => <></>
 
 export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrderProps) => {
   const {
@@ -55,13 +53,12 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
-
+  const [shouldShowLimitOrderList, toggleShouldShowLimitOrderList] = useToggle(false)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
-  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAsset = ethereum // TODO: Implement me
   const buyAsset = fox // TODO: Implement me
@@ -105,8 +102,12 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
 
   const headerRightContent = useMemo(() => {
     // TODO: Implement me
-    return <></>
-  }, [])
+    return (
+      <Button onClick={toggleShouldShowLimitOrderList}>
+        <Text translation='limitOrders.viewOrders' />
+      </Button>
+    )
+  }, [toggleShouldShowLimitOrderList])
 
   const setBuyAsset = useCallback((_asset: Asset) => {
     // TODO: Implement me
@@ -165,7 +166,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
         buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
-        hasUserEnteredAmount={hasUserEnteredAmount}
+        shouldOpenSideComponent={shouldShowLimitOrderList} // Set this to true to show the sideComponent whilst developing
         headerRightContent={headerRightContent}
         buyAssetAccountId={buyAssetAccountId}
         sellAssetAccountId={sellAssetAccountId}

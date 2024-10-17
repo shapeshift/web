@@ -373,8 +373,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       )
     }
 
-    // max compute limits for fee estimation
+    // max compute unit limit instruction for fee estimation
     instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: 1400000 }))
+    // placeholder compute unit price instruction for fee estimation
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
 
     const message = new TransactionMessage({

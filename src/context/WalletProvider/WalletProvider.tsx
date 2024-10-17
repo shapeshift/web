@@ -20,7 +20,11 @@ import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { useMipdProviders } from 'lib/mipd'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
-import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
+import {
+  selectWalletDeviceId,
+  selectWalletRdns,
+  selectWalletType,
+} from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -344,19 +348,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const {
     localWalletType: walletType,
     localWalletDeviceId,
-    rdns,
     setLocalWallet,
     setLocalNativeWalletName,
   } = useLocalWallet()
 
   const mipdProviders = useMipdProviders()
 
-  const maybeMipdProvider = useMemo(() => {
-    return mipdProviders.find(provider => provider.info.rdns === (state.modalType ?? rdns))
-  }, [mipdProviders, rdns, state.modalType])
-
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
+      // DO NOT MOVE ME OUTSIDE OF THIS FUNCTION
+      // This not being a `useSelector` hook is intentional, we are rugged by stale closures here
+      // and cannot be exhaustive in the deps we use either or the app will be turbo broken
+      const rdns = selectWalletRdns(store.getState())
+      const maybeMipdProvider = mipdProviders.find(
+        provider => provider.info.rdns === (state.modalType ?? rdns),
+      )
+
       let currentStateAdapters = state.adapters
 
       // Check if adapter is already in the state
@@ -391,7 +398,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [isDarkMode, maybeMipdProvider, state.adapters, state.keyring],
+    [isDarkMode, mipdProviders, state.adapters, state.keyring, state.modalType],
   )
 
   const disconnect = useCallback(() => {

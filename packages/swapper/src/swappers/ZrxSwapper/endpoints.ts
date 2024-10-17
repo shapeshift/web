@@ -94,7 +94,9 @@ export const zrxApi: SwapperApi = {
     const calldataWithSignature = (() => {
       if (!permit2Signature) return data
 
-      // append the signature to the calldata
+      // Append the signature to the calldata
+      // For details, see
+      // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
       const signatureLengthInHex = numberToHex(size(permit2Signature as Hex), {
         signed: false,
         size: 32,
@@ -102,7 +104,7 @@ export const zrxApi: SwapperApi = {
       return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
-    // gas estimation
+    // Gas estimation
     const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: calldataWithSignature,
@@ -111,10 +113,6 @@ export const zrxApi: SwapperApi = {
       from,
       supportsEIP1559,
     })
-
-    // const adapter = assertGetEvmChainAdapter(chainId)
-    // const { average: feeData } = await adapter.getGasFeeData()
-    // const gasLimit = estimatedGas
 
     return {
       to,

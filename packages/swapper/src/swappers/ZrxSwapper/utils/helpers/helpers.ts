@@ -1,6 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { getAddress } from 'viem'
@@ -31,8 +30,8 @@ export const baseUrlFromChainId = (zrxBaseUrl: string, chainId: ZrxSupportedChai
 }
 
 // converts an asset to zrx token (symbol or contract address)
-export const assetToZrxToken = (asset: Asset): string => {
-  const { assetReference, assetNamespace } = fromAssetId(asset.assetId)
+export const assetIdToZrxToken = (assetId: AssetId): string => {
+  const { assetReference, assetNamespace } = fromAssetId(assetId)
   return assetNamespace === 'slip44' ? ZRX_NATIVE_ASSET_ADDRESS : assetReference
 }
 

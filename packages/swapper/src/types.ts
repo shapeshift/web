@@ -133,7 +133,7 @@ type CommonTradeInputBase = {
   slippageTolerancePercentageDecimal?: string
 }
 
-type CommonTradeInputWithWalletInfo = CommonTradeInputBase & {
+type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAccountNumber?: number
   receiveAddress: string
@@ -141,7 +141,7 @@ type CommonTradeInputWithWalletInfo = CommonTradeInputBase & {
   isConnected: true
 }
 
-type CommonTradeInputEmptyWalletInfo = CommonTradeInputBase & {
+type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
   receiveAccountNumber?: undefined
   receiveAddress: undefined
@@ -149,32 +149,34 @@ type CommonTradeInputEmptyWalletInfo = CommonTradeInputBase & {
   isConnected: false
 }
 
-type CommonTradeInput = CommonTradeInputWithWalletInfo | CommonTradeInputEmptyWalletInfo
+type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
 
-export type GetEvmTradeQuoteInputWithWalletInfo = CommonTradeInputWithWalletInfo & {
+export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
 }
-export type GetEvmTradeQuoteInputEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
+export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
   supportsEIP1559: undefined
 }
-export type GetEvmTradeQuoteInput =
-  | GetEvmTradeQuoteInputWithWalletInfo
-  | GetEvmTradeQuoteInputEmptyWalletInfo
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
-type GetUtxoTradeQuoteEmputWithWalletInfo = CommonTradeInputWithWalletInfo & {
+export type GetCosmosSdkTradeRateInput = CommonTradeRateInput & {
+  chainId: CosmosSdkChainId
+}
+
+type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
   accountNumber: number
   xpub: string
 }
 
-type GetUtxoTradeQuoteEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
+type GetUtxoTradeRateInput = CommonTradeRateInput & {
   chainId: UtxoChainId
   // We need a dummy script type when getting a quote without a wallet
   // so we always use SegWit (which works across all UTXO chains)
@@ -183,14 +185,17 @@ type GetUtxoTradeQuoteEmptyWalletInfo = CommonTradeInputEmptyWalletInfo & {
   xpub: undefined
 }
 
-export type GetUtxoTradeQuoteInput =
-  | GetUtxoTradeQuoteEmputWithWalletInfo
-  | GetUtxoTradeQuoteEmptyWalletInfo
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet | GetUtxoTradeRateInput
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+
+export type GetTradeRateInput =
+  | GetUtxoTradeRateInput
+  | GetEvmTradeRateInput
+  | GetCosmosSdkTradeRateInput
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -229,13 +234,17 @@ export type TradeQuoteStep = {
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string | undefined
+  receiveAddress: string
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
+}
+
+type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & {
+  receiveAddress: undefined
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -263,9 +272,20 @@ export type MultiHopTradeQuote = TradeQuoteBase & {
   steps: MultiHopTradeQuoteSteps
 }
 
+export type SingleHopTradeRate = TradeRateBase & {
+  steps: SingleHopTradeQuoteSteps
+}
+export type MultiHopTradeRate = TradeRateBase & {
+  steps: MultiHopTradeQuoteSteps
+}
+
 // Note: don't try to do TradeQuote = SingleHopTradeQuote | MultiHopTradeQuote here, which would be cleaner but you'll have type errors such as
 // "An interface can only extend an object type or intersection of object types with statically known members."
 export type TradeQuote = TradeQuoteBase & {
+  steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
+}
+
+export type TradeRate = TradeRateBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
 
@@ -355,7 +375,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+type TradeQuoteResult = Result<(TradeQuote | TradeRate)[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -412,7 +432,7 @@ export type SwapperApi = {
   ) => Promise<StdSignDoc>
 }
 
-export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
+export type QuoteResult = Result<(TradeQuote | TradeRate)[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 

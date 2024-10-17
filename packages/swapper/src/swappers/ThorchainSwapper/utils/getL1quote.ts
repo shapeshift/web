@@ -34,8 +34,11 @@ import {
 import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   ThorEvmTradeQuote,
+  ThorEvmTradeRate,
   ThorTradeQuote,
+  ThorTradeRate,
   ThorTradeUtxoOrCosmosQuote,
+  ThorTradeUtxoOrCosmosRate,
 } from '../getThorTradeQuote/getTradeQuote'
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
@@ -51,7 +54,7 @@ export const getL1quote = async (
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -240,7 +243,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorEvmTradeQuote> => {
+          }): Promise<ThorEvmTradeQuote | ThorEvmTradeRate> => {
             if (isConnected && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
@@ -348,7 +351,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorTradeUtxoOrCosmosQuote> => {
+          }): Promise<ThorTradeUtxoOrCosmosQuote | ThorTradeUtxoOrCosmosRate> => {
             if (isConnected && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
@@ -469,7 +472,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): ThorTradeUtxoOrCosmosQuote => {
+          }): ThorTradeUtxoOrCosmosQuote | ThorTradeUtxoOrCosmosRate => {
             if (!quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)

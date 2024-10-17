@@ -2,7 +2,13 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type {
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+  TradeRate,
+} from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
@@ -34,8 +40,20 @@ export type ThorEvmTradeQuote = TradeQuote &
     tradeType: TradeType
   }
 
+export type ThorEvmTradeRate = TradeRate &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+    tradeType: TradeType
+  }
+
 export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
 export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
+
+export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
 
 export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
   !!quote && 'tradeType' in quote
@@ -43,7 +61,7 @@ export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTr
 export const getThorTradeQuote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = deps.config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL
   const thorchainSwapL1ToLongtailEnabled =
     deps.config.REACT_APP_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL

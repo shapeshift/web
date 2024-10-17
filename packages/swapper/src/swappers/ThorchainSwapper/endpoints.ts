@@ -17,6 +17,7 @@ import type {
   CosmosSdkFeeData,
   EvmTransactionRequest,
   GetTradeQuoteInput,
+  GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
@@ -24,6 +25,7 @@ import type {
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
   UtxoFeeData,
 } from '../../types'
 import { checkSafeTransactionStatus } from '../../utils'
@@ -47,9 +49,9 @@ const deductOutboundRuneFee = (fee: string): string => {
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInput | GetTradeRateInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
     const { affiliateBps } = input
 
     return await getThorTradeQuote(

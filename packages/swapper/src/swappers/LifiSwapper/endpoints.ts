@@ -13,6 +13,7 @@ import type {
   GetEvmTradeQuoteInput,
   GetUnsignedEvmTransactionArgs,
   SwapperDeps,
+  TradeRate,
 } from '../../types'
 import {
   type GetTradeQuoteInput,
@@ -42,7 +43,7 @@ export const lifiApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  ): Promise<Result<(TradeQuote | TradeRate)[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
       return Err(
         makeSwapErrorRight({

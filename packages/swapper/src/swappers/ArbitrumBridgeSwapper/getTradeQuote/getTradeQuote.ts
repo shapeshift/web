@@ -7,21 +7,19 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
-  GetEvmTradeQuoteInputWithWalletInfo,
+  GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export type GetEvmTradeQuoteInputWithWallet = Omit<
-  GetEvmTradeQuoteInputWithWalletInfo,
-  'supportsEIP1559'
-> & {
+export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
   wallet: HDWallet
 }
 
@@ -29,10 +27,10 @@ type ArbitrumBridgeSpecificMetadata = {
   direction: 'deposit' | 'withdrawal'
 }
 
-export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
+export type ArbitrumBridgeTradeQuote = (TradeQuote | TradeRate) & ArbitrumBridgeSpecificMetadata
 
 export const isArbitrumBridgeTradeQuote = (
-  quote: TradeQuote | undefined,
+  quote: (TradeQuote | TradeRate) | undefined,
 ): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
 
 export const getTradeQuoteWithWallet = async (

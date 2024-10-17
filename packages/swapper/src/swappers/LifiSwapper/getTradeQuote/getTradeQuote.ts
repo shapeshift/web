@@ -34,13 +34,13 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+): Promise<Result<(LifiTradeQuote | LifiTradeRate)[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,

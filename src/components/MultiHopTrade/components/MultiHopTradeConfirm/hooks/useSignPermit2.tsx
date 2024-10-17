@@ -49,10 +49,10 @@ export const useSignPermit2 = (
     )
 
     try {
-      assert(tradeQuoteStep.eip712, 'Trade quote is missing permit2 eip712 metadata')
+      assert(tradeQuoteStep.permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
       const typedDataToSign = {
         addressNList: toAddressNList(accountMetadata.bip44Params),
-        typedData: tradeQuoteStep?.eip712,
+        typedData: tradeQuoteStep?.permit2Eip712,
       }
 
       const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
@@ -81,7 +81,7 @@ export const useSignPermit2 = (
     dispatch,
     hopIndex,
     showErrorToast,
-    tradeQuoteStep.eip712,
+    tradeQuoteStep.permit2Eip712,
     tradeQuoteStep.sellAsset.chainId,
     wallet,
   ])

@@ -19,7 +19,7 @@ import type {
   ZrxSupportedChainId,
 } from '../types'
 import { AFFILIATE_ADDRESS } from './constants'
-import { assetToZrxToken, baseUrlFromChainId } from './helpers/helpers'
+import { assetIdToZrxToken, baseUrlFromChainId } from './helpers/helpers'
 import { zrxServiceFactory } from './zrxService'
 
 export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
@@ -60,8 +60,8 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   >(`/swap/v1/${priceOrQuote}`, {
     params: {
       enableSlippageProtection: true,
-      buyToken: assetToZrxToken(buyAsset),
-      sellToken: assetToZrxToken(sellAsset),
+      buyToken: assetIdToZrxToken(buyAsset.assetId),
+      sellToken: assetIdToZrxToken(sellAsset.assetId),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
@@ -111,12 +111,12 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
   >(`/swap/permit2/${priceOrQuote}`, {
     params: {
       chainId: viemNetworkIdByChainId[sellAsset.chainId],
-      buyToken: assetToZrxToken(buyAsset),
-      sellToken: assetToZrxToken(sellAsset),
+      buyToken: assetIdToZrxToken(buyAsset.assetId),
+      sellToken: assetIdToZrxToken(sellAsset.assetId),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       taker: receiveAddress,
       swapFeeBps: parseInt(affiliateBps),
-      swapFeeToken: assetToZrxToken(buyAsset), // must be set to the buy asset to simplify fee calcs
+      swapFeeToken: assetIdToZrxToken(buyAsset.assetId), // must be set to the buy asset to simplify fee calcs
       slippageBps: convertDecimalPercentageToBasisPoints(
         slippageTolerancePercentageDecimal,
       ).toNumber(),

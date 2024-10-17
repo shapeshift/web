@@ -79,7 +79,7 @@ export const ApprovalStep = ({
             ? TransactionExecutionState.AwaitingConfirmation
             : allowanceReset.state
         case HopExecutionState.AwaitingAllowanceApproval:
-          // If this is a Permit2 flow and the approval tx is complete, there is more for the user
+          // If this is a Permit2 flow and the allowance is granted, there is more for the user
           // to do in this UI component, so the status should be set back to
           // TransactionExecutionState.AwaitingConfirmation.
           return permit2.isRequired &&

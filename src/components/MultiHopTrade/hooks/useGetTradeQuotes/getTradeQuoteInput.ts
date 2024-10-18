@@ -92,7 +92,7 @@ export const getTradeQuoteInput = async ({
       if (wallet && receiveAccountNumber === undefined)
         throw new Error('missing receiveAccountNumber')
 
-      return hasWallet && receiveAccountNumber
+      return hasWallet && receiveAccountNumber !== undefined
         ? {
             ...tradeQuoteInputCommonArgs,
             chainId: sellAsset.chainId as EvmChainId,

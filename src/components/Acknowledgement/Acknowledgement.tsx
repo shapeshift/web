@@ -70,7 +70,7 @@ export const Acknowledgement = ({
   }, [setShouldShowAcknowledgement])
 
   return (
-    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel} trapFocus={false}>
+    <Modal isOpen={shouldShowAcknowledgement} onClose={handleCancel}>
       <ModalOverlay />
       <ModalContent pointerEvents='all'>
         <ModalBody paddingTop='2rem' display='flex' flexDirection='column' alignItems='center'>

@@ -81,7 +81,7 @@ export const getTradeQuoteInput = async ({
         hasWallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress =
-        wallet && sellAccountNumber
+        wallet && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({
               accountNumber: sellAccountNumber,
               wallet,
@@ -118,7 +118,7 @@ export const getTradeQuoteInput = async ({
     case CHAIN_NAMESPACE.CosmosSdk: {
       const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
       const sendAddress =
-        wallet && sellAccountNumber
+        wallet && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({
               accountNumber: sellAccountNumber,
               wallet,

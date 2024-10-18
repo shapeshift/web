@@ -29,7 +29,7 @@ import {
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxGovernanceProposal } from './FoxGovernanceProposal'
@@ -57,6 +57,7 @@ export const FoxGovernance = () => {
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
   const dispatch = useDispatch()
+  const accountIds = useAppSelector(selectWalletAccountIds)
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
@@ -70,6 +71,14 @@ export const FoxGovernance = () => {
   useEffect(() => {
     dispatch(snapshotApi.endpoints.getProposals.initiate())
   }, [dispatch])
+
+  useEffect(() => {
+    dispatch(
+      snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
+    )
+  }, [dispatch, accountIds])
+
+  console.log({ votingPower, accountIds })
 
   const ActiveProposals = useCallback(() => {
     if (!activeProposals.length)

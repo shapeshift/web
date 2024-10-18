@@ -28,7 +28,6 @@ export const selectVotingPower = createSelector(
 
     const ethAccountIds = accountIdsbyChainId[ethChainId]
     if (!ethAccountIds?.length) return '0'
-    console.log({ accountIdsbyChainId, votingPowerByModel })
 
     return votingPowerByModel[feeModel!]
   },

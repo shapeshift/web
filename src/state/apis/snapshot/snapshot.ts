@@ -194,10 +194,8 @@ export const snapshotApi = createApi({
           { query },
           { headers: { Accept: 'application/json' } },
         )
-        console.log(resData)
         try {
           const { proposals } = ProposalSchema.parse(resData).data
-          console.log(proposals)
           dispatch(snapshot.actions.setProposals(proposals))
           return { data: proposals }
         } catch (e) {

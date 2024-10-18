@@ -98,7 +98,13 @@ export const lifiApi: SwapperApi = {
     const { to, value, data, gasLimit } = transactionRequest
 
     // checking values individually to keep type checker happy
-    if (to === undefined || value === undefined || data === undefined || gasLimit === undefined) {
+    if (
+      to === undefined ||
+      from === undefined ||
+      value === undefined ||
+      data === undefined ||
+      gasLimit === undefined
+    ) {
       const undefinedRequiredValues = [to, value, data, gasLimit].filter(
         value => value === undefined,
       )

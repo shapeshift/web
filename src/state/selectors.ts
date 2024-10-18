@@ -15,7 +15,6 @@ import type {
   DefiProvider,
   DefiType,
   LpId,
-  OpportunityId,
   StakingId,
   UserStakingId,
   ValidatorId,

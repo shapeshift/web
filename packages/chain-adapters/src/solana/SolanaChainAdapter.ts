@@ -48,7 +48,7 @@ import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { microLamportsToLamports } from './utils'
 
 // Maximum compute units allowed for a single solana transaction
-const MAX_COMPUTE_UNITS = 1400000 
+const MAX_COMPUTE_UNITS = 1400000
 
 export interface ChainAdapterArgs {
   providers: {

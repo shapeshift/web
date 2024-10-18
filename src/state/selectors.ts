@@ -58,7 +58,6 @@ type ParamFilter = Partial<{
   parser: TxMetadata['parser']
   hopIndex: number
   tradeId: TradeQuote['id']
-  opportunityId: OpportunityId
 }>
 
 type ParamFilterKey = keyof ParamFilter

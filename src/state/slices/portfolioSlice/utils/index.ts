@@ -20,6 +20,7 @@ import {
   ltcChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
   toAccountId,
   toAssetId,
@@ -38,6 +39,7 @@ import {
   supportsGnosis,
   supportsOptimism,
   supportsPolygon,
+  supportsSolana,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
@@ -73,6 +75,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case baseChainId:
     case thorchainChainId:
     case cosmosChainId:
+    case solanaChainId:
       return firstFourLastFour(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -231,7 +234,26 @@ export const accountToPortfolio: AccountToPortfolio = ({
         break
       }
       case CHAIN_NAMESPACE.Solana: {
-        throw new Error('Solana not supported')
+        const solanaAccount = account as Account<KnownChainIds.SolanaMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        solanaAccount.chainSpecific.tokens?.forEach(token => {
+          // don't update portfolio if asset is not in the store
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
       }
       default:
         assertUnreachable(chainNamespace)
@@ -275,7 +297,11 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
       return hasActivity
     }
     case CHAIN_NAMESPACE.Solana: {
-      throw new Error('Solana not supported')
+      const solanaAccount = account as Account<KnownChainIds.SolanaMainnet>
+
+      const hasActivity = bnOrZero(solanaAccount.balance).gt(0)
+
+      return hasActivity
     }
     default:
       assertUnreachable(chainNamespace)
@@ -316,6 +342,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsCosmos(wallet)
     case thorchainChainId:
       return supportsThorchain(wallet)
+    case solanaChainId:
+      return supportsSolana(wallet)
     default:
       return false
   }

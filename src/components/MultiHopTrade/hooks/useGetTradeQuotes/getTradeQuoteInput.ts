@@ -89,7 +89,8 @@ export const getTradeQuoteInput = async ({
             })
           : undefined
 
-      if (wallet && !receiveAccountNumber) throw new Error('missing receiveAccountNumber')
+      if (wallet && receiveAccountNumber === undefined)
+        throw new Error('missing receiveAccountNumber')
 
       return hasWallet && receiveAccountNumber
         ? {

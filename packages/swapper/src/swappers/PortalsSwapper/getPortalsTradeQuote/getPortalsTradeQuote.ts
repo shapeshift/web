@@ -6,6 +6,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
@@ -39,6 +40,7 @@ export async function getPortalsTradeQuote(
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    hasWallet,
   } = input
 
   const sellAssetChainId = sellAsset.chainId
@@ -84,7 +86,8 @@ export async function getPortalsTradeQuote(
     : undefined // Use auto slippage if no user preference is provided
 
   try {
-    if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
+    if (hasWallet && !sendAddress)
+      return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
 
@@ -109,8 +112,9 @@ export async function getPortalsTradeQuote(
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
     // Attempt fetching a quote with validation enabled to leverage upstream gasLimit estimate
-    const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      sender: sendAddress,
+    const portalsTradeQuoteResponse = await fetchPortalsTradeOrder({
+      hasWallet,
+      sender: hasWallet ? sendAddress! : undefined,
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -128,7 +132,8 @@ export async function getPortalsTradeQuote(
 
       // Use the quote estimate endpoint to get the optimal slippage tolerance
       const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-        sender: sendAddress,
+        sender: hasWallet ? sendAddress! : undefined,
+        hasWallet,
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -148,6 +153,8 @@ export async function getPortalsTradeQuote(
 
       // Use a dummy request to the portal endpoint to get a rough gasLimit estimate
       const dummyOrderResponse = await fetchPortalsTradeOrder({
+        // This is a dummy order, not a real order
+        hasWallet: true,
         sender: dummyQuoteParams.accountAddress,
         inputToken: dummyInputToken,
         outputToken: dummyOutputToken,
@@ -167,7 +174,8 @@ export async function getPortalsTradeQuote(
         })
 
       const order = await fetchPortalsTradeOrder({
-        sender: sendAddress,
+        hasWallet,
+        sender: hasWallet ? sendAddress! : undefined,
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -181,24 +189,55 @@ export async function getPortalsTradeQuote(
         feePercentage: affiliateBpsPercentage,
         validate: false,
         swapperConfig,
+      }).catch(e => {
+        console.info('failed to get Portals quote with validation disabled', e)
+        return undefined
       })
 
-      if (dummyOrderResponse?.maybeGasLimit)
+      if (quoteEstimateResponse && !order) {
+        return quoteEstimateResponse
+      }
+
+      if (order && dummyOrderResponse?.maybeGasLimit)
         order.context.gasLimit = dummyOrderResponse.maybeGasLimit
       return order
     })
 
+    if (!portalsTradeQuoteResponse) throw new Error('failed to get Portals quote')
+
+    const buyAmountBeforeFeesCryptoBaseUnit = (() => {
+      if ('minOutputAmount' in portalsTradeQuoteResponse.context)
+        return portalsTradeQuoteResponse.context.minOutputAmount
+      if ('minOutputAmount' in portalsTradeQuoteResponse)
+        return portalsTradeQuoteResponse.minOutputAmount
+    })()
+    const buyAmountAfterFeesCryptoBaseUnit = (() => {
+      if ('outputAmount' in portalsTradeQuoteResponse.context)
+        return portalsTradeQuoteResponse.context.outputAmount
+      if ('outputAmount' in portalsTradeQuoteResponse) return portalsTradeQuoteResponse.outputAmount
+    })()
+
+    const allowanceContract =
+      'target' in portalsTradeQuoteResponse.context
+        ? portalsTradeQuoteResponse.context.target
+        : undefined
+
+    const gasLimit =
+      'gasLimit' in portalsTradeQuoteResponse.context
+        ? portalsTradeQuoteResponse.context.gasLimit
+        : undefined
+
+    const feeAmount =
+      'feeAmount' in portalsTradeQuoteResponse.context
+        ? portalsTradeQuoteResponse.context.feeAmount
+        : undefined
+
+    if (!buyAmountBeforeFeesCryptoBaseUnit || !buyAmountAfterFeesCryptoBaseUnit)
+      throw new Error('Invalid quote')
+
     const {
-      context: {
-        orderId,
-        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
-        minOutputAmount: buyAmountBeforeFeesCryptoBaseUnit,
-        slippageTolerancePercentage,
-        target: allowanceContract,
-        feeAmount,
-        gasLimit,
-      },
-    } = portalsTradeOrderResponse
+      context: { slippageTolerancePercentage },
+    } = portalsTradeQuoteResponse
 
     const rate = getRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -223,7 +262,10 @@ export async function getPortalsTradeQuote(
       .toString()
 
     const tradeQuote: TradeQuoteOrRate = {
-      id: orderId,
+      id:
+        'orderId' in portalsTradeQuoteResponse.context
+          ? portalsTradeQuoteResponse.context.orderId
+          : uuid(),
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,

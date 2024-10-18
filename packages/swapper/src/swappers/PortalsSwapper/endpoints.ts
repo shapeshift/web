@@ -49,6 +49,8 @@ export const portalsApi: SwapperApi = {
     const { affiliateBps, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
 
+    if (!from) throw new Error('Cannot execute a Portals trade without a from address')
+
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
     const sellAssetAddress = isNativeEvmAsset(sellAsset.assetId)
       ? zeroAddress
@@ -68,6 +70,7 @@ export const portalsApi: SwapperApi = {
     // approved the token they are getting a quote for.
     // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
+      hasWallet: true,
       sender: from,
       inputToken,
       outputToken,

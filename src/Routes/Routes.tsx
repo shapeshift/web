@@ -98,7 +98,7 @@ export const Routes = memo(() => {
   // Most routes should be stable and not re-render when the location changes
   // However, some routes are unstable and should actually re-render when location.pathname reference changes
   // Which happens both on actual route change, or when the same route gets pushed
-  const unstableRoutes = useMemo(() => ['/trade'], [])
+  const unstableRoutes = useMemo(() => [], [])
   const isUnstableRoute = useMemo(
     () => unstableRoutes.some(route => location.pathname.includes(route)),
     [location.pathname, unstableRoutes],

@@ -3,7 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapErrorRight, TradeQuoteOrRate } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
 import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
@@ -48,7 +48,7 @@ type UseRfoxBridgeReturn = {
   feeAsset: Asset | undefined
   feeAssetMarketData: MarketData
   sellAssetAccountNumber: number | undefined
-  tradeQuoteQuery: UseQueryResult<Result<TradeQuote, SwapErrorRight>, Error>
+  tradeQuoteQuery: UseQueryResult<Result<TradeQuoteOrRate, SwapErrorRight>, Error>
   allowanceContract: string | undefined
   bridgeAmountCryptoPrecision: string
   bridgeAmountUserCurrency: string
@@ -93,7 +93,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     )
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
-  const wallet = useWallet().state.wallet
+  const { wallet, walletInfo } = useWallet().state
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
     () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
@@ -142,6 +142,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
+      hasWallet: Boolean(walletInfo?.deviceId),
     }),
     [
       buyAsset,
@@ -151,6 +152,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       confirmedQuote.sellAssetAccountId,
       sellAsset,
       sellAssetAccountNumber,
+      walletInfo?.deviceId,
     ],
   )
 

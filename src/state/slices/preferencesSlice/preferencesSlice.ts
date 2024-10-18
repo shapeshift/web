@@ -67,6 +67,7 @@ export type FeatureFlags = {
   FoxPageFoxSection: boolean
   FoxPageFoxFarmingSection: boolean
   LimitOrders: boolean
+  PublicTradeRoute: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -159,6 +160,7 @@ const initialState: Preferences = {
     FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
     FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
+    PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

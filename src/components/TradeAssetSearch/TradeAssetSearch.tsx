@@ -15,6 +15,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { sortChainIdsByDisplayName } from 'lib/utils'
 import { isSplToken } from 'lib/utils/solana'
 import {
+  selectAssetsSortedByMarketCap,
   selectPortfolioFungibleAssetsSortedByBalance,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
@@ -51,7 +52,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   formProps,
   allowWalletUnsupportedAssets,
 }) => {
-  const { isConnected } = useWallet().state
+  const { deviceId, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
@@ -59,7 +60,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const portfolioAssetsSortedByBalance = useAppSelector(
-    selectPortfolioFungibleAssetsSortedByBalance,
+    // When no wallet is connected, there is no portfolio, hence we display all Assets
+    deviceId ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -242,7 +244,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
-          allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+          allowWalletUnsupportedAssets={!deviceId || allowWalletUnsupportedAssets}
         />
       ) : (
         <DefaultAssetList

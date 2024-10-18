@@ -21,6 +21,7 @@ import {
   clearPortfolioMigrations,
   clearSnapshotMigrations,
   clearTxHistoryMigrations,
+  localWalletMigrations,
 } from './migrations'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -97,7 +98,8 @@ const snapshotPersistConfig = {
 const localWalletSlicePersistConfig = {
   key: 'localWalletSlice',
   storage: localforage,
-  // no migrations for localWalletSlice yet - stay tuned!
+  version: Math.max(...Object.keys(localWalletMigrations).map(Number)),
+  migrate: createMigrate(localWalletMigrations, { debug: false }),
 }
 
 const marketDataPersistConfig = {

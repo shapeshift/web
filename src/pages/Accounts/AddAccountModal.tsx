@@ -15,7 +15,7 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import { type ChainId } from '@shapeshiftoss/caip'
-import { MetaMaskShapeShiftMultiChainHDWallet } from '@shapeshiftoss/hdwallet-shapeshift-multichain'
+import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -62,7 +62,7 @@ export const AddAccountModal = () => {
 
   const { isSnapInstalled } = useIsSnapInstalled()
 
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskShapeShiftMultiChainHDWallet
+  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
   const unsupportedSnapChainIds = useMemo(() => {
     if (!isMetaMaskMultichainWallet) return []
     if (nextAccountNumber === null) return []

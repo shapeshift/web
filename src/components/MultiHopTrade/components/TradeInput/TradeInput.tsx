@@ -28,8 +28,11 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectIsInputtingFiatSellAmount,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -46,14 +49,12 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
+import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const acknowledgementBoxProps = {
-  display: 'flex',
-  justifyContent: 'center',
-}
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 
@@ -88,11 +89,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
@@ -264,58 +268,115 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  const handleChangeSellAmountCryptoPrecision = useCallback(
+    (sellAmountCryptoPrecision: string) => {
+      dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+    },
+    [dispatch],
+  )
+
+  const handleIsInputtingFiatSellAmountChange = useCallback(
+    (isInputtingFiatSellAmount: boolean) => {
+      dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+    },
+    [dispatch],
+  )
+
+  const bodyContent = useMemo(() => {
+    return (
+      <SharedTradeInputBody
+        activeQuote={activeQuote}
+        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
+        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
+        buyAsset={buyAsset}
+        buyAssetAccountId={buyAssetAccountId}
+        sellAssetAccountId={sellAssetAccountId}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        isLoading={isLoading}
+        manualReceiveAddress={manualReceiveAddress}
+        sellAsset={sellAsset}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+        sellAmountUserCurrency={sellAmountUserCurrency}
+        handleSwitchAssets={handleSwitchAssets}
+        setBuyAsset={setBuyAsset}
+        setBuyAssetAccountId={setBuyAssetAccountId}
+        setSellAsset={setSellAsset}
+        setSellAssetAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
+        onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
+      />
+    )
+  }, [
+    activeQuote,
+    buyAmountAfterFeesCryptoPrecision,
+    buyAmountAfterFeesUserCurrency,
+    buyAsset,
+    buyAssetAccountId,
+    isInputtingFiatSellAmount,
+    isLoading,
+    manualReceiveAddress,
+    sellAmountCryptoPrecision,
+    sellAmountUserCurrency,
+    sellAsset,
+    sellAssetAccountId,
+    handleChangeSellAmountCryptoPrecision,
+    handleIsInputtingFiatSellAmountChange,
+    handleSwitchAssets,
+    setBuyAsset,
+    setBuyAssetAccountId,
+    setSellAsset,
+    setSellAssetAccountId,
+  ])
+
+  const footerContent = useMemo(() => {
+    return (
+      <ConfirmSummary
+        isCompact={isCompact}
+        isLoading={isLoading}
+        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+      />
+    )
+  }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
+
+  // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
+  // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
+  // ArbitrumBridgeAcknowledgement, but never both. While the current implementation works, its by
+  // accident and we should implement better control flow to handle this in a more robust way so if
+  // we make any changes to these we aren't left in a broken state.
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
         shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
-        boxProps={acknowledgementBoxProps}
-      >
-        <StreamingAcknowledgement
-          onAcknowledge={handleFormSubmit}
-          shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-          setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-          estimatedTimeMs={
-            tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
-          }
-          boxProps={acknowledgementBoxProps}
-        >
-          <WarningAcknowledgement
-            message={warningAcknowledgementMessage}
-            onAcknowledge={handleWarningAcknowledgementSubmit}
-            shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-            setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-            boxProps={acknowledgementBoxProps}
-          >
-            <SharedTradeInput
-              activeQuote={activeQuote}
-              buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-              buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-              buyAsset={buyAsset}
-              hasUserEnteredAmount={hasUserEnteredAmount}
-              headerRightContent={headerRightContent}
-              buyAssetAccountId={buyAssetAccountId}
-              sellAssetAccountId={sellAssetAccountId}
-              isCompact={isCompact}
-              isLoading={isLoading}
-              manualReceiveAddress={manualReceiveAddress}
-              sellAsset={sellAsset}
-              sideComponent={CollapsibleQuoteList}
-              tradeInputRef={tradeInputRef}
-              tradeInputTab={TradeInputTab.Trade}
-              walletReceiveAddress={walletReceiveAddress}
-              handleSwitchAssets={handleSwitchAssets}
-              onSubmit={handleTradeQuoteConfirm}
-              setBuyAsset={setBuyAsset}
-              setBuyAssetAccountId={setBuyAssetAccountId}
-              setSellAsset={setSellAsset}
-              setSellAssetAccountId={setSellAssetAccountId}
-              onChangeTab={onChangeTab}
-            />
-          </WarningAcknowledgement>
-        </StreamingAcknowledgement>
-      </ArbitrumBridgeAcknowledgement>
+      />
+      <StreamingAcknowledgement
+        onAcknowledge={handleFormSubmit}
+        shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+        estimatedTimeMs={
+          tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
+        }
+      />
+      <WarningAcknowledgement
+        message={warningAcknowledgementMessage}
+        onAcknowledge={handleWarningAcknowledgementSubmit}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
+      <SharedTradeInput
+        bodyContent={bodyContent}
+        footerContent={footerContent}
+        hasUserEnteredAmount={hasUserEnteredAmount}
+        headerRightContent={headerRightContent}
+        isCompact={isCompact}
+        isLoading={isLoading}
+        sideComponent={CollapsibleQuoteList}
+        tradeInputRef={tradeInputRef}
+        tradeInputTab={TradeInputTab.Trade}
+        onSubmit={handleTradeQuoteConfirm}
+        onChangeTab={onChangeTab}
+      />
     </MessageOverlay>
   )
 }

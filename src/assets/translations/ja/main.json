@@ -441,9 +441,7 @@
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
         "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
-        "agreeRunePool": {
-          "1": "RUNEPool には、最低 90 日間のロックアップ期間があることと、一時的な損失のリスクが高まっていることを理解しました。"
-        }
+        "agreeRunePool": {}
       }
     },
     "memoNote": {

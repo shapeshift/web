@@ -47,6 +47,9 @@ import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { microLamportsToLamports } from './utils'
 
+// Maximum compute units allowed for a single solana transaction
+const MAX_COMPUTE_UNITS = 1400000 
+
 export interface ChainAdapterArgs {
   providers: {
     http: unchained.solana.Api
@@ -373,9 +376,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       )
     }
 
-    // max compute unit limit instruction for fee estimation
-    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: 1400000 }))
-    // placeholder compute unit price instruction for fee estimation
+    // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
+    // ensuring the transaction does not exceed the maximum compute units alotted for a single transaction.
+    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }))
+
+    // placeholder compute unit price instruction for the purposes of estimating the compute unit cost of a transaction
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
 
     const message = new TransactionMessage({

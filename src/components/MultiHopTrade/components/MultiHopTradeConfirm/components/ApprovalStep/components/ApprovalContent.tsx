@@ -1,4 +1,5 @@
 import { Box, Button, Card, CircularProgress, Icon, Tooltip, VStack } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
@@ -9,6 +10,7 @@ export type ApprovalContentProps = {
   buttonTranslation: string
   isDisabled: boolean
   isLoading: boolean
+  subHeadingTranslation?: string | [string, InterpolationOptions]
   titleTranslation: string
   tooltipTranslation: string
   topRightContent?: JSX.Element
@@ -21,6 +23,7 @@ export const ApprovalContent = ({
   buttonTranslation,
   isDisabled,
   isLoading,
+  subHeadingTranslation,
   titleTranslation,
   tooltipTranslation,
   topRightContent,
@@ -35,7 +38,7 @@ export const ApprovalContent = ({
       <VStack width='full'>
         <Row px={2}>
           <Row.Label display='flex' alignItems='center'>
-            <Text color='text.subtle' translation={titleTranslation} />
+            <Text color='text.subtle' translation={titleTranslation} fontWeight='bold' />
             <Tooltip label={translate(tooltipTranslation)}>
               <Box ml={1}>
                 <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
@@ -48,6 +51,13 @@ export const ApprovalContent = ({
             </Row.Value>
           )}
         </Row>
+        {subHeadingTranslation && (
+          <Row px={2}>
+            <Row.Label textAlign='left' display='flex'>
+              <Text color='text.subtle' translation={subHeadingTranslation} />
+            </Row.Label>
+          </Row>
+        )}
         {children}
         <Button
           width='full'

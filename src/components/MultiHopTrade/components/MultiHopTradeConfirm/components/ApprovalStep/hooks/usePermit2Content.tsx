@@ -2,7 +2,6 @@ import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
-import { Text } from 'components/Text'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -50,24 +49,28 @@ export const usePermit2Content = ({
     return isDisabled
   }, [permit2.state, hopExecutionState])
 
+  const subHeadingTranslation: [string, InterpolationOptions] = useMemo(() => {
+    return ['trade.permit2.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
+  }, [tradeQuoteStep])
+
   const content = useMemo(() => {
     if (hopExecutionState !== HopExecutionState.AwaitingPermit2) return
     return (
       <ApprovalContent
         buttonTranslation='trade.permit2.signMessage'
         isDisabled={isButtonDisabled}
-        isLoading={false /* TODO: loading state when signature in progress */}
+        isLoading={
+          /* NOTE: No loading state when signature in progress because it's instant */
+          false
+        }
+        subHeadingTranslation={subHeadingTranslation}
         titleTranslation='trade.permit2.title'
         tooltipTranslation='trade.permit2.tooltip'
         transactionExecutionState={permit2.state}
         onSubmit={signPermit2}
       />
     )
-  }, [hopExecutionState, isButtonDisabled, permit2.state, signPermit2])
-
-  const descriptionTranslation: [string, InterpolationOptions] = useMemo(() => {
-    return ['trade.permit2.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
-  }, [tradeQuoteStep])
+  }, [hopExecutionState, isButtonDisabled, permit2.state, signPermit2, subHeadingTranslation])
 
   const description = useMemo(() => {
     const txLines = [
@@ -87,17 +90,9 @@ export const usePermit2Content = ({
         txLines={txLines}
         isError={permit2.state === TransactionExecutionState.Failed}
         errorTranslation='trade.permit2.error'
-      >
-        <Text color='text.subtle' translation={descriptionTranslation} fontWeight='bold' />
-      </SharedApprovalDescription>
+      />
     )
-  }, [
-    allowanceApproval.txHash,
-    allowanceReset.txHash,
-    descriptionTranslation,
-    permit2.state,
-    tradeQuoteStep,
-  ])
+  }, [allowanceApproval.txHash, allowanceReset.txHash, permit2.state, tradeQuoteStep])
 
   return {
     content,

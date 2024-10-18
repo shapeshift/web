@@ -13,6 +13,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertGetChainAdapter, contractAddressOrUndefined } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -79,6 +80,15 @@ export const estimateFees = ({
         value,
         chainSpecific: { from, pubkey: account },
         sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Solana: {
+      const adapter = assertGetSolanaChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+        to,
+        value,
+        chainSpecific: { from: account },
       }
       return adapter.getFeeData(getFeeDataInput)
     }
@@ -198,6 +208,22 @@ export const handleSend = async ({
       }
       const adapter = assertGetCosmosSdkChainAdapter(chainId)
       return adapter.buildSendTransaction(params)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Solana) {
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
+      const input = {
+        to,
+        value,
+        wallet,
+        accountNumber: bip44Params.accountNumber,
+        chainSpecific: {
+          computeUnitLimit: fees.chainSpecific.computeUnits,
+          computeUnitPrice: fees.chainSpecific.priorityFee,
+        },
+      }
+      const adapter = assertGetSolanaChainAdapter(chainId)
+      return adapter.buildSendTransaction(input)
     }
 
     throw new Error(`${chainId} not supported`)

@@ -1,7 +1,7 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
 import { type ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { FC } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -10,7 +10,6 @@ import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -44,7 +43,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       setValue: setFormValue,
     } = useFormContext()
     const translate = useTranslate()
-    const isSnapEnabled = useFeatureFlag('Snaps')
     const { open: openSnapsModal } = useModal('snaps')
     const { open: openManageAccountsModal } = useModal('manageAccounts')
 
@@ -158,7 +156,7 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
           <FormLabel color='yellow.400'>
             {description ??
               translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
-            {!isSnapInstalled && isSnapEnabled && wallet && isMetaMask(wallet) && (
+            {!isSnapInstalled && wallet && isMetaMask(wallet) && (
               <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
                 {translate('trade.or')}
                 &nbsp;{translate('trade.enableMetaMaskSnap')}
@@ -184,7 +182,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       buyAssetChainName,
       handleAddAccount,
       handleEnableShapeShiftSnap,
-      isSnapEnabled,
       isSnapInstalled,
       rules,
       translate,

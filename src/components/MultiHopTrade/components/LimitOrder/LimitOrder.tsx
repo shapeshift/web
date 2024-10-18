@@ -29,10 +29,6 @@ import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const acknowledgementBoxProps = {
-  display: 'flex',
-  justifyContent: 'center',
-}
 
 type LimitOrderProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
@@ -157,13 +153,13 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   )
 
   return (
-    <WarningAcknowledgement
-      message={warningAcknowledgementMessage}
-      onAcknowledge={handleWarningAcknowledgementSubmit}
-      shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-      setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-      boxProps={acknowledgementBoxProps}
-    >
+    <>
+      <WarningAcknowledgement
+        message={warningAcknowledgementMessage}
+        onAcknowledge={handleWarningAcknowledgementSubmit}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
       <SharedTradeInput
         activeQuote={activeQuote}
         buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
@@ -189,6 +185,6 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
         setSellAssetAccountId={setSellAssetAccountId}
         onChangeTab={onChangeTab}
       />
-    </WarningAcknowledgement>
+    </>
   )
 }

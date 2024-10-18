@@ -96,11 +96,9 @@ export const mockStore: ReduxState = {
       OneInch: false,
       CovalentJaypegs: false,
       Chatwoot: false,
-      CoinbaseWallet: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
       CustomSendNonce: false,
-      Snaps: false,
       ThorchainLending: false,
       ThorchainLendingBorrow: false,
       ThorchainLendingRepay: false,
@@ -258,5 +256,6 @@ export const mockStore: ReduxState = {
     walletType: null,
     walletDeviceId: null,
     nativeWalletName: null,
+    rdns: null,
   },
 }

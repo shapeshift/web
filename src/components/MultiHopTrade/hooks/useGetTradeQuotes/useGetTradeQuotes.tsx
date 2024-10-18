@@ -233,7 +233,7 @@ export const useGetTradeQuotes = () => {
 
       if (hasWallet) {
         // This should never happen but...
-        if (!sellAccountNumber) throw new Error('sellAccountNumber is required')
+        if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
         if (!receiveAddress) throw new Error('receiveAddress is required')
 
         const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({

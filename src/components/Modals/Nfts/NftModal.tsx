@@ -167,23 +167,23 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
       switch (chainId) {
         case polygonChainId:
           return `${getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_POLYGON_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case ethChainId:
           return `${getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_ETHEREUM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case optimismChainId:
           return `${getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_OPTIMISM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case arbitrumChainId:
           return `${getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_ARBITRUM_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         case baseChainId:
           return `${getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_BASE_URL}/${
-            getConfig().REACT_APP_ALCHEMY_BASE_JAYPEGS_API_KEY
+            getConfig().REACT_APP_ALCHEMY_API_KEY
           }`
         default:
           return undefined

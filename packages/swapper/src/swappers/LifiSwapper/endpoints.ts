@@ -18,8 +18,8 @@ import {
   type GetTradeQuoteInput,
   type SwapErrorRight,
   type SwapperApi,
-  type TradeQuoteOrRate,
   TradeQuoteError,
+  type TradeQuoteOrRate,
 } from '../../types'
 import {
   checkSafeTransactionStatus,

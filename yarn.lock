@@ -11839,7 +11839,7 @@ __metadata:
     assert: ^2.0.0
     axios: ^1.7.4
     axios-cache-interceptor: ^1.5.3
-    axios-retry: ^4.0.0
+    axios-retry: ^4.5.0
     bignumber.js: ^9.1.2
     bip21: ^2.0.3
     bip39: ^3.0.4
@@ -17560,14 +17560,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios-retry@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "axios-retry@npm:4.0.0"
+"axios-retry@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "axios-retry@npm:4.5.0"
   dependencies:
     is-retry-allowed: ^2.2.0
   peerDependencies:
     axios: 0.x || 1.x
-  checksum: 132b63132e8087242b8888fdebf3786cfd687e1021970319336a63533b4b584ab23a39d5b5a05e84b96055a640129a25e60b6a6cdb422c4cf10517398238000f
+  checksum: ec831e566ed3a55d3c3c927c1d42c52f2c2f1a8ea99ff8521d3675c6313f8c77f704c7186299fda08b7dc0f771a2c5471e72d279789d5aade65ec3755ab3a1ff
   languageName: node
   linkType: hard
 

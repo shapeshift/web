@@ -15,7 +15,6 @@ import type {
   DefiProvider,
   DefiType,
   LpId,
-  OpportunityId,
   StakingId,
   UserStakingId,
   ValidatorId,
@@ -58,7 +57,6 @@ type ParamFilter = Partial<{
   parser: TxMetadata['parser']
   hopIndex: number
   tradeId: TradeQuote['id']
-  opportunityId: OpportunityId
 }>
 
 type ParamFilterKey = keyof ParamFilter

@@ -252,6 +252,7 @@ export const validateTradeQuote = (
         },
       },
       !walletSupportsIntermediaryAssetChain &&
+        hasWallet &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -259,24 +260,26 @@ export const validateTradeQuote = (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
-      !firstHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
-        meta: {
-          assetSymbol: firstHopSellFeeAsset?.symbol,
-          chainSymbol: firstHopSellFeeAsset
-            ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      !firstHopHasSufficientBalanceForGas &&
+        hasWallet && {
+          error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
+          meta: {
+            assetSymbol: firstHopSellFeeAsset?.symbol,
+            chainSymbol: firstHopSellFeeAsset
+              ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
-      !secondHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
-        meta: {
-          assetSymbol: secondHopSellFeeAsset?.symbol,
-          chainSymbol: secondHopSellFeeAsset
-            ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      !secondHopHasSufficientBalanceForGas &&
+        hasWallet && {
+          error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
+          meta: {
+            assetSymbol: secondHopSellFeeAsset?.symbol,
+            chainSymbol: secondHopSellFeeAsset
+              ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
       invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
 

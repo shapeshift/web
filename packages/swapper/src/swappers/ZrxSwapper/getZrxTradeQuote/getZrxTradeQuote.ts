@@ -295,8 +295,10 @@ async function _getZrxPermit2TradeQuote(
   }
 
   // We can safely add the integrator fee now we know its the correct asset.
-  const integratorFee = fees.integratorFee?.amount ?? '0'
-  const buyAmountBeforeFeesCryptoBaseUnit = bn(buyAmount).plus(integratorFee).toFixed()
+  const integratorFeeCryptoBaseUnit = fees.integratorFee?.amount ?? '0'
+  const buyAmountBeforeFeesCryptoBaseUnit = bn(buyAmount)
+    .plus(integratorFeeCryptoBaseUnit)
+    .toFixed()
 
   try {
     const adapter = assertGetEvmChainAdapter(chainId)

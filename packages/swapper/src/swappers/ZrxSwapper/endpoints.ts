@@ -57,9 +57,9 @@ export const zrxApi: SwapperApi = {
     } = steps[0]
 
     const { value, to, data, estimatedGas } = await (async () => {
-      // If this is a quote from the 0x V2 API the comment below RE re-fetching does not apply. We
-      // must use the original transaction returned in the quote because the Permit2 signature is
-      // coupled to it.
+      // If this is a quote from the 0x V2 API, i.e. has `transactionMetadata`, the comment below RE
+      // re-fetching does not apply. We must use the original transaction returned in the quote
+      // because the Permit2 signature is coupled to it.
       if (transactionMetadata) {
         return {
           value: transactionMetadata.value?.toString() ?? '0',

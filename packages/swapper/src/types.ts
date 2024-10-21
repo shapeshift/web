@@ -22,6 +22,7 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { TransactionRequest } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -44,6 +45,8 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
+  REACT_APP_FEATURE_ZRX_PERMIT2: boolean
+  REACT_APP_ZRX_BASE_URL: string
 }
 
 export enum SwapperName {
@@ -87,6 +90,8 @@ export enum TradeQuoteError {
   RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
+  // the response from the API was invalid or unexpected
+  InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
   // catch-all for unknown issues
@@ -222,6 +227,8 @@ export type TradeQuoteStep = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
+  permit2Eip712?: TypedData
+  transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
 }
 
 type TradeQuoteBase = {
@@ -309,10 +316,12 @@ export type CommonGetUnsignedTransactionArgs = {
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean } & Omit<
-    EvmSwapperDeps,
-    'fetchIsSmartContractAddressQuery'
-  >
+  EvmAccountMetadata &
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'> & {
+    permit2Signature: string | undefined
+    supportsEIP1559: boolean
+  }
+
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
@@ -425,7 +434,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
+  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &

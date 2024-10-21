@@ -6,11 +6,15 @@ import { CircularProgress } from './CircularProgress/CircularProgress'
 
 const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
 const pageVariants = {
-  initial: { opacity: 0, x: -20, transition },
+  initial: {
+    opacity: 0,
+    x: 20, // slide left on entry
+    transition,
+  },
   animate: { opacity: 1, x: 0, transition },
   exit: {
     opacity: 0,
-    x: -20,
+    x: -20, // slide left on exit
     transition,
   },
 }

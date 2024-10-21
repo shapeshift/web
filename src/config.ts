@@ -81,6 +81,7 @@ const validators = {
   REACT_APP_FEATURE_SOLANA: bool({ default: false }),
   REACT_APP_FEATURE_BASE: bool({ default: false }),
   REACT_APP_FEATURE_ZRX_SWAP: bool({ default: false }),
+  REACT_APP_FEATURE_ZRX_PERMIT2: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_THOR_SWAP_STREAMING_SWAPS: bool({ default: false }),
   REACT_APP_FEATURE_YAT: bool({ default: false }),
@@ -174,6 +175,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE: bool({ default: false }),
   REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
+  REACT_APP_ZRX_BASE_URL: url(),
   REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
 }
 

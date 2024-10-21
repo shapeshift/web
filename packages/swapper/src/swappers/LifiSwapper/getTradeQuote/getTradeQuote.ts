@@ -54,9 +54,7 @@ export async function getTradeQuote(
     hasWallet,
   } = input
 
-  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
-  // this won't be an issue anymore
-  if (hasWallet && !(receiveAddress && sendAddress))
+  if (hasWallet && !(receiveAddress && sendAddress && accountNumber !== undefined))
     return Err(
       makeSwapErrorRight({
         message: 'missing address',

@@ -12,8 +12,8 @@ import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
-import type { Strategy } from './validators'
-import { SnapshotSchema, VotingPowerSchema } from './validators'
+import type { Proposal, Strategy } from './validators'
+import { ProposalSchema, SnapshotSchema, VotingPowerSchema } from './validators'
 
 type FoxVotingPowerCryptoBalance = string
 
@@ -25,11 +25,18 @@ export const initialState: SnapshotState = {
     THORCHAIN_LP: undefined,
   },
   strategies: undefined,
+  proposals: undefined,
+}
+
+type ProposalsState = {
+  activeProposals: Proposal[]
+  closedProposals: Proposal[]
 }
 
 export type SnapshotState = {
   votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
+  proposals: ProposalsState | undefined
 }
 
 export const snapshot = createSlice({
@@ -45,6 +52,9 @@ export const snapshot = createSlice({
     },
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
+    },
+    setProposals: (state, { payload }: { payload: ProposalsState }) => {
+      state.proposals = payload
     },
   },
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
@@ -142,5 +152,65 @@ export const snapshotApi = createApi({
         }
       },
     }),
+    getProposals: build.query<ProposalsState, void>({
+      queryFn: async (_, { dispatch }) => {
+        const query = `
+          query Proposals {
+            activeProposals: proposals(
+              first: 20,
+              where: {
+                space: "${SNAPSHOT_SPACE}",
+                state: "active"
+              },
+              orderBy: "created",
+              orderDirection: desc
+            ) {
+              id
+              title
+              body
+              choices
+              scores
+              scores_total
+              link
+              state
+            }
+            
+            closedProposals: proposals(
+              first: 5,
+              where: {
+                space: "${SNAPSHOT_SPACE}",
+                state: "closed"
+              },
+              orderBy: "created",
+              orderDirection: desc
+            ) {
+              id
+              title
+              body
+              choices
+              scores
+              scores_total
+              link
+              state
+            }
+          }
+        `
+        const { data: resData } = await axios.post(
+          'https://hub.snapshot.org/graphql',
+          { query },
+          { headers: { Accept: 'application/json' } },
+        )
+        try {
+          const proposals = ProposalSchema.parse(resData).data
+          dispatch(snapshot.actions.setProposals(proposals))
+          return { data: proposals }
+        } catch (e) {
+          console.error('snapshotApi getProposals', e)
+          return { data: { activeProposals: [], closedProposals: [] } }
+        }
+      },
+    }),
   }),
 })
+
+export const { useGetProposalsQuery } = snapshotApi

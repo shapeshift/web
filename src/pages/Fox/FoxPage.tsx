@@ -3,6 +3,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { FoxFarming } from './components/FoxFarming'
+import { FoxGovernance } from './components/FoxGovernance'
 import { FoxHeader } from './components/FoxHeader'
 import { FoxToken } from './components/FoxToken'
 import { RFOXSection } from './components/RFOXSection'
@@ -20,6 +21,7 @@ export const FoxPage = () => {
         <FoxToken />
         <RFOXSection />
         <FoxFarming />
+        <FoxGovernance />
       </Main>
     </FoxPageProvider>
   )

@@ -39,6 +39,7 @@ type ReactTableProps<T extends {}> = {
 
 const tdStyle = { padding: 0 }
 const tableSize = { base: 'sm', md: 'md' }
+const SCROLL_TRESHOLD = 0.4
 
 const Loader = () => {
   const translate = useTranslate()
@@ -162,7 +163,7 @@ export const InfiniteTable = <T extends {}>({
       loader={loader}
       scrollableTarget={scrollableTarget}
       hasChildren={true}
-      scrollThreshold={0.4}
+      scrollThreshold={SCROLL_TRESHOLD}
     >
       <Table
         ref={tableRef}

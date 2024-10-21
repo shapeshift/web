@@ -34,11 +34,8 @@ import {
 import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   ThorEvmTradeQuote,
-  ThorEvmTradeRate,
   ThorTradeQuote,
-  ThorTradeRate,
   ThorTradeUtxoOrCosmosQuote,
-  ThorTradeUtxoOrCosmosRate,
 } from '../getThorTradeQuote/getTradeQuote'
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
@@ -54,7 +51,7 @@ export const getL1quote = async (
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
-): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -242,7 +239,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorEvmTradeQuote | ThorEvmTradeRate> => {
+          }): Promise<ThorEvmTradeQuote> => {
             if (hasWallet && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
@@ -308,8 +305,6 @@ export const getL1quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
-                  // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
                   accountNumber: accountNumber!,
                   allowanceContract: router,
                   feeData: {
@@ -350,7 +345,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): Promise<ThorTradeUtxoOrCosmosQuote | ThorTradeUtxoOrCosmosRate> => {
+          }): Promise<ThorTradeUtxoOrCosmosQuote> => {
             if (hasWallet && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
@@ -471,7 +466,7 @@ export const getL1quote = async (
             estimatedExecutionTimeMs,
             affiliateBps,
             slippageBps,
-          }): ThorTradeUtxoOrCosmosQuote | ThorTradeUtxoOrCosmosRate => {
+          }): ThorTradeUtxoOrCosmosQuote => {
             if (!quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)

@@ -3,7 +3,7 @@
 import type { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
-import type { TradeQuoteOrRate } from '@shapeshiftoss/swapper'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import createCachedSelector from 're-reselect'
@@ -56,7 +56,7 @@ type ParamFilter = Partial<{
   onlyConnectedChains: boolean
   parser: TxMetadata['parser']
   hopIndex: number
-  tradeId: TradeQuoteOrRate['id']
+  tradeId: TradeQuote['id']
 }>
 
 type ParamFilterKey = keyof ParamFilter

@@ -11,7 +11,7 @@ import type {
   GetEvmTradeQuoteInput,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
-  TradeQuoteOrRate,
+  TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -21,7 +21,7 @@ import { isSupportedChainId } from '../utils/helpers/helpers'
 export async function getZrxTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-): Promise<Result<TradeQuoteOrRate, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,

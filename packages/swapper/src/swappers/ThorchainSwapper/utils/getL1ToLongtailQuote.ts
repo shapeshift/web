@@ -19,7 +19,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote, ThorTradeRate } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
@@ -31,7 +31,7 @@ export const getL1ToLongtailQuote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
-): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const {
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,

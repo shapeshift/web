@@ -234,17 +234,13 @@ export type TradeQuoteStep = {
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string
+  receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
-}
-
-type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & {
-  receiveAddress: undefined
 }
 
 // https://github.com/microsoft/TypeScript/pull/40002
@@ -272,24 +268,13 @@ export type MultiHopTradeQuote = TradeQuoteBase & {
   steps: MultiHopTradeQuoteSteps
 }
 
-export type SingleHopTradeRate = TradeRateBase & {
-  steps: SingleHopTradeQuoteSteps
-}
-export type MultiHopTradeRate = TradeRateBase & {
-  steps: MultiHopTradeQuoteSteps
-}
-
 // Note: don't try to do TradeQuote = SingleHopTradeQuote | MultiHopTradeQuote here, which would be cleaner but you'll have type errors such as
 // "An interface can only extend an object type or intersection of object types with statically known members."
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
 
-export type TradeRate = TradeRateBase & {
-  steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
-}
-
-export type TradeQuoteOrRate = TradeQuote | TradeRate
+export type TradeQuoteWithReceiveAddress = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
@@ -377,7 +362,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuoteOrRate[], SwapErrorRight>
+type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -434,13 +419,13 @@ export type SwapperApi = {
   ) => Promise<StdSignDoc>
 }
 
-export type QuoteResult = Result<TradeQuoteOrRate[], SwapErrorRight> & {
+export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
 export type CommonTradeExecutionInput = {
   swapperName: SwapperName
-  tradeQuote: TradeQuoteOrRate
+  tradeQuote: TradeQuote
   stepIndex: SupportedTradeQuoteStepIndex
   slippageTolerancePercentageDecimal: string
 }

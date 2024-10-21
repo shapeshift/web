@@ -1,10 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  ProtocolFee,
-  SwapperName,
-  TradeQuoteOrRate,
-  TradeQuoteStep,
-} from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
@@ -41,7 +36,7 @@ export const getHopTotalNetworkFeeUserCurrencyPrecision = (
  * @returns The total network fee across all hops in fiat precision
  */
 export const getTotalNetworkFeeUserCurrencyPrecision = (
-  quote: TradeQuoteOrRate,
+  quote: TradeQuote,
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber =>
@@ -56,7 +51,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   }, bn(0))
 
 export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuoteOrRate['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number],
   userCurrencyToUsdRate: string,
   marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
 ): string => {
@@ -73,7 +68,7 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  * @param quote The trade quote
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
-export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuoteOrRate }) => {
+export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   const lastStep = getHopByIndex(quote, lastStepIndex)
 
@@ -115,7 +110,7 @@ export const _reduceTotalProtocolFeeByAssetForStep = (
 export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
   _reduceTotalProtocolFeeByAssetForStep({}, step)
 
-export const getTotalProtocolFeeByAsset = (quote: TradeQuoteOrRate): Record<AssetId, ProtocolFee> =>
+export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
   quote.steps.reduce<Record<AssetId, ProtocolFee>>(
     (acc, step) => _reduceTotalProtocolFeeByAssetForStep(acc, step),
     {},

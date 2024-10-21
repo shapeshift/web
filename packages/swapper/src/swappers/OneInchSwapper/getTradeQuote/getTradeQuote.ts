@@ -11,7 +11,7 @@ import type {
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
-  TradeQuoteOrRate,
+  TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
@@ -24,7 +24,7 @@ import type { OneInchQuoteApiInput, OneInchQuoteResponse } from '../utils/types'
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<Result<TradeQuoteOrRate, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,

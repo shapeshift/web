@@ -12,8 +12,6 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
-  TradeQuoteOrRate,
-  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -28,11 +26,10 @@ type ArbitrumBridgeSpecificMetadata = {
   direction: 'deposit' | 'withdrawal'
 }
 
-export type ArbitrumBridgeTradeRate = TradeRate & ArbitrumBridgeSpecificMetadata
 export type ArbitrumBridgeTradeQuote = TradeQuote & ArbitrumBridgeSpecificMetadata
 
 export const isArbitrumBridgeTradeQuote = (
-  quote: TradeQuoteOrRate | undefined,
+  quote: TradeQuote | undefined,
 ): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
 
 export const getTradeQuoteWithWallet = async (
@@ -56,7 +53,7 @@ export const getTradeQuoteWithWallet = async (
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInput,
   { assertGetEvmChainAdapter }: SwapperDeps,
-): Promise<Result<ArbitrumBridgeTradeQuote | ArbitrumBridgeTradeRate, SwapErrorRight>> {
+): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,

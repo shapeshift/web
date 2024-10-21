@@ -16,8 +16,8 @@ import {
   type SingleHopTradeQuoteSteps,
   type SwapErrorRight,
   SwapperName,
+  type TradeQuote,
   TradeQuoteError,
-  type TradeQuoteOrRate,
 } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -29,7 +29,7 @@ export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
-): Promise<Result<TradeQuoteOrRate, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -261,7 +261,7 @@ export async function getPortalsTradeQuote(
       .div(100)
       .toString()
 
-    const tradeQuote: TradeQuoteOrRate = {
+    const tradeQuote: TradeQuote = {
       id:
         'orderId' in portalsTradeQuoteResponse.context
           ? portalsTradeQuoteResponse.context.orderId

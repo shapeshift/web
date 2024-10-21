@@ -1,6 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import type { TradeQuoteOrRate, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
@@ -22,7 +22,7 @@ export const useAllowanceApproval = (
   hopIndex: number,
   allowanceType: AllowanceType,
   feeQueryEnabled: boolean,
-  confirmedTradeId: TradeQuoteOrRate['id'],
+  confirmedTradeId: TradeQuote['id'],
 ) => {
   const dispatch = useAppDispatch()
   const { showErrorToast } = useErrorHandler()

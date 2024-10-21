@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuoteOrRate } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
@@ -47,14 +47,14 @@ export const tradeQuoteSlice = createSlice({
         }
       }
     },
-    setConfirmedQuote: (state, action: PayloadAction<TradeQuoteOrRate>) => {
+    setConfirmedQuote: (state, action: PayloadAction<TradeQuote>) => {
       state.confirmedQuote = action.payload
       state.tradeExecution[action.payload.id] = initialTradeExecutionState
     },
-    setTradeInitialized: (state, action: PayloadAction<TradeQuoteOrRate['id']>) => {
+    setTradeInitialized: (state, action: PayloadAction<TradeQuote['id']>) => {
       state.tradeExecution[action.payload].state = TradeExecutionState.Previewing
     },
-    confirmTrade: (state, action: PayloadAction<TradeQuoteOrRate['id']>) => {
+    confirmTrade: (state, action: PayloadAction<TradeQuote['id']>) => {
       if (state.tradeExecution[action.payload].state !== TradeExecutionState.Previewing) {
         if (state.tradeExecution[action.payload].state === TradeExecutionState.Initializing) {
           console.error('attempted to confirm an uninitialized trade')
@@ -75,7 +75,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setApprovalTxPending: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex, isReset } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -85,7 +85,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setApprovalTxFailed: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex, isReset } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -99,7 +99,7 @@ export const tradeQuoteSlice = createSlice({
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
     setApprovalTxComplete: (
       state,
-      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; isReset: boolean; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex, isReset } = action.payload
       const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -113,7 +113,7 @@ export const tradeQuoteSlice = createSlice({
     // progresses the hop to the swap step after the allowance check has passed
     setApprovalStepComplete: (
       state,
-      action: PayloadAction<{ hopIndex: number; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -121,16 +121,13 @@ export const tradeQuoteSlice = createSlice({
     },
     setSwapTxPending: (
       state,
-      action: PayloadAction<{ hopIndex: number; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[action.payload.id][key].swap.state = TransactionExecutionState.Pending
     },
-    setSwapTxFailed: (
-      state,
-      action: PayloadAction<{ hopIndex: number; id: TradeQuoteOrRate['id'] }>,
-    ) => {
+    setSwapTxFailed: (state, action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>) => {
       const { hopIndex } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
       state.tradeExecution[action.payload.id][key].swap.state = TransactionExecutionState.Failed
@@ -138,7 +135,7 @@ export const tradeQuoteSlice = createSlice({
     setSwapTxMessage: (
       state,
       action: PayloadAction<{
-        id: TradeQuoteOrRate['id']
+        id: TradeQuote['id']
         hopIndex: number
         message: string | [string, InterpolationOptions] | undefined
       }>,
@@ -149,7 +146,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setSwapTxComplete: (
       state,
-      action: PayloadAction<{ hopIndex: number; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex } = action.payload
       const isMultiHopTrade =
@@ -192,7 +189,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setInitialApprovalRequirements: (
       state,
-      action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuote['id'] }>,
     ) => {
       state.tradeExecution[action.payload.id].firstHop.approval.isRequired =
         action.payload?.firstHop
@@ -201,7 +198,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setAllowanceResetRequirements: (
       state,
-      action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ firstHop: boolean; secondHop: boolean; id: TradeQuote['id'] }>,
     ) => {
       state.tradeExecution[action.payload.id].firstHop.allowanceReset.isRequired =
         action.payload?.firstHop
@@ -214,7 +211,7 @@ export const tradeQuoteSlice = createSlice({
         hopIndex: number
         txHash: string
         isReset: boolean
-        id: TradeQuoteOrRate['id']
+        id: TradeQuote['id']
       }>,
     ) => {
       const { hopIndex, txHash, isReset } = action.payload
@@ -224,7 +221,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setSwapSellTxHash: (
       state,
-      action: PayloadAction<{ hopIndex: number; sellTxHash: string; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; sellTxHash: string; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex, sellTxHash } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -232,7 +229,7 @@ export const tradeQuoteSlice = createSlice({
     },
     setSwapBuyTxHash: (
       state,
-      action: PayloadAction<{ hopIndex: number; buyTxHash: string; id: TradeQuoteOrRate['id'] }>,
+      action: PayloadAction<{ hopIndex: number; buyTxHash: string; id: TradeQuote['id'] }>,
     ) => {
       const { hopIndex, buyTxHash } = action.payload
       const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
@@ -243,7 +240,7 @@ export const tradeQuoteSlice = createSlice({
       action: PayloadAction<{
         hopIndex: number
         streamingSwapMetadata: StreamingSwapMetadata
-        id: TradeQuoteOrRate['id']
+        id: TradeQuote['id']
       }>,
     ) => {
       const { hopIndex, streamingSwapMetadata, id } = action.payload
@@ -258,7 +255,7 @@ export const tradeQuoteSlice = createSlice({
       state,
       action: PayloadAction<{
         hopIndex: number
-        id: TradeQuoteOrRate['id']
+        id: TradeQuote['id']
       }>,
     ) => {
       const { hopIndex, id } = action.payload

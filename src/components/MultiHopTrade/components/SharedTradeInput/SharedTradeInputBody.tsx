@@ -8,7 +8,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import type { TradeQuoteOrRate } from '@shapeshiftoss/swapper'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -40,7 +40,7 @@ const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
 type SharedTradeInputBodyProps = {
-  activeQuote: TradeQuoteOrRate | undefined
+  activeQuote: TradeQuote | undefined
   buyAmountAfterFeesCryptoPrecision: string | undefined
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset

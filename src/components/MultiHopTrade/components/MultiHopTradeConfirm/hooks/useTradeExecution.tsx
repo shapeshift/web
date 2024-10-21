@@ -7,11 +7,11 @@ import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
   EvmTransactionRequest,
   SupportedTradeQuoteStepIndex,
-  TradeQuoteOrRate,
+  TradeQuote,
 } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
-  isTradeRate,
+  isExecutableTradeQuote,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
@@ -42,7 +42,7 @@ import { useMixpanel } from './useMixpanel'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
-  confirmedTradeId: TradeQuoteOrRate['id'],
+  confirmedTradeId: TradeQuote['id'],
 ) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -213,7 +213,7 @@ export const useTradeExecution = (
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
       if (swapperName === SwapperName.CowSwap) {
-        if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
+        if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
 
@@ -254,7 +254,7 @@ export const useTradeExecution = (
 
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
+          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
 
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
@@ -293,7 +293,7 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.Utxo: {
-          if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
+          if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
           if (accountType === undefined) throw Error('Missing UTXO account type')
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
@@ -334,7 +334,7 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
-          if (isTradeRate(tradeQuote)) throw new Error('Cannot execute a trade rate')
+          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
 
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })

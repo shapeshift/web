@@ -6,12 +6,7 @@ import type { AxiosError } from 'axios'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetTradeQuoteInput,
-  SwapErrorRight,
-  SwapperConfig,
-  TradeQuoteOrRate,
-} from '../../../types'
+import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -34,7 +29,7 @@ import {
 export async function getCowSwapTradeQuote(
   input: GetTradeQuoteInput,
   config: SwapperConfig,
-): Promise<Result<TradeQuoteOrRate, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -132,7 +127,7 @@ export async function getCowSwapTradeQuote(
       affiliateBps,
     })
 
-  const quote: TradeQuoteOrRate = {
+  const quote: TradeQuote = {
     id: data.id.toString(),
     receiveAddress,
     affiliateBps,

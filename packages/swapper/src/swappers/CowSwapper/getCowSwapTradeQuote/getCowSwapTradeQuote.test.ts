@@ -3,7 +3,7 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetTradeQuoteInput, SwapperConfig, TradeQuoteOrRate } from '../../../types'
+import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   ETH,
@@ -138,7 +138,7 @@ const expectedApiInputUsdcToEthArbitrum: CowSwapSellQuoteApiInput = {
   validTo: 1656797787,
 }
 
-const expectedTradeQuoteWethToFox: TradeQuoteOrRate = {
+const expectedTradeQuoteWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -171,7 +171,7 @@ const expectedTradeQuoteWethToFox: TradeQuoteOrRate = {
   ],
 }
 
-const expectedTradeQuoteFoxToEth: TradeQuoteOrRate = {
+const expectedTradeQuoteFoxToEth: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -204,7 +204,7 @@ const expectedTradeQuoteFoxToEth: TradeQuoteOrRate = {
   ],
 }
 
-const expectedTradeQuoteUsdcToXdai: TradeQuoteOrRate = {
+const expectedTradeQuoteUsdcToXdai: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -237,7 +237,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuoteOrRate = {
   ],
 }
 
-const expectedTradeQuoteUsdcToEthArbitrum: TradeQuoteOrRate = {
+const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -270,7 +270,7 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuoteOrRate = {
   ],
 }
 
-const expectedTradeQuoteSmallAmountWethToFox: TradeQuoteOrRate = {
+const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',

@@ -13,7 +13,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
-  isTradeRate,
+  isExecutableTradeQuote,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
@@ -70,7 +70,7 @@ export class TradeExecution {
 
       const chainId = hop.sellAsset.chainId
 
-      if (isTradeRate(tradeQuote)) {
+      if (!isExecutableTradeQuote(tradeQuote)) {
         throw new Error('Cannot execute a trade rate')
       }
       const sellTxHash = await buildSignBroadcast(swapper, {

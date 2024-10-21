@@ -10,7 +10,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import type { TradeQuoteOrRate, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
@@ -40,7 +40,7 @@ export type ApprovalStepProps = {
   isLastStep?: boolean
   isLoading?: boolean
   isAllowanceResetStep: boolean
-  activeTradeId: TradeQuoteOrRate['id']
+  activeTradeId: TradeQuote['id']
 }
 
 type ApprovalDescriptionProps = {

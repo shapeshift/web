@@ -13,7 +13,7 @@ import {
 import type {
   SupportedTradeQuoteStepIndex,
   SwapperName,
-  TradeQuoteOrRate,
+  TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
@@ -65,7 +65,7 @@ export const Hop = ({
   isOpen: boolean
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
-  activeTradeId: TradeQuoteOrRate['id']
+  activeTradeId: TradeQuote['id']
 }) => {
   const {
     number: { toCrypto },

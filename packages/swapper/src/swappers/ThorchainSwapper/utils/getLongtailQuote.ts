@@ -16,7 +16,7 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote, ThorTradeRate } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
 import { getBestAggregator } from './getBestAggregator'
 import { getL1quote } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
@@ -26,7 +26,7 @@ export const getLongtailToL1Quote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
-): Promise<Result<(ThorTradeQuote | ThorTradeRate)[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
   /*
@@ -87,7 +87,7 @@ export const getLongtailToL1Quote = async (
   )
 
   return thorchainQuotes.andThen(quotes => {
-    const updatedQuotes: (ThorTradeQuote | ThorTradeRate)[] = quotes.map(q => ({
+    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
       ...q,
       aggregator: bestAggregator,
       // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain

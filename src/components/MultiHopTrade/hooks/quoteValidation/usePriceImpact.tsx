@@ -1,7 +1,7 @@
 import {
   getHopByIndex,
   type SupportedTradeQuoteStepIndex,
-  type TradeQuoteOrRate,
+  type TradeQuote,
 } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -9,7 +9,7 @@ import { fromBaseUnit } from 'lib/math'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export const usePriceImpact = (tradeQuote: TradeQuoteOrRate | undefined) => {
+export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
   // Avoid using tradeInputSlice selectors here due to inaccurate values during debouncing.
   // Selectors update instantly, but quotes are refreshed post-request completion, leading to
   // discrepancies while fetching.

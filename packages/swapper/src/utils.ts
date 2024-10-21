@@ -16,8 +16,8 @@ import type {
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
-  TradeQuoteOrRate,
-  TradeRate,
+  TradeQuote,
+  TradeQuoteWithReceiveAddress,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -147,7 +147,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export const getHopByIndex = (
-  quote: TradeQuoteOrRate | undefined,
+  quote: TradeQuote | undefined,
   index: SupportedTradeQuoteStepIndex,
 ) => {
   if (quote === undefined) return undefined
@@ -287,4 +287,5 @@ export const getRate = ({
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 
-export const isTradeRate = (quote: TradeQuoteOrRate): quote is TradeRate => !quote.receiveAddress
+export const isExecutableTradeQuote = (quote: TradeQuote): quote is TradeQuoteWithReceiveAddress =>
+  !!quote.receiveAddress

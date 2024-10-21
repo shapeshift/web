@@ -9,7 +9,7 @@ import type {
   SwapperConfig,
   SwapperDeps,
   SwapperName,
-  TradeQuoteOrRate,
+  TradeQuote,
 } from './types'
 
 export const getTradeQuotes = async (
@@ -25,7 +25,7 @@ export const getTradeQuotes = async (
   if (swapper === undefined) return
 
   try {
-    const quote = await timeoutMonadic<TradeQuoteOrRate[], SwapErrorRight>(
+    const quote = await timeoutMonadic<TradeQuote[], SwapErrorRight>(
       swapper.getTradeQuote(getTradeQuoteInput, deps),
       QUOTE_TIMEOUT_MS,
       QUOTE_TIMEOUT_ERROR,

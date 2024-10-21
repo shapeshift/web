@@ -224,8 +224,9 @@ export const useTradeExecution = (
       const stepSellAssetAssetId = hop.sellAsset.assetId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
+      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
       if (swapperName === SwapperName.CowSwap) {
-        if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
 
@@ -266,8 +267,6 @@ export const useTradeExecution = (
 
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
-
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -306,7 +305,6 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.Utxo: {
-          if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
           if (accountType === undefined) throw Error('Missing UTXO account type')
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
@@ -347,8 +345,6 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
-          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
-
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execCosmosSdkTransaction({

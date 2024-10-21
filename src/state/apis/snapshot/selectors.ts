@@ -34,13 +34,3 @@ export const selectVotingPower = createSelector(
 )
 
 export const selectProposals = (state: ReduxState) => state.snapshot.proposals
-export const selectActiveProposals = createSelector(selectProposals, proposals => {
-  if (!proposals) return []
-
-  return proposals.filter(proposal => proposal.state === 'active')
-})
-export const selectClosedProposals = createSelector(selectProposals, proposals => {
-  if (!proposals) return []
-
-  return proposals.filter(proposal => proposal.state === 'closed')
-})

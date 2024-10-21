@@ -28,10 +28,15 @@ export const initialState: SnapshotState = {
   proposals: undefined,
 }
 
+type ProposalsState = {
+  activeProposals: Proposal[]
+  closedProposals: Proposal[]
+}
+
 export type SnapshotState = {
   votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
-  proposals: Proposal[] | undefined
+  proposals: ProposalsState | undefined
 }
 
 export const snapshot = createSlice({
@@ -48,7 +53,7 @@ export const snapshot = createSlice({
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
     },
-    setProposals: (state, { payload }: { payload: Proposal[] }) => {
+    setProposals: (state, { payload }: { payload: ProposalsState }) => {
       state.proposals = payload
     },
   },
@@ -147,45 +152,46 @@ export const snapshotApi = createApi({
         }
       },
     }),
-    getProposals: build.query<Proposal[], void>({
+    getProposals: build.query<ProposalsState, void>({
       queryFn: async (_, { dispatch }) => {
         const query = `
           query Proposals {
-            proposals(
+            activeProposals: proposals(
               first: 20,
-              skip: 0,
               where: {
                 space: "${SNAPSHOT_SPACE}",
+                state: "active"
               },
               orderBy: "created",
               orderDirection: desc
             ) {
               id
-              author
-              created
-              network
-              symbol
-              type
               title
               body
-              discussion
               choices
-              labels
-              start
-              end
-              quorum
-              quorumType
-              privacy
-              snapshot
-              state
-              link
-              app
               scores
-              scores_state
               scores_total
-              scores_updated
-              votes
-              flagged
+              link
+              state
+            }
+            
+            closedProposals: proposals(
+              first: 5,
+              where: {
+                space: "${SNAPSHOT_SPACE}",
+                state: "closed"
+              },
+              orderBy: "created",
+              orderDirection: desc
+            ) {
+              id
+              title
+              body
+              choices
+              scores
+              scores_total
+              link
+              state
             }
           }
         `
@@ -195,14 +201,16 @@ export const snapshotApi = createApi({
           { headers: { Accept: 'application/json' } },
         )
         try {
-          const { proposals } = ProposalSchema.parse(resData).data
+          const proposals = ProposalSchema.parse(resData).data
           dispatch(snapshot.actions.setProposals(proposals))
           return { data: proposals }
         } catch (e) {
           console.error('snapshotApi getProposals', e)
-          return { data: [] }
+          return { data: { activeProposals: [], closedProposals: [] } }
         }
       },
     }),
   }),
 })
+
+export const { useGetProposalsQuery } = snapshotApi

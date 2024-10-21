@@ -16,19 +16,14 @@ import {
   Text as CText,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useDispatch } from 'react-redux'
 import { Amount } from 'components/Amount/Amount'
 import { Text } from 'components/Text'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
-import {
-  selectActiveProposals,
-  selectClosedProposals,
-  selectIsSnapshotApiQueriesPending,
-  selectVotingPower,
-} from 'state/apis/snapshot/selectors'
-import { snapshotApi } from 'state/apis/snapshot/snapshot'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { snapshotApi, useGetProposalsQuery } from 'state/apis/snapshot/snapshot'
 import { selectAssetById, selectWalletAccountIds } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -57,28 +52,22 @@ export const FoxGovernance = () => {
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
   const dispatch = useDispatch()
+  const {
+    data: { activeProposals, closedProposals } = { activeProposals: [], closedProposals: [] },
+  } = useGetProposalsQuery()
+
   const accountIds = useAppSelector(selectWalletAccountIds)
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
   const votingPower = useAppSelector(state => selectVotingPower(state, { feeModel: 'SWAPPER' }))
   const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const activeProposals = useAppSelector(selectActiveProposals)
-  const closedProposals = useAppSelector(selectClosedProposals)
-
-  const firstFifthClosedProposals = useMemo(() => closedProposals.slice(0, 5), [closedProposals])
-
-  useEffect(() => {
-    dispatch(snapshotApi.endpoints.getProposals.initiate())
-  }, [dispatch])
 
   useEffect(() => {
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
   }, [dispatch, accountIds])
-
-  console.log({ votingPower, accountIds })
 
   const ActiveProposals = useCallback(() => {
     if (!activeProposals.length)
@@ -87,40 +76,24 @@ export const FoxGovernance = () => {
     return (
       <>
         {activeProposals.map(proposal => (
-          <FoxGovernanceProposal
-            key={proposal.id}
-            title={proposal.title}
-            description={proposal.body ?? ''}
-            options={proposal.choices}
-            results={proposal.scores ?? []}
-            totalScore={proposal.scores_total ?? 0}
-            link={proposal.link ?? ''}
-          />
+          <FoxGovernanceProposal {...proposal} />
         ))}
       </>
     )
   }, [activeProposals])
 
   const ClosedProposals = useCallback(() => {
-    if (!firstFifthClosedProposals.length)
+    if (!closedProposals.length)
       return <Text color='text.subtle' translation='foxPage.governance.noClosedProposals' />
 
     return (
       <>
-        {firstFifthClosedProposals.map(proposal => (
-          <FoxGovernanceProposal
-            key={proposal.id}
-            title={proposal.title}
-            description={proposal.body ?? ''}
-            options={proposal.choices}
-            results={proposal.scores ?? []}
-            totalScore={proposal.scores_total ?? 0}
-            link={proposal.link ?? ''}
-          />
+        {closedProposals.map(proposal => (
+          <FoxGovernanceProposal {...proposal} />
         ))}
       </>
     )
-  }, [firstFifthClosedProposals])
+  }, [closedProposals])
 
   if (!isFoxGovernanceEnabled) return null
   if (!foxEthAsset) return null

@@ -31,11 +31,6 @@ export const useInfiniteScroll = <T extends any>({
     if (!firstLoaderItem || !scrollContainer) {
       return
     }
-    console.log({
-      firstLoaderTop: firstLoaderItem,
-      innerHeight: window.innerHeight,
-      window,
-    })
     if (
       // The loading will continue only when the loader element appears on the scroll-container.
       firstLoaderItem.getBoundingClientRect().top < window.innerHeight

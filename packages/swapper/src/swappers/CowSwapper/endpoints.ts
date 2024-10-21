@@ -5,7 +5,6 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
-import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
@@ -18,7 +17,12 @@ import type {
   TradeQuote,
 } from '../../types'
 import { SwapperName } from '../../types'
-import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  createDefaultStatusResponse,
+  getHopByIndex,
+  isExecutableTradeQuote,
+} from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowSwapOrder } from './types'
@@ -79,7 +83,7 @@ export const cowApi: SwapperApi = {
       ),
     } = tradeQuote
 
-    if (receiveAddress === zeroAddress) throw new Error('No receive address found in quote')
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference

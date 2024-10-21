@@ -114,7 +114,7 @@ export async function getPortalsTradeQuote(
     // Attempt fetching a quote with validation enabled to leverage upstream gasLimit estimate
     const portalsTradeQuoteResponse = await fetchPortalsTradeOrder({
       hasWallet,
-      sender: hasWallet ? sendAddress! : undefined,
+      sender: sendAddress,
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -132,7 +132,7 @@ export async function getPortalsTradeQuote(
 
       // Use the quote estimate endpoint to get the optimal slippage tolerance
       const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-        sender: hasWallet ? sendAddress! : undefined,
+        sender: sendAddress,
         hasWallet,
         inputToken,
         outputToken,
@@ -175,7 +175,7 @@ export async function getPortalsTradeQuote(
 
       const order = await fetchPortalsTradeOrder({
         hasWallet,
-        sender: hasWallet ? sendAddress! : undefined,
+        sender: sendAddress,
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,

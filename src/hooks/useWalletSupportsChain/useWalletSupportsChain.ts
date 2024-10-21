@@ -14,6 +14,7 @@ import {
   ltcChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -30,6 +31,7 @@ import {
   supportsGnosis,
   supportsOptimism,
   supportsPolygon,
+  supportsSolana,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -116,6 +118,8 @@ export const walletSupportsChain = ({
       return supportsCosmos(wallet)
     case thorchainChainId:
       return supportsThorchain(wallet)
+    case solanaChainId:
+      return supportsSolana(wallet)
     default: {
       return false
     }

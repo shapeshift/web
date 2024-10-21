@@ -3,6 +3,7 @@ import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import { useFoxEth } from 'context/FoxEthProvider/FoxEthProvider'
@@ -312,6 +313,12 @@ export const useFoxFarming = (
     return txid
   }, [accountNumber, adapter, contractAddress, foxFarmingContract.abi, skip, userAddress, wallet])
 
+  const periodFinishQuery = useQuery({
+    queryKey: ['getPeriodFinish'],
+    queryFn: () => foxFarmingContract.read.periodFinish(),
+    enabled: !!foxFarmingContract,
+  })
+
   return {
     allowance,
     approve,
@@ -322,6 +329,7 @@ export const useFoxFarming = (
     stake,
     unstake,
     claimRewards,
+    periodFinishQuery,
     foxFarmingContract,
     skip,
   }

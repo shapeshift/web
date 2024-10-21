@@ -1,7 +1,16 @@
-import { Alert, AlertDescription, Button, CloseButton, Flex, useToast } from '@chakra-ui/react'
+import type { ToastId } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  CloseButton,
+  Flex,
+  usePrevious,
+  useToast,
+} from '@chakra-ui/react'
 import type { ResponsiveValue } from '@chakra-ui/system'
 import type { Property } from 'csstype'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -19,12 +28,22 @@ export const useBridgeClaimNotification = () => {
   const history = useHistory()
   const translate = useTranslate()
   const [isDisabled, setIsDisabled] = useState(false)
+  const toastIdRef = useRef<ToastId | undefined>()
 
   const {
     state: { deviceId: walletDeviceId },
   } = useWallet()
 
+  const prevDeviceId = usePrevious(walletDeviceId)
+
   const { claimsByStatus, isLoading } = useArbitrumClaimsByStatus({ skip: isDisabled })
+
+  useEffect(() => {
+    // Immediately close previous toast if it exists on walletId change
+    if (walletDeviceId && prevDeviceId && walletDeviceId !== prevDeviceId && toastIdRef.current) {
+      toast.close(toastIdRef.current)
+    }
+  }, [prevDeviceId, toast, walletDeviceId])
 
   // Re-enable the notification when wallet changes
   useEffect(() => {
@@ -35,8 +54,12 @@ export const useBridgeClaimNotification = () => {
     if (isLoading || isDisabled) return
     if (claimsByStatus.Available.length === 0) return
 
+    if (toastIdRef.current) {
+      toast.close(toastIdRef.current)
+    }
+
     // trigger a toast
-    toast({
+    const _toastIdRef = toast({
       render: ({ onClose }) => {
         const handleCtaClick = () => {
           history.push(TradeRoutePaths.Claim)
@@ -72,6 +95,8 @@ export const useBridgeClaimNotification = () => {
       isClosable: true,
       position: 'bottom-right',
     })
+
+    toastIdRef.current = _toastIdRef
 
     // don't spam user
     setIsDisabled(true)

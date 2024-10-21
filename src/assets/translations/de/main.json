@@ -49,6 +49,7 @@
     "overview": "Übersicht",
     "getStarted": "Loslegen",
     "connectWallet": "Verbinde Wallet",
+    "connectWalletToGetStartedWith": "Verbinden Sie eine Wallet, um mit %{feature} zu beginnen",
     "connectedWallet": "Verbundene Wallet",
     "connectedWalletSettings": "Wallet Einstellungen",
     "noWallet": "Keine Wallet verbunden",
@@ -156,6 +157,7 @@
     "asymmetric": "Asymmetrische (%{assetSymbol})",
     "import": "Importieren",
     "accountsLoading": "Lade Konten",
+    "noAccounts": "Keine Konten für die ausgewählten Filter.",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -442,7 +444,7 @@
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
         "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben.",
         "agreeRunePool": {
-          "1": "Mir ist bewusst, dass RUNEPool eine Mindestsperrfrist von 90 Tagen hat und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
+          "1": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
         }
       }
     },
@@ -617,6 +619,7 @@
     "lending": "Verleihen",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "foxBenefits": "FOX Vorteile",
     "markets": "Märkte",
     "actionMenu": {
       "send": {
@@ -801,7 +804,9 @@
     "pendingClaims": "Ausstehend",
     "noPendingClaims": "Keine Ansprüche offen",
     "availableIn": "Verfügbar in %{time}",
-    "confirmAndClaim": "Bestätigen und Beanspruchen"
+    "confirmAndClaim": "Bestätigen und Beanspruchen",
+    "viewClaims": "Ansprüche anzeigen",
+    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!"
   },
   "trade": {
     "trade": "Handeln",
@@ -2596,6 +2601,43 @@
   },
   "markets": {
     "recommended": "Empfohlen",
-    "watchlist": "Meine Merkliste"
+    "watchlist": "Meine Merkliste",
+    "marketsBody": "Entdecken Sie die aufregendsten Kryptowährungen. Verfolgen Sie die Top-Mover, aufstrebende Token, DeFi-Chancen und vieles mehr. Speichern, teilen und handeln Sie Ihre Favoriten.",
+    "watchlistEmpty": {
+      "emptyTitle": "Keine Vermögenswerte in der Beobachtungsliste",
+      "emptyBody": "Es scheint, dass Sie bisher keine Vermögenswerte mit einem Stern markiert haben. Fügen Sie jetzt Vermögenswerte zu Ihrer Beobachtungsliste hinzu, um sie zu verfolgen!"
+    },
+    "emptyTitle": "Keine Vermögenswerte gefunden",
+    "emptyBody": "Mit dem aktuellen Filter wurden keine Assets gefunden. Weitere Assets können Sie anzeigen, indem Sie die ausgewählte Kette anpassen.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "DeFi-Vermögenswerte mit einem Klick",
+        "subtitle": "Entdecken Sie die Rendite, die am besten zu Ihnen passt! Wechseln Sie mühelos mit Portalen zwischen Pools, Tresoren, Kreditoptionen und LSDs."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "Erzielen Sie mit THORChain Savers eine lokale Rendite auf Ihr Vermögen."
+      },
+      "trending": {
+        "title": "Beliebt",
+        "subtitle": "Die am häufigsten angesehenen Vermögenswerte der letzten 24 Stunden."
+      },
+      "tradingVolume": {
+        "title": "Handelsvolumen",
+        "subtitle": "Top-Werte mit dem höchsten Handelsvolumen in den letzten 24 Stunden."
+      },
+      "marketCap": {
+        "title": "Marktkapitalisierung",
+        "subtitle": "Top-Werte mit der höchsten Marktkapitalisierung in den letzten 24 Stunden."
+      },
+      "topMovers": {
+        "title": "Top Auf- oder Absteiger",
+        "subtitle": "Top-Vermögenswerte, die um %{percentage}% oder mehr gestiegen sind."
+      },
+      "recentlyAdded": {
+        "title": "Kürzlich hinzugefügt",
+        "subtitle": "Entdecken Sie aktuelle Produkteinführungen."
+      }
+    }
   }
 }

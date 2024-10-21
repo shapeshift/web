@@ -25,7 +25,8 @@ export const FoxTokenFilterButton = ({
   onFilterClick,
   isSelected,
 }: FoxTokenFilterButtonProps) => {
-  const buttonsBgColor = useColorModeValue('grey.500', 'white')
+  const buttonsBgColor = useColorModeValue('gray.100', 'white')
+  const buttonsColor = useColorModeValue('gray.500', 'white')
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, filter.chainId ?? ''))
 
   const iconSrc = feeAsset?.networkIcon
@@ -45,7 +46,7 @@ export const FoxTokenFilterButton = ({
       _hover={buttonsHover}
       variant={isSelected ? 'solid' : 'outline'}
       backgroundColor={isSelected ? buttonsBgColor : 'transparent'}
-      color={isSelected ? 'gray.900' : 'white'}
+      color={isSelected ? 'gray.900' : buttonsColor}
       // eslint-disable-next-line react-memo/require-usememo
       onClick={() => onFilterClick(filter)}
       leftIcon={filter.assetId ? networkIcon : undefined}

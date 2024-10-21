@@ -1,5 +1,6 @@
 import type { SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import type { TransactionInstruction } from '@solana/web3.js'
 
 import type * as types from '../types'
 
@@ -26,11 +27,13 @@ export type BuildTxInput = {
 }
 
 export type GetFeeDataInput = {
-  message: string
+  from: string
+  instructions?: TransactionInstruction[]
 }
 
 export type FeeData = {
   computeUnits: string
+  priorityFee: string
 }
 
 export type PriorityFeeData = {

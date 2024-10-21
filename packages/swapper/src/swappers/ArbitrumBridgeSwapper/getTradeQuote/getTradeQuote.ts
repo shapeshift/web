@@ -83,7 +83,7 @@ export async function getTradeQuote(
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
-      sendAddress: sendAddress ?? '',
+      sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
       priceOrQuote: 'price',

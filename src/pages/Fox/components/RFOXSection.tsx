@@ -19,6 +19,7 @@ import {
   fromAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
+import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -102,10 +103,6 @@ export const RFOXSection = () => {
     return isApyQueryLoading || isApyFetching
   }, [isApyQueryLoading, isApyFetching])
 
-  const handleManageClick = useCallback(() => {
-    history.push('/rfox')
-  }, [history])
-
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdByAccountNumberAndChainId,
   )
@@ -125,6 +122,15 @@ export const RFOXSection = () => {
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
+
+  const handleManageClick = useCallback(() => {
+    history.push({
+      pathname: '/rfox',
+      search: qs.stringify({
+        accountId: stakingAssetAccountId,
+      }),
+    })
+  }, [history, stakingAssetAccountId])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {

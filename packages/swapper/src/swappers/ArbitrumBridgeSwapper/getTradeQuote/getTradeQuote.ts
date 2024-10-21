@@ -35,19 +35,17 @@ export const isArbitrumBridgeTradeQuote = (
 export const getTradeQuoteWithWallet = async (
   inputWithWallet: GetEvmTradeQuoteInputWithWallet,
   deps: SwapperDeps,
-): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> => {
+) => {
   const { wallet, ...input } = inputWithWallet
   const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-  const quote = await getTradeQuote(
+  return getTradeQuote(
     {
       ...input,
       supportsEIP1559,
     },
     deps,
   )
-
-  return quote
 }
 
 export async function getTradeQuote(

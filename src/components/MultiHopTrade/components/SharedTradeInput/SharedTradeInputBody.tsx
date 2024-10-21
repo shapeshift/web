@@ -41,36 +41,46 @@ const emptyPercentOptions: number[] = []
 
 type SharedTradeInputBodyProps = {
   activeQuote: TradeQuote | undefined
-  isLoading: boolean | undefined
-  manualReceiveAddress: string | undefined
-  sellAssetAccountId: AccountId | undefined
-  buyAssetAccountId: AccountId | undefined
-  setSellAssetAccountId: (accountId: AccountId) => void
-  setBuyAssetAccountId: (accountId: AccountId) => void
   buyAmountAfterFeesCryptoPrecision: string | undefined
   buyAmountAfterFeesUserCurrency: string | undefined
   buyAsset: Asset
+  buyAssetAccountId: AccountId | undefined
+  isInputtingFiatSellAmount: boolean
+  isLoading: boolean | undefined
+  manualReceiveAddress: string | undefined
+  sellAmountCryptoPrecision: string
+  sellAmountUserCurrency: string | undefined
   sellAsset: Asset
-  setBuyAsset: (asset: Asset) => void
-  setSellAsset: (asset: Asset) => void
+  sellAssetAccountId: AccountId | undefined
   handleSwitchAssets: () => void
+  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
+  onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
+  setBuyAsset: (asset: Asset) => void
+  setBuyAssetAccountId: (accountId: AccountId) => void
+  setSellAsset: (asset: Asset) => void
+  setSellAssetAccountId: (accountId: AccountId) => void
 }
 
 export const SharedTradeInputBody = ({
+  activeQuote,
   buyAmountAfterFeesCryptoPrecision,
   buyAmountAfterFeesUserCurrency,
   buyAsset,
-  sellAsset,
+  buyAssetAccountId,
+  isInputtingFiatSellAmount,
   isLoading,
   manualReceiveAddress,
+  sellAmountCryptoPrecision,
+  sellAmountUserCurrency,
+  sellAsset,
   sellAssetAccountId,
-  buyAssetAccountId,
-  setSellAssetAccountId,
-  setBuyAssetAccountId,
-  setBuyAsset,
-  setSellAsset,
   handleSwitchAssets,
-  activeQuote,
+  onChangeIsInputtingFiatSellAmount,
+  onChangeSellAmountCryptoPrecision,
+  setBuyAsset,
+  setBuyAssetAccountId,
+  setSellAsset,
+  setSellAssetAccountId,
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const {
@@ -167,11 +177,16 @@ export const SharedTradeInputBody = ({
       <SellAssetInput
         accountId={sellAssetAccountId}
         asset={sellAsset}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        isLoading={isLoading}
         label={translate('trade.payWith')}
-        onAccountIdChange={setSellAssetAccountId}
         labelPostFix={sellTradeAssetSelect}
         percentOptions={percentOptions}
-        isLoading={isLoading}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+        sellAmountUserCurrency={sellAmountUserCurrency}
+        onChangeAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
+        onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
       />
       <Flex alignItems='center' justifyContent='center' my={-2}>
         <Divider />

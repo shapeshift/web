@@ -100,7 +100,7 @@ async function _getZrxTradeQuote(
   })
 
   if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const zrxQuoteResponse = maybeZrxPriceResponse.unwrap()
+  const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
 
   const {
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
@@ -109,7 +109,7 @@ async function _getZrxTradeQuote(
     allowanceTarget,
     gas,
     expectedSlippage,
-  } = zrxQuoteResponse
+  } = zrxPriceResponse
 
   const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
   const rate = useSellAmount ? price : bn(1).div(price).toString()
@@ -186,6 +186,7 @@ async function _getZrxPermit2TradeQuote(
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    hasWallet,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -225,7 +226,80 @@ async function _getZrxPermit2TradeQuote(
     )
   }
 
-  const maybeZrxPriceResponse = await fetchFromZrxPermit2({
+  // If we don't have a wallet, no dice for the permit2 EIP712 data here - but we don't care just yet since we're getting
+  // a *rate* quote, not a *quote* quote on quote quote.
+  if (!hasWallet) {
+    const maybeZrxPriceResponse = await fetchFromZrxPermit2({
+      priceOrQuote: 'price',
+      buyAsset,
+      sellAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      receiveAddress,
+      affiliateBps,
+      slippageTolerancePercentageDecimal,
+      zrxBaseUrl,
+    })
+
+    if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
+    const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
+
+    const {
+      buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+      minBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
+      totalNetworkFee,
+    } = zrxPriceResponse
+
+    const rate = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+      .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+      .toString()
+
+    // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+    // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+    try {
+      const networkFeeCryptoBaseUnit = totalNetworkFee
+      return Ok({
+        id: uuid(),
+        receiveAddress,
+        potentialAffiliateBps,
+        affiliateBps,
+        // Slippage protection is only provided for specific pairs.
+        // If slippage protection is not provided, assume a no slippage limit.
+        // If slippage protection is provided, return the limit instead of the estimated slippage.
+        // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+        slippageTolerancePercentageDecimal,
+        rate,
+        steps: [
+          {
+            estimatedExecutionTimeMs: undefined,
+            // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
+            allowanceContract: undefined,
+            buyAsset,
+            sellAsset,
+            accountNumber,
+            rate,
+            feeData: {
+              protocolFees: {},
+              networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
+            },
+            buyAmountBeforeFeesCryptoBaseUnit,
+            buyAmountAfterFeesCryptoBaseUnit,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            source: SwapperName.Zrx,
+          },
+        ] as unknown as SingleHopTradeQuoteSteps,
+      })
+    } catch (err) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'failed to get fee data',
+          cause: err,
+          code: TradeQuoteError.NetworkFeeEstimationFailed,
+        }),
+      )
+    }
+  }
+
+  const maybeZrxQuoteResponse = await fetchFromZrxPermit2({
     priceOrQuote: 'quote',
     buyAsset,
     sellAsset,
@@ -236,12 +310,12 @@ async function _getZrxPermit2TradeQuote(
     zrxBaseUrl,
   })
 
-  if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const zrxQuoteResponse = maybeZrxPriceResponse.unwrap()
+  if (maybeZrxQuoteResponse.isErr()) return Err(maybeZrxQuoteResponse.unwrapErr())
+  const zrxQuoteResponse = maybeZrxQuoteResponse.unwrap()
 
   const { sellAmount, buyAmount, fees, permit2: quotePermit2, transaction } = zrxQuoteResponse
 
-  const permit2Eip712 = quotePermit2?.eip712 ?? null
+  const permit2Eip712 = quotePermit2?.eip712
 
   if (!isNativeEvmAsset(sellAsset.assetId) && !permit2Eip712) {
     return Err(
@@ -305,7 +379,7 @@ async function _getZrxPermit2TradeQuote(
     const { average } = await adapter.getGasFeeData()
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
       // which are inaccurate and not what we use for the tx to broadcast
       gasLimit: bnOrZero(transaction.gas).times(1.2).toFixed(),

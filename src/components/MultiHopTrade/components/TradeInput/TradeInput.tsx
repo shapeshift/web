@@ -217,7 +217,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
 
-      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Cannot submit a trade rate')
+      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Unable to execute trade')
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 

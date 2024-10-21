@@ -72,7 +72,7 @@ export async function getTradeQuote(
   // 15 minutes for deposits, 7 days for withdrawals
   const estimatedExecutionTimeMs = isDeposit ? 15 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
 
-  if (hasWallet && !(sendAddress && receiveAddress)) {
+  if (hasWallet && !(sendAddress && receiveAddress && accountNumber !== undefined)) {
     throw new Error('sendAddress and receiveAddress are required when a wallet is provided')
   }
 

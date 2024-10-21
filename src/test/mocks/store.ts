@@ -93,7 +93,6 @@ export const mockStore: ReduxState = {
       LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
-      OneInch: false,
       CovalentJaypegs: false,
       Chatwoot: false,
       AdvancedSlippage: false,

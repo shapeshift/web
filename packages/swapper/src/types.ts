@@ -28,7 +28,6 @@ import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
-  REACT_APP_ONE_INCH_API_URL: string
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
   REACT_APP_THORCHAIN_NODE_URL: string
@@ -53,7 +52,6 @@ export enum SwapperName {
   Zrx = '0x',
   Test = 'Test',
   LIFI = 'LI.FI',
-  OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
 }

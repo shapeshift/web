@@ -35,7 +35,6 @@ export type FeatureFlags = {
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
   Jaypegz: boolean
-  OneInch: boolean
   ArbitrumBridge: boolean
   Portals: boolean
   CovalentJaypegs: boolean
@@ -130,7 +129,6 @@ const initialState: Preferences = {
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
-    OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
     Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,

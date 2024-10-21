@@ -133,9 +133,6 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
   REACT_APP_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
-  REACT_APP_ONE_INCH_API_URL: url({
-    default: 'https://api-shapeshift.1inch.io/v5.0',
-  }),
   REACT_APP_SENTRY_DSN_URL: url(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_API_KEY: str(),

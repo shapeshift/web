@@ -61,6 +61,7 @@ export async function getTradeQuote(
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
+    hasWallet,
   } = input
 
   const assertion = await assertValidTrade({ buyAsset, sellAsset })
@@ -70,6 +71,10 @@ export async function getTradeQuote(
 
   // 15 minutes for deposits, 7 days for withdrawals
   const estimatedExecutionTimeMs = isDeposit ? 15 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
+
+  if (hasWallet && !(sendAddress && receiveAddress)) {
+    throw new Error('sendAddress and receiveAddress are required when a wallet is provided')
+  }
 
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
@@ -84,7 +89,7 @@ export async function getTradeQuote(
       sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
-      priceOrQuote: 'price',
+      priceOrQuote: hasWallet ? 'quote' : 'price',
     })
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit

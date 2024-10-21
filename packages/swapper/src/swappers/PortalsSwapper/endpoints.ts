@@ -16,7 +16,7 @@ import type {
   SwapperDeps,
   TradeQuote,
 } from '../../types'
-import { checkEvmSwapStatus } from '../../utils'
+import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from './constants'
 import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
@@ -46,10 +46,10 @@ export const portalsApi: SwapperApi = {
     assertGetEvmChainAdapter,
     config: swapperConfig,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     const { affiliateBps, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
-
-    if (!from) throw new Error('Unable to execute trade')
 
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
     const sellAssetAddress = isNativeEvmAsset(sellAsset.assetId)

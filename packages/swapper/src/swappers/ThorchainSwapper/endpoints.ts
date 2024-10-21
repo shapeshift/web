@@ -85,7 +85,7 @@ export const thorchainApi: SwapperApi = {
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
 
-    if (!from) throw new Error('Cannot execute Tx without a from address')
+    if (!from) throw new Error('Unable to execute trade')
     if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
 
     const value = isNativeEvmAsset(sellAsset.assetId)

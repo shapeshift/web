@@ -39,7 +39,7 @@ export const zrxApi: SwapperApi = {
     supportsEIP1559,
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]

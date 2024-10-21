@@ -49,7 +49,7 @@ export const portalsApi: SwapperApi = {
     const { affiliateBps, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = steps[0]
 
-    if (!from) throw new Error('Cannot execute a Portals trade without a from address')
+    if (!from) throw new Error('Unable to execute trade')
 
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
     const sellAssetAddress = isNativeEvmAsset(sellAsset.assetId)

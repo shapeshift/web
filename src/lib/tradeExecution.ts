@@ -71,7 +71,7 @@ export class TradeExecution {
       const chainId = hop.sellAsset.chainId
 
       if (!isExecutableTradeQuote(tradeQuote)) {
-        throw new Error('Cannot execute a trade rate')
+        throw new Error('Unable to execute trade')
       }
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,

@@ -190,11 +190,6 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
-export type GetTradeRateInput =
-  | GetUtxoTradeRateInput
-  | GetEvmTradeRateInput
-  | GetCosmosSdkTradeRateInput
-
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>

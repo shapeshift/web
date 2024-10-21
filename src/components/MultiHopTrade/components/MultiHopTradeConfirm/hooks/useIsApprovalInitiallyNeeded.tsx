@@ -1,8 +1,9 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { type TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
-import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
+import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
+import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
 import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -13,54 +14,92 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
+import { isPermit2Hop } from './helpers'
+
 const useIsApprovalInitiallyNeededForHop = (
   tradeQuoteId: string | undefined,
   tradeQuoteStep: TradeQuoteStep | undefined,
   sellAssetAccountId: AccountId | undefined,
 ) => {
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
-  const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
 
-  const { allowanceCryptoBaseUnitResult, isApprovalRequired, isAllowanceResetRequired } =
-    useIsApprovalRequired({
+  const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
+    useIsAllowanceApprovalRequired({
       amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       assetId: tradeQuoteStep?.sellAsset.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
+      isDisabled: isApprovalInitiallyNeeded !== undefined,
     })
 
   // Reset the approval requirements if the trade quote ID changes
   // IMPORTANT: This must be evaluated before the other useEffects to ensure that the initial approval requirements are reset
   useEffect(() => {
     setIsApprovalInitiallyNeeded(undefined)
-    setIsAllowanceResetNeeded(undefined)
   }, [tradeQuoteId])
 
   useEffect(() => {
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
-    if (allowanceCryptoBaseUnitResult.isLoading || isApprovalRequired === undefined) return
+    if (allowanceCryptoBaseUnitResult.isLoading || isAllowanceApprovalRequired === undefined) return
 
-    setIsApprovalInitiallyNeeded(isApprovalRequired)
-  }, [allowanceCryptoBaseUnitResult.isLoading, isApprovalInitiallyNeeded, isApprovalRequired])
+    setIsApprovalInitiallyNeeded(isAllowanceApprovalRequired)
+  }, [
+    allowanceCryptoBaseUnitResult.isLoading,
+    isApprovalInitiallyNeeded,
+    isAllowanceApprovalRequired,
+  ])
+
+  return {
+    isLoading: allowanceCryptoBaseUnitResult.isLoading,
+    isApprovalInitiallyNeeded,
+  }
+}
+
+const useIsAllowanceResetInitiallyRequiredForHop = (
+  tradeQuoteId: string | undefined,
+  tradeQuoteStep: TradeQuoteStep | undefined,
+  sellAssetAccountId: AccountId | undefined,
+) => {
+  const [isAllowanceResetNeeded, setIsAllowanceResetNeeded] = useState<boolean | undefined>()
+
+  const isPermit2 = useMemo(() => {
+    return isPermit2Hop(tradeQuoteStep)
+  }, [tradeQuoteStep])
+
+  const { isAllowanceResetRequired, isLoading } = useIsAllowanceResetRequired({
+    amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    assetId: tradeQuoteStep?.sellAsset.assetId,
+    from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
+    spender: tradeQuoteStep?.allowanceContract,
+    isDisabled: isPermit2,
+  })
+
+  // Reset the approval requirements if the trade quote ID changes
+  // IMPORTANT: This must be evaluated before the other useEffects to ensure that the initial approval requirements are reset
+  useEffect(() => {
+    setIsAllowanceResetNeeded(undefined)
+  }, [tradeQuoteId])
 
   useEffect(() => {
+    // Allowance resets are never required for permit2
+    if (isPermit2) {
+      setIsAllowanceResetNeeded(false)
+    }
+
     // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
     // so we never want to overwrite them with subsequent allowance results.
     if (isAllowanceResetNeeded !== undefined) return
-    if (allowanceCryptoBaseUnitResult.isLoading || isAllowanceResetRequired === undefined) return
+    if (isLoading || isAllowanceResetRequired === undefined) return
 
     setIsAllowanceResetNeeded(isAllowanceResetRequired)
-  }, [allowanceCryptoBaseUnitResult, isAllowanceResetNeeded, isAllowanceResetRequired])
+  }, [isLoading, isAllowanceResetNeeded, isAllowanceResetRequired, isPermit2])
 
-  return useMemo(() => {
-    return {
-      isLoading: allowanceCryptoBaseUnitResult.isLoading,
-      isApprovalInitiallyNeeded,
-      isAllowanceResetNeeded,
-    }
-  }, [allowanceCryptoBaseUnitResult, isApprovalInitiallyNeeded, isAllowanceResetNeeded])
+  return {
+    isLoading: !isPermit2 && isLoading,
+    isAllowanceResetNeeded,
+  }
 }
 
 export const useIsApprovalInitiallyNeeded = () => {
@@ -73,16 +112,45 @@ export const useIsApprovalInitiallyNeeded = () => {
   const secondHopSellAssetAccountId = useAppSelector(selectSecondHopSellAccountId)
 
   const {
-    isLoading: isFirstHopLoading,
+    isLoading: isFirstHopAllowanceApprovalRequirementsLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForFirstHop,
-    isAllowanceResetNeeded: isAllowanceResetNeededForFirstHop,
   } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, firstHop, firstHopSellAssetAccountId)
 
   const {
-    isLoading: isSecondHopLoading,
+    isLoading: isSecondHopAllowanceApprovalRequirementsLoading,
     isApprovalInitiallyNeeded: isApprovalInitiallyNeededForSecondHop,
-    isAllowanceResetNeeded: isAllowanceResetNeededForSecondHop,
   } = useIsApprovalInitiallyNeededForHop(activeQuote?.id, secondHop, secondHopSellAssetAccountId)
+
+  const {
+    isLoading: isFirstHopAllowanceResetRequirementsLoading,
+    isAllowanceResetNeeded: isAllowanceResetNeededForFirstHop,
+  } = useIsAllowanceResetInitiallyRequiredForHop(
+    activeQuote?.id,
+    firstHop,
+    firstHopSellAssetAccountId,
+  )
+
+  const {
+    isLoading: isSecondHopAllowanceResetRequirementsLoading,
+    isAllowanceResetNeeded: isAllowanceResetNeededForSecondHop,
+  } = useIsAllowanceResetInitiallyRequiredForHop(
+    activeQuote?.id,
+    secondHop,
+    secondHopSellAssetAccountId,
+  )
+
+  const isPermit2RequiredForFirstHop = useMemo(() => {
+    return isPermit2Hop(firstHop)
+  }, [firstHop])
+
+  const isPermit2RequiredForSecondHop = useMemo(() => {
+    return isPermit2Hop(secondHop)
+  }, [secondHop])
+
+  const isFirstHopLoading =
+    isFirstHopAllowanceApprovalRequirementsLoading || isFirstHopAllowanceResetRequirementsLoading
+  const isSecondHopLoading =
+    isSecondHopAllowanceApprovalRequirementsLoading || isSecondHopAllowanceResetRequirementsLoading
 
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
@@ -103,6 +171,14 @@ export const useIsApprovalInitiallyNeeded = () => {
         secondHop: isAllowanceResetNeededForSecondHop ?? false,
       }),
     )
+
+    dispatch(
+      tradeQuoteSlice.actions.setPermit2Requirements({
+        id: activeQuote.id,
+        firstHop: isPermit2RequiredForFirstHop,
+        secondHop: isPermit2RequiredForSecondHop,
+      }),
+    )
   }, [
     activeQuote?.id,
     dispatch,
@@ -111,6 +187,8 @@ export const useIsApprovalInitiallyNeeded = () => {
     isApprovalInitiallyNeededForFirstHop,
     isApprovalInitiallyNeededForSecondHop,
     isFirstHopLoading,
+    isPermit2RequiredForFirstHop,
+    isPermit2RequiredForSecondHop,
     isSecondHopLoading,
     secondHop,
   ])

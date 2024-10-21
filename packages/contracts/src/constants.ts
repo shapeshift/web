@@ -117,3 +117,7 @@ export const UNI_V2_FOX_STAKING_REWARDS_CONTRACTS = [
   UNI_V2_FOX_STAKING_REWARDS_V4_CONTRACT,
   UNI_V2_FOX_STAKING_REWARDS_V5_CONTRACT,
 ] as const
+
+// Permit2 is deployed here across all chains.
+// https://0x.org/docs/introduction/0x-cheat-sheet#permit2-contract
+export const PERMIT2_CONTRACT = '0x000000000022D473030F116dDEE9F6B43aC78BA3'

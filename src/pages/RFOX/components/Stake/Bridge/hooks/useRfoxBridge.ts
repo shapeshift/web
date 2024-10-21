@@ -231,6 +231,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         stepIndex: 0,
         supportsEIP1559,
         slippageTolerancePercentageDecimal: '0',
+        permit2Signature: undefined,
         ...swapperDeps,
       })
 

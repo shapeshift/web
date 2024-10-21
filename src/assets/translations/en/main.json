@@ -907,6 +907,13 @@
         "negativeRatio": "Insufficient sell amount"
       }
     },
+    "permit2": {
+      "title": "Permit token transfer:",
+      "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
+      "tooltip": "This trade has an added security feature called 'Permit2' which requires you to grant permission for the application to complete the trade on your behalf.",
+      "error": "A problem occurred signing Permit2 message",
+      "signMessage": "Sign message"
+    },
     "errors": {
       "title": "Something went wrong",
       "amountTooSmall": "Minimum: %{minLimit}",
@@ -954,12 +961,14 @@
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
-    "approvalGasFee": "Approval gas fee %{fee}",
-    "approvalGasFeeLoading": "Approval gas fee loading...",
-    "approvalResetGasFee": "Approval reset gas fee %{fee}",
-    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
+    "approvalGasFee": "Allowance approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Allowance approval gas fee loading...",
+    "approvalResetGasFee": "Allowance reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Allowance reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
     "approvalResetFailed": "A problem occurred during allowance reset",
+    "allowanceResetTxName": "Allowance reset tx:",
+    "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",

@@ -80,7 +80,6 @@ export const FoxTokenBalances = () => {
 
   const filteredAssetsAccountEntryRows = useMemo(() => {
     const entries = filteredAssets.reduce<JSX.Element[]>((acc, filteredAssetId) => {
-      console.log({ accountIdsByChainId, assetAccountId, assetAccountNumber, filteredAssetId })
       if (!assetAccountId) return acc
       const filteredAssetChainId = fromAssetId(filteredAssetId).chainId
 

@@ -65,6 +65,7 @@ export type FeatureFlags = {
   FoxPage: boolean
   FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
+  FoxPageFoxFarmingSection: boolean
   LimitOrders: boolean
 }
 
@@ -156,6 +157,7 @@ const initialState: Preferences = {
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
     FoxPageRFOX: getConfig().REACT_APP_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
+    FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
   },
   selectedLocale: simpleLocale(),

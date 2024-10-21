@@ -163,6 +163,7 @@ export const opportunitiesApi = createApi({
 
               const { chainId: accountChainId } = fromAccountId(accountId)
               const opportunityChainId = opportunityIdToChainId(opportunityId)
+
               if (opportunityChainId !== accountChainId) {
                 const byAccountId: OpportunityDataById = {
                   [accountId]: [],

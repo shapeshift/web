@@ -17,6 +17,7 @@ import type {
   CosmosSdkFeeData,
   EvmTransactionRequest,
   GetTradeQuoteInput,
+  GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
@@ -47,7 +48,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInput | GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input
@@ -83,6 +84,9 @@ export const thorchainApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
+
+    if (!from) throw new Error('Cannot execute Tx without a from address')
+    if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
 
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -212,6 +216,9 @@ export const thorchainApi: SwapperApi = {
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
       steps[0]
 
+    if (accountNumber === undefined) throw new Error('Cannot execute Tx without an accountNumber')
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
+
     const { vault, opReturnData } = await getUtxoThorTxInfo({
       sellAsset,
       xpub,
@@ -243,7 +250,11 @@ export const thorchainApi: SwapperApi = {
   }: GetUnsignedCosmosSdkTransactionArgs): Promise<StdSignDoc> => {
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
-    const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
+    const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
+      steps[0]
+
+    if (accountNumber === undefined) throw new Error('Cannot execute Tx without an accountNumber')
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit

@@ -21,7 +21,7 @@ import type {
   SwapperDeps,
   TradeQuote,
 } from '../../types'
-import { checkEvmSwapStatus, getHopByIndex } from '../../utils'
+import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
@@ -112,6 +112,9 @@ export const arbitrumBridgeApi: SwapperApi = {
     if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+
     const { receiveAddress } = tradeQuote
 
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
@@ -125,6 +128,7 @@ export const arbitrumBridgeApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
       sendAddress: from,
+      priceOrQuote: 'quote',
       assertGetEvmChainAdapter,
     })
 

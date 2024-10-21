@@ -177,6 +177,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION: bool({ default: false }),
   REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE: bool({ default: false }),
   REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
+  REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

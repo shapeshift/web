@@ -17,6 +17,7 @@ import type {
   SwapErrorRight,
   SwapperName,
   TradeQuote,
+  TradeQuoteWithReceiveAddress,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -285,3 +286,6 @@ export const getRate = ({
   const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
+
+export const isExecutableTradeQuote = (quote: TradeQuote): quote is TradeQuoteWithReceiveAddress =>
+  !!quote.receiveAddress

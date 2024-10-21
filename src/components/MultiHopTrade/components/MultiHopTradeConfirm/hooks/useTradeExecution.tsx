@@ -9,7 +9,12 @@ import type {
   SupportedTradeQuoteStepIndex,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
-import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  isExecutableTradeQuote,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
@@ -208,6 +213,7 @@ export const useTradeExecution = (
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
       if (swapperName === SwapperName.CowSwap) {
+        if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
 
@@ -248,6 +254,8 @@ export const useTradeExecution = (
 
       switch (stepSellAssetChainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
+          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
@@ -266,6 +274,9 @@ export const useTradeExecution = (
                 accountNumber,
               } as evm.BuildCustomTxInput)
 
+              if (!receiverAddress) throw Error('Missing receiver address')
+              if (!from) throw Error('Missing sender address')
+
               const output = await signAndBroadcast({
                 adapter,
                 txToSign,
@@ -282,7 +293,9 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.Utxo: {
+          if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
           if (accountType === undefined) throw Error('Missing UTXO account type')
+
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
@@ -304,6 +317,9 @@ export const useTradeExecution = (
                 wallet,
               })
 
+              if (!receiverAddress) throw Error('Missing receiver address')
+              if (!senderAddress) throw Error('Missing sender address')
+
               const output = await adapter.broadcastTransaction({
                 senderAddress,
                 receiverAddress,
@@ -318,6 +334,8 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.CosmosSdk: {
+          if (isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
           const output = await execution.execCosmosSdkTransaction({
@@ -346,6 +364,9 @@ export const useTradeExecution = (
                 txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
               })
+              if (!tradeQuote.receiveAddress) throw Error('Missing receiver address')
+              if (!from) throw Error('Missing sender address')
+
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress: tradeQuote.receiveAddress,

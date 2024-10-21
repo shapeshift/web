@@ -4,7 +4,8 @@ import type { SwapperConfig } from '../../../types'
 
 // non-exhaustive
 type PortalsTradeOrderParams = {
-  sender: string
+  sender: string | undefined
+  hasWallet: boolean
   inputToken: string
   inputAmount: string
   outputToken: string
@@ -81,12 +82,15 @@ export const fetchPortalsTradeOrder = async ({
   feePercentage,
   validate,
   swapperConfig,
+  hasWallet,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
   const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal`
 
+  if (hasWallet && !sender) throw new Error('Missing sender address')
+
   const params = new URLSearchParams({
     partner,
-    sender,
+    ...(sender ? { sender } : {}),
     inputToken,
     inputAmount,
     outputToken,
@@ -119,11 +123,14 @@ export const fetchPortalsTradeEstimate = async ({
   outputToken,
   slippageTolerancePercentage,
   swapperConfig,
+  hasWallet,
 }: PortalsTradeOrderEstimateParams): Promise<PortalsTradeOrderEstimateResponse> => {
   const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal/estimate`
 
+  if (hasWallet && !sender) throw new Error('Missing sender address')
+
   const params = new URLSearchParams({
-    sender,
+    ...(sender ? { sender } : {}),
     inputToken,
     inputAmount,
     outputToken,

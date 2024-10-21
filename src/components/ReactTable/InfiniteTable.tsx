@@ -1,6 +1,7 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { TableProps } from '@chakra-ui/react'
 import {
+  Button,
   Flex,
   Skeleton,
   Table,
@@ -18,7 +19,6 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row, TableState } from 'react-table'
 import { useExpanded, useSortBy, useTable } from 'react-table'
-import { RawText } from 'components/Text'
 
 type ReactTableProps<T extends {}> = {
   columns: Column<T>[]
@@ -40,7 +40,21 @@ type ReactTableProps<T extends {}> = {
 const tdStyle = { padding: 0 }
 const tableSize = { base: 'sm', md: 'md' }
 
-const loader = <RawText>Loading...</RawText>
+const Loader = () => {
+  const translate = useTranslate()
+
+  return (
+    <Button
+      className='infinite-loader'
+      isDisabled={true}
+      variant='outline'
+      isLoading={true}
+      loadingText={translate('common.loadingText')}
+      width='100%'
+      mb={2}
+    ></Button>
+  )
+}
 
 export const InfiniteTable = <T extends {}>({
   columns,
@@ -138,6 +152,8 @@ export const InfiniteTable = <T extends {}>({
     visibleColumns.length,
   ])
 
+  const loader = useMemo(() => <Loader />, [])
+
   return (
     <InfiniteScroll
       hasMore={hasMore}
@@ -145,8 +161,16 @@ export const InfiniteTable = <T extends {}>({
       dataLength={data.length}
       loader={loader}
       scrollableTarget={scrollableTarget}
+      hasChildren={true}
+      scrollThreshold={0.4}
     >
-      <Table ref={tableRef} variant={variant} size={tableSize} {...getTableProps()}>
+      <Table
+        ref={tableRef}
+        variant={variant}
+        size={tableSize}
+        {...getTableProps()}
+        className='infinite-table'
+      >
         {displayHeaders && (
           <Thead>
             {headerGroups.map(headerGroup => (

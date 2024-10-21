@@ -18,7 +18,7 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
-import { useMipdProviders } from 'lib/mipd'
+import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
 import {
   selectWalletDeviceId,
@@ -374,10 +374,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         // If not, create a new instance of the adapter
         try {
           const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
-          const keyManagerOptions =
-            keyManager === KeyManager.MetaMask && maybeMipdProvider
-              ? maybeMipdProvider.info.rdns
-              : getKeyManagerOptions(keyManager, isDarkMode)
+          const keyManagerOptions = (() => {
+            if (keyManager === KeyManager.MetaMask && maybeMipdProvider)
+              return maybeMipdProvider.info.rdns
+            // MetaMask connect *intent* - MM may not be installed, and we need to pass the rdns for onboarding purposes
+            if (keyManager === KeyManager.MetaMask && state.modalType === METAMASK_RDNS)
+              return METAMASK_RDNS
+            return getKeyManagerOptions(keyManager, isDarkMode)
+          })()
           // @ts-ignore tsc is drunk as well, not narrowing to the specific adapter and its KeyManager options here
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks

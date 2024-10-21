@@ -47,7 +47,7 @@ export const getTradeQuoteWithWallet = async (
     deps,
   )
 
-  return quote as Result<ArbitrumBridgeTradeQuote, SwapErrorRight>
+  return quote
 }
 
 export async function getTradeQuote(

@@ -21,7 +21,7 @@ import {
   fallbackEthWithdrawGasLimit,
 } from './constants'
 
-export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
+type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
@@ -33,7 +33,29 @@ export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   priceOrQuote: T
 }
 
-export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
+type FetchArbitrumBridgePriceInput = {
+  supportsEIP1559: boolean
+  chainId: ChainId
+  buyAsset: Asset
+  receiveAddress: string | undefined
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: string | undefined
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}
+
+export type FetchArbitrumBridgeQuoteInput = {
+  supportsEIP1559: boolean
+  chainId: ChainId
+  buyAsset: Asset
+  receiveAddress: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: string
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}
+
+const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   chainId,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -281,3 +303,8 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
       assertUnreachable(bridgeType)
   }
 }
+
+export const fetchArbitrumBridgePrice = (args: FetchArbitrumBridgePriceInput) =>
+  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'price' })
+export const fetchArbitrumBridgeQuote = (args: FetchArbitrumBridgeQuoteInput) =>
+  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'quote' })

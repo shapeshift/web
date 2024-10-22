@@ -23,7 +23,7 @@ import type {
 } from '../../types'
 import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
-import { fetchArbitrumBridgeSwap } from './utils/fetchArbitrumBridgeSwap'
+import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
 
 const tradeQuoteMetadata: Map<string, { sellAssetId: AssetId; chainId: EvmChainId }> = new Map()
@@ -120,7 +120,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     const assertion = await assertValidTrade({ buyAsset, sellAsset })
     if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
 
-    const swap = await fetchArbitrumBridgeSwap({
+    const swap = await fetchArbitrumBridgeQuote({
       chainId,
       supportsEIP1559,
       buyAsset,
@@ -128,7 +128,6 @@ export const arbitrumBridgeApi: SwapperApi = {
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
       sendAddress: from,
-      priceOrQuote: 'quote',
       assertGetEvmChainAdapter,
     })
 

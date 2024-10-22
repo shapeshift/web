@@ -122,7 +122,6 @@
     "@walletconnect/core": "^2.15.1",
     "@walletconnect/utils": "^2.15.1",
     "@walletconnect/web3wallet": "^1.14.1",
-    "@wherever/react-notification-feed": "^0.4.4",
     "alchemy-sdk": "^3.4.1",
     "allsettled-polyfill": "^1.0.4",
     "axios": "^1.7.4",
@@ -311,7 +310,6 @@
     "react-scripts/workbox-webpack-plugin": "^7.1.0",
     "p-queue": "^6.6.2",
     "web3": "4.2.1-dev.a0d6730.0",
-    "@wherever/react-notification-feed/wagmi": "^0.10.12",
     "react-scripts@^5.0.1": "patch:react-scripts@npm%3A5.0.1#./.yarn/patches/react-scripts-npm-5.0.1-d06bd2d5ad.patch"
   }
 }

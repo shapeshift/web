@@ -4,8 +4,7 @@ import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
+import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAccountNumberByAccountId,
@@ -21,17 +20,12 @@ type RFOXContextType = {
   setStakingAssetAccountId: React.Dispatch<React.SetStateAction<AccountId | undefined>>
 }
 
-export type RFOXQueryParams = {
-  accountId?: AccountId
-}
-
 const RFOXContext = createContext<RFOXContextType | undefined>(undefined)
 
 export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: AssetId }>> = ({
   stakingAssetId = foxOnArbitrumOneAssetId,
   children,
 }) => {
-  const { query } = useBrowserRouter<RFOXQueryParams, unknown>()
   const [selectedAssetId, setSelectedAssetId] = useState<AssetId>(stakingAssetId)
 
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
@@ -40,12 +34,6 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
     () => (stakingAssetAccountId ? { accountId: stakingAssetAccountId } : undefined),
     [stakingAssetAccountId],
   )
-
-  useEffect(() => {
-    if (!query.accountId) return
-
-    setStakingAssetAccountId(() => query.accountId)
-  }, [query.accountId, setStakingAssetAccountId])
 
   const stakingAssetAccountNumber = useAppSelector(state =>
     filter ? selectAccountNumberByAccountId(state, filter) : undefined,

@@ -19,7 +19,6 @@ import {
   fromAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -36,6 +35,7 @@ import { useCurrentApyQuery } from 'pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRewardsQuery'
 import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from 'pages/RFOX/types'
@@ -84,6 +84,7 @@ export const RFOXSection = () => {
   const history = useHistory()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const { assetAccountNumber } = useFoxPageContext()
+  const { setStakingAssetAccountId } = useRFOXContext()
   const stakingAssetId = foxOnArbitrumOneAssetId
   const appDispatch = useAppDispatch()
 
@@ -124,13 +125,11 @@ export const RFOXSection = () => {
   )
 
   const handleManageClick = useCallback(() => {
+    setStakingAssetAccountId(stakingAssetAccountId)
     history.push({
       pathname: '/rfox',
-      search: qs.stringify({
-        accountId: stakingAssetAccountId,
-      }),
     })
-  }, [history, stakingAssetAccountId])
+  }, [history, stakingAssetAccountId, setStakingAssetAccountId])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {

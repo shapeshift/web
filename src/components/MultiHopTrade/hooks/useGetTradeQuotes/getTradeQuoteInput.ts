@@ -25,22 +25,12 @@ export type GetTradeQuoteInputArgs = {
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
-} & (
-  | {
-      receiveAccountNumber?: number
-      receiveAddress: string
-      sellAccountNumber: number
-      wallet: HDWallet
-      hasWallet: true
-    }
-  | {
-      receiveAccountNumber?: number
-      receiveAddress: string | undefined
-      sellAccountNumber: number | undefined
-      wallet: HDWallet | undefined
-      hasWallet: false
-    }
-)
+  hasWallet: boolean
+  receiveAccountNumber?: number
+  receiveAddress: string | undefined
+  sellAccountNumber: number | undefined
+  wallet: HDWallet | undefined
+}
 
 export const getTradeQuoteInput = async ({
   sellAsset,
@@ -78,7 +68,7 @@ export const getTradeQuoteInput = async ({
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
       const supportsEIP1559 =
-        hasWallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+        hasWallet && wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress =
         wallet && sellAccountNumber !== undefined
@@ -89,30 +79,17 @@ export const getTradeQuoteInput = async ({
             })
           : undefined
 
-      if (wallet && receiveAccountNumber === undefined)
+      if (hasWallet && (receiveAccountNumber === undefined || receiveAddress === undefined))
         throw new Error('missing receiveAccountNumber')
 
-      return hasWallet && receiveAccountNumber !== undefined
-        ? {
-            ...tradeQuoteInputCommonArgs,
-            chainId: sellAsset.chainId as EvmChainId,
-            hasWallet,
-            supportsEIP1559: supportsEIP1559!,
-            receiveAddress,
-            accountNumber: sellAccountNumber,
-            ...(sendAddress ? { sendAddress } : {}),
-            receiveAccountNumber,
-          }
-        : {
-            ...tradeQuoteInputCommonArgs,
-            chainId: sellAsset.chainId as EvmChainId,
-            hasWallet: false,
-            supportsEIP1559: undefined,
-            receiveAddress: undefined,
-            accountNumber: undefined,
-            sendAddress: undefined,
-            receiveAccountNumber: undefined,
-          }
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as EvmChainId,
+        hasWallet,
+        supportsEIP1559: Boolean(supportsEIP1559),
+        sendAddress,
+        receiveAccountNumber,
+      } as GetTradeQuoteInput
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
@@ -125,29 +102,18 @@ export const getTradeQuoteInput = async ({
               pubKey,
             })
           : undefined
-      return hasWallet
-        ? {
-            ...tradeQuoteInputCommonArgs,
-            hasWallet,
-            receiveAddress,
-            accountNumber: sellAccountNumber,
-            chainId: sellAsset.chainId as CosmosSdkChainId,
-            ...(sendAddress ? { sendAddress } : {}),
-            receiveAccountNumber,
-          }
-        : {
-            ...tradeQuoteInputCommonArgs,
-            hasWallet,
-            receiveAddress: undefined,
-            accountNumber: undefined,
-            chainId: sellAsset.chainId as CosmosSdkChainId,
-            sendAddress: undefined,
-            receiveAccountNumber: undefined,
-          }
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        hasWallet,
+        chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+        receiveAccountNumber,
+      } as GetTradeQuoteInput
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!hasWallet)
+      if (!(hasWallet && wallet))
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
@@ -163,6 +129,13 @@ export const getTradeQuoteInput = async ({
       if (!sellAccountType) {
         throw Error('missing account type')
       }
+      if (sellAccountNumber === undefined) {
+        throw Error('missing account number')
+      }
+      if (receiveAddress === undefined) {
+        throw Error('missing receive address')
+      }
+
       const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,

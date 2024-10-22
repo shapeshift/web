@@ -160,7 +160,7 @@ export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
 }
 export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
-  supportsEIP1559: undefined
+  supportsEIP1559: false
 }
 export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
 

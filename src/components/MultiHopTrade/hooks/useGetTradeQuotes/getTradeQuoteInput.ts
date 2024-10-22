@@ -67,8 +67,7 @@ export const getTradeQuoteInput = async ({
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const supportsEIP1559 =
-        hasWallet && wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+      const supportsEIP1559 = wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
       const sendAddress =
         wallet && sellAccountNumber !== undefined

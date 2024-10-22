@@ -54,7 +54,9 @@ export const WalletLpByAsset: React.FC<WalletLpByAssetProps> = ({ opportunities 
     [groupedItems],
   )
 
-  const { next, data, hasMore } = useInfiniteScroll(flatItems)
+  const { next, data, hasMore } = useInfiniteScroll({
+    array: flatItems,
+  })
 
   const handleClick = useCallback(
     (opportunity: LpEarnOpportunityType, action: DefiAction) => {

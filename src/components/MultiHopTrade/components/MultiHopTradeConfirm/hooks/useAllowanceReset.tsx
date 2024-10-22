@@ -5,17 +5,16 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
-import type { AllowanceType } from 'hooks/queries/useApprovalFees'
-import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from 'hooks/queries/useApprovalFees'
-import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
+import { AllowanceType, useApprovalFees } from 'hooks/queries/useApprovalFees'
+import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-// handles allowance approval tx execution, fees, and state orchestration
-export const useAllowanceApproval = (
+// handles allowance reset tx execution, fees, and state orchestration
+export const useAllowanceReset = (
   tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   allowanceType: AllowanceType,
@@ -32,12 +31,13 @@ export const useAllowanceApproval = (
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
-  const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
-    useIsAllowanceApprovalRequired({
+  const { isAllowanceResetRequired, isLoading: isAllowanceResetRequirementsLoading } =
+    useIsAllowanceResetRequired({
       amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       assetId: tradeQuoteStep?.sellAsset.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
+      isDisabled: !(isInitiallyRequired && feeQueryEnabled),
     })
 
   const { evmFeesResult } = useApprovalFees({
@@ -48,31 +48,34 @@ export const useAllowanceApproval = (
     spender: tradeQuoteStep.allowanceContract,
     enabled: isInitiallyRequired && feeQueryEnabled,
   })
-  useEffect(() => {
-    if (!feeQueryEnabled || !isInitiallyRequired || isAllowanceApprovalRequired !== false) return
 
-    // Mark the whole allowance approval step complete if adequate allowance was found.
+  useEffect(() => {
+    if (
+      !isInitiallyRequired ||
+      isAllowanceResetRequired !== false ||
+      allowanceType !== AllowanceType.Reset
+    )
+      return
+
+    // Mark the allowance reset step complete as required.
     // This is deliberately disjoint to the approval transaction orchestration to allow users to
-    // complete an approval externally and have the app respond to the updated allowance on chain.
+    // complete an approval reset externally and have the app respond to the updated allowance on chain.
     dispatch(
-      tradeQuoteSlice.actions.setAllowanceApprovalStepComplete({ hopIndex, id: confirmedTradeId }),
+      tradeQuoteSlice.actions.setAllowanceResetStepComplete({ hopIndex, id: confirmedTradeId }),
     )
   }, [
     dispatch,
     hopIndex,
-    isAllowanceApprovalRequired,
+    isAllowanceResetRequired,
     confirmedTradeId,
+    allowanceType,
     isInitiallyRequired,
-    feeQueryEnabled,
   ])
 
-  const approveMutation = useMutation({
+  const allowanceResetMutation = useMutation({
     ...reactQueries.mutations.approve({
       accountNumber: tradeQuoteStep.accountNumber,
-      amountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
-        tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        allowanceType,
-      ),
+      amountCryptoBaseUnit: '0',
       assetId: tradeQuoteStep.sellAsset.assetId,
       spender: tradeQuoteStep.allowanceContract,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
@@ -80,7 +83,7 @@ export const useAllowanceApproval = (
     }),
     onMutate() {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceApprovalTxPending({
+        tradeQuoteSlice.actions.setAllowanceResetTxPending({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -88,7 +91,7 @@ export const useAllowanceApproval = (
     },
     async onSuccess(txHash) {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceApprovalTxHash({
+        tradeQuoteSlice.actions.setAllowanceResetTxHash({
           hopIndex,
           txHash,
           id: confirmedTradeId,
@@ -99,7 +102,7 @@ export const useAllowanceApproval = (
       await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
 
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceApprovalTxComplete({
+        tradeQuoteSlice.actions.setAllowanceResetTxComplete({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -107,7 +110,7 @@ export const useAllowanceApproval = (
     },
     onError(err) {
       dispatch(
-        tradeQuoteSlice.actions.setAllowanceApprovalTxFailed({
+        tradeQuoteSlice.actions.setAllowanceResetTxFailed({
           hopIndex,
           id: confirmedTradeId,
         }),
@@ -117,8 +120,8 @@ export const useAllowanceApproval = (
   })
 
   return {
-    isLoading: allowanceCryptoBaseUnitResult.isLoading || evmFeesResult.isLoading,
-    approveMutation,
-    approvalNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
+    isLoading: isAllowanceResetRequirementsLoading || evmFeesResult.isLoading,
+    allowanceResetMutation,
+    allowanceResetNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
   }
 }

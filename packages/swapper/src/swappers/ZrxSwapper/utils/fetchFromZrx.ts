@@ -27,7 +27,7 @@ type FetchFromZrxInput<T extends 'price' | 'quote'> = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string | undefined
+  receiveAddress: undefined
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string

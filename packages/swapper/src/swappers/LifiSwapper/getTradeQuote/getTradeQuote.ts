@@ -15,6 +15,8 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapperDeps,
@@ -36,7 +38,7 @@ import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote } from '../utils/types'
 
-export async function getTradeQuote(
+async function getTrade(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
@@ -289,3 +291,15 @@ export async function getTradeQuote(
 
   return Ok(promises.filter(isFulfilled).map(({ value }) => value))
 }
+
+// This isn't a mistake - With Li.Fi, we get the exact same thing back whether got or rate, however, the input *is* different
+export const getTradeQuote = (
+  input: GetEvmTradeQuoteInputBase,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+export const getTradeRate = (
+  input: GetEvmTradeRateInput,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)

@@ -10,7 +10,8 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapperDeps,
 } from '../../types'
@@ -27,7 +28,7 @@ import {
   isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeQuote, getTradeRate } from './getTradeQuote/getTradeQuote'
 import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 
@@ -57,7 +58,9 @@ export const lifiApi: SwapperApi = {
 
     const lifiChainMap = await lifiChainMapPromise
 
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps, lifiChainMap)
+    const tradeQuoteResult = await (input.hasWallet
+      ? getTradeQuote(input as GetEvmTradeQuoteInputBase, deps, lifiChainMap)
+      : getTradeRate(input as GetEvmTradeRateInput, deps, lifiChainMap))
 
     return tradeQuoteResult.map(quote =>
       quote.map(({ selectedLifiRoute, ...tradeQuote }) => {

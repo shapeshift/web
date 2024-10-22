@@ -7883,6 +7883,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@json-rpc-tools/types@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/types@npm:1.7.6"
+  dependencies:
+    keyvaluestorage-interface: ^1.0.0
+  checksum: f23ec7d79a78aa4e896d1dff506108bd3da38015028afd997034e6498c1f3c7bedee70618b0d1a73adf13b4d2a6a91146c2e9505487280b3c376e74f5790e77c
+  languageName: node
+  linkType: hard
+
+"@json-rpc-tools/utils@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@json-rpc-tools/utils@npm:1.7.6"
+  dependencies:
+    "@json-rpc-tools/types": ^1.7.6
+    "@pedrouid/environment": ^1.0.1
+  checksum: 32cac2e8cbf8a15d95415de8ded483c6206e6df392e129ad51acd90a4842511e931156c59cb26036fb9fae8054e8f20b719a35282304f39cd18683a5293cb67d
+  languageName: node
+  linkType: hard
+
 "@keepkey/device-protocol@npm:^7.12.2":
   version: 7.12.2
   resolution: "@keepkey/device-protocol@npm:7.12.2"
@@ -9895,6 +9914,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@pedrouid/environment@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@pedrouid/environment@npm:1.0.1"
+  checksum: fd88340ad760f26340a2816c3677f0ca913976e315880891c3de3f028fe64abc9704fb904234dce77a1ff15c22d0b6cbf1d4199a76de6695c2aed8353ce20590
+  languageName: node
+  linkType: hard
+
 "@pioneer-platform/loggerdog@npm:^8.0.1, @pioneer-platform/loggerdog@npm:^8.1.17":
   version: 8.1.17
   resolution: "@pioneer-platform/loggerdog@npm:8.1.17"
@@ -11628,6 +11654,7 @@ __metadata:
     "@formatjs/intl-locale": ^3.0.2
     "@formatjs/intl-numberformat": ^8.10.3
     "@formatjs/intl-pluralrules": ^5.2.14
+    "@json-rpc-tools/utils": ^1.7.6
     "@keepkey/hdwallet-keepkey-rest": 1.40.42
     "@keepkey/keepkey-sdk": 0.2.57
     "@keplr-wallet/types": ^0.12.21

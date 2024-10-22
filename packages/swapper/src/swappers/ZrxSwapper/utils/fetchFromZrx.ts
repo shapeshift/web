@@ -22,7 +22,7 @@ import { AFFILIATE_ADDRESS } from './constants'
 import { assetIdToZrxToken, baseUrlFromChainId } from './helpers/helpers'
 import { zrxServiceFactory } from './zrxService'
 
-export type FetchFromZrxInput<T extends 'price' | 'quote'> = {
+type FetchFromZrxInput<T extends 'price' | 'quote'> = {
   priceOrQuote: T
   buyAsset: Asset
   sellAsset: Asset
@@ -33,7 +33,7 @@ export type FetchFromZrxInput<T extends 'price' | 'quote'> = {
   zrxBaseUrl: string
 }
 
-export type FetchZrxQuoteInput = {
+type FetchZrxQuoteInput = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
@@ -43,7 +43,7 @@ export type FetchZrxQuoteInput = {
   zrxBaseUrl: string
 }
 
-export type FetchZrxPriceInput = {
+type FetchZrxPriceInput = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
@@ -52,22 +52,6 @@ export type FetchZrxPriceInput = {
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string
 }
-
-export const fetchZrxQuote = (
-  input: FetchZrxQuoteInput,
-): Promise<Result<ZrxQuoteResponse, SwapErrorRight>> =>
-  fetchFromZrx({
-    priceOrQuote: 'quote',
-    ...input,
-  })
-
-export const fetchZrxPrice = (
-  input: FetchZrxPriceInput,
-): Promise<Result<ZrxPriceResponse, SwapErrorRight>> =>
-  fetchFromZrx({
-    priceOrQuote: 'price',
-    ...input,
-  })
 
 const fetchFromZrx = async <T extends 'price' | 'quote'>({
   priceOrQuote,
@@ -180,3 +164,19 @@ const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
 
   return Ok(maybeZrxPriceResponse.unwrap().data)
 }
+
+export const fetchZrxQuote = (
+  input: FetchZrxQuoteInput,
+): Promise<Result<ZrxQuoteResponse, SwapErrorRight>> =>
+  fetchFromZrx({
+    priceOrQuote: 'quote',
+    ...input,
+  })
+
+export const fetchZrxPrice = (
+  input: FetchZrxPriceInput,
+): Promise<Result<ZrxPriceResponse, SwapErrorRight>> =>
+  fetchFromZrx({
+    priceOrQuote: 'price',
+    ...input,
+  })

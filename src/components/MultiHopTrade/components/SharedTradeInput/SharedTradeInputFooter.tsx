@@ -195,7 +195,6 @@ export const SharedTradeInputFooter = ({
           shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}
-          chainId={buyAsset.chainId}
         />
 
         <ButtonWalletPredicate

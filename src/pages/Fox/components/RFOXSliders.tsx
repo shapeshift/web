@@ -9,11 +9,11 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import debounce from 'lodash/debounce'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { Text } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type RFOXSlidersProps = {
@@ -45,6 +45,9 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   setDepositAmount,
   maxDepositAmount,
 }) => {
+  const {
+    number: { localeParts },
+  } = useLocaleFormatter()
   const handleShapeShiftRevenueChange = useCallback(
     (values: NumberFormatValues) => {
       setShapeShiftRevenue(bnOrZero(values.value).toNumber())
@@ -52,21 +55,11 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
     [setShapeShiftRevenue],
   )
 
-  const debounceShapeShiftRevenuChange = useMemo(
-    () => debounce(handleShapeShiftRevenueChange, 1000),
-    [handleShapeShiftRevenueChange],
-  )
-
   const handleDepositAmountChange = useCallback(
     (values: NumberFormatValues) => {
       setDepositAmount(bnOrZero(values.value).toNumber())
     },
     [setDepositAmount],
-  )
-
-  const debounceDepositAmountChange = useMemo(
-    () => debounce(handleDepositAmountChange, 1000),
-    [handleDepositAmountChange],
   )
 
   return (
@@ -80,12 +73,12 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
               decimalScale={2}
               customInput={Input}
               isNumericString={true}
-              suffix={' FOX'}
-              decimalSeparator={'.'}
               inputMode='decimal'
-              thousandSeparator={','}
+              suffix={' FOX'}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
               value={depositAmount.toString()}
-              onValueChange={debounceDepositAmountChange}
+              onValueChange={handleDepositAmountChange}
             />
           </Box>
         </Flex>
@@ -96,6 +89,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
             value={depositAmount}
             defaultValue={DEFAULT_DEPOSIT_AMOUNT}
             onChange={setDepositAmount}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
@@ -113,12 +107,13 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
               decimalScale={2}
               customInput={Input}
               isNumericString={true}
-              prefix={'$'}
-              decimalSeparator={'.'}
               inputMode='decimal'
-              thousandSeparator={','}
+              suffix={localeParts.postfix}
+              prefix={localeParts.prefix}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
               value={shapeShiftRevenue}
-              onValueChange={debounceShapeShiftRevenuChange}
+              onValueChange={handleShapeShiftRevenueChange}
             />
           </Box>
         </Flex>
@@ -129,6 +124,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
             value={shapeShiftRevenue}
             defaultValue={DEFAULT_SHAPESHIFT_REVENUE}
             onChange={setShapeShiftRevenue}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />

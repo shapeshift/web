@@ -13,7 +13,6 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { debounce } from 'lodash'
 import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
@@ -57,7 +56,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   )
   const featurePlural = translate(FEE_MODEL_TO_FEATURE_NAME_PLURAL[feeModel])
   const {
-    number: { toFiat },
+    number: { toFiat, localeParts },
   } = useLocaleFormatter()
 
   const handleSetFoxHolding = useCallback(
@@ -67,21 +66,11 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
     [setFoxHolding],
   )
 
-  const debounceSetFoxHolding = useMemo(
-    () => debounce(handleSetFoxHolding, 1000),
-    [handleSetFoxHolding],
-  )
-
   const handleSetTradeSizeUsd = useCallback(
     (values: NumberFormatValues) => {
       setTradeSizeUSD(bnOrZero(values.value).toNumber())
     },
     [setTradeSizeUSD],
-  )
-
-  const debounceSetTradeSizeUsd = useMemo(
-    () => debounce(handleSetTradeSizeUsd, 1000),
-    [handleSetTradeSizeUsd],
   )
 
   return (
@@ -95,12 +84,12 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
                 decimalScale={2}
                 customInput={Input}
                 isNumericString={true}
-                suffix={' FOX'}
-                decimalSeparator={'.'}
                 inputMode='decimal'
-                thousandSeparator={','}
-                value={foxHolding.toString()}
-                onValueChange={debounceSetFoxHolding}
+                suffix={' FOX'}
+                decimalSeparator={localeParts.decimal}
+                thousandSeparator={localeParts.group}
+                value={foxHolding}
+                onValueChange={handleSetFoxHolding}
               />
             </Box>
           </Skeleton>
@@ -112,6 +101,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             value={foxHolding}
             defaultValue={Number(currentFoxHoldings)}
             onChange={setFoxHolding}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
@@ -151,12 +141,13 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               decimalScale={2}
               customInput={Input}
               isNumericString={true}
-              prefix={'$'}
-              decimalSeparator={'.'}
+              suffix={localeParts.postfix}
+              prefix={localeParts.prefix}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
               inputMode='decimal'
-              thousandSeparator={','}
               value={tradeSizeUSD}
-              onValueChange={debounceSetTradeSizeUsd}
+              onValueChange={handleSetTradeSizeUsd}
             />
           </Box>
         </Flex>
@@ -166,6 +157,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             max={CHART_TRADE_SIZE_MAX_USD}
             value={tradeSizeUSD}
             onChange={setTradeSizeUSD}
+            focusThumbOnChange={false}
           >
             <SliderMark value={CHART_TRADE_SIZE_MAX_USD * 0.2} {...labelStyles}>
               <Amount.Fiat fiatType='USD' value={CHART_TRADE_SIZE_MAX_USD * 0.2} abbreviated />

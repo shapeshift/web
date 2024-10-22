@@ -1,7 +1,9 @@
 import { TriangleDownIcon } from '@chakra-ui/icons'
 import {
+  Box,
   Center,
   Flex,
+  Input,
   Skeleton,
   Slider,
   SliderFilledTrack,
@@ -11,13 +13,16 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { debounce } from 'lodash'
+import { useCallback, useMemo } from 'react'
+import type { NumberFormatValues } from 'react-number-format'
+import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import {
   FEE_CURVE_PARAMETERS,
   FEE_MODEL_TO_FEATURE_NAME,
@@ -26,6 +31,13 @@ import {
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
 import type { FeeSlidersProps } from './FeeExplainer'
+
+const inputStyle = {
+  input: {
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+}
 
 export const FeeSliders: React.FC<FeeSlidersProps> = ({
   tradeSizeUSD,
@@ -47,18 +59,50 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   const {
     number: { toFiat },
   } = useLocaleFormatter()
+
+  const handleSetFoxHolding = useCallback(
+    (values: NumberFormatValues) => {
+      setFoxHolding(bnOrZero(values.value).toNumber())
+    },
+    [setFoxHolding],
+  )
+
+  const debounceSetFoxHolding = useMemo(
+    () => debounce(handleSetFoxHolding, 1000),
+    [handleSetFoxHolding],
+  )
+
+  const handleSetTradeSizeUsd = useCallback(
+    (values: NumberFormatValues) => {
+      setTradeSizeUSD(bnOrZero(values.value).toNumber())
+    },
+    [setTradeSizeUSD],
+  )
+
+  const debounceSetTradeSizeUsd = useMemo(
+    () => debounce(handleSetTradeSizeUsd, 1000),
+    [handleSetTradeSizeUsd],
+  )
+
   return (
     <VStack height='100%' spacing={8} mt={6}>
       <Stack spacing={4} width='full'>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
-          <Skeleton isLoaded={!isLoading}>
-            <Amount.Crypto
-              value={foxHolding.toString()}
-              symbol='FOX'
-              fontWeight='bold'
-              maximumFractionDigits={0}
-            />
+          <Skeleton isLoaded={!isLoading} width='35%'>
+            <Box sx={inputStyle}>
+              <NumberFormat
+                decimalScale={2}
+                customInput={Input}
+                isNumericString={true}
+                suffix={' FOX'}
+                decimalSeparator={'.'}
+                inputMode='decimal'
+                thousandSeparator={','}
+                value={foxHolding.toString()}
+                onValueChange={debounceSetFoxHolding}
+              />
+            </Box>
           </Skeleton>
         </Flex>
         <Stack width='100%'>
@@ -100,9 +144,21 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
         </Stack>
       </Stack>
       <Stack width='full' spacing={4}>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation={featureSizeTranslation} />
-          <Amount.Fiat fiatType='USD' value={tradeSizeUSD} fontWeight='bold' />
+          <Box sx={inputStyle} width='35%'>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              prefix={'$'}
+              decimalSeparator={'.'}
+              inputMode='decimal'
+              thousandSeparator={','}
+              value={tradeSizeUSD}
+              onValueChange={debounceSetTradeSizeUsd}
+            />
+          </Box>
         </Flex>
         <Stack width='100%' pb={8}>
           <Slider

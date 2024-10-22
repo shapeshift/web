@@ -1,5 +1,7 @@
 import {
+  Box,
   Flex,
+  Input,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -7,7 +9,10 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { Amount } from 'components/Amount/Amount'
+import debounce from 'lodash/debounce'
+import { useCallback, useMemo } from 'react'
+import type { NumberFormatValues } from 'react-number-format'
+import NumberFormat from 'react-number-format'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
@@ -26,6 +31,13 @@ const DEFAULT_SHAPESHIFT_REVENUE = 10000
 const MAX_SHAPESHIFT_REVENUE = 1000000
 const MIN_SHAPESHIFT_REVENUE = 0
 
+const inputStyle = {
+  input: {
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+}
+
 export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   shapeShiftRevenue,
   setShapeShiftRevenue,
@@ -33,17 +45,49 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   setDepositAmount,
   maxDepositAmount,
 }) => {
+  const handleShapeShiftRevenueChange = useCallback(
+    (values: NumberFormatValues) => {
+      setShapeShiftRevenue(bnOrZero(values.value).toNumber())
+    },
+    [setShapeShiftRevenue],
+  )
+
+  const debounceShapeShiftRevenuChange = useMemo(
+    () => debounce(handleShapeShiftRevenueChange, 1000),
+    [handleShapeShiftRevenueChange],
+  )
+
+  const handleDepositAmountChange = useCallback(
+    (values: NumberFormatValues) => {
+      setDepositAmount(bnOrZero(values.value).toNumber())
+    },
+    [setDepositAmount],
+  )
+
+  const debounceDepositAmountChange = useMemo(
+    () => debounce(handleDepositAmountChange, 1000),
+    [handleDepositAmountChange],
+  )
+
   return (
     <VStack height='100%' spacing={8} mt={6}>
       <Stack spacing={4} width='full'>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxPage.rfox.depositAmount' />
-          <Amount.Crypto
-            value={depositAmount.toString()}
-            symbol='FOX'
-            fontWeight='bold'
-            maximumFractionDigits={0}
-          />
+
+          <Box width='35%' sx={inputStyle}>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              suffix={' FOX'}
+              decimalSeparator={'.'}
+              inputMode='decimal'
+              thousandSeparator={','}
+              value={depositAmount.toString()}
+              onValueChange={debounceDepositAmountChange}
+            />
+          </Box>
         </Flex>
         <Stack width='100%'>
           <Slider
@@ -61,9 +105,22 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
         </Stack>
       </Stack>
       <Stack width='full' spacing={4}>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
-          <Text translation='foxPage.rfox.shapeshiftRevenue' />
-          <Amount.Fiat fiatType='USD' value={shapeShiftRevenue} fontWeight='bold' />
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
+          <Text width='50%' translation='foxPage.rfox.shapeshiftRevenue' />
+
+          <Box width='35%' sx={inputStyle}>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              prefix={'$'}
+              decimalSeparator={'.'}
+              inputMode='decimal'
+              thousandSeparator={','}
+              value={shapeShiftRevenue}
+              onValueChange={debounceShapeShiftRevenuChange}
+            />
+          </Box>
         </Flex>
         <Stack width='100%'>
           <Slider

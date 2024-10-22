@@ -1,4 +1,3 @@
-import { ArrowUpIcon } from '@chakra-ui/icons'
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -7,18 +6,17 @@ import { FaCreditCard } from 'react-icons/fa'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { RewardsIcon } from 'components/Icons/RewardsIcon'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { FiatRampAction } from 'components/Modals/FiatRamps/FiatRampsCommon'
 import { Text } from 'components/Text'
-import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
 import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
-const arrowUpIcon = <ArrowUpIcon />
+const swapIcon = <SwapIcon />
 const rewardsIcon = <RewardsIcon />
 const faCreditCardIcon = <FaCreditCard />
 
@@ -49,24 +47,10 @@ export const FoxTokenHeader = () => {
   const appDispatch = useAppDispatch()
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
-  const send = useModal('send')
   const fiatRamps = useModal('fiatRamps')
-  const {
-    state: { isConnected },
-    dispatch,
-  } = useWallet()
   const history = useHistory()
 
-  const handleWalletModalOpen = useCallback(
-    () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-    [dispatch],
-  )
-
-  const handleSendClick = useCallback(
-    () =>
-      isConnected ? send.open({ assetId, accountId: assetAccountId }) : handleWalletModalOpen(),
-    [assetAccountId, assetId, handleWalletModalOpen, isConnected, send],
-  )
+  const handleSwapClick = useCallback(() => history.push('/trade'), [history])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({
@@ -159,8 +143,8 @@ export const FoxTokenHeader = () => {
           <Text translation='assets.assetCards.assetActions.buy' />
         </Button>
 
-        <Button mx={2} variant='solid' size='sm' leftIcon={arrowUpIcon} onClick={handleSendClick}>
-          <Text translation='common.send' />
+        <Button mx={2} variant='solid' size='sm' leftIcon={swapIcon} onClick={handleSwapClick}>
+          <Text translation='common.trade' />
         </Button>
 
         <Button

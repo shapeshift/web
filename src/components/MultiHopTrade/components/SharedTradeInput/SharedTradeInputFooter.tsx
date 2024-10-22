@@ -16,9 +16,10 @@ import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/c
 import { RecipientAddress } from 'components/MultiHopTrade/components/TradeInput/components/RecipientAddress'
 import { WithLazyMount } from 'components/MultiHopTrade/components/TradeInput/components/WithLazyMount'
 import { Text } from 'components/Text'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectFeeAssetById, selectIsAccountsMetadataLoading } from 'state/slices/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -91,7 +92,8 @@ export const SharedTradeInputFooter = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const displayManualAddressEntry = useMemo(() => {
@@ -193,7 +195,6 @@ export const SharedTradeInputFooter = ({
           shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}
-          chainId={buyAsset.chainId}
         />
 
         <ButtonWalletPredicate

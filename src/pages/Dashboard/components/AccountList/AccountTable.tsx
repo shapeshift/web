@@ -34,7 +34,10 @@ export const AccountTable = memo(() => {
   const sortedRows = useMemo(() => {
     return rowData.sort((a, b) => Number(b.fiatAmount) - Number(a.fiatAmount))
   }, [rowData])
-  const { hasMore, next, data } = useInfiniteScroll(sortedRows)
+  const { hasMore, next, data } = useInfiniteScroll({
+    array: sortedRows,
+    isScrollable: true,
+  })
   const textColor = useColorModeValue('black', 'white')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const history = useHistory()

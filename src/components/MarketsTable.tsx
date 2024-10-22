@@ -37,7 +37,9 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
   const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
 
-  const { hasMore, next, data } = useInfiniteScroll(rows)
+  const { hasMore, next, data } = useInfiniteScroll({
+    array: rows,
+  })
   const handleTradeClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()

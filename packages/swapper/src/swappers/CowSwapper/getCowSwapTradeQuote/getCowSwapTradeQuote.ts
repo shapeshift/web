@@ -6,7 +6,14 @@ import type { AxiosError } from 'axios'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } from '../../../types'
+import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  SwapperConfig,
+  TradeQuote,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -26,7 +33,7 @@ import {
   getValuesFromQuoteResponse,
 } from '../utils/helpers/helpers'
 
-export async function getCowSwapTradeQuote(
+async function getCowSwapTrade(
   input: GetTradeQuoteInput,
   config: SwapperConfig,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
@@ -165,3 +172,14 @@ export async function getCowSwapTradeQuote(
 
   return Ok(quote)
 }
+
+// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
+export const getCowSwapTradeQuote = (
+  input: GetEvmTradeQuoteInputBase,
+  config: SwapperConfig,
+): Promise<Result<TradeQuote, SwapErrorRight>> => getCowSwapTrade(input, config)
+
+export const getCowSwapTradeRate = (
+  input: GetEvmTradeRateInput,
+  config: SwapperConfig,
+): Promise<Result<TradeQuote, SwapErrorRight>> => getCowSwapTrade(input, config)

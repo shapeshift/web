@@ -19,7 +19,7 @@ import {
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchFromZrx } from './utils/fetchFromZrx'
+import { fetchZrxQuote } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
@@ -75,8 +75,7 @@ export const zrxApi: SwapperApi = {
       // approvals, which prevent quotes during trade input from succeeding if the user hasn't already
       // approved the token they are getting a quote for.
       // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
-      const zrxQuoteResponse = await fetchFromZrx({
-        priceOrQuote: 'quote',
+      const zrxQuoteResponse = await fetchZrxQuote({
         buyAsset,
         sellAsset,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,

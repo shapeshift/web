@@ -20,7 +20,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { fetchFromZrx, fetchFromZrxPermit2 } from '../utils/fetchFromZrx'
+import { fetchZrxPermit2Price, fetchZrxPermit2Quote, fetchZrxPrice } from '../utils/fetchFromZrx'
 import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
 export function getZrxTradeQuote(
@@ -88,8 +88,7 @@ async function _getZrxTradeQuote(
     )
   }
 
-  const maybeZrxPriceResponse = await fetchFromZrx({
-    priceOrQuote: 'price',
+  const maybeZrxPriceResponse = await fetchZrxPrice({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -229,8 +228,7 @@ async function _getZrxPermit2TradeQuote(
   // If we don't have a wallet, no dice for the permit2 EIP712 data here - but we don't care just yet since we're getting
   // a *rate* quote, not a *quote* quote on quote quote.
   if (!hasWallet) {
-    const maybeZrxPriceResponse = await fetchFromZrxPermit2({
-      priceOrQuote: 'price',
+    const maybeZrxPriceResponse = await fetchZrxPermit2Price({
       buyAsset,
       sellAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -299,8 +297,7 @@ async function _getZrxPermit2TradeQuote(
     }
   }
 
-  const maybeZrxQuoteResponse = await fetchFromZrxPermit2({
-    priceOrQuote: 'quote',
+  const maybeZrxQuoteResponse = await fetchZrxPermit2Quote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,

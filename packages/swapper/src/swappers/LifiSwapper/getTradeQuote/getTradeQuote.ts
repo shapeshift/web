@@ -292,7 +292,7 @@ async function getTrade(
   return Ok(promises.filter(isFulfilled).map(({ value }) => value))
 }
 
-// This isn't a mistake - With Li.Fi, we get the exact same thing back whether got or rate, however, the input *is* different
+// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
 export const getTradeQuote = (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,

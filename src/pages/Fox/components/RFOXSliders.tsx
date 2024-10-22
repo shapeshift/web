@@ -1,5 +1,7 @@
 import {
+  Box,
   Flex,
+  Input,
   Slider,
   SliderFilledTrack,
   SliderThumb,
@@ -7,8 +9,11 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { Amount } from 'components/Amount/Amount'
+import { useCallback } from 'react'
+import type { NumberFormatValues } from 'react-number-format'
+import NumberFormat from 'react-number-format'
 import { Text } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
 export type RFOXSlidersProps = {
@@ -26,6 +31,13 @@ const DEFAULT_SHAPESHIFT_REVENUE = 10000
 const MAX_SHAPESHIFT_REVENUE = 1000000
 const MIN_SHAPESHIFT_REVENUE = 0
 
+const inputStyle = {
+  input: {
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+}
+
 export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   shapeShiftRevenue,
   setShapeShiftRevenue,
@@ -33,17 +45,42 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
   setDepositAmount,
   maxDepositAmount,
 }) => {
+  const {
+    number: { localeParts },
+  } = useLocaleFormatter()
+  const handleShapeShiftRevenueChange = useCallback(
+    (values: NumberFormatValues) => {
+      setShapeShiftRevenue(bnOrZero(values.value).toNumber())
+    },
+    [setShapeShiftRevenue],
+  )
+
+  const handleDepositAmountChange = useCallback(
+    (values: NumberFormatValues) => {
+      setDepositAmount(bnOrZero(values.value).toNumber())
+    },
+    [setDepositAmount],
+  )
+
   return (
     <VStack height='100%' spacing={8} mt={6}>
       <Stack spacing={4} width='full'>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxPage.rfox.depositAmount' />
-          <Amount.Crypto
-            value={depositAmount.toString()}
-            symbol='FOX'
-            fontWeight='bold'
-            maximumFractionDigits={0}
-          />
+
+          <Box width='35%' sx={inputStyle}>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              inputMode='decimal'
+              suffix={' FOX'}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
+              value={depositAmount.toString()}
+              onValueChange={handleDepositAmountChange}
+            />
+          </Box>
         </Flex>
         <Stack width='100%'>
           <Slider
@@ -52,6 +89,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
             value={depositAmount}
             defaultValue={DEFAULT_DEPOSIT_AMOUNT}
             onChange={setDepositAmount}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />
@@ -61,9 +99,23 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
         </Stack>
       </Stack>
       <Stack width='full' spacing={4}>
-        <Flex width='full' justifyContent='space-between' fontWeight='medium'>
-          <Text translation='foxPage.rfox.shapeshiftRevenue' />
-          <Amount.Fiat fiatType='USD' value={shapeShiftRevenue} fontWeight='bold' />
+        <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
+          <Text width='50%' translation='foxPage.rfox.shapeshiftRevenue' />
+
+          <Box width='35%' sx={inputStyle}>
+            <NumberFormat
+              decimalScale={2}
+              customInput={Input}
+              isNumericString={true}
+              inputMode='decimal'
+              suffix={localeParts.postfix ? '$' : ''}
+              prefix={localeParts.prefix ? '$' : ''}
+              decimalSeparator={localeParts.decimal}
+              thousandSeparator={localeParts.group}
+              value={shapeShiftRevenue}
+              onValueChange={handleShapeShiftRevenueChange}
+            />
+          </Box>
         </Flex>
         <Stack width='100%'>
           <Slider
@@ -72,6 +124,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
             value={shapeShiftRevenue}
             defaultValue={DEFAULT_SHAPESHIFT_REVENUE}
             onChange={setShapeShiftRevenue}
+            focusThumbOnChange={false}
           >
             <SliderTrack>
               <SliderFilledTrack bg='blue.500' />

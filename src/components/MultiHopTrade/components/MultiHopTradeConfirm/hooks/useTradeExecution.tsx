@@ -261,7 +261,7 @@ export const useTradeExecution = (
       const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
 
       const receiverAddress =
-        tradeQuote.receiveAddress && stepBuyAssetAssetId === bchAssetId
+        stepBuyAssetAssetId === bchAssetId
           ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
           : tradeQuote.receiveAddress
 
@@ -325,9 +325,6 @@ export const useTradeExecution = (
                 wallet,
               })
 
-              if (!receiverAddress) throw Error('Missing receiver address')
-              if (!senderAddress) throw Error('Missing sender address')
-
               const output = await adapter.broadcastTransaction({
                 senderAddress,
                 receiverAddress,
@@ -370,9 +367,6 @@ export const useTradeExecution = (
                 txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
                 wallet,
               })
-              if (!tradeQuote.receiveAddress) throw Error('Missing receiver address')
-              if (!from) throw Error('Missing sender address')
-
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,
                 receiverAddress: tradeQuote.receiveAddress,

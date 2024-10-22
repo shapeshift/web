@@ -125,15 +125,9 @@ export const getTradeQuoteInput = async ({
           hasWallet: false,
         }
 
-      if (!sellAccountType) {
-        throw Error('missing account type')
-      }
-      if (sellAccountNumber === undefined) {
-        throw Error('missing account number')
-      }
-      if (receiveAddress === undefined) {
-        throw Error('missing receive address')
-      }
+      if (!sellAccountType) throw Error('missing account type')
+      if (sellAccountNumber === undefined) throw Error('missing account number')
+      if (receiveAddress === undefined) throw Error('missing receive address')
 
       const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({

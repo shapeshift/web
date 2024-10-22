@@ -286,7 +286,6 @@ export const useTradeExecution = (
                 accountNumber,
               } as evm.BuildCustomTxInput)
 
-              if (!receiverAddress) throw Error('Missing receiver address')
               if (!from) throw Error('Missing sender address')
 
               const output = await signAndBroadcast({

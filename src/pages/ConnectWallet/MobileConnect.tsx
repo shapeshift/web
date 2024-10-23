@@ -128,14 +128,17 @@ export const MobileConnect = () => {
               connectedType: KeyManager.Mobile,
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           dispatch({
             type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: KeyManager.Mobile,
+            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
           })
 
-          localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Mobile, deviceId)
+          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
           localWallet.setLocalNativeWalletName(item?.label ?? 'label')
         } catch (e) {
           console.log(e)

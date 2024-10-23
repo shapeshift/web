@@ -441,9 +441,7 @@
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
         "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。",
-        "agreeRunePool": {
-          "1": "我知道 RUNEPool 有 90 天的最低锁定期，并且存在较高的无常损失风险。"
-        }
+        "agreeRunePool": {}
       }
     },
     "memoNote": {

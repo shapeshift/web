@@ -8,6 +8,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -21,22 +22,14 @@ import { isToken } from 'lib/utils'
 import {
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
-  selectInputBuyAsset,
-  selectInputSellAsset,
   selectIsAccountMetadataLoadingByAccountId,
   selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
-import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import {
-  selectActiveQuote,
-  selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
-import { TradeAssetInput } from '../../TradeAssetInput'
-import { SellAssetInput } from './SellAssetInput'
+import { TradeAssetInput } from '../TradeAssetInput'
+import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 const formControlProps = {
   borderRadius: 0,
@@ -46,57 +39,65 @@ const formControlProps = {
 const arrowDownIcon = <ArrowDownIcon />
 const emptyPercentOptions: number[] = []
 
-type TradeInputBodyProps = {
+type SharedTradeInputBodyProps = {
+  activeQuote: TradeQuote | undefined
+  buyAmountAfterFeesCryptoPrecision: string | undefined
+  buyAmountAfterFeesUserCurrency: string | undefined
+  buyAsset: Asset
+  buyAssetAccountId: AccountId | undefined
+  isInputtingFiatSellAmount: boolean
   isLoading: boolean | undefined
   manualReceiveAddress: string | undefined
-  initialSellAssetAccountId: AccountId | undefined
-  initialBuyAssetAccountId: AccountId | undefined
-  setSellAssetAccountId: (accountId: AccountId) => void
+  sellAmountCryptoPrecision: string
+  sellAmountUserCurrency: string | undefined
+  sellAsset: Asset
+  sellAssetAccountId: AccountId | undefined
+  handleSwitchAssets: () => void
+  onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
+  onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
+  setBuyAsset: (asset: Asset) => void
   setBuyAssetAccountId: (accountId: AccountId) => void
+  setSellAsset: (asset: Asset) => void
+  setSellAssetAccountId: (accountId: AccountId) => void
 }
 
-export const TradeInputBody = ({
+export const SharedTradeInputBody = ({
+  activeQuote,
+  buyAmountAfterFeesCryptoPrecision,
+  buyAmountAfterFeesUserCurrency,
+  buyAsset,
+  buyAssetAccountId,
+  isInputtingFiatSellAmount,
   isLoading,
   manualReceiveAddress,
-  initialSellAssetAccountId,
-  initialBuyAssetAccountId,
-  setSellAssetAccountId,
+  sellAmountCryptoPrecision,
+  sellAmountUserCurrency,
+  sellAsset,
+  sellAssetAccountId,
+  handleSwitchAssets,
+  onChangeIsInputtingFiatSellAmount,
+  onChangeSellAmountCryptoPrecision,
+  setBuyAsset,
   setBuyAssetAccountId,
-}: TradeInputBodyProps) => {
+  setSellAsset,
+  setSellAssetAccountId,
+}: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
-  const dispatch = useAppDispatch()
   const {
     state: { wallet },
   } = useWallet()
 
-  const isAccountMetadataLoadingByAccountId = useAppSelector(
-    selectIsAccountMetadataLoadingByAccountId,
-  )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAsset = useAppSelector(selectInputSellAsset)
+  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const isAccountMetadataLoadingByAccountId = useAppSelector(
+    selectIsAccountMetadataLoadingByAccountId,
+  )
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const buyAssetSearch = useModal('buyTradeAssetSearch')
   const sellAssetSearch = useModal('sellTradeAssetSearch')
-
-  const setBuyAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
-    [dispatch],
-  )
-  const setSellAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset)),
-    [dispatch],
-  )
-  const handleSwitchAssets = useCallback(
-    () => dispatch(tradeInput.actions.switchAssets()),
-    [dispatch],
-  )
 
   const percentOptions = useMemo(() => {
     if (!sellAsset?.assetId) return []
@@ -104,7 +105,7 @@ export const TradeInputBody = ({
 
     return [1]
   }, [sellAsset.assetId])
-  const activeQuote = useAppSelector(selectActiveQuote)
+
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
 
@@ -174,13 +175,18 @@ export const TradeInputBody = ({
   return (
     <Stack spacing={0}>
       <SellAssetInput
-        accountId={initialSellAssetAccountId}
+        accountId={sellAssetAccountId}
         asset={sellAsset}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        isLoading={isLoading}
         label={translate('trade.payWith')}
-        onAccountIdChange={setSellAssetAccountId}
         labelPostFix={sellTradeAssetSelect}
         percentOptions={percentOptions}
-        isLoading={isLoading}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+        sellAmountUserCurrency={sellAmountUserCurrency}
+        onChangeAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
+        onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
       />
       <Flex alignItems='center' justifyContent='center' my={-2}>
         <Divider />
@@ -219,7 +225,7 @@ export const TradeInputBody = ({
         // Disable account selection when user set a manual receive address
         isAccountSelectionHidden={Boolean(manualReceiveAddress)}
         isReadOnly={true}
-        accountId={initialBuyAssetAccountId}
+        accountId={buyAssetAccountId}
         assetId={buyAsset.assetId}
         assetSymbol={buyAsset.symbol}
         assetIcon={buyAsset.icon}

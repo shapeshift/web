@@ -14,6 +14,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { isSplToken } from 'lib/utils/solana'
 import { selectSupportsFiatRampByAssetId } from 'state/apis/fiatRamps/selectors'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -204,7 +205,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
           onClick={handleSendClick}
           leftIcon={arrowUpIcon}
           width={buttonWidthProps}
-          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId)}
+          isDisabled={!hasValidBalance || !isValidChainId || isNft(assetId) || isSplToken(assetId)}
           data-test='asset-action-send'
           flex={buttonFlexProps}
         >

@@ -19,6 +19,7 @@ import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice
 import { store } from 'state/store'
 
 import { SUPPORTED_WALLETS } from './config'
+import { KeyManager } from './KeyManager'
 import { SelectModal } from './SelectModal'
 import { NativeWalletRoutes } from './types'
 
@@ -105,10 +106,12 @@ export const WalletViewsSwitch = () => {
   /**
    * Memoize the routes list to avoid unnecessary re-renders unless the wallet changes
    */
+  const supportedWallet =
+    SUPPORTED_WALLETS[modalType as KeyManager] || SUPPORTED_WALLETS[KeyManager.MetaMask]
   const walletRoutesList = useMemo(
     () =>
       modalType
-        ? SUPPORTED_WALLETS[modalType].routes.map(route => {
+        ? supportedWallet.routes.map(route => {
             const Component = route.component
             return !Component ? null : (
               <Route
@@ -122,7 +125,7 @@ export const WalletViewsSwitch = () => {
             )
           })
         : [],
-    [modalType],
+    [modalType, supportedWallet.routes],
   )
 
   const renderSelectModal = useCallback(() => <SelectModal />, [])

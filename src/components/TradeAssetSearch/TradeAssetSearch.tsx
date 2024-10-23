@@ -13,6 +13,7 @@ import { AssetMenuButton } from 'components/AssetSelection/components/AssetMenuB
 import { AllChainMenu } from 'components/ChainMenu'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { sortChainIdsByDisplayName } from 'lib/utils'
+import { isSplToken } from 'lib/utils/solana'
 import {
   selectPortfolioFungibleAssetsSortedByBalance,
   selectWalletConnectedChainIds,
@@ -102,8 +103,11 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    if (allowWalletUnsupportedAssets || !isConnected) return unfilteredPopularAssets
-    return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+    const filteredPopularAssets = unfilteredPopularAssets.filter(
+      asset => !isSplToken(asset.assetId),
+    )
+    if (allowWalletUnsupportedAssets || !isConnected) return filteredPopularAssets
+    return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [
     popularAssetsByChainId,
     activeChainId,
@@ -136,11 +140,15 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
+    const filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
+      asset => !isSplToken(asset.assetId),
+    )
+
     if (activeChainId === 'All') {
-      return portfolioAssetsSortedByBalance
+      return filteredPortfolioAssetsSortedByBalance
     }
 
-    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
+    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, portfolioAssetsSortedByBalance])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
@@ -187,12 +195,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [])
 
   return (
-    <CustomAssetAcknowledgement
-      asset={assetToImport}
-      handleAssetClick={handleAssetClick}
-      shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
-      setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
-    >
+    <>
+      <CustomAssetAcknowledgement
+        asset={assetToImport}
+        handleAssetClick={handleAssetClick}
+        shouldShowWarningAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowWarningAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
       <Stack
         gap={4}
         px={4}
@@ -242,6 +251,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
         />
       )}
-    </CustomAssetAcknowledgement>
+    </>
   )
 }

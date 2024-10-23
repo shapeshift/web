@@ -9,6 +9,7 @@ export enum TradeRoutePaths {
   VerifyAddresses = '/trade/verify-addresses',
   QuoteList = '/trade/quote-list',
   Claim = '/trade/claim',
+  LimitOrder = '/trade/limit-order',
 }
 
 export type GetReceiveAddressArgs = {
@@ -35,4 +36,5 @@ export type TradeQuoteInputCommonArgs = Pick<
 export enum TradeInputTab {
   Trade = 'trade',
   Claim = 'claim',
+  LimitOrder = 'limitOrder',
 }

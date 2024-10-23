@@ -187,6 +187,19 @@
           "useSingleRequestParameter": true
         }
       },
+      "solana": {
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/solana/api/src/swagger.json",
+        "generatorName": "typescript-fetch",
+        "output": "#{cwd}/src/generated/solana",
+        "enablePostProcessFile": true,
+        "reservedWordsMappings": {
+          "in": "in"
+        },
+        "additionalProperties": {
+          "supportsES6": "true",
+          "useSingleRequestParameter": true
+        }
+      },
       "thorchain": {
         "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/go/coinstacks/thorchain/api/swagger.json",
         "generatorName": "typescript-fetch",

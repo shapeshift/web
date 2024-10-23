@@ -1,6 +1,6 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
-import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask'
+import { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { act, renderHook } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import { TestProviders } from 'test/TestProviders'
@@ -28,10 +28,14 @@ vi.mock('friendly-challenge', () => ({
   WidgetInstance: {},
 }))
 
-vi.mock('@shapeshiftoss/hdwallet-metamask', () => ({
+vi.mock('@shapeshiftoss/hdwallet-metamask-multichain', () => ({
   MetaMaskAdapter: {
     useKeyring: vi.fn(),
   },
+}))
+
+vi.mock('./useEip1993EventHandler', () => ({
+  useEip1993EventHandler: vi.fn(),
 }))
 
 const walletInfoPayload = {
@@ -87,11 +91,17 @@ describe('WalletProvider', () => {
 
       expect(result.current.state.isConnected).toBe(false)
       act(() => {
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: true,
+        })
       })
       expect(result.current.state.isConnected).toBe(true)
       act(() => {
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: false,
+        })
       })
       expect(result.current.state.isConnected).toBe(false)
     })
@@ -120,7 +130,7 @@ describe('WalletProvider', () => {
       expect(result.current.state.isConnected).toBe(false)
 
       act(() => {
-        result.current.connect(type)
+        result.current.connect(type, false)
       })
 
       expect(result.current.state.modalType).toBe(type)
@@ -163,7 +173,10 @@ describe('WalletProvider', () => {
             ...walletInfoPayload,
           },
         })
-        result.current.dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        result.current.dispatch({
+          type: WalletActions.SET_IS_CONNECTED,
+          payload: true,
+        })
       })
 
       expect(result.current.state.wallet).toBeTruthy()

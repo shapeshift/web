@@ -13,7 +13,7 @@ import {
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type * as CSS from 'csstype'
-import { type PropsWithChildren, useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { AssetIcon } from 'components/AssetIcon'
@@ -33,7 +33,7 @@ type CustomAssetAcknowledgementProps = {
   handleAssetClick: (asset: Asset) => void
   shouldShowWarningAcknowledgement: boolean
   setShouldShowWarningAcknowledgement: (shouldShow: boolean) => void
-} & PropsWithChildren
+}
 
 const extractAndCapitalizeDomain = (url: string): string => {
   try {
@@ -53,7 +53,6 @@ const extractAndCapitalizeDomain = (url: string): string => {
 }
 
 export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProps> = ({
-  children,
   asset,
   handleAssetClick,
   shouldShowWarningAcknowledgement,
@@ -170,8 +169,6 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
       setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       disableButton={!hasAcknowledged}
       content={Content}
-    >
-      {children}
-    </WarningAcknowledgement>
+    />
   )
 }

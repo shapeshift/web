@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Yat: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
-  Wherever: boolean
   SaversVaults: boolean
   SaversVaultsDeposit: boolean
   SaversVaultsWithdraw: boolean
@@ -118,7 +117,6 @@ const initialState: Preferences = {
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,

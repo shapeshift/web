@@ -1,6 +1,17 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId, AssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from "@shapeshiftoss/types";
 import { SupportedChainIds, SwapperName, SwapSource } from '../../types'
+
+// TODO: Get correct caip-19s
+const ETHEREUM_ETH_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ETHEREUM_FLIP_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ETHEREUM_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ETHEREUM_USDT_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ARBITRUM_ETH_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ARBITRUM_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const BITCOIN_BTC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const SOLANA_SOL_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const SOLANA_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 
 export const ChainflipSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -11,11 +22,11 @@ export const ChainflipSupportedChainIds = [
 
 export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[number]
 
-export const ChainflipSupportedAssets = {
-  [KnownChainIds.EthereumMainnet]: ['eth', 'flip', 'usdc', 'usdt'],
-  [KnownChainIds.ArbitrumMainnet]: ['eth', 'usdc'],
-  [KnownChainIds.BitcoinMainnet]: ['btc'],
-  [KnownChainIds.SolanaMainnet]: ['sol', 'usdc'],
+export const ChainflipSupportedAssetIdsByChainId: Partial<Record<KnownChainIds, AssetId[]>> = {
+  [KnownChainIds.EthereumMainnet]: [ETHEREUM_ETH_ASSET_ID, ETHEREUM_FLIP_ASSET_ID, ETHEREUM_USDC_ASSET_ID, ETHEREUM_USDT_ASSET_ID],
+  [KnownChainIds.ArbitrumMainnet]: [ARBITRUM_ETH_ASSET_ID, ARBITRUM_USDC_ASSET_ID],
+  [KnownChainIds.BitcoinMainnet]: [BITCOIN_BTC_ASSET_ID],
+  [KnownChainIds.SolanaMainnet]: [SOLANA_SOL_ASSET_ID, SOLANA_USDC_ASSET_ID],
 }
 
 export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> = {

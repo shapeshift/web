@@ -1,7 +1,8 @@
-import {v4 as uuid} from "uuid";
-import {Err, Ok, Result} from "@sniptt/monads";
-import {KnownChainIds} from "@shapeshiftoss/types";
-import {AssetId, CHAIN_NAMESPACE, fromAssetId} from "@shapeshiftoss/caip";
+import { v4 as uuid } from "uuid";
+import { AxiosError } from "axios";
+import { Err, Ok, Result } from "@sniptt/monads";
+import { KnownChainIds } from "@shapeshiftoss/types";
+import { AssetId, CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
 
 import {
   type GetEvmTradeQuoteInput,
@@ -13,7 +14,8 @@ import {
   TradeQuote,
   TradeQuoteError
 } from "../../../types";
-import {getRate, makeSwapErrorRight} from "../../../utils";
+import { getRate, makeSwapErrorRight } from "../../../utils";
+import { getDefaultSlippageDecimalPercentageForSwapper } from "../../../constants";
 
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -23,13 +25,11 @@ import {
   chainIdToChainflipNetwork,
   usdcAsset
 } from "../constants";
-import {isSupportedAsset, isSupportedChainId} from "../utils/helpers";
-import {chainflipService} from "../utils/chainflipService";
-import {ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee} from "../models";
-import {getEvmTxFees} from "../txFeeHelpers/evmTxFees/getEvmTxFees";
-import {getDefaultSlippageDecimalPercentageForSwapper} from "../../../constants";
-import {AxiosError} from "axios";
-// import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
+import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from "../models";
+import { isSupportedAssetId, isSupportedChainId } from "../utils/helpers";
+import { chainflipService } from "../utils/chainflipService";
+import { getEvmTxFees } from "../txFeeHelpers/evmTxFees/getEvmTxFees";
+import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
 
 export const getChainflipTradeQuote = async (
   input: GetTradeQuoteInput,
@@ -62,7 +62,7 @@ export const getChainflipTradeQuote = async (
     )
   }
 
-  if (!isSupportedAsset(sellAsset.chainId, sellAsset.symbol)) {
+  if (!isSupportedAssetId(sellAsset.chainId, sellAsset.assetId)) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
@@ -72,7 +72,7 @@ export const getChainflipTradeQuote = async (
     )
   }
 
-  if (!isSupportedAsset(buyAsset.chainId, buyAsset.symbol)) {
+  if (!isSupportedAssetId(buyAsset.chainId, buyAsset.assetId)) {
     return Err(
       makeSwapErrorRight({
         message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
@@ -136,16 +136,11 @@ export const getChainflipTradeQuote = async (
       }
 
       case CHAIN_NAMESPACE.Utxo: {
-        // TODO: Figure out BTC gas calc
-        return undefined;
-        // const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        // return await getUtxoTxFees({
-        //   sellAmountCryptoBaseUnit: sellAmount,
-        //   vault,
-        //   opReturnData,
-        //   pubkey,
-        //   sellAdapter,
-        // })
+        const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+        return await getUtxoTxFees({
+          sellAmountCryptoBaseUnit: sellAmount,
+          sellAdapter,
+        })
       }
       
       case CHAIN_NAMESPACE.Solana: {

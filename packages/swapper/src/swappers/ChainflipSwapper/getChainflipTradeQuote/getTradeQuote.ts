@@ -209,7 +209,7 @@ export const getChainflipTradeQuote = async (
         slippageTolerancePercentageDecimal: undefined,
         steps: [
           {
-            buyAmountBeforeFeesCryptoBaseUnit: "0",
+            buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
             feeData: {
@@ -251,7 +251,7 @@ export const getChainflipTradeQuote = async (
       slippageTolerancePercentageDecimal: undefined,
       steps: [
         {
-          buyAmountBeforeFeesCryptoBaseUnit: "0",
+          buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {

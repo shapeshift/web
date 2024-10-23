@@ -1,17 +1,16 @@
-import { Button, Card, CardBody, CardFooter } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, Link } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ethereum } from 'test/mocks/assets'
-import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 
 import { StatusBody } from '../../StatusBody'
 import { LimitOrderRoutePaths } from '../types'
 
-const cardBorderRadius = { base: 'xl' }
+const cardBorderRadius = { base: '2xl' }
 
 const asset = ethereum
 
@@ -38,50 +37,40 @@ export const LimitOrderStatus = () => {
     }
   }, [history, txStatus])
 
-  const amountCryptoPrecision = '0.12420'
+  const handleGoBack = useCallback(() => {
+    history.push(LimitOrderRoutePaths.Input)
+  }, [history])
 
   const statusBody = useMemo(() => {
     if (!asset) return null
-    const renderedAmount = (() => {
+    const statusTranslation = (() => {
       switch (txStatus) {
-        case TxStatus.Pending: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimPending')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
-        case TxStatus.Confirmed: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimSuccess')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
-        case TxStatus.Failed: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimFailed')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
+        case TxStatus.Confirmed:
+          return 'limitOrder.yourOrderHasBeenPlaced'
+        case TxStatus.Failed:
+        case TxStatus.Pending:
         case TxStatus.Unknown:
         default:
           return null
       }
     })()
 
-    return <StatusBody txStatus={txStatus}>{renderedAmount}</StatusBody>
-  }, [amountCryptoPrecision, translate, txStatus])
+    // TODO: get the actual tx link
+    const txLink = 'todo'
+
+    return (
+      <StatusBody txStatus={txStatus}>
+        <>
+          <Text translation={statusTranslation} color='text.subtle' />
+          {Boolean(txLink) && (
+            <Button as={Link} href={txLink} size='sm' variant='link' colorScheme='blue' isExternal>
+              {translate('limitOrder.viewOnChain')}
+            </Button>
+          )}
+        </>
+      </StatusBody>
+    )
+  }, [translate, txStatus])
 
   return (
     <SlideTransition>
@@ -91,25 +80,31 @@ export const LimitOrderStatus = () => {
         width='full'
         variant='dashboard'
         maxWidth='500px'
+        borderColor='border.base'
+        bg='background.surface.raised.base'
       >
         <CardBody py={32}>{statusBody}</CardBody>
-        <CardFooter
-          flexDir='column'
-          gap={2}
-          px={4}
-          borderTopWidth={1}
-          borderColor='border.base'
-          bg='background.surface.raised.base'
-          borderBottomRadius='md'
-        >
+        <CardFooter flexDir='row' gap={4} px={4} borderTopWidth={0}>
+          <Button
+            size='lg'
+            width='full'
+            onClick={handleGoBack}
+            variant='ghost'
+            aria-label='back'
+            isLoading={false}
+            isDisabled={txStatus === TxStatus.Pending}
+          >
+            <Text translation='common.goBack' />
+          </Button>
           <Button
             colorScheme={'blue'}
             size='lg'
             width='full'
             onClick={handleSignAndBroadcast}
             isLoading={false}
+            isDisabled={txStatus === TxStatus.Pending}
           >
-            <Text translation={'limitOrder.signTransaction'} />
+            <Text translation='limitOrder.viewOrder' />
           </Button>
         </CardFooter>
       </Card>

@@ -263,7 +263,7 @@ export const getChainflipTradeQuote = async (
           buyAsset: buyAsset,
           sellAsset: sellAsset,
           accountNumber: 0,
-          allowanceContract: "",
+          allowanceContract: "0x0", // Chainflip does not use contracts
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000
         }
       ]

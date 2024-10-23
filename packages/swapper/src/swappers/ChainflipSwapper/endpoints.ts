@@ -30,6 +30,7 @@ export const chainflipApi: SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }> => {
+    // TODO: Implement
     return {
       buyTxHash: undefined,
       status: TxStatus.Unknown,

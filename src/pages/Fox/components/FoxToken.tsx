@@ -14,7 +14,7 @@ const stackProps: StackProps = {
   flexWrap: { base: 'wrap', md: 'nowrap' },
   my: 4,
   maxWidth: '100%',
-  borderRadius: '10',
+  borderRadius: '2xl',
   overflow: 'hidden',
 }
 const containerPaddingX = { base: 4, xl: 0 }

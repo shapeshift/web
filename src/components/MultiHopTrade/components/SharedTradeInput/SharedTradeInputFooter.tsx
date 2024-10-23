@@ -86,7 +86,7 @@ export const SharedTradeInputFooter = ({
 }: SharedTradeInputFooterProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const buyAssetFeeAsset = useAppSelector(state =>
@@ -97,12 +97,14 @@ export const SharedTradeInputFooter = ({
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const displayManualAddressEntry = useMemo(() => {
+    if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAssetAccountId) return false
     if (!walletSupportsBuyAssetChain) return true
     if (shouldForceManualAddressEntry) return true
 
     return false
   }, [
+    isConnected,
     isAccountsMetadataLoading,
     sellAssetAccountId,
     walletSupportsBuyAssetChain,

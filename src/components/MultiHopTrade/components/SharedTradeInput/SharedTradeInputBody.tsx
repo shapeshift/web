@@ -84,8 +84,10 @@ export const SharedTradeInputBody = ({
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const {
-    state: { wallet },
+    state: { walletInfo, wallet },
   } = useWallet()
+
+  const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo])
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
@@ -169,8 +171,10 @@ export const SharedTradeInputBody = ({
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
+    if (!hasWallet) return false
+
     return !walletSupportsBuyAssetChain || isLoading
-  }, [walletSupportsBuyAssetChain, isLoading])
+  }, [hasWallet, walletSupportsBuyAssetChain, isLoading])
 
   return (
     <Stack spacing={0}>

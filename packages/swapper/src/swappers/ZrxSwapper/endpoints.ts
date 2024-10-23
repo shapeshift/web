@@ -17,7 +17,7 @@ import {
   SwapperName,
   type TradeQuote,
 } from '../../types'
-import { checkEvmSwapStatus } from '../../utils'
+import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchFromZrx } from './utils/fetchFromZrx'
 
@@ -48,6 +48,8 @@ export const zrxApi: SwapperApi = {
     assertGetEvmChainAdapter,
     config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
     const {
       buyAsset,

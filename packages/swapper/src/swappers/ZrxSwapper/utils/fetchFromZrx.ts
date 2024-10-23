@@ -27,7 +27,7 @@ export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string
+  receiveAddress: string | undefined
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string
@@ -65,7 +65,8 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       takerAddress: receiveAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
-      skipValidation: priceOrQuote === 'price', // don't validate allowances for price queries
+      // Always skip validation, so that we can get a quote even if no wallet is connected
+      skipValidation: true,
       slippagePercentage:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),

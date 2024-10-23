@@ -1,6 +1,7 @@
 import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
+  Flex,
   SkeletonCircle,
   SkeletonText,
   Spacer,
@@ -30,6 +31,7 @@ export type StepperStepProps = {
   titleProps?: StepTitleProps
   descriptionProps?: BoxProps
   isPending?: boolean
+  button?: JSX.Element
 }
 
 const LastStepTag = () => {
@@ -58,6 +60,7 @@ export const StepperStep = ({
   titleProps,
   descriptionProps,
   isPending,
+  button,
 }: StepperStepProps) => {
   const { indicator: styles } = useStyleConfig('Stepper', {
     variant: isError ? 'error' : 'default',
@@ -69,27 +72,30 @@ export const StepperStep = ({
         {isLoading ? <SkeletonCircle /> : stepIndicator}
       </StepIndicator>
 
-      <Box flex={1}>
-        <StepTitle {...titleProps}>
-          <SkeletonText noOfLines={1} skeletonHeight={6} isLoaded={!isLoading}>
-            {title}
-          </SkeletonText>
-        </StepTitle>
-        {description && (
-          <>
-            <StepDescription as={Box} {...descriptionProps}>
-              {isLoading ? (
-                <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
-              ) : (
-                description
-              )}
-            </StepDescription>
-            {isLastStep ? <LastStepTag /> : null}
-          </>
-        )}
-        {content !== undefined && <Box mt={2}>{content}</Box>}
-        {!isLastStep && <Spacer height={6} />}
-      </Box>
+      <Flex alignItems='center' flex={1}>
+        <Box width='100%' flex={1}>
+          <StepTitle {...titleProps}>
+            <SkeletonText noOfLines={1} skeletonHeight={6} isLoaded={!isLoading}>
+              {title}
+            </SkeletonText>
+          </StepTitle>
+          {description && (
+            <>
+              <StepDescription as={Box} {...descriptionProps}>
+                {isLoading ? (
+                  <SkeletonText mt={2} noOfLines={1} skeletonHeight={3} isLoaded={!isLoading} />
+                ) : (
+                  description
+                )}
+              </StepDescription>
+              {isLastStep ? <LastStepTag /> : null}
+            </>
+          )}
+          {content !== undefined && <Box mt={2}>{content}</Box>}
+          {!isLastStep && <Spacer height={6} />}
+        </Box>
+        {button}
+      </Flex>
       {!isLastStep && <StepSeparator />}
     </Step>
   )

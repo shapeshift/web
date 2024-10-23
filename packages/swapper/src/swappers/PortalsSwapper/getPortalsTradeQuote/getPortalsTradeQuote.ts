@@ -3,9 +3,10 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
@@ -39,6 +40,7 @@ export async function getPortalsTradeQuote(
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    hasWallet,
   } = input
 
   const sellAssetChainId = sellAsset.chainId
@@ -80,12 +82,12 @@ export async function getPortalsTradeQuote(
     .toNumber()
 
   const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-    ? Number(input.slippageTolerancePercentageDecimal) * 100
+    ? Number(input.slippageTolerancePercentageDecimal)
     : undefined // Use auto slippage if no user preference is provided
 
-  try {
-    if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
+  if (hasWallet && !sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
+  try {
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
 
     if (!portalsNetwork) {
@@ -108,17 +110,78 @@ export async function getPortalsTradeQuote(
     const inputToken = `${portalsNetwork}:${sellAssetAddress}`
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
+    if (!hasWallet) {
+      // Use the quote estimate endpoint to get a quote without a wallet
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        sender: sendAddress,
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
+          ? userSlippageTolerancePercentageDecimalOrDefault * 100
+          : undefined,
+        swapperConfig,
+        hasWallet,
+      })
+
+      const rate = getRate({
+        sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAmountCryptoBaseUnit: quoteEstimateResponse?.context.outputAmount,
+        sellAsset,
+        buyAsset,
+      })
+
+      const tradeQuote = {
+        id: uuid(),
+        receiveAddress: input.receiveAddress,
+        affiliateBps,
+        potentialAffiliateBps,
+        rate,
+        slippageTolerancePercentageDecimal: quoteEstimateResponse?.context
+          .slippageTolerancePercentage
+          ? bn(quoteEstimateResponse?.context.slippageTolerancePercentage)
+              .div(100)
+              .toString()
+          : undefined,
+        steps: [
+          {
+            estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
+            allowanceContract: undefined,
+            accountNumber,
+            rate,
+            buyAsset,
+            sellAsset,
+            buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
+            buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.outputAmount,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit:
+              input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            feeData: {
+              networkFeeCryptoBaseUnit: undefined,
+              // Protocol fees are always denominated in sell asset here
+              protocolFees: {},
+            },
+            source: SwapperName.Portals,
+          },
+        ] as unknown as SingleHopTradeQuoteSteps,
+      }
+
+      return Ok(tradeQuote)
+    }
+
     // Attempt fetching a quote with validation enabled to leverage upstream gasLimit estimate
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
       sender: sendAddress,
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
+        ? userSlippageTolerancePercentageDecimalOrDefault * 100
+        : undefined,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
       swapperConfig,
+      hasWallet,
     }).catch(async e => {
       // If validation fails, fire 3 more quotes:
       // 1. a quote estimate (does not require approval) to get the optimal slippage tolerance
@@ -133,6 +196,7 @@ export async function getPortalsTradeQuote(
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         swapperConfig,
+        hasWallet,
       }).catch(e => {
         console.info('failed to get Portals quote estimate', e)
         return undefined
@@ -155,6 +219,7 @@ export async function getPortalsTradeQuote(
         slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
+        hasWallet,
         validate: true,
         swapperConfig,
       })
@@ -165,6 +230,9 @@ export async function getPortalsTradeQuote(
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
           return undefined
         })
+      const userSlippageToleranceDecimalOrDefault = userSlippageTolerancePercentageDecimalOrDefault
+        ? userSlippageTolerancePercentageDecimalOrDefault * 100
+        : undefined
 
       const order = await fetchPortalsTradeOrder({
         sender: sendAddress,
@@ -172,7 +240,7 @@ export async function getPortalsTradeQuote(
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage:
-          userSlippageTolerancePercentageDecimalOrDefault ??
+          userSlippageToleranceDecimalOrDefault ??
           quoteEstimateResponse?.context.slippageTolerancePercentage ??
           bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
             .times(100)
@@ -180,6 +248,7 @@ export async function getPortalsTradeQuote(
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,
+        hasWallet,
         swapperConfig,
       })
 
@@ -212,7 +281,7 @@ export async function getPortalsTradeQuote(
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a
       // buffer of ~15% to the gas limit
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),

@@ -1,5 +1,5 @@
-import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
-import { getHopByIndex, type TradeQuote } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { selectUsdRateByAssetId } from 'state/slices/selectors'

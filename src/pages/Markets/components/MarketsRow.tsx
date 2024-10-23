@@ -1,4 +1,5 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
+import type { FlexProps } from '@chakra-ui/react'
 import { Box, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -10,6 +11,9 @@ import { useAppSelector } from 'state/store'
 
 import type { MARKETS_CATEGORIES } from '../constants'
 import type { RowProps } from '../hooks/useRows'
+
+const flexAlign = { base: 'flex-start', md: 'flex-end' }
+const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
 
 type MarketsRowProps = {
   title?: string
@@ -80,15 +84,16 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   }, [isCategoryRoute, subtitle])
 
   return (
-    <Box mb={8}>
+    <Box mb={12}>
       <Flex
         justify='space-between'
-        align='flex-end'
+        align={flexAlign}
+        flexDir={flexDirection}
         pb={isCategoryRoute && 6}
         mb={isCategoryRoute ? 12 : 4}
         borderBottomWidth={isCategoryRoute && 1}
         borderColor={isCategoryRoute && 'border.base'}
-        gap={isCategoryRoute && 8}
+        gap={isCategoryRoute ? 8 : 4}
       >
         <Box me={4}>
           <Flex direction='row' align='center'>

@@ -122,8 +122,6 @@ const validators = {
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
   REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
-  REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
-  REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
   REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',
@@ -134,9 +132,6 @@ const validators = {
   REACT_APP_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
   REACT_APP_FEATURE_PORTALS_SWAPPER: bool({ default: false }),
   REACT_APP_FEATURE_ONE_INCH: bool({ default: false }),
-  REACT_APP_ONE_INCH_API_URL: url({
-    default: 'https://api-shapeshift.1inch.io/v5.0',
-  }),
   REACT_APP_SENTRY_DSN_URL: url(),
   REACT_APP_FEATURE_COVALENT_JAYPEGS: bool({ default: false }),
   REACT_APP_ALCHEMY_API_KEY: str(),
@@ -179,6 +174,7 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE: bool({ default: false }),
   REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
   REACT_APP_ZRX_BASE_URL: url(),
+  REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

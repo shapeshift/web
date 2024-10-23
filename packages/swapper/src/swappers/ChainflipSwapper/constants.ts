@@ -28,6 +28,15 @@ export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> =
   // TODO: Add Polkadot
 }
 
+export const assetGasLimits: Partial<Record<string, string>> = {
+  ["eth.eth"]: '34000',
+  ["flip.eth"]: '52000',
+  ["usdc.eth"]: '63000',
+  ["usdt.eth"]: '70000',
+  ["eth.arb"]: '100000',
+  ["usdc.arb"]: '100000',
+}
+
 export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: ChainflipSupportedChainIds as unknown as ChainId[],
   buy: ChainflipSupportedChainIds as unknown as ChainId[],

@@ -119,6 +119,7 @@ export const getChainflipTradeQuote = async (
         return await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+          sendAsset: sellChainflipChainKey
         });
       }
 

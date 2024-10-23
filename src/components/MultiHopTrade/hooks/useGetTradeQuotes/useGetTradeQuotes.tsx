@@ -7,7 +7,7 @@ import {
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'

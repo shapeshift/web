@@ -164,6 +164,10 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
 }
 export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
 
+export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
+  chainId: CosmosSdkChainId
+}
+
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
@@ -194,6 +198,16 @@ export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+
+export type GetTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetCosmosSdkTradeRateInput
+  | GetUtxoTradeRateInput
+
+export type GetTradeQuoteInputWithWallet =
+  | GetUtxoTradeQuoteWithWallet
+  | GetEvmTradeQuoteInputBase
+  | GetCosmosSdkTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter

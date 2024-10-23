@@ -8,7 +8,7 @@ import {
   getTradeQuotes,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'

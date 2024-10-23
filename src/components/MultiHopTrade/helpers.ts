@@ -1,4 +1,4 @@
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'

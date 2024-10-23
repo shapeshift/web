@@ -80,9 +80,12 @@ export const getChainflipTradeQuote = async (
 
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY;
-
+  
+  // Subtract the 0.05% BaaS fee to end up at the final displayed commissionBps
+  const serviceCommission = parseInt(commissionBps) - 5;
+  
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
-    `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${commissionBps}`,
+    `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
   );
 
   if (maybeQuoteResponse.isErr()) {

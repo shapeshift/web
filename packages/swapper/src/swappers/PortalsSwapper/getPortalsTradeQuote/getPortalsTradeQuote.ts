@@ -3,7 +3,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -82,7 +82,7 @@ export async function getPortalsTradeQuote(
     .toNumber()
 
   const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-    ? Number(input.slippageTolerancePercentageDecimal) * 100
+    ? Number(input.slippageTolerancePercentageDecimal)
     : undefined // Use auto slippage if no user preference is provided
 
   if (hasWallet && !sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
@@ -117,6 +117,9 @@ export async function getPortalsTradeQuote(
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
+          ? userSlippageTolerancePercentageDecimalOrDefault * 100
+          : undefined,
         swapperConfig,
         hasWallet,
       })
@@ -134,8 +137,12 @@ export async function getPortalsTradeQuote(
         affiliateBps,
         potentialAffiliateBps,
         rate,
-        slippageTolerancePercentageDecimal:
-          quoteEstimateResponse?.context.slippageTolerancePercentage.toString(),
+        slippageTolerancePercentageDecimal: quoteEstimateResponse?.context
+          .slippageTolerancePercentage
+          ? bn(quoteEstimateResponse?.context.slippageTolerancePercentage)
+              .div(100)
+              .toString()
+          : undefined,
         steps: [
           {
             estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
@@ -167,7 +174,9 @@ export async function getPortalsTradeQuote(
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
+        ? userSlippageTolerancePercentageDecimalOrDefault * 100
+        : undefined,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,
@@ -221,6 +230,9 @@ export async function getPortalsTradeQuote(
           console.info('failed to get Portals quote with validation enabled using dummy address', e)
           return undefined
         })
+      const userSlippageToleranceDecimalOrDefault = userSlippageTolerancePercentageDecimalOrDefault
+        ? userSlippageTolerancePercentageDecimalOrDefault * 100
+        : undefined
 
       const order = await fetchPortalsTradeOrder({
         sender: sendAddress,
@@ -228,7 +240,7 @@ export async function getPortalsTradeQuote(
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage:
-          userSlippageTolerancePercentageDecimalOrDefault ??
+          userSlippageToleranceDecimalOrDefault ??
           quoteEstimateResponse?.context.slippageTolerancePercentage ??
           bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
             .times(100)

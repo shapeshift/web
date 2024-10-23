@@ -1,7 +1,7 @@
 import { type ChainId } from '@shapeshiftoss/caip'
 
-import type { ChainflipSupportedChainId } from '../types'
-import { ChainflipSupportedChainIds, ChainflipSupportedAssets } from '../types'
+import type { ChainflipSupportedChainId } from '../constants'
+import { ChainflipSupportedChainIds, ChainflipSupportedAssets } from "../constants";
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSupportedChainId => {
   return ChainflipSupportedChainIds.includes(chainId as ChainflipSupportedChainId)

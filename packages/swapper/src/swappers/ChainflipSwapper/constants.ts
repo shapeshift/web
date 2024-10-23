@@ -1,8 +1,32 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from "@shapeshiftoss/types";
-
 import { SupportedChainIds, SwapperName, SwapSource } from '../../types'
-import { ChainflipSupportedChainIds } from './types'
+
+export const ChainflipSupportedChainIds = [
+  KnownChainIds.EthereumMainnet,
+  KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BitcoinMainnet,
+  KnownChainIds.SolanaMainnet,
+  // TODO: Add Polkadot
+] as const
+
+export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[number]
+
+export const ChainflipSupportedAssets = {
+  [KnownChainIds.EthereumMainnet]: ['eth', 'flip', 'usdc', 'usdt'],
+  [KnownChainIds.ArbitrumMainnet]: ['eth', 'usdc'],
+  [KnownChainIds.BitcoinMainnet]: ['btc'],
+  [KnownChainIds.SolanaMainnet]: ['sol', 'usdc'],
+  // TODO: Add Polkadot
+}
+
+export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> = {
+  [KnownChainIds.EthereumMainnet]: 'eth',
+  [KnownChainIds.ArbitrumMainnet]: 'arb',
+  [KnownChainIds.BitcoinMainnet]: 'btc',
+  [KnownChainIds.SolanaMainnet]: 'sol',
+  // TODO: Add Polkadot
+}
 
 export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: ChainflipSupportedChainIds as unknown as ChainId[],
@@ -13,14 +37,6 @@ export const CHAINFLIP_SWAP_SOURCE: SwapSource = SwapperName.Chainflip;
 export const CHAINFLIP_BOOST_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • Boost`
 export const CHAINFLIP_DCA_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • DCA`
 export const CHAINFLIP_DCA_BOOST_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • DCA • Boost`
-
-export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> = {
-  [KnownChainIds.EthereumMainnet]: 'eth',
-  [KnownChainIds.ArbitrumMainnet]: 'arb',
-  [KnownChainIds.BitcoinMainnet]: 'btc',
-  [KnownChainIds.SolanaMainnet]: 'sol',
-  // TODO: Add Polkadot
-}
 
 export const usdcAsset: Asset = {
   assetId: "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",

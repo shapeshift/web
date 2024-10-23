@@ -793,7 +793,11 @@
       "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
-      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
+      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee",
+      "success": {
+        "tradeSuccess": "Bridge initiated",
+        "tradeComplete": "Successfully initiated bridging %{symbol} to %{chainName}."
+      }
     },
     "claim": "Claim",
     "claimReceiveAddress": "Claim Receive Address",
@@ -807,6 +811,7 @@
     "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
+    "viewClaimStatus": "View Claim Status",
     "availableClaimsNotification": "You have bridge claims ready!"
   },
   "trade": {

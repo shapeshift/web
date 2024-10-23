@@ -18,11 +18,21 @@ import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../TwirlyToggle'
 
-export type TradeSuccessProps = { handleBack: () => void; children: JSX.Element }
+export type TradeSuccessProps = {
+  handleBack: () => void
+  children: JSX.Element
+  titleTranslation?: string
+  descriptionTranslation?: string
+}
 
 const pairProps = { showFirst: true }
 
-export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
+export const TradeSuccess = ({
+  handleBack,
+  titleTranslation,
+  descriptionTranslation,
+  children,
+}: TradeSuccessProps) => {
   const translate = useTranslate()
 
   const { isOpen, onToggle: handleToggle } = useDisclosure({
@@ -41,11 +51,17 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
 
     const chainName = adapter.getDisplayName()
 
+    if (descriptionTranslation)
+      return translate(descriptionTranslation, {
+        symbol: lastHop.buyAsset.symbol,
+        chainName,
+      })
+
     return translate('trade.temp.tradeComplete', {
       symbol: lastHop.buyAsset.symbol,
       chainName,
     })
-  }, [lastHop, translate])
+  }, [lastHop, translate, descriptionTranslation])
 
   if (!lastHop) return null
 
@@ -55,7 +71,7 @@ export const TradeSuccess = ({ handleBack, children }: TradeSuccessProps) => {
         <SlideTransition>
           <Box textAlign='center' py={4}>
             <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} pairProps={pairProps} />
-            <Text translation='trade.temp.tradeSuccess' />
+            <Text translation={titleTranslation ?? 'trade.temp.tradeSuccess'} />
             <RawText fontSize='md' color='gray.500' mt={2}>
               {subText}
             </RawText>

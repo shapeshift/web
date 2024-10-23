@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
+  Button,
   Card,
   CardFooter,
   Circle,
@@ -16,10 +17,12 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
+import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import prettyMilliseconds from 'pretty-ms'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
@@ -29,6 +32,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectActiveQuote,
   selectHopExecutionMetadata,
   selectHopNetworkFeeUserCurrencyPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
@@ -82,7 +86,14 @@ export const Hop = ({
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
+  const history = useHistory()
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+
+  const activeQuote = useAppSelector(selectActiveQuote)
+
+  const isArbitrumBridgeWithdraw = useMemo(() => {
+    return isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal'
+  }, [activeQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
@@ -214,6 +225,19 @@ export const Hop = ({
     }
   }, [hopExecutionState, hopIndex, isError])
 
+  const LastStepArbitrumBridgeButton = useCallback(() => {
+    const handleClick = () => {
+      history.push('/trade/claim')
+    }
+
+    return (
+      // eslint-disable-next-line react-memo/require-usememo
+      <Button size='sm' onClick={handleClick}>
+        {translate('bridge.viewClaimStatus')}
+      </Button>
+    )
+  }, [translate, history])
+
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
       <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
@@ -258,6 +282,7 @@ export const Hop = ({
               asset={tradeQuoteStep.buyAsset}
               amountCryptoBaseUnit={tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit}
               isLastStep={shouldRenderFinalSteps}
+              button={isArbitrumBridgeWithdraw ? <LastStepArbitrumBridgeButton /> : undefined}
             />
           )}
         </Stepper>

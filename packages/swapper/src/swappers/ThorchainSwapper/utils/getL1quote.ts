@@ -467,7 +467,7 @@ export const getL1quote = async (
             affiliateBps,
             slippageBps,
           }): ThorTradeUtxoOrCosmosQuote => {
-            if (!quote.memo) throw new Error('no memo provided')
+            if (hasWallet && !quote.memo) throw new Error('no memo provided')
 
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
@@ -486,12 +486,15 @@ export const getL1quote = async (
 
             // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
             // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = isStreaming
-              ? quote.memo
-              : addLimitToMemo({
-                  memo: quote.memo,
-                  limit: limitWithManualSlippage,
-                })
+            const memo = (() => {
+              if (!quote.memo) return ''
+
+              if (isStreaming) return quote.memo
+              return addLimitToMemo({
+                memo: quote.memo,
+                limit: limitWithManualSlippage,
+              })
+            })()
 
             return {
               id: uuid(),

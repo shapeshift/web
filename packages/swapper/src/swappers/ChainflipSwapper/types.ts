@@ -12,7 +12,7 @@ export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[numb
 
 export const ChainflipSupportedAssets = {
   [KnownChainIds.EthereumMainnet]: ['eth', 'flip', 'usdc', 'usdt'],
-  [KnownChainIds.ArbitrumMainnet]: ['arb', 'usdc'],
+  [KnownChainIds.ArbitrumMainnet]: ['eth', 'usdc'],
   [KnownChainIds.BitcoinMainnet]: ['btc'],
   [KnownChainIds.SolanaMainnet]: ['sol', 'usdc'],
 }

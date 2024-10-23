@@ -7,7 +7,6 @@ export const ChainflipSupportedChainIds = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.SolanaMainnet,
-  // TODO: Add Polkadot
 ] as const
 
 export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[number]
@@ -17,7 +16,6 @@ export const ChainflipSupportedAssets = {
   [KnownChainIds.ArbitrumMainnet]: ['eth', 'usdc'],
   [KnownChainIds.BitcoinMainnet]: ['btc'],
   [KnownChainIds.SolanaMainnet]: ['sol', 'usdc'],
-  // TODO: Add Polkadot
 }
 
 export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> = {
@@ -25,7 +23,6 @@ export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> =
   [KnownChainIds.ArbitrumMainnet]: 'arb',
   [KnownChainIds.BitcoinMainnet]: 'btc',
   [KnownChainIds.SolanaMainnet]: 'sol',
-  // TODO: Add Polkadot
 }
 
 export const assetGasLimits: Partial<Record<string, string>> = {

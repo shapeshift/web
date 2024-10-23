@@ -122,8 +122,6 @@ const validators = {
     default: 'https://github.com/keepkey/keepkey-updater/releases/download/v2.1.4/',
   }),
   REACT_APP_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
-  REACT_APP_WHEREVER_PARTNER_KEY: str({ default: 'REPLACE_WHEN_MADE_DELEGATE' }),
-  REACT_APP_FEATURE_WHEREVER: bool({ default: false }),
   REACT_APP_MIXPANEL_TOKEN: str(),
   REACT_APP_SNAPSHOT_BASE_URL: url({
     default: 'https://snapshot.org/#/shapeshiftdao.eth',

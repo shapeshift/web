@@ -12,10 +12,14 @@ export const MarketGrid: React.FC<PropsWithChildren> = ({ children }) => {
       </Display.Desktop>
       <Display.Mobile>
         <SimpleGrid
-          gridAutoColumns='minmax(200, 1fr)'
+          gridAutoColumns='minmax(330px, 1fr)'
           gridAutoFlow='column'
           overflowY='auto'
+          scrollBehavior='smooth'
+          scrollSnapAlign='start'
           gap={4}
+          mx={-4}
+          px={4}
         >
           {children}
         </SimpleGrid>

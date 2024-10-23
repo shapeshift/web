@@ -11,6 +11,8 @@ import { useAppSelector } from 'state/store'
 import type { MARKETS_CATEGORIES } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
+const flexAlign = { base: 'flex-start', md: 'flex-end' }
+
 type MarketsRowProps = {
   title?: string
   subtitle?: string
@@ -83,12 +85,13 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     <Box mb={12}>
       <Flex
         justify='space-between'
-        align='flex-end'
+        align={flexAlign}
+        flexDir='column'
         pb={isCategoryRoute && 6}
         mb={isCategoryRoute ? 12 : 4}
         borderBottomWidth={isCategoryRoute && 1}
         borderColor={isCategoryRoute && 'border.base'}
-        gap={isCategoryRoute && 8}
+        gap={isCategoryRoute ? 8 : 4}
       >
         <Box me={4}>
           <Flex direction='row' align='center'>

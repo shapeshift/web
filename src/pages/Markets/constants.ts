@@ -1,4 +1,9 @@
-export const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(20, 1fr)' }
+export const gridTemplateColumnSx = {
+  base: 'minmax(0, 1fr)',
+  md: 'repeat(3, 1fr)',
+  lg: 'repeat(3, 1fr)',
+  xl: 'repeat(4, 1fr)',
+}
 export const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
 export const colSpanSparklineSx = { base: 1, md: 8 }
 export const colSpanSmallSx = { base: 1, md: 4 }

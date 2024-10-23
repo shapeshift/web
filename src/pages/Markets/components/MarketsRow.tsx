@@ -80,7 +80,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   }, [isCategoryRoute, subtitle])
 
   return (
-    <Box mb={8}>
+    <Box mb={12}>
       <Flex
         justify='space-between'
         align='flex-end'

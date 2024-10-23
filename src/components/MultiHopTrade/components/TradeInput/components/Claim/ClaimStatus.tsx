@@ -42,45 +42,30 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
 
   const statusBody = useMemo(() => {
     if (!asset) return null
-    const renderedAmount = (() => {
+    const prefix = (() => {
       switch (claimTxStatus) {
-        case TxStatus.Pending: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimPending')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
-        case TxStatus.Confirmed: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimSuccess')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
-        case TxStatus.Failed: {
-          return (
-            <Amount.Crypto
-              prefix={translate('bridge.claimFailed')}
-              value={amountCryptoPrecision}
-              symbol={asset.symbol}
-              color='text.subtle'
-            />
-          )
-        }
+        case TxStatus.Pending:
+          return translate('bridge.claimPending')
+        case TxStatus.Confirmed:
+          return translate('bridge.claimSuccess')
+        case TxStatus.Failed:
+          return translate('bridge.claimFailed')
         case TxStatus.Unknown:
         default:
           return null
       }
     })()
 
-    return <StatusBody txStatus={claimTxStatus}>{renderedAmount}</StatusBody>
+    return (
+      <StatusBody txStatus={claimTxStatus}>
+        <Amount.Crypto
+          prefix={prefix}
+          value={amountCryptoPrecision}
+          symbol={asset.symbol}
+          color='text.subtle'
+        />
+      </StatusBody>
+    )
   }, [amountCryptoPrecision, asset, translate, claimTxStatus])
 
   const { data: maybeSafeTx } = useSafeTxQuery({

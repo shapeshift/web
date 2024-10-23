@@ -13,8 +13,10 @@ import {
 import { getRate, makeSwapErrorRight } from "../../../utils";
 
 import {
-  CHAINFLIP_DCA_SWAP_SOURCE,
   CHAINFLIP_SWAP_SOURCE,
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
   chainIdToChainflipNetwork,
   usdcAsset
 } from "../constants";
@@ -95,7 +97,7 @@ export const getChainflipTradeQuote = async (
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
 
   const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
-    if (fee.type === "ingress")
+    if (fee.type === "ingress" || fee.type === "boost")
       return sellAsset;
 
     if (fee.type === "egress")
@@ -105,7 +107,7 @@ export const getChainflipTradeQuote = async (
       return sellAsset;
 
     if (fee.type === "liquidity" && fee.asset == buyChainflipChainKey)
-      return sellAsset;
+      return buyAsset;
 
     if (fee.type === "liquidity" && fee.asset == "usdc.eth")
       return usdcAsset;
@@ -137,21 +139,64 @@ export const getChainflipTradeQuote = async (
     return protocolFees;
   }
   
-  const quotes = quoteResponse.map(singleQuoteResponse => {
+  const quotes = [];
+  
+  for (const singleQuoteResponse of quoteResponse) {
+    const isStreaming = singleQuoteResponse.type === "dca";
+        
+    if (singleQuoteResponse.boostQuote) {
+      const boostRate = getRate({
+        sellAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
+        buyAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+        sellAsset,
+        buyAsset,
+      })
+      
+      const boostSwapSource = singleQuoteResponse.type === "regular"
+        ? CHAINFLIP_BOOST_SWAP_SOURCE
+        : CHAINFLIP_DCA_BOOST_SWAP_SOURCE;
+      
+      const boostTradeQuote: TradeQuote = {
+        id: uuid(),
+        rate: boostRate,
+        receiveAddress: "",
+        potentialAffiliateBps: commissionBps,
+        affiliateBps: commissionBps,
+        isStreaming: isStreaming,
+        slippageTolerancePercentageDecimal: undefined,
+        steps: [
+          {
+            buyAmountBeforeFeesCryptoBaseUnit: "0",
+            buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
+            feeData: {
+              networkFeeCryptoBaseUnit: undefined,
+              protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
+            },
+            rate: boostRate,
+            source: boostSwapSource,
+            buyAsset: buyAsset,
+            sellAsset: sellAsset,
+            accountNumber: 0,
+            allowanceContract: "",
+            estimatedExecutionTimeMs: singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000
+          }
+        ]
+      };
+
+      quotes.push(boostTradeQuote);
+    }
+
     const rate = getRate({
       sellAmountCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
       buyAmountCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
       sellAsset,
       buyAsset,
     })
-
-    const isStreaming = singleQuoteResponse.type === "dca";
     
     const swapSource = singleQuoteResponse.type === "regular"
       ? CHAINFLIP_SWAP_SOURCE
       : CHAINFLIP_DCA_SWAP_SOURCE;
-    
-    // TODO: If boostQuote is present, add that too, might have to change map to a foreach
     
     const tradeQuote: TradeQuote = {
       id: uuid(),
@@ -163,7 +208,7 @@ export const getChainflipTradeQuote = async (
       slippageTolerancePercentageDecimal: undefined,
       steps: [
         {
-          buyAmountBeforeFeesCryptoBaseUnit: "0", // TODO: Calculate egress - fees
+          buyAmountBeforeFeesCryptoBaseUnit: "0",
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {
@@ -181,8 +226,8 @@ export const getChainflipTradeQuote = async (
       ]
     };
     
-    return tradeQuote;
-  })
+    quotes.push(tradeQuote);
+  }
 
   return Ok(quotes);
 }

@@ -253,48 +253,38 @@ async function _getZrxPermit2TradeQuote(
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    try {
-      const networkFeeCryptoBaseUnit = totalNetworkFee
-      return Ok({
-        id: uuid(),
-        receiveAddress,
-        potentialAffiliateBps,
-        affiliateBps,
-        // Slippage protection is only provided for specific pairs.
-        // If slippage protection is not provided, assume a no slippage limit.
-        // If slippage protection is provided, return the limit instead of the estimated slippage.
-        // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
-        slippageTolerancePercentageDecimal,
-        rate,
-        steps: [
-          {
-            estimatedExecutionTimeMs: undefined,
-            // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
-            allowanceContract: undefined,
-            buyAsset,
-            sellAsset,
-            accountNumber,
-            rate,
-            feeData: {
-              protocolFees: {},
-              networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
-            },
-            buyAmountBeforeFeesCryptoBaseUnit,
-            buyAmountAfterFeesCryptoBaseUnit,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            source: SwapperName.Zrx,
+    const networkFeeCryptoBaseUnit = totalNetworkFee
+    return Ok({
+      id: uuid(),
+      receiveAddress,
+      potentialAffiliateBps,
+      affiliateBps,
+      // Slippage protection is only provided for specific pairs.
+      // If slippage protection is not provided, assume a no slippage limit.
+      // If slippage protection is provided, return the limit instead of the estimated slippage.
+      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+      slippageTolerancePercentageDecimal,
+      rate,
+      steps: [
+        {
+          estimatedExecutionTimeMs: undefined,
+          // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
+          allowanceContract: undefined,
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          rate,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
           },
-        ] as unknown as SingleHopTradeQuoteSteps,
-      })
-    } catch (err) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'failed to get fee data',
-          cause: err,
-          code: TradeQuoteError.NetworkFeeEstimationFailed,
-        }),
-      )
-    }
+          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          source: SwapperName.Zrx,
+        },
+      ] as unknown as SingleHopTradeQuoteSteps,
+    })
   }
 
   const maybeZrxQuoteResponse = await fetchZrxPermit2Quote({

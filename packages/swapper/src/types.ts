@@ -49,19 +49,20 @@ export type SwapperConfig = {
   REACT_APP_FEATURE_ZRX_PERMIT2: boolean
   REACT_APP_ZRX_BASE_URL: string,
   REACT_APP_CHAINFLIP_API_URL: string
-  REACT_APP_FEATURE_CHAINFLIP_STREAMING_SWAPS: boolean
+  REACT_APP_FEATURE_CHAINFLIP_BOOST_SWAPS: boolean
+  REACT_APP_FEATURE_CHAINFLIP_DCA_SWAPS: boolean
 }
 
 export enum SwapperName {
-  Thorchain = 'THORChain',
+  ArbitrumBridge = 'Arbitrum Bridge',
+  Chainflip = 'Chainflip',
   CowSwap = 'CoW Swap',
-  Zrx = '0x',
-  Test = 'Test',
   LIFI = 'LI.FI',
   OneInch = '1INCH',
-  ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
-  Chainflip = 'Chainflip',
+  Thorchain = 'THORChain',
+  Zrx = '0x',
+  Test = 'Test',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

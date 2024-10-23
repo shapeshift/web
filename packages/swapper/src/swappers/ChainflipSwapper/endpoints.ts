@@ -18,13 +18,8 @@ export const chainflipApi: SwapperApi = {
     input: GetTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const { affiliateBps } = input
-
     return await getChainflipTradeQuote(
-        {
-          ...input,
-          affiliateBps,
-        },
+        input,
         deps,
     )
   },

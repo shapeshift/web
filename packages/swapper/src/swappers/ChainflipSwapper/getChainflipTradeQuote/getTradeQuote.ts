@@ -21,6 +21,12 @@ export const getChainflipTradeQuote = async (
   // @ts-ignore
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
   // TODO: use the generated swagger client to get a quote
-
-  return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
+    
+  // TODO: Temp error  
+  return Err(
+    makeSwapErrorRight({
+      message: 'Unsupported chain',
+      code: TradeQuoteError.UnsupportedChain,
+    }),
+  )
 }

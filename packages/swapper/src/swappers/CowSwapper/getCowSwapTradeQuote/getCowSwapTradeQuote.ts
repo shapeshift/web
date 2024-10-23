@@ -3,11 +3,12 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
+import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeQuoteInput, SwapErrorRight, SwapperConfig, TradeQuote } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
 import {
@@ -38,7 +39,17 @@ export async function getCowSwapTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     potentialAffiliateBps,
     affiliateBps,
+    hasWallet,
   } = input
+
+  // This should never happen, and we have additional checks at execution time re: receiveAddress === zeroAddress but...
+  if (hasWallet && !(receiveAddress && accountNumber !== undefined))
+    return Err(
+      makeSwapErrorRight({
+        message: 'missing address',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -81,7 +92,7 @@ export async function getCowSwapTradeQuote(
       appData,
       appDataHash,
       partiallyFillable: false,
-      from: receiveAddress,
+      from: receiveAddress ?? zeroAddress,
       kind: CoWSwapOrderKind.Sell,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
@@ -145,7 +156,9 @@ export async function getCowSwapTradeQuote(
         source: SwapperName.CowSwap,
         buyAsset,
         sellAsset,
-        accountNumber,
+        // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+        // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
+        accountNumber: accountNumber!,
       },
     ],
   }

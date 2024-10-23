@@ -9,29 +9,31 @@ import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, bn } from '@shapeshiftoss/utils'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
 import { BRIDGE_TYPE } from '../types'
+import {
+  fallbackErc20DepositGasLimit,
+  fallbackErc20WithdrawGasLimit,
+  fallbackEthDepositGasLimit,
+  fallbackEthWithdrawGasLimit,
+} from './constants'
 
-export type FetchArbitrumBridgeSwapInput = {
+export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: string
+  receiveAddress: T extends 'price' ? string | undefined : string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: string
+  sendAddress: T extends 'price' ? string | undefined : string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+  priceOrQuote: T
 }
 
-// https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L45-L51
-// Use hardcoded gas estimate values
-// Values set by looking at a couple of different ERC-20 deposits
-const fallbackTokenGasLimit = bn(240_000)
-
-export const fetchArbitrumBridgeSwap = async ({
+export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   chainId,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -40,13 +42,19 @@ export const fetchArbitrumBridgeSwap = async ({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-}: FetchArbitrumBridgeSwapInput): Promise<{
+  priceOrQuote,
+}: FetchArbitrumBridgeSwapInput<T>): Promise<{
   request:
     | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
     | undefined
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
+  if (priceOrQuote === 'quote' && !receiveAddress)
+    throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
+  if (priceOrQuote === 'quote' && !sendAddress)
+    throw new Error('sendAddress is required for Arbitrum Bridge quotes')
+
   const adapter = assertGetEvmChainAdapter(chainId)
 
   const l2Network = await getArbitrumNetwork(arbitrum.id)
@@ -67,72 +75,21 @@ export const fetchArbitrumBridgeSwap = async ({
     case BRIDGE_TYPE.ETH_DEPOSIT: {
       const bridger = new EthBridger(l2Network)
 
-      const request = await bridger.getDepositToRequest({
-        parentProvider,
-        childProvider,
-        amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
-      })
-
-      const { networkFeeCryptoBaseUnit } = await evm.getFees({
-        adapter,
-        data: request.txRequest.data.toString(),
-        to: request.txRequest.to,
-        value: request.txRequest.value.toString(),
-        from: request.txRequest.from,
-        supportsEIP1559,
-      })
-
-      return { request, allowanceContract: '0x0', networkFeeCryptoBaseUnit }
-    }
-    case BRIDGE_TYPE.ETH_WITHDRAWAL: {
-      const bridger = new EthBridger(l2Network)
-
-      const request = await bridger.getWithdrawalRequest({
-        amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
-      })
-
-      const { networkFeeCryptoBaseUnit } = await evm.getFees({
-        adapter,
-        data: request.txRequest.data.toString(),
-        to: request.txRequest.to,
-        value: request.txRequest.value.toString(),
-        from: request.txRequest.from,
-        supportsEIP1559,
-      })
-
-      return { request, allowanceContract: '0x0', networkFeeCryptoBaseUnit }
-    }
-    case BRIDGE_TYPE.ERC20_DEPOSIT: {
-      const bridger = new Erc20Bridger(l2Network)
-      const erc20ParentAddress = fromAssetId(sellAsset.assetId).assetReference
-      const allowanceContract = await bridger.getParentGatewayAddress(
-        erc20ParentAddress,
-        parentProvider,
-      )
-
-      const maybeRequest = await bridger
-        .getDepositRequest({
-          amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-          parentProvider,
-          childProvider,
-          erc20ParentAddress,
-          from: sendAddress ?? '',
-          destinationAddress: receiveAddress,
-          retryableGasOverrides: {
-            // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L159
-            // the gas limit may vary by about 20k due to SSTORE (zero vs nonzero)
-            // the 30% gas limit increase should cover the difference
-            gasLimit: { percentIncrease: BigNumber.from(30) },
-          },
-        })
-        .catch(e => {
-          console.error('Error getting deposit request', e)
-          return undefined
-        })
+      const maybeRequest =
+        priceOrQuote === 'quote'
+          ? await bridger
+              .getDepositToRequest({
+                parentProvider,
+                childProvider,
+                amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+                from: sendAddress!,
+                destinationAddress: receiveAddress!,
+              })
+              .catch(e => {
+                console.error('Error getting ETH deposit request', e)
+                return undefined
+              })
+          : undefined
 
       const networkFeeCryptoBaseUnit = await (async () => {
         // Fallback fees
@@ -142,11 +99,119 @@ export const fetchArbitrumBridgeSwap = async ({
 
           // eip1559 fees
           if (supportsEIP1559 && maxFeePerGas) {
-            return fallbackTokenGasLimit.times(maxFeePerGas).toFixed()
+            return fallbackEthDepositGasLimit.times(maxFeePerGas).toFixed()
           }
 
           // legacy fees
-          return fallbackTokenGasLimit.times(gasPrice).toFixed()
+          return fallbackEthDepositGasLimit.times(gasPrice).toFixed()
+        }
+
+        // Actual fees
+        const feeData = await evm.getFees({
+          adapter,
+          data: maybeRequest.txRequest.data.toString(),
+          to: maybeRequest.txRequest.to,
+          value: maybeRequest.txRequest.value.toString(),
+          from: maybeRequest.txRequest.from,
+          supportsEIP1559,
+        })
+
+        return feeData.networkFeeCryptoBaseUnit
+      })()
+
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+    }
+    case BRIDGE_TYPE.ETH_WITHDRAWAL: {
+      const bridger = new EthBridger(l2Network)
+
+      const maybeRequest =
+        priceOrQuote === 'quote'
+          ? await bridger
+              .getWithdrawalRequest({
+                amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+                from: sendAddress!,
+                destinationAddress: receiveAddress!,
+              })
+              .catch(e => {
+                console.error('Error getting ETH withdraw request', e)
+                return undefined
+              })
+          : undefined
+
+      const networkFeeCryptoBaseUnit = await (async () => {
+        // Fallback fees
+        if (!maybeRequest) {
+          const { average } = await adapter.getGasFeeData()
+          const { gasPrice, maxFeePerGas } = average
+
+          // eip1559 fees
+          if (supportsEIP1559 && maxFeePerGas) {
+            return fallbackEthWithdrawGasLimit.times(maxFeePerGas).toFixed()
+          }
+
+          // legacy fees
+          return fallbackEthWithdrawGasLimit.times(gasPrice).toFixed()
+        }
+
+        // Actual fees
+        const feeData = await evm.getFees({
+          adapter,
+          data: maybeRequest.txRequest.data.toString(),
+          to: maybeRequest.txRequest.to,
+          value: maybeRequest.txRequest.value.toString(),
+          from: maybeRequest.txRequest.from,
+          supportsEIP1559,
+        })
+
+        return feeData.networkFeeCryptoBaseUnit
+      })()
+
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+    }
+    case BRIDGE_TYPE.ERC20_DEPOSIT: {
+      const bridger = new Erc20Bridger(l2Network)
+      const erc20ParentAddress = fromAssetId(sellAsset.assetId).assetReference
+      const allowanceContract = await bridger.getParentGatewayAddress(
+        erc20ParentAddress,
+        parentProvider,
+      )
+
+      const maybeRequest =
+        priceOrQuote === 'quote'
+          ? await bridger
+              .getDepositRequest({
+                amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+                parentProvider,
+                childProvider,
+                erc20ParentAddress,
+                from: sendAddress!,
+                destinationAddress: receiveAddress!,
+                retryableGasOverrides: {
+                  // https://github.com/OffchainLabs/arbitrum-token-bridge/blob/d17c88ef3eef3f4ffc61a04d34d50406039f045d/packages/arb-token-bridge-ui/src/util/TokenDepositUtils.ts#L159
+                  // the gas limit may vary by about 20k due to SSTORE (zero vs nonzero)
+                  // the 30% gas limit increase should cover the difference
+                  gasLimit: { percentIncrease: BigNumber.from(30) },
+                },
+              })
+              .catch(e => {
+                console.error('Error getting ERC20 deposit request', e)
+                return undefined
+              })
+          : undefined
+
+      const networkFeeCryptoBaseUnit = await (async () => {
+        // Fallback fees
+        if (!maybeRequest) {
+          const { average } = await adapter.getGasFeeData()
+          const { gasPrice, maxFeePerGas } = average
+
+          // eip1559 fees
+          if (supportsEIP1559 && maxFeePerGas) {
+            return fallbackErc20DepositGasLimit.times(maxFeePerGas).toFixed()
+          }
+
+          // legacy fees
+          return fallbackErc20DepositGasLimit.times(gasPrice).toFixed()
         }
 
         // Actual fees
@@ -168,23 +233,49 @@ export const fetchArbitrumBridgeSwap = async ({
       const bridger = new Erc20Bridger(l2Network)
       const erc20ParentAddress = fromAssetId(buyAsset.assetId).assetReference
 
-      const request = await bridger.getWithdrawalRequest({
-        amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        erc20ParentAddress,
-        from: sendAddress ?? '',
-        destinationAddress: receiveAddress,
-      })
+      const maybeRequest =
+        priceOrQuote === 'quote'
+          ? await bridger
+              .getWithdrawalRequest({
+                amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+                erc20ParentAddress,
+                from: sendAddress!,
+                destinationAddress: receiveAddress!,
+              })
+              .catch(e => {
+                console.error('Error getting ERC20 withdraw request', e)
+                return undefined
+              })
+          : undefined
 
-      const { networkFeeCryptoBaseUnit } = await evm.getFees({
-        adapter,
-        data: request.txRequest.data.toString(),
-        to: request.txRequest.to,
-        value: request.txRequest.value.toString(),
-        from: request.txRequest.from,
-        supportsEIP1559,
-      })
+      const networkFeeCryptoBaseUnit = await (async () => {
+        // Fallback fees
+        if (!maybeRequest) {
+          const { average } = await adapter.getGasFeeData()
+          const { gasPrice, maxFeePerGas } = average
 
-      return { request, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+          // eip1559 fees
+          if (supportsEIP1559 && maxFeePerGas) {
+            return fallbackErc20WithdrawGasLimit.times(maxFeePerGas).toFixed()
+          }
+
+          // legacy fees
+          return fallbackErc20WithdrawGasLimit.times(gasPrice).toFixed()
+        }
+
+        // Actual fees
+        const feeData = await evm.getFees({
+          adapter,
+          data: maybeRequest.txRequest.data.toString(),
+          to: maybeRequest.txRequest.to,
+          value: maybeRequest.txRequest.value.toString(),
+          from: maybeRequest.txRequest.from,
+          supportsEIP1559,
+        })
+
+        return feeData.networkFeeCryptoBaseUnit
+      })()
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
     default:
       assertUnreachable(bridgeType)

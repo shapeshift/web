@@ -51,7 +51,16 @@ export async function getTradeQuote(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    hasWallet,
   } = input
+
+  if (hasWallet && !(receiveAddress && sendAddress && accountNumber !== undefined))
+    return Err(
+      makeSwapErrorRight({
+        message: 'missing address',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -201,7 +210,7 @@ export async function getTradeQuote(
           const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
             chainId: stepChainId,
             lifiStep,
-            supportsEIP1559,
+            supportsEIP1559: Boolean(supportsEIP1559),
             deps,
           })
 

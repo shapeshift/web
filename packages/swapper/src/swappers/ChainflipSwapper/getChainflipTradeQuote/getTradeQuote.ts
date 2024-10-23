@@ -122,7 +122,7 @@ export const getChainflipTradeQuote = async (
   
   const defaultSlippage = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip);
   
-  const getGasFee = async () => {
+  const getNetworkFeeCryptoBaseUnit = async () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId);
 
     switch (chainNamespace) {
@@ -231,7 +231,7 @@ export const getChainflipTradeQuote = async (
             buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
             feeData: {
-              networkFeeCryptoBaseUnit: await getGasFee(),
+              networkFeeCryptoBaseUnit: await getNetworkFeeCryptoBaseUnit(),
               protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
             },
             rate: boostRate,
@@ -273,7 +273,7 @@ export const getChainflipTradeQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {
-            networkFeeCryptoBaseUnit: await getGasFee(),
+            networkFeeCryptoBaseUnit: await getNetworkFeeCryptoBaseUnit(),
             protocolFees: getProtocolFees(singleQuoteResponse),
           },
           rate: rate,

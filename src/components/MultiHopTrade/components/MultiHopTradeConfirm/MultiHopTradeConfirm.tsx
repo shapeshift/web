@@ -139,7 +139,7 @@ export const MultiHopTradeConfirm = memo(() => {
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
             }
             descriptionTranslation={
-              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeComplete' : undefined
+              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.withdrawComplete' : undefined
             }
           >
             <Hops isFirstHopOpen isSecondHopOpen />

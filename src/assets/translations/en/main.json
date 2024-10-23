@@ -796,7 +796,7 @@
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee",
       "success": {
         "tradeSuccess": "Bridge initiated",
-        "tradeComplete": "Successfully initiated bridging %{symbol} to %{chainName}."
+        "withdrawComplete": "Successfully initiated bridging %{symbol} to %{chainName}."
       }
     },
     "claim": "Claim",

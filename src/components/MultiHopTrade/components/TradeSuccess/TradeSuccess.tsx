@@ -7,6 +7,7 @@ import {
   HStack,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
@@ -21,8 +22,8 @@ import { TwirlyToggle } from '../TwirlyToggle'
 export type TradeSuccessProps = {
   handleBack: () => void
   children: JSX.Element
-  titleTranslation?: string
-  descriptionTranslation?: string
+  titleTranslation?: string | [string, InterpolationOptions]
+  descriptionTranslation?: string | [string, InterpolationOptions]
 }
 
 const pairProps = { showFirst: true }
@@ -52,10 +53,12 @@ export const TradeSuccess = ({
     const chainName = adapter.getDisplayName()
 
     if (descriptionTranslation)
-      return translate(descriptionTranslation, {
-        symbol: lastHop.buyAsset.symbol,
-        chainName,
-      })
+      return typeof descriptionTranslation === 'string'
+        ? translate(descriptionTranslation, {
+            symbol: lastHop.buyAsset.symbol,
+            chainName,
+          })
+        : translate(...descriptionTranslation)
 
     return translate('trade.temp.tradeComplete', {
       symbol: lastHop.buyAsset.symbol,

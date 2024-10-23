@@ -2,16 +2,18 @@ import type { ChainId, AssetId } from '@shapeshiftoss/caip'
 import { Asset, KnownChainIds } from "@shapeshiftoss/types";
 import { SupportedChainIds, SwapperName, SwapSource } from '../../types'
 
-// TODO: Get correct caip-19s
-const ETHEREUM_ETH_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const ETHEREUM_FLIP_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ETHEREUM_ETH_ASSET_ID: AssetId = 'eip155:1/slip44:60'
+const ETHEREUM_FLIP_ASSET_ID: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 const ETHEREUM_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const ETHEREUM_USDT_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const ARBITRUM_ETH_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const ARBITRUM_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const BITCOIN_BTC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const SOLANA_SOL_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
-const SOLANA_USDC_ASSET_ID: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+const ETHEREUM_USDT_ASSET_ID: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+
+const ARBITRUM_ETH_ASSET_ID: AssetId = 'eip155:42161/slip44:60'
+const ARBITRUM_USDC_ASSET_ID: AssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+
+const BITCOIN_BTC_ASSET_ID: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0"'
+
+const SOLANA_SOL_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"'
+const SOLANA_USDC_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 
 export const ChainflipSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

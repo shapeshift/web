@@ -1,9 +1,10 @@
 import { v4 as uuid } from "uuid";
 import { Err, Ok, Result } from "@sniptt/monads";
 import { KnownChainIds } from "@shapeshiftoss/types";
-import type { AssetId } from "@shapeshiftoss/caip";
+import { AssetId, CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
 
 import {
+  type GetEvmTradeQuoteInput,
   GetTradeQuoteInput, type ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
@@ -23,6 +24,8 @@ import {
 import { isSupportedChainId, isSupportedAsset } from "../utils/helpers";
 import { chainflipService } from "../utils/chainflipService";
 import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from "../models";
+import { getEvmTxFees } from "../txFeeHelpers/evmTxFees/getEvmTxFees";
+// import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
 
 export const getChainflipTradeQuote = async (
   input: GetTradeQuoteInput,
@@ -82,7 +85,9 @@ export const getChainflipTradeQuote = async (
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY;
   
   // Subtract the 0.05% BaaS fee to end up at the final displayed commissionBps
-  const serviceCommission = parseInt(commissionBps) - 5;
+  let serviceCommission = parseInt(commissionBps) - 5;
+  if (serviceCommission < 0)
+    serviceCommission = 0;
   
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
     `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
@@ -98,7 +103,41 @@ export const getChainflipTradeQuote = async (
   }
 
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
+  
+  const getGasFee = async () => {
+    const { chainNamespace } = fromAssetId(sellAsset.assetId);
 
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm: {
+        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId);
+        return await getEvmTxFees({
+          adapter: sellAdapter,
+          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+        });
+      }
+
+      case CHAIN_NAMESPACE.Utxo: {
+        // TODO: Figure out BTC gas calc
+        return undefined;
+        // const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+        // return await getUtxoTxFees({
+        //   sellAmountCryptoBaseUnit: sellAmount,
+        //   vault,
+        //   opReturnData,
+        //   pubkey,
+        //   sellAdapter,
+        // })
+      }
+      
+      case CHAIN_NAMESPACE.Solana: {
+        // TODO: Solana gas calc
+        return undefined;
+      }
+    }
+    
+    return undefined;
+  }
+  
   const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
     if (fee.type === "ingress" || fee.type === "boost")
       return sellAsset;
@@ -173,7 +212,7 @@ export const getChainflipTradeQuote = async (
             buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
             sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
             feeData: {
-              networkFeeCryptoBaseUnit: undefined,
+              networkFeeCryptoBaseUnit: await getGasFee(),
               protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
             },
             rate: boostRate,
@@ -181,7 +220,7 @@ export const getChainflipTradeQuote = async (
             buyAsset: buyAsset,
             sellAsset: sellAsset,
             accountNumber: 0,
-            allowanceContract: "",
+            allowanceContract: "0x0", // Chainflip does not use contracts
             estimatedExecutionTimeMs: singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000
           }
         ]
@@ -200,7 +239,7 @@ export const getChainflipTradeQuote = async (
     const swapSource = singleQuoteResponse.type === "regular"
       ? CHAINFLIP_SWAP_SOURCE
       : CHAINFLIP_DCA_SWAP_SOURCE;
-    
+        
     const tradeQuote: TradeQuote = {
       id: uuid(),
       rate: rate,
@@ -215,7 +254,7 @@ export const getChainflipTradeQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {
-            networkFeeCryptoBaseUnit: undefined,
+            networkFeeCryptoBaseUnit: await getGasFee(),
             protocolFees: getProtocolFees(singleQuoteResponse),
           },
           rate: rate,

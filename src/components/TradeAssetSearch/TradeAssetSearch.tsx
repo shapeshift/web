@@ -52,7 +52,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   formProps,
   allowWalletUnsupportedAssets,
 }) => {
-  const { deviceId, isConnected } = useWallet().state
+  const { walletInfo } = useWallet().state
+  const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
   const translate = useTranslate()
   const history = useHistory()
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>('All')
@@ -61,7 +62,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const portfolioAssetsSortedByBalance = useAppSelector(
     // When no wallet is connected, there is no portfolio, hence we display all Assets
-    deviceId ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
+    hasWallet ? selectPortfolioFungibleAssetsSortedByBalance : selectAssetsSortedByMarketCap,
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -108,13 +109,13 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     const filteredPopularAssets = unfilteredPopularAssets.filter(
       asset => !isSplToken(asset.assetId),
     )
-    if (allowWalletUnsupportedAssets || !isConnected) return filteredPopularAssets
+    if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
     return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [
     popularAssetsByChainId,
     activeChainId,
     allowWalletUnsupportedAssets,
-    isConnected,
+    hasWallet,
     walletConnectedChainIds,
   ])
 
@@ -155,7 +156,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
-      if (allowWalletUnsupportedAssets || !isConnected) {
+      if (allowWalletUnsupportedAssets || !hasWallet) {
         return knownChainIds
       }
 
@@ -165,7 +166,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
 
     return ['All', ...sortedChainIds]
-  }, [allowWalletUnsupportedAssets, isConnected, walletConnectedChainIds])
+  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {
@@ -244,7 +245,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
-          allowWalletUnsupportedAssets={!deviceId || allowWalletUnsupportedAssets}
+          allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
         />
       ) : (
         <DefaultAssetList

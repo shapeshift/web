@@ -11,6 +11,8 @@ import {
 import { makeSwapErrorRight } from "../../../utils";
 import { chainIdToChainflipNetwork } from "../constants";
 import { isSupportedChainId, isSupportedAsset } from "../utils/helpers";
+import { chainflipService } from "../utils/chainflipService";
+import { ChainflipBaasQuoteQuote } from "../models";
 
 export const getChainflipTradeQuote = async (
     input: GetTradeQuoteInput,
@@ -18,8 +20,9 @@ export const getChainflipTradeQuote = async (
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
-    buyAsset,
-    // affiliateBps,
+    buyAsset, 
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+    affiliateBps: commissionBps,
   } = input
   
   if (!isSupportedChainId(sellAsset.chainId)) {
@@ -62,20 +65,23 @@ export const getChainflipTradeQuote = async (
     )
   }
 
-  // @ts-ignore
   const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[sellAsset.chainId as KnownChainIds]}`;
-  // @ts-ignore
   const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[buyAsset.chainId as KnownChainIds]}`;
 
-  // @ts-ignore
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  // TODO: Build the quote request
-    
-  // TODO: Temp error  
-  return Err(
-    makeSwapErrorRight({
-      message: 'Unsupported chain',
-      code: TradeQuoteError.UnsupportedChain,
-    }),
-  )
+  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY; 
+
+    // @ts-ignore
+  const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
+    `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${commissionBps}`,
+  );
+
+  //if (maybeQuoteResponse.isErr()) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Quote request failed',
+        code: TradeQuoteError.NoRouteFound,
+      }),
+    )
+  //}
 }

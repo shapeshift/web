@@ -125,8 +125,6 @@ export const mockStore: ReduxState = {
       FoxPageGovernance: false,
       LimitOrders: false,
       Chainflip: false,
-      ChainflipBoostSwaps: false,
-      ChainflipDcaSwaps: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

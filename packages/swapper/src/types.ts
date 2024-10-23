@@ -50,8 +50,6 @@ export type SwapperConfig = {
   REACT_APP_ZRX_BASE_URL: string,
   REACT_APP_CHAINFLIP_API_KEY: string
   REACT_APP_CHAINFLIP_API_URL: string
-  REACT_APP_FEATURE_CHAINFLIP_BOOST_SWAPS: boolean
-  REACT_APP_FEATURE_CHAINFLIP_DCA_SWAPS: boolean
 }
 
 export enum SwapperName {

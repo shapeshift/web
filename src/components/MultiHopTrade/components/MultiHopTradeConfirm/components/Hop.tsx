@@ -226,6 +226,8 @@ export const Hop = ({
   }, [hopExecutionState, hopIndex, isError])
 
   const LastStepArbitrumBridgeButton = useCallback(() => {
+    if (hopExecutionState !== HopExecutionState.Complete) return
+
     const handleClick = () => {
       history.push('/trade/claim')
     }
@@ -236,7 +238,7 @@ export const Hop = ({
         {translate('bridge.viewClaimStatus')}
       </Button>
     )
-  }, [translate, history])
+  }, [translate, history, hopExecutionState])
 
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>

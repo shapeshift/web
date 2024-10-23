@@ -1,30 +1,33 @@
-import { v4 as uuid } from "uuid";
-import { Err, Ok, Result } from "@sniptt/monads";
-import { KnownChainIds } from "@shapeshiftoss/types";
-import { AssetId, CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
+import {v4 as uuid} from "uuid";
+import {Err, Ok, Result} from "@sniptt/monads";
+import {KnownChainIds} from "@shapeshiftoss/types";
+import {AssetId, CHAIN_NAMESPACE, fromAssetId} from "@shapeshiftoss/caip";
 
 import {
   type GetEvmTradeQuoteInput,
-  GetTradeQuoteInput, type ProtocolFee,
+  GetTradeQuoteInput,
+  type ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
+  SwapperName,
   TradeQuote,
   TradeQuoteError
 } from "../../../types";
-import { getRate, makeSwapErrorRight } from "../../../utils";
+import {getRate, makeSwapErrorRight} from "../../../utils";
 
 import {
-  CHAINFLIP_SWAP_SOURCE,
   CHAINFLIP_BOOST_SWAP_SOURCE,
-  CHAINFLIP_DCA_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+  CHAINFLIP_SWAP_SOURCE,
   chainIdToChainflipNetwork,
   usdcAsset
 } from "../constants";
-import { isSupportedChainId, isSupportedAsset } from "../utils/helpers";
-import { chainflipService } from "../utils/chainflipService";
-import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from "../models";
-import { getEvmTxFees } from "../txFeeHelpers/evmTxFees/getEvmTxFees";
+import {isSupportedAsset, isSupportedChainId} from "../utils/helpers";
+import {chainflipService} from "../utils/chainflipService";
+import {ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee} from "../models";
+import {getEvmTxFees} from "../txFeeHelpers/evmTxFees/getEvmTxFees";
+import {getDefaultSlippageDecimalPercentageForSwapper} from "../../../constants";
 // import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
 
 export const getChainflipTradeQuote = async (
@@ -104,6 +107,8 @@ export const getChainflipTradeQuote = async (
   }
 
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
+  
+  const defaultSlippage = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip);
   
   const getGasFee = async () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId);
@@ -206,7 +211,7 @@ export const getChainflipTradeQuote = async (
         potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming: isStreaming,
-        slippageTolerancePercentageDecimal: undefined,
+        slippageTolerancePercentageDecimal: defaultSlippage,
         steps: [
           {
             buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
@@ -248,7 +253,7 @@ export const getChainflipTradeQuote = async (
       potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming: isStreaming,
-      slippageTolerancePercentageDecimal: undefined,
+      slippageTolerancePercentageDecimal: defaultSlippage,
       steps: [
         {
           buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,

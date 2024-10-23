@@ -281,6 +281,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     },
     [dispatch],
   )
+  console.log({ buyAsset })
 
   const bodyContent = useMemo(() => {
     return (

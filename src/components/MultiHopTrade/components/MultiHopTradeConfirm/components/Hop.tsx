@@ -226,7 +226,7 @@ export const Hop = ({
   }, [hopExecutionState, hopIndex, isError])
 
   const LastStepArbitrumBridgeButton = useCallback(() => {
-    if (hopExecutionState !== HopExecutionState.Complete) return
+    if (hopExecutionState !== HopExecutionState.Complete) return null
 
     const handleClick = () => {
       history.push('/trade/claim')

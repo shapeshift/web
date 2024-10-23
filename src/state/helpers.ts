@@ -5,14 +5,15 @@ import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
-    case SwapperName.Thorchain:
+    case SwapperName.Chainflip:
     case SwapperName.LIFI:
     case SwapperName.OneInch:
+    case SwapperName.Thorchain:
       return true
-    case SwapperName.Zrx:
-    case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
+    case SwapperName.CowSwap:
     case SwapperName.Portals:
+    case SwapperName.Zrx:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -22,25 +23,26 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
 }
 
 export const getEnabledSwappers = (
-  { Portals, LifiSwap, ThorSwap, ZrxSwap, OneInch, ArbitrumBridge, Cowswap }: FeatureFlags,
+  { ArbitrumBridge, Chainflip, Cowswap, LifiSwap, OneInch, Portals, ThorSwap, ZrxSwap  }: FeatureFlags,
   isCrossAccountTrade: boolean,
 ): Record<SwapperName, boolean> => {
   return {
+    [SwapperName.ArbitrumBridge]:
+      ArbitrumBridge && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
+    [SwapperName.Chainflip]:
+      Chainflip && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
+    [SwapperName.CowSwap]:
+      Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
     [SwapperName.LIFI]:
       LifiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.LIFI)),
+    [SwapperName.OneInch]:
+      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
+    [SwapperName.Portals]:
+      Portals && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
     [SwapperName.Thorchain]:
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
     [SwapperName.Zrx]:
       ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
-    [SwapperName.OneInch]:
-      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
-    [SwapperName.CowSwap]:
-      Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
-    [SwapperName.ArbitrumBridge]:
-      ArbitrumBridge &&
-      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
-    [SwapperName.Portals]:
-      Portals && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
     [SwapperName.Test]: false,
   }
 }

@@ -24,6 +24,9 @@ import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
 import { zrxApi } from './swappers/ZrxSwapper/endpoints'
 import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
 import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
+import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
+import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
+import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import type { SupportedChainIds, Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'
@@ -58,7 +61,6 @@ export const swappers: Record<
     ...zrxSwapper,
     ...zrxApi,
     supportedChainIds: ZRX_SUPPORTED_CHAIN_IDS,
-
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.CowSwap]: {
@@ -85,6 +87,12 @@ export const swappers: Record<
     supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  [SwapperName.Chainflip]: {
+    ...chainflipSwapper,
+    ...chainflipApi,
+    supportedChainIds: CHAINFLIP_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -95,6 +103,7 @@ const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
+const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName?: SwapperName,
@@ -115,6 +124,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ArbitrumBridge:
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Chainflip:
+      return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       assertUnreachable(swapperName)
   }

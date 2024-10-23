@@ -47,7 +47,9 @@ export type SwapperConfig = {
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
   REACT_APP_FEATURE_ZRX_PERMIT2: boolean
-  REACT_APP_ZRX_BASE_URL: string
+  REACT_APP_ZRX_BASE_URL: string,
+  REACT_APP_CHAINFLIP_API_URL: string
+  REACT_APP_FEATURE_CHAINFLIP_STREAMING_SWAPS: boolean
 }
 
 export enum SwapperName {
@@ -59,6 +61,7 @@ export enum SwapperName {
   OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
+  Chainflip = 'Chainflip',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

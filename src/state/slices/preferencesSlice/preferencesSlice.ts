@@ -66,7 +66,10 @@ export type FeatureFlags = {
   FoxPageFoxSection: boolean
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
-  LimitOrders: boolean
+  LimitOrders: boolean,
+  Chainflip: boolean,
+  ChainflipBoostSwaps: boolean,
+  ChainflipDcaSwaps: boolean,
 }
 
 export type Flag = keyof FeatureFlags
@@ -159,6 +162,9 @@ const initialState: Preferences = {
     FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
+    Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
+    ChainflipBoostSwaps: getConfig().REACT_APP_FEATURE_CHAINFLIP_BOOST_SWAPS,
+    ChainflipDcaSwaps: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA_SWAPS,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

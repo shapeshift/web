@@ -93,6 +93,7 @@ export const getChainflipTradeQuote = async (
     `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
   );
 
+  // TODO: Throw SellAmountBelowMinimum if that's the cause (parse error response)
   if (maybeQuoteResponse.isErr()) {
     return Err(
       makeSwapErrorRight({

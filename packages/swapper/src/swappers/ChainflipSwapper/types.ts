@@ -9,3 +9,10 @@ export const ChainflipSupportedChainIds = [
 ] as const
 
 export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[number]
+
+export const ChainflipSupportedAssets = {
+  [KnownChainIds.EthereumMainnet]: ['eth', 'flip', 'usdc', 'usdt'],
+  [KnownChainIds.ArbitrumMainnet]: ['arb', 'usdc'],
+  [KnownChainIds.BitcoinMainnet]: ['btc'],
+  [KnownChainIds.SolanaMainnet]: ['sol', 'usdc'],
+}

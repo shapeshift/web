@@ -10,6 +10,7 @@ import {
 } from "../../../types";
 import { makeSwapErrorRight } from "../../../utils";
 import { chainIdToChainflipNetwork } from "../constants";
+import { isSupportedChainId, isSupportedAsset } from "../utils/helpers";
 
 export const getChainflipTradeQuote = async (
     input: GetTradeQuoteInput,
@@ -21,32 +22,54 @@ export const getChainflipTradeQuote = async (
     // affiliateBps,
   } = input
   
-  // TODO: Add checking on support network and asset  
-    
+  if (!isSupportedChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedAsset(sellAsset.chainId, sellAsset.symbol)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: sellAsset.chainId, assetId: sellAsset.assetId },
+      }),
+    )
+  }
+
+  if (!isSupportedAsset(buyAsset.chainId, buyAsset.symbol)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: buyAsset.chainId, assetId: buyAsset.assetId },
+      }),
+    )
+  }
+
+  // @ts-ignore
   const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[sellAsset.chainId as KnownChainIds]}`;
+  // @ts-ignore
   const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[buyAsset.chainId as KnownChainIds]}`;
 
-  // if (sellChainflipChainKey === undefined) {
-  //   return Err(
-  //     makeSwapErrorRight({
-  //       message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-  //       code: TradeQuoteError.UnsupportedTradePair,
-  //     }),
-  //   )
-  // }
-  // if (buyChainflipChainKey === undefined) {
-  //   return Err(
-  //     makeSwapErrorRight({
-  //       message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-  //       code: TradeQuoteError.UnsupportedTradePair,
-  //     }),
-  //   )
-  // }
-    
   // @ts-ignore
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  // TODO: use the generated swagger client to get a quote
-  // TODO: How to get packages/unchained-client/dist/generated/chainflip in here?   
+  // TODO: Build the quote request
     
   // TODO: Temp error  
   return Err(

@@ -1,9 +1,14 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { FeeData, FeeDataEstimate, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type {
+  BuildSendTxInput,
+  FeeData,
+  FeeDataEstimate,
+  GetFeeDataInput,
+} from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import {
   checkIsMetaMaskDesktop,
@@ -88,7 +93,7 @@ export const estimateFees = ({
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
-        chainSpecific: { from: account },
+        chainSpecific: { from: account, tokenId: contractAddress },
       }
       return adapter.getFeeData(getFeeDataInput)
     }
@@ -211,17 +216,23 @@ export const handleSend = async ({
     }
 
     if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Solana) {
+      if (!supportsSolana(wallet)) throw new Error(`useFormSend: wallet does not support solana`)
+
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SolanaMainnet>
-      const input = {
+
+      const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
         chainSpecific: {
+          tokenId: contractAddress,
           computeUnitLimit: fees.chainSpecific.computeUnits,
           computeUnitPrice: fees.chainSpecific.priorityFee,
         },
       }
+
       const adapter = assertGetSolanaChainAdapter(chainId)
       return adapter.buildSendTransaction(input)
     }

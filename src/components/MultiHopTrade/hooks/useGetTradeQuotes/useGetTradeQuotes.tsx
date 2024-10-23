@@ -112,7 +112,10 @@ const getMixPanelDataFromApiQuotes = (
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { walletInfo, wallet },
+  } = useWallet()
+  const hasWallet = Boolean(walletInfo?.deviceId)
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -173,13 +176,22 @@ export const useGetTradeQuotes = () => {
     () =>
       Boolean(
         hasFocus &&
-          wallet &&
-          sellAccountId &&
-          sellAccountMetadata &&
-          receiveAddress &&
-          !isVotingPowerLoading,
+          ((wallet &&
+            sellAccountId &&
+            sellAccountMetadata &&
+            receiveAddress &&
+            !isVotingPowerLoading) ||
+            !hasWallet),
       ),
-    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [
+      hasFocus,
+      wallet,
+      sellAccountId,
+      sellAccountMetadata,
+      receiveAddress,
+      isVotingPowerLoading,
+      hasWallet,
+    ],
   )
 
   useEffect(() => {
@@ -196,18 +208,15 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      !wallet ||
-      !sellAccountId ||
-      !sellAccountMetadata ||
-      !receiveAddress ||
-      isVotingPowerLoading
+      (hasWallet &&
+        (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
     ) {
       setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
       return
     }
     ;(async () => {
-      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+      const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
       const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
@@ -222,13 +231,18 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
+      if (hasWallet && sellAccountNumber === undefined)
+        throw new Error('sellAccountNumber is required')
+      if (hasWallet && !receiveAddress) throw new Error('receiveAddress is required')
+
       const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
         sellAccountNumber,
         receiveAccountNumber,
-        sellAccountType: sellAccountMetadata.accountType,
+        sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
-        wallet,
+        wallet: wallet ?? undefined,
+        hasWallet,
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -236,7 +250,10 @@ export const useGetTradeQuotes = () => {
         potentialAffiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+        pubKey:
+          wallet && isLedger(wallet) && sellAccountId
+            ? fromAccountId(sellAccountId).account
+            : undefined,
       })
 
       setTradeQuoteInput(updatedTradeQuoteInput)
@@ -256,6 +273,7 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
+    hasWallet,
   ])
 
   const getTradeQuoteArgs = useCallback(
@@ -275,7 +293,6 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.OneInch))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))

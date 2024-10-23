@@ -46,7 +46,6 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
-    isAccountsMetadataLoading: false,
     isAccountMetadataLoadingByAccountId: {},
     accounts: {
       byId: {},
@@ -92,7 +91,6 @@ export const mockStore: ReduxState = {
       LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
-      OneInch: false,
       CovalentJaypegs: false,
       Chatwoot: false,
       AdvancedSlippage: false,
@@ -125,6 +123,7 @@ export const mockStore: ReduxState = {
       FoxPageGovernance: false,
       LimitOrders: false,
       Chainflip: false,
+      PublicTradeRoute: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',

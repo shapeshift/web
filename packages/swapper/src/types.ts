@@ -29,7 +29,6 @@ import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
-  REACT_APP_ONE_INCH_API_URL: string
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
   REACT_APP_THORCHAIN_NODE_URL: string
@@ -57,7 +56,6 @@ export enum SwapperName {
   Chainflip = 'Chainflip',
   CowSwap = 'CoW Swap',
   LIFI = 'LI.FI',
-  OneInch = '1INCH',
   Portals = 'Portals',
   Thorchain = 'THORChain',
   Zrx = '0x',
@@ -131,35 +129,69 @@ export type BuyAssetBySellIdInput = {
   config: SwapperConfig
 }
 
-type CommonTradeInput = {
+type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sendAddress?: string
-  receiveAddress: string
-  accountNumber: number
-  receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
 
-export type GetEvmTradeQuoteInput = CommonTradeInput & {
+type CommonTradeQuoteInput = CommonTradeInputBase & {
+  sendAddress?: string
+  receiveAccountNumber?: number
+  receiveAddress: string
+  accountNumber: number
+  hasWallet: true
+}
+
+type CommonTradeRateInput = CommonTradeInputBase & {
+  sendAddress?: undefined
+  receiveAccountNumber?: undefined
+  receiveAddress: undefined
+  accountNumber: undefined
+  hasWallet: false
+}
+
+type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
+
+export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
 }
+export type GetEvmTradeRateInput = CommonTradeRateInput & {
+  chainId: EvmChainId
+  supportsEIP1559: false
+}
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetUtxoTradeQuoteInput = CommonTradeInput & {
+export type GetCosmosSdkTradeRateInput = CommonTradeRateInput & {
+  chainId: CosmosSdkChainId
+}
+
+type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
   accountNumber: number
   xpub: string
 }
+
+type GetUtxoTradeRateInput = CommonTradeRateInput & {
+  chainId: UtxoChainId
+  // We need a dummy script type when getting a quote without a wallet
+  // so we always use SegWit (which works across all UTXO chains)
+  accountType: UtxoAccountType.P2pkh
+  accountNumber: undefined
+  xpub: undefined
+}
+
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet | GetUtxoTradeRateInput
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
@@ -205,7 +237,7 @@ export type TradeQuoteStep = {
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string
+  receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
@@ -244,6 +276,8 @@ export type MultiHopTradeQuote = TradeQuoteBase & {
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
+
+export type TradeQuoteWithReceiveAddress = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 

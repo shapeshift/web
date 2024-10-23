@@ -35,7 +35,7 @@ export const CardWithSparkline: React.FC<{
   if (!asset || !marketData) return null
 
   return (
-    <Card height='352px' width='100%' borderRadius='xl' p={0} as={Button} onClick={handleClick}>
+    <Card height='100%' width='100%' borderRadius='xl' p={0} as={Button} onClick={handleClick}>
       <CardBody
         as={Flex}
         flexDirection='column'

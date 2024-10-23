@@ -28,6 +28,7 @@ import {chainflipService} from "../utils/chainflipService";
 import {ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee} from "../models";
 import {getEvmTxFees} from "../txFeeHelpers/evmTxFees/getEvmTxFees";
 import {getDefaultSlippageDecimalPercentageForSwapper} from "../../../constants";
+import {AxiosError} from "axios";
 // import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
 
 export const getChainflipTradeQuote = async (
@@ -96,8 +97,19 @@ export const getChainflipTradeQuote = async (
     `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
   );
 
-  // TODO: Throw SellAmountBelowMinimum if that's the cause (parse error response)
   if (maybeQuoteResponse.isErr()) {
+    const error = maybeQuoteResponse.unwrapErr();
+    const cause = error.cause as AxiosError<any, any>;
+    
+    if (cause.message.includes("code 400") && cause.response!.data.detail.includes("Amount outside asset bounds")) {
+        return Err(
+          makeSwapErrorRight({
+            message: cause.response!.data.detail,
+            code: TradeQuoteError.SellAmountBelowMinimum,
+          }),
+        )
+    }
+    
     return Err(
       makeSwapErrorRight({
         message: 'Quote request failed',

@@ -1,35 +1,28 @@
-import { Grid, GridItem, Skeleton } from '@chakra-ui/react'
+import { GridItem, Skeleton } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { noop } from 'lodash'
 
-import {
-  colSpanSmallSx,
-  colSpanSparklineSx,
-  colSpanSx,
-  gridTemplateColumnSx,
-  gridTemplateRowsSx,
-  rowSpanSparklineSx,
-} from '../constants'
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
+import { MarketGrid } from './MarketGrid'
 
 type LoadingGridProps = {
   showSparkline?: boolean
 }
 
 export const LoadingGrid: React.FC<LoadingGridProps> = ({ showSparkline }) => (
-  <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+  <MarketGrid>
     {new Array(showSparkline ? 7 : 8).fill(null).map((_, index) => {
       if (showSparkline) {
         return index === 0 ? (
-          <GridItem key={index} rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
-            <Skeleton isLoaded={false}>
+          <GridItem key={index} rowSpan={2} colSpan={2}>
+            <Skeleton isLoaded={false} height='full'>
               <CardWithSparkline assetId={ethAssetId} onClick={noop} />
             </Skeleton>
           </GridItem>
         ) : (
-          <GridItem key={index} colSpan={index <= 6 ? colSpanSmallSx : colSpanSx}>
-            <Skeleton isLoaded={false}>
+          <GridItem key={index}>
+            <Skeleton isLoaded={false} height='full'>
               <AssetCard assetId={ethAssetId} onClick={noop} />
             </Skeleton>
           </GridItem>
@@ -37,12 +30,12 @@ export const LoadingGrid: React.FC<LoadingGridProps> = ({ showSparkline }) => (
       }
 
       return (
-        <GridItem key={index} colSpan={colSpanSx}>
+        <GridItem key={index}>
           <Skeleton isLoaded={false}>
             <AssetCard assetId={ethAssetId} onClick={noop} />
           </Skeleton>
         </GridItem>
       )
     })}
-  </Grid>
+  </MarketGrid>
 )

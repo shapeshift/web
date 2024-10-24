@@ -9,7 +9,12 @@ import type {
   SupportedTradeQuoteStepIndex,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
-import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  isExecutableTradeQuote,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
@@ -219,6 +224,8 @@ export const useTradeExecution = (
       const stepSellAssetAssetId = hop.sellAsset.assetId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
+      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({ accountNumber, wallet })
@@ -254,7 +261,7 @@ export const useTradeExecution = (
       const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
 
       const receiverAddress =
-        tradeQuote.receiveAddress && stepBuyAssetAssetId === bchAssetId
+        stepBuyAssetAssetId === bchAssetId
           ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
           : tradeQuote.receiveAddress
 
@@ -296,6 +303,7 @@ export const useTradeExecution = (
         }
         case CHAIN_NAMESPACE.Utxo: {
           if (accountType === undefined) throw Error('Missing UTXO account type')
+
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })

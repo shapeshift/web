@@ -1,4 +1,3 @@
-import { Grid } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -15,9 +14,7 @@ import { useAppDispatch } from 'state/store'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 import { LoadingGrid } from './LoadingGrid'
 import { LpGridItem } from './LpCard'
-
-const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(20, 1fr)' }
-const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
+import { MarketGrid } from './MarketGrid'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
@@ -56,7 +53,7 @@ export const LpGrid: React.FC<{
 
   return (
     <div ref={ref}>
-      <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+      <MarketGrid>
         {filteredAssetIds.map((assetId, index) => {
           const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
           const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
@@ -72,7 +69,7 @@ export const LpGrid: React.FC<{
             />
           )
         })}
-      </Grid>
+      </MarketGrid>
     </div>
   )
 }

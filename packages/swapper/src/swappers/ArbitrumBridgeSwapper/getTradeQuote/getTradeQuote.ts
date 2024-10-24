@@ -7,6 +7,7 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -17,7 +18,7 @@ import { makeSwapErrorRight } from '../../../utils'
 import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInput, 'supportsEIP1559'> & {
+export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
   wallet: HDWallet
 }
 
@@ -41,9 +42,6 @@ export const getTradeQuoteWithWallet = async (
   return getTradeQuote(
     {
       ...input,
-      sellAsset: input.sellAsset,
-      buyAsset: input.buyAsset,
-      accountNumber: input.accountNumber,
       supportsEIP1559,
     },
     deps,
@@ -63,6 +61,7 @@ export async function getTradeQuote(
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
+    hasWallet,
   } = input
 
   const assertion = await assertValidTrade({ buyAsset, sellAsset })
@@ -73,19 +72,24 @@ export async function getTradeQuote(
   // 15 minutes for deposits, 7 days for withdrawals
   const estimatedExecutionTimeMs = isDeposit ? 15 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000
 
+  if (hasWallet && !(sendAddress && receiveAddress && accountNumber !== undefined)) {
+    throw new Error('sendAddress and receiveAddress are required when a wallet is provided')
+  }
+
   // 1/1 when bridging on Arbitrum bridge
   const rate = '1'
 
   try {
     const swap = await fetchArbitrumBridgeSwap({
-      supportsEIP1559,
+      supportsEIP1559: Boolean(supportsEIP1559),
       chainId,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sellAsset,
-      sendAddress: sendAddress ?? '',
+      sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
+      priceOrQuote: hasWallet ? 'quote' : 'price',
     })
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit

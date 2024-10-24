@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -23,7 +24,6 @@ import {
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
   selectIsAccountMetadataLoadingByAccountId,
-  selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -84,13 +84,15 @@ export const SharedTradeInputBody = ({
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const {
-    state: { wallet },
+    state: { walletInfo, wallet },
   } = useWallet()
+
+  const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo])
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isAccountMetadataLoadingByAccountId = useAppSelector(
     selectIsAccountMetadataLoadingByAccountId,
   )
@@ -169,8 +171,10 @@ export const SharedTradeInputBody = ({
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
+    if (!hasWallet) return false
+
     return !walletSupportsBuyAssetChain || isLoading
-  }, [walletSupportsBuyAssetChain, isLoading])
+  }, [hasWallet, walletSupportsBuyAssetChain, isLoading])
 
   return (
     <Stack spacing={0}>

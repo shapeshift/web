@@ -59,7 +59,14 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
       stakingAssetAccountId,
       stakingAssetId,
     }),
-    [selectedAssetAccountId, selectedAssetId, stakingAssetAccountId, stakingAssetId],
+    [
+      selectedAssetAccountId,
+      selectedAssetId,
+      stakingAssetAccountId,
+      stakingAssetId,
+      setStakingAssetAccountId,
+      setSelectedAssetId,
+    ],
   )
 
   return <RFOXContext.Provider value={value}>{children}</RFOXContext.Provider>

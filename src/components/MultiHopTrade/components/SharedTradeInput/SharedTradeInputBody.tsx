@@ -15,7 +15,6 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -24,6 +23,7 @@ import {
   selectHasUserEnteredAmount,
   selectHighestMarketCapFeeAsset,
   selectIsAccountMetadataLoadingByAccountId,
+  selectIsAccountsMetadataLoading,
   selectWalletConnectedChainIds,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -92,7 +92,7 @@ export const SharedTradeInputBody = ({
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
   const isAccountMetadataLoadingByAccountId = useAppSelector(
     selectIsAccountMetadataLoadingByAccountId,
   )

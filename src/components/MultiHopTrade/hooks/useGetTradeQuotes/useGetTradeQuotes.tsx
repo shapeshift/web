@@ -289,10 +289,11 @@ export const useGetTradeQuotes = () => {
     [shouldRefetchTradeQuotes, tradeQuoteInput],
   )
 
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
 

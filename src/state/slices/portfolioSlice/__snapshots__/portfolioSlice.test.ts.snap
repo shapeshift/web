@@ -31,7 +31,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -81,7 +80,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Bitcoin > should update s
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -154,7 +152,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -212,7 +209,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > Ethereum and bitcoin > sh
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -253,7 +249,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],
@@ -307,7 +302,6 @@ exports[`portfolioSlice > reducers > upsertPortfolio > ethereum > should update 
   },
   "enabledAccountIds": {},
   "isAccountMetadataLoadingByAccountId": {},
-  "isAccountsMetadataLoading": false,
   "wallet": {
     "byId": {},
     "ids": [],

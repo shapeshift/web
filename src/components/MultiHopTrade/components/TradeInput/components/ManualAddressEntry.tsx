@@ -1,5 +1,4 @@
 import { FormControl, FormLabel, Link } from '@chakra-ui/react'
-import { type ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { FC } from 'react'
@@ -9,32 +8,28 @@ import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
+import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import {
-  selectAccountIdsByAssetId,
-  selectIsAnyAccountMetadataLoadingForChainId,
-} from 'state/slices/selectors'
-import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
+  selectFirstHopSellAccountId,
+  selectInputBuyAsset,
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 type ManualAddressEntryProps = {
   description?: string
   shouldForceManualAddressEntry?: boolean
-  chainId: ChainId
 }
 
 export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
-  ({
-    description,
-    shouldForceManualAddressEntry,
-    chainId,
-  }: ManualAddressEntryProps): JSX.Element | null => {
+  ({ description, shouldForceManualAddressEntry }: ManualAddressEntryProps): JSX.Element | null => {
     const dispatch = useAppDispatch()
 
     const {
@@ -61,19 +56,13 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       }),
       [wallet],
     )
+    const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
     const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
 
-    const isAnyAccountMetadataLoadingByChainIdFilter = useMemo(() => ({ chainId }), [chainId])
-    const isAnyAccountMetadataLoadingByChainId = useAppSelector(state =>
-      selectIsAnyAccountMetadataLoadingForChainId(
-        state,
-        isAnyAccountMetadataLoadingByChainIdFilter,
-      ),
-    )
+    const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
     const shouldShowManualReceiveAddressInput = useMemo(() => {
-      // Some AccountIds are loading for that chain - don't show the manual address input since these will eventually be populated
-      if (isAnyAccountMetadataLoadingByChainId) return false
+      if (isAccountsMetadataLoading && !sellAssetAccountId) return false
       if (shouldForceManualAddressEntry) return true
       if (manualReceiveAddress) return false
       // Ledger "supports" all chains, but may not have them connected
@@ -81,7 +70,8 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       // We want to display the manual address entry if the wallet doesn't support the buy asset chain
       return !walletSupportsBuyAssetChain
     }, [
-      isAnyAccountMetadataLoadingByChainId,
+      isAccountsMetadataLoading,
+      sellAssetAccountId,
       shouldForceManualAddressEntry,
       manualReceiveAddress,
       wallet,

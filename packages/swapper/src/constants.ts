@@ -12,9 +12,6 @@ import {
   lifiSwapper,
 } from './swappers/LifiSwapper/LifiSwapper'
 import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
-import { oneInchApi } from './swappers/OneInchSwapper/endpoints'
-import { oneInchSwapper } from './swappers/OneInchSwapper/OneInchSwapper'
-import { ONE_INCH_SUPPORTED_CHAIN_IDS } from './swappers/OneInchSwapper/utils/constants'
 import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
@@ -67,12 +64,6 @@ export const swappers: Record<
     supportedChainIds: COW_SWAP_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
-  [SwapperName.OneInch]: {
-    ...oneInchSwapper,
-    ...oneInchApi,
-    supportedChainIds: ONE_INCH_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
   [SwapperName.ArbitrumBridge]: {
     ...arbitrumBridgeSwapper,
     ...arbitrumBridgeApi,
@@ -102,7 +93,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
     case SwapperName.Zrx:
-    case SwapperName.OneInch:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.LIFI:

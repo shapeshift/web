@@ -10,6 +10,7 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isToken } from 'lib/utils'
@@ -20,7 +21,6 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectIsAccountsMetadataLoading,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
@@ -90,7 +90,8 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
@@ -102,8 +103,7 @@ export const ConfirmSummary = ({
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
-
-  const { sellAssetAccountId } = useAccountIds()
+  const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
   const isTaprootReceiveAddress = useMemo(
     () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
@@ -185,7 +185,7 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isAccountsMetadataLoading && !sellAssetAccountId:
+      case isAccountsMetadataLoading && !(sellAssetAccountId || buyAssetAccountId):
         return 'common.accountsLoading'
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -210,6 +210,7 @@ export const ConfirmSummary = ({
     activeQuoteErrors,
     isAccountsMetadataLoading,
     sellAssetAccountId,
+    buyAssetAccountId,
     shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
     isAnyTradeQuoteLoading,

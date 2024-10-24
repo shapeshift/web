@@ -1,4 +1,5 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { Asset } from '@shapeshiftoss/types'
@@ -215,6 +216,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!wallet) throw Error('missing wallet')
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
+
+      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Unable to execute trade')
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 

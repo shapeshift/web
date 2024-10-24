@@ -16,9 +16,10 @@ import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/c
 import { RecipientAddress } from 'components/MultiHopTrade/components/TradeInput/components/RecipientAddress'
 import { WithLazyMount } from 'components/MultiHopTrade/components/TradeInput/components/WithLazyMount'
 import { Text } from 'components/Text'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { selectFeeAssetById, selectIsAccountsMetadataLoading } from 'state/slices/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
@@ -85,22 +86,25 @@ export const SharedTradeInputFooter = ({
 }: SharedTradeInputFooterProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
-    state: { wallet },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const displayManualAddressEntry = useMemo(() => {
+    if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAssetAccountId) return false
     if (!walletSupportsBuyAssetChain) return true
     if (shouldForceManualAddressEntry) return true
 
     return false
   }, [
+    isConnected,
     isAccountsMetadataLoading,
     sellAssetAccountId,
     walletSupportsBuyAssetChain,
@@ -193,7 +197,6 @@ export const SharedTradeInputFooter = ({
           shouldForceManualAddressEntry={shouldForceManualAddressEntry}
           component={ManualAddressEntry}
           description={manualAddressEntryDescription}
-          chainId={buyAsset.chainId}
         />
 
         <ButtonWalletPredicate

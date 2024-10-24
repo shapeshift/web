@@ -27,7 +27,9 @@ vi.mock('@shapeshiftoss/chain-adapters', async () => {
 
 describe('getTradeQuote', () => {
   const mockAdapter = {
-    getGasFeeData: vi.fn().mockResolvedValue({ fast: { gasPrice: '42', maxFeePerGas: '42' } }),
+    getGasFeeData: vi.fn().mockResolvedValue({
+      average: { gasPrice: '42', maxFeePerGas: '42' },
+    }),
   }
   const mockAdapterEth = Object.assign({}, mockAdapter, {
     getFeeAssetId: () => ethAssetId,

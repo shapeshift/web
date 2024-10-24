@@ -24,6 +24,7 @@ import {
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,
+  isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
@@ -83,6 +84,8 @@ export const lifiApi: SwapperApi = {
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     configureLiFi()
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
     const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
 
     if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)

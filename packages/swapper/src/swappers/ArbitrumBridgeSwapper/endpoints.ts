@@ -82,6 +82,7 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
   return getNitroDepositMessage()
 }
 
+// @ts-expect-error TODO(gomes): implement getTradeRate
 export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,

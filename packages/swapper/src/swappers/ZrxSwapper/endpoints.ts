@@ -6,6 +6,7 @@ import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
+import type { GetEvmTradeRateInput, TradeRate } from '../../types'
 import {
   type EvmTransactionRequest,
   type GetEvmTradeQuoteInput,
@@ -18,7 +19,7 @@ import {
   type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
-import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
+import { getZrxPseudoTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchZrxQuote } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
@@ -26,7 +27,7 @@ export const zrxApi: SwapperApi = {
     input: GetTradeQuoteInput,
     { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getZrxTradeQuote(
+    const tradeQuoteResult = await getZrxPseudoTradeQuote(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
       config.REACT_APP_FEATURE_ZRX_PERMIT2,
@@ -38,7 +39,23 @@ export const zrxApi: SwapperApi = {
       return [tradeQuote]
     })
   },
+  // TODO(gomes): consume me somewhere to test it out
+  getTradeRate: async (
+    input: GetTradeQuoteInput,
+    { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeQuoteResult = await getZrxTradeRate(
+      input as GetEvmTradeRateInput,
+      assertGetEvmChainAdapter,
+      config.REACT_APP_FEATURE_ZRX_PERMIT2,
+      assetsById,
+      config.REACT_APP_ZRX_BASE_URL,
+    )
 
+    return tradeQuoteResult.map(tradeQuote => {
+      return [tradeQuote]
+    })
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

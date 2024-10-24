@@ -12,10 +12,13 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
   SingleHopTradeQuoteSteps,
+  SingleHopTradeRateSteps,
   SwapErrorRight,
   TradeQuote,
   TradeQuoteStep,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -23,22 +26,167 @@ import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxPermit2Price, fetchZrxPermit2Quote, fetchZrxPrice } from '../utils/fetchFromZrx'
 import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
-export function getZrxTradeQuote(
+// We can' just split between quotes and rates just yet, but need a temporary notion of a "quote which is actually a rate which is acting like a quote".
+// This is because of (classic, not permit2 ZRX) being v. weird
+// I've lost too many brain cells with the current flow, and we *have* to have some intermediary notion of a "pseudo-quote", or however we want to call it.
+// The reason why we need this:
+// - Current getTradeQuote endpoint actually calls the `/price` endpoint, which seems relatively simple to tackle and seemingly just a rename needed.
+// - However, we then use the `gas` (gasLimit) property and factor supportsEIP1559 to do pseudo-fees calculation
+// This means that the current implementation isn't really a rate (requires quote input), but not really a quote either (we don't fetch the quote endpoint),
+// and to avoid breaking changes in the interim, we've renamed the current `_getTradeQuote` implementation to this
+// TODO(gomes): ditch this when wiring things up, and bring sanity back to the world
+export function getZrxPseudoTradeQuote(
   input: GetEvmTradeQuoteInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   isPermit2Enabled: boolean,
   assetsById: AssetsByIdPartial,
   zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
-  if (!isPermit2Enabled) return _getZrxTradeQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
+  if (!isPermit2Enabled) return _getZrxTradePseudoQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
   return _getZrxPermit2TradeQuote(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
 }
 
-async function _getZrxTradeQuote(
-  input: GetEvmTradeQuoteInput,
+export function getZrxTradeRate(
+  input: GetEvmTradeRateInput,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  isPermit2Enabled: boolean,
+  assetsById: AssetsByIdPartial,
+  zrxBaseUrl: string,
+): Promise<Result<TradeRate, SwapErrorRight>> {
+  if (!isPermit2Enabled) return _getZrxTradeRate(input, assertGetEvmChainAdapter, zrxBaseUrl)
+  return _getZrxPermit2TradeRate(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
+}
+
+// TODO(gomes): temporary concept for the purpose of being non-breaking, remove me, this really gets a rate
+async function _getZrxTradePseudoQuote(
+  input: GetEvmTradeQuoteInput,
+  _assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
+  const {
+    sellAsset,
+    buyAsset,
+    accountNumber,
+    receiveAddress,
+    affiliateBps,
+    potentialAffiliateBps,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  } = input
+
+  const slippageTolerancePercentageDecimal =
+    input.slippageTolerancePercentageDecimal ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx)
+
+  const sellAssetChainId = sellAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
+
+  if (!isSupportedChainId(sellAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (sellAssetChainId !== buyAssetChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
+        code: TradeQuoteError.CrossChainNotSupported,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
+  const maybeZrxPriceResponse = await fetchZrxPrice({
+    buyAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    receiveAddress,
+    affiliateBps,
+    slippageTolerancePercentageDecimal,
+    zrxBaseUrl,
+  })
+
+  if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
+  const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
+
+  const {
+    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+    grossBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
+    price,
+    allowanceTarget,
+    estimatedGas,
+    gasPrice,
+    expectedSlippage,
+  } = zrxPriceResponse
+
+  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
+  const rate = useSellAmount ? price : bn(1).div(price).toString()
+
+  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+  try {
+    return Ok({
+      id: uuid(),
+      receiveAddress,
+      potentialAffiliateBps,
+      affiliateBps,
+      // Slippage protection is only provided for specific pairs.
+      // If slippage protection is not provided, assume a no slippage limit.
+      // If slippage protection is provided, return the limit instead of the estimated slippage.
+      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+      slippageTolerancePercentageDecimal: expectedSlippage
+        ? slippageTolerancePercentageDecimal
+        : undefined,
+      rate,
+      steps: [
+        {
+          estimatedExecutionTimeMs: undefined,
+          allowanceContract: allowanceTarget,
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          rate,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit: bn(estimatedGas).times(gasPrice).toFixed(), // TODO(gomes): do we still care about L1 fees for rate here?
+          },
+          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          source: SwapperName.Zrx,
+        },
+      ] as SingleHopTradeQuoteSteps,
+    })
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'failed to get fee data',
+        cause: err,
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
+      }),
+    )
+  }
+}
+
+async function _getZrxTradeRate(
+  input: GetEvmTradeRateInput,
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  zrxBaseUrl: string,
+): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -128,6 +276,7 @@ async function _getZrxTradeQuote(
 
     return Ok({
       id: uuid(),
+      accountNumber: undefined,
       receiveAddress,
       potentialAffiliateBps,
       affiliateBps,
@@ -156,7 +305,7 @@ async function _getZrxTradeQuote(
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Zrx,
         },
-      ] as SingleHopTradeQuoteSteps,
+      ] as SingleHopTradeRateSteps,
     })
   } catch (err) {
     return Err(
@@ -187,6 +336,8 @@ async function _getZrxPermit2TradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     hasWallet,
   } = input
+
+  if (!hasWallet) throw new Error('Cannot get a trade quote without a wallet')
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -223,68 +374,6 @@ async function _getZrxPermit2TradeQuote(
         details: { buyAsset, sellAsset },
       }),
     )
-  }
-
-  // If we don't have a wallet, no dice for the permit2 EIP712 data here - but we don't care just yet since we're getting
-  // a *rate* quote, not a *quote* quote on quote quote.
-  if (!hasWallet) {
-    const maybeZrxPriceResponse = await fetchZrxPermit2Price({
-      buyAsset,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      receiveAddress,
-      affiliateBps,
-      slippageTolerancePercentageDecimal,
-      zrxBaseUrl,
-    })
-
-    if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-    const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
-
-    const {
-      buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-      minBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
-      totalNetworkFee,
-    } = zrxPriceResponse
-
-    const rate = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-      .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-      .toString()
-
-    // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
-    // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    const networkFeeCryptoBaseUnit = totalNetworkFee
-    return Ok({
-      id: uuid(),
-      receiveAddress,
-      potentialAffiliateBps,
-      affiliateBps,
-      // Slippage protection is only provided for specific pairs.
-      // If slippage protection is not provided, assume a no slippage limit.
-      // If slippage protection is provided, return the limit instead of the estimated slippage.
-      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
-      slippageTolerancePercentageDecimal,
-      rate,
-      steps: [
-        {
-          estimatedExecutionTimeMs: undefined,
-          // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
-          allowanceContract: undefined,
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          rate,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
-          },
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          source: SwapperName.Zrx,
-        },
-      ] as unknown as SingleHopTradeQuoteSteps,
-    })
   }
 
   const maybeZrxQuoteResponse = await fetchZrxPermit2Quote({
@@ -424,4 +513,118 @@ async function _getZrxPermit2TradeQuote(
       }),
     )
   }
+}
+
+// TODO(gomes): consume me
+async function _getZrxPermit2TradeRate(
+  input: GetEvmTradeRateInput,
+  _assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+  _assetsById: AssetsByIdPartial,
+  zrxBaseUrl: string,
+): Promise<Result<TradeRate, SwapErrorRight>> {
+  const {
+    sellAsset,
+    buyAsset,
+    accountNumber,
+    receiveAddress,
+    affiliateBps,
+    potentialAffiliateBps,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  } = input
+
+  const slippageTolerancePercentageDecimal =
+    input.slippageTolerancePercentageDecimal ??
+    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx)
+
+  const sellAssetChainId = sellAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
+
+  if (!isSupportedChainId(sellAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAssetChainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (sellAssetChainId !== buyAssetChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
+        code: TradeQuoteError.CrossChainNotSupported,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
+  const maybeZrxPriceResponse = await fetchZrxPermit2Price({
+    buyAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    receiveAddress,
+    affiliateBps,
+    slippageTolerancePercentageDecimal,
+    zrxBaseUrl,
+  })
+
+  if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
+  const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
+
+  const {
+    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
+    minBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
+    totalNetworkFee,
+  } = zrxPriceResponse
+
+  const rate = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+    .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+    .toString()
+
+  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
+  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
+  const networkFeeCryptoBaseUnit = totalNetworkFee
+  return Ok({
+    id: uuid(),
+    accountNumber: undefined,
+    receiveAddress,
+    potentialAffiliateBps,
+    affiliateBps,
+    // Slippage protection is only provided for specific pairs.
+    // If slippage protection is not provided, assume a no slippage limit.
+    // If slippage protection is provided, return the limit instead of the estimated slippage.
+    // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+    slippageTolerancePercentageDecimal,
+    rate,
+    steps: [
+      {
+        estimatedExecutionTimeMs: undefined,
+        // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
+        allowanceContract: undefined,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        rate,
+        feeData: {
+          protocolFees: {},
+          networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
+        },
+        buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        source: SwapperName.Zrx,
+      },
+    ] as unknown as SingleHopTradeRateSteps,
+  })
 }

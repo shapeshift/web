@@ -245,6 +245,8 @@ export type TradeQuoteStep = {
   transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
 }
 
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
@@ -256,6 +258,8 @@ type TradeQuoteBase = {
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
 }
+
+type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }
 
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
@@ -273,6 +277,9 @@ type TupleOf<T, N extends number> = N extends N
 export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
 export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
 
+export type SingleHopTradeRateSteps = TupleOf<TradeRateStep, 1>
+export type MultiHopTradeRateSteps = TupleOf<TradeRateStep, 2>
+
 export type SupportedTradeQuoteStepIndex = 0 | 1
 
 export type SingleHopTradeQuote = TradeQuoteBase & {
@@ -286,6 +293,13 @@ export type MultiHopTradeQuote = TradeQuoteBase & {
 // "An interface can only extend an object type or intersection of object types with statically known members."
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
+}
+
+export type TradeRate = TradeRateBase & {
+  steps: SingleHopTradeRateSteps | MultiHopTradeRateSteps
+} & {
+  receiveAddress: undefined
+  accountNumber: undefined
 }
 
 export type TradeQuoteWithReceiveAddress = TradeQuote & { receiveAddress: string }
@@ -379,6 +393,7 @@ export type CheckTradeStatusInput = {
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -423,6 +438,7 @@ export type SwapperApi = {
     message: string | [string, InterpolationOptions] | undefined
   }>
   getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (

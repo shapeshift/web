@@ -45,6 +45,7 @@ const deductOutboundRuneFee = (fee: string): string => {
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
+// @ts-expect-error TODO(gomes): implement getTradeRate
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,

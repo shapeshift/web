@@ -52,6 +52,7 @@ import {
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
+// @ts-expect-error TODO(gomes): implement getTradeRate
 export const cowApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,

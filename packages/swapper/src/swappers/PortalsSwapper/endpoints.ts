@@ -22,6 +22,7 @@ import { chainIdToPortalsNetwork } from './constants'
 import { getPortalsTrade } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { fetchPortalsTradeOrder } from './utils/fetchPortalsTradeOrder'
 
+// @ts-expect-error TODO(gomes): implement getTradeRate
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
     input: GetTradeQuoteInput,

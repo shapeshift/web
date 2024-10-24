@@ -23,11 +23,13 @@ export type BuildTransactionInput<T extends CosmosSdkChainId> = {
 export type BuildTxInput = {
   computeUnitLimit?: string
   computeUnitPrice?: string
+  tokenId?: string
   instructions?: SolanaTxInstruction[]
 }
 
 export type GetFeeDataInput = {
   from: string
+  tokenId?: string
   instructions?: TransactionInstruction[]
 }
 

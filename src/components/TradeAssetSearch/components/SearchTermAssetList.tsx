@@ -6,7 +6,6 @@ import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
-import { isSplToken } from 'lib/utils/solana'
 import {
   selectAssetsSortedByName,
   selectPortfolioUserCurrencyBalances,
@@ -56,17 +55,15 @@ export const SearchTermAssetList = ({
   })
 
   const assetsForChain = useMemo(() => {
-    const filteredAssets = assets.filter(asset => !isSplToken(asset.assetId))
-
     if (activeChainId === 'All') {
-      if (allowWalletUnsupportedAssets) return filteredAssets
-      return filteredAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      if (allowWalletUnsupportedAssets) return assets
+      return assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return filteredAssets.filter(asset => asset.chainId === activeChainId)
+    return assets.filter(asset => asset.chainId === activeChainId)
   }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
 
   const customAssets: Asset[] = useMemo(

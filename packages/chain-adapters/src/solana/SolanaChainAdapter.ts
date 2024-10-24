@@ -6,12 +6,21 @@ import {
   solAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { BigNumber, bn } from '@shapeshiftoss/utils'
+import {
+  createAssociatedTokenAccountInstruction,
+  createTransferInstruction,
+  getAccount,
+  getAssociatedTokenAddressSync,
+  TokenAccountNotFoundError,
+  TokenInvalidAccountOwnerError,
+} from '@solana/spl-token'
+import type { TransactionInstruction } from '@solana/web3.js'
 import {
   ComputeBudgetProgram,
   Connection,
@@ -84,6 +93,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     this.parser = new unchained.solana.TransactionParser({
       assetId: this.assetId,
       chainId: this.chainId,
+      api: this.providers.http,
     })
   }
 
@@ -197,8 +207,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     txToSign: SignTx<KnownChainIds.SolanaMainnet>
   }> {
     try {
-      const { accountNumber, to, value, chainSpecific } = input
+      const { accountNumber, to, chainSpecific, value } = input
+      const { instructions = [], tokenId } = chainSpecific
 
+      const from = await this.getAddress(input)
       const { blockhash } = await this.connection.getLatestBlockhash()
 
       const computeUnitLimit = chainSpecific.computeUnitLimit
@@ -209,15 +221,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? Number(chainSpecific.computeUnitPrice)
         : undefined
 
+      if (tokenId) {
+        const tokenTransferInstructions = await this.buildTokenTransferInstructions({
+          from,
+          to,
+          tokenId,
+          value,
+        })
+
+        instructions.push(
+          ...tokenTransferInstructions.map(instruction => this.convertInstruction(instruction)),
+        )
+      }
+
       const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
         blockHash: blockhash,
         computeUnitLimit,
         computeUnitPrice,
-        // TODO: handle extra instructions
-        instructions: undefined,
-        to,
-        value,
+        instructions,
+        to: tokenId ? '' : to,
+        value: tokenId ? '' : value,
       }
 
       return { txToSign }
@@ -289,7 +313,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {
     const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
 
-    const serializedTx = this.buildEstimationSerializedTx(input)
+    const serializedTx = await this.buildEstimationSerializedTx(input)
     const computeUnits = await this.providers.http.estimateFees({
       estimateFeesBody: { serializedTx },
     })
@@ -362,18 +386,36 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     this.providers.ws.close('txs')
   }
 
-  private buildEstimationSerializedTx(input: GetFeeDataInput<KnownChainIds.SolanaMainnet>): string {
-    const instructions = input.chainSpecific.instructions ?? []
+  private async buildEstimationSerializedTx(
+    input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
+  ): Promise<string> {
+    const { to, chainSpecific } = input
+    const { from, tokenId, instructions = [] } = chainSpecific
+
+    if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
+    if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
     const value = Number(input.value)
-    if (!isNaN(value) && value > 0 && input.to) {
-      instructions.push(
-        SystemProgram.transfer({
-          fromPubkey: new PublicKey(input.chainSpecific.from),
-          toPubkey: new PublicKey(input.to),
-          lamports: value,
-        }),
-      )
+
+    if (!isNaN(value) && value > 0) {
+      if (tokenId) {
+        const tokenTransferInstructions = await this.buildTokenTransferInstructions({
+          from,
+          to,
+          tokenId,
+          value: input.value,
+        })
+
+        instructions.push(...tokenTransferInstructions)
+      } else {
+        instructions.push(
+          SystemProgram.transfer({
+            fromPubkey: new PublicKey(from),
+            toPubkey: new PublicKey(to),
+            lamports: value,
+          }),
+        )
+      }
     }
 
     // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
@@ -393,6 +435,68 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const transaction = new VersionedTransaction(message)
 
     return Buffer.from(transaction.serialize()).toString('base64')
+  }
+
+  private async buildTokenTransferInstructions({
+    from,
+    to,
+    tokenId,
+    value,
+  }: {
+    from: string
+    to: string
+    tokenId: string
+    value: string
+  }): Promise<TransactionInstruction[]> {
+    const instructions: TransactionInstruction[] = []
+
+    const destinationTokenAccount = getAssociatedTokenAddressSync(
+      new PublicKey(tokenId),
+      new PublicKey(to),
+    )
+
+    // check if destination token account exists and add creation instruction if it doesn't
+    try {
+      await getAccount(this.connection, destinationTokenAccount)
+    } catch (err) {
+      if (
+        err instanceof TokenAccountNotFoundError ||
+        err instanceof TokenInvalidAccountOwnerError
+      ) {
+        instructions.push(
+          createAssociatedTokenAccountInstruction(
+            // sender pays for creation of the token account
+            new PublicKey(from),
+            destinationTokenAccount,
+            new PublicKey(to),
+            new PublicKey(tokenId),
+          ),
+        )
+      }
+    }
+
+    instructions.push(
+      createTransferInstruction(
+        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from)),
+        destinationTokenAccount,
+        new PublicKey(from),
+        Number(value),
+      ),
+    )
+
+    return instructions
+  }
+
+  private convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
+    return {
+      keys: instruction.keys.map(key => ({
+        pubkey: key.pubkey.toString(),
+        isSigner: key.isSigner,
+        isWritable: key.isWritable,
+      })),
+      programId: instruction.programId.toString(),
+      data: instruction.data,
+    }
   }
 
   private async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {

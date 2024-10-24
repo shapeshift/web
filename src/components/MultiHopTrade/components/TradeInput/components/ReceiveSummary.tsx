@@ -123,7 +123,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row.Value display='flex' gap={2} alignItems='center'>
               <SwapperIcon size='2xs' swapperName={swapperName as SwapperName} />
               <RawText fontWeight='semibold' color={textColor}>
-                {swapperName}
+                {swapSource}
               </RawText>
             </Row.Value>
           </Row>

@@ -10,7 +10,7 @@ import type {
   TradeQuote,
 } from '@shapeshiftoss/swapper'
 import {
-  getHopByIndex,
+  getTradeQuoteHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   TradeExecutionEvent,
@@ -107,7 +107,7 @@ export const useTradeExecution = (
     if (!swapperName) throw Error('missing swapperName')
     if (!sellAssetAccountId) throw Error('missing sellAssetAccountId')
 
-    const hop = getHopByIndex(tradeQuote, hopIndex)
+    const hop = getTradeQuoteHopByIndex(tradeQuote, hopIndex)
 
     if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 

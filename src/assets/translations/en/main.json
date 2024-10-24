@@ -1011,7 +1011,13 @@
     "placeOrder": "Place Order",
     "viewOrder": "View Order",
     "viewOnChain": "View transaction on chain",
-    "yourOrderHasBeenPlaced": "Your order has been placed."
+    "yourOrderHasBeenPlaced": "Your order has been placed.",
+    "limitPrice": "Limit Price",
+    "provider": "Provider",
+    "expiration": "Expiration",
+    "networkFee":"Network Fee",
+    "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
+    "learnMore": "Learn More"
   },
   "modals": {
     "assetSearch": {

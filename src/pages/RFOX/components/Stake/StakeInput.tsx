@@ -21,7 +21,6 @@ import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopT
 import { TradeAssetInput } from 'components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -36,6 +35,7 @@ import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
+  selectIsAccountsMetadataLoading,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -95,7 +95,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     select: selectRuneAddress,
   })
 
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
   const isBridgeRequired = stakingAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()

@@ -25,6 +25,10 @@ export const WithLazyMount = <T extends object>(props: WithLazyRenderProps<T>) =
   }, Object.values(props))
 
   useEffect(() => {
+    if (!shouldUse || persistentShouldUse.current === true) {
+      return
+    }
+
     persistentShouldUse.current = shouldUse
   }, [shouldUse])
 

@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
+import type { SwapperConfig, SwapperDeps, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -83,6 +83,8 @@ export const swapperApi = createApi({
           fetchIsSmartContractAddressQuery,
           config: getConfig(),
         }
+
+        if (!tradeQuoteInput.receiveAddress) throw new Error('receiveAddress is required')
 
         const quoteResult = await getTradeQuotes(
           {
@@ -291,7 +293,7 @@ export const swapperApi = createApi({
             const inputOutputRatio = getInputOutputRatioFromQuote({
               // We need to get the freshest state after fetching market data above
               state: getState() as ReduxState,
-              quote: rate,
+              quote: rate as unknown as TradeQuote,
               swapperName: rateResult.swapperName,
             })
             return {
@@ -365,9 +367,14 @@ export const swapperApi = createApi({
               }
             }
 
+            // TODO(gomes): this validate trade rate vs. quote, and validateTradeQuote
+            // is most likely to disappear, or at the very least be simplified and there still only for sanity, since
+            // by the time we'll be at quote time, rate will have been validated already
             const { errors, warnings } = validateTradeQuote(state, {
               swapperName,
-              quote: rate,
+              // TODO(gomes): Casted so we don't have to plumb TradeRate in utils just yet
+              // When we have full-on tradeQuoteRate upsertion/utils/selectors, we can remove this
+              quote: rate as unknown as TradeQuote,
               error,
               isTradingActiveOnSellPool,
               isTradingActiveOnBuyPool,

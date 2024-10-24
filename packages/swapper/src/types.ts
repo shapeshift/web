@@ -437,7 +437,10 @@ export type SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }>
-  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (
+    input: GetTradeQuoteInputWithWallet,
+    deps: SwapperDeps,
+  ) => Promise<TradeQuoteResult>
   getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 

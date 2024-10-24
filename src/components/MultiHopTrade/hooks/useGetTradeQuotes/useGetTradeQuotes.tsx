@@ -44,6 +44,7 @@ import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
 import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeRateArgs } from './hooks.tsx/useGetSwapperTradeRate'
 import { useGetSwapperTradeRate } from './hooks.tsx/useGetSwapperTradeRate'
 
 type MixPanelQuoteMeta = {
@@ -297,8 +298,8 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
 
-  // TODO(gomes): This should live in its own module once we implement the actual flow but we're not there yet - this is just validatin we receive happy rates
-  useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Zrx))
+  // TODO(gomes): Types not plumbed here just yet, this should live in its own useGetTradeRates module once we implement the actual flow but we're not there yet - this is just validatin we receive happy rates
+  useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Zrx) as UseGetSwapperTradeRateArgs)
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 

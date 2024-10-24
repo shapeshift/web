@@ -1,12 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { swapperApi, useGetTradeRateQuery } from 'state/apis/swapper/swapperApi'
 import { useAppDispatch } from 'state/store'
 
-export type UseGetSwapperTradeQuoteArgs = {
+export type UseGetSwapperTradeRateArgs = {
   swapperName: SwapperName
+  // TODO(gomes): when we implement useGetTradeRates, this should be tradeRateInput
   tradeQuoteInput: GetTradeRateInput | typeof skipToken
   skip: boolean
   pollingInterval: number | undefined
@@ -17,7 +18,7 @@ export const useGetSwapperTradeRate = ({
   tradeQuoteInput: tradeRateInput,
   pollingInterval,
   skip,
-}: UseGetSwapperTradeQuoteArgs) => {
+}: UseGetSwapperTradeRateArgs) => {
   const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
   const dispatch = useAppDispatch()
   const tradeRateRequest = useMemo(() => {

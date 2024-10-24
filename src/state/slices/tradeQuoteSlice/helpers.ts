@@ -1,5 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
@@ -51,7 +57,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   }, bn(0))
 
 export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number] | TradeRate['steps'][number],
   userCurrencyToUsdRate: string,
   marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
 ): string => {

@@ -199,6 +199,11 @@ export const getChainflipTradeQuote = async (
   
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === "dca";
+
+    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
+      // Streaming swaps are not enabled yet
+      continue;
+    }
         
     if (singleQuoteResponse.boostQuote) {
       const boostRate = getRate({

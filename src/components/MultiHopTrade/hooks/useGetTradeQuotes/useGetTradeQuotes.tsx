@@ -301,6 +301,7 @@ export const useGetTradeQuotes = () => {
   // TODO(gomes): Types not plumbed here just yet, this should live in its own useGetTradeRates module once we implement the actual flow but we're not there yet - this is just validatin we receive happy rates
   useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Zrx) as UseGetSwapperTradeRateArgs)
   useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Portals) as UseGetSwapperTradeRateArgs)
+  useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.CowSwap) as UseGetSwapperTradeRateArgs)
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 

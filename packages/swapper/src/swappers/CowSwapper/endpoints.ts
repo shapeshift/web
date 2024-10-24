@@ -12,10 +12,13 @@ import type {
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
   GetTradeQuoteInput,
+  GetTradeQuoteInputWithWallet,
+  GetTradeRateInput,
   GetUnsignedEvmMessageArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
+  TradeRate,
 } from '../../types'
 import { SwapperName } from '../../types'
 import {
@@ -52,17 +55,28 @@ import {
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
-// @ts-expect-error TODO(gomes): implement getTradeRate
 export const cowApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInputWithWallet,
     { config },
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await (input.hasWallet
-      ? getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)
-      : getCowSwapTradeRate(input as GetEvmTradeRateInput, config))
+    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)
 
     return tradeQuoteResult.map(tradeQuote => {
+      // A quote always has a first step
+      const firstStep = getHopByIndex(tradeQuote, 0)!
+      const id = uuid()
+      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      return [tradeQuote]
+    })
+  },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    { config },
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeRateResult = await getCowSwapTradeRate(input as GetEvmTradeRateInput, config)
+
+    return tradeRateResult.map(tradeQuote => {
       // A quote always has a first step
       const firstStep = getHopByIndex(tradeQuote, 0)!
       const id = uuid()

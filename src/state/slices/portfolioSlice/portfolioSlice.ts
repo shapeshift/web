@@ -40,9 +40,6 @@ export const portfolio = createSlice({
     clear: () => {
       return initialState
     },
-    setIsAccountsMetadataLoading: (state, { payload }: { payload: boolean }) => {
-      state.isAccountsMetadataLoading = payload
-    },
     setIsAccountMetadataLoading: (
       state,
       { payload }: { payload: { accountId: AccountId; isLoading: boolean } },

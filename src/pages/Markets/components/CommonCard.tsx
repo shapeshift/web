@@ -47,7 +47,15 @@ export const CommonCard: React.FC<CommonCardProps> = ({
   if (!assetId) return null
 
   return (
-    <Card as={Button} height='168px' width='100%' borderRadius='2xl' p={0} onClick={handleClick}>
+    <Card
+      as={Button}
+      aspectRatio='4/3'
+      height='100%'
+      width='100%'
+      borderRadius='2xl'
+      p={0}
+      onClick={handleClick}
+    >
       <CardBody
         as={Flex}
         flexDirection='column'

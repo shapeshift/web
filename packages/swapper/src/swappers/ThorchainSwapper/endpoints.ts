@@ -26,7 +26,7 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from '../../types'
-import { checkSafeTransactionStatus } from '../../utils'
+import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
@@ -69,6 +69,8 @@ export const thorchainApi: SwapperApi = {
     assertGetEvmChainAdapter,
     config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const {
       router,
@@ -83,6 +85,8 @@ export const thorchainApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
+
+    if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
 
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -207,10 +211,14 @@ export const thorchainApi: SwapperApi = {
     assertGetUtxoChainAdapter,
     config,
   }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
       steps[0]
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     const { vault, opReturnData } = await getUtxoThorTxInfo({
       sellAsset,
@@ -241,9 +249,13 @@ export const thorchainApi: SwapperApi = {
     from,
     config,
   }: GetUnsignedCosmosSdkTransactionArgs): Promise<StdSignDoc> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit

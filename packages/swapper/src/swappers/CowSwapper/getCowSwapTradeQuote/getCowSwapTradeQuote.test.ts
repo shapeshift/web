@@ -303,7 +303,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   ],
 }
 
-describe('getCowTradeQuote', () => {
+describe('getCowSwapTradeQuote', () => {
   it('should throw an exception if sell asset is not an erc20', async () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
@@ -311,6 +311,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '11111',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -337,6 +338,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -381,6 +383,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: ETH,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -425,6 +428,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: XDAI,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -469,6 +473,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: ETH_ARBITRUM,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '500000',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
@@ -513,6 +518,7 @@ describe('getCowTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
       accountNumber: 0,
+      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',

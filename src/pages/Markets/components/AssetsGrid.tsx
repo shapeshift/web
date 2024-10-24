@@ -1,22 +1,16 @@
-import { Grid, GridItem } from '@chakra-ui/react'
+import { GridItem, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useHistory } from 'react-router'
 import { ResultsEmpty } from 'components/ResultsEmpty'
+import { breakpoints } from 'theme/theme'
 
-import {
-  colSpanSmallSx,
-  colSpanSparklineSx,
-  colSpanSx,
-  gridTemplateColumnSx,
-  gridTemplateRowsSx,
-  rowSpanSparklineSx,
-} from '../constants'
 import { AssetCard } from './AssetCard'
 import { CardWithSparkline } from './CardWithSparkline'
 import { LoadingGrid } from './LoadingGrid'
+import { MarketGrid } from './MarketGrid'
 
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
@@ -29,6 +23,7 @@ export const AssetsGrid: React.FC<{
   showMarketCap?: boolean
 }> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline, showMarketCap }) => {
   const history = useHistory()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const filteredAssetIds = useMemo(
     () =>
@@ -66,26 +61,26 @@ export const AssetsGrid: React.FC<{
     )
 
   return (
-    <Grid templateRows={gridTemplateRowsSx} gridTemplateColumns={gridTemplateColumnSx} gap={4}>
+    <MarketGrid>
       {filteredAssetIds.map((assetId, index) => {
-        if (showSparkline) {
+        if (showSparkline && isLargerThanMd) {
           return index === 0 ? (
-            <GridItem key={assetId} rowSpan={rowSpanSparklineSx} colSpan={colSpanSparklineSx}>
+            <GridItem key={assetId} rowSpan={2} colSpan={2}>
               <CardWithSparkline assetId={assetId} onClick={handleCardClick} />
             </GridItem>
           ) : (
-            <GridItem key={assetId} colSpan={index <= 6 ? colSpanSmallSx : colSpanSx}>
+            <GridItem key={assetId}>
               <AssetCard assetId={assetId} onClick={handleCardClick} />
             </GridItem>
           )
         }
 
         return (
-          <GridItem key={assetId} colSpan={colSpanSx}>
+          <GridItem key={assetId}>
             <AssetCard assetId={assetId} onClick={handleCardClick} showMarketCap={showMarketCap} />
           </GridItem>
         )
       })}
-    </Grid>
+    </MarketGrid>
   )
 }

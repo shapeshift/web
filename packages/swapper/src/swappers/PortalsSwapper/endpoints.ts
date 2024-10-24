@@ -8,28 +8,33 @@ import { zeroAddress } from 'viem'
 
 import type {
   EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeQuoteInputWithWallet,
+  GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from './constants'
-import { getPortalsTrade } from './getPortalsTradeQuote/getPortalsTradeQuote'
+import {
+  getPortalsTradeQuote,
+  getPortalsTradeRate,
+} from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { fetchPortalsTradeOrder } from './utils/fetchPortalsTradeOrder'
 
-// @ts-expect-error TODO(gomes): implement getTradeRate
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInputWithWallet,
     { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getPortalsTrade(
-      input as GetEvmTradeQuoteInput,
+    const tradeQuoteResult = await getPortalsTradeQuote(
+      input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       config,
     )
@@ -38,7 +43,20 @@ export const portalsApi: SwapperApi = {
       return [tradeQuote]
     })
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    { config, assertGetEvmChainAdapter }: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeQuoteResult = await getPortalsTradeRate(
+      input as GetEvmTradeRateInput,
+      assertGetEvmChainAdapter,
+      config,
+    )
 
+    return tradeQuoteResult.map(tradeQuote => {
+      return [tradeQuote]
+    })
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

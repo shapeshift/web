@@ -302,6 +302,10 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Zrx) as UseGetSwapperTradeRateArgs)
   useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Portals) as UseGetSwapperTradeRateArgs)
   useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.CowSwap) as UseGetSwapperTradeRateArgs)
+  useGetSwapperTradeRate(getTradeQuoteArgs(SwapperName.Portals) as UseGetSwapperTradeRateArgs)
+  useGetSwapperTradeRate(
+    getTradeQuoteArgs(SwapperName.ArbitrumBridge) as UseGetSwapperTradeRateArgs,
+  )
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 

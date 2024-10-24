@@ -46,6 +46,7 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
+    isAccountsMetadataLoading: false,
     isAccountMetadataLoadingByAccountId: {},
     accounts: {
       byId: {},

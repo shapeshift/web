@@ -15,7 +15,11 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { fetchArbitrumBridgeSwap } from '../utils/fetchArbitrumBridgeSwap'
+import type { FetchArbitrumBridgeQuoteInput } from '../utils/fetchArbitrumBridgeSwap'
+import {
+  fetchArbitrumBridgePrice,
+  fetchArbitrumBridgeQuote,
+} from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
 export type GetEvmTradeQuoteInputWithWallet = Omit<GetEvmTradeQuoteInputBase, 'supportsEIP1559'> & {
@@ -80,7 +84,7 @@ export async function getTradeQuote(
   const rate = '1'
 
   try {
-    const swap = await fetchArbitrumBridgeSwap({
+    const args = {
       supportsEIP1559: Boolean(supportsEIP1559),
       chainId,
       buyAsset,
@@ -90,7 +94,10 @@ export async function getTradeQuote(
       receiveAddress,
       assertGetEvmChainAdapter,
       priceOrQuote: hasWallet ? 'quote' : 'price',
-    })
+    }
+    const swap = await (hasWallet
+      ? fetchArbitrumBridgeQuote(args as FetchArbitrumBridgeQuoteInput)
+      : fetchArbitrumBridgePrice(args))
 
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
     const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit

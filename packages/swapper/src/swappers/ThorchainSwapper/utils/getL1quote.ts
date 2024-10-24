@@ -18,6 +18,8 @@ import { addLimitToMemo } from '../../../thorchain-utils/memo/addLimitToMemo'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeQuoteInput,
+  GetTradeQuoteInputWithWallet,
+  GetTradeRateInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
@@ -36,7 +38,7 @@ import type {
   ThorEvmTradeQuote,
   ThorTradeQuote,
   ThorTradeUtxoOrCosmosQuote,
-} from '../getThorTradeQuote/getTradeQuote'
+} from '../getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { ThornodeQuoteResponseSuccess } from '../types'
 import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
@@ -46,7 +48,7 @@ import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
-export const getL1quote = async (
+const getL1QuoteOrRate = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
@@ -543,3 +545,19 @@ export const getL1quote = async (
       assertUnreachable(chainNamespace)
   }
 }
+
+export const getL1Rate = (
+  input: GetTradeRateInput,
+  deps: SwapperDeps,
+  streamingInterval: number,
+  tradeType: TradeType,
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> =>
+  getL1QuoteOrRate(input, deps, streamingInterval, tradeType)
+
+export const getL1Quote = (
+  input: GetTradeQuoteInputWithWallet,
+  deps: SwapperDeps,
+  streamingInterval: number,
+  tradeType: TradeType,
+): Promise<Result<ThorTradeQuote[], SwapErrorRight>> =>
+  getL1QuoteOrRate(input, deps, streamingInterval, tradeType)

@@ -9,7 +9,8 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
   EvmMessageToSign,
-  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   GetTradeQuoteInput,
   GetUnsignedEvmMessageArgs,
   SwapErrorRight,
@@ -24,7 +25,10 @@ import {
   isExecutableTradeQuote,
 } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import {
+  getCowSwapTradeQuote,
+  getCowSwapTradeRate,
+} from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowSwapOrder } from './types'
 import {
   CoWSwapBuyTokenDestination,
@@ -53,7 +57,9 @@ export const cowApi: SwapperApi = {
     input: GetTradeQuoteInput,
     { config },
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, config)
+    const tradeQuoteResult = await (input.hasWallet
+      ? getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)
+      : getCowSwapTradeRate(input as GetEvmTradeRateInput, config))
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step

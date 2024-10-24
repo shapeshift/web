@@ -6,7 +6,6 @@ import type {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
@@ -14,14 +13,9 @@ import { BigNumber } from 'ethers5'
 import { arbitrum } from 'viem/chains'
 
 import { BRIDGE_TYPE } from '../types'
-import {
-  fallbackErc20DepositGasLimit,
-  fallbackErc20WithdrawGasLimit,
-  fallbackEthDepositGasLimit,
-  fallbackEthWithdrawGasLimit,
-} from './constants'
+import { getNetworkFeeOrFallbackCryptoBaseUnit } from './helpers'
 
-export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
+type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
@@ -33,7 +27,29 @@ export type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
   priceOrQuote: T
 }
 
-export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
+type FetchArbitrumBridgePriceInput = {
+  supportsEIP1559: boolean
+  chainId: ChainId
+  buyAsset: Asset
+  receiveAddress: string | undefined
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: string | undefined
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}
+
+export type FetchArbitrumBridgeQuoteInput = {
+  supportsEIP1559: boolean
+  chainId: ChainId
+  buyAsset: Asset
+  receiveAddress: string
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  sellAsset: Asset
+  sendAddress: string
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
+}
+
+const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   chainId,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -91,33 +107,12 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
               })
           : undefined
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        // Fallback fees
-        if (!maybeRequest) {
-          const { average } = await adapter.getGasFeeData()
-          const { gasPrice, maxFeePerGas } = average
-
-          // eip1559 fees
-          if (supportsEIP1559 && maxFeePerGas) {
-            return fallbackEthDepositGasLimit.times(maxFeePerGas).toFixed()
-          }
-
-          // legacy fees
-          return fallbackEthDepositGasLimit.times(gasPrice).toFixed()
-        }
-
-        // Actual fees
-        const feeData = await evm.getFees({
-          adapter,
-          data: maybeRequest.txRequest.data.toString(),
-          to: maybeRequest.txRequest.to,
-          value: maybeRequest.txRequest.value.toString(),
-          from: maybeRequest.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const networkFeeCryptoBaseUnit = await getNetworkFeeOrFallbackCryptoBaseUnit({
+        maybeRequest,
+        bridgeType,
+        supportsEIP1559,
+        adapter,
+      })
 
       return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
@@ -138,33 +133,12 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
               })
           : undefined
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        // Fallback fees
-        if (!maybeRequest) {
-          const { average } = await adapter.getGasFeeData()
-          const { gasPrice, maxFeePerGas } = average
-
-          // eip1559 fees
-          if (supportsEIP1559 && maxFeePerGas) {
-            return fallbackEthWithdrawGasLimit.times(maxFeePerGas).toFixed()
-          }
-
-          // legacy fees
-          return fallbackEthWithdrawGasLimit.times(gasPrice).toFixed()
-        }
-
-        // Actual fees
-        const feeData = await evm.getFees({
-          adapter,
-          data: maybeRequest.txRequest.data.toString(),
-          to: maybeRequest.txRequest.to,
-          value: maybeRequest.txRequest.value.toString(),
-          from: maybeRequest.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const networkFeeCryptoBaseUnit = await getNetworkFeeOrFallbackCryptoBaseUnit({
+        maybeRequest,
+        bridgeType,
+        supportsEIP1559,
+        adapter,
+      })
 
       return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
@@ -199,33 +173,12 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
               })
           : undefined
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        // Fallback fees
-        if (!maybeRequest) {
-          const { average } = await adapter.getGasFeeData()
-          const { gasPrice, maxFeePerGas } = average
-
-          // eip1559 fees
-          if (supportsEIP1559 && maxFeePerGas) {
-            return fallbackErc20DepositGasLimit.times(maxFeePerGas).toFixed()
-          }
-
-          // legacy fees
-          return fallbackErc20DepositGasLimit.times(gasPrice).toFixed()
-        }
-
-        // Actual fees
-        const feeData = await evm.getFees({
-          adapter,
-          data: maybeRequest.txRequest.data.toString(),
-          to: maybeRequest.txRequest.to,
-          value: maybeRequest.txRequest.value.toString(),
-          from: maybeRequest.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
+      const networkFeeCryptoBaseUnit = await getNetworkFeeOrFallbackCryptoBaseUnit({
+        maybeRequest,
+        bridgeType,
+        supportsEIP1559,
+        adapter,
+      })
 
       return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract }
     }
@@ -248,36 +201,21 @@ export const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
               })
           : undefined
 
-      const networkFeeCryptoBaseUnit = await (async () => {
-        // Fallback fees
-        if (!maybeRequest) {
-          const { average } = await adapter.getGasFeeData()
-          const { gasPrice, maxFeePerGas } = average
+      const networkFeeCryptoBaseUnit = await getNetworkFeeOrFallbackCryptoBaseUnit({
+        maybeRequest,
+        bridgeType,
+        supportsEIP1559,
+        adapter,
+      })
 
-          // eip1559 fees
-          if (supportsEIP1559 && maxFeePerGas) {
-            return fallbackErc20WithdrawGasLimit.times(maxFeePerGas).toFixed()
-          }
-
-          // legacy fees
-          return fallbackErc20WithdrawGasLimit.times(gasPrice).toFixed()
-        }
-
-        // Actual fees
-        const feeData = await evm.getFees({
-          adapter,
-          data: maybeRequest.txRequest.data.toString(),
-          to: maybeRequest.txRequest.to,
-          value: maybeRequest.txRequest.value.toString(),
-          from: maybeRequest.txRequest.from,
-          supportsEIP1559,
-        })
-
-        return feeData.networkFeeCryptoBaseUnit
-      })()
       return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
     default:
       assertUnreachable(bridgeType)
   }
 }
+
+export const fetchArbitrumBridgePrice = (args: FetchArbitrumBridgePriceInput) =>
+  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'price' })
+export const fetchArbitrumBridgeQuote = (args: FetchArbitrumBridgeQuoteInput) =>
+  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'quote' })

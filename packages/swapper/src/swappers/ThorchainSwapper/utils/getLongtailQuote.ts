@@ -16,13 +16,13 @@ import type {
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '../getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1quote } from './getL1quote'
+import { getL1Quote, getL1Rate } from './getL1quote'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
-export const getLongtailToL1Quote = async (
+export const getLongtailToL1QuoteOrRate = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
@@ -79,12 +79,9 @@ export const getLongtailToL1Quote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuotes = await getL1quote(
-    l1Tol1QuoteInput,
-    deps,
-    streamingInterval,
-    TradeType.LongTailToL1,
-  )
+  const thorchainQuotes = await (l1Tol1QuoteInput.hasWallet
+    ? getL1Quote(l1Tol1QuoteInput, deps, streamingInterval, TradeType.LongTailToL1)
+    : getL1Rate(l1Tol1QuoteInput, deps, streamingInterval, TradeType.LongTailToL1))
 
   return thorchainQuotes.andThen(quotes => {
     const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({

@@ -19,7 +19,7 @@ import type {
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from './constants'
-import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
+import { getPortalsTrade } from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { fetchPortalsTradeOrder } from './utils/fetchPortalsTradeOrder'
 
 export const portalsApi: SwapperApi = {
@@ -27,7 +27,7 @@ export const portalsApi: SwapperApi = {
     input: GetTradeQuoteInput,
     { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getPortalsTradeQuote(
+    const tradeQuoteResult = await getPortalsTrade(
       input as GetEvmTradeQuoteInput,
       assertGetEvmChainAdapter,
       config,

@@ -18,8 +18,8 @@ import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
-import type { ThorEvmTradeQuote } from './getTradeQuote'
-import { getThorTradeQuote } from './getTradeQuote'
+import type { ThorEvmTradeQuote } from './getTradeQuoteOrRate'
+import { getThorTradeQuoteOrRate } from './getTradeQuoteOrRate'
 
 const mockedGetThorTxInfo = vi.mocked(getThorTxInfo)
 const mockedThorService = vi.mocked(thorService)
@@ -219,7 +219,7 @@ describe('getTradeQuote', () => {
       throw Error('not implemented')
     }
 
-    const maybeTradeQuote = await getThorTradeQuote(input, {
+    const maybeTradeQuote = await getThorTradeQuoteOrRate(input, {
       assertGetEvmChainAdapter,
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,

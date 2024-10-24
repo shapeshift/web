@@ -7,9 +7,9 @@ import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
 import type { ThornodePoolResponse } from '../types'
-import { getL1quote } from '../utils/getL1quote'
-import { getL1ToLongtailQuote } from '../utils/getL1ToLongtailQuote'
-import { getLongtailToL1Quote } from '../utils/getLongtailQuote'
+import { getL1Quote, getL1Rate } from '../utils/getL1quote'
+import { getL1ToLongtailQuoteOrRate } from '../utils/getL1ToLongtailQuote'
+import { getLongtailToL1QuoteOrRate } from '../utils/getLongtailQuote'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
@@ -40,7 +40,7 @@ export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
 export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTradeQuote =>
   !!quote && 'tradeType' in quote
 
-export const getThorTradeQuote = async (
+export const getThorTradeQuoteOrRate = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -116,14 +116,16 @@ export const getThorTradeQuote = async (
 
   switch (tradeType) {
     case TradeType.L1ToL1:
-      return getL1quote(input, deps, streamingInterval, tradeType)
+      return input.hasWallet
+        ? getL1Quote(input, deps, streamingInterval, tradeType)
+        : getL1Rate(input, deps, streamingInterval, tradeType)
     case TradeType.LongTailToL1:
-      return getLongtailToL1Quote(input, deps, streamingInterval)
+      return getLongtailToL1QuoteOrRate(input, deps, streamingInterval)
     case TradeType.L1ToLongTail:
       if (!thorchainSwapL1ToLongtailEnabled)
         return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
 
-      return getL1ToLongtailQuote(input, deps, streamingInterval)
+      return getL1ToLongtailQuoteOrRate(input, deps, streamingInterval)
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:

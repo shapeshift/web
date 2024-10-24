@@ -1,5 +1,11 @@
+import type {
+  ChildToParentTransactionRequest,
+  ParentToChildTransactionRequest,
+} from '@arbitrum/sdk'
 import { Erc20Bridger, getArbitrumNetwork } from '@arbitrum/sdk'
 import { arbitrumAssetId, ethAssetId, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider } from '@shapeshiftoss/contracts'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads/build'
@@ -10,6 +16,8 @@ import { arbitrum } from 'viem/chains'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import type { BRIDGE_TYPE } from '../types'
+import { BRIDGE_TYPE_TO_FALLBACK_GAS_LIMIT } from './constants'
 import type { ArbitrumBridgeSupportedChainId } from './types'
 import { arbitrumBridgeSupportedChainIds } from './types'
 
@@ -110,4 +118,44 @@ export const assertValidTrade = async ({
   }
 
   return Ok(true)
+}
+
+export const getNetworkFeeOrFallbackCryptoBaseUnit = async ({
+  maybeRequest,
+  bridgeType,
+  supportsEIP1559,
+  adapter,
+}: {
+  maybeRequest: ParentToChildTransactionRequest | ChildToParentTransactionRequest | undefined
+  bridgeType: BRIDGE_TYPE
+  supportsEIP1559: boolean
+  adapter: EvmChainAdapter
+}) => {
+  // Fallback fees
+  if (!maybeRequest) {
+    const { average } = await adapter.getGasFeeData()
+    const { gasPrice, maxFeePerGas } = average
+
+    const fallbackGasLimit = BRIDGE_TYPE_TO_FALLBACK_GAS_LIMIT[bridgeType]
+
+    // eip1559 fees
+    if (supportsEIP1559 && maxFeePerGas) {
+      return fallbackGasLimit.times(maxFeePerGas).toFixed()
+    }
+
+    // legacy fees
+    return fallbackGasLimit.times(gasPrice).toFixed()
+  }
+
+  // Actual fees
+  const feeData = await evm.getFees({
+    adapter,
+    data: maybeRequest.txRequest.data.toString(),
+    to: maybeRequest.txRequest.to,
+    value: maybeRequest.txRequest.value.toString(),
+    from: maybeRequest.txRequest.from,
+    supportsEIP1559,
+  })
+
+  return feeData.networkFeeCryptoBaseUnit
 }

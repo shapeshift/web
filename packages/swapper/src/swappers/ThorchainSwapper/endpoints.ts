@@ -30,8 +30,8 @@ import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
-import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
+import type { ThorEvmTradeQuote } from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import { getThorTradeQuoteOrRate } from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
@@ -52,7 +52,7 @@ export const thorchainApi: SwapperApi = {
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input
 
-    return await getThorTradeQuote(
+    return await getThorTradeQuoteOrRate(
       {
         ...input,
         affiliateBps,

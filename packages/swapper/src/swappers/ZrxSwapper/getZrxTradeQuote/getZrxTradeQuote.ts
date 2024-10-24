@@ -20,7 +20,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { fetchFromZrx, fetchFromZrxPermit2 } from '../utils/fetchFromZrx'
+import { fetchZrxPermit2Price, fetchZrxPermit2Quote, fetchZrxPrice } from '../utils/fetchFromZrx'
 import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
 export function getZrxTradeQuote(
@@ -88,8 +88,7 @@ async function _getZrxTradeQuote(
     )
   }
 
-  const maybeZrxPriceResponse = await fetchFromZrx({
-    priceOrQuote: 'price',
+  const maybeZrxPriceResponse = await fetchZrxPrice({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -229,8 +228,7 @@ async function _getZrxPermit2TradeQuote(
   // If we don't have a wallet, no dice for the permit2 EIP712 data here - but we don't care just yet since we're getting
   // a *rate* quote, not a *quote* quote on quote quote.
   if (!hasWallet) {
-    const maybeZrxPriceResponse = await fetchFromZrxPermit2({
-      priceOrQuote: 'price',
+    const maybeZrxPriceResponse = await fetchZrxPermit2Price({
       buyAsset,
       sellAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -255,52 +253,41 @@ async function _getZrxPermit2TradeQuote(
 
     // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
     // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-    try {
-      const networkFeeCryptoBaseUnit = totalNetworkFee
-      return Ok({
-        id: uuid(),
-        receiveAddress,
-        potentialAffiliateBps,
-        affiliateBps,
-        // Slippage protection is only provided for specific pairs.
-        // If slippage protection is not provided, assume a no slippage limit.
-        // If slippage protection is provided, return the limit instead of the estimated slippage.
-        // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
-        slippageTolerancePercentageDecimal,
-        rate,
-        steps: [
-          {
-            estimatedExecutionTimeMs: undefined,
-            // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
-            allowanceContract: undefined,
-            buyAsset,
-            sellAsset,
-            accountNumber,
-            rate,
-            feeData: {
-              protocolFees: {},
-              networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
-            },
-            buyAmountBeforeFeesCryptoBaseUnit,
-            buyAmountAfterFeesCryptoBaseUnit,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            source: SwapperName.Zrx,
+    const networkFeeCryptoBaseUnit = totalNetworkFee
+    return Ok({
+      id: uuid(),
+      receiveAddress,
+      potentialAffiliateBps,
+      affiliateBps,
+      // Slippage protection is only provided for specific pairs.
+      // If slippage protection is not provided, assume a no slippage limit.
+      // If slippage protection is provided, return the limit instead of the estimated slippage.
+      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
+      slippageTolerancePercentageDecimal,
+      rate,
+      steps: [
+        {
+          estimatedExecutionTimeMs: undefined,
+          // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
+          allowanceContract: undefined,
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          rate,
+          feeData: {
+            protocolFees: {},
+            networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
           },
-        ] as unknown as SingleHopTradeQuoteSteps,
-      })
-    } catch (err) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'failed to get fee data',
-          cause: err,
-          code: TradeQuoteError.NetworkFeeEstimationFailed,
-        }),
-      )
-    }
+          buyAmountBeforeFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          source: SwapperName.Zrx,
+        },
+      ] as unknown as SingleHopTradeQuoteSteps,
+    })
   }
 
-  const maybeZrxQuoteResponse = await fetchFromZrxPermit2({
-    priceOrQuote: 'quote',
+  const maybeZrxQuoteResponse = await fetchZrxPermit2Quote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,

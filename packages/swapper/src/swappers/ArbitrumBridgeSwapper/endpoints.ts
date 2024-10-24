@@ -21,7 +21,7 @@ import type {
   SwapperDeps,
   TradeQuote,
 } from '../../types'
-import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
+import { checkEvmSwapStatus, getTradeQuoteHopByIndex, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
@@ -92,7 +92,7 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)!
+      const firstHop = getTradeQuoteHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, {
         sellAssetId: firstHop.sellAsset.assetId,
         chainId: firstHop.sellAsset.chainId as EvmChainId,
@@ -109,7 +109,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     supportsEIP1559,
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    const step = getHopByIndex(tradeQuote, stepIndex)
+    const step = getTradeQuoteHopByIndex(tradeQuote, stepIndex)
     if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step

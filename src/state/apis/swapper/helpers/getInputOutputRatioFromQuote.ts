@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
-  getHopByIndex,
+  getTradeQuoteHopByIndex,
   type SupportedTradeQuoteStepIndex,
   type SwapperName,
   type TradeQuote,
@@ -99,11 +99,11 @@ export const getInputOutputRatioFromQuote = ({
   swapperName: SwapperName
 }): number => {
   // A quote always has a first step
-  const firstStep = getHopByIndex(quote, 0)!
+  const firstStep = getTradeQuoteHopByIndex(quote, 0)!
   const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = firstStep
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   // A quote always has a last step since it always has a first
-  const lastStep = getHopByIndex(quote, lastStepIndex)!
+  const lastStep = getTradeQuoteHopByIndex(quote, lastStepIndex)!
   const { buyAsset, buyAmountAfterFeesCryptoBaseUnit: netReceiveAmountCryptoBaseUnit } = lastStep
 
   // If we are trading custom assets we might not have USD rates, so we cannot determine a ratio

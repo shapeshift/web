@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
-  getHopByIndex,
+  getTradeQuoteHopByIndex,
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -285,7 +285,7 @@ export const selectHopTotalProtocolFeesFiatPrecision: Selector<ReduxState, strin
     selectMarketDataUsd,
     (_state: ReduxState, stepIndex: SupportedTradeQuoteStepIndex) => stepIndex,
     (quote, userCurrencyToUsdRate, marketDataUsd, stepIndex) => {
-      const step = getHopByIndex(quote, stepIndex)
+      const step = getTradeQuoteHopByIndex(quote, stepIndex)
       if (!step) return
 
       return getHopTotalProtocolFeesFiatPrecision(step, userCurrencyToUsdRate, marketDataUsd)
@@ -308,7 +308,7 @@ export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefin
   createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
 
 export const selectFirstHop: Selector<ReduxState, TradeQuote['steps'][0] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => getHopByIndex(quote, 0))
+  createDeepEqualOutputSelector(selectActiveQuote, quote => getTradeQuoteHopByIndex(quote, 0))
 
 export const selectLastHop: Selector<
   ReduxState,
@@ -316,12 +316,12 @@ export const selectLastHop: Selector<
 > = createDeepEqualOutputSelector(selectActiveQuote, quote => {
   if (!quote) return
   const stepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
-  return getHopByIndex(quote, stepIndex)
+  return getTradeQuoteHopByIndex(quote, stepIndex)
 })
 
 // selects the second hop if it exists. This is different to "last hop"
 export const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][1] | undefined> =
-  createDeepEqualOutputSelector(selectActiveQuote, quote => getHopByIndex(quote, 1))
+  createDeepEqualOutputSelector(selectActiveQuote, quote => getTradeQuoteHopByIndex(quote, 1))
 
 export const selectFirstHopSellAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(selectFirstHop, firstHop =>

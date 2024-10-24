@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import {
-  getHopByIndex,
+  getTradeQuoteHopByIndex,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
@@ -115,8 +115,8 @@ export const validateTradeQuote = (
   if (hasWallet && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
-  const firstHop = getHopByIndex(quote, 0)!
-  const secondHop = getHopByIndex(quote, 1)
+  const firstHop = getTradeQuoteHopByIndex(quote, 0)!
+  const secondHop = getTradeQuoteHopByIndex(quote, 1)
 
   const isMultiHopTrade = isMultiHopTradeQuote(quote)
 

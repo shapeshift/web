@@ -455,6 +455,10 @@ export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
+export type RateResult = Result<TradeRate[], SwapErrorRight> & {
+  swapperName: SwapperName
+}
+
 export type CommonTradeExecutionInput = {
   swapperName: SwapperName
   tradeQuote: TradeQuote

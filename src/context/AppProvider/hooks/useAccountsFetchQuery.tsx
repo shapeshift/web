@@ -32,6 +32,22 @@ export const useAccountsFetchQuery = () => {
     return enabledWalletAccountIds.length > 0
   }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
 
+  // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
+  // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
+  useEffect(() => {
+    const { getAllTxHistory } = txHistoryApi.endpoints
+
+    // Note no force refetch here - only fetch Tx history once per acccount
+    enabledWalletAccountIds.forEach(accountId => {
+      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
+    })
+
+    // Note no force refetch here - only fetch Tx history once per acccount
+    enabledWalletAccountIds.map(requestedAccountId =>
+      dispatch(getAllTxHistory.initiate(requestedAccountId)),
+    )
+  }, [dispatch, enabledWalletAccountIds])
+
   const queryFn = useCallback(async () => {
     let chainIds = new Set(
       supportedChains.filter(chainId => {
@@ -172,16 +188,7 @@ export const useAccountsFetchQuery = () => {
       await Promise.allSettled(accountNumberAccountIdsPromises)
       chainIds = chainIdsWithActivity
     }
-
-    // Only fetch and upsert Tx history once all are loaded, otherwise big main thread rug
-    const { getAllTxHistory } = txHistoryApi.endpoints
-
-    await Promise.all(
-      enabledWalletAccountIds.map(requestedAccountId =>
-        dispatch(getAllTxHistory.initiate(requestedAccountId)),
-      ),
-    )
-  }, [dispatch, enabledWalletAccountIds, isSnapInstalled, supportedChains, wallet])
+  }, [dispatch, isSnapInstalled, supportedChains, wallet])
 
   const query = useQuery({
     queryKey: [
@@ -193,18 +200,6 @@ export const useAccountsFetchQuery = () => {
     ],
     queryFn: deviceId && !hasManagedAccounts ? queryFn : skipToken,
   })
-
-  // Fetch portfolio for all managed accounts as a side-effect if they exist instead of going through the initial account detection flow.
-  // This ensures that we have fresh portfolio data, but accounts added through account management are not accidentally blown away.
-  useEffect(() => {
-    // Initial accounts fetch query is loading - we know we're not in the context of managed accounts just yet
-    if (query.isLoading || query.isFetching) return
-    if (!hasManagedAccounts) return
-
-    enabledWalletAccountIds.forEach(accountId => {
-      dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
-    })
-  }, [dispatch, enabledWalletAccountIds, hasManagedAccounts, query.isFetching, query.isLoading])
 
   return query
 }

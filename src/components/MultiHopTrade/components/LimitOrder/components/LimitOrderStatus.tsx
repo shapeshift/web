@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, CardFooter, Link } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ethereum } from 'test/mocks/assets'
@@ -18,6 +18,11 @@ export const LimitOrderStatus = () => {
   const history = useHistory()
   const translate = useTranslate()
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)
+
+  // emulate tx executing
+  useEffect(() => {
+    setTimeout(() => setTxStatus(TxStatus.Confirmed), 3000)
+  }, [setTxStatus])
 
   const handleSignAndBroadcast = useCallback(() => {
     switch (txStatus) {

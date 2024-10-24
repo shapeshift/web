@@ -10,9 +10,14 @@ import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperConfig } from '../../../types'
+import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  SingleHopTradeRateSteps,
+  SwapperConfig,
+  TradeRate,
+} from '../../../types'
 import {
-  type GetEvmTradeQuoteInput,
   type SingleHopTradeQuoteSteps,
   type SwapErrorRight,
   SwapperName,
@@ -25,11 +30,11 @@ import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getDummyQuoteParams, isSupportedChainId } from '../utils/helpers'
 
-async function getPortalsTradeRate(
+export async function getPortalsTradeRate(
   input: GetEvmTradeRateInput,
   _assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -123,6 +128,7 @@ async function getPortalsTradeRate(
 
     const tradeRate = {
       id: uuid(),
+      accountNumber,
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,
@@ -149,7 +155,7 @@ async function getPortalsTradeRate(
           },
           source: SwapperName.Portals,
         },
-      ] as unknown as SingleHopTradeQuoteSteps,
+      ] as unknown as SingleHopTradeRateSteps,
     }
 
     return Ok(tradeRate)
@@ -164,7 +170,7 @@ async function getPortalsTradeRate(
   }
 }
 
-async function getPortalsTradeQuote(
+export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
@@ -418,13 +424,4 @@ async function getPortalsTradeQuote(
       }),
     )
   }
-}
-
-export function getPortalsTrade(
-  input: GetEvmTradeQuoteInput,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  swapperConfig: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
-  if (input.hasWallet) return getPortalsTradeQuote(input, assertGetEvmChainAdapter, swapperConfig)
-  return getPortalsTradeRate(input, assertGetEvmChainAdapter, swapperConfig)
 }

@@ -13,16 +13,24 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
   EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeQuoteInputWithWallet,
+  GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../types'
-import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import {
+  checkEvmSwapStatus,
+  getTradeQuoteHopByIndex,
+  getTradeRateHopByIndex,
+  isExecutableTradeQuote,
+} from '../../utils'
+import { getTradeQuote, getTradeRate } from './getTradeQuote/getTradeQuote'
 import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
 
@@ -84,14 +92,30 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
 
 export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInputWithWallet,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps)
+    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInputBase, deps)
 
     return tradeQuoteResult.map(tradeQuote => {
       const id = tradeQuote.id
-      const firstHop = getHopByIndex(tradeQuote, 0)!
+      const firstHop = getTradeQuoteHopByIndex(tradeQuote, 0)!
+      tradeQuoteMetadata.set(id, {
+        sellAssetId: firstHop.sellAsset.assetId,
+        chainId: firstHop.sellAsset.chainId as EvmChainId,
+      })
+      return [tradeQuote]
+    })
+  },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeQuoteResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
+
+    return tradeQuoteResult.map(tradeQuote => {
+      const id = tradeQuote.id
+      const firstHop = getTradeRateHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, {
         sellAssetId: firstHop.sellAsset.assetId,
         chainId: firstHop.sellAsset.chainId as EvmChainId,
@@ -108,7 +132,7 @@ export const arbitrumBridgeApi: SwapperApi = {
     supportsEIP1559,
     assertGetEvmChainAdapter,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
-    const step = getHopByIndex(tradeQuote, stepIndex)
+    const step = getTradeQuoteHopByIndex(tradeQuote, stepIndex)
     if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
     const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step

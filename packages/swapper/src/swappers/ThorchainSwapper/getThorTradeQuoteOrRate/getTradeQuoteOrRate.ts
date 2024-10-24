@@ -2,7 +2,13 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { GetTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type {
+  GetTradeQuoteInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+  TradeRate,
+} from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
@@ -26,6 +32,15 @@ type ThorTradeQuoteSpecificMetadata = {
   }
 }
 export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+    tradeType: TradeType
+  }
+
+export type ThorEvmTradeRate = TradeRate &
   ThorTradeQuoteSpecificMetadata & {
     router: string
     vault: string

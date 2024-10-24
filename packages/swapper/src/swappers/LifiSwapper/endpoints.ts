@@ -37,6 +37,7 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 // cached metadata - would need persistent cache with expiry if moved server-side
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
+// @ts-expect-error TODO(gomes): implement getTradeRate
 export const lifiApi: SwapperApi = {
   // TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
   // We currently need to pass assetsById to avoid instantiating AssetService in web

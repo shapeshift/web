@@ -6,7 +6,12 @@ import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, TradeRate } from '../../types'
+import type {
+  CommonTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  TradeRate,
+} from '../../types'
 import {
   type EvmTransactionRequest,
   type GetTradeQuoteInput,
@@ -23,7 +28,7 @@ import { fetchZrxQuote } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     // TODO(gomes): when we wire this up, this should consume getZrTradeQuote and we should ditch this guy

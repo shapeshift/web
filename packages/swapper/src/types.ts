@@ -136,7 +136,7 @@ type CommonTradeInputBase = {
   slippageTolerancePercentageDecimal?: string
 }
 
-type CommonTradeQuoteInput = CommonTradeInputBase & {
+export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAccountNumber?: number
   receiveAddress: string

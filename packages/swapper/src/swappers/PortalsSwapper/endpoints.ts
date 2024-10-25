@@ -7,10 +7,10 @@ import BigNumber from 'bignumber.js'
 import { zeroAddress } from 'viem'
 
 import type {
+  CommonTradeQuoteInput,
   EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
@@ -30,7 +30,7 @@ import { fetchPortalsTradeOrder } from './utils/fetchPortalsTradeOrder'
 
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInputWithWallet,
+    input: CommonTradeQuoteInput,
     { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getPortalsTradeQuote(

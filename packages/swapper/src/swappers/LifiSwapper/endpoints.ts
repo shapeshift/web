@@ -9,10 +9,10 @@ import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
+  CommonTradeQuoteInput,
   EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapperDeps,
@@ -36,7 +36,7 @@ let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInputWithWallet,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {

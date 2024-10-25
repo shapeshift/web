@@ -8,10 +8,10 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
+  CommonTradeQuoteInput,
   EvmMessageToSign,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUnsignedEvmMessageArgs,
   SwapErrorRight,
@@ -56,7 +56,7 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
 export const cowApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInputWithWallet,
+    input: CommonTradeQuoteInput,
     { config },
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)

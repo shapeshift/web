@@ -12,8 +12,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetTradeQuoteInput,
-  GetTradeQuoteInputWithWallet,
+  CommonTradeQuoteInput,
   GetTradeRateInput,
   MultiHopTradeQuoteSteps,
   MultiHopTradeRateSteps,
@@ -31,7 +30,7 @@ import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
-  input: GetTradeQuoteInputWithWallet,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -97,7 +96,7 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  const l1Tol1QuoteInput: GetTradeQuoteInput = {
+  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
     ...input,
     buyAsset: buyAssetFeeAsset,
     sellAsset,

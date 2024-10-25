@@ -16,8 +16,8 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import { addLimitToMemo } from '../../../thorchain-utils/memo/addLimitToMemo'
 import type {
+  CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
@@ -51,7 +51,7 @@ import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
 import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
 export const getL1Quote = async (
-  input: GetTradeQuoteInputWithWallet,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,

@@ -3,7 +3,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type {
-  GetTradeQuoteInputWithWallet,
+  CommonTradeQuoteInput,
   GetTradeRateInput,
   SwapErrorRight,
   SwapperDeps,
@@ -61,7 +61,7 @@ export const isThorTradeQuote = (quote: TradeQuote | undefined): quote is ThorTr
   !!quote && 'tradeType' in quote
 
 export const getThorTradeQuote = async (
-  input: GetTradeQuoteInputWithWallet,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
   const thorchainSwapLongtailEnabled = deps.config.REACT_APP_FEATURE_THORCHAINSWAP_LONGTAIL

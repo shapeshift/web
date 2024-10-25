@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type {
-  GetTradeQuoteInputWithWallet,
+  CommonTradeQuoteInput,
   GetTradeRateInput,
   MultiHopTradeQuoteSteps,
   MultiHopTradeRateSteps,
@@ -25,7 +25,7 @@ import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getLongtailToL1Quote = async (
-  input: GetTradeQuoteInputWithWallet,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -75,7 +75,7 @@ export const getLongtailToL1Quote = async (
 
   const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
-  const l1Tol1QuoteInput: GetTradeQuoteInputWithWallet = {
+  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
     ...input,
     sellAsset: buyAssetFeeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),

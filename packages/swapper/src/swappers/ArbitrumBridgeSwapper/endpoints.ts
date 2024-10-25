@@ -12,10 +12,10 @@ import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
+  CommonTradeQuoteInput,
   EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
@@ -87,7 +87,7 @@ export const getParentToChildMessageDataFromParentTxHash = async ({
 
 export const arbitrumBridgeApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInputWithWallet,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInputBase, deps)

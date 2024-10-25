@@ -14,9 +14,9 @@ import { encodeFunctionData, parseAbiItem } from 'viem'
 
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
+  CommonTradeQuoteInput,
   CosmosSdkFeeData,
   EvmTransactionRequest,
-  GetTradeQuoteInputWithWallet,
   GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
@@ -56,7 +56,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInputWithWallet,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input

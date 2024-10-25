@@ -22,6 +22,15 @@ export const Category: React.FC = () => {
   const allRows = useRows({ limit: ASSETS_LIMIT })
   const row = allRows[params.category]
 
+  const shouldShowSortFilter = useMemo(() => {
+    if (!params.category) return false
+
+    if (params.category === 'tradingVolume') return false
+    if (params.category === 'marketCap') return false
+
+    return true
+  }, [params.category])
+
   const body = useMemo(
     () => (
       <MarketsRow
@@ -29,11 +38,20 @@ export const Category: React.FC = () => {
         subtitle={row.subtitle}
         supportedChainIds={row.supportedChainIds}
         category={row.category}
+        showOrderFilter
+        showSortFilter={shouldShowSortFilter}
       >
         {row.component}
       </MarketsRow>
     ),
-    [row.category, row.component, row.subtitle, row.supportedChainIds, row.title],
+    [
+      row.category,
+      row.component,
+      row.subtitle,
+      row.supportedChainIds,
+      row.title,
+      shouldShowSortFilter,
+    ],
   )
 
   return (

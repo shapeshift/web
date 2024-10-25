@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
+import type { OrderOptionsKeys } from 'components/OrderDropdown/types'
 import { ResultsEmpty } from 'components/ResultsEmpty'
+import type { SortOptionsKeys } from 'components/SortDropdown/types'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
@@ -23,7 +25,9 @@ export const LpGrid: React.FC<{
   selectedChainId?: ChainId
   isLoading: boolean
   limit: number
-}> = ({ assetIds, selectedChainId, isLoading, limit }) => {
+  orderBy?: OrderOptionsKeys
+  sortBy?: SortOptionsKeys
+}> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
   const history = useHistory()
   const handleCardClick = useCallback(
@@ -77,7 +81,9 @@ export const LpGrid: React.FC<{
 export const OneClickDefiAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
-}> = ({ limit, selectedChainId }) => {
+  orderBy?: OrderOptionsKeys
+  sortBy?: SortOptionsKeys
+}> = ({ limit, selectedChainId, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
   const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
@@ -91,6 +97,8 @@ export const OneClickDefiAssets: React.FC<{
         selectedChainId={selectedChainId}
         isLoading={isPortalsAssetsLoading}
         limit={limit}
+        orderBy={orderBy}
+        sortBy={sortBy}
       />
     </div>
   )
@@ -99,7 +107,9 @@ export const OneClickDefiAssets: React.FC<{
 export const ThorchainAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
-}> = ({ limit, selectedChainId }) => {
+  orderBy?: OrderOptionsKeys
+  sortBy?: SortOptionsKeys
+}> = ({ limit, selectedChainId, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
   const dispatch = useAppDispatch()
   const { data: thorchainAssetIdsData, isLoading: isThorchainAssetIdsDataLoading } = useQuery({
@@ -143,6 +153,8 @@ export const ThorchainAssets: React.FC<{
         selectedChainId={selectedChainId}
         isLoading={isThorchainAssetIdsDataLoading}
         limit={limit}
+        orderBy={orderBy}
+        sortBy={sortBy}
       />
     </div>
   )

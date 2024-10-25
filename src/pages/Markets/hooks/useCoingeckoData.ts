@@ -3,6 +3,8 @@ import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import { makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
+import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { SortOptionsKeys } from 'components/SortDropdown/types'
 import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
   getCoingeckoMarkets,
@@ -93,7 +95,15 @@ const selectCoingeckoAssets = (
   )
 }
 
-export const useTopMoversQuery = ({ enabled = true }: { enabled?: boolean }) => {
+export const useTopMoversQuery = ({
+  enabled = true,
+  orderBy,
+  sortBy,
+}: {
+  enabled?: boolean
+  sortBy?: SortOptionsKeys
+  orderBy?: OrderOptionsKeys
+}) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -107,7 +117,16 @@ export const useTopMoversQuery = ({ enabled = true }: { enabled?: boolean }) => 
   return topMoversQuery
 }
 
-export const useTrendingQuery = ({ enabled = true }: { enabled?: boolean }) => {
+export const useTrendingQuery = ({
+  enabled = true,
+  orderBy,
+  sortBy,
+}: {
+  enabled?: boolean
+
+  sortBy?: SortOptionsKeys
+  orderBy?: OrderOptionsKeys
+}) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -121,7 +140,15 @@ export const useTrendingQuery = ({ enabled = true }: { enabled?: boolean }) => {
   return trendingQuery
 }
 
-export const useRecentlyAddedQuery = ({ enabled = true }: { enabled?: boolean }) => {
+export const useRecentlyAddedQuery = ({
+  enabled = true,
+  orderBy,
+  sortBy,
+}: {
+  enabled?: boolean
+  sortBy?: SortOptionsKeys
+  orderBy?: OrderOptionsKeys
+}) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
@@ -138,16 +165,50 @@ export const useRecentlyAddedQuery = ({ enabled = true }: { enabled?: boolean })
 export const useMarketsQuery = ({
   enabled = true,
   orderBy,
+  sortBy,
 }: {
-  orderBy: 'market_cap_desc' | 'volume_desc'
+  orderBy?: OrderOptionsKeys
+  sortBy?: SortOptionsKeys
   enabled?: boolean
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
 
+  const prefixOrderBy = (() => {
+    switch (sortBy) {
+      case SortOptionsKeys.PRICE_CHANGE:
+        return 'price_change_percentage_24h'
+      case SortOptionsKeys.MARKET_CAP:
+        return 'market_cap'
+      case SortOptionsKeys.VOLUME:
+        return 'volume'
+      default:
+        return 'volume'
+    }
+  })()
+
+  const sort = (() => {
+    switch (orderBy) {
+      case OrderOptionsKeys.ASCENDING:
+        return 'asc'
+      case OrderOptionsKeys.DESCENDING:
+        return 'desc'
+      default:
+        return 'desc'
+    }
+  })()
+
+  const order = `${prefixOrderBy}_${sort}` as
+    | 'market_cap_asc'
+    | 'market_cap_desc'
+    | 'volume_desc'
+    | 'volume_asc'
+    | 'price_change_percentage_24h_desc'
+    | 'price_change_percentage_24h_asc'
+
   const recentlyAddedQuery = useQuery({
-    queryKey: ['coinGeckoMarkets', orderBy],
-    queryFn: enabled ? () => getCoingeckoMarkets(orderBy) : skipToken,
+    queryKey: ['coinGeckoMarkets', order],
+    queryFn: enabled ? () => getCoingeckoMarkets(order) : skipToken,
     staleTime: Infinity,
     select: data => selectCoingeckoAssets(data, dispatch, assets),
   })

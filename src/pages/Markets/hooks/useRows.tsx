@@ -2,6 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper/dist/swappers/PortalsSwapper/constants'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { getCoingeckoSupportedChainIds } from 'lib/coingecko/utils'
 import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
@@ -12,6 +14,8 @@ import { MARKETS_CATEGORIES } from '../constants'
 export type RowProps = {
   selectedChainId: ChainId | undefined
   showSparkline?: boolean
+  sortBy?: SortOptionsKeys
+  orderBy?: OrderOptionsKeys
 }
 
 export const useRows = ({ limit }: { limit: number }) => {
@@ -35,13 +39,14 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline }: RowProps) => (
+        component: ({ selectedChainId, showSparkline, sortBy, orderBy }: RowProps) => (
           <AssetGridWithData
             category={MARKETS_CATEGORIES.TRADING_VOLUME}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
-            orderBy='volume_desc'
+            orderBy={orderBy ?? OrderOptionsKeys.DESCENDING}
+            sortBy={sortBy ?? SortOptionsKeys.VOLUME}
           />
         ),
       },
@@ -50,14 +55,15 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline }: RowProps) => (
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
             category={MARKETS_CATEGORIES.MARKET_CAP}
-            orderBy='market_cap_desc'
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
             showMarketCap
+            orderBy={orderBy ?? OrderOptionsKeys.DESCENDING}
+            sortBy={sortBy ?? SortOptionsKeys.MARKET_CAP}
           />
         ),
       },
@@ -66,12 +72,14 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline }: RowProps) => (
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
             category={MARKETS_CATEGORIES.TRENDING}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
           />
         ),
       },
@@ -82,12 +90,14 @@ export const useRows = ({ limit }: { limit: number }) => {
           percentage: '10',
         }),
         supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline }: RowProps) => (
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
             category={MARKETS_CATEGORIES.TOP_MOVERS}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
           />
         ),
       },
@@ -96,12 +106,14 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
-        component: ({ selectedChainId, showSparkline }: RowProps) => (
+        component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
             category={MARKETS_CATEGORIES.RECENTLY_ADDED}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
           />
         ),
       },
@@ -109,8 +121,13 @@ export const useRows = ({ limit }: { limit: number }) => {
         category: MARKETS_CATEGORIES.ONE_CLICK_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.subtitle`),
-        component: ({ selectedChainId }: RowProps) => (
-          <OneClickDefiAssets selectedChainId={selectedChainId} limit={limit} />
+        component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
+          <OneClickDefiAssets
+            selectedChainId={selectedChainId}
+            limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
+          />
         ),
         supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS.buy,
       },
@@ -118,9 +135,15 @@ export const useRows = ({ limit }: { limit: number }) => {
         category: MARKETS_CATEGORIES.THORCHAIN_DEFI,
         title: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.title`),
         subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.subtitle`),
-        component: ({ selectedChainId }: RowProps) => (
-          <ThorchainAssets selectedChainId={selectedChainId} limit={limit} />
+        component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
+          <ThorchainAssets
+            selectedChainId={selectedChainId}
+            limit={limit}
+            orderBy={orderBy}
+            sortBy={sortBy}
+          />
         ),
+
         supportedChainIds: SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS,
       },
     }),

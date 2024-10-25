@@ -122,7 +122,13 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
 }
 
 export const getCoingeckoMarkets = async (
-  order: 'market_cap_desc' | 'volume_desc',
+  order:
+    | 'market_cap_asc'
+    | 'market_cap_desc'
+    | 'volume_desc'
+    | 'volume_asc'
+    | 'price_change_percentage_24h_desc'
+    | 'price_change_percentage_24h_asc',
 ): Promise<CoingeckoAsset[]> => {
   const { data } = await axios.get<CoinGeckoMarketCap[]>(
     `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}`,

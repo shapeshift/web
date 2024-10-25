@@ -31,6 +31,10 @@ import { chainflipService } from "../utils/chainflipService";
 import { getEvmTxFees } from "../txFeeHelpers/evmTxFees/getEvmTxFees";
 import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
 
+const CHAINFLIP_REGULAR_QUOTE = "regular";
+const CHAINFLIP_DCA_QUOTE = "dca";
+const CHAINFLIP_BAAS_COMMISSION = 5;
+
 export const getChainflipTradeQuote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
@@ -89,7 +93,7 @@ export const getChainflipTradeQuote = async (
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY;
   
   // Subtract the 0.05% BaaS fee to end up at the final displayed commissionBps
-  let serviceCommission = parseInt(commissionBps) - 5;
+  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION;
   if (serviceCommission < 0)
     serviceCommission = 0;
   
@@ -198,7 +202,7 @@ export const getChainflipTradeQuote = async (
   const quotes = [];
   
   for (const singleQuoteResponse of quoteResponse) {
-    const isStreaming = singleQuoteResponse.type === "dca";
+    const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE;
 
     if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
       // Streaming swaps are not enabled yet
@@ -213,7 +217,7 @@ export const getChainflipTradeQuote = async (
         buyAsset,
       })
       
-      const boostSwapSource = singleQuoteResponse.type === "regular"
+      const boostSwapSource = singleQuoteResponse.type === CHAINFLIP_REGULAR_QUOTE
         ? CHAINFLIP_BOOST_SWAP_SOURCE
         : CHAINFLIP_DCA_BOOST_SWAP_SOURCE;
       
@@ -255,7 +259,7 @@ export const getChainflipTradeQuote = async (
       buyAsset,
     })
     
-    const swapSource = singleQuoteResponse.type === "regular"
+    const swapSource = singleQuoteResponse.type === CHAINFLIP_REGULAR_QUOTE
       ? CHAINFLIP_SWAP_SOURCE
       : CHAINFLIP_DCA_SWAP_SOURCE;
         

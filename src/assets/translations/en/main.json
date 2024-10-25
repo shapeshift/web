@@ -1017,7 +1017,8 @@
     "expiration": "Expiration",
     "networkFee":"Network Fee",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
-    "learnMore": "Learn More"
+    "learnMore": "Learn More",
+    "previewOrder": "Preview Order"
   },
   "modals": {
     "assetSearch": {

@@ -106,9 +106,9 @@ export const arbitrumBridgeApi: SwapperApi = {
     input: GetTradeRateInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
+    const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps)
 
-    return tradeQuoteResult.map(tradeQuote => {
+    return tradeRateResult.map(tradeQuote => {
       const id = tradeQuote.id
       const firstHop = getHopByIndex(tradeQuote, 0)!
       tradeQuoteMetadata.set(id, {

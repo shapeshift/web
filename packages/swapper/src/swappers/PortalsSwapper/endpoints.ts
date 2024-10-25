@@ -47,13 +47,13 @@ export const portalsApi: SwapperApi = {
     input: GetTradeRateInput,
     { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getPortalsTradeRate(
+    const tradeRateResult = await getPortalsTradeRate(
       input as GetEvmTradeRateInput,
       assertGetEvmChainAdapter,
       config,
     )
 
-    return tradeQuoteResult.map(tradeQuote => {
+    return tradeRateResult.map(tradeQuote => {
       return [tradeQuote]
     })
   },

@@ -19,22 +19,22 @@ type FetchArbitrumBridgeSwapInput<T extends 'rate' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: T extends 'rate' ? string | undefined : string
+  receiveAddress: T extends 'rate' ? undefined : string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: T extends 'rate' ? string | undefined : string
+  sendAddress: T extends 'rate' ? undefined : string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   quoteOrRate: T
 }
 
 type FetchArbitrumBridgePriceInput = {
-  supportsEIP1559: boolean
+  supportsEIP1559: false
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: string | undefined
+  receiveAddress: undefined
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: string | undefined
+  sendAddress: undefined
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
 }
 

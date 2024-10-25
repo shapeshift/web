@@ -166,7 +166,7 @@ export async function getTradeRate(
 
   try {
     const args = {
-      supportsEIP1559: Boolean(supportsEIP1559),
+      supportsEIP1559,
       chainId,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,

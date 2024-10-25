@@ -61,6 +61,7 @@ export const getTradeQuoteInput = async ({
     potentialAffiliateBps: potentialAffiliateBps ?? '0',
     allowMultiHop,
     slippageTolerancePercentageDecimal,
+    quoteOrRate,
   }
 
   const { chainNamespace } = fromChainId(sellAsset.chainId)

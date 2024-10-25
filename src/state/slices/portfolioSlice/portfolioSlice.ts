@@ -1,31 +1,23 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, fromAccountId, isNft, toAssetId } from '@shapeshiftoss/caip'
-import type { Account } from '@shapeshiftoss/chain-adapters'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { AccountMetadataById, EvmChainId } from '@shapeshiftoss/types'
-import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { makeAsset } from '@shapeshiftoss/utils'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { queryClient } from 'context/QueryClientProvider/queryClient'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from 'lib/portals/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
-import { isSpammyNftText, isSpammyTokenText } from 'state/apis/nft/constants'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
-import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice } from '../assetsSlice/assetsSlice'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
-import { accountToPortfolio, haveSameElements } from './utils'
+import { accountToPortfolio, haveSameElements, makeAssets } from './utils'
 
 type WalletMetaPayload = {
   walletId: WalletId
@@ -181,136 +173,16 @@ export const portfolioApi = createApi({
           const nftCollectionsById = selectNftCollections(state)
 
           const data = await (async (): Promise<Portfolio> => {
-            // add placeholder non spam assets for evm chains
-            if (evmChainIds.includes(chainId as EvmChainId)) {
-              const maybePortalsAccounts = await fetchPortalsAccount(chainId, pubkey)
-              const maybePortalsPlatforms = await queryClient.fetchQuery({
-                queryFn: () => fetchPortalsPlatforms(),
-                queryKey: ['portalsPlatforms'],
-              })
-              const account = portfolioAccounts[pubkey] as Account<EvmChainId>
+            const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
 
-              const assets = (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
-                (prev, token) => {
-                  const isSpam = [token.name, token.symbol].some(text => {
-                    if (isNft(token.assetId)) return isSpammyNftText(text)
-                    return isSpammyTokenText(text)
-                  })
-                  if (state.assets.byId[token.assetId] || isSpam) return prev
-                  let minimalAsset: MinimalAsset = token
-                  const maybePortalsAsset = maybePortalsAccounts[token.assetId]
-                  if (maybePortalsAsset) {
-                    const isPool = Boolean(
-                      maybePortalsAsset.platform && maybePortalsAsset.tokens?.length,
-                    )
-                    const platform = maybePortalsPlatforms[maybePortalsAsset.platform]
+            // upsert placeholder assets
+            if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
 
-                    const name = (() => {
-                      // For single assets, just use the token name
-                      if (!isPool) return maybePortalsAsset.name
-                      // For pools, create a name in the format of "<platform> <assets> Pool"
-                      // e.g "UniswapV2 ETH/FOX Pool"
-                      const assetSymbols =
-                        maybePortalsAsset.tokens?.map(underlyingToken => {
-                          const assetId = toAssetId({
-                            chainId,
-                            assetNamespace:
-                              chainId === bscChainId
-                                ? ASSET_NAMESPACE.bep20
-                                : ASSET_NAMESPACE.erc20,
-                            assetReference: underlyingToken,
-                          })
-                          const underlyingAsset = state.assets.byId[assetId]
-                          if (!underlyingAsset) return undefined
-
-                          // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
-                          // We could potentially use related assets for this and use primary implementation, though we'd have to remove BTC from there as WBTC and BTC are very
-                          // much different assets on diff networks, i.e can't deposit BTC instead of WBTC automagically like you would with ETH instead of WETH
-                          switch (underlyingAsset.symbol) {
-                            case 'WETH':
-                              return 'ETH'
-                            case 'WBNB':
-                              return 'BNB'
-                            case 'WMATIC':
-                              return 'MATIC'
-                            case 'WAVAX':
-                              return 'AVAX'
-                            default:
-                              return underlyingAsset.symbol
-                          }
-                        }) ?? []
-
-                      // Our best effort to contruct sane name using the native asset -> asset naming hack failed, but thankfully, upstream name is very close e.g
-                      // for "UniswapV2 LP TRUST/WETH", we just have to append "Pool" to that and we're gucci
-                      if (assetSymbols.some(symbol => !symbol)) return `${token.name} Pool`
-                      return `${platform.name} ${assetSymbols.join('/')} Pool`
-                    })()
-
-                    const images = maybePortalsAsset.images ?? []
-                    const [, ...underlyingAssetsImages] = images
-                    const iconOrIcons = (() => {
-                      // There are no underlying tokens' images, return asset icon if it exists
-                      if (!underlyingAssetsImages?.length)
-                        return { icon: state.assets.byId[token.assetId]?.icon }
-
-                      if (underlyingAssetsImages.length === 1) {
-                        return {
-                          icon: maybeTokenImage(
-                            maybePortalsAsset.image || underlyingAssetsImages[0],
-                          ),
-                        }
-                      }
-                      // This is a multiple assets pool, populate icons array
-                      if (underlyingAssetsImages.length > 1)
-                        return {
-                          icons: underlyingAssetsImages.map((underlyingAssetsImage, i) => {
-                            // No token at that index, but this isn't reliable as we've found out, it may be missing in tokens but present in images
-                            // However, this has to be an early return and we can't use our own flavour of that asset... because we have no idea which asset it is.
-                            if (!maybePortalsAsset.tokens[i])
-                              return maybeTokenImage(underlyingAssetsImage)
-
-                            const underlyingAssetId = toAssetId({
-                              chainId,
-                              assetNamespace:
-                                chainId === bscChainId
-                                  ? ASSET_NAMESPACE.bep20
-                                  : ASSET_NAMESPACE.erc20,
-                              assetReference: maybePortalsAsset.tokens[i],
-                            })
-                            const underlyingAsset = state.assets.byId[underlyingAssetId]
-                            // Prioritise our own flavour of icons for that asset if available, else use upstream if present
-                            return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
-                          }),
-                          icon: undefined,
-                        }
-                    })()
-
-                    // @ts-ignore this is the best we can do, some icons *may* be missing
-                    minimalAsset = {
-                      ...minimalAsset,
-                      name,
-                      isPool,
-                      ...iconOrIcons,
-                    }
-                  }
-                  prev.byId[token.assetId] = makeAsset(state.assets.byId, minimalAsset)
-                  prev.ids.push(token.assetId)
-                  return prev
-                },
-                { byId: {}, ids: [] },
-              )
-
-              // upsert placeholder assets
-              dispatch(assetSlice.actions.upsertAssets(assets))
-
-              return accountToPortfolio({
-                portfolioAccounts,
-                assetIds: assetIds.concat(assets.ids),
-                nftCollectionsById,
-              })
-            }
-
-            return accountToPortfolio({ portfolioAccounts, assetIds, nftCollectionsById })
+            return accountToPortfolio({
+              portfolioAccounts,
+              assetIds: assetIds.concat(assets?.ids ?? []),
+              nftCollectionsById,
+            })
           })()
 
           upsertOnFetch && dispatch(portfolio.actions.upsertPortfolio(data))

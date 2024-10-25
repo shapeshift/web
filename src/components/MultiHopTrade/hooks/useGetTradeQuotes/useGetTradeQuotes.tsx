@@ -178,14 +178,23 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        hasFocus &&
+        (hasFocus &&
           wallet &&
           sellAccountId &&
           sellAccountMetadata &&
           receiveAddress &&
-          !isVotingPowerLoading,
+          !isVotingPowerLoading) ||
+          quoteOrRate === 'rate',
       ),
-    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [
+      hasFocus,
+      wallet,
+      sellAccountId,
+      sellAccountMetadata,
+      receiveAddress,
+      isVotingPowerLoading,
+      quoteOrRate,
+    ],
   )
 
   useEffect(() => {

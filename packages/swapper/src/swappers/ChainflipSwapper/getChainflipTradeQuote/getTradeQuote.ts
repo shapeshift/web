@@ -94,7 +94,7 @@ export const getChainflipTradeQuote = async (
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY;
   
-  // Subtract the 0.05% BaaS fee to end up at the final displayed commissionBps
+  // Subtract the BaaS fee to end up at the final displayed commissionBps
   let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION;
   if (serviceCommission < 0)
     serviceCommission = 0;
@@ -203,6 +203,21 @@ export const getChainflipTradeQuote = async (
     return protocolFees;
   }
   
+  const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
+    return getRate({
+      sellAmountCryptoBaseUnit: sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    });
+  }
+  
+  const getSwapSource = (swapType: string | undefined, isBoosted: boolean) => {
+    return swapType === CHAINFLIP_REGULAR_QUOTE
+      ? isBoosted ? CHAINFLIP_BOOST_SWAP_SOURCE : CHAINFLIP_SWAP_SOURCE
+      : isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE;
+  }
+  
   const quotes = [];
   
   for (const singleQuoteResponse of quoteResponse) {
@@ -214,16 +229,9 @@ export const getChainflipTradeQuote = async (
     }
         
     if (singleQuoteResponse.boostQuote) {
-      const boostRate = getRate({
-        sellAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative!,
-        buyAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
-        sellAsset,
-        buyAsset,
-      })
-      
-      const boostSwapSource = singleQuoteResponse.type === CHAINFLIP_REGULAR_QUOTE
-        ? CHAINFLIP_BOOST_SWAP_SOURCE
-        : CHAINFLIP_DCA_BOOST_SWAP_SOURCE;
+      const boostRate = getQuoteRate(
+        singleQuoteResponse.boostQuote.ingressAmountNative!,
+        singleQuoteResponse.boostQuote.egressAmountNative!);
       
       const boostTradeQuote: TradeQuote = {
         id: uuid(),
@@ -243,7 +251,7 @@ export const getChainflipTradeQuote = async (
               protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
             },
             rate: boostRate,
-            source: boostSwapSource,
+            source: getSwapSource(singleQuoteResponse.type, true),
             buyAsset: buyAsset,
             sellAsset: sellAsset,
             accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?
@@ -255,18 +263,11 @@ export const getChainflipTradeQuote = async (
 
       quotes.push(boostTradeQuote);
     }
-
-    const rate = getRate({
-      sellAmountCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
-      buyAmountCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
-      sellAsset,
-      buyAsset,
-    })
     
-    const swapSource = singleQuoteResponse.type === CHAINFLIP_REGULAR_QUOTE
-      ? CHAINFLIP_SWAP_SOURCE
-      : CHAINFLIP_DCA_SWAP_SOURCE;
-        
+    const rate = getQuoteRate(
+      singleQuoteResponse.ingressAmountNative!,
+      singleQuoteResponse.egressAmountNative!);
+    
     const tradeQuote: TradeQuote = {
       id: uuid(),
       rate: rate,
@@ -285,7 +286,7 @@ export const getChainflipTradeQuote = async (
             protocolFees: getProtocolFees(singleQuoteResponse),
           },
           rate: rate,
-          source: swapSource,
+          source: getSwapSource(singleQuoteResponse.type, false),
           buyAsset: buyAsset,
           sellAsset: sellAsset,
           accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?

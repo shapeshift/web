@@ -11,6 +11,7 @@ import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/Thorchain
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -113,9 +114,11 @@ const getMixPanelDataFromApiQuotes = (
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
   const {
-    state: { walletInfo, wallet },
+    state: { wallet },
   } = useWallet()
-  const hasWallet = Boolean(walletInfo?.deviceId)
+  const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
+  // TODO(gomes): This is temporary, and we will want to do one better when wiring this up
+  const quoteOrRate = isPublicTradeRouteEnabled ? 'rate' : 'quote'
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -176,22 +179,13 @@ export const useGetTradeQuotes = () => {
     () =>
       Boolean(
         hasFocus &&
-          ((wallet &&
-            sellAccountId &&
-            sellAccountMetadata &&
-            receiveAddress &&
-            !isVotingPowerLoading) ||
-            !hasWallet),
+          wallet &&
+          sellAccountId &&
+          sellAccountMetadata &&
+          receiveAddress &&
+          !isVotingPowerLoading,
       ),
-    [
-      hasFocus,
-      wallet,
-      sellAccountId,
-      sellAccountMetadata,
-      receiveAddress,
-      isVotingPowerLoading,
-      hasWallet,
-    ],
+    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
   )
 
   useEffect(() => {
@@ -208,7 +202,7 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      (hasWallet &&
+      (quoteOrRate === 'quote' &&
         (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
     ) {
       setTradeQuoteInput(skipToken)
@@ -231,9 +225,9 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      if (hasWallet && sellAccountNumber === undefined)
+      if (quoteOrRate === 'quote' && sellAccountNumber === undefined)
         throw new Error('sellAccountNumber is required')
-      if (hasWallet && !receiveAddress) throw new Error('receiveAddress is required')
+      if (quoteOrRate === 'quote' && !receiveAddress) throw new Error('receiveAddress is required')
 
       const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
@@ -242,7 +236,7 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        hasWallet,
+        quoteOrRate,
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -273,7 +267,7 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
-    hasWallet,
+    quoteOrRate,
   ])
 
   const getTradeQuoteArgs = useCallback(

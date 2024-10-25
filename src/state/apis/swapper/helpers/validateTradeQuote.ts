@@ -41,7 +41,7 @@ export const validateTradeQuote = (
     isTradingActiveOnBuyPool,
     sendAddress,
     inputSellAmountCryptoBaseUnit,
-    hasWallet,
+    quoteOrRate,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
@@ -52,7 +52,7 @@ export const validateTradeQuote = (
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
-    hasWallet: boolean
+    quoteOrRate: 'quote' | 'rate'
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -112,7 +112,7 @@ export const validateTradeQuote = (
   }
 
   // This should really never happen in case the wallet *is* connected but in case it does:
-  if (hasWallet && !sendAddress) throw new Error('sendAddress is required')
+  if (quoteOrRate === 'quote' && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!
@@ -257,7 +257,7 @@ export const validateTradeQuote = (
         },
       },
       !walletSupportsIntermediaryAssetChain &&
-        hasWallet &&
+        quoteOrRate === 'quote' &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -266,7 +266,7 @@ export const validateTradeQuote = (
           },
         },
       !firstHopHasSufficientBalanceForGas &&
-        hasWallet && {
+        quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
             assetSymbol: firstHopSellFeeAsset?.symbol,
@@ -276,7 +276,7 @@ export const validateTradeQuote = (
           },
         },
       !secondHopHasSufficientBalanceForGas &&
-        hasWallet && {
+        quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
           meta: {
             assetSymbol: secondHopSellFeeAsset?.symbol,

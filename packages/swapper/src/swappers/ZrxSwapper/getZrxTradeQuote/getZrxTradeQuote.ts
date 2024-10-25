@@ -12,6 +12,7 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
   SingleHopTradeQuoteSteps,
   SingleHopTradeRateSteps,
@@ -41,7 +42,7 @@ import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../uti
 // and to avoid breaking changes in the interim, we've renamed the current `_getTradeQuote` implementation to this
 // TODO(gomes): ditch this when wiring things up, and bring sanity back to the world
 export function getZrxPseudoTradeQuote(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   isPermit2Enabled: boolean,
   assetsById: AssetsByIdPartial,
@@ -52,7 +53,7 @@ export function getZrxPseudoTradeQuote(
 }
 
 export function getZrxTradeQuote(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   isPermit2Enabled: boolean,
   assetsById: AssetsByIdPartial,
@@ -475,7 +476,7 @@ async function _getZrxTradeRate(
 }
 
 async function _getZrxPermit2TradeQuote(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   assetsById: AssetsByIdPartial,
   zrxBaseUrl: string,
@@ -490,10 +491,7 @@ async function _getZrxPermit2TradeQuote(
     chainId,
     supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    hasWallet,
   } = input
-
-  if (!hasWallet) throw new Error('Cannot get a trade quote without a wallet')
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??

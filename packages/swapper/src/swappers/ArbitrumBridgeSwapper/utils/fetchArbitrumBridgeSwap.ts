@@ -15,16 +15,16 @@ import { arbitrum } from 'viem/chains'
 import { BRIDGE_TYPE } from '../types'
 import { getNetworkFeeOrFallbackCryptoBaseUnit } from './helpers'
 
-type FetchArbitrumBridgeSwapInput<T extends 'price' | 'quote'> = {
+type FetchArbitrumBridgeSwapInput<T extends 'rate' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: T extends 'price' ? string | undefined : string
+  receiveAddress: T extends 'rate' ? string | undefined : string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
-  sendAddress: T extends 'price' ? string | undefined : string
+  sendAddress: T extends 'rate' ? string | undefined : string
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
-  priceOrQuote: T
+  quoteOrRate: T
 }
 
 type FetchArbitrumBridgePriceInput = {
@@ -49,7 +49,7 @@ export type FetchArbitrumBridgeQuoteInput = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
 }
 
-const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
+const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
   chainId,
   buyAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -58,7 +58,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   receiveAddress,
   supportsEIP1559,
   assertGetEvmChainAdapter,
-  priceOrQuote,
+  quoteOrRate,
 }: FetchArbitrumBridgeSwapInput<T>): Promise<{
   request:
     | Omit<ParentToChildTransactionRequest | ChildToParentTransactionRequest, 'retryableData'>
@@ -66,9 +66,9 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
   allowanceContract: string
   networkFeeCryptoBaseUnit: string
 }> => {
-  if (priceOrQuote === 'quote' && !receiveAddress)
+  if (quoteOrRate === 'quote' && !receiveAddress)
     throw new Error('receiveAddress is required for Arbitrum Bridge quotes')
-  if (priceOrQuote === 'quote' && !sendAddress)
+  if (quoteOrRate === 'quote' && !sendAddress)
     throw new Error('sendAddress is required for Arbitrum Bridge quotes')
 
   const adapter = assertGetEvmChainAdapter(chainId)
@@ -92,7 +92,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
       const bridger = new EthBridger(l2Network)
 
       const maybeRequest =
-        priceOrQuote === 'quote'
+        quoteOrRate === 'quote'
           ? await bridger
               .getDepositToRequest({
                 parentProvider,
@@ -120,7 +120,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
       const bridger = new EthBridger(l2Network)
 
       const maybeRequest =
-        priceOrQuote === 'quote'
+        quoteOrRate === 'quote'
           ? await bridger
               .getWithdrawalRequest({
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
@@ -151,7 +151,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
       )
 
       const maybeRequest =
-        priceOrQuote === 'quote'
+        quoteOrRate === 'quote'
           ? await bridger
               .getDepositRequest({
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
@@ -187,7 +187,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
       const erc20ParentAddress = fromAssetId(buyAsset.assetId).assetReference
 
       const maybeRequest =
-        priceOrQuote === 'quote'
+        quoteOrRate === 'quote'
           ? await bridger
               .getWithdrawalRequest({
                 amount: BigNumber.from(sellAmountIncludingProtocolFeesCryptoBaseUnit),
@@ -216,6 +216,6 @@ const fetchArbitrumBridgeSwap = async <T extends 'price' | 'quote'>({
 }
 
 export const fetchArbitrumBridgePrice = (args: FetchArbitrumBridgePriceInput) =>
-  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'price' })
+  fetchArbitrumBridgeSwap({ ...args, quoteOrRate: 'rate' })
 export const fetchArbitrumBridgeQuote = (args: FetchArbitrumBridgeQuoteInput) =>
-  fetchArbitrumBridgeSwap({ ...args, priceOrQuote: 'quote' })
+  fetchArbitrumBridgeSwap({ ...args, quoteOrRate: 'quote' })

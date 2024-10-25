@@ -25,7 +25,7 @@ export type GetTradeQuoteInputArgs = {
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
-  hasWallet: boolean
+  quoteOrRate: 'quote' | 'rate'
   receiveAccountNumber?: number
   receiveAddress: string | undefined
   sellAccountNumber: number | undefined
@@ -38,7 +38,7 @@ export const getTradeQuoteInput = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
-  hasWallet,
+  quoteOrRate,
   receiveAddress,
   receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
@@ -78,13 +78,15 @@ export const getTradeQuoteInput = async ({
             })
           : undefined
 
-      if (hasWallet && (receiveAccountNumber === undefined || receiveAddress === undefined))
+      if (
+        quoteOrRate === 'quote' &&
+        (receiveAccountNumber === undefined || receiveAddress === undefined)
+      )
         throw new Error('missing receiveAccountNumber')
 
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as EvmChainId,
-        hasWallet,
         supportsEIP1559: Boolean(supportsEIP1559),
         sendAddress,
         receiveAccountNumber,
@@ -104,7 +106,6 @@ export const getTradeQuoteInput = async ({
 
       return {
         ...tradeQuoteInputCommonArgs,
-        hasWallet,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
         receiveAccountNumber,
@@ -112,7 +113,7 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!(hasWallet && wallet))
+      if (!(quoteOrRate === 'quote' && wallet))
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
@@ -122,7 +123,7 @@ export const getTradeQuoteInput = async ({
           receiveAddress: undefined,
           accountNumber: undefined,
           xpub: undefined,
-          hasWallet: false,
+          quoteOrRate: 'rate',
         }
 
       if (!sellAccountType) throw Error('missing account type')
@@ -143,12 +144,12 @@ export const getTradeQuoteInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,
-        hasWallet,
         receiveAddress,
         accountNumber: sellAccountNumber,
         accountType: sellAccountType,
         xpub,
         sendAddress,
+        quoteOrRate,
       }
     }
     case CHAIN_NAMESPACE.Solana: {

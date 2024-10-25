@@ -4,8 +4,7 @@ import type { SwapperConfig } from '../../../types'
 
 // non-exhaustive
 type PortalsTradeOrderParams = {
-  sender: string | undefined
-  hasWallet: boolean
+  sender: string
   inputToken: string
   inputAmount: string
   outputToken: string
@@ -18,7 +17,10 @@ type PortalsTradeOrderParams = {
   swapperConfig: SwapperConfig
 }
 
-type PortalsTradeOrderEstimateParams = Omit<PortalsTradeOrderParams, 'partner' | 'validate'>
+type PortalsTradeOrderEstimateParams = Omit<
+  PortalsTradeOrderParams,
+  'partner' | 'validate' | 'sender'
+> & { sender: string | undefined }
 
 type PortalsTradeOrderResponse = {
   context: {
@@ -82,11 +84,8 @@ export const fetchPortalsTradeOrder = async ({
   feePercentage,
   validate,
   swapperConfig,
-  hasWallet,
 }: PortalsTradeOrderParams): Promise<PortalsTradeOrderResponse> => {
   const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal`
-
-  if (hasWallet && !sender) throw new Error('Missing sender address')
 
   const params = new URLSearchParams({
     partner,
@@ -123,11 +122,8 @@ export const fetchPortalsTradeEstimate = async ({
   outputToken,
   slippageTolerancePercentage,
   swapperConfig,
-  hasWallet,
 }: PortalsTradeOrderEstimateParams): Promise<PortalsTradeOrderEstimateResponse> => {
   const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal/estimate`
-
-  if (hasWallet && !sender) throw new Error('Missing sender address')
 
   const params = new URLSearchParams({
     ...(sender ? { sender } : {}),

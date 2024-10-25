@@ -89,7 +89,6 @@ export const portalsApi: SwapperApi = {
     // approved the token they are getting a quote for.
     // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      hasWallet: true,
       sender: from,
       inputToken,
       outputToken,

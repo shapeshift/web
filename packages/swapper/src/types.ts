@@ -141,7 +141,7 @@ type CommonTradeQuoteInput = CommonTradeInputBase & {
   receiveAccountNumber?: number
   receiveAddress: string
   accountNumber: number
-  hasWallet: true
+  quoteOrRate: 'quote'
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
@@ -149,7 +149,7 @@ type CommonTradeRateInput = CommonTradeInputBase & {
   receiveAccountNumber?: undefined
   receiveAddress: undefined
   accountNumber: undefined
-  hasWallet: false
+  quoteOrRate: 'rate'
 }
 
 type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput

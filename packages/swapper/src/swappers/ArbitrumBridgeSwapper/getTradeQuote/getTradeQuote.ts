@@ -92,7 +92,7 @@ export async function getTradeQuote(
       sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
-      priceOrQuote: 'quote',
+      quoteOrRate: 'quote',
     }
     const swap = await fetchArbitrumBridgeQuote(args as FetchArbitrumBridgeQuoteInput)
 
@@ -174,7 +174,7 @@ export async function getTradeRate(
       sendAddress,
       receiveAddress,
       assertGetEvmChainAdapter,
-      priceOrQuote: 'price',
+      quoteOrRate: 'rate',
     }
     const swap = await fetchArbitrumBridgePrice(args)
 

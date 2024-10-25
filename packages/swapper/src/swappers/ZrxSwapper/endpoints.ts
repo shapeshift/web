@@ -6,10 +6,9 @@ import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
-import type { GetEvmTradeRateInput, TradeRate } from '../../types'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, TradeRate } from '../../types'
 import {
   type EvmTransactionRequest,
-  type GetEvmTradeQuoteInput,
   type GetTradeQuoteInput,
   type GetUnsignedEvmTransactionArgs,
   type SwapErrorRight,
@@ -31,7 +30,7 @@ export const zrxApi: SwapperApi = {
     // getTradeQuote() is currently consumed at input time (for all swappers, not just ZRX) with weird Frankenstein "quote endpoint fetching ZRX rate endpoint
     // but actually expecting quote input/output" logic. This is a temporary method to get the ZRX swapper working with the new swapper architecture.
     const tradeQuoteResult = await getZrxPseudoTradeQuote(
-      input as GetEvmTradeQuoteInput,
+      input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       config.REACT_APP_FEATURE_ZRX_PERMIT2,
       assetsById,

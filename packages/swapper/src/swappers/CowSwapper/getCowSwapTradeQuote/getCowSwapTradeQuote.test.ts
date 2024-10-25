@@ -311,13 +311,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '11111',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, MOCK_COWSWAP_CONFIG)
@@ -338,13 +338,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -383,13 +383,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: ETH,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000000',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -428,13 +428,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: XDAI,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '20000000',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -473,13 +473,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: ETH_ARBITRUM,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '500000',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -518,13 +518,13 @@ describe('getCowSwapTradeQuote', () => {
       buyAsset: FOX_MAINNET,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000',
       accountNumber: 0,
-      hasWallet: true,
       receiveAddress: DEFAULT_ADDRESS,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(

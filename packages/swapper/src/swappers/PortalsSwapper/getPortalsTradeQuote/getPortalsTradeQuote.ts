@@ -116,7 +116,6 @@ export async function getPortalsTradeRate(
         ? userSlippageTolerancePercentageDecimalOrDefault * 100
         : undefined,
       swapperConfig,
-      hasWallet: false,
     })
 
     const rate = getRate({
@@ -267,7 +266,6 @@ export async function getPortalsTradeQuote(
       feePercentage: affiliateBpsPercentage,
       validate: true,
       swapperConfig,
-      hasWallet: true,
     }).catch(async e => {
       // If validation fails, fire 3 more quotes:
       // 1. a quote estimate (does not require approval) to get the optimal slippage tolerance
@@ -282,7 +280,6 @@ export async function getPortalsTradeQuote(
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         swapperConfig,
-        hasWallet: true,
       }).catch(e => {
         console.info('failed to get Portals quote estimate', e)
         return undefined
@@ -310,7 +307,6 @@ export async function getPortalsTradeQuote(
         slippageTolerancePercentage: userSlippageTolerancePercentageOrDefault,
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
-        hasWallet: true,
         validate: true,
         swapperConfig,
       })
@@ -336,7 +332,6 @@ export async function getPortalsTradeQuote(
         partner: getTreasuryAddressFromChainId(sellAsset.chainId),
         feePercentage: affiliateBpsPercentage,
         validate: false,
-        hasWallet: true,
         swapperConfig,
       })
 

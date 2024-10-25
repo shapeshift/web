@@ -1,3 +1,4 @@
+import { Divider, Stack } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -11,6 +12,7 @@ import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgeme
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -64,12 +66,8 @@ export const LimitOrderInput = ({
   })
 
   // TODO: Don't use the trade account ID hook. This is temporary during scaffolding
-  const {
-    sellAssetAccountId,
-    /* buyAssetAccountId, */
-    setSellAssetAccountId,
-    /* setBuyAssetAccountId */
-  } = useAccountIds()
+  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
+    useAccountIds()
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -133,9 +131,9 @@ export const LimitOrderInput = ({
     return <></>
   }, [])
 
-  // const setBuyAsset = useCallback((_asset: Asset) => {
-  //   // TODO: Implement me
-  // }, [])
+  const setBuyAsset = useCallback((_asset: Asset) => {
+    // TODO: Implement me
+  }, [])
   const setSellAsset = useCallback((_asset: Asset) => {
     // TODO: Implement me
   }, [])
@@ -194,7 +192,17 @@ export const LimitOrderInput = ({
         setSellAsset={setSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
       >
-        <LimitOrderBuyAsset />
+        <Stack>
+          <LimitOrderBuyAsset
+            asset={buyAsset}
+            accountId={buyAssetAccountId}
+            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+            onAccountIdChange={setBuyAssetAccountId}
+            onSetBuyAsset={setBuyAsset}
+          />
+          <Divider />
+          <Text translation='limitOrder.whenPriceReaches' />
+        </Stack>
       </SharedTradeInputBody>
     )
   }, [
@@ -208,6 +216,9 @@ export const LimitOrderInput = ({
     handleSwitchAssets,
     setSellAsset,
     setSellAssetAccountId,
+    buyAssetAccountId,
+    setBuyAssetAccountId,
+    setBuyAsset,
   ])
 
   const footerContent = useMemo(() => {

@@ -1,5 +1,5 @@
 import {
-  getTradeQuoteHopByIndex,
+  getHopByIndex,
   type SupportedTradeQuoteStepIndex,
   type TradeQuote,
 } from '@shapeshiftoss/swapper'
@@ -29,7 +29,7 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
     if (!tradeQuote || !sellAsset || !sellAssetUsdRate) return
 
     // A quote always has a first hop
-    const firstHop = getTradeQuoteHopByIndex(tradeQuote, 0)!
+    const firstHop = getHopByIndex(tradeQuote, 0)!
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
       firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
@@ -49,7 +49,7 @@ export const usePriceImpact = (tradeQuote: TradeQuote | undefined) => {
 
     const lastHopIndex = (numSteps - 1) as SupportedTradeQuoteStepIndex
     // A quote always has a last hop since it always has a first hop
-    const lastHop = getTradeQuoteHopByIndex(tradeQuote, lastHopIndex)!
+    const lastHop = getHopByIndex(tradeQuote, lastHopIndex)!
     const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
       lastHop.buyAmountBeforeFeesCryptoBaseUnit,
       buyAsset.precision,

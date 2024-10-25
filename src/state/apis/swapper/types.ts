@@ -1,10 +1,8 @@
 import type {
   GetTradeQuoteInput,
-  GetTradeRateInput,
   SwapperName,
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
-  TradeRate,
 } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -54,15 +52,4 @@ export type ApiQuote = {
   isStale: boolean
 }
 
-export type ApiRate = {
-  id: string
-  rate: TradeRate | undefined
-  swapperName: SwapperName
-  inputOutputRatio: number
-  errors: ErrorWithMeta<TradeQuoteError>[]
-  warnings: ErrorWithMeta<TradeQuoteWarning>[]
-  isStale: boolean
-}
-
 export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
-export type TradeRateRequest = { swapperName: SwapperName } & GetTradeRateInput

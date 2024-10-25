@@ -1,12 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  ProtocolFee,
-  SwapperName,
-  TradeQuote,
-  TradeQuoteStep,
-  TradeRate,
-} from '@shapeshiftoss/swapper'
-import { getTradeQuoteHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -57,7 +51,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   }, bn(0))
 
 export const getHopTotalProtocolFeesFiatPrecision = (
-  tradeQuoteStep: TradeQuote['steps'][number] | TradeRate['steps'][number],
+  tradeQuoteStep: TradeQuote['steps'][number],
   userCurrencyToUsdRate: string,
   marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
 ): string => {
@@ -76,7 +70,7 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  */
 export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
-  const lastStep = getTradeQuoteHopByIndex(quote, lastStepIndex)
+  const lastStep = getHopByIndex(quote, lastStepIndex)
 
   if (!lastStep) return '0'
 

@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
 import {
-  getTradeQuoteHopByIndex,
+  getHopByIndex,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
@@ -115,8 +115,8 @@ export const validateTradeQuote = (
   if (hasWallet && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
-  const firstHop = getTradeQuoteHopByIndex(quote, 0)!
-  const secondHop = getTradeQuoteHopByIndex(quote, 1)
+  const firstHop = getHopByIndex(quote, 0)!
+  const secondHop = getHopByIndex(quote, 1)
 
   const isMultiHopTrade = isMultiHopTradeQuote(quote)
 
@@ -200,24 +200,28 @@ export const validateTradeQuote = (
   // This is an oversimplification where protocol fees are assumed to be only deducted from
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
   // Later we'll need to handle protocol fees payable from the buy side.
-  const insufficientBalanceForProtocolFeesErrors = Object.entries(totalProtocolFeesByAsset)
-    .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      if (!protocolFee.requiresBalance) return false
+  const insufficientBalanceForProtocolFeesErrors =
+    // TODO(gomes): We will need to handle this differently since a rate doesn't contain bip44 data
+    sellAssetAccountNumber !== undefined
+      ? Object.entries(totalProtocolFeesByAsset)
+          .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            if (!protocolFee.requiresBalance) return false
 
-      const accountId =
-        portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-      const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
-      return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
-    })
-    .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      return {
-        error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
-        meta: {
-          symbol: protocolFee.asset.symbol,
-          chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
-        },
-      }
-    })
+            const accountId =
+              portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
+            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+          })
+          .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            return {
+              error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
+              meta: {
+                symbol: protocolFee.asset.symbol,
+                chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
+              },
+            }
+          })
+      : []
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit

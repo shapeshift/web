@@ -18,7 +18,7 @@ import type {
   SwapperDeps,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getTradeQuoteHopByIndex, makeSwapErrorRight } from '../../../utils'
+import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
 import type { ThorTradeQuote } from '../getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
@@ -116,7 +116,7 @@ export const getL1ToLongtailQuoteOrRate = async (
   const promises = await Promise.allSettled(
     thorchainQuotes.map(async quote => {
       // A quote always has a first step
-      const onlyStep = getTradeQuoteHopByIndex(quote, 0)!
+      const onlyStep = getHopByIndex(quote, 0)!
 
       const maybeBestAggregator = await getBestAggregator(
         buyAssetFeeAsset,

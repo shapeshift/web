@@ -1,7 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapperConfig, SwapperDeps, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
@@ -9,10 +9,7 @@ import {
   getTradeRates,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import type {
-  ThorEvmTradeQuote,
-  ThorEvmTradeRate,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
@@ -25,12 +22,7 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type {
-  ApiQuote,
-  ApiRate,
-  TradeQuoteRequest,
-  TradeRateRequest,
-} from 'state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -64,6 +56,7 @@ export const swapperApi = createApi({
 
         const isCrossAccountTrade = sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
+        const isPublicTradeRouteEnabled = featureFlags.PublicTradeRoute
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 
         if (!isSwapperEnabled) return { data: {} }
@@ -84,16 +77,34 @@ export const swapperApi = createApi({
           config: getConfig(),
         }
 
-        if (!tradeQuoteInput.receiveAddress) throw new Error('receiveAddress is required')
+        const getQuoteResult = () => {
+          // Always get a trade rate with the flag enabled. This will break execution for the time being, but as discussed with @woodenfurniture
+          // this is the sanest way for the time being, since we want to store rates exactly the same as quotes, and fetch a quote instead of a rate at pre-execution time
+          // when we wire this up fully
+          if (isPublicTradeRouteEnabled)
+            return getTradeRates(
+              {
+                ...tradeQuoteInput,
+                affiliateBps,
+              } as GetTradeRateInput,
+              swapperName,
+              swapperDeps,
+            )
 
-        const quoteResult = await getTradeQuotes(
-          {
-            ...tradeQuoteInput,
-            affiliateBps,
-          },
-          swapperName,
-          swapperDeps,
-        )
+          if (!tradeQuoteInput.receiveAddress)
+            throw new Error('Cannot get a trade quote without a receive address')
+
+          return getTradeQuotes(
+            {
+              ...tradeQuoteInput,
+              affiliateBps,
+            },
+            swapperName,
+            swapperDeps,
+          )
+        }
+
+        const quoteResult = await getQuoteResult()
 
         if (quoteResult === undefined) {
           return { data: {} }
@@ -226,189 +237,6 @@ export const swapperApi = createApi({
         { type: 'TradeQuote' as const, id: tradeQuoteRequest.swapperName },
       ],
     }),
-    getTradeRate: build.query<Record<string, ApiRate>, TradeRateRequest>({
-      queryFn: async (tradeRateInput: TradeRateRequest, { dispatch, getState }) => {
-        const state = getState() as ReduxState
-        const {
-          swapperName,
-          sendAddress,
-          receiveAddress,
-          sellAsset,
-          buyAsset,
-          affiliateBps,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        } = tradeRateInput
-
-        // TODO(gomes): now that we don't use addies for trades, how do we achieve this check?
-        const isCrossAccountTrade = sendAddress !== receiveAddress
-        const featureFlags: FeatureFlags = selectFeatureFlags(state)
-        const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
-
-        if (!featureFlags.PublicTradeRoute) return { data: {} }
-        if (!isSwapperEnabled) return { data: {} }
-
-        // hydrate crypto market data for buy and sell assets
-        await Promise.all([
-          dispatch(marketApi.endpoints.findByAssetId.initiate(sellAsset.assetId)),
-          dispatch(marketApi.endpoints.findByAssetId.initiate(buyAsset.assetId)),
-        ])
-
-        const swapperDeps: SwapperDeps = {
-          assetsById: selectAssets(state),
-          assertGetChainAdapter,
-          assertGetEvmChainAdapter,
-          assertGetUtxoChainAdapter,
-          assertGetCosmosSdkChainAdapter,
-          fetchIsSmartContractAddressQuery,
-          config: getConfig(),
-        }
-
-        const rateResult = await getTradeRates(
-          {
-            ...tradeRateInput,
-            affiliateBps,
-          },
-          swapperName,
-          swapperDeps,
-        )
-
-        if (rateResult === undefined) {
-          return { data: {} }
-        }
-
-        const rateWithInputOutputRatios = (rateResult => {
-          if (rateResult.isErr()) {
-            const error = rateResult.unwrapErr()
-            return [
-              {
-                rate: undefined,
-                error,
-                inputOutputRatio: -Infinity,
-                swapperName: rateResult.swapperName,
-              },
-            ]
-          }
-
-          return rateResult.unwrap().map(rate => {
-            const inputOutputRatio = getInputOutputRatioFromQuote({
-              // We need to get the freshest state after fetching market data above
-              state: getState() as ReduxState,
-              quote: rate as unknown as TradeQuote,
-              swapperName: rateResult.swapperName,
-            })
-            return {
-              rate,
-              error: undefined,
-              inputOutputRatio,
-              swapperName: rateResult.swapperName,
-            }
-          })
-        })(rateResult)
-
-        const unorderedRates: ApiRate[] = await Promise.all(
-          rateWithInputOutputRatios.map(async rateData => {
-            const { rate, swapperName, inputOutputRatio, error } = rateData
-            const tradeType = (rate as ThorEvmTradeRate)?.tradeType
-
-            // use the quote source as the ID so user selection can persist through polling
-            const quoteSource = rateData.rate?.steps[0].source ?? rateData.swapperName
-
-            const { isTradingActiveOnSellPool, isTradingActiveOnBuyPool } = await (async () => {
-              // allow swapper errors to flow through
-              if (error !== undefined) {
-                return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
-              }
-
-              const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(
-                [sellAsset.assetId, buyAsset.assetId].map(async assetId => {
-                  // We only need to fetch inbound_address and mimir for THORChain - this avoids overfetching for other swappers
-                  if (swapperName !== SwapperName.Thorchain) return true
-
-                  const inboundAddresses = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.inboundAddresses(),
-                    // Go stale instantly
-                    staleTime: 0,
-                    // Never store queries in cache since we always want fresh data
-                    gcTime: 0,
-                  })
-
-                  const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
-
-                  const mimir = await queryClient.fetchQuery({
-                    ...reactQueries.thornode.mimir(),
-                    staleTime: thorchainBlockTimeMs,
-                  })
-
-                  return selectIsTradingActive({
-                    assetId,
-                    inboundAddressResponse,
-                    swapperName,
-                    mimir,
-                  })
-                }),
-              )
-              return {
-                isTradingActiveOnSellPool:
-                  tradeType === TradeType.LongTailToL1 || isTradingActiveOnSellPool,
-                isTradingActiveOnBuyPool:
-                  tradeType === TradeType.L1ToLongTail || isTradingActiveOnBuyPool,
-              }
-            })()
-
-            if (isTradingActiveOnSellPool === undefined || isTradingActiveOnBuyPool === undefined) {
-              return {
-                id: quoteSource,
-                rate,
-                swapperName,
-                inputOutputRatio,
-                errors: [{ error: TradeQuoteValidationError.QueryFailed }],
-                warnings: [],
-                isStale: false,
-              }
-            }
-
-            // TODO(gomes): this validate trade rate vs. quote, and validateTradeQuote
-            // is most likely to disappear, or at the very least be simplified and there still only for sanity, since
-            // by the time we'll be at quote time, rate will have been validated already
-            const { errors, warnings } = validateTradeQuote(state, {
-              swapperName,
-              // TODO(gomes): Casted so we don't have to plumb TradeRate in utils just yet
-              // When we have full-on tradeQuoteRate upsertion/utils/selectors, we can remove this
-              quote: rate as unknown as TradeQuote,
-              error,
-              isTradingActiveOnSellPool,
-              isTradingActiveOnBuyPool,
-              sendAddress,
-              inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              hasWallet: tradeRateInput.hasWallet,
-            })
-            return {
-              id: quoteSource,
-              rate,
-              swapperName,
-              inputOutputRatio,
-              errors,
-              warnings,
-              isStale: false,
-            }
-          }),
-        )
-
-        const tradeRatesById = unorderedRates.reduce(
-          (acc, quoteData) => {
-            acc[quoteData.id] = quoteData
-            return acc
-          },
-          {} as Record<string, ApiRate>,
-        )
-
-        return { data: tradeRatesById }
-      },
-      providesTags: (_result, _error, tradeRateRequest) => [
-        { type: 'TradeQuote' as const, id: tradeRateRequest.swapperName },
-      ],
-    }),
-
     getSupportedAssets: build.query<
       {
         supportedSellAssetIds: AssetId[]
@@ -466,5 +294,4 @@ export const swapperApi = createApi({
   }),
 })
 
-export const { useGetTradeRateQuery, useGetTradeQuoteQuery, useGetSupportedAssetsQuery } =
-  swapperApi
+export const { useGetTradeQuoteQuery, useGetSupportedAssetsQuery } = swapperApi

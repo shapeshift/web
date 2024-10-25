@@ -13,14 +13,14 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
+  ExecutableTradeQuote,
+  ExecutableTradeStep,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
   TradeQuote,
+  TradeQuoteOrRate,
   TradeQuoteStep,
-  TradeQuoteWithReceiveAddress,
-  TradeRate,
-  TradeRateStep,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -149,34 +149,17 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
     },
   })
 
-const getHopByIndex = <T extends TradeQuote | TradeRate>(
-  quote: T,
+export const getHopByIndex = (
+  quote: TradeQuoteOrRate | undefined,
   index: SupportedTradeQuoteStepIndex,
-): T['steps'][number] | undefined => {
+) => {
+  if (quote === undefined) return undefined
   if (index > 1) {
     throw new Error("Index out of bounds - Swapper doesn't currently support more than 2 hops.")
   }
   const hop = quote.steps[index]
 
   return hop
-}
-
-export const getTradeQuoteHopByIndex = (
-  quote: TradeQuote | undefined,
-  index: SupportedTradeQuoteStepIndex,
-): TradeQuoteStep | undefined => {
-  if (quote === undefined) return undefined
-
-  return getHopByIndex(quote, index)
-}
-
-export const getTradeRateHopByIndex = (
-  rate: TradeRate | undefined,
-  index: SupportedTradeQuoteStepIndex,
-): TradeRateStep | undefined => {
-  if (rate === undefined) return undefined
-
-  return getHopByIndex(rate, index)
 }
 
 export const executeEvmTransaction = (
@@ -307,5 +290,8 @@ export const getRate = ({
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 
-export const isExecutableTradeQuote = (quote: TradeQuote): quote is TradeQuoteWithReceiveAddress =>
+export const isExecutableTradeQuote = (quote: TradeQuote): quote is ExecutableTradeQuote =>
   !!quote.receiveAddress
+
+export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
+  step.accountNumber !== undefined

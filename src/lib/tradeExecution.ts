@@ -12,7 +12,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
-  getTradeQuoteHopByIndex,
+  getHopByIndex,
   isExecutableTradeQuote,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
@@ -62,7 +62,7 @@ export class TradeExecution {
 
       const swapper = maybeSwapper
 
-      const hop = getTradeQuoteHopByIndex(tradeQuote, stepIndex)
+      const hop = getHopByIndex(tradeQuote, stepIndex)
 
       if (!hop) {
         throw new Error(`No hop found for stepIndex ${stepIndex}`)

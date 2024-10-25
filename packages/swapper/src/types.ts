@@ -235,7 +235,8 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  accountNumber: number
+  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
+  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
@@ -246,6 +247,7 @@ export type TradeQuoteStep = {
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
 
 type TradeQuoteBase = {
   id: string
@@ -302,7 +304,9 @@ export type TradeRate = TradeRateBase & {
   accountNumber: undefined
 }
 
-export type TradeQuoteWithReceiveAddress = TradeQuote & { receiveAddress: string }
+export type TradeQuoteOrRate = TradeQuote | TradeRate
+
+export type ExecutableTradeQuote = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 

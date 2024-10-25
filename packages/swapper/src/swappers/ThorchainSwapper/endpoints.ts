@@ -26,7 +26,11 @@ import type {
   TradeQuote,
   UtxoFeeData,
 } from '../../types'
-import { checkSafeTransactionStatus, isExecutableTradeQuote } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+} from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
@@ -216,8 +220,12 @@ export const thorchainApi: SwapperApi = {
 
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
-      steps[0]
+      firstStep
 
     if (!memo) throw new Error('Cannot execute Tx without a memo')
 

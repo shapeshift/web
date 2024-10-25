@@ -23,8 +23,7 @@ import { SwapperName } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,
-  getTradeQuoteHopByIndex,
-  getTradeRateHopByIndex,
+  getHopByIndex,
   isExecutableTradeQuote,
 } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -64,7 +63,7 @@ export const cowApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step
-      const firstStep = getTradeQuoteHopByIndex(tradeQuote, 0)!
+      const firstStep = getHopByIndex(tradeQuote, 0)!
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
@@ -78,7 +77,7 @@ export const cowApi: SwapperApi = {
 
     return tradeRateResult.map(tradeRate => {
       // A rate always has a first step
-      const firstStep = getTradeRateHopByIndex(tradeRate, 0)!
+      const firstStep = getHopByIndex(tradeRate, 0)!
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
       return [tradeRate]
@@ -92,7 +91,7 @@ export const cowApi: SwapperApi = {
     chainId,
     config,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
-    const hop = getTradeQuoteHopByIndex(tradeQuote, stepIndex)
+    const hop = getHopByIndex(tradeQuote, stepIndex)
 
     if (!hop) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 

@@ -12,7 +12,6 @@ import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgeme
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
-import { Text } from 'components/Text'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -36,6 +35,7 @@ import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBod
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
+import { LimitOrderConfig } from './LimitOrderConfig'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -201,7 +201,13 @@ export const LimitOrderInput = ({
             onSetBuyAsset={setBuyAsset}
           />
           <Divider />
-          <Text translation='limitOrder.whenPriceReaches' />
+          <LimitOrderConfig
+            buyAsset={buyAsset}
+            hasUserEnteredAmount={true}
+            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+            buyAmountAfterFeesCryptoPrecision={'1123412344123456'}
+            buyAmountAfterFeesUserCurrency={'1.234'}
+          />
         </Stack>
       </SharedTradeInputBody>
     )

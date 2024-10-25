@@ -1,4 +1,4 @@
-import { Divider, Flex, FormLabel, Stack } from '@chakra-ui/react'
+import { Flex, FormLabel, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -83,7 +83,7 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     }, [buyAssetSearch, onSetBuyAsset])
 
     return (
-      <Stack>
+      <Stack mt={4}>
         <Flex justifyContent='space-between' alignItems='center' px={6} width='full' mb={2}>
           <Flex alignItems='center'>
             <FormLabel mb={0} fontSize='sm'>

@@ -43,6 +43,7 @@ export const getChainflipTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
+    accountNumber,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     affiliateBps: commissionBps,
   } = input
@@ -245,7 +246,7 @@ export const getChainflipTradeQuote = async (
             source: boostSwapSource,
             buyAsset: buyAsset,
             sellAsset: sellAsset,
-            accountNumber: 0,
+            accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?
             allowanceContract: "0x0", // Chainflip does not use contracts
             estimatedExecutionTimeMs: singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000
           }
@@ -287,7 +288,7 @@ export const getChainflipTradeQuote = async (
           source: swapSource,
           buyAsset: buyAsset,
           sellAsset: sellAsset,
-          accountNumber: 0,
+          accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?
           allowanceContract: "0x0", // Chainflip does not use contracts
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000
         }

@@ -536,6 +536,8 @@ export const makeAssets = async ({
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {
+        if (state.assets.byId[token.assetId]) return prev
+
         prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
         prev.ids.push(token.assetId)
 

@@ -3,6 +3,7 @@ import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import type { Asset } from '@shapeshiftoss/types'
+import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -13,12 +14,15 @@ import {
   StreamingAcknowledgement,
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
@@ -51,11 +55,18 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
+import { TradeAssetInput } from '../TradeAssetInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
+const emptyPercentOptions: number[] = []
+const formControlProps = {
+  borderRadius: 0,
+  background: 'transparent',
+  borderWidth: 0,
+}
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
 
@@ -82,6 +93,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   })
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
+  const buyAssetSearch = useModal('buyTradeAssetSearch')
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -112,6 +124,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
+
+  const inputOutputDifferenceDecimalPercentage =
+    useInputOutputDifferenceDecimalPercentage(activeQuote)
 
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
@@ -285,50 +300,88 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
 
+  const handleBuyAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: setBuyAsset,
+      title: 'trade.tradeTo',
+    })
+  }, [buyAssetSearch, setBuyAsset])
+
+  const buyTradeAssetSelect = useMemo(
+    () => (
+      <TradeAssetSelect
+        assetId={buyAsset.assetId}
+        onAssetClick={handleBuyAssetClick}
+        onAssetChange={setBuyAsset}
+        onlyConnectedChains={false}
+      />
+    ),
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
+  )
+
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody
-        activeQuote={activeQuote}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
-        buyAssetAccountId={buyAssetAccountId}
         sellAssetAccountId={sellAssetAccountId}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        manualReceiveAddress={manualReceiveAddress}
         sellAsset={sellAsset}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
         handleSwitchAssets={handleSwitchAssets}
-        setBuyAsset={setBuyAsset}
-        setBuyAssetAccountId={setBuyAssetAccountId}
         setSellAsset={setSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
-      />
+      >
+        <TradeAssetInput
+          // Disable account selection when user set a manual receive address
+          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+          isReadOnly={true}
+          accountId={buyAssetAccountId}
+          assetId={buyAsset.assetId}
+          assetSymbol={buyAsset.symbol}
+          assetIcon={buyAsset.icon}
+          cryptoAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed() : '0'
+          }
+          fiatAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+          }
+          percentOptions={emptyPercentOptions}
+          showInputSkeleton={isLoading}
+          showFiatSkeleton={isLoading}
+          label={translate('trade.youGet')}
+          onAccountIdChange={setBuyAssetAccountId}
+          formControlProps={formControlProps}
+          labelPostFix={buyTradeAssetSelect}
+          inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
+        />
+      </SharedTradeInputBody>
     )
   }, [
-    activeQuote,
     buyAmountAfterFeesCryptoPrecision,
     buyAmountAfterFeesUserCurrency,
     buyAsset,
     buyAssetAccountId,
+    sellAssetAccountId,
     isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
+    sellAsset,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
-    sellAsset,
-    sellAssetAccountId,
-    handleChangeSellAmountCryptoPrecision,
-    handleIsInputtingFiatSellAmountChange,
+    hasUserEnteredAmount,
+    translate,
+    buyTradeAssetSelect,
+    inputOutputDifferenceDecimalPercentage,
     handleSwitchAssets,
-    setBuyAsset,
     setBuyAssetAccountId,
     setSellAsset,
     setSellAssetAccountId,
+    handleIsInputtingFiatSellAmountChange,
+    handleChangeSellAmountCryptoPrecision,
   ])
 
   const footerContent = useMemo(() => {

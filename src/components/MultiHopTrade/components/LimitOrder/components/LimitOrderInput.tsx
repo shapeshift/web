@@ -23,7 +23,7 @@ import {
 import {
   selectActiveQuote,
   selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
+  // selectBuyAmountAfterFeesUserCurrency,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -33,6 +33,7 @@ import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
+import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -63,8 +64,12 @@ export const LimitOrderInput = ({
   })
 
   // TODO: Don't use the trade account ID hook. This is temporary during scaffolding
-  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds()
+  const {
+    sellAssetAccountId,
+    /* buyAssetAccountId, */
+    setSellAssetAccountId,
+    /* setBuyAssetAccountId */
+  } = useAccountIds()
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -72,7 +77,7 @@ export const LimitOrderInput = ({
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
+  // const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -128,9 +133,9 @@ export const LimitOrderInput = ({
     return <></>
   }, [])
 
-  const setBuyAsset = useCallback((_asset: Asset) => {
-    // TODO: Implement me
-  }, [])
+  // const setBuyAsset = useCallback((_asset: Asset) => {
+  //   // TODO: Implement me
+  // }, [])
   const setSellAsset = useCallback((_asset: Asset) => {
     // TODO: Implement me
   }, [])
@@ -176,14 +181,9 @@ export const LimitOrderInput = ({
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody
-        activeQuote={activeQuote}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
-        buyAssetAccountId={buyAssetAccountId}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        manualReceiveAddress={manualReceiveAddress}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
         sellAsset={sellAsset}
@@ -191,28 +191,21 @@ export const LimitOrderInput = ({
         handleSwitchAssets={handleSwitchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
-        setBuyAsset={setBuyAsset}
-        setBuyAssetAccountId={setBuyAssetAccountId}
         setSellAsset={setSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
-      />
+      >
+        <LimitOrderBuyAsset />
+      </SharedTradeInputBody>
     )
   }, [
-    activeQuote,
-    buyAmountAfterFeesCryptoPrecision,
-    buyAmountAfterFeesUserCurrency,
     buyAsset,
-    buyAssetAccountId,
     isInputtingFiatSellAmount,
     isLoading,
-    manualReceiveAddress,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
     sellAssetAccountId,
     handleSwitchAssets,
-    setBuyAsset,
-    setBuyAssetAccountId,
     setSellAsset,
     setSellAssetAccountId,
   ])

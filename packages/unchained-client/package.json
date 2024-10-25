@@ -21,6 +21,8 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
     "@shapeshiftoss/contracts": "workspace:^",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.4",
     "isomorphic-ws": "^4.0.1",
     "ws": "^8.17.1"
   },

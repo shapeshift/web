@@ -103,7 +103,13 @@ async function getTrade(
       // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
-      bridges: { deny: ['stargate', 'stargateV2', 'amarok', 'arbitrum'] },
+      // Routes via Stargate or Amarok can always be executed in one step, as LiFi can make those
+      // bridges swap into any requested token on the destination chain. Other bridges my require
+      // two steps. As such, additional balance checks on the destination chain are required which
+      // are currently incompatible with our fee calculations, leading to incorrect fee display,
+      // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
+      // these bridges are disabled.
+      bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined

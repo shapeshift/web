@@ -4,18 +4,20 @@ import { bn } from '@shapeshiftoss/utils'
 
 type GetUtxoTxFeesInput = {
   sellAmountCryptoBaseUnit: string
-  sellAdapter: UtxoChainAdapter
+  sellAdapter: UtxoChainAdapter,
+  publicKey: string
 }
 
 export const getUtxoTxFees = async ({
   sellAmountCryptoBaseUnit,
   sellAdapter,
+  publicKey
 }: GetUtxoTxFeesInput): Promise<string> => {
   // TODO: Get Chainflip BTC vault address
   const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
     to: 'vault',
     value: sellAmountCryptoBaseUnit,
-    chainSpecific: { pubkey: '' },
+    chainSpecific: { pubkey: publicKey },
   }
   
   const feeDataOptions = await sellAdapter.getFeeData(getFeeDataInput)

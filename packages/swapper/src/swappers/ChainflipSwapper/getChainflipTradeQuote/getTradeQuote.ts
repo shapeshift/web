@@ -6,7 +6,8 @@ import { AssetId, CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
 
 import {
   type GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
+  GetTradeQuoteInput, 
+  GetUtxoTradeQuoteInput,
   type ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
@@ -141,9 +142,11 @@ export const getChainflipTradeQuote = async (
 
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!;
         return await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
+          publicKey,
         })
       }
       

@@ -168,7 +168,6 @@ export const getTradeQuoteInput = async ({
 
       return {
         ...tradeQuoteInputCommonArgs,
-        hasWallet,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
         receiveAccountNumber,

@@ -53,16 +53,7 @@ async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    hasWallet,
   } = input
-
-  if (hasWallet && !(receiveAddress && sendAddress && accountNumber !== undefined))
-    return Err(
-      makeSwapErrorRight({
-        message: 'missing address',
-        code: TradeQuoteError.InternalError,
-      }),
-    )
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -299,13 +290,21 @@ async function getTrade(
 }
 
 // This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
+
 export const getTradeQuote = (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
-export const getTradeRate = (
+
+export const getTradeRate = async (
   input: GetEvmTradeRateInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeRate[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+): Promise<Result<LifiTradeRate[], SwapErrorRight>> => {
+  const rate = (await getTrade(input, deps, lifiChainMap)) as Result<
+    LifiTradeRate[],
+    SwapErrorRight
+  >
+  return rate
+}

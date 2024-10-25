@@ -73,7 +73,7 @@ describe('getZrxTradeQuote', () => {
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockOk({
-          data: { price: '100', gasPrice: '1000', gas: '1000000', auxiliaryChainData: {} },
+          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
         } as AxiosResponse<unknown, any>),
       ),
     )
@@ -89,7 +89,7 @@ describe('getZrxTradeQuote', () => {
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].feeData).toStrictEqual({
       protocolFees: {},
-      networkFeeCryptoBaseUnit: '94843800000000000',
+      networkFeeCryptoBaseUnit: '42',
     })
     expect(quote.steps[0].rate).toBe('100')
   })
@@ -145,7 +145,7 @@ describe('getZrxTradeQuote', () => {
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         Ok({
-          data: { price: '100', auxiliaryChainData: {} },
+          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
         } as AxiosResponse<unknown>),
       ),
     )
@@ -161,7 +161,7 @@ describe('getZrxTradeQuote', () => {
 
     expect(quote?.steps[0].feeData).toStrictEqual({
       protocolFees: {},
-      networkFeeCryptoBaseUnit: '0',
+      networkFeeCryptoBaseUnit: '42',
     })
   })
 

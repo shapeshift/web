@@ -19,6 +19,8 @@ import isUndefined from 'lodash/isUndefined'
 import union from 'lodash/union'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 
+import { isSplToken } from './solana'
+
 export const firstFourLastFour = (address: string): string =>
   `${address.slice(0, 6)}...${address.slice(-4)}`
 
@@ -110,7 +112,7 @@ export const isToken = (assetId: AssetId) => {
 }
 
 export const contractAddressOrUndefined = (assetId: AssetId) =>
-  isToken(assetId) ? fromAssetId(assetId).assetReference : undefined
+  isToken(assetId) || isSplToken(assetId) ? fromAssetId(assetId).assetReference : undefined
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)

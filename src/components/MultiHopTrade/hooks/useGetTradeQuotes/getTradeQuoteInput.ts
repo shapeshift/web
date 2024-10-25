@@ -9,6 +9,7 @@ import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
@@ -152,7 +153,24 @@ export const getTradeQuoteInput = async ({
       }
     }
     case CHAIN_NAMESPACE.Solana: {
-      throw new Error('Solana is not supported in getTradeQuoteInput')
+      const sellAssetChainAdapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        hasWallet,
+        chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+        receiveAccountNumber,
+      } as GetTradeQuoteInput
     }
     default:
       assertUnreachable(chainNamespace)

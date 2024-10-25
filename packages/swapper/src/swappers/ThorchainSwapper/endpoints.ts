@@ -16,7 +16,8 @@ import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
   CosmosSdkFeeData,
   EvmTransactionRequest,
-  GetTradeQuoteInput,
+  GetTradeQuoteInputWithWallet,
+  GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
@@ -24,6 +25,7 @@ import type {
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
   UtxoFeeData,
 } from '../../types'
 import {
@@ -34,8 +36,11 @@ import {
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
-import type { ThorEvmTradeQuote } from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import { getThorTradeQuoteOrRate } from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import {
+  getThorTradeQuote,
+  getThorTradeRate,
+  type ThorEvmTradeQuote,
+} from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
@@ -49,15 +54,14 @@ const deductOutboundRuneFee = (fee: string): string => {
   return feeMinusAutomaticOutboundFee.gt(0) ? feeMinusAutomaticOutboundFee.toString() : '0'
 }
 
-// @ts-expect-error TODO(gomes): implement getTradeRate
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeQuoteInputWithWallet,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input
 
-    return await getThorTradeQuoteOrRate(
+    return await getThorTradeQuote(
       {
         ...input,
         affiliateBps,
@@ -65,7 +69,20 @@ export const thorchainApi: SwapperApi = {
       deps,
     )
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const { affiliateBps } = input
 
+    return await getThorTradeRate(
+      {
+        ...input,
+        affiliateBps,
+      },
+      deps,
+    )
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

@@ -42,12 +42,11 @@ export const zrxApi: SwapperApi = {
       return [tradeQuote]
     })
   },
-  // TODO(gomes): consume me somewhere to test it out
   getTradeRate: async (
     input: GetTradeQuoteInput,
     { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getZrxTradeRate(
+    const tradeRateResult = await getZrxTradeRate(
       input as GetEvmTradeRateInput,
       assertGetEvmChainAdapter,
       config.REACT_APP_FEATURE_ZRX_PERMIT2,
@@ -55,7 +54,7 @@ export const zrxApi: SwapperApi = {
       config.REACT_APP_ZRX_BASE_URL,
     )
 
-    return tradeQuoteResult.map(tradeQuote => {
+    return tradeRateResult.map(tradeQuote => {
       return [tradeQuote]
     })
   },

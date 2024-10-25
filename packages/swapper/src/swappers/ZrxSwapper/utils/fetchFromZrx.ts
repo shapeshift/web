@@ -140,11 +140,14 @@ const fetchFromZrxPermit2 = async <T extends 'rate' | 'quote'>({
     } catch (err) {}
   })()
 
+  // Rates are gotten using ZRX /swap/permit2/price endpoint
+  const endpoint = quoteOrRate === 'quote' ? 'quote' : 'price'
+
   // https://0x.org/docs/api#tag/Swap/operation/swap::permit2::getPrice
   // https://0x.org/docs/api#tag/Swap/operation/swap::permit2::getQuote
   const maybeZrxPriceResponse = await zrxService.get<
     T extends 'quote' ? ZrxPermit2QuoteResponse : ZrxPermit2PriceResponse
-  >(`/swap/permit2/${quoteOrRate}`, {
+  >(`/swap/permit2/${endpoint}`, {
     params: {
       chainId: viemNetworkIdByChainId[sellAsset.chainId],
       buyToken: assetIdToZrxToken(buyAsset.assetId),

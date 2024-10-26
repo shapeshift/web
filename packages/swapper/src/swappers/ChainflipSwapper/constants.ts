@@ -10,9 +10,9 @@ const ETHEREUM_USDT_ASSET_ID: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a22062
 const ARBITRUM_ETH_ASSET_ID: AssetId = 'eip155:42161/slip44:60'
 const ARBITRUM_USDC_ASSET_ID: AssetId = 'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
 
-const BITCOIN_BTC_ASSET_ID: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0"'
+const BITCOIN_BTC_ASSET_ID: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
 
-const SOLANA_SOL_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501"'
+const SOLANA_SOL_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 const SOLANA_USDC_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 
 export const ChainflipSupportedChainIds = [

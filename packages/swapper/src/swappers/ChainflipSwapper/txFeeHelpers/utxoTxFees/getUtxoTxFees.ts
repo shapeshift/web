@@ -15,7 +15,7 @@ export const getUtxoTxFees = async ({
 }: GetUtxoTxFeesInput): Promise<string> => {
   // TODO: Get Chainflip BTC vault address
   const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
-    to: 'vault',
+    to: '',
     value: sellAmountCryptoBaseUnit,
     chainSpecific: { pubkey: publicKey },
   }
@@ -24,5 +24,5 @@ export const getUtxoTxFees = async ({
 
   const feeData = feeDataOptions['fast']
   
-  return bn(feeData.txFee).dp(0).toString();
+  return bn(feeData.txFee).dp(0).toString()
 }

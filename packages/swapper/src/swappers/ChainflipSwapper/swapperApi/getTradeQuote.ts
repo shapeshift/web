@@ -1,8 +1,8 @@
-import { v4 as uuid } from 'uuid';
-import { AxiosError } from 'axios';
-import { Err, Ok, Result } from '@sniptt/monads';
-import { KnownChainIds } from '@shapeshiftoss/types';
-import { AssetId, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip';
+import { v4 as uuid } from 'uuid'
+import { AxiosError } from 'axios'
+import { Err, Ok, Result } from '@sniptt/monads'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { AssetId, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 
 import {
   type GetEvmTradeQuoteInput,
@@ -14,9 +14,9 @@ import {
   SwapperName,
   TradeQuote,
   TradeQuoteError
-} from '../../../types';
-import { getRate, makeSwapErrorRight } from '../../../utils';
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants';
+} from '../../../types'
+import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -25,18 +25,18 @@ import {
   CHAINFLIP_SWAP_SOURCE,
   chainIdToChainflipNetwork,
   usdcAsset
-} from '../constants';
-import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models';
-import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers';
-import { chainflipService } from '../utils/chainflipService';
-import { getEvmTxFees } from '../txFeeHelpers/evmTxFees/getEvmTxFees';
-import { getUtxoTxFees } from '../txFeeHelpers/utxoTxFees/getUtxoTxFees';
+} from '../constants'
+import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
+import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
+import { chainflipService } from '../utils/chainflipService'
+import { getEvmTxFees } from '../txFeeHelpers/evmTxFees/getEvmTxFees'
+import { getUtxoTxFees } from '../txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
-const CHAINFLIP_REGULAR_QUOTE = 'regular';
-const CHAINFLIP_DCA_QUOTE = 'dca';
-const CHAINFLIP_BAAS_COMMISSION = 5;
+const CHAINFLIP_REGULAR_QUOTE = 'regular'
+const CHAINFLIP_DCA_QUOTE = 'dca'
+const CHAINFLIP_BAAS_COMMISSION = 5
 
-export const getChainflipTradeQuote = async (
+export const getTradeQuote = async (
   input: GetTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -89,24 +89,24 @@ export const getChainflipTradeQuote = async (
     )
   }
 
-  const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[sellAsset.chainId as KnownChainIds]}`;
-  const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[buyAsset.chainId as KnownChainIds]}`;
+  const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[sellAsset.chainId as KnownChainIds]}`
+  const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[buyAsset.chainId as KnownChainIds]}`
 
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY;
+  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
   
   // Subtract the BaaS fee to end up at the final displayed commissionBps
-  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION;
+  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION
   if (serviceCommission < 0)
-    serviceCommission = 0;
+    serviceCommission = 0
   
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
     `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
-  );
+  )
 
   if (maybeQuoteResponse.isErr()) {
-    const error = maybeQuoteResponse.unwrapErr();
-    const cause = error.cause as AxiosError<any, any>;
+    const error = maybeQuoteResponse.unwrapErr()
+    const cause = error.cause as AxiosError<any, any>
     
     if (cause.message.includes('code 400') && cause.response!.data.detail.includes('Amount outside asset bounds')) {
         return Err(
@@ -127,24 +127,22 @@ export const getChainflipTradeQuote = async (
 
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
   
-  const defaultSlippage = getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip);
-  
   const getNetworkFeeCryptoBaseUnit = async () => {
-    const { chainNamespace } = fromAssetId(sellAsset.assetId);
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
-        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId);
+        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
         return await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
           sendAsset: sellChainflipChainKey
-        });
+        })
       }
 
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!;
+        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
         return await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
@@ -154,31 +152,31 @@ export const getChainflipTradeQuote = async (
       
       case CHAIN_NAMESPACE.Solana: {
         // TODO: Solana gas calc
-        return undefined;
+        return undefined
       }
     }
     
-    return undefined;
+    return undefined
   }
   
   const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
     if (fee.type === 'ingress' || fee.type === 'boost')
-      return sellAsset;
+      return sellAsset
 
     if (fee.type === 'egress')
-      return buyAsset;
+      return buyAsset
 
     if (fee.type === 'liquidity' && fee.asset == sellChainflipChainKey)
-      return sellAsset;
+      return sellAsset
 
     if (fee.type === 'liquidity' && fee.asset == buyChainflipChainKey)
-      return buyAsset;
+      return buyAsset
 
     if (fee.type === 'liquidity' && fee.asset == "usdc.eth")
-      return usdcAsset;
+      return usdcAsset
 
     if (fee.type === "network")
-      return usdcAsset;
+      return usdcAsset
   }
   
   const getProtocolFees = (singleQuoteResponse: ChainflipBaasQuoteQuote) => {
@@ -186,7 +184,7 @@ export const getChainflipTradeQuote = async (
 
     for (const fee of singleQuoteResponse.includedFees!) {
       if (fee.type === "broker")
-        continue;
+        continue
 
       const asset = getFeeAsset(fee)!
       if (!(asset.assetId in protocolFees)) {
@@ -198,10 +196,10 @@ export const getChainflipTradeQuote = async (
       }
  
       protocolFees[asset.assetId].amountCryptoBaseUnit =
-        (BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative!)).toString();
+        (BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative!)).toString()
     }
 
-    return protocolFees;
+    return protocolFees
   }
   
   const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
@@ -210,29 +208,29 @@ export const getChainflipTradeQuote = async (
       buyAmountCryptoBaseUnit: buyAmountCryptoBaseUnit,
       sellAsset,
       buyAsset,
-    });
+    })
   }
   
   const getSwapSource = (swapType: string | undefined, isBoosted: boolean) => {
     return swapType === CHAINFLIP_REGULAR_QUOTE
       ? isBoosted ? CHAINFLIP_BOOST_SWAP_SOURCE : CHAINFLIP_SWAP_SOURCE
-      : isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE;
+      : isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE
   }
-  
-  const quotes = [];
+
+  const quotes: TradeQuote[] = []
   
   for (const singleQuoteResponse of quoteResponse) {
-    const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE;
+    const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
 
     if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
       // Streaming swaps are not enabled yet
-      continue;
+      continue
     }
         
     if (singleQuoteResponse.boostQuote) {
       const boostRate = getQuoteRate(
         singleQuoteResponse.boostQuote.ingressAmountNative!,
-        singleQuoteResponse.boostQuote.egressAmountNative!);
+        singleQuoteResponse.boostQuote.egressAmountNative!)
       
       const boostTradeQuote: TradeQuote = {
         id: uuid(),
@@ -241,7 +239,7 @@ export const getChainflipTradeQuote = async (
         potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming: isStreaming,
-        slippageTolerancePercentageDecimal: defaultSlippage,
+        slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
         steps: [
           {
             buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
@@ -260,14 +258,14 @@ export const getChainflipTradeQuote = async (
             estimatedExecutionTimeMs: singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000
           }
         ]
-      };
+      }
 
-      quotes.push(boostTradeQuote);
+      quotes.push(boostTradeQuote)
     }
     
     const rate = getQuoteRate(
       singleQuoteResponse.ingressAmountNative!,
-      singleQuoteResponse.egressAmountNative!);
+      singleQuoteResponse.egressAmountNative!)
     
     const tradeQuote: TradeQuote = {
       id: uuid(),
@@ -276,7 +274,7 @@ export const getChainflipTradeQuote = async (
       potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming: isStreaming,
-      slippageTolerancePercentageDecimal: defaultSlippage,
+      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
       steps: [
         {
           buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
@@ -295,10 +293,10 @@ export const getChainflipTradeQuote = async (
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000
         }
       ]
-    };
+    }
     
-    quotes.push(tradeQuote);
+    quotes.push(tradeQuote)
   }
 
-  return Ok(quotes);
+  return Ok(quotes)
 }

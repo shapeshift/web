@@ -1,6 +1,11 @@
 import type { ChainId, AssetId } from '@shapeshiftoss/caip'
-import { Asset, KnownChainIds } from '@shapeshiftoss/types';
-import { SupportedChainIds, SwapperName, SwapSource } from '../../types'
+import { Asset, KnownChainIds } from '@shapeshiftoss/types'
+
+import { 
+  SupportedChainIds, 
+  SwapperName, 
+  SwapSource
+} from '../../types'
 
 const ETHEREUM_ETH_ASSET_ID: AssetId = 'eip155:1/slip44:60'
 const ETHEREUM_FLIP_ASSET_ID: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
@@ -52,7 +57,7 @@ export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   buy: ChainflipSupportedChainIds as unknown as ChainId[],
 }
 
-export const CHAINFLIP_SWAP_SOURCE: SwapSource = SwapperName.Chainflip;
+export const CHAINFLIP_SWAP_SOURCE: SwapSource = SwapperName.Chainflip
 export const CHAINFLIP_BOOST_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • Boost`
 export const CHAINFLIP_DCA_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • DCA`
 export const CHAINFLIP_DCA_BOOST_SWAP_SOURCE: SwapSource = `${SwapperName.Chainflip} • DCA • Boost`

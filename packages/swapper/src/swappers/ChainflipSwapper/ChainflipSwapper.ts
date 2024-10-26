@@ -2,10 +2,14 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
+import { executeEvmTransaction } from '../../utils'
+
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './constants'
-import { isSupportedAssetId } from './utils/helpers';
+import { isSupportedAssetId } from './utils/helpers'
 
 export const chainflipSwapper: Swapper = {
+  executeEvmTransaction,
+  
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {
     return Promise.resolve(
       assets

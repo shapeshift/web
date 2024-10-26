@@ -1,8 +1,8 @@
-import { v4 as uuid } from "uuid";
-import { AxiosError } from "axios";
-import { Err, Ok, Result } from "@sniptt/monads";
-import { KnownChainIds } from "@shapeshiftoss/types";
-import { AssetId, CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
+import { v4 as uuid } from 'uuid';
+import { AxiosError } from 'axios';
+import { Err, Ok, Result } from '@sniptt/monads';
+import { KnownChainIds } from '@shapeshiftoss/types';
+import { AssetId, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip';
 
 import {
   type GetEvmTradeQuoteInput,
@@ -14,9 +14,9 @@ import {
   SwapperName,
   TradeQuote,
   TradeQuoteError
-} from "../../../types";
-import { getRate, makeSwapErrorRight } from "../../../utils";
-import { getDefaultSlippageDecimalPercentageForSwapper } from "../../../constants";
+} from '../../../types';
+import { getRate, makeSwapErrorRight } from '../../../utils';
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants';
 
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -25,15 +25,15 @@ import {
   CHAINFLIP_SWAP_SOURCE,
   chainIdToChainflipNetwork,
   usdcAsset
-} from "../constants";
-import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from "../models";
-import { isSupportedAssetId, isSupportedChainId } from "../utils/helpers";
-import { chainflipService } from "../utils/chainflipService";
-import { getEvmTxFees } from "../txFeeHelpers/evmTxFees/getEvmTxFees";
-import { getUtxoTxFees } from "../txFeeHelpers/utxoTxFees/getUtxoTxFees";
+} from '../constants';
+import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models';
+import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers';
+import { chainflipService } from '../utils/chainflipService';
+import { getEvmTxFees } from '../txFeeHelpers/evmTxFees/getEvmTxFees';
+import { getUtxoTxFees } from '../txFeeHelpers/utxoTxFees/getUtxoTxFees';
 
-const CHAINFLIP_REGULAR_QUOTE = "regular";
-const CHAINFLIP_DCA_QUOTE = "dca";
+const CHAINFLIP_REGULAR_QUOTE = 'regular';
+const CHAINFLIP_DCA_QUOTE = 'dca';
 const CHAINFLIP_BAAS_COMMISSION = 5;
 
 export const getChainflipTradeQuote = async (
@@ -107,7 +107,7 @@ export const getChainflipTradeQuote = async (
     const error = maybeQuoteResponse.unwrapErr();
     const cause = error.cause as AxiosError<any, any>;
     
-    if (cause.message.includes("code 400") && cause.response!.data.detail.includes("Amount outside asset bounds")) {
+    if (cause.message.includes('code 400') && cause.response!.data.detail.includes('Amount outside asset bounds')) {
         return Err(
           makeSwapErrorRight({
             message: cause.response!.data.detail,
@@ -161,19 +161,19 @@ export const getChainflipTradeQuote = async (
   }
   
   const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
-    if (fee.type === "ingress" || fee.type === "boost")
+    if (fee.type === 'ingress' || fee.type === 'boost')
       return sellAsset;
 
-    if (fee.type === "egress")
+    if (fee.type === 'egress')
       return buyAsset;
 
-    if (fee.type === "liquidity" && fee.asset == sellChainflipChainKey)
+    if (fee.type === 'liquidity' && fee.asset == sellChainflipChainKey)
       return sellAsset;
 
-    if (fee.type === "liquidity" && fee.asset == buyChainflipChainKey)
+    if (fee.type === 'liquidity' && fee.asset == buyChainflipChainKey)
       return buyAsset;
 
-    if (fee.type === "liquidity" && fee.asset == "usdc.eth")
+    if (fee.type === 'liquidity' && fee.asset == "usdc.eth")
       return usdcAsset;
 
     if (fee.type === "network")

@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './constants'
-import { isSupportedAssetId } from "./utils/helpers";
+import { isSupportedAssetId } from './utils/helpers';
 
 export const chainflipSwapper: Swapper = {
   filterAssetIdsBySellable: (assets: Asset[]): Promise<AssetId[]> => {

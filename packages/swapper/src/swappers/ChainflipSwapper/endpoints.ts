@@ -1,7 +1,7 @@
 import type { Result } from '@sniptt/monads/build'
 
-import { TxStatus } from "@shapeshiftoss/unchained-client";
-import type { InterpolationOptions } from "node-polyglot";
+import { TxStatus } from '@shapeshiftoss/unchained-client';
+import type { InterpolationOptions } from 'node-polyglot';
 
 import type {
   GetTradeQuoteInput,

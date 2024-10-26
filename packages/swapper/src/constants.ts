@@ -4,7 +4,7 @@ import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
 
-import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
+import { chainflipApi } from './swappers/ChainflipSwapper/ChainflipSwapperApi'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
 

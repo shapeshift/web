@@ -44,6 +44,7 @@ export const getChainflipTradeQuote = async (
     sellAsset,
     buyAsset,
     accountNumber,
+    receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     affiliateBps: commissionBps,
   } = input
@@ -236,7 +237,7 @@ export const getChainflipTradeQuote = async (
       const boostTradeQuote: TradeQuote = {
         id: uuid(),
         rate: boostRate,
-        receiveAddress: "",
+        receiveAddress: receiveAddress,
         potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming: isStreaming,
@@ -271,7 +272,7 @@ export const getChainflipTradeQuote = async (
     const tradeQuote: TradeQuote = {
       id: uuid(),
       rate: rate,
-      receiveAddress: "",
+      receiveAddress: receiveAddress,
       potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming: isStreaming,

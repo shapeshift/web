@@ -65,9 +65,9 @@ export type FeatureFlags = {
   FoxPageFoxSection: boolean
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
-  LimitOrders: boolean,
-  Chainflip: boolean,
-  ChainflipDca: boolean,
+  LimitOrders: boolean
+  Chainflip: boolean
+  ChainflipDca: boolean
   PublicTradeRoute: boolean
 }
 

@@ -9,7 +9,7 @@ import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 
-import { SwapperIcon } from './SwapperIcon/SwapperIcon'
+import { SwapperIcon } from '../../../TradeInput/components/SwapperIcon/SwapperIcon'
 
 type ReceiveSummaryProps = {
   isLoading?: boolean

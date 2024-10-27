@@ -28,7 +28,7 @@ import { useAppSelector } from 'state/store'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'

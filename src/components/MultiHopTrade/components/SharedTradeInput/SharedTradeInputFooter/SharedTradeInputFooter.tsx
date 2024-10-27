@@ -5,7 +5,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
-import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/components/ReceiveSummary'
 import { RecipientAddress } from 'components/MultiHopTrade/components/TradeInput/components/RecipientAddress'
 import { WithLazyMount } from 'components/MultiHopTrade/components/TradeInput/components/WithLazyMount'
 import { Text } from 'components/Text'
@@ -16,7 +15,8 @@ import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { ManualAddressEntry } from '../TradeInput/components/ManualAddressEntry'
+import { ManualAddressEntry } from '../../TradeInput/components/ManualAddressEntry'
+import { ReceiveSummary } from './components/ReceiveSummary'
 
 type SharedTradeInputFooterProps = {
   affiliateBps: string | undefined

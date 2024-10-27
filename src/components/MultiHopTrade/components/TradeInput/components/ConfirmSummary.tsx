@@ -50,7 +50,7 @@ import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
 import { PriceImpact } from '../../PriceImpact'
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
 import { MaxSlippage } from './MaxSlippage'

@@ -87,6 +87,8 @@ export const getUnsignedEvmTransaction = async ({
     })
   }
 
+  // TODO: Figure out what to do here. Just a transfer() call apparently, but how?
+  
   const feeData = await evm.getFees({
     adapter: assertGetEvmChainAdapter(chainId),
     data: data.toString(),

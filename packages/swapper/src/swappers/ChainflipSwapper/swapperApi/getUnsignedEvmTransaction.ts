@@ -1,7 +1,8 @@
 import { AxiosError } from 'axios'
+import { toHex } from 'viem';
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
+import { getErc20Data, getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 
 import type {
   EvmTransactionRequest, 
@@ -65,20 +66,19 @@ export const getUnsignedEvmTransaction = async ({
   
   const depositAddress = swapResponse.address!
   const { assetReference } = fromAssetId(step.sellAsset.assetId)
+  const isTokenSend = !!assetReference
   
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  // TODO: Are these the correct params for data and value?
   const fees = await getFees({
     adapter: adapter,
-    data: '',
     to: depositAddress,
-    value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     from: from,
+    value: toHex(isTokenSend ? 0n : BigInt(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)),
+    data: (await getErc20Data(depositAddress, step.sellAmountIncludingProtocolFeesCryptoBaseUnit, assetReference)),
     supportsEIP1559: supportsEIP1559
   })
 
-  // TODO: Check what this does when you want to swap ETH
   // TODO: How to go from ETHSignTx to EvmTransactionRequest?
   return adapter.buildSendApiTransaction({
     to: depositAddress,

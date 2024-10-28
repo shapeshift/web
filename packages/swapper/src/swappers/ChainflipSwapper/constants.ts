@@ -47,6 +47,7 @@ export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> =
   [KnownChainIds.SolanaMainnet]: 'sol',
 }
 
+// TODO: Verify with chainflip if this are the correct values
 export const assetGasLimits: Partial<Record<string, string>> = {
   ['eth.eth']: '34000',
   ['flip.eth']: '52000',

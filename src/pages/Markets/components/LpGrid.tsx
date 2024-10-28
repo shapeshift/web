@@ -45,6 +45,8 @@ export const LpGrid: React.FC<{
   const { data: portalsAssets } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
     enabled: inView,
+    sortBy,
+    orderBy,
   })
 
   const filteredAssetIds = useMemo(
@@ -79,6 +81,7 @@ export const LpGrid: React.FC<{
           )
         }
 
+        // @TODO: Remove this when portals assets are accessible from the opportunities slices
         const maybePortalsFirstAssetApy = portalsAssets?.byId[firstAssetId]?.metrics.apy
         const maybePortalsSecondAssetApy = portalsAssets?.byId[secondAssetId]?.metrics.apy
 

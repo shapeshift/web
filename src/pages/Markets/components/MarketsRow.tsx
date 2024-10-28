@@ -50,7 +50,9 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isCategoryRoute = params.category
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
   const [selectedOrder, setSelectedOrder] = useState<OrderOptionsKeys>(OrderOptionsKeys.DESCENDING)
-  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(SortOptionsKeys.PRICE_CHANGE)
+  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
+    (params.category && sortOptionsByCategory[params.category]?.[0].key) ?? SortOptionsKeys.VOLUME,
+  )
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
 
   const chainIds = useMemo(() => {

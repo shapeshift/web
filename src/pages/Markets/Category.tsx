@@ -6,7 +6,8 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
-import { type MARKETS_CATEGORIES, sortOptionsByCategory } from './constants'
+import type { MARKETS_CATEGORIES } from './constants'
+import { sortOptionsByCategory } from './constants'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
 

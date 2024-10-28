@@ -1,6 +1,8 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
+import { foxAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
+import { usdcAssetId } from 'test/mocks/accounts'
 import { Text } from 'components/Text'
 
 import { LimitOrderCard } from './components/LimitOrderCard'
@@ -11,13 +13,14 @@ type LimitOrderListProps = {
 } & CardProps
 
 export const LimitOrderList: FC<LimitOrderListProps> = ({ isLoading, ...cardProps }) => {
+  // FIXME: Use real data
   const MockLimitOrderCard = () => (
     <LimitOrderCard
       id='1'
       sellAmount={7000000}
       buyAmount={159517.575}
-      buyAssetSymbol='USDC'
-      sellAssetSymbol='FOX'
+      buyAssetId={usdcAssetId}
+      sellAssetId={foxAssetId}
       expiry={7}
       filledDecimalPercentage={0.0888}
       status={LimitOrderStatus.Open}

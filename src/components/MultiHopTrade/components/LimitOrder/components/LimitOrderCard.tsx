@@ -1,10 +1,13 @@
 import type { CenterProps } from '@chakra-ui/react'
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo } from 'react'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
+import { selectAssetById } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { LimitOrderStatus } from '../types'
 
@@ -12,8 +15,8 @@ export interface LimitOrderCardProps {
   id: string
   buyAmount: number
   sellAmount: number
-  buyAssetSymbol: string
-  sellAssetSymbol: string
+  buyAssetId: AssetId
+  sellAssetId: AssetId
   expiry: number
   filledDecimalPercentage: number
   status: LimitOrderStatus
@@ -28,12 +31,15 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   id,
   buyAmount,
   sellAmount,
-  buyAssetSymbol,
-  sellAssetSymbol,
+  buyAssetId,
+  sellAssetId,
   expiry,
   filledDecimalPercentage,
   status,
 }) => {
+  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
+  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
+
   const handleCancel = useCallback(() => {
     console.log(`Cancel limit order ${id}`)
   }, [id])
@@ -54,6 +60,8 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     }
   }, [status])
 
+  if (!buyAsset || !sellAsset) return null
+
   return (
     <Box
       key={id}
@@ -66,7 +74,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     >
       <Flex direction='column' gap={4}>
         {/* Asset amounts row */}
-        <Flex justify='space-between' align='center'>
+        <Flex justify='space-between' align='flex-start'>
           <Flex>
             <AssetIconWithBadge size='lg' assetId={ethAssetId}>
               <IconWrapper bg='purple.500'>
@@ -74,14 +82,12 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               </IconWrapper>
             </AssetIconWithBadge>
             <Flex direction='column' align='flex-start' ml={4}>
-              <RawText
-                color='gray.500'
-                fontSize='xl'
-              >{`${sellAmount.toLocaleString()} ${sellAssetSymbol}`}</RawText>
-              <RawText
-                fontWeight='bold'
-                fontSize='xl'
-              >{`${buyAmount.toLocaleString()} ${buyAssetSymbol}`}</RawText>
+              <RawText color='gray.500' fontSize='xl'>{`${sellAmount.toLocaleString()} ${
+                sellAsset.symbol
+              }`}</RawText>
+              <RawText fontWeight='bold' fontSize='xl'>{`${buyAmount.toLocaleString()} ${
+                buyAsset.symbol
+              }`}</RawText>
             </Flex>
           </Flex>
           <Tag colorScheme={tagColorScheme}>{status}</Tag>
@@ -90,7 +96,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Price row */}
         <Flex justify='space-between' align='center'>
           <Text color='gray.500' translation='limitOrders.limitPrice' />
-          <RawText>{`1 ${sellAssetSymbol} = ${limitPrice} ${buyAssetSymbol}`}</RawText>
+          <RawText>{`1 ${sellAsset.symbol} = ${limitPrice} ${buyAsset.symbol}`}</RawText>
         </Flex>
 
         {/* Expiry row */}

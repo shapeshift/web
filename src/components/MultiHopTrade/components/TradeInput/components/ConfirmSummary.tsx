@@ -1,15 +1,20 @@
-import { Alert, AlertIcon, useMediaQuery } from '@chakra-ui/react'
+import { Alert, AlertIcon, Divider, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { isUtxoChainId } from '@shapeshiftoss/utils'
+import { bnOrZero, fromBaseUnit, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
+import { Amount } from 'components/Amount/Amount'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isToken } from 'lib/utils'
@@ -20,7 +25,6 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectIsAccountsMetadataLoading,
   selectManualReceiveAddressIsEditing,
   selectManualReceiveAddressIsValid,
   selectManualReceiveAddressIsValidating,
@@ -45,14 +49,20 @@ import {
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
+import { PriceImpact } from '../../PriceImpact'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
+import { MaxSlippage } from './MaxSlippage'
 
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
   isLoading: boolean
   receiveAddress: string | undefined
+}
+
+const ProtocolFeeToolTip = () => {
+  return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
 }
 
 export const ConfirmSummary = ({
@@ -62,6 +72,7 @@ export const ConfirmSummary = ({
 }: ConfirmSummaryProps) => {
   const history = useHistory()
   const translate = useTranslate()
+  const redColor = useColorModeValue('red.500', 'red.300')
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
     state: { isConnected, isDemoWallet },
@@ -72,7 +83,7 @@ export const ConfirmSummary = ({
   const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
   const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
   const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
-  const slippageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
+  const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const quoteRequestErrors = useAppSelector(selectTradeQuoteRequestErrors)
@@ -90,7 +101,8 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
-  const isAccountsMetadataLoading = useAppSelector(selectIsAccountsMetadataLoading)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
@@ -102,8 +114,7 @@ export const ConfirmSummary = ({
 
   const { data: _isSmartContractReceiveAddress, isLoading: isReceiveAddressByteCodeLoading } =
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
-
-  const { sellAssetAccountId } = useAccountIds()
+  const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
   const isTaprootReceiveAddress = useMemo(
     () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
@@ -185,7 +196,7 @@ export const ConfirmSummary = ({
     const quoteResponseError = quoteResponseErrors[0]
     const tradeQuoteError = activeQuoteErrors?.[0]
     switch (true) {
-      case isAccountsMetadataLoading && !sellAssetAccountId:
+      case isAccountsMetadataLoading && !(sellAssetAccountId || buyAssetAccountId):
         return 'common.accountsLoading'
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
@@ -210,6 +221,7 @@ export const ConfirmSummary = ({
     activeQuoteErrors,
     isAccountsMetadataLoading,
     sellAssetAccountId,
+    buyAssetAccountId,
     shouldShowTradeQuoteOrAwaitInput,
     hasUserEnteredAmount,
     isAnyTradeQuoteLoading,
@@ -257,6 +269,78 @@ export const ConfirmSummary = ({
     return isParentLoading || isReceiveAddressByteCodeLoading
   }, [isReceiveAddressByteCodeLoading, isParentLoading])
 
+  const receiveSummaryDetails = useMemo(() => {
+    const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
+      return items
+        .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+        .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
+          symbol: asset.symbol,
+          chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+        }))
+    }
+
+    const protocolFeesParsed = totalProtocolFees
+      ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
+      : undefined
+
+    const intermediaryTransactionOutputs = tradeQuoteStep?.intermediaryTransactionOutputs
+
+    const intermediaryTransactionOutputsParsed = intermediaryTransactionOutputs
+      ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
+      : undefined
+
+    const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
+
+    const hasIntermediaryTransactionOutputs =
+      intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
+
+    return (
+      <>
+        <MaxSlippage
+          swapSource={tradeQuoteStep?.source}
+          isLoading={isLoading}
+          symbol={buyAsset.symbol}
+          amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+          slippagePercentageDecimal={slippagePercentageDecimal}
+          hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
+          intermediaryTransactionOutputs={intermediaryTransactionOutputs}
+        />
+
+        {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
+        <Divider borderColor='border.base' />
+
+        {hasProtocolFees && (
+          <Row Tooltipbody={ProtocolFeeToolTip} isLoading={isLoading}>
+            <Row.Label>
+              <Text translation='trade.protocolFee' />
+            </Row.Label>
+            <Row.Value color='text.base'>
+              {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
+                <Amount.Crypto
+                  key={`${amountCryptoPrecision}`}
+                  color={redColor}
+                  value={amountCryptoPrecision}
+                  symbol={symbol}
+                />
+              ))}
+            </Row.Value>
+          </Row>
+        )}
+      </>
+    )
+  }, [
+    buyAmountAfterFeesCryptoPrecision,
+    buyAsset.symbol,
+    isLoading,
+    priceImpactPercentage,
+    redColor,
+    slippagePercentageDecimal,
+    totalProtocolFees,
+    tradeQuoteStep?.intermediaryTransactionOutputs,
+    tradeQuoteStep?.source,
+  ])
+
   return (
     <SharedTradeInputFooter
       isCompact={isCompact}
@@ -274,19 +358,15 @@ export const ConfirmSummary = ({
       recipientAddressDescription={
         disableThorTaprootReceiveAddress ? translate('trade.disableThorTaprootReceive') : undefined
       }
-      priceImpactPercentage={priceImpactPercentage}
       swapSource={tradeQuoteStep?.source}
       rate={activeQuote?.rate}
       swapperName={activeSwapperName}
-      slippageDecimal={slippageDecimal}
-      buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-      intermediaryTransactionOutputs={tradeQuoteStep?.intermediaryTransactionOutputs}
       buyAsset={buyAsset}
       hasUserEnteredAmount={hasUserEnteredAmount}
-      totalProtocolFees={totalProtocolFees}
       sellAsset={sellAsset}
       sellAssetAccountId={sellAssetAccountId}
       totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
+      receiveSummaryDetails={receiveSummaryDetails}
     >
       {nativeAssetBridgeWarning ? (
         <Alert status='info' borderRadius='lg'>

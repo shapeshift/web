@@ -1003,7 +1003,25 @@
     }
   },
   "limitOrder": {
-    "heading": "Limit Order"
+    "heading": "Limit Order",
+    "confirm": "Confirm",
+    "placeOrderPending": "Waiting for Confirmation",
+    "placeOrderSuccess": "Success!",
+    "placeOrderFailed": "Something Went Wrong",
+    "placeOrder": "Place Order",
+    "viewOrder": "View Order",
+    "viewOnChain": "View transaction on chain",
+    "yourOrderHasBeenPlaced": "Your order has been placed.",
+    "limitPrice": "Limit Price",
+    "provider": "Provider",
+    "expiration": "Expiration",
+    "networkFee":"Network Fee",
+    "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
+    "learnMore": "Learn More",
+    "previewOrder": "Preview Order",
+    "youGet": "You Get",
+    "whenPriceReaches": "When price reaches",
+    "expiry": "Expiry"
   },
   "modals": {
     "assetSearch": {
@@ -2664,7 +2682,7 @@
     "governance": {
       "title": "Governance",
       "description": {
-        "0": "Join us on the forum",
+        "0": "Join us",
         "1": "on the forum",
         "2": "and shape the future of the DAO."
       },

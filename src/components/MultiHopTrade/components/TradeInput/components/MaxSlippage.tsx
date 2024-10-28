@@ -26,7 +26,7 @@ type MaxSlippageProps = {
   swapSource?: SwapSource
   isLoading?: boolean
   amountCryptoPrecision: string
-  slippageDecimalPercentage: string
+  slippagePercentageDecimal: string
   hasIntermediaryTransactionOutputs?: boolean
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   symbol: string
@@ -36,7 +36,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   swapSource,
   isLoading,
   amountCryptoPrecision,
-  slippageDecimalPercentage,
+  slippagePercentageDecimal,
   hasIntermediaryTransactionOutputs,
   intermediaryTransactionOutputs,
   symbol,
@@ -52,7 +52,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
     [swapSource],
   )
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
-  const slippageAsPercentageString = bnOrZero(slippageDecimalPercentage).times(100).toString()
+  const slippageAsPercentageString = bnOrZero(slippagePercentageDecimal).times(100).toString()
   const isAmountPositive = bnOrZero(amountCryptoPrecision).gt(0)
 
   const renderSlippageTag = useMemo(() => {
@@ -72,9 +72,9 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
   }, [slippageAsPercentageString, translate, userSlippagePercentage])
 
   const amountAfterSlippage = useMemo(() => {
-    const slippageBps = convertDecimalPercentageToBasisPoints(slippageDecimalPercentage)
+    const slippageBps = convertDecimalPercentageToBasisPoints(slippagePercentageDecimal)
     return isAmountPositive ? subtractBasisPointAmount(amountCryptoPrecision, slippageBps) : '0'
-  }, [amountCryptoPrecision, isAmountPositive, slippageDecimalPercentage])
+  }, [amountCryptoPrecision, isAmountPositive, slippagePercentageDecimal])
 
   const formattedCryptoAmount = useMemo(
     () => toCrypto(amountAfterSlippage, symbol),

@@ -48,6 +48,15 @@ export const getTradeQuote = async (
     affiliateBps: commissionBps,
   } = input
 
+  if (accountNumber == undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported accountNumber`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+  
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(
       makeSwapErrorRight({
@@ -257,7 +266,7 @@ export const getTradeQuote = async (
             source: getSwapSource(singleQuoteResponse.type, true),
             buyAsset: buyAsset,
             sellAsset: sellAsset,
-            accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?
+            accountNumber: accountNumber,
             allowanceContract: "0x0", // Chainflip does not use contracts
             estimatedExecutionTimeMs: singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000
           }
@@ -292,7 +301,7 @@ export const getTradeQuote = async (
           source: getSwapSource(singleQuoteResponse.type, false),
           buyAsset: buyAsset,
           sellAsset: sellAsset,
-          accountNumber: accountNumber ?? 0, // TODO: What to pass if accountNumber is undefined?
+          accountNumber: accountNumber,
           allowanceContract: "0x0", // Chainflip does not use contracts
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000
         }

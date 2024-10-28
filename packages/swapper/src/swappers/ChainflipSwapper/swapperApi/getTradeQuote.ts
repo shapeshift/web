@@ -24,17 +24,16 @@ import {
   CHAINFLIP_DCA_SWAP_SOURCE,
   CHAINFLIP_SWAP_SOURCE,
   chainIdToChainflipNetwork,
-  usdcAsset
+  usdcAsset,
+  CHAINFLIP_BAAS_COMMISSION,
+  CHAINFLIP_REGULAR_QUOTE,
+  CHAINFLIP_DCA_QUOTE,
 } from '../constants'
 import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
 import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 import { chainflipService } from '../utils/chainflipService'
 import { getEvmTxFees } from '../utils/getEvmTxFees'
 import { getUtxoTxFees } from '../utils/getUtxoTxFees'
-
-const CHAINFLIP_REGULAR_QUOTE = 'regular'
-const CHAINFLIP_DCA_QUOTE = 'dca'
-const CHAINFLIP_BAAS_COMMISSION = 5
 
 export const getTradeQuote = async (
   input: GetTradeQuoteInput,
@@ -101,7 +100,12 @@ export const getTradeQuote = async (
     serviceCommission = 0
   
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
-    `${brokerUrl}/quotes-native?apiKey=${apiKey}&sourceAsset=${sellChainflipChainKey}&destinationAsset=${buyChainflipChainKey}&amount=${sellAmount}&commissionBps=${serviceCommission}`,
+    `${brokerUrl}/quotes-native`+ 
+      `?apiKey=${apiKey}` + 
+      `&sourceAsset=${sellChainflipChainKey}` + 
+      `&destinationAsset=${buyChainflipChainKey}` + 
+      `&amount=${sellAmount}` + 
+      `&commissionBps=${serviceCommission}`,
   )
 
   if (maybeQuoteResponse.isErr()) {

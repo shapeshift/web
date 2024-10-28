@@ -20,6 +20,10 @@ const BITCOIN_BTC_ASSET_ID: AssetId = 'bip122:000000000019d6689c085ae165831e93/s
 const SOLANA_SOL_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 const SOLANA_USDC_ASSET_ID: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
 
+export const CHAINFLIP_REGULAR_QUOTE = 'regular'
+export const CHAINFLIP_DCA_QUOTE = 'dca'
+export const CHAINFLIP_BAAS_COMMISSION = 5
+
 export const ChainflipSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,

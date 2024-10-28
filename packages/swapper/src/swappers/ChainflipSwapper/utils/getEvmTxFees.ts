@@ -1,7 +1,7 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 
-import { assetGasLimits } from '../../constants'
+import { assetGasLimits } from '../constants'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmChainAdapter

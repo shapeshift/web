@@ -1,7 +1,7 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 
-import { assetGasLimits } from '../constants'
+import { getGasLimit } from './helpers'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmChainAdapter
@@ -14,7 +14,7 @@ export const getEvmTxFees = async (args: GetEvmTxFeesArgs): Promise<string> => {
 
   const { average } = await adapter.getGasFeeData()
 
-  const gasLimit = (args.sendAsset in assetGasLimits) ? assetGasLimits[args.sendAsset]! : '100000'
+  const gasLimit = getGasLimit(args.sendAsset)
   
   return evm.calcNetworkFeeCryptoBaseUnit({
     ...average,

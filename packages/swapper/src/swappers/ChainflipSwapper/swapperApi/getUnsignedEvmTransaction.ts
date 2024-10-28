@@ -11,10 +11,11 @@ import { isExecutableTradeQuote } from '../../../utils'
 
 import {
   chainIdToChainflipNetwork,
-  CHAINFLIP_BAAS_COMMISSION, assetGasLimits,
+  CHAINFLIP_BAAS_COMMISSION
 } from '../constants'
 import { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
+import { getGasLimit } from '../utils/helpers'
 
 export const getUnsignedEvmTransaction = async ({
   chainId,
@@ -85,7 +86,7 @@ export const getUnsignedEvmTransaction = async ({
     value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     accountNumber: step.accountNumber,
     chainSpecific: {
-      gasLimit: (sellChainflipChainKey in assetGasLimits) ? assetGasLimits[sellChainflipChainKey]! : '100000',
+      gasLimit: getGasLimit(sellChainflipChainKey),
       contractAddress: assetReference,
       maxFeePerGas: fees.maxFeePerGas!,
       maxPriorityFeePerGas: fees.maxPriorityFeePerGas!,

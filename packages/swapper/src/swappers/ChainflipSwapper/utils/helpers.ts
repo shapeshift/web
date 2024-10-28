@@ -6,10 +6,10 @@ import {
   avalancheAssetId,
   optimismAssetId, bscAssetId, polygonAssetId, gnosisAssetId, arbitrumAssetId, baseAssetId
 } from '@shapeshiftoss/caip'
+import { KnownChainIds } from "@shapeshiftoss/types";
 
-import type { ChainflipSupportedChainId } from '../constants'
+import { assetGasLimits, ChainflipSupportedChainId } from '../constants'
 import { ChainflipSupportedChainIds, ChainflipSupportedAssetIdsByChainId } from '../constants'
-import {KnownChainIds} from "@shapeshiftoss/types";
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSupportedChainId => {
   return ChainflipSupportedChainIds.includes(chainId as ChainflipSupportedChainId)
@@ -17,6 +17,10 @@ export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSuppor
 
 export const isSupportedAssetId = (chainId: ChainId, assetId: AssetId): chainId is ChainflipSupportedChainId => {
   return ChainflipSupportedAssetIdsByChainId[chainId as ChainflipSupportedChainId]!.includes(assetId)
+}
+
+export const getGasLimit = (chainflipAsset: string) => {
+  return (chainflipAsset in assetGasLimits) ? assetGasLimits[chainflipAsset]! : '100000'
 }
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {

@@ -1,11 +1,12 @@
 import { AxiosError } from 'axios'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn } from '@shapeshiftoss/utils'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { 
+import type {
   EvmTransactionRequest, 
+  GetEvmTradeQuoteInput,
   GetUnsignedEvmTransactionArgs
 } from '../../../types'
 import { isExecutableTradeQuote } from '../../../utils'
@@ -16,7 +17,7 @@ import {
 } from '../constants'
 import { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
-import { isNativeEvmAsset } from '../utils/helpers'
+import { getEvmTxFees } from "../utils/getEvmTxFees";
 
 export const getUnsignedEvmTransaction = async ({
   chainId,
@@ -65,29 +66,26 @@ export const getUnsignedEvmTransaction = async ({
   const { data: swapResponse } = maybeSwapResponse.unwrap()
   
   const depositAddress = swapResponse.address!
-  const value = isNativeEvmAsset(step.sellAsset.assetId)
-    ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    : '0'
+  const { assetReference } = fromAssetId(step.sellAsset.assetId)
+  
+  throw Error('not yet implemented')
   
   // TODO: Figure out what to do here. Just a transfer() call apparently, but how?
-  const adapter = assertGetEvmChainAdapter(chainId)
-  //adapter.buildSendTransaction()
-  
-  const feeData = await evm.getFees({
-    adapter: adapter,
-    data: '',
-    to: depositAddress,
-    value: bn(value.toString()).toString(),
-    from,
-    supportsEIP1559,
-  })
-
-  return {
-    to: depositAddress,
-    from,
-    value: value.toString(),
-    data: '',
-    chainId: Number(fromChainId(chainId).chainReference),
-    ...{ ...feeData },
-  }
+  // const adapter = assertGetEvmChainAdapter(chainId)
+  //
+  // const fees = await getEvmTxFees({
+  //   adapter: adapter,
+  //   supportsEIP1559: supportsEIP1559,
+  //   sendAsset: sellChainflipChainKey
+  // })
+  //
+  // // TODO: Check what this does when you want to swap ETH
+  // return adapter.buildSendTransaction({
+  //   to: depositAddress,
+  //   from: from,
+  //   value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  //   wallet: null, // TODO: Where to get this?
+  //   accountNumber: step.accountNumber,
+  //   contractAddress: assetReference
+  // })
 }

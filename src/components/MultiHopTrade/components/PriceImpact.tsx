@@ -1,5 +1,7 @@
+import type { BigNumber } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
@@ -7,11 +9,18 @@ import { RawText, Text } from 'components/Text'
 import { usePriceImpactColor } from '../hooks/usePriceImpactColor'
 
 interface PriceImpactProps {
-  priceImpactPercentage: string
+  priceImpactPercentage: BigNumber | undefined
 }
 
-export const PriceImpact: FC<PriceImpactProps> = ({ priceImpactPercentage }) => {
+export const PriceImpact: FC<PriceImpactProps> = ({
+  priceImpactPercentage: priceImpactPercentageBn,
+}) => {
   const translate = useTranslate()
+
+  const priceImpactPercentage = useMemo(
+    () => bnOrZero(priceImpactPercentageBn).toFixed(2),
+    [priceImpactPercentageBn],
+  )
 
   const priceImpactColor = usePriceImpactColor(priceImpactPercentage)
 

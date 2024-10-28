@@ -1,18 +1,10 @@
 import { CardFooter, useMediaQuery } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type {
-  AmountDisplayMeta,
-  ProtocolFee,
-  SwapperName,
-  SwapSource,
-} from '@shapeshiftoss/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import type { BigNumber } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { RateGasRow } from 'components/MultiHopTrade/components/RateGasRow'
-import { ReceiveSummary } from 'components/MultiHopTrade/components/TradeInput/components/ReceiveSummary'
 import { RecipientAddress } from 'components/MultiHopTrade/components/TradeInput/components/RecipientAddress'
 import { WithLazyMount } from 'components/MultiHopTrade/components/TradeInput/components/WithLazyMount'
 import { Text } from 'components/Text'
@@ -23,22 +15,20 @@ import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { ManualAddressEntry } from '../TradeInput/components/ManualAddressEntry'
+import { ManualAddressEntry } from '../../TradeInput/components/ManualAddressEntry'
+import { ReceiveSummary } from './components/ReceiveSummary'
 
 type SharedTradeInputFooterProps = {
   affiliateBps: string | undefined
   affiliateFeeAfterDiscountUserCurrency: string | undefined
-  buyAmountAfterFeesCryptoPrecision: string | undefined
   buyAsset: Asset
   children?: JSX.Element
   hasUserEnteredAmount: boolean
   inputAmountUsd: string | undefined
-  intermediaryTransactionOutputs: AmountDisplayMeta[] | undefined
   isCompact: boolean | undefined
   isError: boolean
   isLoading: boolean
   manualAddressEntryDescription: string | undefined
-  priceImpactPercentage: BigNumber | undefined
   quoteStatusTranslation: string | [string, InterpolationOptions]
   rate: string | undefined
   receiveAddress: string | undefined
@@ -47,28 +37,24 @@ type SharedTradeInputFooterProps = {
   sellAssetAccountId: string | undefined
   shouldDisablePreviewButton: boolean | undefined
   shouldForceManualAddressEntry: boolean
-  slippageDecimal: string
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   totalNetworkFeeFiatPrecision: string
-  totalProtocolFees: Record<AssetId, ProtocolFee> | undefined
+  receiveSummaryDetails?: JSX.Element | null
   onRateClick: () => void
 }
 
 export const SharedTradeInputFooter = ({
   affiliateBps,
   affiliateFeeAfterDiscountUserCurrency,
-  buyAmountAfterFeesCryptoPrecision,
   buyAsset,
   children,
   hasUserEnteredAmount,
   inputAmountUsd,
-  intermediaryTransactionOutputs,
   isCompact,
   isError,
   isLoading: isParentLoading,
   manualAddressEntryDescription,
-  priceImpactPercentage,
   quoteStatusTranslation,
   rate,
   receiveAddress,
@@ -77,11 +63,10 @@ export const SharedTradeInputFooter = ({
   sellAssetAccountId,
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   shouldForceManualAddressEntry,
-  slippageDecimal,
   swapperName,
   swapSource,
   totalNetworkFeeFiatPrecision,
-  totalProtocolFees,
+  receiveSummaryDetails,
   onRateClick,
 }: SharedTradeInputFooterProps) => {
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -160,19 +145,14 @@ export const SharedTradeInputFooter = ({
           >
             <ReceiveSummary
               isLoading={isLoading}
-              symbol={buyAsset.symbol}
-              amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-              protocolFees={totalProtocolFees}
-              slippageDecimalPercentage={slippageDecimal}
-              swapperName={swapperName ?? ''}
-              defaultIsOpen={true}
+              swapperName={swapperName}
               swapSource={swapSource}
-              priceImpact={priceImpactPercentage}
               inputAmountUsd={inputAmountUsd}
               affiliateBps={affiliateBps}
               affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
-              intermediaryTransactionOutputs={intermediaryTransactionOutputs}
-            />
+            >
+              {receiveSummaryDetails}
+            </ReceiveSummary>
           </RateGasRow>
         )}
       </CardFooter>

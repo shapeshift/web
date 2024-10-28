@@ -14,12 +14,12 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ isLoading, ...cardProp
   const MockLimitOrderCard = () => (
     <LimitOrderCard
       id='1'
-      sellAmount={11000}
-      buyAmount={3.4}
-      buyAssetSymbol='ETH'
-      sellAssetSymbol='USDC'
-      expiry={3}
-      filledDecimalPercentage={0.7}
+      sellAmount={7000000}
+      buyAmount={159517.575}
+      buyAssetSymbol='USDC'
+      sellAssetSymbol='FOX'
+      expiry={7}
+      filledDecimalPercentage={0.0888}
       status={LimitOrderStatus.Open}
     />
   )

@@ -5,14 +5,20 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
-import type { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { OrderOptionsKeys } from 'components/OrderDropdown/types'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import type { SortOptionsKeys } from 'components/SortDropdown/types'
+import { bnOrZero } from 'lib/bignumber/bignumber'
 import { opportunitiesApi } from 'state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { thorchainSaversOpportunityIdsResolver } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers'
 import { DefiProvider, DefiType } from 'state/slices/opportunitiesSlice/types'
-import { useAppDispatch } from 'state/store'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectStakingOpportunityByFilter,
+} from 'state/slices/selectors'
+import { store, useAppDispatch } from 'state/store'
 
+import { marketDataBySortKey } from '../constants'
 import { usePortalsAssetsQuery } from '../hooks/usePortalsAssetsQuery'
 import { LoadingGrid } from './LoadingGrid'
 import { LpGridItem } from './LpCard'
@@ -50,6 +56,51 @@ export const LpGrid: React.FC<{
     [assetIds, limit, selectedChainId],
   )
 
+  const sortedAssetIds = useMemo(() => {
+    if (!sortBy) return filteredAssetIds
+
+    return filteredAssetIds.sort((a, b) => {
+      const dataKey = marketDataBySortKey[sortBy]
+      const firstAssetId = orderBy === OrderOptionsKeys.ASCENDING ? a : b
+      const secondAssetId = orderBy === OrderOptionsKeys.ASCENDING ? b : a
+
+      if (dataKey === 'apy') {
+        const firstAssetOpportunityData = selectStakingOpportunityByFilter(store.getState(), {
+          assetId: firstAssetId,
+        })
+        const secondAssetOpportunityData = selectStakingOpportunityByFilter(store.getState(), {
+          assetId: secondAssetId,
+        })
+
+        if (firstAssetOpportunityData && secondAssetOpportunityData) {
+          return (
+            bnOrZero(firstAssetOpportunityData.apy ?? 0).toNumber() -
+            bnOrZero(secondAssetOpportunityData.apy ?? 0).toNumber()
+          )
+        }
+
+        const maybePortalsFirstAssetApy = portalsAssets?.byId[firstAssetId]?.metrics.apy
+        const maybePortalsSecondAssetApy = portalsAssets?.byId[secondAssetId]?.metrics.apy
+
+        return (
+          bnOrZero(maybePortalsFirstAssetApy ?? 0).toNumber() -
+          bnOrZero(maybePortalsSecondAssetApy ?? 0).toNumber()
+        )
+      }
+
+      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), firstAssetId)
+      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(
+        store.getState(),
+        secondAssetId,
+      )
+
+      return (
+        bnOrZero(assetAMarketData?.[dataKey] ?? 0).toNumber() -
+        bnOrZero(assetBMarketData?.[dataKey] ?? 0).toNumber()
+      )
+    })
+  }, [filteredAssetIds, orderBy, sortBy, portalsAssets])
+
   if (isLoading) return <LoadingGrid />
 
   if (!filteredAssetIds.length)
@@ -58,7 +109,7 @@ export const LpGrid: React.FC<{
   return (
     <div ref={ref}>
       <MarketGrid>
-        {filteredAssetIds.map((assetId, index) => {
+        {sortedAssetIds.map((assetId, index) => {
           const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
           const maybePortalsVolume = portalsAssets?.byId[assetId]?.metrics.volumeUsd1d
 

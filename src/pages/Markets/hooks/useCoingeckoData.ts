@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
-import { makeAsset } from '@shapeshiftoss/utils'
+import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { OrderOptionsKeys } from 'components/OrderDropdown/types'
@@ -14,11 +14,15 @@ import {
 } from 'lib/coingecko/utils'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
-import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
+import {
+  selectAssets,
+  selectFeeAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import type { AppDispatch } from 'state/store'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { MARKETS_CATEGORIES } from '../constants'
+import { marketDataBySortKey, MARKETS_CATEGORIES } from '../constants'
 
 const selectCoingeckoAssets = (
   data: CoingeckoAsset[],
@@ -95,6 +99,43 @@ const selectCoingeckoAssets = (
   )
 }
 
+export const selectCoingeckoAssetIdsSortedAndOrdered = (
+  data: CoingeckoAsset[],
+  dispatch: AppDispatch,
+  assets: AssetsByIdPartial,
+  sortBy?: SortOptionsKeys,
+  orderBy?: OrderOptionsKeys,
+) => {
+  const coingeckoAssets = selectCoingeckoAssets(data, dispatch, assets)
+
+  if (!coingeckoAssets) return coingeckoAssets
+  if (!sortBy) return coingeckoAssets
+  if (!orderBy) return coingeckoAssets
+
+  const dataKey = marketDataBySortKey[sortBy]
+
+  if (dataKey === 'apy') return coingeckoAssets
+
+  return {
+    ...coingeckoAssets,
+    ids: coingeckoAssets.ids.sort((a, b) => {
+      const firstAssetId = orderBy === OrderOptionsKeys.ASCENDING ? a : b
+      const secondAssetId = orderBy === OrderOptionsKeys.ASCENDING ? b : a
+
+      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), firstAssetId)
+      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(
+        store.getState(),
+        secondAssetId,
+      )
+
+      return (
+        bnOrZero(assetAMarketData?.[dataKey] ?? 0).toNumber() -
+        bnOrZero(assetBMarketData?.[dataKey] ?? 0).toNumber()
+      )
+    }),
+  }
+}
+
 export const useTopMoversQuery = ({
   enabled = true,
   orderBy,
@@ -108,10 +149,11 @@ export const useTopMoversQuery = ({
   const assets = useAppSelector(selectAssets)
 
   const topMoversQuery = useQuery({
-    queryKey: ['coinGeckoTopMovers'],
+    queryKey: ['coinGeckoTopMovers', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTopMovers : skipToken,
     staleTime: Infinity,
-    select: data => selectCoingeckoAssets(data, dispatch, assets),
+    select: data =>
+      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
 
   return topMoversQuery
@@ -123,7 +165,6 @@ export const useTrendingQuery = ({
   sortBy,
 }: {
   enabled?: boolean
-
   sortBy?: SortOptionsKeys
   orderBy?: OrderOptionsKeys
 }) => {
@@ -131,10 +172,11 @@ export const useTrendingQuery = ({
   const assets = useAppSelector(selectAssets)
 
   const trendingQuery = useQuery({
-    queryKey: ['coinGeckoTrending'],
+    queryKey: ['coinGeckoTrending', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTrending : skipToken,
     staleTime: Infinity,
-    select: data => selectCoingeckoAssets(data, dispatch, assets),
+    select: data =>
+      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
 
   return trendingQuery
@@ -153,10 +195,11 @@ export const useRecentlyAddedQuery = ({
   const assets = useAppSelector(selectAssets)
 
   const recentlyAddedQuery = useQuery({
-    queryKey: ['coinGeckoRecentlyAdded'],
+    queryKey: ['coinGeckoRecentlyAdded', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoRecentlyAdded : skipToken,
     staleTime: Infinity,
-    select: data => selectCoingeckoAssets(data, dispatch, assets),
+    select: data =>
+      selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy),
   })
 
   return recentlyAddedQuery
@@ -176,8 +219,6 @@ export const useMarketsQuery = ({
 
   const prefixOrderBy = (() => {
     switch (sortBy) {
-      case SortOptionsKeys.PRICE_CHANGE:
-        return 'price_change_percentage_24h'
       case SortOptionsKeys.MARKET_CAP:
         return 'market_cap'
       case SortOptionsKeys.VOLUME:
@@ -203,8 +244,6 @@ export const useMarketsQuery = ({
     | 'market_cap_desc'
     | 'volume_desc'
     | 'volume_asc'
-    | 'price_change_percentage_24h_desc'
-    | 'price_change_percentage_24h_asc'
 
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoMarkets', order],

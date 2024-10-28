@@ -6,7 +6,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
-import type { MARKETS_CATEGORIES } from './constants'
+import { type MARKETS_CATEGORIES, sortOptionsByCategory } from './constants'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
 
@@ -23,10 +23,7 @@ export const Category: React.FC = () => {
   const row = allRows[params.category]
 
   const shouldShowSortFilter = useMemo(() => {
-    if (!params.category) return false
-
-    if (params.category === 'tradingVolume') return false
-    if (params.category === 'marketCap') return false
+    if (!sortOptionsByCategory[params.category]) return false
 
     return true
   }, [params.category])

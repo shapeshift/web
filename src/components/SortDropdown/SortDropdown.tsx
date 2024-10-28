@@ -13,29 +13,14 @@ import {
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import type { SortOption } from './types'
-import { SortOptionsKeys } from './types'
+import type { SortOption, SortOptionsKeys } from './types'
 
 type SortDropdownProps = {
   value: SortOptionsKeys
   onClick: (arg: SortOptionsKeys) => void
   buttonProps?: ButtonProps
+  options: SortOption[]
 } & Omit<MenuProps, 'children'>
-
-const sortOptions: SortOption[] = [
-  {
-    key: SortOptionsKeys.VOLUME,
-    label: 'dashboard.portfolio.volume',
-  },
-  {
-    key: SortOptionsKeys.PRICE_CHANGE,
-    label: 'dashboard.portfolio.priceChange',
-  },
-  {
-    key: SortOptionsKeys.MARKET_CAP,
-    label: 'dashboard.portfolio.marketCap',
-  },
-]
 
 const width = { base: 'full', md: 'auto' }
 
@@ -45,17 +30,18 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
   onClick,
   value,
   buttonProps,
+  options,
   ...menuProps
 }) => {
   const translate = useTranslate()
 
   const renderOptions = useMemo(() => {
-    return sortOptions.map(option => (
+    return options.map(option => (
       <MenuItemOption value={option.key} key={option.key}>
         {translate(option.label)}
       </MenuItemOption>
     ))
-  }, [translate])
+  }, [translate, options])
 
   const onChange = useCallback(
     (value: string | string[]) => onClick(value as SortOptionsKeys),
@@ -63,9 +49,9 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
   )
 
   const selectedLabel = useMemo(() => {
-    const selectedOption = sortOptions.find(option => option.key === value)
+    const selectedOption = options.find(option => option.key === value)
     return selectedOption ? translate(selectedOption.label) : ''
-  }, [translate, value])
+  }, [translate, value, options])
 
   return (
     <Flex alignItems='center' mx={2}>

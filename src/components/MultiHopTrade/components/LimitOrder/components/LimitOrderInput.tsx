@@ -274,7 +274,7 @@ export const LimitOrderInput = ({
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        hasUserEnteredAmount={true}
+        shouldOpenSideComponent={true}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}

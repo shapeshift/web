@@ -1,6 +1,12 @@
-import { Box, Button, Flex, Progress } from '@chakra-ui/react'
-import { type FC, useCallback } from 'react'
+import type { CenterProps } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
+import { ethAssetId } from '@shapeshiftoss/caip'
+import { type FC, useCallback, useMemo } from 'react'
+import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
+import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
+
+import { LimitOrderStatus } from '../types'
 
 export interface LimitOrderCardProps {
   id: string
@@ -10,8 +16,13 @@ export interface LimitOrderCardProps {
   sellAssetSymbol: string
   expiry: number
   filledDecimalPercentage: number
-  status: 'open' | 'filled' | 'cancelled'
+  status: LimitOrderStatus
 }
+
+// TODO: rm me
+const IconWrapper: React.FC<CenterProps> = props => (
+  <Center borderRadius='full' boxSize='100%' {...props} />
+)
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   id,
@@ -30,6 +41,19 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const formattedPercentage = (filledDecimalPercentage * 100).toFixed(2)
   const limitPrice = (buyAmount / sellAmount).toFixed(6)
 
+  const tagColorScheme = useMemo(() => {
+    switch (status) {
+      case LimitOrderStatus.Open:
+        return 'blue'
+      case LimitOrderStatus.Filled:
+        return 'green'
+      case LimitOrderStatus.Cancelled:
+        return 'red'
+      default:
+        return 'gray'
+    }
+  }, [status])
+
   return (
     <Box
       key={id}
@@ -43,8 +67,24 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
       <Flex direction='column' gap={4}>
         {/* Asset amounts row */}
         <Flex justify='space-between' align='center'>
-          <RawText fontSize='xl'>{`${sellAmount.toLocaleString()} ${sellAssetSymbol}`}</RawText>
-          <RawText fontSize='xl'>{`${buyAmount.toLocaleString()} ${buyAssetSymbol}`}</RawText>
+          <Flex>
+            <AssetIconWithBadge size='lg' assetId={ethAssetId}>
+              <IconWrapper bg='purple.500'>
+                <SwapBoldIcon boxSize='100%' />
+              </IconWrapper>
+            </AssetIconWithBadge>
+            <Flex direction='column' align='flex-start' ml={4}>
+              <RawText
+                color='gray.500'
+                fontSize='xl'
+              >{`${sellAmount.toLocaleString()} ${sellAssetSymbol}`}</RawText>
+              <RawText
+                fontWeight='bold'
+                fontSize='xl'
+              >{`${buyAmount.toLocaleString()} ${buyAssetSymbol}`}</RawText>
+            </Flex>
+          </Flex>
+          <Tag colorScheme={tagColorScheme}>{status}</Tag>
         </Flex>
 
         {/* Price row */}
@@ -74,7 +114,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         </Flex>
 
         {/* Cancel button */}
-        {status === 'open' && (
+        {status === LimitOrderStatus.Open && (
           <Button
             variant='ghost-filled'
             colorScheme='red'

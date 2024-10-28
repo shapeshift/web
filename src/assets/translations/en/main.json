@@ -2692,6 +2692,9 @@
     }
   },
   "limitOrders": {
-    "listTitle": "Limit Orders"
+    "listTitle": "Limit Orders",
+    "limitPrice": "Limit Price",
+    "expiresIn": "Expires In",
+    "filled": "Filled"
   }
 }

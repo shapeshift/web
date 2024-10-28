@@ -1,7 +1,7 @@
 import type { CardProps } from '@chakra-ui/react'
 
-import { HorizontalCollapse } from '../TradeInput/components/HorizontalCollapse'
-import { LimitOrderList } from './LimitOrderList'
+import { HorizontalCollapse } from '../../TradeInput/components/HorizontalCollapse'
+import { LimitOrderList } from '../LimitOrderList'
 
 export type CollapsibleLimitOrderListProps = {
   isOpen: boolean

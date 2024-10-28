@@ -46,11 +46,18 @@ export const getUnsignedEvmTransaction = async ({
       `&destinationAsset=${buyChainflipChainKey}` +
       `&destinationAddress=${tradeQuote.receiveAddress}` +
       `&boostFee=10` +
-      // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit, step.buyAmountAfterFeesCryptoBaseUnit
       // `&minimumPrice=` +
       // `&refundAddress=${from}` +
       // `&retryDurationInBlocks=10` +
       `&commissionBps=${serviceCommission}`,
+    
+    // TODO: Below is the reference code of Chainflip to calculate the minPrice parameter
+    //     const tolerance = new BigNumber(params.slippageTolerancePercent);
+    //     const estimatedPrice = new BigNumber(quote.estimatedPrice);
+    //     minPrice = estimatedPrice
+    //       .times(new BigNumber(100).minus(tolerance).dividedBy(100))
+    //       .toFixed(assetConstants[destAsset].decimals);
     
     // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
   )

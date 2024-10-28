@@ -31,11 +31,8 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
   const [stakingAssetAccountId, setStakingAssetAccountId] = useState<AccountId | undefined>()
 
   const filter = useMemo(
-    () =>
-      stakingAssetAccountId && stakingAssetId
-        ? { assetId: stakingAssetAccountId, accountId: stakingAssetAccountId }
-        : undefined,
-    [stakingAssetAccountId, stakingAssetId],
+    () => (stakingAssetAccountId ? { accountId: stakingAssetAccountId } : undefined),
+    [stakingAssetAccountId],
   )
 
   const stakingAssetAccountNumber = useAppSelector(state =>
@@ -62,7 +59,14 @@ export const RFOXProvider: React.FC<React.PropsWithChildren<{ stakingAssetId: As
       stakingAssetAccountId,
       stakingAssetId,
     }),
-    [selectedAssetAccountId, selectedAssetId, stakingAssetAccountId, stakingAssetId],
+    [
+      selectedAssetAccountId,
+      selectedAssetId,
+      stakingAssetAccountId,
+      stakingAssetId,
+      setStakingAssetAccountId,
+      setSelectedAssetId,
+    ],
   )
 
   return <RFOXContext.Provider value={value}>{children}</RFOXContext.Provider>

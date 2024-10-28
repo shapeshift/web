@@ -26,11 +26,10 @@ import { SEO } from 'components/Layout/Seo'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { KeyManager } from 'context/WalletProvider/KeyManager'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from 'hooks/useQuery/useQuery'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isMobile } from 'lib/globals'
+import { METAMASK_RDNS } from 'lib/mipd'
 import { isSome } from 'lib/utils'
 import { selectAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
@@ -64,7 +63,6 @@ const metamaskIcon = <MetaMaskIcon />
 export const ConnectWallet = () => {
   const { state, dispatch, connectDemo, connect } = useWallet()
   const hasWallet = Boolean(state.walletInfo?.deviceId)
-  const isSnapEnabled = useFeatureFlag('Snaps')
   const snapInfoBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
 
   const allNativeAssets = useMemo(() => {
@@ -103,7 +101,7 @@ export const ConnectWallet = () => {
 
   const handleMetaMaskConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    connect(KeyManager.MetaMask)
+    connect(METAMASK_RDNS, true)
   }, [connect, dispatch])
 
   const renderChains = useMemo(() => {
@@ -185,38 +183,34 @@ export const ConnectWallet = () => {
                 >
                   <Text translation='connectWalletPage.cta' />
                 </Button>
-                {isSnapEnabled && (
-                  <>
-                    <Flex alignItems='center' justifyContent='center' width='full' gap={4}>
-                      <Divider flex={1} borderColor='border.bold' opacity='1' />
-                      <Text
-                        color='text.subtle'
-                        fontWeight='medium'
-                        textAlign='center'
-                        translation='common.or'
-                        textTransform='uppercase'
-                      />
-                      <Divider flex={1} borderColor='border.bold' opacity='1' />
-                    </Flex>
-                    <Box bg={snapInfoBgColor} p={8} borderRadius='lg' mt={4}>
-                      <HStack spacing={2} justify='center' wrap='wrap' mb={4}>
-                        {renderChains}
-                      </HStack>
-                      <RawText fontWeight='medium' fontSize='md'>
-                        {translate('connectWalletPage.snapDescription')}
-                      </RawText>
-                      <Button
-                        width='fit-content'
-                        size='lg-multiline'
-                        onClick={handleMetaMaskConnect}
-                        leftIcon={metamaskIcon}
-                        mt={6}
-                      >
-                        {translate('walletProvider.metaMaskSnap.connectMetaMask')}
-                      </Button>
-                    </Box>
-                  </>
-                )}
+                <Flex alignItems='center' justifyContent='center' width='full' gap={4}>
+                  <Divider flex={1} borderColor='border.bold' opacity='1' />
+                  <Text
+                    color='text.subtle'
+                    fontWeight='medium'
+                    textAlign='center'
+                    translation='common.or'
+                    textTransform='uppercase'
+                  />
+                  <Divider flex={1} borderColor='border.bold' opacity='1' />
+                </Flex>
+                <Box bg={snapInfoBgColor} p={8} borderRadius='lg' mt={4}>
+                  <HStack spacing={2} justify='center' wrap='wrap' mb={4}>
+                    {renderChains}
+                  </HStack>
+                  <RawText fontWeight='medium' fontSize='md'>
+                    {translate('connectWalletPage.snapDescription')}
+                  </RawText>
+                  <Button
+                    width='fit-content'
+                    size='lg-multiline'
+                    onClick={handleMetaMaskConnect}
+                    leftIcon={metamaskIcon}
+                    mt={6}
+                  >
+                    {translate('walletProvider.metaMaskSnap.connectMetaMask')}
+                  </Button>
+                </Box>
               </Stack>
             </Stack>
             <Flex gap={1}>

@@ -20,12 +20,6 @@ import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isSome } from 'lib/utils'
-import { selectInputSellAmountUsd } from 'state/slices/selectors'
-import {
-  selectActiveQuoteAffiliateBps,
-  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
 
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from './MaxSlippage'
@@ -35,15 +29,16 @@ type ReceiveSummaryProps = {
   isLoading?: boolean
   symbol: string
   amountCryptoPrecision: string
-  intermediaryTransactionOutputs?: AmountDisplayMeta[]
-  fiatAmount?: string
-  amountBeforeFeesCryptoPrecision?: string
-  protocolFees?: PartialRecord<AssetId, ProtocolFee>
+  intermediaryTransactionOutputs: AmountDisplayMeta[] | undefined
+  protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined
   slippageDecimalPercentage: string
   swapperName: string
   defaultIsOpen?: boolean
-  swapSource?: SwapSource
-  priceImpact?: BigNumber.Value
+  swapSource: SwapSource | undefined
+  priceImpact: BigNumber.Value | undefined
+  inputAmountUsd: string | undefined
+  affiliateBps: string | undefined
+  affiliateFeeAfterDiscountUserCurrency: string | undefined
 } & RowProps
 
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
@@ -64,19 +59,15 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     isLoading,
     swapSource,
     priceImpact,
+    inputAmountUsd,
+    affiliateBps,
+    affiliateFeeAfterDiscountUserCurrency,
   }) => {
     const translate = useTranslate()
     const [showFeeModal, setShowFeeModal] = useState(false)
     const redColor = useColorModeValue('red.500', 'red.300')
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
-
-    const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
-    // use the fee data from the actual quote in case it varies from the theoretical calculation
-    const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
-    const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
-      selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
-    )
 
     const parseAmountDisplayMeta = useCallback((items: AmountDisplayMeta[]) => {
       return items
@@ -132,7 +123,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
             <Row.Value display='flex' gap={2} alignItems='center'>
               <SwapperIcon size='2xs' swapperName={swapperName as SwapperName} />
               <RawText fontWeight='semibold' color={textColor}>
-                {swapperName}
+                {swapSource}
               </RawText>
             </Row.Value>
           </Row>

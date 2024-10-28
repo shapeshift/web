@@ -22,7 +22,6 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { KeyManager } from 'context/WalletProvider/KeyManager'
 import { useLocalWallet } from 'context/WalletProvider/local-wallet'
 import { NativeWalletRoutes } from 'context/WalletProvider/types'
-import { removeAccountsAndChainListeners } from 'context/WalletProvider/WalletProvider'
 import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { NativeConfig } from '../config'
@@ -82,9 +81,6 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
     if (adapter) {
       const { name, icon } = NativeConfig
       try {
-        // Remove all provider event listeners from previously connected wallets
-        await removeAccountsAndChainListeners()
-
         // Set a pending device ID so the event handler doesn't redirect the user to password input
         // for the previous wallet
         dispatch({
@@ -111,12 +107,15 @@ export const NativeLoad = ({ history }: RouteComponentProps) => {
               connectedType: KeyManager.Native,
             },
           })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
           // The wallet is already initialized so we can close the modal
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
 
-        localWallet.setLocalWalletTypeAndDeviceId(KeyManager.Native, deviceId)
+        localWallet.setLocalWallet({ type: KeyManager.Native, deviceId })
         localWallet.setLocalNativeWalletName(item.name)
       } catch (e) {
         setError('walletProvider.shapeShift.load.error.pair')

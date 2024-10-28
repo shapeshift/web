@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Yat: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
-  Wherever: boolean
   SaversVaults: boolean
   SaversVaultsDeposit: boolean
   SaversVaultsWithdraw: boolean
@@ -35,16 +34,13 @@ export type FeatureFlags = {
   DynamicLpAssets: boolean
   ReadOnlyAssets: boolean
   Jaypegz: boolean
-  OneInch: boolean
   ArbitrumBridge: boolean
   Portals: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
-  CoinbaseWallet: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
   CustomSendNonce: boolean
-  Snaps: boolean
   ThorchainLending: boolean
   ThorchainLendingBorrow: boolean
   ThorchainLendingRepay: boolean
@@ -67,6 +63,10 @@ export type FeatureFlags = {
   FoxPage: boolean
   FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
+  FoxPageFoxFarmingSection: boolean
+  FoxPageGovernance: boolean
+  LimitOrders: boolean
+  PublicTradeRoute: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -117,7 +117,6 @@ const initialState: Preferences = {
     Yat: getConfig().REACT_APP_FEATURE_YAT,
     WalletConnectToDappsV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_TO_DAPPS,
-    Wherever: getConfig().REACT_APP_FEATURE_WHEREVER,
     SaversVaults: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS,
     SaversVaultsDeposit: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_DEPOSIT,
     SaversVaultsWithdraw: getConfig().REACT_APP_FEATURE_SAVERS_VAULTS_WITHDRAW,
@@ -128,15 +127,12 @@ const initialState: Preferences = {
     Mixpanel: getConfig().REACT_APP_FEATURE_MIXPANEL,
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
-    OneInch: getConfig().REACT_APP_FEATURE_ONE_INCH,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
     Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
-    CoinbaseWallet: getConfig().REACT_APP_FEATURE_COINBASE_WALLET,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
     CustomSendNonce: getConfig().REACT_APP_EXPERIMENTAL_CUSTOM_SEND_NONCE,
-    Snaps: getConfig().REACT_APP_EXPERIMENTAL_MM_SNAPPY_FINGERS,
     ThorchainLending: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING,
     ThorchainLendingBorrow: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_BORROW,
     ThorchainLendingRepay: getConfig().REACT_APP_FEATURE_THORCHAIN_LENDING_REPAY,
@@ -159,6 +155,10 @@ const initialState: Preferences = {
     FoxPage: getConfig().REACT_APP_FEATURE_FOX_PAGE,
     FoxPageRFOX: getConfig().REACT_APP_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_SECTION,
+    FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
+    FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
+    LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
+    PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

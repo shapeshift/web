@@ -56,7 +56,9 @@ export const WalletStakingByAsset: React.FC<StakingPositionsByAssetProps> = ({ o
     () => groupedItems.flatMap(item => (Array.isArray(item) ? item.flat() : [item])),
     [groupedItems],
   )
-  const { next, data, hasMore } = useInfiniteScroll(flatItems)
+  const { next, data, hasMore } = useInfiniteScroll({
+    array: flatItems,
+  })
 
   const handleClick = useCallback(
     (opportunity: StakingEarnOpportunityType, action: DefiAction) => {

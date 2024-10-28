@@ -2,29 +2,21 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
-import type {
-  Asset,
-  CosmosSdkChainId,
-  EvmChainId,
-  UtxoAccountType,
-  UtxoChainId,
-} from '@shapeshiftoss/types'
+import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import { UtxoAccountType } from '@shapeshiftoss/types'
 import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
 export type GetTradeQuoteInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
-  sellAccountNumber: number
-  wallet: HDWallet
-  receiveAddress: string
   slippageTolerancePercentageDecimal?: string
-  receiveAccountNumber?: number
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
   // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
@@ -34,6 +26,11 @@ export type GetTradeQuoteInputArgs = {
   affiliateBps: string
   isSnapInstalled?: boolean
   pubKey?: string | undefined
+  hasWallet: boolean
+  receiveAccountNumber?: number
+  receiveAddress: string | undefined
+  sellAccountNumber: number | undefined
+  wallet: HDWallet | undefined
 }
 
 export const getTradeQuoteInput = async ({
@@ -42,6 +39,7 @@ export const getTradeQuoteInput = async ({
   sellAccountNumber,
   sellAccountType,
   wallet,
+  hasWallet,
   receiveAddress,
   receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
@@ -70,41 +68,68 @@ export const getTradeQuoteInput = async ({
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm: {
-      const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+      const supportsEIP1559 = wallet && supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
       const sellAssetChainAdapter = assertGetEvmChainAdapter(sellAsset.chainId)
-      const sendAddress = await sellAssetChainAdapter.getAddress({
-        accountNumber: sellAccountNumber,
-        wallet,
-        pubKey,
-      })
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      if (hasWallet && (receiveAccountNumber === undefined || receiveAddress === undefined))
+        throw new Error('missing receiveAccountNumber')
+
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as EvmChainId,
-        supportsEIP1559,
+        hasWallet,
+        supportsEIP1559: Boolean(supportsEIP1559),
         sendAddress,
         receiveAccountNumber,
-      }
+      } as GetTradeQuoteInput
     }
 
     case CHAIN_NAMESPACE.CosmosSdk: {
       const sellAssetChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
-      const sendAddress = await sellAssetChainAdapter.getAddress({
-        accountNumber: sellAccountNumber,
-        wallet,
-        pubKey,
-      })
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
       return {
         ...tradeQuoteInputCommonArgs,
+        hasWallet,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
         receiveAccountNumber,
-      }
+      } as GetTradeQuoteInput
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!sellAccountType) {
-        throw Error('missing account type')
-      }
+      if (!(hasWallet && wallet))
+        return {
+          ...tradeQuoteInputCommonArgs,
+          chainId: sellAsset.chainId as UtxoChainId,
+          // Assumes a SegWit send, which works for all UTXOs - this may not be what users use for their actual swap when connecting a wallet,
+          // but this ensures this works for all UTXOs
+          accountType: UtxoAccountType.P2pkh,
+          receiveAddress: undefined,
+          accountNumber: undefined,
+          xpub: undefined,
+          hasWallet: false,
+        }
+
+      if (!sellAccountType) throw Error('missing account type')
+      if (sellAccountNumber === undefined) throw Error('missing account number')
+      if (receiveAddress === undefined) throw Error('missing receive address')
+
       const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({
         accountNumber: sellAccountNumber,
@@ -119,13 +144,33 @@ export const getTradeQuoteInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,
+        hasWallet,
+        receiveAddress,
+        accountNumber: sellAccountNumber,
         accountType: sellAccountType,
         xpub,
         sendAddress,
       }
     }
     case CHAIN_NAMESPACE.Solana: {
-      throw new Error('Solana is not supported in getTradeQuoteInput')
+      const sellAssetChainAdapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        hasWallet,
+        chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+        receiveAccountNumber,
+      } as GetTradeQuoteInput
     }
     default:
       assertUnreachable(chainNamespace)

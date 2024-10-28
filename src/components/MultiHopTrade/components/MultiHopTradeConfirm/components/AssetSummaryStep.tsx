@@ -18,12 +18,14 @@ export type AssetSummaryStepProps = {
   asset: Asset
   amountCryptoBaseUnit: string
   isLastStep?: boolean
+  button?: JSX.Element
 }
 
 export const AssetSummaryStep = ({
   asset,
   amountCryptoBaseUnit,
   isLastStep,
+  button,
 }: AssetSummaryStepProps) => {
   const translate = useTranslate()
   const {
@@ -68,6 +70,7 @@ export const AssetSummaryStep = ({
       }
       stepIndicator={assetIcon}
       isLastStep={isLastStep}
+      button={button}
     />
   )
 }

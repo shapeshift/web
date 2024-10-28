@@ -1,10 +1,10 @@
 import { Card } from '@chakra-ui/react'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useState } from 'react'
-import { MemoryRouter, Route, Switch, useHistory, useLocation } from 'react-router'
-import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
+import { TradeInputTab } from 'components/MultiHopTrade/types'
 
-import { TradeInputHeader } from '../TradeInputHeader'
+import { SharedTradeInputHeader } from '../../../SharedTradeInput/SharedTradeInputHeader'
 import { ClaimConfirm } from './ClaimConfirm'
 import { ClaimSelect } from './ClaimSelect'
 import { ClaimStatus } from './ClaimStatus'
@@ -13,22 +13,12 @@ import { ClaimRoutePaths } from './types'
 
 const ClaimRouteEntries = [ClaimRoutePaths.Select, ClaimRoutePaths.Confirm, ClaimRoutePaths.Status]
 
-export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
+export const Claim = ({ onChangeTab }: { onChangeTab: (newTab: TradeInputTab) => void }) => {
   const location = useLocation()
-  const history = useHistory()
 
   const [activeClaim, setActiveClaim] = useState<ClaimDetails | undefined>()
   const [claimTxHash, setClaimTxHash] = useState<string | undefined>()
   const [claimTxStatus, setClaimTxStatus] = useState<TxStatus | undefined>()
-
-  const handleChangeTab = useCallback(
-    (newTab: TradeInputTab) => {
-      if (newTab === TradeInputTab.Trade) {
-        history.push(TradeRoutePaths.Input)
-      }
-    },
-    [history],
-  )
 
   const renderClaimSelect = useCallback(() => {
     return <ClaimSelect setActiveClaim={setActiveClaim} />
@@ -64,12 +54,7 @@ export const Claim = ({ isCompact }: { isCompact?: boolean }) => {
     <MemoryRouter initialEntries={ClaimRouteEntries} initialIndex={0}>
       <Switch location={location}>
         <Card flex={1} width='full' maxWidth='500px'>
-          <TradeInputHeader
-            initialTab={TradeInputTab.Claim}
-            onChangeTab={handleChangeTab}
-            isLoading={false}
-            isCompact={isCompact}
-          />
+          <SharedTradeInputHeader initialTab={TradeInputTab.Claim} onChangeTab={onChangeTab} />
           <Route
             key={ClaimRoutePaths.Select}
             path={ClaimRoutePaths.Select}

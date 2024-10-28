@@ -7,7 +7,6 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.LIFI:
-    case SwapperName.OneInch:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -22,7 +21,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
 }
 
 export const getEnabledSwappers = (
-  { Portals, LifiSwap, ThorSwap, ZrxSwap, OneInch, ArbitrumBridge, Cowswap }: FeatureFlags,
+  { Portals, LifiSwap, ThorSwap, ZrxSwap, ArbitrumBridge, Cowswap }: FeatureFlags,
   isCrossAccountTrade: boolean,
 ): Record<SwapperName, boolean> => {
   return {
@@ -32,8 +31,6 @@ export const getEnabledSwappers = (
       ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
     [SwapperName.Zrx]:
       ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
-    [SwapperName.OneInch]:
-      OneInch && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.OneInch)),
     [SwapperName.CowSwap]:
       Cowswap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.CowSwap)),
     [SwapperName.ArbitrumBridge]:

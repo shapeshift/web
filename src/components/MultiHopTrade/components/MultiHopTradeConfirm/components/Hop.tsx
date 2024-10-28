@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import {
+  Button,
   Card,
   CardFooter,
   Circle,
@@ -16,10 +17,12 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
+import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import prettyMilliseconds from 'pretty-ms'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
@@ -29,6 +32,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectActiveQuote,
   selectHopExecutionMetadata,
   selectHopNetworkFeeUserCurrencyPrecision,
   selectHopTotalProtocolFeesFiatPrecision,
@@ -38,7 +42,7 @@ import { HopExecutionState, TransactionExecutionState } from 'state/slices/trade
 import { useAppSelector } from 'state/store'
 
 import { TwirlyToggle } from '../../TwirlyToggle'
-import { ApprovalStep } from './ApprovalStep'
+import { ApprovalStep } from './ApprovalStep/ApprovalStep'
 import { AssetSummaryStep } from './AssetSummaryStep'
 import { FeeStep } from './FeeStep'
 import { HopTransactionStep } from './HopTransactionStep'
@@ -82,7 +86,14 @@ export const Hop = ({
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
   )
+  const history = useHistory()
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+
+  const activeQuote = useAppSelector(selectActiveQuote)
+
+  const isArbitrumBridgeWithdraw = useMemo(() => {
+    return isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal'
+  }, [activeQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
@@ -93,14 +104,14 @@ export const Hop = ({
 
   const {
     state: hopExecutionState,
-    approval,
+    allowanceApproval,
+    permit2,
     swap,
-    allowanceReset,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const isError = useMemo(
-    () => [approval.state, swap.state].includes(TransactionExecutionState.Failed),
-    [approval.state, swap.state],
+    () => [allowanceApproval.state, swap.state].includes(TransactionExecutionState.Failed),
+    [allowanceApproval.state, swap.state],
   )
   const buyAmountCryptoPrecision = useMemo(
     () =>
@@ -155,12 +166,14 @@ export const Hop = ({
     switch (hopExecutionState) {
       case HopExecutionState.Pending:
         return -Infinity
-      case HopExecutionState.AwaitingApprovalReset:
+      case HopExecutionState.AwaitingAllowanceReset:
+      // fallthrough
+      case HopExecutionState.AwaitingAllowanceApproval:
+      // fallthrough
+      case HopExecutionState.AwaitingPermit2:
         return hopIndex === 0 ? 1 : 0
-      case HopExecutionState.AwaitingApproval:
-        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.AwaitingSwap:
-        return hopIndex === 0 ? 3 : 2
+        return hopIndex === 0 ? 2 : 1
       case HopExecutionState.Complete:
         return Infinity
       default:
@@ -194,8 +207,9 @@ export const Hop = ({
             <CheckCircleIcon color='text.success' />
           </Circle>
         )
-      case HopExecutionState.AwaitingApprovalReset:
-      case HopExecutionState.AwaitingApproval:
+      case HopExecutionState.AwaitingAllowanceReset:
+      case HopExecutionState.AwaitingAllowanceApproval:
+      case HopExecutionState.AwaitingPermit2:
       case HopExecutionState.AwaitingSwap:
         return (
           <Circle size={8} bg='background.surface.raised.base'>
@@ -210,6 +224,21 @@ export const Hop = ({
         )
     }
   }, [hopExecutionState, hopIndex, isError])
+
+  const LastStepArbitrumBridgeButton = useCallback(() => {
+    if (hopExecutionState !== HopExecutionState.Complete) return null
+
+    const handleClick = () => {
+      history.push('/trade/claim')
+    }
+
+    return (
+      // eslint-disable-next-line react-memo/require-usememo
+      <Button size='sm' onClick={handleClick}>
+        {translate('bridge.viewClaimStatus')}
+      </Button>
+    )
+  }, [translate, history, hopExecutionState])
 
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
@@ -229,24 +258,14 @@ export const Hop = ({
             />
           )}
 
-          <Collapse in={allowanceReset.isRequired} style={collapseWidth}>
-            {allowanceReset.isRequired && (
+          <Collapse
+            in={allowanceApproval.isInitiallyRequired === true || permit2.isRequired === true}
+            style={collapseWidth}
+          >
+            {(allowanceApproval.isInitiallyRequired === true || permit2.isRequired === true) && (
               <ApprovalStep
                 tradeQuoteStep={tradeQuoteStep}
                 hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApprovalReset}
-                isAllowanceResetStep={true}
-                activeTradeId={activeTradeId}
-              />
-            )}
-          </Collapse>
-          <Collapse in={approval.isRequired} style={collapseWidth}>
-            {approval.isRequired === true && (
-              <ApprovalStep
-                tradeQuoteStep={tradeQuoteStep}
-                hopIndex={hopIndex}
-                isActive={hopExecutionState === HopExecutionState.AwaitingApproval}
-                isAllowanceResetStep={false}
                 activeTradeId={activeTradeId}
               />
             )}
@@ -265,6 +284,7 @@ export const Hop = ({
               asset={tradeQuoteStep.buyAsset}
               amountCryptoBaseUnit={tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit}
               isLastStep={shouldRenderFinalSteps}
+              button={isArbitrumBridgeWithdraw ? <LastStepArbitrumBridgeButton /> : undefined}
             />
           )}
         </Stepper>

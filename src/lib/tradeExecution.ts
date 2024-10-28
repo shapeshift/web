@@ -13,6 +13,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
+  isExecutableTradeQuote,
   swappers,
   TRADE_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
@@ -69,6 +70,9 @@ export class TradeExecution {
 
       const chainId = hop.sellAsset.chainId
 
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        throw new Error('Unable to execute trade')
+      }
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,
         chainId,
@@ -130,6 +134,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     supportsEIP1559,
+    permit2Signature,
     signAndBroadcastTransaction,
   }: EvmTransactionExecutionInput) {
     const buildSignBroadcast =
@@ -160,6 +165,7 @@ export class TradeExecution {
           supportsEIP1559: _supportsEIP1559,
           config,
           assertGetEvmChainAdapter,
+          permit2Signature,
         })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {

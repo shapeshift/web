@@ -19,14 +19,16 @@ export const useAccountIds = (): {
   // Setters - the selectors above initially select a *default* value, but eventually onAccountIdChange may fire if the user changes the account
 
   const setSellAssetAccountId = useCallback(
-    (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setSellAssetAccountNumber(accountId)),
+    (accountId: AccountId | undefined) => {
+      dispatch(tradeInput.actions.setSellAssetAccountId(accountId))
+    },
     [dispatch],
   )
 
   const setBuyAssetAccountId = useCallback(
-    (accountId: AccountId | undefined) =>
-      dispatch(tradeInput.actions.setBuyAssetAccountNumber(accountId)),
+    (accountId: AccountId | undefined) => {
+      dispatch(tradeInput.actions.setBuyAssetAccountId(accountId))
+    },
     [dispatch],
   )
 

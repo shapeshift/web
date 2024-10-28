@@ -17,7 +17,12 @@ import type {
   TradeQuote,
 } from '../../types'
 import { SwapperName } from '../../types'
-import { checkSafeTransactionStatus, createDefaultStatusResponse, getHopByIndex } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  createDefaultStatusResponse,
+  getHopByIndex,
+  isExecutableTradeQuote,
+} from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowSwapOrder } from './types'
@@ -77,6 +82,8 @@ export const cowApi: SwapperApi = {
         SwapperName.CowSwap,
       ),
     } = tradeQuote
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
       ? fromAssetId(buyAsset.assetId).assetReference

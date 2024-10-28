@@ -16,6 +16,7 @@
     "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
+    "closed": "Closed",
     "loadMore": "Load More",
     "saveChanges": "Save Changes",
     "new": "New",
@@ -792,7 +793,11 @@
       "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
-      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee"
+      "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee",
+      "success": {
+        "tradeSuccess": "Bridge initiated",
+        "withdrawComplete": "Successfully initiated bridging %{symbol} to %{chainName}."
+      }
     },
     "claim": "Claim",
     "claimReceiveAddress": "Claim Receive Address",
@@ -806,6 +811,7 @@
     "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
+    "viewClaimStatus": "View Claim Status",
     "availableClaimsNotification": "You have bridge claims ready!"
   },
   "trade": {
@@ -906,6 +912,13 @@
         "negativeRatio": "Insufficient sell amount"
       }
     },
+    "permit2": {
+      "title": "Permit token transfer:",
+      "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
+      "tooltip": "This trade has an added security feature called 'Permit2' which requires you to grant permission for the application to complete the trade on your behalf.",
+      "error": "A problem occurred signing Permit2 message",
+      "signMessage": "Sign message"
+    },
     "errors": {
       "title": "Something went wrong",
       "amountTooSmall": "Minimum: %{minLimit}",
@@ -953,12 +966,14 @@
     "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
-    "approvalGasFee": "Approval gas fee %{fee}",
-    "approvalGasFeeLoading": "Approval gas fee loading...",
-    "approvalResetGasFee": "Approval reset gas fee %{fee}",
-    "approvalResetGasFeeLoading": "Approval reset gas fee loading...",
+    "approvalGasFee": "Allowance approval gas fee %{fee}",
+    "approvalGasFeeLoading": "Allowance approval gas fee loading...",
+    "approvalResetGasFee": "Allowance reset gas fee %{fee}",
+    "approvalResetGasFeeLoading": "Allowance reset gas fee loading...",
     "approvalFailed": "A problem occurred during allowance approval",
     "approvalResetFailed": "A problem occurred during allowance reset",
+    "allowanceResetTxName": "Allowance reset tx:",
+    "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
     "showDetails": "Show Details",
@@ -986,6 +1001,9 @@
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "Limit Order"
   },
   "modals": {
     "assetSearch": {
@@ -1515,20 +1533,21 @@
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with MetaMask",
-        "connectFailure": "Unable to connect MetaMask wallet",
-        "multipleWallets": "Detected Ethereum provider is not MetaMask. Do you have multiple wallets installed?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Pair MetaMask",
-        "body": "Click Pair and login to MetaMask from the popup window",
+        "header": "Pair %{name}",
+        "body": "Click Pair and login to %{name} from the popup window",
         "button": "Pair"
       },
-      "failure": {
-        "body": "Unable to connect MetaMask wallet"
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with %{name}",
+        "connectFailure": "Unable to connect %{name}"
       },
+      "failure": {
+        "body": "Unable to connect %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Open in MetaMask App",
         "body": "Click to open ShapeShift dashboard in MetaMask",
@@ -1615,26 +1634,6 @@
       },
       "failure": {
         "body": "Unable to connect WalletConnect wallet"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with XDEFI",
-        "connectFailure": "Unable to connect XDEFI wallet",
-        "multipleWallets": "Detected Ethereum provider is not XDEFI. Do you have multiple wallets installed and switched on? Prioritize XDEFI in settings and press pair again."
-      },
-      "connect": {
-        "header": "Pair XDEFI",
-        "body": "Click Pair and login to XDEFI from the popup window",
-        "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect XDEFI wallet"
-      },
-      "redirect": {
-        "header": "Open in XDEFI App",
-        "body": "Click to open ShapeShift dashboard in XDEFI",
-        "button": "Open"
       }
     },
     "shapeShift": {
@@ -2654,6 +2653,24 @@
       "depositAmount": "Deposit Amount",
       "shapeshiftRevenue": "ShapeShift Revenue",
       "30days": "30 days"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Tired of migrating your %{rewardAssetSymbol} from farm to farm? Just stake your %{assetSymbol} and earn %{rewardAssetSymbol} in perpetuity.",
+      "totalClaimableRewards": "Total Claimable Rewards",
+      "totalStakingValue": "Total Staking Value",
+      "nextEpoch": "Next Epoch"
+    },
+    "governance": {
+      "title": "Governance",
+      "description": {
+        "0": "Join us",
+        "1": "on the forum",
+        "2": "and shape the future of the DAO."
+      },
+      "totalVotingPower": "Total Voting Power",
+      "noActiveProposals": "No active proposals available",
+      "noClosedProposals": "No closed proposals available"
     }
   }
 }

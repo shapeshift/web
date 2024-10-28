@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios'
-import { toHex } from 'viem';
-import {fromAssetId, fromChainId} from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getErc20Data, getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 
@@ -74,7 +73,7 @@ export const getUnsignedEvmTransaction = async ({
     adapter: adapter,
     to: depositAddress,
     from: from,
-    value: toHex(isTokenSend ? 0n : BigInt(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)),
+    value: (isTokenSend ? 0n : BigInt(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)).toString(),
     data: (await getErc20Data(depositAddress, step.sellAmountIncludingProtocolFeesCryptoBaseUnit, assetReference)),
     supportsEIP1559: supportsEIP1559
   })

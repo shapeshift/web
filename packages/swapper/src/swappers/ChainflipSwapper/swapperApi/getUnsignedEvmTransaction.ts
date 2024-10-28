@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { getFees } from "@shapeshiftoss/chain-adapters/dist/evm/utils";
+import { getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 
 import type {
   EvmTransactionRequest, 

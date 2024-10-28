@@ -1,19 +1,16 @@
 import { AxiosError } from 'axios'
-import { evm } from '@shapeshiftoss/chain-adapters'
-import { bn } from '@shapeshiftoss/utils'
-import { fromChainId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type {
   EvmTransactionRequest, 
-  GetEvmTradeQuoteInput,
   GetUnsignedEvmTransactionArgs
 } from '../../../types'
 import { isExecutableTradeQuote } from '../../../utils'
 
 import {
   chainIdToChainflipNetwork,
-  CHAINFLIP_BAAS_COMMISSION,
+  CHAINFLIP_BAAS_COMMISSION, assetGasLimits,
 } from '../constants'
 import { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
@@ -68,24 +65,26 @@ export const getUnsignedEvmTransaction = async ({
   const depositAddress = swapResponse.address!
   const { assetReference } = fromAssetId(step.sellAsset.assetId)
   
-  throw Error('not yet implemented')
-  
-  // TODO: Figure out what to do here. Just a transfer() call apparently, but how?
-  // const adapter = assertGetEvmChainAdapter(chainId)
-  //
-  // const fees = await getEvmTxFees({
-  //   adapter: adapter,
-  //   supportsEIP1559: supportsEIP1559,
-  //   sendAsset: sellChainflipChainKey
-  // })
-  //
-  // // TODO: Check what this does when you want to swap ETH
-  // return adapter.buildSendTransaction({
-  //   to: depositAddress,
-  //   from: from,
-  //   value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  //   wallet: null, // TODO: Where to get this?
-  //   accountNumber: step.accountNumber,
-  //   contractAddress: assetReference
-  // })
+  const adapter = assertGetEvmChainAdapter(chainId)
+
+  const fees = await getEvmTxFees({
+    adapter: adapter,
+    supportsEIP1559: supportsEIP1559,
+    sendAsset: sellChainflipChainKey
+  })
+
+  // TODO: Check what this does when you want to swap ETH
+  // TODO: How to go from ETHSignTx to EvmTransactionRequest?
+  return adapter.buildSendApiTransaction({
+    to: depositAddress,
+    from: from,
+    value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    accountNumber: step.accountNumber,
+    chainSpecific: {
+      gasLimit: (sellChainflipChainKey in assetGasLimits) ? assetGasLimits[sellChainflipChainKey]! : '100000',
+      contractAddress: assetReference,
+      maxFeePerGas: '0', // TODO: Where to get this and maxPriorityFeePerGas?
+      maxPriorityFeePerGas: '0',
+    }
+  })
 }

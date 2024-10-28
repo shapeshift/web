@@ -29,8 +29,8 @@ import {
 import { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
 import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 import { chainflipService } from '../utils/chainflipService'
-import { getEvmTxFees } from '../txFeeHelpers/evmTxFees/getEvmTxFees'
-import { getUtxoTxFees } from '../txFeeHelpers/utxoTxFees/getUtxoTxFees'
+import { getEvmTxFees } from '../utils/getEvmTxFees'
+import { getUtxoTxFees } from '../utils/getUtxoTxFees'
 
 const CHAINFLIP_REGULAR_QUOTE = 'regular'
 const CHAINFLIP_DCA_QUOTE = 'dca'

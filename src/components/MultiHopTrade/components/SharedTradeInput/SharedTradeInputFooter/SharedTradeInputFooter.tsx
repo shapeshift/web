@@ -145,7 +145,8 @@ export const SharedTradeInputFooter = ({
           >
             <ReceiveSummary
               isLoading={isLoading}
-              swapperName={swapperName ?? ''}
+              swapperName={swapperName}
+              swapSource={swapSource}
               inputAmountUsd={inputAmountUsd}
               affiliateBps={affiliateBps}
               affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}

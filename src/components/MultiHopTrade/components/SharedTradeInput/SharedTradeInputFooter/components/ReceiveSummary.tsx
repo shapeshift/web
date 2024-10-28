@@ -1,6 +1,6 @@
 import { QuestionIcon } from '@chakra-ui/icons'
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
-import type { SwapperName } from '@shapeshiftoss/swapper'
+import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import { type FC, memo, useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -13,7 +13,8 @@ import { SwapperIcon } from '../../../TradeInput/components/SwapperIcon/SwapperI
 
 type ReceiveSummaryProps = {
   isLoading?: boolean
-  swapperName: string
+  swapperName: SwapperName | undefined
+  swapSource: SwapSource | undefined
   inputAmountUsd?: string
   affiliateBps?: string
   affiliateFeeAfterDiscountUserCurrency?: string
@@ -30,6 +31,7 @@ const tradeFeeSourceTranslation: TextPropTypes['translation'] = [
 export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
   ({
     swapperName,
+    swapSource,
     isLoading,
     inputAmountUsd,
     affiliateBps,
@@ -54,10 +56,12 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               {translate('trade.protocol')}
             </Row.Label>
             <Row.Value display='flex' gap={2} alignItems='center'>
-              <SwapperIcon size='2xs' swapperName={swapperName as SwapperName} />
-              <RawText fontWeight='semibold' color={textColor}>
-                {swapSource}
-              </RawText>
+              {swapperName !== undefined && <SwapperIcon size='2xs' swapperName={swapperName} />}
+              {swapSource !== undefined && (
+                <RawText fontWeight='semibold' color={textColor}>
+                  {swapSource}
+                </RawText>
+              )}
             </Row.Value>
           </Row>
 

@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios'
 import { toHex } from 'viem';
-import { fromAssetId } from '@shapeshiftoss/caip'
+import {fromAssetId, fromChainId} from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { getErc20Data, getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
 
@@ -79,8 +79,7 @@ export const getUnsignedEvmTransaction = async ({
     supportsEIP1559: supportsEIP1559
   })
 
-  // TODO: How to go from ETHSignTx to EvmTransactionRequest?
-  return adapter.buildSendApiTransaction({
+  const tx = await adapter.buildSendApiTransaction({
     to: depositAddress,
     from: from,
     value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -92,4 +91,16 @@ export const getUnsignedEvmTransaction = async ({
       maxPriorityFeePerGas: fees.maxPriorityFeePerGas!,
     }
   })
+  
+  return {
+    chainId: Number(fromChainId(chainId).chainReference),
+    data: tx.data,
+    to: tx.to,
+    from: from,
+    value: tx.value,
+    gasLimit: tx.gasLimit,
+    maxFeePerGas: tx.maxFeePerGas,
+    maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+    gasPrice: tx.gasPrice
+  }
 }

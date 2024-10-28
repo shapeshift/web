@@ -14,20 +14,7 @@ export enum MARKETS_CATEGORIES {
 
 export const sortOptionsByCategory: Record<MARKETS_CATEGORIES, SortOption[] | undefined> = {
   [MARKETS_CATEGORIES.TRADING_VOLUME]: undefined,
-  [MARKETS_CATEGORIES.MARKET_CAP]: [
-    {
-      key: SortOptionsKeys.VOLUME,
-      label: 'dashboard.portfolio.volume',
-    },
-    {
-      key: SortOptionsKeys.PRICE_CHANGE,
-      label: 'dashboard.portfolio.priceChange',
-    },
-    {
-      key: SortOptionsKeys.MARKET_CAP,
-      label: 'dashboard.portfolio.marketCap',
-    },
-  ],
+  [MARKETS_CATEGORIES.MARKET_CAP]: undefined,
   [MARKETS_CATEGORIES.TRENDING]: [
     {
       key: SortOptionsKeys.VOLUME,

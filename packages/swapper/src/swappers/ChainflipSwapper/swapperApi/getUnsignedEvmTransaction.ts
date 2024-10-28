@@ -1,6 +1,7 @@
 import { AxiosError } from 'axios'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { getFees } from "@shapeshiftoss/chain-adapters/dist/evm/utils";
 
 import type {
   EvmTransactionRequest, 
@@ -14,7 +15,6 @@ import {
 } from '../constants'
 import { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
-import { getEvmTxFees } from "../utils/getEvmTxFees";
 
 export const getUnsignedEvmTransaction = async ({
   chainId,
@@ -67,10 +67,14 @@ export const getUnsignedEvmTransaction = async ({
   
   const adapter = assertGetEvmChainAdapter(chainId)
 
-  const fees = await getEvmTxFees({
+  // TODO: Are these the correct params for data and value?
+  const fees = await getFees({
     adapter: adapter,
-    supportsEIP1559: supportsEIP1559,
-    sendAsset: sellChainflipChainKey
+    data: '',
+    to: depositAddress,
+    value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    from: from,
+    supportsEIP1559: supportsEIP1559
   })
 
   // TODO: Check what this does when you want to swap ETH
@@ -83,8 +87,8 @@ export const getUnsignedEvmTransaction = async ({
     chainSpecific: {
       gasLimit: (sellChainflipChainKey in assetGasLimits) ? assetGasLimits[sellChainflipChainKey]! : '100000',
       contractAddress: assetReference,
-      maxFeePerGas: '0', // TODO: Where to get this and maxPriorityFeePerGas?
-      maxPriorityFeePerGas: '0',
+      maxFeePerGas: fees.maxFeePerGas!,
+      maxPriorityFeePerGas: fees.maxPriorityFeePerGas!,
     }
   })
 }

@@ -34,7 +34,6 @@ export const getUnsignedEvmTransaction = async ({
   const step = tradeQuote.steps[0]
   const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]}`
   const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${chainIdToChainflipNetwork[step.buyAsset.chainId as KnownChainIds]}`
-
   
   // Subtract the BaaS fee to end up at the final displayed commissionBps
   let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
@@ -65,45 +64,30 @@ export const getUnsignedEvmTransaction = async ({
 
   const { data: swapResponse } = maybeSwapResponse.unwrap()
   
-  // TODO: Call CF to get deposit channel opened and use deposit address as "to"
-  const to = swapResponse.address!
-  const data = ''
-  const gasLimit = ''
-
+  const depositAddress = swapResponse.address!
   const value = isNativeEvmAsset(step.sellAsset.assetId)
     ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     : '0'
   
-  // checking values individually to keep type checker happy
-  if (to === undefined || value === undefined || data === undefined || gasLimit === undefined) {
-    const undefinedRequiredValues = [to, value, data, gasLimit].filter(
-      value => value === undefined,
-    )
-
-    throw Error('undefined required values in transactionRequest', {
-      cause: {
-        undefinedRequiredValues,
-      },
-    })
-  }
-
   // TODO: Figure out what to do here. Just a transfer() call apparently, but how?
+  const adapter = assertGetEvmChainAdapter(chainId)
+  //adapter.buildSendTransaction()
   
   const feeData = await evm.getFees({
-    adapter: assertGetEvmChainAdapter(chainId),
-    data: data.toString(),
-    to,
+    adapter: adapter,
+    data: '',
+    to: depositAddress,
     value: bn(value.toString()).toString(),
     from,
     supportsEIP1559,
   })
 
   return {
-    to,
+    to: depositAddress,
     from,
     value: value.toString(),
-    data: data.toString(),
+    data: '',
     chainId: Number(fromChainId(chainId).chainReference),
-    ...{ ...feeData, gasLimit: gasLimit.toString() },
+    ...{ ...feeData },
   }
 }

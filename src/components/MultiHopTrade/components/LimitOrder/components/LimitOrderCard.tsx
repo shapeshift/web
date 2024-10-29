@@ -2,6 +2,7 @@ import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo } from 'react'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
@@ -96,12 +97,13 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               </Center>
             </AssetIconWithBadge>
             <Flex direction='column' align='flex-start' ml={4}>
-              <RawText color='gray.500' fontSize='xl'>{`${sellAmount.toLocaleString()} ${
-                sellAsset.symbol
-              }`}</RawText>
-              <RawText fontWeight='bold' fontSize='xl'>{`${buyAmount.toLocaleString()} ${
-                buyAsset.symbol
-              }`}</RawText>
+              <Amount.Crypto
+                value={sellAmount.toString()}
+                symbol={sellAsset.symbol}
+                color='gray.500'
+                fontSize='xl'
+              />
+              <Amount.Crypto value={buyAmount.toString()} symbol={buyAsset.symbol} fontSize='xl' />
             </Flex>
           </Flex>
           <Tag colorScheme={tagColorScheme}>{status}</Tag>

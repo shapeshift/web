@@ -5,6 +5,7 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { ProtocolFee } from '../../../../types'
+import { LIFI_SHARED_FEES_STEP_NAME } from '../constants'
 import { lifiChainIdToChainId } from '../lifiChainIdtoChainId/lifiChainIdToChainId'
 import { lifiTokenToAssetId } from '../lifiTokenToAssetId/lifiTokenToAssetId'
 
@@ -38,7 +39,7 @@ export const transformLifiStepFeeData = ({
       }
     }
 
-    if (name === 'LIFI Shared Fee') {
+    if (name === LIFI_SHARED_FEES_STEP_NAME) {
       return acc
     }
 

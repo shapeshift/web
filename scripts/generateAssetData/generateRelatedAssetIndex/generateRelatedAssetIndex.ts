@@ -243,9 +243,9 @@ const processRelatedAssetIds = async (
     })
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
-    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. Coingecko may not have all related assetIds for some, and Coingecko may not have
-    // any at all for others. e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not present at all under the USDC.SOL umbrella in Zerion.
-    // Using the relatedAssetKey ensures one doesn't override the results of the other.
+    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have all related assetIds for a given asset, and Zerion may not have
+    // any at all the same asset. e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not present at all under the USDC.SOL umbrella in Zerion.
+    // Using the primary implementation ensures we use a reliable identifier for the related assets, not a more obscure one.
     coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
     assetData,
   )

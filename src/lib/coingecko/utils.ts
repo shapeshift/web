@@ -14,7 +14,6 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { CoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -59,7 +58,7 @@ const getCoinDetails = async (
         return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
 
       const chainId = adapters.coingeckoAssetPlatformToChainId(
-        asset_platform_id as CoingeckoAssetPlatform,
+        asset_platform_id as adapters.CoingeckoAssetPlatform,
       )
       if (!chainId) return
 

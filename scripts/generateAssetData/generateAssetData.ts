@@ -111,7 +111,7 @@ const generateAssetData = async () => {
 
     const { chainId } = fromAssetId(asset.assetId)
 
-    // mark any ethereum assets that also exist on other evm chains
+    // mark any ethereum assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.EthereumMainnet &&
       asset.assetId !== ethAssetId && // don't mark native asset
@@ -120,7 +120,7 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Ethereum`
     }
 
-    // mark any avalanche assets that also exist on other evm chains
+    // mark any avalanche assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.AvalancheMainnet &&
       asset.assetId !== avalancheAssetId && // don't mark native asset
@@ -129,12 +129,12 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Avalanche`
     }
 
-    // mark any bnbsmartchain assets that also exist on other evm chains
+    // mark any bnbsmartchain assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.BnbSmartChainMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on BNB Smart Chain`
     }
 
-    // mark any polygon assets that also exist on other evm chains
+    // mark any polygon assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.PolygonMainnet &&
       asset.assetId !== polygonAssetId &&
@@ -143,7 +143,7 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Polygon`
     }
 
-    // mark any gnosis assets that also exist on other evm chains
+    // mark any gnosis assets that also exist on other chains (EVM chains and Solana)
     if (
       chainId === KnownChainIds.GnosisMainnet &&
       asset.assetId !== gnosisAssetId &&
@@ -152,24 +152,29 @@ const generateAssetData = async () => {
       asset.name = `${asset.name} on Gnosis`
     }
 
-    // mark any arbitrum one assets that also exist on other evm chains
+    // mark any arbitrum one assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.ArbitrumMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Arbitrum One`
     }
 
-    // mark any arbitrum nova assets that also exist on other evm chains
+    // mark any arbitrum nova assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.ArbitrumNovaMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Arbitrum Nova`
     }
 
-    // mark any optimism assets that also exist on other evm chains
+    // mark any optimism assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.OptimismMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Optimism`
     }
 
-    // mark any base assets that also exist on other evm chains
+    // mark any base assets that also exist on other chains (EVM chains and Solana)
     if (chainId === KnownChainIds.BaseMainnet && isNotUniqueAsset(asset)) {
       asset.name = `${asset.name} on Base`
+    }
+
+    // mark any base assets that also exist on EVM chains
+    if (chainId === KnownChainIds.SolanaMainnet && isNotUniqueAsset(asset)) {
+      asset.name = `${asset.name} on Solana`
     }
 
     acc[asset.assetId] = asset

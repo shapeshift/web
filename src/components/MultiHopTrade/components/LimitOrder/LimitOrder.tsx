@@ -44,7 +44,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   return (
     <MemoryRouter initialEntries={LimitOrderRouteEntries} initialIndex={0}>
       <Switch location={location}>
-        <Box flex={1} width='full' maxWidth='500px'>
+        <Box flex={1} width='full'>
           <Route
             key={LimitOrderRoutePaths.Input}
             path={LimitOrderRoutePaths.Input}

@@ -10,7 +10,7 @@ import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 type SharedTradeInputProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element
-  hasUserEnteredAmount: boolean
+  shouldOpenSideComponent: boolean
   headerRightContent: JSX.Element
   isCompact: boolean | undefined
   isLoading: boolean
@@ -23,7 +23,7 @@ type SharedTradeInputProps = {
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   bodyContent,
-  hasUserEnteredAmount,
+  shouldOpenSideComponent,
   headerRightContent,
   isCompact,
   isLoading,
@@ -64,7 +64,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
         <WithLazyMount
           shouldUse={!isCompact && !isSmallerThanXl}
           component={sideComponent}
-          isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+          isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
           isLoading={isLoading}
           width={tradeInputRef.current?.offsetWidth ?? 'full'}
           height={totalHeight ?? 'full'}

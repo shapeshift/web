@@ -176,8 +176,7 @@ const getCoingeckoRelatedAssetIds = async (
   if (!isToken(assetId)) return
   // Yes, this means effectively the same but double wrap never hurts
   if (FEE_ASSET_IDS.includes(assetId)) return
-  const { chainId, assetReference } = fromAssetId(assetId)
-  const contractAddress = assetReference
+  const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
   const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
   const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
   const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)

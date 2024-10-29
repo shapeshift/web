@@ -60,6 +60,20 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     }
   }, [status])
 
+  const barColorScheme = useMemo(() => {
+    switch (status) {
+      case LimitOrderStatus.Open:
+      case LimitOrderStatus.Filled:
+        return 'green'
+      case LimitOrderStatus.Cancelled:
+        return 'red'
+      case LimitOrderStatus.Expired:
+        return 'yellow'
+      default:
+        return 'gray'
+    }
+  }, [status])
+
   if (!buyAsset || !sellAsset) return null
 
   return (
@@ -113,7 +127,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               value={filledDecimalPercentage * 100}
               width='100%'
               borderRadius='full'
-              colorScheme='green'
+              colorScheme={barColorScheme}
             />
             <RawText>{`${formattedPercentage}%`}</RawText>
           </Flex>

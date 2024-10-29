@@ -302,7 +302,7 @@ const processRelatedAssetIds = async (
 }
 
 // Change me to true to do a full rebuild of related asset indexes - defaults to false so we don't have endless generation scripts.
-export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
+export const generateRelatedAssetIndex = async (rebuildAll: boolean = true) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
   const generatedAssetsPath = path.join(

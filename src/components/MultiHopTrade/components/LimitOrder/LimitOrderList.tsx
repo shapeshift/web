@@ -19,13 +19,14 @@ import { LimitOrderStatus } from './types'
 
 type LimitOrderListProps = {
   isLoading: boolean
-} & CardProps
+  cardProps?: CardProps
+}
 
 const textColorBaseProps = {
   color: 'text.base',
 }
 
-export const LimitOrderList: FC<LimitOrderListProps> = ({ isLoading, ...cardProps }) => {
+export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
   // FIXME: Use real data
   const MockOpenOrderCard = () => (
     <LimitOrderCard

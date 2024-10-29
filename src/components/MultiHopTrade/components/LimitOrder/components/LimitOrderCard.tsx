@@ -149,7 +149,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             mt={2}
             color='red.500'
             onClick={handleCancel}
-            bg='var(--chakra-colors-background-button-secondary-base)'
+            bg='background.button.secondary.base'
             _hover={buttonBgHover}
           >
             <Text translation='common.cancel' />

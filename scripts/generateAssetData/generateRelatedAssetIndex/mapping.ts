@@ -1,7 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { CoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
-import { coingeckoAssetPlatformToChainId } from '@shapeshiftoss/caip/src/adapters'
+import { adapters, ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import { type ZerionChainId, zerionChainIdToChainId } from '@shapeshiftoss/types'
 
 import type { ZerionImplementation } from './validators/fungible'
@@ -27,7 +25,9 @@ export const coingeckoPlatformDetailsToMaybeAssetId = (
   platformDetails: [string, string],
 ): AssetId | undefined => {
   const [platform, contractAddress] = platformDetails
-  const chainId = coingeckoAssetPlatformToChainId(platform as CoingeckoAssetPlatform)
+  const chainId = adapters.coingeckoAssetPlatformToChainId(
+    platform as adapters.CoingeckoAssetPlatform,
+  )
   if (!chainId || !contractAddress) return undefined
   const assetNamespace = (() => {
     switch (true) {

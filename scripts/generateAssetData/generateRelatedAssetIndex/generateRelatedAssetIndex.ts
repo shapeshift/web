@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  adapters,
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
@@ -10,7 +11,6 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { chainIdToCoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { isEvmChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -178,7 +178,7 @@ const getCoingeckoRelatedAssetIds = async (
   if (FEE_ASSET_IDS.includes(assetId)) return
   const { chainId, assetReference } = fromAssetId(assetId)
   const contractAddress = assetReference
-  const coingeckoChain = chainIdToCoingeckoAssetPlatform(chainId)
+  const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
   const coinUri = `${coingeckoChain}/${contractAddress}?vs_currency=usd`
   const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
 

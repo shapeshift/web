@@ -217,8 +217,7 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
   // We already have an existing relatedAssetKey, so we don't need to fetch it again
-  if (existingRelatedAssetKey !== undefined && fromAssetId(assetId).chainId !== solanaChainId)
-    return
+  if (existingRelatedAssetKey !== undefined) return
 
   console.log(`Processing related assetIds for ${assetId}`)
 

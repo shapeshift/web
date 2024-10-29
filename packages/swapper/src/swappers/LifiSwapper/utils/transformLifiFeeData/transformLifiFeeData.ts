@@ -27,7 +27,7 @@ export const transformLifiStepFeeData = ({
   const feeCosts = (lifiStep.estimate.feeCosts ?? []).reduce<
     Record<AssetId, { token: Token; included: bigint; notIncluded: bigint }>
   >((acc, feeCost) => {
-    const { amount, token, included } = feeCost
+    const { amount, token, included, name } = feeCost
     const assetId = lifiTokenToAssetId(token)
 
     if (!acc[assetId]) {
@@ -36,6 +36,10 @@ export const transformLifiStepFeeData = ({
         included: BigInt(0),
         notIncluded: BigInt(0),
       }
+    }
+
+    if (name === 'LIFI Shared Fee') {
+      return acc
     }
 
     included

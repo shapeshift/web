@@ -2697,6 +2697,12 @@
     "expiresIn": "Expires In",
     "filled": "Filled",
     "openOrders": "Open Orders",
-    "orderHistory": "Order History"
+    "orderHistory": "Order History",
+    "status": {
+      "open": "Open",
+      "filled": "Filled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    }
   }
 }

@@ -5,8 +5,8 @@ export enum LimitOrderRoutePaths {
 }
 
 export enum LimitOrderStatus {
-  Open = 'Open',
-  Filled = 'Filled',
-  Cancelled = 'Cancelled',
-  Expired = 'Expired',
+  Open = 'open',
+  Filled = 'filled',
+  Cancelled = 'cancelled',
+  Expired = 'expired',
 }

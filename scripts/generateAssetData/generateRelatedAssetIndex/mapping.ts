@@ -1,5 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  ASSET_NAMESPACE,
+  bscChainId,
+  solanaChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import { type ZerionChainId, zerionChainIdToChainId } from '@shapeshiftoss/types'
 
 import type { ZerionImplementation } from './validators/fungible'
@@ -33,6 +39,8 @@ export const coingeckoPlatformDetailsToMaybeAssetId = (
     switch (true) {
       case chainId === bscChainId:
         return ASSET_NAMESPACE.bep20
+      case chainId === solanaChainId:
+        return ASSET_NAMESPACE.splToken
       default:
         return ASSET_NAMESPACE.erc20
     }

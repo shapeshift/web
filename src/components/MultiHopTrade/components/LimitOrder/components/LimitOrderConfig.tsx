@@ -2,6 +2,7 @@ import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Button,
   Flex,
+  HStack,
   Menu,
   MenuButton,
   MenuItemOption,
@@ -10,66 +11,54 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { positiveOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
+import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
+import { SwapIcon } from 'components/Icons/SwapIcon'
 import { RawText, Text } from 'components/Text'
 
-// TODO: lol
-const timePeriods = [
-  '1 second',
-  '2 seconds',
-  '3 seconds',
-  '4 seconds',
-  '5 seconds',
-  '6 seconds',
-  '7 seconds',
-  '8 seconds',
-  '9 seconds',
-  '10 seconds',
-  '11 seconds',
-  '12 seconds',
-  '13 seconds',
-  '14 seconds',
-  '15 seconds',
-  '16 seconds',
-  '17 seconds',
-  '18 seconds',
-  '19 seconds',
-  '20 seconds',
-  '21 seconds',
-  '22 seconds',
-  '23 seconds',
-]
+const EXPIRY_TIME_PERIODS = ['1 hour', '1 day', '3 days', '7 days', '28 days'] as const
 
 const timePeriodRightIcon = <ChevronDownIcon />
+const swapIcon = <SwapIcon />
+
+const swapPriceButtonProps = { pr: 4 }
 
 type LimitOrderConfigProps = {
+  sellAsset: Asset
   buyAsset: Asset
-  hasUserEnteredAmount: boolean
-  isInputtingFiatSellAmount: boolean
-  buyAmountAfterFeesCryptoPrecision: string | undefined
-  buyAmountAfterFeesUserCurrency: string | undefined
+  marketPriceBuyAssetCryptoPrecision: string
+  limitPriceBuyAssetCryptoPrecision: string
+  setLimitPriceBuyAssetCryptoPrecision: (priceBuyAssetCryptoPrecision: string) => void
+}
+
+enum PriceDirection {
+  Sell = 'sell',
+  Buy = 'buy',
+}
+
+enum PresetLimit {
+  Market = 'market',
+  OnePercent = 'onePercent',
+  TwoPercent = 'twoPercent',
+  FivePercent = 'fivePercent',
+  TenPercent = 'tenPercent',
 }
 
 export const LimitOrderConfig = ({
+  sellAsset,
   buyAsset,
-  hasUserEnteredAmount,
-  isInputtingFiatSellAmount,
-  buyAmountAfterFeesCryptoPrecision,
-  buyAmountAfterFeesUserCurrency,
+  marketPriceBuyAssetCryptoPrecision,
+  limitPriceBuyAssetCryptoPrecision,
+  setLimitPriceBuyAssetCryptoPrecision,
 }: LimitOrderConfigProps) => {
-  const cryptoAmount = hasUserEnteredAmount
-    ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-    : '0'
-
-  const fiatAmount = hasUserEnteredAmount
-    ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed()
-    : '0'
+  const [priceDirection, setPriceDirection] = useState(PriceDirection.Sell)
+  const [presetLimit, setPresetLimit] = useState(PresetLimit.Market)
 
   const renderedChains = useMemo(() => {
-    return timePeriods.map(timePeriod => {
+    return EXPIRY_TIME_PERIODS.map(timePeriod => {
       return (
         <MenuItemOption value={timePeriod} key={timePeriod}>
           <RawText>{timePeriod}</RawText>
@@ -78,37 +67,61 @@ export const LimitOrderConfig = ({
     })
   }, [])
 
-  const renderedBuyAmount = useMemo(() => {
-    return isInputtingFiatSellAmount ? (
-      <Amount.Crypto value={cryptoAmount} symbol={buyAsset.symbol} size='lg' fontSize='xl' />
-    ) : (
-      <Amount.Fiat value={fiatAmount} size='lg' fontSize='xl' />
-    )
-  }, [buyAsset.symbol, cryptoAmount, fiatAmount, isInputtingFiatSellAmount])
+  const priceAsset = useMemo(() => {
+    return priceDirection === PriceDirection.Sell ? sellAsset : buyAsset
+  }, [buyAsset, priceDirection, sellAsset])
 
-  const renderedAlternateBuyAmount = useMemo(() => {
-    return !isInputtingFiatSellAmount ? (
-      <Amount.Crypto
-        value={cryptoAmount}
-        symbol={buyAsset.symbol}
-        prefix='≈'
-        fontSize='sm'
-        fontWeight='medium'
-        textColor='text.subtle'
-      />
-    ) : (
-      <Amount.Fiat
-        value={fiatAmount}
-        prefix='≈'
-        fontSize='sm'
-        fontWeight='medium'
-        textColor='text.subtle'
-      />
+  const priceCryptoPrecision = useMemo(() => {
+    if (bnOrZero(limitPriceBuyAssetCryptoPrecision).isZero()) {
+      return '0'
+    }
+
+    return priceDirection === PriceDirection.Sell
+      ? bn(1).div(limitPriceBuyAssetCryptoPrecision).toFixed()
+      : limitPriceBuyAssetCryptoPrecision
+  }, [limitPriceBuyAssetCryptoPrecision, priceDirection])
+
+  const handleTogglePriceDirection = useCallback(() => {
+    setPriceDirection(
+      priceDirection === PriceDirection.Sell ? PriceDirection.Buy : PriceDirection.Sell,
     )
-  }, [buyAsset.symbol, cryptoAmount, fiatAmount, isInputtingFiatSellAmount])
+  }, [priceDirection])
+
+  const arrow = useMemo(() => {
+    return priceDirection === PriceDirection.Sell ? '↑' : '↓'
+  }, [priceDirection])
+
+  const handleSetMarketLimit = useCallback(() => {
+    setPresetLimit(PresetLimit.Market)
+    setLimitPriceBuyAssetCryptoPrecision(marketPriceBuyAssetCryptoPrecision)
+  }, [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision])
+
+  const handleSetOnePercentLimit = useCallback(() => {
+    setPresetLimit(PresetLimit.OnePercent)
+    const price = bn(marketPriceBuyAssetCryptoPrecision).div('1.01').toFixed()
+    setLimitPriceBuyAssetCryptoPrecision(price)
+  }, [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision])
+
+  const handleSetTwoPercentLimit = useCallback(() => {
+    setPresetLimit(PresetLimit.TwoPercent)
+    const price = bn(marketPriceBuyAssetCryptoPrecision).div('1.02').toFixed()
+    setLimitPriceBuyAssetCryptoPrecision(price)
+  }, [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision])
+
+  const handleSetFivePercentLimit = useCallback(() => {
+    setPresetLimit(PresetLimit.FivePercent)
+    const price = bn(marketPriceBuyAssetCryptoPrecision).div('1.05').toFixed()
+    setLimitPriceBuyAssetCryptoPrecision(price)
+  }, [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision])
+
+  const handleSetTenPercentLimit = useCallback(() => {
+    setPresetLimit(PresetLimit.TenPercent)
+    const price = bn(marketPriceBuyAssetCryptoPrecision).div('1.10').toFixed()
+    setLimitPriceBuyAssetCryptoPrecision(price)
+  }, [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision])
 
   return (
-    <Stack spacing={2} px={6}>
+    <Stack spacing={4} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
         <Text translation='limitOrder.whenPriceReaches' />
         <Flex justifyContent='space-between' alignItems='center'>
@@ -125,23 +138,55 @@ export const LimitOrderConfig = ({
           </Menu>
         </Flex>
       </Flex>
-      {renderedBuyAmount}
-      {renderedAlternateBuyAmount}
-      <Flex justifyContent='space-between' my={4}>
-        <Button variant='ghost' size='sm' isActive>
+      <HStack width='full' justify='space-between'>
+        <Amount.Crypto value={priceCryptoPrecision} symbol='' size='lg' fontSize='xl' />
+        <StyledAssetMenuButton
+          rightIcon={swapIcon}
+          assetId={priceAsset.assetId}
+          buttonProps={swapPriceButtonProps}
+          onAssetClick={handleTogglePriceDirection}
+        />
+      </HStack>
+      <Flex justifyContent='space-between'>
+        <Button
+          variant='ghost'
+          size='sm'
+          isActive={presetLimit === PresetLimit.Market}
+          onClick={handleSetMarketLimit}
+        >
           Market
         </Button>
-        <Button variant='ghost' size='sm'>
-          1% ↑
+        <Button
+          variant='ghost'
+          size='sm'
+          isActive={presetLimit === PresetLimit.OnePercent}
+          onClick={handleSetOnePercentLimit}
+        >
+          1% {arrow}
         </Button>
-        <Button variant='ghost' size='sm'>
-          2% ↑
+        <Button
+          variant='ghost'
+          size='sm'
+          isActive={presetLimit === PresetLimit.TwoPercent}
+          onClick={handleSetTwoPercentLimit}
+        >
+          2% {arrow}
         </Button>
-        <Button variant='ghost' size='sm'>
-          5% ↑
+        <Button
+          variant='ghost'
+          size='sm'
+          isActive={presetLimit === PresetLimit.FivePercent}
+          onClick={handleSetFivePercentLimit}
+        >
+          5% {arrow}
         </Button>
-        <Button variant='ghost' size='sm'>
-          10% ↑
+        <Button
+          variant='ghost'
+          size='sm'
+          isActive={presetLimit === PresetLimit.TenPercent}
+          onClick={handleSetTenPercentLimit}
+        >
+          10% {arrow}
         </Button>
       </Flex>
     </Stack>

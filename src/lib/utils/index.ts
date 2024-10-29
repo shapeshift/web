@@ -105,6 +105,7 @@ export const isToken = (assetId: AssetId) => {
     case 'bep20':
     case 'bep721':
     case 'bep1155':
+    case 'token':
       return true
     default:
       return false

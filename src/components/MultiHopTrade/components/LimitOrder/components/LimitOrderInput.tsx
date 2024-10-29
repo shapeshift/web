@@ -30,6 +30,7 @@ import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
+import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
 
@@ -40,9 +41,6 @@ type LimitOrderInputProps = {
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
-
-// TODO: Implement me
-const CollapsibleLimitOrderList = () => <></>
 
 export const LimitOrderInput = ({
   isCompact,
@@ -170,6 +168,11 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const marketPriceBuyAssetCryptoPrecision = '123423'
+  const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(
+    marketPriceBuyAssetCryptoPrecision,
+  )
+
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody
@@ -196,11 +199,11 @@ export const LimitOrderInput = ({
           />
           <Divider />
           <LimitOrderConfig
+            sellAsset={sellAsset}
             buyAsset={buyAsset}
-            hasUserEnteredAmount={hasUserEnteredAmount}
-            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            buyAmountAfterFeesCryptoPrecision={'1123412344123456'}
-            buyAmountAfterFeesUserCurrency={'1.234'}
+            marketPriceBuyAssetCryptoPrecision={marketPriceBuyAssetCryptoPrecision}
+            limitPriceBuyAssetCryptoPrecision={limitPriceBuyAssetCryptoPrecision}
+            setLimitPriceBuyAssetCryptoPrecision={setLimitPriceBuyAssetCryptoPrecision}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -219,7 +222,7 @@ export const LimitOrderInput = ({
     buyAssetAccountId,
     setBuyAssetAccountId,
     setBuyAsset,
-    hasUserEnteredAmount,
+    limitPriceBuyAssetCryptoPrecision,
   ])
 
   const footerContent = useMemo(() => {
@@ -271,7 +274,7 @@ export const LimitOrderInput = ({
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        hasUserEnteredAmount={hasUserEnteredAmount}
+        shouldOpenSideComponent={true}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}

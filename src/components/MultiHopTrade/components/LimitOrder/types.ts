@@ -8,4 +8,5 @@ export enum LimitOrderStatus {
   Open = 'Open',
   Filled = 'Filled',
   Cancelled = 'Cancelled',
+  Expired = 'Expired',
 }

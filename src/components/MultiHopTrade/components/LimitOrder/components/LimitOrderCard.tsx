@@ -53,6 +53,8 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         return 'green'
       case LimitOrderStatus.Cancelled:
         return 'red'
+      case LimitOrderStatus.Expired:
+        return 'yellow'
       default:
         return 'gray'
     }

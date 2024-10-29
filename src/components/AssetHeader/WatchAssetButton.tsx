@@ -11,6 +11,10 @@ type WatchAssetButtonProps = Partial<BoxProps> & {
   assetId: AssetId
 }
 
+const hoverBgProps = {
+  bg: 'background.button.secondary.hover',
+}
+
 export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...props }) => {
   const appDispatch = useAppDispatch()
   const isAssetIdWatched = useAppSelector(state => selectIsAssetIdWatched(state, assetId))
@@ -32,8 +36,7 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...
       minWidth='auto'
       borderRadius='full'
       bg='background.button.secondary.base'
-      // eslint-disable-next-line react-memo/require-usememo
-      _hover={{ bg: 'background.button.secondary.hover' }}
+      _hover={hoverBgProps}
       p={2}
       ml={2}
       aria-label='favorite asset'

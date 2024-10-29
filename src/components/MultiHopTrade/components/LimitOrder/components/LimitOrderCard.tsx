@@ -24,7 +24,7 @@ export interface LimitOrderCardProps {
 }
 
 const buttonBgHover = {
-  bg: 'var(--chakra-colors-background-button-secondary-hover)',
+  bg: 'background.button.secondary.hover',
 }
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({

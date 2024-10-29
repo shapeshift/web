@@ -10,7 +10,6 @@ import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
-  solanaChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { isEvmChainId } from '@shapeshiftoss/utils'

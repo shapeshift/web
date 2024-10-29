@@ -1003,7 +1003,7 @@
     }
   },
   "limitOrder": {
-    "heading": "Limit Order",
+    "heading": "Limit",
     "confirm": "Confirm",
     "placeOrderPending": "Waiting for Confirmation",
     "placeOrderSuccess": "Success!",

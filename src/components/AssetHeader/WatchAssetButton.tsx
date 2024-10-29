@@ -31,9 +31,9 @@ export const WatchAssetButton: React.FC<WatchAssetButtonProps> = ({ assetId, ...
       alignItems='center'
       minWidth='auto'
       borderRadius='full'
-      bg='var(--chakra-colors-background-button-secondary-base)'
+      bg='background.button.secondary.base'
       // eslint-disable-next-line react-memo/require-usememo
-      _hover={{ bg: 'var(--chakra-colors-background-button-secondary-hover)' }}
+      _hover={{ bg: 'background.button.secondary.hover' }}
       p={2}
       ml={2}
       aria-label='favorite asset'

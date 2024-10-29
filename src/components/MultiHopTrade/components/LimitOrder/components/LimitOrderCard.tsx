@@ -112,7 +112,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Price row */}
         <Flex justify='space-between' align='center'>
           <Text color='gray.500' translation='limitOrders.limitPrice' />
-          <RawText>{`1 ${sellAsset.symbol} = ${limitPrice} ${buyAsset.symbol}`}</RawText>
+          <Flex justify='flex-end'>
+            <RawText mr={1}>{`1 ${sellAsset.symbol} =`}</RawText>
+            <Amount.Crypto value={limitPrice} symbol={buyAsset.symbol} />
+          </Flex>
         </Flex>
 
         {/* Expiry row */}

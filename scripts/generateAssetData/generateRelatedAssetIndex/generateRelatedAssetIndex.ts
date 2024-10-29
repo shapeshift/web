@@ -232,7 +232,7 @@ const processRelatedAssetIds = async (
     }
   }
 
-  const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(assetId, assetData)
+  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(assetId, assetData)
     .then(result => {
       happyCount++
       return result
@@ -242,7 +242,13 @@ const processRelatedAssetIds = async (
       return undefined
     })
 
-  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(assetId, assetData)
+  const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
+    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. Coingecko may not have all related assetIds for some, and Coingecko may not have
+    // any at all for others. e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not present at all under the USDC.SOL umbrella in Zerion.
+    // Using the relatedAssetKey ensures one doesn't override the results of the other.
+    coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
+    assetData,
+  )
     .then(result => {
       happyCount++
       return result

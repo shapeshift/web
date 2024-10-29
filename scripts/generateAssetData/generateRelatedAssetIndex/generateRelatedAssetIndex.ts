@@ -10,6 +10,7 @@ import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
   optimismAssetId,
+  solanaChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { isEvmChainId } from '@shapeshiftoss/utils'
@@ -216,7 +217,8 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
   // We already have an existing relatedAssetKey, so we don't need to fetch it again
-  if (existingRelatedAssetKey !== undefined) return
+  if (existingRelatedAssetKey !== undefined && fromAssetId(assetId).chainId !== solanaChainId)
+    return
 
   console.log(`Processing related assetIds for ${assetId}`)
 

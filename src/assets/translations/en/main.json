@@ -2695,6 +2695,8 @@
     "listTitle": "Limit Orders",
     "limitPrice": "Limit Price",
     "expiresIn": "Expires In",
-    "filled": "Filled"
+    "filled": "Filled",
+    "openOrders": "Open Orders",
+    "orderHistory": "Order History"
   }
 }

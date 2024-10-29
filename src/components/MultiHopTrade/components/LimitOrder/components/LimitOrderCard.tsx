@@ -1,4 +1,3 @@
-import type { CenterProps } from '@chakra-ui/react'
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
@@ -22,10 +21,9 @@ export interface LimitOrderCardProps {
   status: LimitOrderStatus
 }
 
-// TODO: rm me
-const IconWrapper: React.FC<CenterProps> = props => (
-  <Center borderRadius='full' boxSize='100%' {...props} />
-)
+const buttonBgHover = {
+  bg: 'var(--chakra-colors-background-button-secondary-hover)',
+}
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   id,
@@ -77,9 +75,9 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         <Flex justify='space-between' align='flex-start'>
           <Flex>
             <AssetIconWithBadge size='lg' assetId={ethAssetId}>
-              <IconWrapper bg='purple.500'>
+              <Center borderRadius='full' boxSize='100%' bg='purple.500'>
                 <SwapBoldIcon boxSize='100%' />
-              </IconWrapper>
+              </Center>
             </AssetIconWithBadge>
             <Flex direction='column' align='flex-start' ml={4}>
               <RawText color='gray.500' fontSize='xl'>{`${sellAmount.toLocaleString()} ${
@@ -122,11 +120,13 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Cancel button */}
         {status === LimitOrderStatus.Open && (
           <Button
-            variant='ghost-filled'
             colorScheme='red'
             width='100%'
             mt={2}
+            color='red.500'
             onClick={handleCancel}
+            bg='var(--chakra-colors-background-button-secondary-base)'
+            _hover={buttonBgHover}
           >
             <Text translation='common.cancel' />
           </Button>

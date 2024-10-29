@@ -179,7 +179,7 @@ const getCoingeckoRelatedAssetIds = async (
   const { chainId, assetReference } = fromAssetId(assetId)
   const contractAddress = assetReference
   const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
-  const coinUri = `${coingeckoChain}/${contractAddress}?vs_currency=usd`
+  const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
   const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
 
   const platforms = data.platforms

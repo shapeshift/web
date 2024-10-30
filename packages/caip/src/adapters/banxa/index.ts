@@ -24,6 +24,7 @@ import {
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  solAssetId,
   thorchainAssetId,
   thorchainChainId,
 } from '../../constants'
@@ -44,6 +45,7 @@ const AssetIdToBanxaTickerMap = {
   [baseAssetId]: 'eth',
   [polygonAssetId]: 'matic', // TODO: check that Banxa update this to POL upstream
   [thorchainAssetId]: 'rune',
+  [solAssetId]: 'sol',
   'eip155:1/erc20:0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 'aave',
   'eip155:1/erc20:0xbb0e17ef65f82ab018d8edd776e8dd940327b28b': 'axs',
   'eip155:1/erc20:0x4d224452801aced8b2f0aebe155379bb5d594381': 'ape',
@@ -92,6 +94,10 @@ const AssetIdToBanxaTickerMap = {
   'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831': 'usdc',
   'eip155:43114/erc20:0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 'usdt',
   'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e': 'usdc',
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v':
+    'usdc',
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB':
+    'usdt',
 } as Record<AssetId, string>
 
 export const getSupportedBanxaAssets = () =>
@@ -123,6 +129,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [arbitrumChainId]: 'ARB',
   [baseChainId]: 'BASE',
   [thorchainChainId]: 'THORCHAIN',
+  [solAssetId]: 'SOL',
 } as const
 
 /**

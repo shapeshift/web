@@ -16,6 +16,7 @@
     "done": "完成",
     "cancel": "取消",
     "close": "关闭",
+    "closed": "关闭",
     "loadMore": "加载更多",
     "saveChanges": "保存更改",
     "new": "新的",
@@ -49,6 +50,7 @@
     "overview": "总览",
     "getStarted": "开始使用",
     "connectWallet": "连接钱包",
+    "connectWalletToGetStartedWith": "连接钱包以开始使用 %{feature}",
     "connectedWallet": "已连接的钱包",
     "connectedWalletSettings": "钱包设置",
     "noWallet": "没有连接钱包",
@@ -156,6 +158,7 @@
     "asymmetric": "不对称 (%{assetSymbol})",
     "import": "导入",
     "accountsLoading": "正在加载帐户",
+    "noAccounts": "没有符合所选过滤器的帐户。",
     "carousel": {
       "next": "下一个",
       "prev": "上一个",
@@ -441,7 +444,9 @@
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
         "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
         "dangerousWithdrawWarning": "THORChain 费用可能导致提取的资金全部损失。请考虑提取更高的金额以避免此问题。",
-        "agreeRunePool": {}
+        "agreeRunePool": {
+          "1": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
+        }
       }
     },
     "memoNote": {
@@ -615,6 +620,7 @@
     "lending": "贷款",
     "pools": "池",
     "rFOX": "rFOX",
+    "foxBenefits": "FOX 优势",
     "markets": "市场",
     "actionMenu": {
       "send": {
@@ -787,7 +793,11 @@
       "description": "通过 Arbitrum 搭建桥接",
       "waitWarning": "Arbitrum 的原生桥更安全，但可能需要长达一周的时间才能认领。",
       "waitCta": "我知道我需要大约 7 天的时间才能在以太坊上领取资金",
-      "claimCta": "我理解领取资金后，我必须再发送一笔交易并支付费用"
+      "claimCta": "我理解领取资金后，我必须再发送一笔交易并支付费用",
+      "success": {
+        "tradeSuccess": "桥接已启动",
+        "withdrawComplete": "已成功启动 %{symbol} 至 %{chainName} 的桥接。"
+      }
     },
     "claim": "认领",
     "claimReceiveAddress": "认领接收地址",
@@ -799,7 +809,10 @@
     "pendingClaims": "待确认",
     "noPendingClaims": "没有待决认领",
     "availableIn": "%{time} 后可用",
-    "confirmAndClaim": "确认并认领"
+    "confirmAndClaim": "确认并认领",
+    "viewClaims": "查看认领",
+    "viewClaimStatus": "查看认领状态",
+    "availableClaimsNotification": "你已准备好桥梁认领！"
   },
   "trade": {
     "trade": "交易",
@@ -899,6 +912,13 @@
         "negativeRatio": "卖出数量不足"
       }
     },
+    "permit2": {
+      "title": "允许代币转移：",
+      "description": "授予智能合约代表你使用 %{symbol} 的权限。",
+      "tooltip": "此项交易具有一个名为“Permit2”的附加安全功能，该功能要求你授权应用程序代表你完成交易。",
+      "error": "签署 Permit2 消息时出现问题",
+      "signMessage": "签署消息"
+    },
     "errors": {
       "title": "出了些问题",
       "amountTooSmall": "最小: %{minLimit}",
@@ -946,12 +966,14 @@
     "priceImpactWarning": "由于此交易相对于可用流动性的规模，此交易的预期价格影响为 %{priceImpactPercentage}% 。你确定要交易吗？",
     "enableMetaMaskSnap": "使用多链 snap",
     "connectChain": "连接 %{chainName}",
-    "approvalGasFee": "授权手续费 %{fee}",
-    "approvalGasFeeLoading": "批准gas费加载中...",
-    "approvalResetGasFee": "批准重置 gas 费用 %{fee}",
-    "approvalResetGasFeeLoading": "批准重置 gas 费加载中...",
+    "approvalGasFee": "配额批准 gas 费 %{fee}",
+    "approvalGasFeeLoading": "配额批准gas费加载...",
+    "approvalResetGasFee": "限额重置 gas 费用 %{fee}",
+    "approvalResetGasFeeLoading": "津贴重置汽gas费加载中...",
     "approvalFailed": "额度审批过程中出现问题",
     "approvalResetFailed": "重置配额时出现问题",
+    "allowanceResetTxName": "津贴重置tx：",
+    "allowanceApprovalTxName": "津贴批准tx：",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
     "doAnotherTrade": "进行另一笔交易",
     "showDetails": "显示详细资料",
@@ -979,6 +1001,9 @@
       "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
       "slippage": "滑点：%{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "限价订单"
   },
   "modals": {
     "assetSearch": {
@@ -1508,20 +1533,21 @@
       "connectWarning": "连接链条之前，请确保你的设备上已打开该应用程序。",
       "signWarning": "签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "与 MetaMask 通信时发生意外错误",
-        "connectFailure": "无法连接 MetaMask 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 MetaMask 。你安装了多个钱包吗？"
-      },
+    "mipd": {
       "connect": {
-        "header": "配对 MetaMask 钱包",
-        "body": "单击“配对”并从弹出窗口中登录 MetaMask",
+        "header": "对 %{name}",
+        "body": "单击“配对”，然后从弹出窗口登录 %{name}",
         "button": "匹配"
       },
-      "failure": {
-        "body": "无法连接 MetaMask 钱包"
+      "errors": {
+        "unknown": "与 %{name} 通信时发生意外错误",
+        "connectFailure": "无法连接 %{name}"
       },
+      "failure": {
+        "body": "无法连接 %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "在 MetaMask 应用程序中打开",
         "body": "在 MetaMask 中单击打开 ShapeShift 仪表板",
@@ -1608,26 +1634,6 @@
       },
       "failure": {
         "body": "无法连接 WalletConnect 钱包"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "与 XDEFI 通信时发生意外错误",
-        "connectFailure": "无法连接 XDEFI 钱包",
-        "multipleWallets": "检测到的以太坊提供商不是 XDEFI。你是否安装并开启了多个钱包？在设置中优先考虑 XDEFI，然后再次按匹配。"
-      },
-      "connect": {
-        "header": "匹配 XDEFI",
-        "body": "单击“匹配”并从弹出窗口登录 XDEFI",
-        "button": "匹配"
-      },
-      "failure": {
-        "body": "无法连接 XDEFI 钱包"
-      },
-      "redirect": {
-        "header": "在 XDEFI 应用程序中打开",
-        "body": "单击以在 XDEFI 中打开 ShapeShift 仪表板",
-        "button": "打开"
       }
     },
     "shapeShift": {
@@ -2594,6 +2600,77 @@
   },
   "markets": {
     "recommended": "推荐的",
-    "watchlist": "我的关注列表"
+    "watchlist": "我的关注列表",
+    "marketsBody": "发现最令人兴奋的加密货币。跟踪最热门的货币、新兴代币、DeFi 机会等等。保存、分享和交易您最喜欢的货币。",
+    "watchlistEmpty": {
+      "emptyTitle": "监视列表中没有资产",
+      "emptyBody": "看来你尚未为任何资产加注星标。立即开始将资产添加到你的监视列表以进行跟踪！"
+    },
+    "emptyTitle": "未找到任何资产",
+    "emptyBody": "当前过滤器未找到任何资产。通过调整所选链可查看更多资产。",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "一键获取 DeFi 资产",
+        "subtitle": "发现最适合你的收益！通过门户轻松在池、金库、贷款选项和 LSD 之间切换。"
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "利用 THORCHain Savers 获取你资产的原生收益。"
+      },
+      "trending": {
+        "title": "热门内容",
+        "subtitle": "过去 24 小时内浏览次数最多的资产。"
+      },
+      "tradingVolume": {
+        "title": "交易量",
+        "subtitle": "过去 24 小时内交易量最高的资产。"
+      },
+      "marketCap": {
+        "title": "市值",
+        "subtitle": "过去 24 小时内市值最高的资产。"
+      },
+      "topMovers": {
+        "title": "排名前列的",
+        "subtitle": "涨幅达 %{percentage}% 或更多的顶级资产。"
+      },
+      "recentlyAdded": {
+        "title": "最近添加",
+        "subtitle": "发现最近发布的产品。"
+      }
+    }
+  },
+  "foxPage": {
+    "title": "FOX 代币仪表板",
+    "description": "自 2019 年以来，我们的变形 FOX 代币一直为用户提供不断扩展的实用性和优势。如今，我们的 ERC-20 治理代币为您提供费用折扣、THORChain 的收入份额，并使你能够通过投票影响 ShapeShift 的未来。在这里质押、交换、购买、供应和管理你的 FOX 资产。",
+    "foxToken": "FOX 代币",
+    "24hrPriceChange": "24小时价格变化",
+    "rfox": {
+      "whatIs": "什么是 rFOX Staking？",
+      "totalFoxBurn": "FOX 总销毁量",
+      "simulateTitle": "rFOX 模拟器",
+      "simulateSubtle": "输入存款金额",
+      "estimatedRewards": "预计奖励",
+      "depositAmount": "存款金额",
+      "shapeshiftRevenue": "ShapeShift 收入",
+      "30days": "30 天"
+    },
+    "foxFarming": {
+      "title": "FOX 农业+",
+      "description": "厌倦了将你的 %{rewardAssetSymbol} 从一个农场转移到另一个农场？只需质押你的 %{assetSymbol} 并永久赚取 %{rewardAssetSymbol}。",
+      "totalClaimableRewards": "可领取奖励总额",
+      "totalStakingValue": "总质押价值",
+      "nextEpoch": "下一个时代"
+    },
+    "governance": {
+      "title": "治理",
+      "description": {
+        "0": "加入我们",
+        "1": "在论坛上",
+        "2": "并塑造 DAO 的未来。"
+      },
+      "totalVotingPower": "总投票权",
+      "noActiveProposals": "没有可用的有效提案",
+      "noClosedProposals": "没有可用的封闭式提案"
+    }
   }
 }

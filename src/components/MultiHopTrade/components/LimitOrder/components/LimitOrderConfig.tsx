@@ -38,11 +38,11 @@ enum PresetLimit {
 }
 
 enum ExpiryOption {
-  OneHour = '1 hour',
-  OneDay = '1 day',
-  ThreeDays = '3 days',
-  SevenDays = '7 days',
-  TwentyEightDays = '28 days',
+  OneHour = 'oneHour',
+  OneDay = 'oneDay',
+  ThreeDays = 'threeDays',
+  SevenDays = 'sevenDays',
+  TwentyEightDays = 'twentyEightDays',
   // TODO: implement custom expiry
   // Custom = 'custom',
 }
@@ -58,18 +58,18 @@ const EXPIRY_OPTIONS = [
 const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
   switch (expiryOption) {
     case ExpiryOption.OneHour:
-      return 'limitOrder.expiryOption.oneHour'
+      return `limitOrder.expiryOption.${expiryOption}`
     case ExpiryOption.OneDay:
-      return 'limitOrder.expiryOption.oneDay'
+      return `limitOrder.expiryOption.${expiryOption}`
     case ExpiryOption.ThreeDays:
-      return 'limitOrder.expiryOption.threeDays'
+      return `limitOrder.expiryOption.${expiryOption}`
     case ExpiryOption.SevenDays:
-      return 'limitOrder.expiryOption.sevenDays'
+      return `limitOrder.expiryOption.${expiryOption}`
     case ExpiryOption.TwentyEightDays:
-      return 'limitOrder.expiryOption.twentyEightDays'
+      return `limitOrder.expiryOption.${expiryOption}`
     // TODO: implement custom expiry
     // case ExpiryOption.Custom:
-    //   return 'limitOrder.expiryOption.custom'
+    //   return `limitOrder.expiryOption.${expiryOption}`
     default:
       assertUnreachable(expiryOption)
   }

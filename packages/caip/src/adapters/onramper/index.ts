@@ -15,6 +15,7 @@ import {
   ltcAssetId,
   optimismAssetId,
   polygonAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '../../constants'
 
@@ -1483,6 +1484,19 @@ export const AssetIdToOnRamperIdMap: Record<AssetId, OnRamperTokenId[]> = {
   'eip155:100/erc20:0xe2e73a1c69ecf83f464efce6a5be353a37ca09b2': ['link_gnosis'],
   'eip155:100/erc20:0x0116e28b43a358162b96f70b4de14c98a4465f25': ['uncx_gnosis'],
   'eip155:100/erc20:0xc5102fe9359fd9a28f877a67e36b0f050d81a3cc': ['hop_gnosis'],
+  [solAssetId]: ['sol'],
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': [
+    'bonk_solana',
+  ],
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EchesyfXePKdLtoiZSL8pBe8Myagyy8ZRqsACNCFGnvp': [
+    'fida_solana',
+  ],
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx': [
+    'gmt_solana',
+  ],
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R': [
+    'ray_solana',
+  ],
 }
 
 // explodes and inverts the assetId => tokenId[] map by creating a 1to1 token => assetId mapping

@@ -39,6 +39,7 @@ export const transformLifiStepFeeData = ({
       }
     }
 
+    // Ensures we don't double-count the affiliate fee both as affiliate fee *and* as protocol fees
     if (name === LIFI_SHARED_FEES_STEP_NAME) {
       return acc
     }

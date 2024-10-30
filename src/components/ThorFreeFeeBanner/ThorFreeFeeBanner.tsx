@@ -34,7 +34,7 @@ export const ThorFreeFeeBanner = () => {
       _hover={cardHover}
       position='relative'
       overflow='hidden'
-      mb={6}
+      mb={4}
       _before={cardBefore}
     >
       <CardBody

@@ -149,7 +149,7 @@ export const snapshotApi = createApi({
             return strategiesResult?.data
           })()
           if (!strategies) {
-            console.log('snapshotApi getVotingPower could not get strategies')
+            console.error('snapshotApi getVotingPower could not get strategies')
             return { data: bn(0).toString() }
           }
           const evmAddresses = Array.from(
@@ -209,7 +209,7 @@ export const snapshotApi = createApi({
             return strategiesResult?.data
           })()
           if (!strategies) {
-            console.log('snapshotApi getThorVotingPower could not get strategies')
+            console.error('snapshotApi getThorVotingPower could not get strategies')
             return { data: bn(0).toString() }
           }
           const evmAddresses = Array.from(

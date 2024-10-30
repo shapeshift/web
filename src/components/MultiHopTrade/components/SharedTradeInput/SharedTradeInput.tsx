@@ -45,7 +45,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
       justifyContent='center'
       maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
     >
-      <Center width='inherit' alignItems='flex-start'>
+      <Center width='inherit' alignItems='flex-end'>
         <Box width='full' maxWidth='500px'>
           <ThorFreeFeeBanner />
           <Card

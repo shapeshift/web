@@ -124,16 +124,6 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const feeUsd = feeUsdBeforeDiscount.minus(feeUsdDiscount)
   const foxDiscountUsd = feeUsdBeforeDiscount.times(foxDiscountPercent.div(100))
 
-  console.log({
-    feeBps: feeBps.toFixed(),
-    feeBpsFloat: feeBpsFloat.toFixed(),
-    feeUsd: feeUsd.toFixed(),
-    foxDiscountPercent: foxDiscountPercent.toFixed(),
-    foxDiscountUsd: foxDiscountUsd.toFixed(),
-    feeUsdBeforeDiscount: feeUsdBeforeDiscount.toFixed(),
-    feeBpsBeforeDiscount: feeBpsBeforeDiscount.toFixed(),
-  })
-
   return {
     feeBps,
     feeBpsFloat,

@@ -63,7 +63,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const isThorFree =
     isThorFreeEnabled &&
     thorHeld?.isGreaterThanOrEqualTo(THORSWAP_UNIT_THRESHOLD) &&
-    new Date().getFullYear() <= THORSWAP_MAXIMUM_YEAR_TRESHOLD
+    new Date().getFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
 
   // failure to fetch fox discount results in free trades.
   const isFallbackFees = selectIsSnapshotApiQueriesRejected(store.getState())

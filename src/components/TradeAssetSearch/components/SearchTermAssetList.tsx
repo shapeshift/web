@@ -1,6 +1,6 @@
 import { ASSET_NAMESPACE, bscChainId, type ChainId, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { Asset } from '@shapeshiftoss/types'
+import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, makeAsset, type MinimalAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
@@ -23,6 +23,7 @@ export type SearchTermAssetListProps = {
   activeChainId: ChainId | 'All'
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
+  isSwapper?: boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
 }
@@ -32,6 +33,7 @@ export const SearchTermAssetList = ({
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
+  isSwapper,
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
@@ -56,15 +58,18 @@ export const SearchTermAssetList = ({
 
   const assetsForChain = useMemo(() => {
     if (activeChainId === 'All') {
-      if (allowWalletUnsupportedAssets) return assets
-      return assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      const _assets = assets.filter(asset =>
+        isSwapper ? asset.chainId !== KnownChainIds.SolanaMainnet : true,
+      )
+      if (allowWalletUnsupportedAssets) return _assets
+      return _assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
     return assets.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds, isSwapper])
 
   const customAssets: Asset[] = useMemo(
     () =>

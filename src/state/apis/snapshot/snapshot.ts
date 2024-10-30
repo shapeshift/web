@@ -20,6 +20,7 @@ type FoxVotingPowerCryptoBalance = string
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
 const THORSWAP_SNAPSHOT_SPACE = 'thorswapcommunity.eth'
 
+// https://snapshot.org/#/thorswapcommunity.eth/proposal/0x66a6c22cd2f4d88713bd4b4fd9068dfa35fee2fce94bb76fe274b8602cee556d
 const THOR_TIP_014_BLOCK_NUMBER = 21072340
 
 export const initialState: SnapshotState = {

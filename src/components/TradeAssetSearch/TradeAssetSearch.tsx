@@ -246,6 +246,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
+          isSwapper={isSwapper}
           allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
         />
       ) : (

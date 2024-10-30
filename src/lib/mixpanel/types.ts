@@ -61,6 +61,7 @@ export enum MixPanelEvent {
   LpIncompleteWithdrawPreview = 'LP Incomplete Withdraw Preview',
   LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
   CustomAssetAdded = 'Custom Asset Added',
+  ToggleWatchAsset = 'Toggle Watch Asset',
 }
 
 export type TrackOpportunityProps = {

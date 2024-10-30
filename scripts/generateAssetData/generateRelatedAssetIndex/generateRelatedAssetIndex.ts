@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  adapters,
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
@@ -18,15 +19,22 @@ import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 import path from 'path'
+import type { CoingeckoAssetDetails } from 'lib/coingecko/types'
 import type { PartialFields } from 'lib/types'
+import { isToken } from 'lib/utils'
 
 import { createThrottle } from '../utils'
-import { zerionImplementationToMaybeAssetId } from './mapping'
+import {
+  coingeckoPlatformDetailsToMaybeAssetId,
+  zerionImplementationToMaybeAssetId,
+} from './mapping'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 // NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
 const ZERION_BASE_URL = 'https://api.zerion.io/v1'
 const BATCH_SIZE = 100
+
+const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
@@ -98,7 +106,7 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
   return result
 }
 
-const getRelatedAssetIds = async (
+const getZerionRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
@@ -161,6 +169,40 @@ const getRelatedAssetIds = async (
   return { relatedAssetIds, relatedAssetKey }
 }
 
+const getCoingeckoRelatedAssetIds = async (
+  assetId: AssetId,
+  assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
+): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
+  if (!isToken(assetId)) return
+  // Yes, this means effectively the same but double wrap never hurts
+  if (FEE_ASSET_IDS.includes(assetId)) return
+  const { chainId, assetReference: contractAddress } = fromAssetId(assetId)
+  const coingeckoChain = adapters.chainIdToCoingeckoAssetPlatform(chainId)
+  const coinUri = `${coingeckoChain}/contract/${contractAddress}?vs_currency=usd`
+  const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
+
+  const platforms = data.platforms
+  const primaryPlatform = Object.entries(data.platforms)[0]
+
+  const relatedAssetKey = primaryPlatform
+    ? coingeckoPlatformDetailsToMaybeAssetId(primaryPlatform)
+    : undefined
+
+  const relatedAssetIds = Object.entries(platforms)
+    ?.map(coingeckoPlatformDetailsToMaybeAssetId)
+    .filter(isSome)
+    .filter(
+      relatedAssetId =>
+        relatedAssetId !== relatedAssetKey && assetData[relatedAssetId] !== undefined,
+    )
+
+  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
+    return
+  }
+
+  return { relatedAssetIds, relatedAssetKey }
+}
+
 // Initialize counters for happy and sad fetches
 let happyCount = 0
 let sadCount = 0
@@ -190,7 +232,23 @@ const processRelatedAssetIds = async (
     }
   }
 
-  const relatedAssetsResult = await getRelatedAssetIds(assetId, assetData)
+  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(assetId, assetData)
+    .then(result => {
+      happyCount++
+      return result
+    })
+    .catch(() => {
+      sadCount++
+      return undefined
+    })
+
+  const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
+    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have all related assetIds for a given asset, and Zerion may not have
+    // any at all the same asset. e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not present at all under the USDC.SOL umbrella in Zerion.
+    // Using the primary implementation ensures we use a reliable identifier for the related assets, not a more obscure one.
+    coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
+    assetData,
+  )
     .then(result => {
       happyCount++
       return result
@@ -208,11 +266,20 @@ const processRelatedAssetIds = async (
   }
 
   const relatedAssetKey =
-    manualRelatedAssetsResult?.relatedAssetKey || relatedAssetsResult?.relatedAssetKey || assetId
+    manualRelatedAssetsResult?.relatedAssetKey ||
+    zerionRelatedAssetsResult?.relatedAssetKey ||
+    coingeckoRelatedAssetsResult?.relatedAssetKey ||
+    assetId
 
-  const zerionRelatedAssetIds = relatedAssetsResult?.relatedAssetIds ?? []
+  const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
+  const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
   const mergedRelatedAssetIds = Array.from(
-    new Set([...manualRelatedAssetIds, ...zerionRelatedAssetIds, assetId]),
+    new Set([
+      ...manualRelatedAssetIds,
+      ...zerionRelatedAssetIds,
+      ...coingeckoRelatedAssetIds,
+      assetId,
+    ]),
   )
 
   // Has zerion-provided related assets, or manually added ones

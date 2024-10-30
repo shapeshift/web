@@ -1003,7 +1003,25 @@
     }
   },
   "limitOrder": {
-    "heading": "Limit Order"
+    "heading": "Limit",
+    "confirm": "Confirm",
+    "placeOrderPending": "Waiting for Confirmation",
+    "placeOrderSuccess": "Success!",
+    "placeOrderFailed": "Something Went Wrong",
+    "placeOrder": "Place Order",
+    "viewOrder": "View Order",
+    "viewOnChain": "View transaction on chain",
+    "yourOrderHasBeenPlaced": "Your order has been placed.",
+    "limitPrice": "Limit Price",
+    "provider": "Provider",
+    "expiration": "Expiration",
+    "networkFee":"Network Fee",
+    "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
+    "learnMore": "Learn More",
+    "previewOrder": "Preview Order",
+    "youGet": "You Get",
+    "whenPriceReaches": "When price reaches",
+    "expiry": "Expiry"
   },
   "modals": {
     "assetSearch": {
@@ -2671,6 +2689,20 @@
       "totalVotingPower": "Total Voting Power",
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"
+    }
+  },
+  "limitOrders": {
+    "listTitle": "Limit Orders",
+    "limitPrice": "Limit Price",
+    "expiresIn": "Expires In",
+    "filled": "Filled",
+    "openOrders": "Open Orders",
+    "orderHistory": "Order History",
+    "status": {
+      "open": "Open",
+      "filled": "Filled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
     }
   }
 }

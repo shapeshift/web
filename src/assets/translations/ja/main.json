@@ -16,6 +16,7 @@
     "done": "完了",
     "cancel": "キャンセルする",
     "close": "閉じる",
+    "closed": "閉鎖",
     "loadMore": "もっと見る",
     "saveChanges": "変更内容を保存",
     "new": "New",
@@ -49,6 +50,7 @@
     "overview": "概要",
     "getStarted": "始める",
     "connectWallet": "ウォレットを接続する",
+    "connectWalletToGetStartedWith": "%{feature} を使い始めるにはウォレットを接続してください",
     "connectedWallet": "ウォレット接続済み",
     "connectedWalletSettings": "ウォレットの設定",
     "noWallet": "ウォレットが接続されていません",
@@ -156,6 +158,7 @@
     "asymmetric": "非対称 (%{assetSymbol})",
     "import": "インポート",
     "accountsLoading": "アカウントの読み込み中",
+    "noAccounts": "選択したフィルターに該当するアカウントはありません。",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -441,7 +444,9 @@
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
         "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
         "dangerousWithdrawWarning": "THORChain 手数料により、引き出される資金が全額失われる可能性があります。この問題を回避するには、より高い金額を引き出すことを検討してください。",
-        "agreeRunePool": {}
+        "agreeRunePool": {
+          "1": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
+        }
       }
     },
     "memoNote": {
@@ -615,6 +620,7 @@
     "lending": "貸し出し",
     "pools": "プール",
     "rFOX": "rFOX",
+    "foxBenefits": "FOXのメリット",
     "markets": "市場",
     "actionMenu": {
       "send": {
@@ -787,7 +793,11 @@
       "description": "アービトラムを経由してブリッジする",
       "waitWarning": "Arbitrum のネイティブ ブリッジはより安全ですが、請求までに最大 1 週間かかる場合があります。",
       "waitCta": "イーサリアムで資金を請求できるようになるまでには最大7日かかることを理解しました。",
-      "claimCta": "資金を受け取った後、手数料を支払って別のトランザクションをする必要があることを理解しました。"
+      "claimCta": "資金を受け取った後、手数料を支払って別のトランザクションをする必要があることを理解しました。",
+      "success": {
+        "tradeSuccess": "ブリッジ開始",
+        "withdrawComplete": "%{symbol} から %{chainName} へのブリッジングを正常に開始しました。"
+      }
     },
     "claim": "請求",
     "claimReceiveAddress": "請求の受取アドレス",
@@ -799,7 +809,10 @@
     "pendingClaims": "保留中",
     "noPendingClaims": "保留中の請求はありません",
     "availableIn": "%{time} で利用可能",
-    "confirmAndClaim": "確認と請求"
+    "confirmAndClaim": "確認と請求",
+    "viewClaims": "請求を表示",
+    "viewClaimStatus": "請求ステータスの表示",
+    "availableClaimsNotification": "ブリッジクレームの準備ができました!"
   },
   "trade": {
     "trade": "取引",
@@ -899,6 +912,13 @@
         "negativeRatio": "売却額が足りません"
       }
     },
+    "permit2": {
+      "title": "トークンの転送を許可する:",
+      "description": "あなたに代わって %{symbol} を使用する権限をスマート コントラクトに付与します。",
+      "tooltip": "この取引には「Permit2」と呼ばれる追加のセキュリティ機能があり、アプリケーションがあなたに代わって取引を完了できるように許可を与える必要があります。",
+      "error": "Permit2 メッセージの署名中に問題が発生しました",
+      "signMessage": "メッセージに署名する"
+    },
     "errors": {
       "title": "問題が発生しました",
       "amountTooSmall": "最小値: %{minLimit}",
@@ -946,8 +966,14 @@
     "priceImpactWarning": "利用可能な流動性に比べてこの取引の規模が大きいため、この取引による予想される価格への影響は %{priceImpactPercentage}% です。本当に取引してもよろしいですか?",
     "enableMetaMaskSnap": "マルチチェーンスナップを使用する",
     "connectChain": "%{chainName} を接続する",
+    "approvalGasFee": "手当を承認するためのガス料金 %{fee}",
+    "approvalGasFeeLoading": "手当を承認するためのガス料金読み込み中...",
+    "approvalResetGasFee": "手当をリセットするためのガス料金 %{fee}",
+    "approvalResetGasFeeLoading": "手当をリセットするためのガス料金読み込み中...",
     "approvalFailed": "手当の承認中に問題が発生しました",
     "approvalResetFailed": "手当のリセット中に問題が発生しました",
+    "allowanceResetTxName": "手当リセットトランザクション:",
+    "allowanceApprovalTxName": "手当承認トランザクション:",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
     "doAnotherTrade": "別の取引をする",
     "showDetails": "詳細",
@@ -975,6 +1001,9 @@
       "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
       "slippage": "スリッページ: %{ SlippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "指値注文"
   },
   "modals": {
     "assetSearch": {
@@ -1504,20 +1533,21 @@
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
       "signWarning": "署名する前に、デバイスで %{chain} アプリが開いていることを確認してください。"
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "MetaMaskとの通信で予期せぬエラーが発生しました",
-        "connectFailure": "MetaMaskウォレットに接続できません",
-        "multipleWallets": "検出されたイーサリアムプロバイダーはMetaMaskではありません。複数のウォレットをインストールしていますか?"
-      },
+    "mipd": {
       "connect": {
-        "header": "MetaMaskのペアリング",
-        "body": "「ペアリング」をクリックし、ポップアップウィンドウからMetaMaskにログインします。",
-        "button": "ペアリング"
+        "header": "ペア %{name}",
+        "body": "ポップアップウィンドウから「ペアリング」をクリックして%{name}にログインします",
+        "button": "ペア"
+      },
+      "errors": {
+        "unknown": "%{name} との通信中に予期しないエラーが発生しました",
+        "connectFailure": "%{name} に接続できません"
       },
       "failure": {
-        "body": "MetaMaskウォレットに接続できません"
-      },
+        "body": "%{name} に接続できません"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "MetaMaskアプリで開く",
         "body": "クリックしてMetaMaskのShapeShiftダッシュボードを開きます",
@@ -1604,26 +1634,6 @@
       },
       "failure": {
         "body": "WalletConnectウォレットに接続できません"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "XDEFIとの通信で予期せぬエラーが発生しました",
-        "connectFailure": "XDEFIウォレットに接続できません",
-        "multipleWallets": "検出されたEthereumプロバイダーはXDEFIではありません。複数のウォレットをインストールしてオンにしていますか？設定でXDEFIを優先し、もう一度ペアリングを押します。"
-      },
-      "connect": {
-        "header": "XDEFIのペアリング",
-        "body": "「ペアリング」をクリックし、ポップアップウィンドウからXDEFIにログインします。",
-        "button": "ペアリング"
-      },
-      "failure": {
-        "body": "XDEFIウォレットに接続できません"
-      },
-      "redirect": {
-        "header": "XDEFIアプリで開く",
-        "body": "クリックしてXDEFIのShapeShiftダッシュボードを開きます",
-        "button": "開く"
       }
     },
     "shapeShift": {
@@ -2590,6 +2600,77 @@
   },
   "markets": {
     "recommended": "推奨",
-    "watchlist": "ウォッチリスト"
+    "watchlist": "ウォッチリスト",
+    "marketsBody": "最もエキサイティングな暗号通貨を発見してください。トップムーバー、新興トークン、DeFi の機会などを追跡してください。お気に入りの暗号通貨を保存、共有、取引しましょう。",
+    "watchlistEmpty": {
+      "emptyTitle": "ウォッチリストに資産がありません",
+      "emptyBody": "まだアセットにスターを付けていないようです。今すぐウォッチリストにアセットを追加して追跡しましょう。"
+    },
+    "emptyTitle": "資産が見つかりません",
+    "emptyBody": "現在のフィルターではアセットが見つかりません。選択するチェーンを調整して、さらに多くのアセットを表示してください。",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "ワンクリックDeFiアセット",
+        "subtitle": "自分に最適の利回りを見つけましょう。ポータルを使用して、プール、金庫、貸出オプション、LSD の間を簡単に切り替えることができます。"
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "THORCHain Savers で資産のネイティブ利回りを獲得しましょう。"
+      },
+      "trending": {
+        "title": "トレンド",
+        "subtitle": "過去 24 時間で最も多く閲覧されたアセット"
+      },
+      "tradingVolume": {
+        "title": "取引量",
+        "subtitle": "過去 24 時間の取引量が最も多かった上位資産。"
+      },
+      "marketCap": {
+        "title": "時価総額",
+        "subtitle": "過去 24 時間で時価総額が最も高かった上位資産。"
+      },
+      "topMovers": {
+        "title": "トップムーバー",
+        "subtitle": "%{percentage}% 以上上昇した上位の資産。"
+      },
+      "recentlyAdded": {
+        "title": "最近追加されたもの",
+        "subtitle": "最近の発売情報をご覧ください。"
+      }
+    }
+  },
+  "foxPage": {
+    "title": "FOXトークン ダッシュボード",
+    "description": "2019 年以来、当社のシェイプシフト FOX トークンは、ユーザーにますます広がるユーティリティと優位性のある世界を提供してきました。現在、当社の ERC-20 ガバナンストークンは、手数料の割引、THORChain での収益の分配を提供し、投票を通じて ShapeShift の将来に影響を与えることを可能にします。FOX の保有資産をここでステーク、スワップ、購入、供給、管理してください。",
+    "foxToken": "FOXトークン",
+    "24hrPriceChange": "24時間の価格変動",
+    "rfox": {
+      "whatIs": "rFOXステーキングとは?",
+      "totalFoxBurn": "バーンされるFOXの総量",
+      "simulateTitle": "rFOXシミュレーター",
+      "simulateSubtle": "デポジット番号の入力",
+      "estimatedRewards": "推定報酬",
+      "depositAmount": "預入金額",
+      "shapeshiftRevenue": "ShapeShiftの収益",
+      "30days": "30日間"
+    },
+    "foxFarming": {
+      "title": "FOXファーミング+",
+      "description": "%{rewardAssetSymbol} をファームからファームへ移行するのにうんざりしていませんか? %{assetSymbol} をステークするだけで、%{rewardAssetSymbol} を永久に獲得できます。",
+      "totalClaimableRewards": "請求可能な報酬の合計",
+      "totalStakingValue": "総ステーキング価値",
+      "nextEpoch": "次のエポック"
+    },
+    "governance": {
+      "title": "ガバナンス",
+      "description": {
+        "0": "参加しましょう",
+        "1": "フォーラムで",
+        "2": "DAO の未来を形作ります。"
+      },
+      "totalVotingPower": "総投票権",
+      "noActiveProposals": "有効な提案はありません",
+      "noClosedProposals": "終了した提案はありません"
+    }
   }
 }

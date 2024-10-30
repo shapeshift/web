@@ -16,6 +16,7 @@
     "done": "Feito",
     "cancel": "Cancelar",
     "close": "Fechar",
+    "closed": "Fechado",
     "loadMore": "Carregar mais",
     "saveChanges": "Salvar Mudanças",
     "new": "Novo",
@@ -792,7 +793,11 @@
       "description": "Ponte via Arbitrum",
       "waitWarning": "A ponte nativa da Arbitrum é mais segura, mas pode levar até uma semana para ser resgatada.",
       "waitCta": "Entendo que levará cerca de 7 dias antes que eu possa resgatar fundos no Ethereum",
-      "claimCta": "Entendo que após resgatar meus fundos, terei que enviar outra transação com uma taxa"
+      "claimCta": "Entendo que após resgatar meus fundos, terei que enviar outra transação com uma taxa",
+      "success": {
+        "tradeSuccess": "Ponte iniciada",
+        "withdrawComplete": "A conexão de %{symbol} para %{chainName} foi iniciada com sucesso."
+      }
     },
     "claim": "Resgate",
     "claimReceiveAddress": "Endereço de recebimento do resgate",
@@ -806,6 +811,7 @@
     "availableIn": "Disponível em %{time}",
     "confirmAndClaim": "Confirmar e Resgate",
     "viewClaims": "Ver resgates",
+    "viewClaimStatus": "Ver status do resgate",
     "availableClaimsNotification": "Você tem resgates de pontes prontas!"
   },
   "trade": {
@@ -906,6 +912,13 @@
         "negativeRatio": "Quantia indisponível para vender"
       }
     },
+    "permit2": {
+      "title": "Permitir transferência de token:",
+      "description": "Conceda ao contrato inteligente permissão para usar %{symbol} em seu nome.",
+      "tooltip": "Esta negociação tem um recurso de segurança adicional chamado 'Permit2', que exige que você conceda permissão para o aplicativo concluir a negociação em seu nome.",
+      "error": "Ocorreu um problema ao assinar a mensagem Permit2",
+      "signMessage": "Assinar mensagem"
+    },
     "errors": {
       "title": "Algo de errado aconteceu.",
       "amountTooSmall": "Valor insuficiente. O valor mínimo de negociação para este par é %{minLimit}.",
@@ -953,8 +966,14 @@
     "priceImpactWarning": "Devido ao tamanho desta negociação em relação à liquidez disponível, o impacto esperado no preço desta negociação é %{priceImpactPercentage}%. Tem certeza que deseja negociar?",
     "enableMetaMaskSnap": "use o snap multichain",
     "connectChain": "conectar %{chainName}",
+    "approvalGasFee": "Taxa de gás de aprovação %{fee}",
+    "approvalGasFeeLoading": "Taxa de gás de aprovação carregando...",
+    "approvalResetGasFee": "Taxa de gás para reiniciar %{fee}",
+    "approvalResetGasFeeLoading": "Taxa de gás para reiniciar carregando...",
     "approvalFailed": "Um problema ocorreu durante a aprovação dos tokens",
     "approvalResetFailed": "Ocorreu um problema durante a redefinição da permissão",
+    "allowanceResetTxName": "Tx da redefinição de permissão:",
+    "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
     "doAnotherTrade": "Faça outra negociação",
     "showDetails": "Mostrar detalhes",
@@ -982,6 +1001,9 @@
       "cantSetSlippage": "Não foi possível definir um slippage personalizado (%{userSlippageFormatted}) para %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "Ordem Limite"
   },
   "modals": {
     "assetSearch": {
@@ -1511,20 +1533,21 @@
       "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
       "signWarning": "Antes de assinar, certifique-se de ter o aplicativo %{chain} aberto no seu dispositivo."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com sua carteira MetaMask",
-        "connectFailure": "Não foi possível conectar a carteira MetaMask",
-        "multipleWallets": "Encontramos a rede Ethereum Mainnet, mas não em sua MetaMask. Você possui múltiplas carteiras instaladas?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Emparelhar MetaMask",
-        "body": "Clique em Emparelhar e conecte sua carteira MetaMask na janela pop-up",
-        "button": "Emparelhar"
+        "header": "Par %{name}",
+        "body": "Clique em Parear e faça login em %{name} na janela pop-up",
+        "button": "Parear"
+      },
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado na comunicação com %{name}",
+        "connectFailure": "Não foi possível conectar %{name}"
       },
       "failure": {
-        "body": "Não foi possível conectar sua carteira MetaMask"
-      },
+        "body": "Não foi possível conectar %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Conecte sua carteira MetaMask",
         "body": "Clique para autenticar a plataforma ShapeShift em sua carteira MetaMask",
@@ -1611,26 +1634,6 @@
       },
       "failure": {
         "body": "Não foi possível conectar sua carteira WalletConnect"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "Ocorreu um erro inesperado na comunicação com a XDEFI",
-        "connectFailure": "Não foi possível conectar a carteira XDEFI",
-        "multipleWallets": "O provedor Ethereum detectado não é XDEFI. Você tem várias carteiras instaladas e ativadas? Priorize o XDEFI nas configurações e pressione para parear novamente."
-      },
-      "connect": {
-        "header": "Emparelhar XDEFI",
-        "body": "Clique em Emparelhar e faça login na carteira XDEFI na janela pop-up",
-        "button": "Emparelhar"
-      },
-      "failure": {
-        "body": "Não foi possível conectar a carteira XDEFI"
-      },
-      "redirect": {
-        "header": "Abra no aplicativo XDEFI",
-        "body": "Clique para abrir o painel ShapeShift na XDEFI",
-        "button": "Abrir"
       }
     },
     "shapeShift": {
@@ -2634,6 +2637,40 @@
         "title": "Adicionado recentemente",
         "subtitle": "Descubra os lançamentos recentes."
       }
+    }
+  },
+  "foxPage": {
+    "title": "Painel de Tokens FOX",
+    "description": "Desde 2019, o token FOX tem oferecido aos usuários um mundo em constante expansão de utilidade e vantagens. Hoje, nosso token de governança ERC-20 oferece descontos em taxas, uma participação nas receitas do THORChain e permite que você influencie o futuro do ShapeShift por meio do seu voto. Aposte, troque, compre, forneça e gerencie suas participações na FOX aqui.",
+    "foxToken": "Token FOX",
+    "24hrPriceChange": "Alteração de preço 24h",
+    "rfox": {
+      "whatIs": "O que é staking de rFOX?",
+      "totalFoxBurn": "Queima total de FOX",
+      "simulateTitle": "Simulador rFOX",
+      "simulateSubtle": "Insira o número do depósito de algo",
+      "estimatedRewards": "Recompensas estimadas",
+      "depositAmount": "Valor do depósito",
+      "shapeshiftRevenue": "Receita da ShapeShift",
+      "30days": "30 dias"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Cansado de migrar seu %{rewardAssetSymbol} de pool para pool? Basta fazer stake do seu %{assetSymbol} e ganhar %{rewardAssetSymbol} sempre.",
+      "totalClaimableRewards": "Total de recompensas resgatáveis.",
+      "totalStakingValue": "Valor total em staking",
+      "nextEpoch": "Próxima Época"
+    },
+    "governance": {
+      "title": "Governança",
+      "description": {
+        "0": "Junte-se a nós",
+        "1": "no fórum",
+        "2": "e molde o futuro da DAO."
+      },
+      "totalVotingPower": "Poder total de voto",
+      "noActiveProposals": "Nenhuma proposta ativa disponível",
+      "noClosedProposals": "Nenhuma proposta fechada disponível"
     }
   }
 }

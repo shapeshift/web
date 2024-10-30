@@ -170,8 +170,9 @@ export const SelectModal = () => {
   const detectedMipdProviders = useMipdProviders()
   const supportedStaticProviders = useMemo(() => {
     // Mobile app doesn't support MM and the like
-    if (isMobileApp) return []
-    if (isMobile) return staticMipdProviders.filter(provider => provider.supportsMobileBrowser)
+    // Mobile *does* support MM, but the one that we're going to use there isn't the static option
+    // since MM mobile rdns is different (io.metamask on desktop vs. io.metamask.mobile on mobile)
+    if (isMobileApp || isMobile) return []
     return staticMipdProviders
   }, [])
   const mipdProviders = useMemo(

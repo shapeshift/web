@@ -1,12 +1,12 @@
 import { swapperParameters } from './swapper'
+import { thorParameters } from './thor'
 import { thorchainLpParameters } from './thorchainLp'
 import type { FeeCurveParameters, ParameterModel } from './types'
 
 export const FEE_CURVE_PARAMETERS: Record<ParameterModel, FeeCurveParameters> = {
   SWAPPER: swapperParameters,
   THORCHAIN_LP: thorchainLpParameters,
-  // THOR asset doesn't have any fee models for now as it's not using curves
-  THORSWAP: {} as FeeCurveParameters,
+  THORSWAP: thorParameters,
 }
 
 export const FEE_MODEL_TO_FEATURE_NAME: Record<ParameterModel, string> = {

@@ -1,26 +1,40 @@
 import {
-  type ChainId,
+  arbitrumAssetId,
   type AssetId,
-  fromAssetId,
-  ethAssetId,
   avalancheAssetId,
-  optimismAssetId, bscAssetId, polygonAssetId, gnosisAssetId, arbitrumAssetId, baseAssetId
+  baseAssetId,
+  bscAssetId,
+  type ChainId,
+  ethAssetId,
+  fromAssetId,
+  gnosisAssetId,
+  optimismAssetId,
+  polygonAssetId,
 } from '@shapeshiftoss/caip'
-import { KnownChainIds } from "@shapeshiftoss/types";
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assetGasLimits, ChainflipSupportedChainId } from '../constants'
-import { ChainflipSupportedChainIds, ChainflipSupportedAssetIdsByChainId } from '../constants'
+import type { ChainflipSupportedChainId } from '../constants'
+import {
+  assetGasLimits,
+  ChainflipSupportedAssetIdsByChainId,
+  ChainflipSupportedChainIds,
+} from '../constants'
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSupportedChainId => {
   return ChainflipSupportedChainIds.includes(chainId as ChainflipSupportedChainId)
 }
 
-export const isSupportedAssetId = (chainId: ChainId, assetId: AssetId): chainId is ChainflipSupportedChainId => {
-  return ChainflipSupportedAssetIdsByChainId[chainId as ChainflipSupportedChainId]!.includes(assetId)
+export const isSupportedAssetId = (
+  chainId: ChainId,
+  assetId: AssetId,
+): chainId is ChainflipSupportedChainId => {
+  return ChainflipSupportedAssetIdsByChainId[chainId as ChainflipSupportedChainId]!.includes(
+    assetId,
+  )
 }
 
 export const getGasLimit = (chainflipAsset: string) => {
-  return (chainflipAsset in assetGasLimits) ? assetGasLimits[chainflipAsset]! : '100000'
+  return chainflipAsset in assetGasLimits ? assetGasLimits[chainflipAsset]! : '100000'
 }
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {

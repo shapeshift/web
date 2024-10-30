@@ -1,36 +1,29 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 
-import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
+import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
-
-import { chainflipApi } from './swappers/ChainflipSwapper/ChainflipSwapperApi'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
+import { chainflipApi } from './swappers/ChainflipSwapper/ChainflipSwapperApi'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/constants'
-
-import { cowApi } from './swappers/CowSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
+import { cowApi } from './swappers/CowSwapper/endpoints'
 import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
-
 import { lifiApi } from './swappers/LifiSwapper/endpoints'
 import {
   LIFI_GET_TRADE_QUOTE_POLLING_INTERVAL,
   lifiSwapper,
 } from './swappers/LifiSwapper/LifiSwapper'
 import { LIFI_SUPPORTED_CHAIN_IDS } from './swappers/LifiSwapper/utils/constants'
-
+import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
-import { PORTALS_SUPPORTED_CHAIN_IDS } from './swappers/PortalsSwapper/constants'
-
+import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
 import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
-import { THORCHAIN_SUPPORTED_CHAIN_IDS } from './swappers/ThorchainSwapper/constants'
-
 import { zrxApi } from './swappers/ZrxSwapper/endpoints'
-import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
 import { ZRX_SUPPORTED_CHAIN_IDS } from './swappers/ZrxSwapper/utils/constants'
-
+import { zrxSwapper } from './swappers/ZrxSwapper/ZrxSwapper'
 import type { SupportedChainIds, Swapper, SwapperApi } from './types'
 import { SwapperName } from './types'
 import { makeSwapErrorRight } from './utils'

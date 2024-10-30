@@ -5,7 +5,7 @@ import { getGasLimit } from './helpers'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmChainAdapter
-  supportsEIP1559: boolean,
+  supportsEIP1559: boolean
   sendAsset: string
 }
 
@@ -15,10 +15,10 @@ export const getEvmTxFees = async (args: GetEvmTxFeesArgs): Promise<string> => {
   const { average } = await adapter.getGasFeeData()
 
   const gasLimit = getGasLimit(args.sendAsset)
-  
+
   return evm.calcNetworkFeeCryptoBaseUnit({
     ...average,
     supportsEIP1559,
-    gasLimit
+    gasLimit,
   })
 }

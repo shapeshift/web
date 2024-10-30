@@ -2690,5 +2690,19 @@
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Limit Orders",
+    "limitPrice": "Limit Price",
+    "expiresIn": "Expires In",
+    "filled": "Filled",
+    "openOrders": "Open Orders",
+    "orderHistory": "Order History",
+    "status": {
+      "open": "Open",
+      "filled": "Filled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    }
   }
 }

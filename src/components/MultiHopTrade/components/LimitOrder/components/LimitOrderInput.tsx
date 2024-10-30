@@ -30,6 +30,7 @@ import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
+import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
 
@@ -40,9 +41,6 @@ type LimitOrderInputProps = {
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
-
-// TODO: Implement me
-const CollapsibleLimitOrderList = () => <></>
 
 export const LimitOrderInput = ({
   isCompact,
@@ -276,7 +274,7 @@ export const LimitOrderInput = ({
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        hasUserEnteredAmount={hasUserEnteredAmount}
+        shouldOpenSideComponent={true}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}

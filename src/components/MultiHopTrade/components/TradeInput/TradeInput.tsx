@@ -423,7 +423,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        hasUserEnteredAmount={hasUserEnteredAmount}
+        shouldOpenSideComponent={hasUserEnteredAmount}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}

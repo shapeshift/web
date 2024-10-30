@@ -1,23 +1,29 @@
 import { Divider, Stack } from '@chakra-ui/react'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import type { FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
-import { ethereum, fox } from 'test/mocks/assets'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { localAssetData } from 'lib/asset-service'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { selectIsAnyAccountMetadataLoadedForChainId } from 'state/slices/selectors'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import {
+  selectFirstAccountIdByChainId,
+  selectIsAnyAccountMetadataLoadedForChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from 'state/slices/selectors'
 import {
   selectActiveQuote,
   // selectBuyAmountAfterFeesUserCurrency,
@@ -59,9 +65,15 @@ export const LimitOrderInput = ({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
 
-  // TODO: Don't use the trade account ID hook. This is temporary during scaffolding
-  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds()
+  const [sellAsset, setSellAsset] = useState(localAssetData[ethAssetId] ?? defaultAsset)
+  const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
+
+  const defaultAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, sellAsset.chainId),
+  )
+
+  const [buyAssetAccountId, setBuyAssetAccountId] = useState(defaultAccountId)
+  const [sellAssetAccountId, setSellAssetAccountId] = useState(defaultAccountId)
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -73,8 +85,6 @@ export const LimitOrderInput = ({
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = true
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const sellAsset = ethereum // TODO: Implement me
-  const buyAsset = fox // TODO: Implement me
   const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -108,10 +118,13 @@ export const LimitOrderInput = ({
     ],
   )
 
+  const assetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId),
+  )
+
   const sellAmountUserCurrency = useMemo(() => {
-    // TODO: Implement me
-    return '0'
-  }, [])
+    return bnOrZero(sellAmountCryptoPrecision).times(assetMarketDataUserCurrency.price).toFixed()
+  }, [assetMarketDataUserCurrency.price, sellAmountCryptoPrecision])
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -123,15 +136,33 @@ export const LimitOrderInput = ({
     return <></>
   }, [])
 
-  const setBuyAsset = useCallback((_asset: Asset) => {
-    // TODO: Implement me
-  }, [])
-  const setSellAsset = useCallback((_asset: Asset) => {
-    // TODO: Implement me
-  }, [])
   const handleSwitchAssets = useCallback(() => {
-    // TODO: Implement me
-  }, [])
+    setSellAsset(buyAsset)
+    setBuyAsset(sellAsset)
+    setSellAmountCryptoPrecision('0')
+  }, [buyAsset, sellAsset])
+
+  const handleSetSellAsset = useCallback(
+    (newSellAsset: Asset) => {
+      if (newSellAsset === sellAsset) {
+        handleSwitchAssets()
+        return
+      }
+      setSellAsset(newSellAsset)
+    },
+    [handleSwitchAssets, sellAsset],
+  )
+
+  const handleSetBuyAsset = useCallback(
+    (newBuyAsset: Asset) => {
+      if (newBuyAsset === buyAsset) {
+        handleSwitchAssets()
+        return
+      }
+      setBuyAsset(newBuyAsset)
+    },
+    [buyAsset, handleSwitchAssets],
+  )
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -186,7 +217,7 @@ export const LimitOrderInput = ({
         handleSwitchAssets={handleSwitchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
-        setSellAsset={setSellAsset}
+        setSellAsset={handleSetSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
       >
         <Stack>
@@ -195,7 +226,7 @@ export const LimitOrderInput = ({
             accountId={buyAssetAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAssetAccountId}
-            onSetBuyAsset={setBuyAsset}
+            onSetBuyAsset={handleSetBuyAsset}
           />
           <Divider />
           <LimitOrderConfig
@@ -217,11 +248,11 @@ export const LimitOrderInput = ({
     sellAsset,
     sellAssetAccountId,
     handleSwitchAssets,
-    setSellAsset,
+    handleSetSellAsset,
     setSellAssetAccountId,
     buyAssetAccountId,
     setBuyAssetAccountId,
-    setBuyAsset,
+    handleSetBuyAsset,
     limitPriceBuyAssetCryptoPrecision,
   ])
 

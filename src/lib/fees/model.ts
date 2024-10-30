@@ -8,7 +8,7 @@ import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
 
 export const THORSWAP_UNIT_THRESHOLD = 1
-const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
+export const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
 
 type CalculateFeeBpsArgs = {
   tradeAmountUsd: BigNumber

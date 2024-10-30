@@ -23,7 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
@@ -216,7 +216,10 @@ export const useTradeExecution = (
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
 
-          if (bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD) {
+          if (
+            bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+            new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
+          ) {
             trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeSuccess)
           }
         }

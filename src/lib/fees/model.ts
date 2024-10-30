@@ -7,7 +7,7 @@ import { store } from 'state/store'
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
 
-const THORSWAP_UNIT_THRESHOLD = 1
+export const THORSWAP_UNIT_THRESHOLD = 1
 const THORSWAP_MAXIMUM_YEAR_TRESHOLD = 2025
 
 type CalculateFeeBpsArgs = {
@@ -63,7 +63,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const isThorFree =
     isThorFreeEnabled &&
     thorHeld?.isGreaterThanOrEqualTo(THORSWAP_UNIT_THRESHOLD) &&
-    new Date().getFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
+    new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
 
   // failure to fetch fox discount results in free trades.
   const isFallbackFees = selectIsSnapshotApiQueriesRejected(store.getState())

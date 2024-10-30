@@ -31,6 +31,7 @@ export enum MixPanelEvent {
   RepayConfirm = 'Repay Confirm',
   TradeConfirmSecondHop = 'Trade Confirm Second Hop',
   TradeSuccess = 'Trade Success',
+  ThorDiscountTradeSuccess = 'Thor Discount Trade Success',
   BorrowSuccess = 'Borrow Success',
   RepaySuccess = 'Repay Success',
   TradeFailed = 'Trade Failed',

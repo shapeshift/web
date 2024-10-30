@@ -22,12 +22,15 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { selectThorVotingPower, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -52,6 +55,7 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorHandler()
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
+  const thorVotingPower = useAppSelector(selectThorVotingPower)
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -211,6 +215,10 @@ export const useTradeExecution = (
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeSuccess)
+          }
         }
 
         resolve()

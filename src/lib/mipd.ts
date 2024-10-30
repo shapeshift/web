@@ -13,7 +13,6 @@ export const METAMASK_RDNS = 'io.metamask'
 // Note these are partial and missing provider, so you *can* see them even if uninstalled, but will be overriden with detected ones if installed
 export const staticMipdProviders = [
   {
-    supportsMobileBrowser: true,
     provider: undefined,
     info: {
       uuid: '3fae44d7-3daa-479c-b5bf-c54a55aede67',
@@ -23,7 +22,6 @@ export const staticMipdProviders = [
     },
   },
   {
-    supportsMobileBrowser: false,
     provider: undefined,
     info: {
       uuid: 'cc12b1b5-58a7-4df4-b12d-dd01fca161ce',
@@ -33,7 +31,6 @@ export const staticMipdProviders = [
     },
   },
   {
-    supportsMobileBrowser: false,
     provider: undefined,
     info: {
       uuid: 'f932d0ca-0e8b-405d-aa9a-2d9dcddff53d',
@@ -42,4 +39,4 @@ export const staticMipdProviders = [
       rdns: 'io.xdefi',
     },
   },
-] as unknown as (EIP6963ProviderDetail & { supportsMobileBrowser: boolean })[]
+] as unknown as EIP6963ProviderDetail[]

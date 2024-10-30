@@ -1015,7 +1015,7 @@
     "limitPrice": "Limit Price",
     "provider": "Provider",
     "expiration": "Expiration",
-    "networkFee":"Network Fee",
+    "networkFee": "Network Fee",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
     "previewOrder": "Preview Order",
@@ -2704,5 +2704,9 @@
       "cancelled": "Cancelled",
       "expired": "Expired"
     }
+  },
+  "thorFees": {
+    "title": "Here from THORSwap?",
+    "description": "THOR holders trade for free through 2024, for any trades above $1000."
   }
 }

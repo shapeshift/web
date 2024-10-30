@@ -15,7 +15,7 @@ import type { CalculateFeeBpsReturn } from 'lib/fees/model'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectThorVotingPower, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
@@ -559,11 +559,13 @@ export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
     (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
     (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
     selectVotingPower,
+    selectThorVotingPower,
 
-    (feeModel, inputAmountUsd, votingPower) => {
+    (feeModel, inputAmountUsd, votingPower, thorVotingPower) => {
       const fees: CalculateFeeBpsReturn = calculateFees({
         tradeAmountUsd: bnOrZero(inputAmountUsd),
         foxHeld: bnOrZero(votingPower),
+        thorHeld: bnOrZero(thorVotingPower),
         feeModel,
       })
 

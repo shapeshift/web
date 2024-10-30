@@ -18,13 +18,18 @@ import { ProposalSchema, SnapshotSchema, VotingPowerSchema } from './validators'
 type FoxVotingPowerCryptoBalance = string
 
 const SNAPSHOT_SPACE = 'shapeshiftdao.eth'
+const THORSWAP_SNAPSHOT_SPACE = 'thorswapcommunity.eth'
+
+const THOR_TIP_014_BLOCK_NUMBER = 21072340
 
 export const initialState: SnapshotState = {
   votingPowerByModel: {
     SWAPPER: undefined,
     THORCHAIN_LP: undefined,
+    THORSWAP: undefined,
   },
   strategies: undefined,
+  thorStrategies: undefined,
   proposals: undefined,
 }
 
@@ -36,6 +41,7 @@ type ProposalsState = {
 export type SnapshotState = {
   votingPowerByModel: Record<ParameterModel, string | undefined>
   strategies: Strategy[] | undefined
+  thorStrategies: Strategy[] | undefined
   proposals: ProposalsState | undefined
 }
 
@@ -50,8 +56,14 @@ export const snapshot = createSlice({
       const { model, foxHeld } = payload
       state.votingPowerByModel[model] = foxHeld
     },
+    setThorVotingPower: (state, { payload }: { payload: string }) => {
+      state.votingPowerByModel['THORSWAP'] = payload
+    },
     setStrategies: (state, { payload }: { payload: Strategy[] }) => {
       state.strategies = payload
+    },
+    setThorStrategies: (state, { payload }: { payload: Strategy[] }) => {
+      state.thorStrategies = payload
     },
     setProposals: (state, { payload }: { payload: ProposalsState }) => {
       state.proposals = payload
@@ -87,6 +99,36 @@ export const snapshotApi = createApi({
         try {
           const { strategies } = SnapshotSchema.parse(resData).data.space
           dispatch(snapshot.actions.setStrategies(strategies))
+          return { data: strategies }
+        } catch (e) {
+          console.error('snapshotApi getStrategies', e)
+          return { data: [] }
+        }
+      },
+    }),
+    getThorStrategies: build.query<Strategy[], void>({
+      keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never refetch these
+      queryFn: async (_, { dispatch }) => {
+        const query = `
+          query {
+            space(id: "${THORSWAP_SNAPSHOT_SPACE}") {
+              strategies {
+                name
+                network
+                params
+              }
+            }
+          }
+        `
+        // https://hub.snapshot.org/graphql?query=query%20%7B%0A%20%20space(id%3A%20%22shapeshiftdao.eth%22)%20%7B%0A%20%20%20%20strategies%20%7B%0A%20%20%20%20%20%20name%0A%20%20%20%20%20%20network%0A%20%20%20%20%20%20params%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D
+        const { data: resData } = await axios.post(
+          'https://hub.snapshot.org/graphql',
+          { query },
+          { headers: { Accept: 'application/json' } },
+        )
+        try {
+          const { strategies } = SnapshotSchema.parse(resData).data.space
+          dispatch(snapshot.actions.setThorStrategies(strategies))
           return { data: strategies }
         } catch (e) {
           console.error('snapshotApi getStrategies', e)
@@ -145,6 +187,63 @@ export const snapshotApi = createApi({
 
           dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
           return { data: foxHeld.toString() }
+        } catch (e) {
+          console.error(e)
+
+          return { error: { data: e, status: 400 } }
+        }
+      },
+    }),
+    getThorVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
+      queryFn: async (_, { dispatch, getState }) => {
+        try {
+          const accountIds: AccountId[] =
+            (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
+          const strategies = await (async () => {
+            const maybeSliceStragies = (getState() as ReduxState).snapshot.thorStrategies
+            if (maybeSliceStragies) return maybeSliceStragies
+
+            const strategiesResult = await dispatch(
+              snapshotApi.endpoints.getThorStrategies.initiate(),
+            )
+            return strategiesResult?.data
+          })()
+          if (!strategies) {
+            console.log('snapshotApi getThorVotingPower could not get strategies')
+            return { data: bn(0).toString() }
+          }
+          const evmAddresses = Array.from(
+            accountIds.reduce<Set<string>>((acc, accountId) => {
+              const { account, chainId } = fromAccountId(accountId)
+              isEvmChainId(chainId) && acc.add(account)
+              return acc
+            }, new Set()),
+          )
+          const delegation = false // don't let people delegate for discounts - ambiguous in spec
+          const votingPowerResults = await Promise.all(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                THOR_TIP_014_BLOCK_NUMBER,
+                THORSWAP_SNAPSHOT_SPACE,
+                delegation,
+              )
+              // vp is THOR in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          const thorHeld = BigNumber.sum(...votingPowerResults).toNumber()
+
+          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+          if (isNaN(thorHeld)) {
+            const data = 'NaN thorHeld value'
+            return { error: { data, status: 400 } }
+          }
+
+          dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
+          return { data: thorHeld.toString() }
         } catch (e) {
           console.error(e)
 

@@ -123,6 +123,7 @@ export const mockStore: ReduxState = {
       FoxPageGovernance: false,
       LimitOrders: false,
       PublicTradeRoute: false,
+      ThorFreeFees: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -244,8 +245,10 @@ export const mockStore: ReduxState = {
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
+      THORSWAP: undefined,
     },
     strategies: undefined,
+    thorStrategies: undefined,
     proposals: undefined,
   },
   localWalletSlice: {

@@ -1,6 +1,7 @@
-import { Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
+import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
+import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanner'
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
@@ -45,22 +46,25 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
       maxWidth={isCompact || isSmallerThanXl ? '500px' : undefined}
     >
       <Center width='inherit'>
-        <Card
-          flex={1}
-          width='full'
-          maxWidth='500px'
-          ref={tradeInputRef}
-          as='form'
-          onSubmit={onSubmit}
-        >
-          <SharedTradeInputHeader
-            initialTab={tradeInputTab}
-            rightContent={headerRightContent}
-            onChangeTab={onChangeTab}
-          />
-          {bodyContent}
-          {footerContent}
-        </Card>
+        <Box width='full' maxWidth='500px'>
+          <ThorFreeFeeBanner />
+          <Card
+            flex={1}
+            width='full'
+            maxWidth='500px'
+            ref={tradeInputRef}
+            as='form'
+            onSubmit={onSubmit}
+          >
+            <SharedTradeInputHeader
+              initialTab={tradeInputTab}
+              rightContent={headerRightContent}
+              onChangeTab={onChangeTab}
+            />
+            {bodyContent}
+            {footerContent}
+          </Card>
+        </Box>
         <WithLazyMount
           shouldUse={!isCompact && !isSmallerThanXl}
           component={sideComponent}

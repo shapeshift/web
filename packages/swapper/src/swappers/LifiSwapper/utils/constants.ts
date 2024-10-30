@@ -18,3 +18,5 @@ export const LIFI_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: evmChainIds as unknown as ChainId[],
   buy: evmChainIds as unknown as ChainId[],
 }
+
+export const LIFI_SHARED_FEES_STEP_NAME = 'LIFI Shared Fee'

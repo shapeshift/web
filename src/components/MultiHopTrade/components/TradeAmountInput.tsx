@@ -61,7 +61,7 @@ const buttonProps = {
 const boxProps = { px: 0, m: 0, maxWidth: '220px' }
 const numberFormatDisabled = { opacity: 1, cursor: 'not-allowed' }
 
-const AmountInput = (props: InputProps) => {
+export const AmountInput = (props: InputProps) => {
   const translate = useTranslate()
   return (
     <Input

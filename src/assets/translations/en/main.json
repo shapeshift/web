@@ -1021,7 +1021,15 @@
     "previewOrder": "Preview Order",
     "youGet": "You Get",
     "whenPriceReaches": "When price reaches",
-    "expiry": "Expiry"
+    "expiry": "Expiry",
+    "expiryOption": {
+      "oneHour": "1 hour",
+      "oneDay": "1 day",
+      "threeDays": "3 days",
+      "sevenDays": "7 days",
+      "twentyEightDays": "28 days",
+      "custom": "Custom"
+    }
   },
   "modals": {
     "assetSearch": {

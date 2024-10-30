@@ -289,13 +289,13 @@ export const useGetTradeQuotes = () => {
     [shouldRefetchTradeQuotes, tradeQuoteInput],
   )
 
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

@@ -1,8 +1,8 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 
-// @ts-ignore
 export const checkTradeStatus = async (
+  // @ts-ignore unimplemented yet
   input,
 ): Promise<{
   status: TxStatus

@@ -47,20 +47,20 @@ export type SwapperConfig = {
   REACT_APP_PORTALS_BASE_URL: string
   REACT_APP_FEATURE_ZRX_PERMIT2: boolean
   REACT_APP_ZRX_BASE_URL: string
-  REACT_APP_FEATURE_CHAINFLIP_DCA: boolean
   REACT_APP_CHAINFLIP_API_KEY: string
   REACT_APP_CHAINFLIP_API_URL: string
+  REACT_APP_FEATURE_CHAINFLIP_DCA: boolean
 }
 
 export enum SwapperName {
-  ArbitrumBridge = 'Arbitrum Bridge',
-  Chainflip = 'Chainflip',
-  CowSwap = 'CoW Swap',
-  LIFI = 'LI.FI',
-  Portals = 'Portals',
   Thorchain = 'THORChain',
+  CowSwap = 'CoW Swap',
   Zrx = '0x',
   Test = 'Test',
+  LIFI = 'LI.FI',
+  ArbitrumBridge = 'Arbitrum Bridge',
+  Portals = 'Portals',
+  Chainflip = 'Chainflip',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

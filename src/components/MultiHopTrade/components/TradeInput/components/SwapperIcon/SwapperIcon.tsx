@@ -21,20 +21,20 @@ export const SwapperIcon = ({
 }) => {
   const icon = useMemo(() => {
     switch (swapperName) {
-      case SwapperName.ArbitrumBridge:
-        return ArbitrumBridgeIcon
-      case SwapperName.Chainflip:
-        return ChainflipIcon
-      case SwapperName.CowSwap:
-        return CowIcon
       case SwapperName.LIFI:
         return LiFiIcon
-      case SwapperName.Portals:
-        return PortalsIcon
-      case SwapperName.Thorchain:
-        return THORChainIcon
+      case SwapperName.CowSwap:
+        return CowIcon
       case SwapperName.Zrx:
         return ZrxIcon
+      case SwapperName.Thorchain:
+        return THORChainIcon
+      case SwapperName.ArbitrumBridge:
+        return ArbitrumBridgeIcon
+      case SwapperName.Portals:
+        return PortalsIcon
+      case SwapperName.Chainflip:
+        return ChainflipIcon
       case SwapperName.Test:
         return ''
       default:

@@ -3,6 +3,8 @@ import { Text } from 'components/Text'
 
 import icons from './asset-icons.png'
 
+// @TODO: uncomment all the comments when implementing the external link to explain why we do this
+
 // const cardHover = {
 //   textDecoration: 'none',
 //   opacity: '.7',

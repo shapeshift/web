@@ -7,6 +7,8 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { simpleLocale } from 'lib/browserLocale'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 
 dayjs.extend(localizedFormat)
 
@@ -221,6 +223,11 @@ export const preferences = createSlice({
       } else {
         state.watchedAssets = state.watchedAssets.concat(payload)
       }
+
+      getMixPanel()?.track(MixPanelEvent.ToggleWatchAsset, {
+        assetId: payload,
+        isAdding: !isWatched,
+      })
     },
     setHomeMarketView(state, { payload }: { payload: HomeMarketView }) {
       state.selectedHomeView = payload

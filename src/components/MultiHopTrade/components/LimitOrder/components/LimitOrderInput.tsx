@@ -1,29 +1,32 @@
+import { Divider, Stack } from '@chakra-ui/react'
+import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import type { FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
-import { ethereum, fox } from 'test/mocks/assets'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
-import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { localAssetData } from 'lib/asset-service'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
-  selectHasUserEnteredAmount,
+  selectFirstAccountIdByChainId,
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
-  selectBuyAmountAfterFeesCryptoPrecision,
-  selectBuyAmountAfterFeesUserCurrency,
+  // selectBuyAmountAfterFeesUserCurrency,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -31,8 +34,11 @@ import { useAppSelector } from 'state/store'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
-import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter'
+import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { LimitOrderRoutePaths } from '../types'
+import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
+import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
+import { LimitOrderConfig } from './LimitOrderConfig'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 
@@ -41,9 +47,6 @@ type LimitOrderInputProps = {
   isCompact?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
-
-// TODO: Implement me
-const CollapsibleLimitOrderList = () => <></>
 
 export const LimitOrderInput = ({
   isCompact,
@@ -62,24 +65,26 @@ export const LimitOrderInput = ({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
 
-  // TODO: Don't use the trade account ID hook. This is temporary during scaffolding
-  const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
-    useAccountIds()
+  const [sellAsset, setSellAsset] = useState(localAssetData[ethAssetId] ?? defaultAsset)
+  const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
+
+  const defaultAccountId = useAppSelector(state =>
+    selectFirstAccountIdByChainId(state, sellAsset.chainId),
+  )
+
+  const [buyAssetAccountId, setBuyAssetAccountId] = useState(defaultAccountId)
+  const [sellAssetAccountId, setSellAssetAccountId] = useState(defaultAccountId)
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
-
-  const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
+  // const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
-  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  const hasUserEnteredAmount = true
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const sellAsset = ethereum // TODO: Implement me
-  const buyAsset = fox // TODO: Implement me
   const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -113,10 +118,13 @@ export const LimitOrderInput = ({
     ],
   )
 
+  const assetMarketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId),
+  )
+
   const sellAmountUserCurrency = useMemo(() => {
-    // TODO: Implement me
-    return '0'
-  }, [])
+    return bnOrZero(sellAmountCryptoPrecision).times(assetMarketDataUserCurrency.price).toFixed()
+  }, [assetMarketDataUserCurrency.price, sellAmountCryptoPrecision])
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -128,15 +136,33 @@ export const LimitOrderInput = ({
     return <></>
   }, [])
 
-  const setBuyAsset = useCallback((_asset: Asset) => {
-    // TODO: Implement me
-  }, [])
-  const setSellAsset = useCallback((_asset: Asset) => {
-    // TODO: Implement me
-  }, [])
   const handleSwitchAssets = useCallback(() => {
-    // TODO: Implement me
-  }, [])
+    setSellAsset(buyAsset)
+    setBuyAsset(sellAsset)
+    setSellAmountCryptoPrecision('0')
+  }, [buyAsset, sellAsset])
+
+  const handleSetSellAsset = useCallback(
+    (newSellAsset: Asset) => {
+      if (newSellAsset === sellAsset) {
+        handleSwitchAssets()
+        return
+      }
+      setSellAsset(newSellAsset)
+    },
+    [handleSwitchAssets, sellAsset],
+  )
+
+  const handleSetBuyAsset = useCallback(
+    (newBuyAsset: Asset) => {
+      if (newBuyAsset === buyAsset) {
+        handleSwitchAssets()
+        return
+      }
+      setBuyAsset(newBuyAsset)
+    },
+    [buyAsset, handleSwitchAssets],
+  )
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -173,17 +199,17 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const marketPriceBuyAssetCryptoPrecision = '123423'
+  const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(
+    marketPriceBuyAssetCryptoPrecision,
+  )
+
   const bodyContent = useMemo(() => {
     return (
       <SharedTradeInputBody
-        activeQuote={activeQuote}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
         buyAsset={buyAsset}
-        buyAssetAccountId={buyAssetAccountId}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
-        manualReceiveAddress={manualReceiveAddress}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
         sellAsset={sellAsset}
@@ -191,66 +217,73 @@ export const LimitOrderInput = ({
         handleSwitchAssets={handleSwitchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
-        setBuyAsset={setBuyAsset}
-        setBuyAssetAccountId={setBuyAssetAccountId}
-        setSellAsset={setSellAsset}
+        setSellAsset={handleSetSellAsset}
         setSellAssetAccountId={setSellAssetAccountId}
-      />
+      >
+        <Stack>
+          <LimitOrderBuyAsset
+            asset={buyAsset}
+            accountId={buyAssetAccountId}
+            isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+            onAccountIdChange={setBuyAssetAccountId}
+            onSetBuyAsset={handleSetBuyAsset}
+          />
+          <Divider />
+          <LimitOrderConfig
+            sellAsset={sellAsset}
+            buyAsset={buyAsset}
+            marketPriceBuyAssetCryptoPrecision={marketPriceBuyAssetCryptoPrecision}
+            limitPriceBuyAssetCryptoPrecision={limitPriceBuyAssetCryptoPrecision}
+            setLimitPriceBuyAssetCryptoPrecision={setLimitPriceBuyAssetCryptoPrecision}
+          />
+        </Stack>
+      </SharedTradeInputBody>
     )
   }, [
-    activeQuote,
-    buyAmountAfterFeesCryptoPrecision,
-    buyAmountAfterFeesUserCurrency,
     buyAsset,
-    buyAssetAccountId,
     isInputtingFiatSellAmount,
     isLoading,
-    manualReceiveAddress,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
     sellAssetAccountId,
     handleSwitchAssets,
-    setBuyAsset,
-    setBuyAssetAccountId,
-    setSellAsset,
+    handleSetSellAsset,
     setSellAssetAccountId,
+    buyAssetAccountId,
+    setBuyAssetAccountId,
+    handleSetBuyAsset,
+    limitPriceBuyAssetCryptoPrecision,
   ])
 
   const footerContent = useMemo(() => {
     return (
       <SharedTradeInputFooter
-        isCompact={isCompact}
-        isLoading={isLoading}
-        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-        inputAmountUsd={'12.34'}
         affiliateBps={'300'}
         affiliateFeeAfterDiscountUserCurrency={'0.01'}
-        quoteStatusTranslation={'trade.previewTrade'}
-        manualAddressEntryDescription={undefined}
-        onRateClick={noop}
-        shouldDisablePreviewButton={false}
-        isError={false}
-        shouldForceManualAddressEntry={false}
-        recipientAddressDescription={undefined}
-        priceImpactPercentage={undefined}
-        swapSource={SwapperName.CowSwap}
-        rate={activeQuote?.rate}
-        swapperName={SwapperName.CowSwap}
-        slippageDecimal={'0.01'}
-        buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-        intermediaryTransactionOutputs={undefined}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
-        totalProtocolFees={undefined}
+        inputAmountUsd={'12.34'}
+        isCompact={isCompact}
+        isError={false}
+        isLoading={isLoading}
+        manualAddressEntryDescription={undefined}
+        onRateClick={noop}
+        quoteStatusTranslation={'trade.previewTrade'}
+        rate={activeQuote?.rate}
+        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+        recipientAddressDescription={undefined}
         sellAsset={sellAsset}
         sellAssetAccountId={sellAssetAccountId}
+        shouldDisablePreviewButton={false}
+        shouldForceManualAddressEntry={false}
+        swapperName={SwapperName.CowSwap}
+        swapSource={SwapperName.CowSwap}
         totalNetworkFeeFiatPrecision={'1.1234'}
       />
     )
   }, [
     activeQuote?.rate,
-    buyAmountAfterFeesCryptoPrecision,
     buyAsset,
     hasUserEnteredAmount,
     isCompact,
@@ -272,7 +305,7 @@ export const LimitOrderInput = ({
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        hasUserEnteredAmount={hasUserEnteredAmount}
+        shouldOpenSideComponent={true}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}

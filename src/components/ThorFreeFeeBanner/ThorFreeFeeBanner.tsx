@@ -1,12 +1,12 @@
-import { Box, Card, CardBody, Link } from '@chakra-ui/react'
+import { Box, Card, CardBody } from '@chakra-ui/react'
 import { Text } from 'components/Text'
 
 import icons from './asset-icons.png'
 
-const cardHover = {
-  textDecoration: 'none',
-  opacity: '.7',
-}
+// const cardHover = {
+//   textDecoration: 'none',
+//   opacity: '.7',
+// }
 
 const cardBefore = {
   content: "''",
@@ -26,12 +26,12 @@ const cardBefore = {
 export const ThorFreeFeeBanner = () => {
   return (
     <Card
-      as={Link}
-      href='#'
+      // as={Link}
+      // href='#'
       width='full'
       maxWidth='500px'
       transition='.25s ease-out'
-      _hover={cardHover}
+      // _hover={cardHover}
       position='relative'
       overflow='hidden'
       mb={4}
@@ -44,7 +44,7 @@ export const ThorFreeFeeBanner = () => {
         <Box maxWidth='350px' ml='auto' width='full'>
           <Text translation='thorFees.title' fontSize='sm' fontWeight='bold' />
           <Text translation='thorFees.description' my={1} fontSize='sm' color='text.subtle' />
-          <Text translation='common.learnMore' fontSize='sm' fontWeight='bold' color='blue.300' />
+          {/* <Text translation='common.learnMore' fontSize='sm' fontWeight='bold' color='blue.300' /> */}
         </Box>
       </CardBody>
     </Card>

@@ -30,7 +30,7 @@ import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
-import { selectThorVotingPower, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -409,6 +409,7 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
+    thorVotingPower,
   ])
 
   return executeTrade

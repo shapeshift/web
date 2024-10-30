@@ -255,7 +255,6 @@ export const LimitOrderConfig = ({
         </Flex>
       </Flex>
       <HStack width='full' justify='space-between'>
-        {/* <Amount.Crypto value={priceCryptoPrecision} symbol='' size='lg' fontSize='xl' /> */}
         <NumberFormat
           customInput={AmountInput}
           decimalScale={priceAsset.precision}

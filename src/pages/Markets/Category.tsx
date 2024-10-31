@@ -6,7 +6,8 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
-import type { MARKETS_CATEGORIES } from './constants'
+import type { MarketsCategories } from './constants'
+import { sortOptionsByCategory } from './constants'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
 
@@ -15,12 +16,18 @@ const containerPaddingX = { base: 4, xl: 0 }
 const ASSETS_LIMIT = 100
 
 export const Category: React.FC = () => {
-  const params = useParams<{ category: MARKETS_CATEGORIES }>()
+  const params = useParams<{ category: MarketsCategories }>()
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 
   const allRows = useRows({ limit: ASSETS_LIMIT })
   const row = allRows[params.category]
+
+  const shouldShowSortFilter = useMemo(() => {
+    if (!sortOptionsByCategory[params.category]) return false
+
+    return true
+  }, [params.category])
 
   const body = useMemo(
     () => (
@@ -29,11 +36,20 @@ export const Category: React.FC = () => {
         subtitle={row.subtitle}
         supportedChainIds={row.supportedChainIds}
         category={row.category}
+        showOrderFilter
+        showSortFilter={shouldShowSortFilter}
       >
         {row.component}
       </MarketsRow>
     ),
-    [row.category, row.component, row.subtitle, row.supportedChainIds, row.title],
+    [
+      row.category,
+      row.component,
+      row.subtitle,
+      row.supportedChainIds,
+      row.title,
+      shouldShowSortFilter,
+    ],
   )
 
   return (

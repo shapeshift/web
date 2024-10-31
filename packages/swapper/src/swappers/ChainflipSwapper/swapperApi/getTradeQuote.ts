@@ -101,10 +101,10 @@ export const getTradeQuote = async (
   }
 
   const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[sellAsset.chainId as KnownChainIds]
+    chainIdToChainflipNetwork[sellAsset.chainId]
   }`
   const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[buyAsset.chainId as KnownChainIds]
+    chainIdToChainflipNetwork[buyAsset.chainId]
   }`
 
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL

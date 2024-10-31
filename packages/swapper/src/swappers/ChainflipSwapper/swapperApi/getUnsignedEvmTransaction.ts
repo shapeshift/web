@@ -1,6 +1,6 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { FeeDataKey, type GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 
 import type { EvmTransactionRequest, GetUnsignedEvmTransactionArgs } from '../../../types'
@@ -24,10 +24,10 @@ export const getUnsignedEvmTransaction = async ({
 
   const step = tradeQuote.steps[0]
   const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]
+    chainIdToChainflipNetwork[step.sellAsset.chainId]
   }`
   const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[step.buyAsset.chainId as KnownChainIds]
+    chainIdToChainflipNetwork[step.buyAsset.chainId]
   }`
 
   // Subtract the BaaS fee to end up at the final displayed commissionBps

@@ -37,7 +37,7 @@ export const ChainflipSupportedAssetIdsByChainId: Partial<Record<KnownChainIds, 
   [KnownChainIds.SolanaMainnet]: [solAssetId, usdcOnSolanaAssetId],
 }
 
-export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> = {
+export const chainIdToChainflipNetwork: Partial<Record<ChainId, string>> = {
   [KnownChainIds.EthereumMainnet]: 'eth',
   [KnownChainIds.ArbitrumMainnet]: 'arb',
   [KnownChainIds.BitcoinMainnet]: 'btc',

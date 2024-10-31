@@ -29,10 +29,10 @@ const THOR_TIP_014_BLOCK_NUMBER = 21072340
 // but sometime the request fail randomly making it hard to know how much requests we can send
 // dividing this limit by 2 seems sane enough assuming it's already a edge case
 const { throttle, clear } = createThrottle({
-  capacity: 60,
+  capacity: 50,
   costPerReq: 1,
-  drainPerInterval: 100,
-  intervalMs: 90_000, // 1mn30
+  drainPerInterval: 50,
+  intervalMs: 60_000, // 1mn
 })
 
 export const initialState: SnapshotState = {

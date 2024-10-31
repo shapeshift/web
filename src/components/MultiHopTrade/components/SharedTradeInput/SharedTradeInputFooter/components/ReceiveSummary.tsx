@@ -1,13 +1,17 @@
 import { QuestionIcon } from '@chakra-ui/icons'
 import { Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import { type FC, memo, useCallback, useState } from 'react'
+import { type FC, memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { FeeModal } from 'components/FeeModal/FeeModal'
 import { Row, type RowProps } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
+import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../../TradeInput/components/SwapperIcon/SwapperIcon'
 
@@ -44,9 +48,20 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
     const greenColor = useColorModeValue('green.600', 'green.200')
     const textColor = useColorModeValue('gray.800', 'whiteAlpha.900')
 
+    const thorVotingPower = useAppSelector(selectThorVotingPower)
+
+    const isThorFreeTrade = useMemo(
+      () =>
+        bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+        new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+      [thorVotingPower],
+    )
+
     const toggleFeeModal = useCallback(() => {
+      if (isThorFreeTrade) return
+
       setShowFeeModal(!showFeeModal)
-    }, [showFeeModal])
+    }, [showFeeModal, isThorFreeTrade])
 
     return (
       <>
@@ -74,7 +89,10 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 <RawText>&nbsp;{`(${affiliateBps} bps)`}</RawText>
               )}
             </Row.Label>
-            <Row.Value onClick={toggleFeeModal} _hover={shapeShiftFeeModalRowHover}>
+            <Row.Value
+              onClick={toggleFeeModal}
+              _hover={!isThorFreeTrade ? shapeShiftFeeModalRowHover : undefined}
+            >
               <Flex alignItems='center' gap={2}>
                 {!!affiliateFeeAfterDiscountUserCurrency &&
                 affiliateFeeAfterDiscountUserCurrency !== '0' ? (

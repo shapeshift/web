@@ -76,6 +76,7 @@ async function _getCowSwapTradeQuote(
   const { appData, appDataHash } = await getFullAppData(
     slippageTolerancePercentageDecimal,
     affiliateAppDataFragment,
+    'market',
   )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote

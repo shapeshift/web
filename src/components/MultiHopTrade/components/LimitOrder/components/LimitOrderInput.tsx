@@ -1,13 +1,8 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, fromAccountId, fromAssetId, usdcAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import {
-  CoWSwapOrderKind,
-  CoWSwapSellTokenSource,
-  CoWSwapSigningScheme,
-  SwapperName,
-} from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
@@ -15,7 +10,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
-import { zeroAddress } from 'viem'
+import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -25,8 +20,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { localAssetData } from 'lib/asset-service'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
-import type { LimitOrderQuoteRequest } from 'state/apis/limit-orders/types'
-import { PriceQuality } from 'state/apis/limit-orders/types'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -216,7 +209,7 @@ export const LimitOrderInput = ({
   const sellAccountAddress = useMemo(() => {
     if (!sellAssetAccountId) return
 
-    return fromAccountId(sellAssetAccountId).account
+    return fromAccountId(sellAssetAccountId).account as Address
   }, [sellAssetAccountId])
 
   const limitOrderQuoteParams = useMemo(() => {
@@ -225,24 +218,14 @@ export const LimitOrderInput = ({
       return skipToken
     }
 
-    const limitOrderQuoteRequest: LimitOrderQuoteRequest = {
-      sellToken: fromAssetId(sellAsset.assetId).assetReference,
-      buyToken: fromAssetId(buyAsset.assetId).assetReference,
-      receiver: undefined, // TODO: implement useReceiveAddress
-      appData: undefined, // TODO: create this for limit order!
-      appDataHash: undefined, // TODO: create this for limit order!
-      sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-      from: sellAccountAddress ?? zeroAddress,
-      priceQuality: PriceQuality.Optimal,
-      signingScheme: CoWSwapSigningScheme.EIP712,
-      onChainOrder: undefined,
-      kind: CoWSwapOrderKind.Sell,
-      sellAmountBeforeFee: sellAmountCryptoBaseUnit,
-    }
-
     return {
-      limitOrderQuoteRequest,
+      sellAssetId: sellAsset.assetId,
+      buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
+      slippageTolerancePercentageDecimal: '0', // TODO: wire this up!
+      affiliateBps: '0', // TODO: wire this up!
+      sellAccountAddress,
+      sellAmountCryptoBaseUnit,
     }
   }, [
     buyAsset.assetId,
@@ -255,8 +238,14 @@ export const LimitOrderInput = ({
   const { data, error } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   useEffect(() => {
-    console.log('limit order response:', data)
-    console.log('limit order error:', error)
+    /*
+      This is the quote only, not the limit order. The quote is used to determine the market price.
+      When submitting a limit order, the buyAmount is (optionally) modified based on the user input,
+      and then re-attached to the `LimitOrder` before signing and submitting via our
+      `placeLimitOrder` endpoint in limitOrderApi
+    */
+    console.log('limit order quote response:', data)
+    console.log('limit order quote error:', error)
   }, [data, error])
 
   const marketPriceBuyAssetCryptoPrecision = '123423'

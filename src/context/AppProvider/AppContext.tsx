@@ -138,7 +138,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     )
 
     if (isThorFreeFeesEnabled) {
-      dispatch(snapshotApi.endpoints.getThorVotingPower.initiate())
+      dispatch(snapshotApi.endpoints.getThorVotingPower.initiate(undefined, { forceRefetch: true }))
     }
   }, [dispatch, isConnected, portfolioLoadingStatus, isThorFreeFeesEnabled])
 

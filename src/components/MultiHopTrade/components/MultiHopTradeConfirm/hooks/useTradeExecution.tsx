@@ -129,6 +129,13 @@ export const useTradeExecution = (
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeFailed)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (
+            bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+            new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
+          ) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeError)
+          }
         }
 
         resolve()
@@ -140,6 +147,17 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event)
+
+        if (
+          bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+          new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
+        ) {
+          trackMixpanelEvent(
+            hopIndex === 0
+              ? MixPanelEvent.ThorDiscountTradeConfirm
+              : MixPanelEvent.ThorDiscountTradeConfirmSecondHop,
+          )
+        }
       }
 
       const execution = new TradeExecution()

@@ -136,12 +136,12 @@ type CommonTradeInputBase = {
   slippageTolerancePercentageDecimal?: string
 }
 
-type CommonTradeQuoteInput = CommonTradeInputBase & {
+export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAccountNumber?: number
   receiveAddress: string
   accountNumber: number
-  hasWallet: true
+  quoteOrRate: 'quote'
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
@@ -149,7 +149,7 @@ type CommonTradeRateInput = CommonTradeInputBase & {
   receiveAccountNumber?: undefined
   receiveAddress: undefined
   accountNumber: undefined
-  hasWallet: false
+  quoteOrRate: 'rate'
 }
 
 type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
@@ -163,6 +163,10 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   supportsEIP1559: false
 }
 export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+
+export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
+  chainId: CosmosSdkChainId
+}
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
@@ -195,6 +199,16 @@ export type GetTradeQuoteInput =
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
 
+export type GetTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetCosmosSdkTradeRateInput
+  | GetUtxoTradeRateInput
+
+export type GetTradeQuoteInputWithWallet =
+  | GetUtxoTradeQuoteWithWallet
+  | GetEvmTradeQuoteInputBase
+  | GetCosmosSdkTradeQuoteInputBase
+
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
@@ -221,7 +235,8 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  accountNumber: number
+  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
+  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
@@ -230,6 +245,9 @@ export type TradeQuoteStep = {
   permit2Eip712?: TypedData
   transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
 }
+
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
 
 type TradeQuoteBase = {
   id: string
@@ -242,6 +260,8 @@ type TradeQuoteBase = {
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
 }
+
+type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }
 
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
@@ -259,6 +279,9 @@ type TupleOf<T, N extends number> = N extends N
 export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
 export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
 
+export type SingleHopTradeRateSteps = TupleOf<TradeRateStep, 1>
+export type MultiHopTradeRateSteps = TupleOf<TradeRateStep, 2>
+
 export type SupportedTradeQuoteStepIndex = 0 | 1
 
 export type SingleHopTradeQuote = TradeQuoteBase & {
@@ -274,7 +297,16 @@ export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
 
-export type TradeQuoteWithReceiveAddress = TradeQuote & { receiveAddress: string }
+export type TradeRate = TradeRateBase & {
+  steps: SingleHopTradeRateSteps | MultiHopTradeRateSteps
+} & {
+  receiveAddress: undefined
+  accountNumber: undefined
+}
+
+export type TradeQuoteOrRate = TradeQuote | TradeRate
+
+export type ExecutableTradeQuote = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
@@ -365,6 +397,7 @@ export type CheckTradeStatusInput = {
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -408,7 +441,8 @@ export type SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }>
-  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (
@@ -422,6 +456,10 @@ export type SwapperApi = {
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
+  swapperName: SwapperName
+}
+
+export type RateResult = Result<TradeRate[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 

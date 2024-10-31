@@ -8,13 +8,16 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
+  CommonTradeQuoteInput,
   EvmMessageToSign,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeRateInput,
   GetUnsignedEvmMessageArgs,
   SwapErrorRight,
   SwapperApi,
   TradeQuote,
+  TradeRate,
 } from '../../types'
 import { SwapperName } from '../../types'
 import {
@@ -24,7 +27,10 @@ import {
   isExecutableTradeQuote,
 } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import {
+  getCowSwapTradeQuote,
+  getCowSwapTradeRate,
+} from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import type { CowSwapOrder } from './types'
 import {
   CoWSwapBuyTokenDestination,
@@ -50,10 +56,10 @@ const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 
 export const cowApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     { config },
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInput, config)
+    const tradeQuoteResult = await getCowSwapTradeQuote(input as GetEvmTradeQuoteInputBase, config)
 
     return tradeQuoteResult.map(tradeQuote => {
       // A quote always has a first step
@@ -61,6 +67,20 @@ export const cowApi: SwapperApi = {
       const id = uuid()
       tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
       return [tradeQuote]
+    })
+  },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    { config },
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeRateResult = await getCowSwapTradeRate(input as GetEvmTradeRateInput, config)
+
+    return tradeRateResult.map(tradeRate => {
+      // A rate always has a first step
+      const firstStep = getHopByIndex(tradeRate, 0)!
+      const id = uuid()
+      tradeQuoteMetadata.set(id, { chainId: firstStep.sellAsset.chainId as EvmChainId })
+      return [tradeRate]
     })
   },
 

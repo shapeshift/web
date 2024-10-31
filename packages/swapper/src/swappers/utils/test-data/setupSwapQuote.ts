@@ -42,13 +42,13 @@ export const setupQuote = () => {
     sellAsset,
     buyAsset,
     accountNumber: 0,
-    hasWallet: true,
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     potentialAffiliateBps: '0',
     supportsEIP1559: false,
     allowMultiHop: false,
     slippageTolerancePercentageDecimal: DEFAULT_SLIPPAGE,
+    quoteOrRate: 'quote',
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }

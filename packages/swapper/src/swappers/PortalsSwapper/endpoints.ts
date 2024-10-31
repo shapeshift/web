@@ -7,28 +7,34 @@ import BigNumber from 'bignumber.js'
 import { zeroAddress } from 'viem'
 
 import type {
+  CommonTradeQuoteInput,
   EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
-  GetTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from './constants'
-import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
+import {
+  getPortalsTradeQuote,
+  getPortalsTradeRate,
+} from './getPortalsTradeQuote/getPortalsTradeQuote'
 import { fetchPortalsTradeOrder } from './utils/fetchPortalsTradeOrder'
 
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     { config, assertGetEvmChainAdapter }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const tradeQuoteResult = await getPortalsTradeQuote(
-      input as GetEvmTradeQuoteInput,
+      input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       config,
     )
@@ -37,7 +43,20 @@ export const portalsApi: SwapperApi = {
       return [tradeQuote]
     })
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    { config, assertGetEvmChainAdapter }: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const tradeRateResult = await getPortalsTradeRate(
+      input as GetEvmTradeRateInput,
+      assertGetEvmChainAdapter,
+      config,
+    )
 
+    return tradeRateResult.map(tradeQuote => {
+      return [tradeQuote]
+    })
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
@@ -70,7 +89,6 @@ export const portalsApi: SwapperApi = {
     // approved the token they are getting a quote for.
     // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      hasWallet: true,
       sender: from,
       inputToken,
       outputToken,

@@ -9,25 +9,23 @@ import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
+  CommonTradeQuoteInput,
   EvmTransactionRequest,
-  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapperDeps,
+  TradeRate,
 } from '../../types'
-import {
-  type GetTradeQuoteInput,
-  type SwapErrorRight,
-  type SwapperApi,
-  type TradeQuote,
-  TradeQuoteError,
-} from '../../types'
+import { type SwapErrorRight, type SwapperApi, type TradeQuote, TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,
   isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
-import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeQuote, getTradeRate } from './getTradeQuote/getTradeQuote'
 import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 
@@ -37,11 +35,8 @@ const tradeQuoteMetadata: Map<string, Route> = new Map()
 let lifiChainMapPromise: Promise<Map<ChainId, ChainKey>> | undefined
 
 export const lifiApi: SwapperApi = {
-  // TODO: this isn't a pure swapper method, see https://github.com/shapeshift/web/pull/5519
-  // We currently need to pass assetsById to avoid instantiating AssetService in web
-  // but will need to remove this second arg once this lives outside of web, to keep things pure and swappery
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
@@ -57,7 +52,11 @@ export const lifiApi: SwapperApi = {
 
     const lifiChainMap = await lifiChainMapPromise
 
-    const tradeQuoteResult = await getTradeQuote(input as GetEvmTradeQuoteInput, deps, lifiChainMap)
+    const tradeQuoteResult = await getTradeQuote(
+      input as GetEvmTradeQuoteInputBase,
+      deps,
+      lifiChainMap,
+    )
 
     return tradeQuoteResult.map(quote =>
       quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
@@ -74,7 +73,40 @@ export const lifiApi: SwapperApi = {
       }),
     )
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    if (input.sellAmountIncludingProtocolFeesCryptoBaseUnit === '0') {
+      return Err(
+        makeSwapErrorRight({
+          message: 'sell amount too low',
+          code: TradeQuoteError.SellAmountBelowMinimum,
+        }),
+      )
+    }
 
+    if (lifiChainMapPromise === undefined) lifiChainMapPromise = getLifiChainMap()
+
+    const lifiChainMap = await lifiChainMapPromise
+
+    const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps, lifiChainMap)
+
+    return tradeRateResult.map(quote =>
+      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+        // TODO: quotes below the minimum aren't valid and should not be processed as such
+        // selectedLifiRoute will be missing for quotes below the minimum
+        if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
+
+        const id = selectedLifiRoute.id
+
+        // store the lifi quote metadata for transaction building later
+        tradeQuoteMetadata.set(id, selectedLifiRoute)
+
+        return tradeQuote
+      }),
+    )
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

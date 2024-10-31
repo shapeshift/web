@@ -1,10 +1,10 @@
 import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import { getErc20Data, getFees } from '@shapeshiftoss/chain-adapters/dist/evm/utils'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { FeeDataKey, type GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 
 import type { EvmTransactionRequest, GetUnsignedEvmTransactionArgs } from '../../../types'
-import { isExecutableTradeQuote } from '../../../utils'
+import { isExecutableTradeQuote, isToken } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from '../constants'
 import type { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
@@ -14,7 +14,6 @@ export const getUnsignedEvmTransaction = async ({
   chainId,
   from,
   tradeQuote,
-  supportsEIP1559,
   assertGetEvmChainAdapter,
   config,
 }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
@@ -68,48 +67,45 @@ export const getUnsignedEvmTransaction = async ({
 
   const depositAddress = swapResponse.address!
   const { assetReference } = fromAssetId(step.sellAsset.assetId)
-  const isTokenSend = !!assetReference
+  const isTokenSend = isToken(step.sellAsset.assetId)
 
-  const adapter = assertGetEvmChainAdapter(chainId)
+  const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
 
-  const fees = await getFees({
-    adapter,
+  const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
     to: depositAddress,
-    from,
-    value: (isTokenSend
-      ? 0n
-      : BigInt(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)
-    ).toString(),
-    data: await getErc20Data(
-      depositAddress,
-      step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      assetReference,
-    ),
-    supportsEIP1559,
-  })
+    value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    chainSpecific: {
+      from,
+      contractAddress: assetReference,
+      data: undefined,
+    },
+    sendMax: false,
+  }
+  const feeData = await adapter.getFeeData(getFeeDataInput)
+  const fees = feeData[FeeDataKey.Average]
 
-  const tx = await adapter.buildSendApiTransaction({
+  const unsignedTxInput = await adapter.buildSendApiTransaction({
     to: depositAddress,
     from,
     value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     accountNumber: step.accountNumber,
     chainSpecific: {
       gasLimit: getGasLimit(sellChainflipChainKey),
-      contractAddress: assetReference,
-      maxFeePerGas: fees.maxFeePerGas!,
-      maxPriorityFeePerGas: fees.maxPriorityFeePerGas!,
+      contractAddress: isTokenSend ? assetReference : undefined,
+      maxFeePerGas: fees.chainSpecific.maxFeePerGas!,
+      maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas!,
     },
   })
 
   return {
     chainId: Number(fromChainId(chainId).chainReference),
-    data: tx.data,
-    to: tx.to,
+    data: unsignedTxInput.data,
+    to: unsignedTxInput.to,
     from,
-    value: tx.value,
-    gasLimit: tx.gasLimit,
-    maxFeePerGas: tx.maxFeePerGas,
-    maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-    gasPrice: tx.gasPrice,
+    value: unsignedTxInput.value,
+    gasLimit: unsignedTxInput.gasLimit,
+    maxFeePerGas: unsignedTxInput.maxFeePerGas,
+    maxPriorityFeePerGas: unsignedTxInput.maxPriorityFeePerGas,
+    gasPrice: unsignedTxInput.gasPrice,
   }
 }

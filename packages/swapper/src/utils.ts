@@ -1,4 +1,4 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -289,3 +289,18 @@ export const getRate = ({
 
 export const isExecutableTradeQuote = (quote: TradeQuote): quote is TradeQuoteWithReceiveAddress =>
   !!quote.receiveAddress
+
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case 'erc20':
+    case 'erc721':
+    case 'erc1155':
+    case 'bep20':
+    case 'bep721':
+    case 'bep1155':
+    case 'token':
+      return true
+    default:
+      return false
+  }
+}

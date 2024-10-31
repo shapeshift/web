@@ -42,35 +42,11 @@ export const swappers: Record<
   | (SwapperApi & Swapper & { supportedChainIds: SupportedChainIds; pollingInterval: number })
   | undefined
 > = {
-  [SwapperName.ArbitrumBridge]: {
-    ...arbitrumBridgeSwapper,
-    ...arbitrumBridgeApi,
-    supportedChainIds: ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
-  [SwapperName.Chainflip]: {
-    ...chainflipSwapper,
-    ...chainflipApi,
-    supportedChainIds: CHAINFLIP_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
-  [SwapperName.CowSwap]: {
-    ...cowSwapper,
-    ...cowApi,
-    supportedChainIds: COW_SWAP_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
   [SwapperName.LIFI]: {
     ...lifiSwapper,
     ...lifiApi,
     supportedChainIds: LIFI_SUPPORTED_CHAIN_IDS,
     pollingInterval: LIFI_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  },
-  [SwapperName.Portals]: {
-    ...portalsSwapper,
-    ...portalsApi,
-    supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS,
-    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Thorchain]: {
     ...thorchainSwapper,
@@ -82,6 +58,31 @@ export const swappers: Record<
     ...zrxSwapper,
     ...zrxApi,
     supportedChainIds: ZRX_SUPPORTED_CHAIN_IDS,
+
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.CowSwap]: {
+    ...cowSwapper,
+    ...cowApi,
+    supportedChainIds: COW_SWAP_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.ArbitrumBridge]: {
+    ...arbitrumBridgeSwapper,
+    ...arbitrumBridgeApi,
+    supportedChainIds: ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.Portals]: {
+    ...portalsSwapper,
+    ...portalsApi,
+    supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
+  [SwapperName.Chainflip]: {
+    ...chainflipSwapper,
+    ...chainflipApi,
+    supportedChainIds: CHAINFLIP_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
   [SwapperName.Test]: undefined,
@@ -89,33 +90,33 @@ export const swappers: Record<
 
 // Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
 const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
+const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
+const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
-const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
-const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName?: SwapperName,
 ): string => {
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
-    case SwapperName.ArbitrumBridge:
-      return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.Chainflip:
-      return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.CowSwap:
-      return DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Zrx:
+    case SwapperName.Test:
+      return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.LIFI:
       return DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.CowSwap:
+      return DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Portals:
       return DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Thorchain:
       return DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.Zrx:
-    case SwapperName.Test:
-      return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.ArbitrumBridge:
+      return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Chainflip:
+      return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       assertUnreachable(swapperName)
   }

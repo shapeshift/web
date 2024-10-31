@@ -1,9 +1,11 @@
+import type { ThunkDispatch } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { createThrottle } from '@shapeshiftoss/utils'
 import axios from 'axios'
+import { getConfig } from 'config'
 import { PURGE } from 'redux-persist'
 import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
@@ -85,6 +87,59 @@ export const snapshot = createSlice({
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
+const getThorVotingPower = async (
+  dispatch: ThunkDispatch<any, any, any>,
+  getState: () => unknown,
+) => {
+  const accountIds: AccountId[] = (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
+  const strategies = await (async () => {
+    const maybeSliceStragies = (getState() as ReduxState).snapshot.thorStrategies
+    if (maybeSliceStragies) return maybeSliceStragies
+
+    const strategiesResult = await dispatch(snapshotApi.endpoints.getThorStrategies.initiate())
+    return strategiesResult?.data
+  })()
+  if (!strategies) {
+    console.error('snapshotApi getThorVotingPower could not get strategies')
+    return { data: bn(0).toString() }
+  }
+  const evmAddresses = Array.from(
+    accountIds.reduce<Set<string>>((acc, accountId) => {
+      const { account, chainId } = fromAccountId(accountId)
+      isEvmChainId(chainId) && acc.add(account)
+      return acc
+    }, new Set()),
+  )
+  const delegation = false // don't let people delegate for discounts - ambiguous in spec
+  const votingPowerResults = await Promise.allSettled(
+    evmAddresses.map(async address => {
+      await throttle()
+      const votingPowerUnvalidated = await getVotingPower(
+        address,
+        '1',
+        strategies,
+        THOR_TIP_014_BLOCK_NUMBER,
+        THORSWAP_SNAPSHOT_SPACE,
+        delegation,
+      )
+      // vp is THOR in crypto balance
+      return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+    }),
+  )
+  const thorHeld = BigNumber.sum(
+    ...votingPowerResults.filter(isFulfilled).map(r => r.value),
+  ).toNumber()
+
+  // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+  if (isNaN(thorHeld)) {
+    const data = 'NaN thorHeld value'
+    return { error: { data, status: 400 } }
+  }
+
+  dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
+  return { data: thorHeld.toString() }
+}
+
 export const snapshotApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'snapshotApi',
@@ -150,8 +205,6 @@ export const snapshotApi = createApi({
         } catch (e) {
           console.error('snapshotApi getStrategies', e)
           return { data: [] }
-        } finally {
-          clear()
         }
       },
     }),
@@ -184,6 +237,7 @@ export const snapshotApi = createApi({
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
           const votingPowerResults = await Promise.allSettled(
             evmAddresses.map(async address => {
+              await throttle()
               const votingPowerUnvalidated = await getVotingPower(
                 address,
                 '1',
@@ -191,7 +245,6 @@ export const snapshotApi = createApi({
                 foxDiscountBlock,
                 SNAPSHOT_SPACE,
                 delegation,
-                throttle,
               )
               // vp is FOX in crypto balance
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
@@ -209,69 +262,11 @@ export const snapshotApi = createApi({
 
           dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
 
+          if (getConfig().REACT_APP_FEATURE_THOR_FREE_FEES) {
+            await getThorVotingPower(dispatch, getState)
+          }
+
           return { data: foxHeld.toString() }
-        } catch (e) {
-          console.error(e)
-
-          return { error: { data: e, status: 400 } }
-        } finally {
-          clear()
-        }
-      },
-    }),
-    getThorVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
-      queryFn: async (_, { dispatch, getState }) => {
-        try {
-          const accountIds: AccountId[] =
-            (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
-          const strategies = await (async () => {
-            const maybeSliceStragies = (getState() as ReduxState).snapshot.thorStrategies
-            if (maybeSliceStragies) return maybeSliceStragies
-
-            const strategiesResult = await dispatch(
-              snapshotApi.endpoints.getThorStrategies.initiate(),
-            )
-            return strategiesResult?.data
-          })()
-          if (!strategies) {
-            console.error('snapshotApi getThorVotingPower could not get strategies')
-            return { data: bn(0).toString() }
-          }
-          const evmAddresses = Array.from(
-            accountIds.reduce<Set<string>>((acc, accountId) => {
-              const { account, chainId } = fromAccountId(accountId)
-              isEvmChainId(chainId) && acc.add(account)
-              return acc
-            }, new Set()),
-          )
-          const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-                throttle,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
-          const thorHeld = BigNumber.sum(
-            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-          ).toNumber()
-
-          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
-          if (isNaN(thorHeld)) {
-            const data = 'NaN thorHeld value'
-            return { error: { data, status: 400 } }
-          }
-
-          dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
-          return { data: thorHeld.toString() }
         } catch (e) {
           console.error(e)
 
@@ -337,8 +332,6 @@ export const snapshotApi = createApi({
         } catch (e) {
           console.error('snapshotApi getProposals', e)
           return { data: { activeProposals: [], closedProposals: [] } }
-        } finally {
-          clear()
         }
       },
     }),

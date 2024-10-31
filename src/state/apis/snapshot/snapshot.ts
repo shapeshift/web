@@ -8,6 +8,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
+import { isFulfilled } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -164,7 +165,7 @@ export const snapshotApi = createApi({
             FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.all(
+          const votingPowerResults = await Promise.allSettled(
             evmAddresses.map(async address => {
               const votingPowerUnvalidated = await getVotingPower(
                 address,
@@ -178,7 +179,9 @@ export const snapshotApi = createApi({
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
             }),
           )
-          const foxHeld = BigNumber.sum(...votingPowerResults).toNumber()
+          const foxHeld = BigNumber.sum(
+            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
+          ).toNumber()
 
           // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
           if (isNaN(foxHeld)) {
@@ -221,7 +224,7 @@ export const snapshotApi = createApi({
             }, new Set()),
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.all(
+          const votingPowerResults = await Promise.allSettled(
             evmAddresses.map(async address => {
               const votingPowerUnvalidated = await getVotingPower(
                 address,
@@ -235,7 +238,9 @@ export const snapshotApi = createApi({
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
             }),
           )
-          const thorHeld = BigNumber.sum(...votingPowerResults).toNumber()
+          const thorHeld = BigNumber.sum(
+            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
+          ).toNumber()
 
           // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
           if (isNaN(thorHeld)) {

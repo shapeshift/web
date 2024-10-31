@@ -260,51 +260,6 @@ export const snapshotApi = createApi({
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
             }),
           )
-          await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-                throttle,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
-          await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-                throttle,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
-          await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-                throttle,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
           const thorHeld = BigNumber.sum(
             ...votingPowerResults.filter(isFulfilled).map(r => r.value),
           ).toNumber()

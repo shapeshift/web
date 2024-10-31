@@ -1,9 +1,4 @@
-export enum OrderOptionsKeys {
-  ASCENDING = 'Ascending',
-  DESCENDING = 'Descending',
-}
-
-export type OrderOption = {
-  key: OrderOptionsKeys
-  label: string
+export enum OrderDirection {
+  Ascending = 'ascending',
+  Descending = 'descending',
 }

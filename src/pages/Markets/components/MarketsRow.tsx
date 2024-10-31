@@ -8,7 +8,7 @@ import { useTranslate } from 'react-polyglot'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { ChainDropdown } from 'components/ChainDropdown/ChainDropdown'
 import { OrderDropdown } from 'components/OrderDropdown/OrderDropdown'
-import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { OrderDirection } from 'components/OrderDropdown/types'
 import { SortDropdown } from 'components/SortDropdown/SortDropdown'
 import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { selectFeatureFlag } from 'state/slices/selectors'
@@ -49,9 +49,9 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const handleBack = history.goBack
   const isCategoryRoute = params.category
   const [selectedChainId, setSelectedChainId] = useState<ChainId | undefined>(undefined)
-  const [selectedOrder, setSelectedOrder] = useState<OrderOptionsKeys>(OrderOptionsKeys.DESCENDING)
+  const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
   const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
-    (params.category && sortOptionsByCategory[params.category]?.[0].key) ?? SortOptionsKeys.VOLUME,
+    (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
 

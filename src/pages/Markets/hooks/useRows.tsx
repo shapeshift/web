@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { PORTALS_SUPPORTED_CHAIN_IDS } from '@shapeshiftoss/swapper/dist/swappers/PortalsSwapper/constants'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { OrderDirection } from 'components/OrderDropdown/types'
 import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { getCoingeckoSupportedChainIds } from 'lib/coingecko/utils'
 import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -15,7 +15,7 @@ export type RowProps = {
   selectedChainId: ChainId | undefined
   showSparkline?: boolean
   sortBy?: SortOptionsKeys
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
 }
 
 export const useRows = ({ limit }: { limit: number }) => {
@@ -45,8 +45,8 @@ export const useRows = ({ limit }: { limit: number }) => {
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
-            orderBy={orderBy ?? OrderOptionsKeys.DESCENDING}
-            sortBy={sortBy ?? SortOptionsKeys.VOLUME}
+            orderBy={orderBy ?? OrderDirection.Descending}
+            sortBy={sortBy ?? SortOptionsKeys.Volume}
           />
         ),
       },
@@ -62,8 +62,8 @@ export const useRows = ({ limit }: { limit: number }) => {
             showSparkline={showSparkline}
             limit={limit}
             showMarketCap
-            orderBy={orderBy ?? OrderOptionsKeys.DESCENDING}
-            sortBy={sortBy ?? SortOptionsKeys.MARKET_CAP}
+            orderBy={orderBy ?? OrderDirection.Descending}
+            sortBy={sortBy ?? SortOptionsKeys.MarketCap}
           />
         ),
       },

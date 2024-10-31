@@ -240,6 +240,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",

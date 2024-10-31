@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useInView } from 'react-intersection-observer'
 import { useHistory } from 'react-router'
-import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { OrderDirection } from 'components/OrderDropdown/types'
 import { ResultsEmpty } from 'components/ResultsEmpty'
 import type { SortOptionsKeys } from 'components/SortDropdown/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -31,7 +31,7 @@ export const LpGrid: React.FC<{
   selectedChainId?: ChainId
   isLoading: boolean
   limit: number
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
 }> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
@@ -63,14 +63,15 @@ export const LpGrid: React.FC<{
 
     return filteredAssetIds.sort((a, b) => {
       const dataKey = marketDataBySortKey[sortBy]
-      const firstAssetId = orderBy === OrderOptionsKeys.ASCENDING ? a : b
-      const secondAssetId = orderBy === OrderOptionsKeys.ASCENDING ? b : a
+      const firstAssetId = orderBy === OrderDirection.Ascending ? a : b
+      const secondAssetId = orderBy === OrderDirection.Ascending ? b : a
+      const state = store.getState()
 
       if (dataKey === 'apy') {
-        const firstAssetOpportunityData = selectStakingOpportunityByFilter(store.getState(), {
+        const firstAssetOpportunityData = selectStakingOpportunityByFilter(state, {
           assetId: firstAssetId,
         })
-        const secondAssetOpportunityData = selectStakingOpportunityByFilter(store.getState(), {
+        const secondAssetOpportunityData = selectStakingOpportunityByFilter(state, {
           assetId: secondAssetId,
         })
 
@@ -91,11 +92,8 @@ export const LpGrid: React.FC<{
         )
       }
 
-      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), firstAssetId)
-      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(
-        store.getState(),
-        secondAssetId,
-      )
+      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(state, firstAssetId)
+      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(state, secondAssetId)
 
       return (
         bnOrZero(assetAMarketData?.[dataKey] ?? 0).toNumber() -
@@ -135,7 +133,7 @@ export const LpGrid: React.FC<{
 export const OneClickDefiAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
 }> = ({ limit, selectedChainId, orderBy, sortBy }) => {
   const { ref, inView } = useInView()
@@ -161,7 +159,7 @@ export const OneClickDefiAssets: React.FC<{
 export const ThorchainAssets: React.FC<{
   selectedChainId: ChainId | undefined
   limit: number
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
 }> = ({ limit, selectedChainId, orderBy, sortBy }) => {
   const { ref, inView } = useInView()

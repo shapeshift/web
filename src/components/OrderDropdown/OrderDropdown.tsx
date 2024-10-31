@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { ButtonProps, MenuProps } from '@chakra-ui/react'
+import type { ButtonProps } from '@chakra-ui/react'
 import {
   Button,
   Flex,
@@ -13,59 +13,43 @@ import {
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { type OrderOption, OrderOptionsKeys } from './types'
+import { OrderDirection } from './types'
 
 type OrderDropdownProps = {
-  value: OrderOptionsKeys
-  onClick: (arg: OrderOptionsKeys) => void
+  value: OrderDirection
+  onClick: (arg: OrderDirection) => void
   buttonProps?: ButtonProps
-} & Omit<MenuProps, 'children'>
-
-const orderOptions: OrderOption[] = [
-  {
-    key: OrderOptionsKeys.ASCENDING,
-    label: 'common.ascending',
-  },
-  {
-    key: OrderOptionsKeys.DESCENDING,
-    label: 'common.descending',
-  },
-]
+}
 
 const width = { base: 'full', md: 'auto' }
 
 const chevronDownIcon = <ChevronDownIcon />
 
-export const OrderDropdown: React.FC<OrderDropdownProps> = ({
-  onClick,
-  value,
-  buttonProps,
-  ...menuProps
-}) => {
+export const OrderDropdown: React.FC<OrderDropdownProps> = ({ onClick, value, buttonProps }) => {
   const translate = useTranslate()
 
   const renderOptions = useMemo(() => {
-    return orderOptions.map(option => (
-      <MenuItemOption value={option.key} key={option.key}>
-        {translate(option.label)}
+    return Object.values(OrderDirection).map(option => (
+      <MenuItemOption value={option} key={option}>
+        {translate(`common.${option}`)}
       </MenuItemOption>
     ))
   }, [translate])
 
   const onChange = useCallback(
-    (value: string | string[]) => onClick(value as OrderOptionsKeys),
+    (value: string | string[]) => onClick(value as OrderDirection),
     [onClick],
   )
 
   const selectedLabel = useMemo(() => {
-    const selectedOption = orderOptions.find(option => option.key === value)
-    return selectedOption ? translate(selectedOption.label) : ''
+    const selectedOption = Object.values(OrderDirection).find(option => option === value)
+    return selectedOption ? translate(`common.${selectedOption}`) : ''
   }, [translate, value])
 
   return (
     <Flex alignItems='center' mx={2}>
       <Text me={4}>{translate('common.orderBy')}</Text>
-      <Menu {...menuProps}>
+      <Menu>
         <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
           {selectedLabel}
         </MenuButton>

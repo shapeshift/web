@@ -1,5 +1,5 @@
 import { useInView } from 'react-intersection-observer'
-import type { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import type { OrderDirection } from 'components/OrderDropdown/types'
 import type { SortOptionsKeys } from 'components/SortDropdown/types'
 
 import type { MARKETS_CATEGORIES } from '../constants'
@@ -22,7 +22,7 @@ export const AssetGridWithData = ({
     MARKETS_CATEGORIES.ONE_CLICK_DEFI | MARKETS_CATEGORIES.THORCHAIN_DEFI
   >
   showMarketCap?: boolean
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
 }) => {
   const { ref, inView } = useInView()
@@ -34,7 +34,6 @@ export const AssetGridWithData = ({
     isPending: isMarketCapDataPending,
   } = dataQuery({
     enabled: inView,
-    // ts isn't smart enough to narrow this down, and we don't want to pass it for all categories where this does not apply
     orderBy,
     sortBy,
   })

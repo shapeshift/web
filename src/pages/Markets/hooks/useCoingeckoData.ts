@@ -3,7 +3,7 @@ import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
-import { OrderOptionsKeys } from 'components/OrderDropdown/types'
+import { OrderDirection } from 'components/OrderDropdown/types'
 import { SortOptionsKeys } from 'components/SortDropdown/types'
 import type { CoingeckoAsset, CoingeckoList } from 'lib/coingecko/types'
 import {
@@ -12,6 +12,7 @@ import {
   getCoingeckoTopMovers,
   getCoingeckoTrending,
 } from 'lib/coingecko/utils'
+import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
 import { assets as assetsSlice } from 'state/slices/assetsSlice/assetsSlice'
 import { marketApi, marketData } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
@@ -104,7 +105,7 @@ export const selectCoingeckoAssetIdsSortedAndOrdered = (
   dispatch: AppDispatch,
   assets: AssetsByIdPartial,
   sortBy?: SortOptionsKeys,
-  orderBy?: OrderOptionsKeys,
+  orderBy?: OrderDirection,
 ) => {
   const coingeckoAssets = selectCoingeckoAssets(data, dispatch, assets)
 
@@ -119,14 +120,12 @@ export const selectCoingeckoAssetIdsSortedAndOrdered = (
   return {
     ...coingeckoAssets,
     ids: coingeckoAssets.ids.sort((a, b) => {
-      const firstAssetId = orderBy === OrderOptionsKeys.ASCENDING ? a : b
-      const secondAssetId = orderBy === OrderOptionsKeys.ASCENDING ? b : a
+      const firstAssetId = orderBy === OrderDirection.Ascending ? a : b
+      const secondAssetId = orderBy === OrderDirection.Ascending ? b : a
+      const state = store.getState()
 
-      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(store.getState(), firstAssetId)
-      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(
-        store.getState(),
-        secondAssetId,
-      )
+      const assetAMarketData = selectMarketDataByAssetIdUserCurrency(state, firstAssetId)
+      const assetBMarketData = selectMarketDataByAssetIdUserCurrency(state, secondAssetId)
 
       return (
         bnOrZero(assetAMarketData?.[dataKey] ?? 0).toNumber() -
@@ -143,7 +142,7 @@ export const useTopMoversQuery = ({
 }: {
   enabled?: boolean
   sortBy?: SortOptionsKeys
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -166,7 +165,7 @@ export const useTrendingQuery = ({
 }: {
   enabled?: boolean
   sortBy?: SortOptionsKeys
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -189,7 +188,7 @@ export const useRecentlyAddedQuery = ({
 }: {
   enabled?: boolean
   sortBy?: SortOptionsKeys
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -210,7 +209,7 @@ export const useMarketsQuery = ({
   orderBy,
   sortBy,
 }: {
-  orderBy?: OrderOptionsKeys
+  orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
   enabled?: boolean
 }) => {
@@ -219,9 +218,9 @@ export const useMarketsQuery = ({
 
   const prefixOrderBy = (() => {
     switch (sortBy) {
-      case SortOptionsKeys.MARKET_CAP:
+      case SortOptionsKeys.MarketCap:
         return 'market_cap'
-      case SortOptionsKeys.VOLUME:
+      case SortOptionsKeys.Volume:
         return 'volume'
       default:
         return 'volume'
@@ -230,20 +229,16 @@ export const useMarketsQuery = ({
 
   const sort = (() => {
     switch (orderBy) {
-      case OrderOptionsKeys.ASCENDING:
+      case OrderDirection.Ascending:
         return 'asc'
-      case OrderOptionsKeys.DESCENDING:
+      case OrderDirection.Descending:
         return 'desc'
       default:
         return 'desc'
     }
   })()
 
-  const order = `${prefixOrderBy}_${sort}` as
-    | 'market_cap_asc'
-    | 'market_cap_desc'
-    | 'volume_desc'
-    | 'volume_asc'
+  const order: CoinGeckoSortKey = `${prefixOrderBy}_${sort}`
 
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoMarkets', order],

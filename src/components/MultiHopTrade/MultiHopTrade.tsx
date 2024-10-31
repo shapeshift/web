@@ -1,4 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -62,8 +63,19 @@ export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardPr
 
   useEffect(() => {
     dispatch(tradeInput.actions.clear())
-    if (routeBuyAsset) dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
-    else if (defaultBuyAsset) dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
+
+    if (
+      routeBuyAsset?.chainId === KnownChainIds.SolanaMainnet ||
+      defaultBuyAsset?.chainId === KnownChainIds.SolanaMainnet
+    ) {
+      return
+    }
+
+    if (routeBuyAsset) {
+      dispatch(tradeInput.actions.setBuyAsset(routeBuyAsset))
+    } else if (defaultBuyAsset) {
+      dispatch(tradeInput.actions.setBuyAsset(defaultBuyAsset))
+    }
   }, [defaultBuyAsset, defaultBuyAssetId, dispatch, routeBuyAsset])
 
   // Prevent default behavior overriding deep linked route

@@ -1,6 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { getCowswapNetwork } from '@shapeshiftoss/swapper'
+import type { CowSwapQuoteError } from '@shapeshiftoss/swapper'
+import { CowSwapQuoteErrorType, getCowswapNetwork, TradeQuoteError } from '@shapeshiftoss/swapper'
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 
@@ -27,18 +29,39 @@ export const limitOrderApi = createApi({
       { limitOrderQuoteRequest: LimitOrderQuoteRequest; chainId: ChainId }
     >({
       queryFn: async ({ limitOrderQuoteRequest, chainId }) => {
-        console.log('placing limit order')
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const result = await axios.post<LimitOrder>(
-          `${baseUrl}/${network}/api/v1/quote/`,
-          limitOrderQuoteRequest,
-        )
-        const order = result.data
-        return { data: order }
+
+        try {
+          const result = await axios.post<LimitOrder>(
+            `${baseUrl}/${network}/api/v1/quote/`,
+            limitOrderQuoteRequest,
+          )
+          const order = result.data
+          return { data: order }
+        } catch (e) {
+          const axiosError = e as AxiosError
+
+          const maybeCowSwapError = axiosError.response?.data as CowSwapQuoteError | undefined
+
+          const errorData = (() => {
+            switch (maybeCowSwapError?.errorType) {
+              case CowSwapQuoteErrorType.ZeroAmount:
+                return TradeQuoteError.SellAmountBelowMinimum
+              case CowSwapQuoteErrorType.SellAmountDoesNotCoverFee:
+                return TradeQuoteError.SellAmountBelowTradeFee
+              case CowSwapQuoteErrorType.UnsupportedToken:
+                return TradeQuoteError.UnsupportedTradePair
+              default:
+                return TradeQuoteError.UnknownError
+            }
+          })()
+
+          return { error: { data: errorData } }
+        }
       },
     }),
     placeLimitOrder: build.mutation<LimitOrderId, { limitOrder: LimitOrder; chainId: ChainId }>({

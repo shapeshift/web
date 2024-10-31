@@ -15,6 +15,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
+import { zeroAddress } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -220,7 +221,7 @@ export const LimitOrderInput = ({
 
   const limitOrderQuoteParams = useMemo(() => {
     // Return skipToken if any required params are missing
-    if (!sellAccountAddress || bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
+    if (bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
       return skipToken
     }
 
@@ -228,10 +229,10 @@ export const LimitOrderInput = ({
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
       buyToken: fromAssetId(buyAsset.assetId).assetReference,
       receiver: undefined, // TODO: implement useReceiveAddress
-      appData: undefined, // will be generated using this quote!
-      appDataHash: undefined, // will be generated using this quote!
+      appData: undefined, // TODO: create this for limit order!
+      appDataHash: undefined, // TODO: create this for limit order!
       sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-      from: sellAccountAddress,
+      from: sellAccountAddress ?? zeroAddress,
       priceQuality: PriceQuality.Optimal,
       signingScheme: CoWSwapSigningScheme.EIP712,
       onChainOrder: undefined,
@@ -251,13 +252,16 @@ export const LimitOrderInput = ({
     sellAsset.chainId,
   ])
 
-  const { data } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
+  const { data, error } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   useEffect(() => {
-    console.log('limit order:', data)
-  }, [data])
+    console.log('limit order response:', data)
+    console.log('limit order error:', error)
+  }, [data, error])
 
   const marketPriceBuyAssetCryptoPrecision = '123423'
+
+  // TODO: debounce this with `useDebounce` when including in the query
   const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(
     marketPriceBuyAssetCryptoPrecision,
   )

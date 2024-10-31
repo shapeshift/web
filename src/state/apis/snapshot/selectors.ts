@@ -32,5 +32,7 @@ export const selectVotingPower = createSelector(
     return votingPowerByModel[feeModel!]
   },
 )
+export const selectThorVotingPower = (state: ReduxState) =>
+  state.snapshot.votingPowerByModel['THORSWAP']
 
 export const selectProposals = (state: ReduxState) => state.snapshot.proposals

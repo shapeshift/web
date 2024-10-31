@@ -22,12 +22,15 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -52,6 +55,14 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorHandler()
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
+  const thorVotingPower = useAppSelector(selectThorVotingPower)
+
+  const isThorFreeTrade = useMemo(
+    () =>
+      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [thorVotingPower],
+  )
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -125,6 +136,10 @@ export const useTradeExecution = (
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeFailed)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (isThorFreeTrade) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeFailed)
+          }
         }
 
         resolve()
@@ -136,6 +151,14 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event)
+
+        if (isThorFreeTrade) {
+          trackMixpanelEvent(
+            hopIndex === 0
+              ? MixPanelEvent.ThorDiscountTradeConfirm
+              : MixPanelEvent.ThorDiscountTradeConfirmSecondHop,
+          )
+        }
       }
 
       const execution = new TradeExecution()
@@ -211,6 +234,10 @@ export const useTradeExecution = (
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (isThorFreeTrade) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeSuccess)
+          }
         }
 
         resolve()
@@ -401,6 +428,7 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
+    isThorFreeTrade,
   ])
 
   return executeTrade

@@ -69,6 +69,7 @@ export type FeatureFlags = {
   FoxPageGovernance: boolean
   LimitOrders: boolean
   PublicTradeRoute: boolean
+  ThorFreeFees: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -161,6 +162,7 @@ const initialState: Preferences = {
     FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
     PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
+    ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

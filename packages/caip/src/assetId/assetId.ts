@@ -132,7 +132,7 @@ type FromAssetIdReturn = {
   chainReference: ChainReference
   chainId: ChainId
   assetNamespace: AssetNamespace
-  assetReference: AssetReference | string
+  assetReference: AssetReference
 }
 
 export type FromAssetId = (assetId: AssetId) => FromAssetIdReturn
@@ -171,7 +171,7 @@ export const fromAssetId: FromAssetId = (assetId: string) => {
     chainNamespace: chainNamespace as ChainNamespace,
     chainReference: chainReference as ChainReference,
     assetNamespace: assetNamespace as AssetNamespace,
-    assetReference: assetReferenceNormalized,
+    assetReference: assetReferenceNormalized as AssetReference,
   }
 }
 

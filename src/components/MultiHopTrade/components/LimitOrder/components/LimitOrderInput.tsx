@@ -1,12 +1,18 @@
 import { Divider, Stack } from '@chakra-ui/react'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { skipToken } from '@reduxjs/toolkit/query'
+import { foxAssetId, fromAccountId, fromAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import {
+  CoWSwapOrderKind,
+  CoWSwapSellTokenSource,
+  CoWSwapSigningScheme,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import type { FormEvent } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -17,6 +23,9 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { localAssetData } from 'lib/asset-service'
 import type { ParameterModel } from 'lib/fees/parameters/types'
+import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
+import type { LimitOrderQuoteRequest } from 'state/apis/limit-orders/types'
+import { PriceQuality } from 'state/apis/limit-orders/types'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -65,7 +74,7 @@ export const LimitOrderInput = ({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
 
-  const [sellAsset, setSellAsset] = useState(localAssetData[ethAssetId] ?? defaultAsset)
+  const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
 
   const defaultAccountId = useAppSelector(state =>
@@ -198,6 +207,55 @@ export const LimitOrderInput = ({
     },
     [handleFormSubmit],
   )
+
+  const sellAmountCryptoBaseUnit = useMemo(() => {
+    return toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision)
+  }, [sellAmountCryptoPrecision, sellAsset.precision])
+
+  const sellAccountAddress = useMemo(() => {
+    if (!sellAssetAccountId) return
+
+    return fromAccountId(sellAssetAccountId).account
+  }, [sellAssetAccountId])
+
+  const limitOrderQuoteParams = useMemo(() => {
+    // Return skipToken if any required params are missing
+    if (!sellAccountAddress || bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
+      return skipToken
+    }
+
+    const limitOrderQuoteRequest: LimitOrderQuoteRequest = {
+      sellToken: fromAssetId(sellAsset.assetId).assetReference,
+      buyToken: fromAssetId(buyAsset.assetId).assetReference,
+      receiver: undefined, // TODO: implement useReceiveAddress
+      appData: undefined, // will be generated using this quote!
+      appDataHash: undefined, // will be generated using this quote!
+      sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+      from: sellAccountAddress,
+      priceQuality: PriceQuality.Optimal,
+      signingScheme: CoWSwapSigningScheme.EIP712,
+      onChainOrder: undefined,
+      kind: CoWSwapOrderKind.Sell,
+      sellAmountBeforeFee: sellAmountCryptoBaseUnit,
+    }
+
+    return {
+      limitOrderQuoteRequest,
+      chainId: sellAsset.chainId,
+    }
+  }, [
+    buyAsset.assetId,
+    sellAccountAddress,
+    sellAmountCryptoBaseUnit,
+    sellAsset.assetId,
+    sellAsset.chainId,
+  ])
+
+  const { data } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
+
+  useEffect(() => {
+    console.log('limit order:', data)
+  }, [data])
 
   const marketPriceBuyAssetCryptoPrecision = '123423'
   const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(

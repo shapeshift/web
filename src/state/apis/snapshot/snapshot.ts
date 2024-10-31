@@ -242,7 +242,7 @@ export const snapshotApi = createApi({
             ...votingPowerResults.filter(isFulfilled).map(r => r.value),
           ).toNumber()
 
-          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+          // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
           if (isNaN(thorHeld)) {
             const data = 'NaN thorHeld value'
             return { error: { data, status: 400 } }

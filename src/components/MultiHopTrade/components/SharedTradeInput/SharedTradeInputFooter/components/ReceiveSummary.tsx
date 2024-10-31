@@ -103,7 +103,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
                 ) : (
                   <>
                     <Text translation='trade.free' fontWeight='semibold' color={greenColor} />
-                    <QuestionIcon color={greenColor} />
+                    {!isThorFreeTrade && <QuestionIcon color={greenColor} />}
                   </>
                 )}
               </Flex>

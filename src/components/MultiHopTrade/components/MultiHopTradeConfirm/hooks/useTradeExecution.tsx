@@ -57,6 +57,13 @@ export const useTradeExecution = (
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
 
+  const isThorFreeTrade = useMemo(
+    () =>
+      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [thorVotingPower],
+  )
+
   const hopSellAccountIdFilter = useMemo(() => {
     return {
       hopIndex,
@@ -130,11 +137,8 @@ export const useTradeExecution = (
           trackMixpanelEvent(MixPanelEvent.TradeFailed)
           hasMixpanelSuccessOrFailFiredRef.current = true
 
-          if (
-            bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
-            new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
-          ) {
-            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeError)
+          if (isThorFreeTrade) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeFailed)
           }
         }
 
@@ -148,10 +152,7 @@ export const useTradeExecution = (
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event)
 
-        if (
-          bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
-          new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
-        ) {
+        if (isThorFreeTrade) {
           trackMixpanelEvent(
             hopIndex === 0
               ? MixPanelEvent.ThorDiscountTradeConfirm
@@ -234,10 +235,7 @@ export const useTradeExecution = (
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
 
-          if (
-            bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
-            new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
-          ) {
+          if (isThorFreeTrade) {
             trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeSuccess)
           }
         }
@@ -430,7 +428,7 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
-    thorVotingPower,
+    isThorFreeTrade,
   ])
 
   return executeTrade

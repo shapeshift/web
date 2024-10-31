@@ -32,6 +32,13 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
 
+  const isThorFreeTrade = useMemo(
+    () =>
+      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [thorVotingPower],
+  )
+
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
@@ -70,17 +77,10 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
             tradeFeeSource: 'ShapeShift',
           })} (${affiliateBps} bps)`}
         </RawText>
-        <QuestionIcon />
+        {!isThorFreeTrade && <QuestionIcon />}
       </Flex>
     )
-  }, [affiliateBps, translate])
-
-  const isThorFreeTrade = useMemo(
-    () =>
-      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
-      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
-    [thorVotingPower],
-  )
+  }, [affiliateBps, translate, isThorFreeTrade])
 
   const descriptionProps: BoxProps = useMemo(
     () => ({

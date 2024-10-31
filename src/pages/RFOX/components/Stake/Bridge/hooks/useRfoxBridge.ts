@@ -143,6 +143,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
       hasWallet: Boolean(walletInfo?.deviceId),
+      quoteOrRate: 'quote' as const,
     }),
     [
       buyAsset,
@@ -178,7 +179,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   }, [assetsById])
 
   const tradeQuoteInputWithWallet = useMemo(
-    () => ({ ...tradeQuoteInput, wallet }),
+    () => ({ ...tradeQuoteInput, wallet, quoteOrRate: 'quote' as const }),
     [tradeQuoteInput, wallet],
   )
 

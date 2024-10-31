@@ -3,10 +3,10 @@ import type { PropsWithChildren } from 'react'
 import { useParams } from 'react-router'
 import { Display } from 'components/Display'
 
-import type { MARKETS_CATEGORIES } from '../constants'
+import type { MarketsCategories } from '../constants'
 
 export const MarketGrid: React.FC<PropsWithChildren> = ({ children }) => {
-  const params: { category?: MARKETS_CATEGORIES } = useParams()
+  const params: { category?: MarketsCategories } = useParams()
   const isCategoryRoute = params.category
 
   if (isCategoryRoute) {

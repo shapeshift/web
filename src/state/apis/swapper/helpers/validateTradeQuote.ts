@@ -5,7 +5,7 @@ import {
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
@@ -41,7 +41,7 @@ export const validateTradeQuote = (
     isTradingActiveOnBuyPool,
     sendAddress,
     inputSellAmountCryptoBaseUnit,
-    hasWallet,
+    quoteOrRate,
   }: {
     swapperName: SwapperName
     quote: TradeQuote | undefined
@@ -52,7 +52,7 @@ export const validateTradeQuote = (
     // summoning @woodenfurniture WRT implications of that, this works for now
     sendAddress: string | undefined
     inputSellAmountCryptoBaseUnit: string
-    hasWallet: boolean
+    quoteOrRate: 'quote' | 'rate'
   },
 ): {
   errors: ErrorWithMeta<TradeQuoteError>[]
@@ -112,7 +112,7 @@ export const validateTradeQuote = (
   }
 
   // This should really never happen in case the wallet *is* connected but in case it does:
-  if (hasWallet && !sendAddress) throw new Error('sendAddress is required')
+  if (quoteOrRate === 'quote' && !sendAddress) throw new Error('sendAddress is required')
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!
@@ -200,24 +200,28 @@ export const validateTradeQuote = (
   // This is an oversimplification where protocol fees are assumed to be only deducted from
   // account IDs corresponding to the sell asset account number and protocol fee asset chain ID.
   // Later we'll need to handle protocol fees payable from the buy side.
-  const insufficientBalanceForProtocolFeesErrors = Object.entries(totalProtocolFeesByAsset)
-    .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      if (!protocolFee.requiresBalance) return false
+  const insufficientBalanceForProtocolFeesErrors =
+    // TODO(gomes): We will need to handle this differently since a rate doesn't contain bip44 data
+    sellAssetAccountNumber !== undefined
+      ? Object.entries(totalProtocolFeesByAsset)
+          .filter(([assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            if (!protocolFee.requiresBalance) return false
 
-      const accountId =
-        portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-      const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
-      return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
-    })
-    .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
-      return {
-        error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
-        meta: {
-          symbol: protocolFee.asset.symbol,
-          chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
-        },
-      }
-    })
+            const accountId =
+              portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
+            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+          })
+          .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
+            return {
+              error: TradeQuoteValidationError.InsufficientFundsForProtocolFee,
+              meta: {
+                symbol: protocolFee.asset.symbol,
+                chainName: assertGetChainAdapter(protocolFee.asset.chainId).getDisplayName(),
+              },
+            }
+          })
+      : []
 
   const recommendedMinimumCryptoBaseUnit = (quote as ThorTradeQuote)
     .recommendedMinimumCryptoBaseUnit
@@ -253,7 +257,7 @@ export const validateTradeQuote = (
         },
       },
       !walletSupportsIntermediaryAssetChain &&
-        hasWallet &&
+        quoteOrRate === 'quote' &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -262,7 +266,7 @@ export const validateTradeQuote = (
           },
         },
       !firstHopHasSufficientBalanceForGas &&
-        hasWallet && {
+        quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
             assetSymbol: firstHopSellFeeAsset?.symbol,
@@ -272,7 +276,7 @@ export const validateTradeQuote = (
           },
         },
       !secondHopHasSufficientBalanceForGas &&
-        hasWallet && {
+        quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
           meta: {
             assetSymbol: secondHopSellFeeAsset?.symbol,

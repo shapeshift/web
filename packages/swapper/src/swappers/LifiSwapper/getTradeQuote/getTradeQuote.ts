@@ -15,6 +15,8 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapperDeps,
@@ -34,9 +36,9 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-export async function getTradeQuote(
+async function getTrade(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
@@ -51,16 +53,7 @@ export async function getTradeQuote(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    hasWallet,
   } = input
-
-  if (hasWallet && !(receiveAddress && sendAddress && accountNumber !== undefined))
-    return Err(
-      makeSwapErrorRight({
-        message: 'missing address',
-        code: TradeQuoteError.InternalError,
-      }),
-    )
 
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
@@ -294,4 +287,24 @@ export async function getTradeQuote(
   }
 
   return Ok(promises.filter(isFulfilled).map(({ value }) => value))
+}
+
+// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
+
+export const getTradeQuote = (
+  input: GetEvmTradeQuoteInputBase,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+
+export const getTradeRate = async (
+  input: GetEvmTradeRateInput,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeRate[], SwapErrorRight>> => {
+  const rate = (await getTrade(input, deps, lifiChainMap)) as Result<
+    LifiTradeRate[],
+    SwapErrorRight
+  >
+  return rate
 }

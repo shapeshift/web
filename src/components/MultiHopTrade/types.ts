@@ -31,6 +31,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'potentialAffiliateBps'
   | 'allowMultiHop'
   | 'slippageTolerancePercentageDecimal'
+  | 'quoteOrRate'
 >
 
 export enum TradeInputTab {

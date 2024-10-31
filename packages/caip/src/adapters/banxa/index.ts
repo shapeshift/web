@@ -1,5 +1,4 @@
 import entries from 'lodash/entries'
-import toLower from 'lodash/toLower'
 
 import type { AssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
@@ -24,6 +23,7 @@ import {
   optimismChainId,
   polygonAssetId,
   polygonChainId,
+  solanaChainId,
   solAssetId,
   thorchainAssetId,
   thorchainChainId,
@@ -106,8 +106,8 @@ export const getSupportedBanxaAssets = () =>
     ticker,
   }))
 
-export const assetIdToBanxaTicker = (assetId: string): string | undefined =>
-  AssetIdToBanxaTickerMap[toLower(assetId)]
+export const assetIdToBanxaTicker = (assetId: AssetId): string | undefined =>
+  AssetIdToBanxaTickerMap[assetId]
 
 /**
  * map ChainIds to Banxa blockchain codes (ETH, BTC, COSMOS),
@@ -129,7 +129,7 @@ const chainIdToBanxaBlockchainCodeMap: Record<ChainId, string> = {
   [arbitrumChainId]: 'ARB',
   [baseChainId]: 'BASE',
   [thorchainChainId]: 'THORCHAIN',
-  [solAssetId]: 'SOL',
+  [solanaChainId]: 'SOL',
 } as const
 
 /**

@@ -54,7 +54,7 @@ export const getTradeQuote = async (
   if (accountNumber === undefined) {
     return Err(
       makeSwapErrorRight({
-        message: `unsupported accountNumber`,
+        message: `accountNumber is required`,
         code: TradeQuoteError.UnknownError,
       }),
     )
@@ -243,7 +243,8 @@ export const getTradeQuote = async (
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
 
     if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
-      // Streaming swaps are not enabled yet
+      // DCA currently disabled - Streaming swap logic is very much tied to THOR currently and will deserve its own PR to generalize
+      // Even if we manage to get DCA swaps to execute, we wouldn't manage to properly poll with current web THOR-centric arch
       continue
     }
 
@@ -317,7 +318,7 @@ export const getTradeQuote = async (
           buyAsset,
           sellAsset,
           accountNumber,
-          allowanceContract: '0x0', // Chainflip does not use contracts
+          allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000,
         },
       ],

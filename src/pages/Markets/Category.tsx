@@ -6,7 +6,7 @@ import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
 
 import { MarketsRow } from './components/MarketsRow'
-import type { MARKETS_CATEGORIES } from './constants'
+import type { MarketsCategories } from './constants'
 import { sortOptionsByCategory } from './constants'
 import { useRows } from './hooks/useRows'
 import { MarketsHeader } from './MarketsHeader'
@@ -16,7 +16,7 @@ const containerPaddingX = { base: 4, xl: 0 }
 const ASSETS_LIMIT = 100
 
 export const Category: React.FC = () => {
-  const params = useParams<{ category: MARKETS_CATEGORIES }>()
+  const params = useParams<{ category: MarketsCategories }>()
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 

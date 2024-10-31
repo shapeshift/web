@@ -23,7 +23,7 @@ import {
 import type { AppDispatch } from 'state/store'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import { marketDataBySortKey, MARKETS_CATEGORIES } from '../constants'
+import { marketDataBySortKey, MarketsCategories } from '../constants'
 
 const selectCoingeckoAssets = (
   data: CoingeckoAsset[],
@@ -251,9 +251,9 @@ export const useMarketsQuery = ({
 }
 
 export const CATEGORY_TO_QUERY_HOOK = {
-  [MARKETS_CATEGORIES.TOP_MOVERS]: useTopMoversQuery,
-  [MARKETS_CATEGORIES.TRENDING]: useTrendingQuery,
-  [MARKETS_CATEGORIES.RECENTLY_ADDED]: useRecentlyAddedQuery,
-  [MARKETS_CATEGORIES.MARKET_CAP]: useMarketsQuery,
-  [MARKETS_CATEGORIES.TRADING_VOLUME]: useMarketsQuery,
+  [MarketsCategories.TopMovers]: useTopMoversQuery,
+  [MarketsCategories.Trending]: useTrendingQuery,
+  [MarketsCategories.RecentlyAdded]: useRecentlyAddedQuery,
+  [MarketsCategories.MarketCap]: useMarketsQuery,
+  [MarketsCategories.TradingVolume]: useMarketsQuery,
 }

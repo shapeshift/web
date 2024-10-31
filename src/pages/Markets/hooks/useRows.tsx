@@ -9,7 +9,7 @@ import { SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS } from 'state/slices/opportunities
 
 import { AssetGridWithData } from '../components/AssetGridWithData'
 import { OneClickDefiAssets, ThorchainAssets } from '../components/LpGrid'
-import { MARKETS_CATEGORIES } from '../constants'
+import { MarketsCategories } from '../constants'
 
 export type RowProps = {
   selectedChainId: ChainId | undefined
@@ -24,9 +24,9 @@ export const useRows = ({ limit }: { limit: number }) => {
   const coingeckoSupportedChainIds = useMemo(() => getCoingeckoSupportedChainIds(), [])
 
   const MARKETS_CATEGORY_TO_ROW: Record<
-    MARKETS_CATEGORIES,
+    MarketsCategories,
     {
-      category: MARKETS_CATEGORIES
+      category: MarketsCategories
       title: string
       subtitle?: string
       component: (props: RowProps) => JSX.Element
@@ -34,14 +34,14 @@ export const useRows = ({ limit }: { limit: number }) => {
     }
   > = useMemo(
     () => ({
-      [MARKETS_CATEGORIES.TRADING_VOLUME]: {
-        category: MARKETS_CATEGORIES.TRADING_VOLUME,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRADING_VOLUME}.subtitle`),
+      [MarketsCategories.TradingVolume]: {
+        category: MarketsCategories.TradingVolume,
+        title: translate(`markets.categories.${MarketsCategories.TradingVolume}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.TradingVolume}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
         component: ({ selectedChainId, showSparkline, sortBy, orderBy }: RowProps) => (
           <AssetGridWithData
-            category={MARKETS_CATEGORIES.TRADING_VOLUME}
+            category={MarketsCategories.TradingVolume}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -50,14 +50,14 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MARKETS_CATEGORIES.MARKET_CAP]: {
-        category: MARKETS_CATEGORIES.MARKET_CAP,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.MARKET_CAP}.subtitle`),
+      [MarketsCategories.MarketCap]: {
+        category: MarketsCategories.MarketCap,
+        title: translate(`markets.categories.${MarketsCategories.MarketCap}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.MarketCap}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
         component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
-            category={MARKETS_CATEGORIES.MARKET_CAP}
+            category={MarketsCategories.MarketCap}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -67,14 +67,14 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MARKETS_CATEGORIES.TRENDING]: {
-        category: MARKETS_CATEGORIES.TRENDING,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TRENDING}.subtitle`),
+      [MarketsCategories.Trending]: {
+        category: MarketsCategories.Trending,
+        title: translate(`markets.categories.${MarketsCategories.Trending}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.Trending}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
         component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
-            category={MARKETS_CATEGORIES.TRENDING}
+            category={MarketsCategories.Trending}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -83,16 +83,16 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MARKETS_CATEGORIES.TOP_MOVERS]: {
-        category: MARKETS_CATEGORIES.TOP_MOVERS,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.TOP_MOVERS}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.TOP_MOVERS}.subtitle`, {
+      [MarketsCategories.TopMovers]: {
+        category: MarketsCategories.TopMovers,
+        title: translate(`markets.categories.${MarketsCategories.TopMovers}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.TopMovers}.subtitle`, {
           percentage: '10',
         }),
         supportedChainIds: coingeckoSupportedChainIds,
         component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
-            category={MARKETS_CATEGORIES.TOP_MOVERS}
+            category={MarketsCategories.TopMovers}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -101,14 +101,14 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MARKETS_CATEGORIES.RECENTLY_ADDED]: {
-        category: MARKETS_CATEGORIES.RECENTLY_ADDED,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.RECENTLY_ADDED}.subtitle`),
+      [MarketsCategories.RecentlyAdded]: {
+        category: MarketsCategories.RecentlyAdded,
+        title: translate(`markets.categories.${MarketsCategories.RecentlyAdded}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.RecentlyAdded}.subtitle`),
         supportedChainIds: coingeckoSupportedChainIds,
         component: ({ selectedChainId, showSparkline, orderBy, sortBy }: RowProps) => (
           <AssetGridWithData
-            category={MARKETS_CATEGORIES.RECENTLY_ADDED}
+            category={MarketsCategories.RecentlyAdded}
             selectedChainId={selectedChainId}
             showSparkline={showSparkline}
             limit={limit}
@@ -117,10 +117,10 @@ export const useRows = ({ limit }: { limit: number }) => {
           />
         ),
       },
-      [MARKETS_CATEGORIES.ONE_CLICK_DEFI]: {
-        category: MARKETS_CATEGORIES.ONE_CLICK_DEFI,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.ONE_CLICK_DEFI}.subtitle`),
+      [MarketsCategories.OneClickDefi]: {
+        category: MarketsCategories.OneClickDefi,
+        title: translate(`markets.categories.${MarketsCategories.OneClickDefi}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.OneClickDefi}.subtitle`),
         component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
           <OneClickDefiAssets
             selectedChainId={selectedChainId}
@@ -131,10 +131,10 @@ export const useRows = ({ limit }: { limit: number }) => {
         ),
         supportedChainIds: PORTALS_SUPPORTED_CHAIN_IDS.buy,
       },
-      [MARKETS_CATEGORIES.THORCHAIN_DEFI]: {
-        category: MARKETS_CATEGORIES.THORCHAIN_DEFI,
-        title: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.title`),
-        subtitle: translate(`markets.categories.${MARKETS_CATEGORIES.THORCHAIN_DEFI}.subtitle`),
+      [MarketsCategories.ThorchainDefi]: {
+        category: MarketsCategories.ThorchainDefi,
+        title: translate(`markets.categories.${MarketsCategories.ThorchainDefi}.title`),
+        subtitle: translate(`markets.categories.${MarketsCategories.ThorchainDefi}.subtitle`),
         component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
           <ThorchainAssets
             selectedChainId={selectedChainId}

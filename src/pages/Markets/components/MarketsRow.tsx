@@ -14,7 +14,7 @@ import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { type MARKETS_CATEGORIES, sortOptionsByCategory } from '../constants'
+import { type MarketsCategories, sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
@@ -24,7 +24,7 @@ type MarketsRowProps = {
   title?: string
   subtitle?: string
   supportedChainIds: ChainId[] | undefined
-  category?: MARKETS_CATEGORIES
+  category?: MarketsCategories
   showSparkline?: boolean
   showOrderFilter?: boolean
   showSortFilter?: boolean
@@ -43,7 +43,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   showOrderFilter,
   showSortFilter,
 }) => {
-  const params: { category?: MARKETS_CATEGORIES } = useParams()
+  const params: { category?: MarketsCategories } = useParams()
   const translate = useTranslate()
   const history = useHistory()
   const handleBack = history.goBack

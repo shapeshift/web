@@ -2,7 +2,7 @@ import { useInView } from 'react-intersection-observer'
 import type { OrderDirection } from 'components/OrderDropdown/types'
 import type { SortOptionsKeys } from 'components/SortDropdown/types'
 
-import type { MARKETS_CATEGORIES } from '../constants'
+import type { MarketsCategories } from '../constants'
 import { CATEGORY_TO_QUERY_HOOK } from '../hooks/useCoingeckoData'
 import type { RowProps } from '../hooks/useRows'
 import { AssetsGrid } from './AssetsGrid'
@@ -18,8 +18,8 @@ export const AssetGridWithData = ({
 }: RowProps & {
   limit: number
   category: Exclude<
-    MARKETS_CATEGORIES,
-    MARKETS_CATEGORIES.ONE_CLICK_DEFI | MARKETS_CATEGORIES.THORCHAIN_DEFI
+    MarketsCategories,
+    MarketsCategories.OneClickDefi | MarketsCategories.ThorchainDefi
   >
   showMarketCap?: boolean
   orderBy?: OrderDirection

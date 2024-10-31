@@ -17,16 +17,22 @@ export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 
+export const foxatarAssetId: AssetId =
+  'eip155:137/erc721:0x2e727c425a11ce6b8819b3004db332c12d2af2a2'
+
+export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
 export const foxOnGnosisAssetId: AssetId =
   'eip155:100/erc20:0x21a42669643f45bc0e086b8fc2ed70c23d67509d'
 export const foxOnArbitrumOneAssetId: AssetId =
   'eip155:42161/erc20:0xf929de51d91c77e42f5090069e0ad7a09e513c73'
 export const foxAssetId: AssetId = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
-export const foxatarAssetId: AssetId =
-  'eip155:137/erc721:0x2e727c425a11ce6b8819b3004db332c12d2af2a2'
-export const foxyAssetId: AssetId = 'eip155:1/erc20:0xdc49108ce5c57bc3408c3a5e95f3d864ec386ed3'
-
 export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
+export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+export const usdcOnArbitrumOneAssetId: AssetId =
+  'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+export const usdcOnSolanaAssetId: AssetId =
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+export const flipAssetId: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 
 export const cosmosAssetId: AssetId = 'cosmos:cosmoshub-4/slip44:118'
 export const thorchainAssetId: AssetId = 'cosmos:thorchain-1/slip44:931'

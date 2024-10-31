@@ -29,10 +29,10 @@ const THOR_TIP_014_BLOCK_NUMBER = 21072340
 // but sometime the request fail randomly making it hard to know how much requests we can send
 // dividing this limit by 2 seems sane enough assuming it's already a edge case
 const { throttle, clear } = createThrottle({
-  capacity: 50,
+  capacity: 60,
   costPerReq: 1,
-  drainPerInterval: 50,
-  intervalMs: 60_000, // 1mn
+  drainPerInterval: 100,
+  intervalMs: 90_000, // 1mn30
 })
 
 export const initialState: SnapshotState = {
@@ -184,7 +184,6 @@ export const snapshotApi = createApi({
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
           const votingPowerResults = await Promise.allSettled(
             evmAddresses.map(async address => {
-              await throttle()
               const votingPowerUnvalidated = await getVotingPower(
                 address,
                 '1',
@@ -192,6 +191,7 @@ export const snapshotApi = createApi({
                 foxDiscountBlock,
                 SNAPSHOT_SPACE,
                 delegation,
+                throttle,
               )
               // vp is FOX in crypto balance
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
@@ -247,7 +247,6 @@ export const snapshotApi = createApi({
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
           const votingPowerResults = await Promise.allSettled(
             evmAddresses.map(async address => {
-              await throttle()
               const votingPowerUnvalidated = await getVotingPower(
                 address,
                 '1',
@@ -255,6 +254,52 @@ export const snapshotApi = createApi({
                 THOR_TIP_014_BLOCK_NUMBER,
                 THORSWAP_SNAPSHOT_SPACE,
                 delegation,
+                throttle,
+              )
+              // vp is THOR in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          await Promise.allSettled(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                THOR_TIP_014_BLOCK_NUMBER,
+                THORSWAP_SNAPSHOT_SPACE,
+                delegation,
+                throttle,
+              )
+              // vp is THOR in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          await Promise.allSettled(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                THOR_TIP_014_BLOCK_NUMBER,
+                THORSWAP_SNAPSHOT_SPACE,
+                delegation,
+                throttle,
+              )
+              // vp is THOR in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          await Promise.allSettled(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                THOR_TIP_014_BLOCK_NUMBER,
+                THORSWAP_SNAPSHOT_SPACE,
+                delegation,
+                throttle,
               )
               // vp is THOR in crypto balance
               return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)

@@ -10,6 +10,7 @@ export const getVotingPower = async (
   snapshot: number | 'latest',
   space: string,
   delegation: boolean,
+  throttle: () => Promise<void>,
 ) => {
   const axiosWithRetry = axios.create()
 
@@ -18,6 +19,11 @@ export const getVotingPower = async (
     shouldResetTimeout: true,
     // We absolutely want to retry on any error or users will pay fees for nothing if we can't fetch its vote power
     retryCondition: _error => true,
+    onRetry: async () => {
+      await throttle()
+
+      return
+    },
   })
 
   const headers = {
@@ -36,6 +42,8 @@ export const getVotingPower = async (
       delegation,
     },
   }
+
+  await throttle()
 
   const { data } = await axiosWithRetry.post('https://score.snapshot.org', body, {
     headers,

@@ -9,6 +9,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import { nftApi } from './apis/nft/nftApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
@@ -39,6 +40,7 @@ const apiMiddleware = [
   covalentApi.middleware,
   opportunitiesApi.middleware,
   abiApi.middleware,
+  limitOrderApi.middleware,
 ]
 
 const subscriptionMiddleware = createSubscriptionMiddleware()

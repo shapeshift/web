@@ -26,6 +26,12 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   },
 })
 
+const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
+  provided: {
+    LimitOrder: {},
+  },
+})
+
 export const mockStore: ReduxState = {
   assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
@@ -41,6 +47,7 @@ export const mockStore: ReduxState = {
   snapshotApi: mockApiFactory('snapshotApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  limitOrderApi: mockLimitOrderApi,
   portfolio: {
     _persist: {
       version: 0,

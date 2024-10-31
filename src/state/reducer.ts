@@ -7,6 +7,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { covalentApi } from './apis/covalent/covalentApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
+import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import type { NftState } from './apis/nft/nftApi'
 import { nft, nftApi } from './apis/nft/nftApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
@@ -151,6 +152,7 @@ export const apiSlices = {
   covalentApi,
   opportunitiesApi,
   abiApi,
+  limitOrderApi,
 }
 
 export const apiReducers = {
@@ -168,6 +170,7 @@ export const apiReducers = {
   [zapper.reducerPath]: zapper.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,
+  [limitOrderApi.reducerPath]: limitOrderApi.reducer,
 }
 
 export const reducer = combineReducers(Object.assign({}, sliceReducers, apiReducers))

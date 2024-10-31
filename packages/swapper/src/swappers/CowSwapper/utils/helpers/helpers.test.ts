@@ -41,7 +41,11 @@ describe('utils', () => {
       const slippageTolerancePercentage = '0.005' // 0.5%
       const affiliateAppDataFragment = {} // no affiliate fee
 
-      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+      const result = await getFullAppData(
+        slippageTolerancePercentage,
+        affiliateAppDataFragment,
+        'market',
+      )
 
       expect(result).toHaveProperty('appDataHash')
       expect(result).toHaveProperty('appData')
@@ -60,7 +64,11 @@ describe('utils', () => {
         },
       }
 
-      const result = await getFullAppData(slippageTolerancePercentage, affiliateAppDataFragment)
+      const result = await getFullAppData(
+        slippageTolerancePercentage,
+        affiliateAppDataFragment,
+        'market',
+      )
 
       expect(result).toHaveProperty('appDataHash')
       expect(result).toHaveProperty('appData')

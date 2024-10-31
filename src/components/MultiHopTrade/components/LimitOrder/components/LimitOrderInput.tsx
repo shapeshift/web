@@ -1,14 +1,16 @@
 import { Divider, Stack } from '@chakra-ui/react'
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import { skipToken } from '@reduxjs/toolkit/query'
+import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import type { FormEvent } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
+import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -17,6 +19,7 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { localAssetData } from 'lib/asset-service'
 import type { ParameterModel } from 'lib/fees/parameters/types'
+import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
@@ -65,7 +68,7 @@ export const LimitOrderInput = ({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
 
-  const [sellAsset, setSellAsset] = useState(localAssetData[ethAssetId] ?? defaultAsset)
+  const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
 
   const defaultAccountId = useAppSelector(state =>
@@ -199,7 +202,55 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const sellAmountCryptoBaseUnit = useMemo(() => {
+    return toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision)
+  }, [sellAmountCryptoPrecision, sellAsset.precision])
+
+  const sellAccountAddress = useMemo(() => {
+    if (!sellAssetAccountId) return
+
+    return fromAccountId(sellAssetAccountId).account as Address
+  }, [sellAssetAccountId])
+
+  const limitOrderQuoteParams = useMemo(() => {
+    // Return skipToken if any required params are missing
+    if (bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
+      return skipToken
+    }
+
+    return {
+      sellAssetId: sellAsset.assetId,
+      buyAssetId: buyAsset.assetId,
+      chainId: sellAsset.chainId,
+      slippageTolerancePercentageDecimal: '0', // TODO: wire this up!
+      affiliateBps: '0', // TODO: wire this up!
+      sellAccountAddress,
+      sellAmountCryptoBaseUnit,
+    }
+  }, [
+    buyAsset.assetId,
+    sellAccountAddress,
+    sellAmountCryptoBaseUnit,
+    sellAsset.assetId,
+    sellAsset.chainId,
+  ])
+
+  const { data, error } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
+
+  useEffect(() => {
+    /*
+      This is the quote only, not the limit order. The quote is used to determine the market price.
+      When submitting a limit order, the buyAmount is (optionally) modified based on the user input,
+      and then re-attached to the `LimitOrder` before signing and submitting via our
+      `placeLimitOrder` endpoint in limitOrderApi
+    */
+    console.log('limit order quote response:', data)
+    console.log('limit order quote error:', error)
+  }, [data, error])
+
   const marketPriceBuyAssetCryptoPrecision = '123423'
+
+  // TODO: debounce this with `useDebounce` when including in the query
   const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(
     marketPriceBuyAssetCryptoPrecision,
   )

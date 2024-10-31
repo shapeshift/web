@@ -1,6 +1,6 @@
 import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
-import type { OrderClass } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
+import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -262,9 +262,10 @@ const metadataApi = new MetadataApi()
 export const getFullAppData = async (
   slippageTolerancePercentage: string,
   affiliateAppDataFragment: AffiliateAppDataFragment,
+  orderClass1: OrderClass1,
 ) => {
   const APP_CODE = 'shapeshift'
-  const orderClass: OrderClass = { orderClass: 'market' }
+  const orderClass: OrderClass = { orderClass: orderClass1 }
   const quote = {
     slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toString(),
   }

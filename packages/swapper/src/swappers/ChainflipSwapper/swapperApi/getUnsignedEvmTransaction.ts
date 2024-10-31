@@ -8,7 +8,6 @@ import { isExecutableTradeQuote, isToken } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from '../constants'
 import type { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
-import { getGasLimit } from '../utils/helpers'
 
 export const getUnsignedEvmTransaction = async ({
   chainId,
@@ -16,6 +15,7 @@ export const getUnsignedEvmTransaction = async ({
   tradeQuote,
   assertGetEvmChainAdapter,
   config,
+  supportsEIP1559,
 }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
   if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
@@ -76,7 +76,7 @@ export const getUnsignedEvmTransaction = async ({
     value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     chainSpecific: {
       from,
-      contractAddress: assetReference,
+      contractAddress: isTokenSend ? assetReference : undefined,
       data: undefined,
     },
     sendMax: false,
@@ -90,10 +90,16 @@ export const getUnsignedEvmTransaction = async ({
     value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     accountNumber: step.accountNumber,
     chainSpecific: {
-      gasLimit: getGasLimit(sellChainflipChainKey),
+      gasLimit: fees.chainSpecific.gasLimit,
       contractAddress: isTokenSend ? assetReference : undefined,
-      maxFeePerGas: fees.chainSpecific.maxFeePerGas!,
-      maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas!,
+      ...(supportsEIP1559
+        ? {
+            maxFeePerGas: fees.chainSpecific.maxFeePerGas!,
+            maxPriorityFeePerGas: fees.chainSpecific.maxPriorityFeePerGas!,
+          }
+        : {
+            gasPrice: fees.chainSpecific.gasPrice,
+          }),
     },
   })
 

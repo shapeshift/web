@@ -52,16 +52,6 @@ export const chainIdToChainflipNetwork: Partial<Record<KnownChainIds, string>> =
   [KnownChainIds.SolanaMainnet]: 'sol',
 }
 
-// TODO: Verify with chainflip if this are the correct values
-export const assetGasLimits: Partial<Record<string, string>> = {
-  'eth.eth': '34000',
-  'flip.eth': '52000',
-  'usdc.eth': '63000',
-  'usdt.eth': '70000',
-  'eth.arb': '100000',
-  'usdc.arb': '100000',
-}
-
 export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: ChainflipSupportedChainIds as unknown as ChainId[],
   buy: ChainflipSupportedChainIds as unknown as ChainId[],

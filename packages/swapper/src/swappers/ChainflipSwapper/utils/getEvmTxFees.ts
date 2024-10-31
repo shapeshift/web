@@ -1,7 +1,7 @@
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 
-import { getGasLimit } from './helpers'
+import { THOR_EVM_GAS_LIMIT } from '../../ThorchainSwapper/utils/constants'
 
 type GetEvmTxFeesArgs = {
   adapter: EvmChainAdapter
@@ -14,7 +14,8 @@ export const getEvmTxFees = async (args: GetEvmTxFeesArgs): Promise<string> => {
 
   const { average } = await adapter.getGasFeeData()
 
-  const gasLimit = getGasLimit(args.sendAsset)
+  // That's not THOR but this should do the trick - overestimated effectively
+  const gasLimit = THOR_EVM_GAS_LIMIT
 
   return evm.calcNetworkFeeCryptoBaseUnit({
     ...average,

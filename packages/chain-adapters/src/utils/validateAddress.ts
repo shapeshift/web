@@ -14,5 +14,5 @@ export const assertAddressNotSanctioned = async (address: string): Promise<void>
     }
   })()
 
-  if (!valid) throw Error('Address not supported')
+  if (!valid) throw Error(`Address ${address} not supported`)
 }

@@ -10,6 +10,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
+import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -53,7 +54,9 @@ import { PriceImpact } from '../../PriceImpact'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
 import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslation'
+import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 import { MaxSlippage } from './MaxSlippage'
+import { RecipientAddress } from './RecipientAddress'
 
 type ConfirmSummaryProps = {
   isCompact: boolean | undefined
@@ -161,9 +164,20 @@ export const ConfirmSummary = ({
     quoteRequestErrors?.length,
   ])
 
+  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
+
+  const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
+    shouldForceManualAddressEntry: false,
+    sellAccountId: sellAssetAccountId,
+    buyAsset,
+    manualReceiveAddress,
+    walletReceiveAddress,
+  })
+
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       // don't execute trades while address is validating
+      manualReceiveAddressIsRequired ||
       manualReceiveAddressIsValidating ||
       manualReceiveAddressIsEditing ||
       manualReceiveAddressIsValid === false ||
@@ -180,6 +194,7 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
+    manualReceiveAddressIsRequired,
     manualReceiveAddressIsValidating,
     manualReceiveAddressIsEditing,
     manualReceiveAddressIsValid,
@@ -345,19 +360,13 @@ export const ConfirmSummary = ({
     <SharedTradeInputFooter
       isCompact={isCompact}
       isLoading={isLoading}
-      receiveAddress={receiveAddress}
       inputAmountUsd={inputAmountUsd}
       affiliateBps={affiliateBps}
       affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
       quoteStatusTranslation={quoteStatusTranslation}
-      manualAddressEntryDescription={manualAddressEntryDescription}
       onRateClick={handleOpenCompactQuoteList}
       shouldDisablePreviewButton={shouldDisablePreviewButton}
       isError={quoteHasError}
-      shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
-      recipientAddressDescription={
-        disableThorTaprootReceiveAddress ? translate('trade.disableThorTaprootReceive') : undefined
-      }
       swapSource={tradeQuoteStep?.source}
       rate={activeQuote?.rate}
       swapperName={activeSwapperName}
@@ -368,14 +377,25 @@ export const ConfirmSummary = ({
       totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
       receiveSummaryDetails={receiveSummaryDetails}
     >
-      {nativeAssetBridgeWarning ? (
-        <Alert status='info' borderRadius='lg'>
-          <AlertIcon />
-          <Text translation={nativeAssetBridgeWarning} />
-        </Alert>
-      ) : (
-        <></>
-      )}
+      <>
+        {nativeAssetBridgeWarning ? (
+          <Alert status='info' borderRadius='lg'>
+            <AlertIcon />
+            <Text translation={nativeAssetBridgeWarning} />
+          </Alert>
+        ) : (
+          <></>
+        )}
+        <RecipientAddress
+          shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
+          recipientAddressDescription={
+            disableThorTaprootReceiveAddress
+              ? translate('trade.disableThorTaprootReceive')
+              : undefined
+          }
+          manualAddressEntryDescription={manualAddressEntryDescription}
+        />
+      </>
     </SharedTradeInputFooter>
   )
 }

@@ -7,21 +7,16 @@ import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
-import {
-  selectFirstHopSellAccountId,
-  selectInputBuyAsset,
-} from 'state/slices/tradeInputSlice/selectors'
+import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
+
+import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 
 type ManualAddressEntryProps = {
   description?: string
@@ -46,46 +41,14 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       useAppSelector(selectInputBuyAsset)
 
     const { isSnapInstalled } = useIsSnapInstalled()
-    const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAssetChainId, wallet)
-    const buyAssetAccountIds = useAppSelector(state =>
-      selectAccountIdsByAssetId(state, { assetId: buyAssetAssetId }),
-    )
-    const useReceiveAddressArgs = useMemo(
-      () => ({
-        fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-      }),
-      [wallet],
-    )
-    const sellAssetAccountId = useAppSelector(selectFirstHopSellAccountId)
-    const { manualReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-
-    const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-
-    const shouldShowManualReceiveAddressInput = useMemo(() => {
-      if (isAccountsMetadataLoading && !sellAssetAccountId) return false
-      if (shouldForceManualAddressEntry) return true
-      if (manualReceiveAddress) return false
-      // Ledger "supports" all chains, but may not have them connected
-      if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length
-      // We want to display the manual address entry if the wallet doesn't support the buy asset chain
-      return !walletSupportsBuyAssetChain
-    }, [
-      isAccountsMetadataLoading,
-      sellAssetAccountId,
-      shouldForceManualAddressEntry,
-      manualReceiveAddress,
-      wallet,
-      buyAssetAccountIds.length,
-      walletSupportsBuyAssetChain,
-    ])
-
+    const { manualReceiveAddress } = useTradeReceiveAddress()
     const chainAdapterManager = getChainAdapterManager()
     const buyAssetChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
 
     // Trigger re-validation of the manually entered receive address
     useEffect(() => {
       formTrigger(SendFormFields.Input)
-    }, [formTrigger, shouldShowManualReceiveAddressInput])
+    }, [formTrigger, shouldForceManualAddressEntry])
 
     // Reset the manual address input state when the user changes the buy asset
     useEffect(() => {
@@ -179,6 +142,6 @@ export const ManualAddressEntry: FC<ManualAddressEntryProps> = memo(
       description,
     ])
 
-    return shouldShowManualReceiveAddressInput ? ManualReceiveAddressEntry : null
+    return shouldForceManualAddressEntry ? ManualReceiveAddressEntry : null
   },
 )

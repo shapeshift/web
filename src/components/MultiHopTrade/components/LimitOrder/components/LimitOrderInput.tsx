@@ -11,6 +11,7 @@ import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
@@ -35,6 +36,7 @@ import {
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
@@ -64,20 +66,29 @@ export const LimitOrderInput = ({
   const history = useHistory()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
-    fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-  })
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
+  const [manualReceiveAddress, setManualReceiveAddress] = useState<string | undefined>(undefined)
+  const [manualReceiveAddressIsValid, setManualReceiveAddressIsValid] = useState<
+    boolean | undefined
+  >(undefined)
+  const [manualReceiveAddressIsEditing, setManualReceiveAddressIsEditing] = useState(false)
+  const [manualReceiveAddressIsValidating, setManualReceiveAddressIsValidating] = useState(false)
 
   const defaultAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset.chainId),
   )
 
-  const [buyAssetAccountId, setBuyAssetAccountId] = useState(defaultAccountId)
-  const [sellAssetAccountId, setSellAssetAccountId] = useState(defaultAccountId)
+  const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
+  const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
+
+  const { walletReceiveAddress } = useReceiveAddress({
+    fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
+    buyAccountId,
+    buyAsset,
+  })
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -213,10 +224,10 @@ export const LimitOrderInput = ({
   }, [sellAmountCryptoPrecision, sellAsset.precision])
 
   const sellAccountAddress = useMemo(() => {
-    if (!sellAssetAccountId) return
+    if (!sellAccountId) return
 
-    return fromAccountId(sellAssetAccountId).account as Address
-  }, [sellAssetAccountId])
+    return fromAccountId(sellAccountId).account as Address
+  }, [sellAccountId])
 
   const limitOrderQuoteParams = useMemo(() => {
     // Return skipToken if any required params are missing
@@ -270,19 +281,19 @@ export const LimitOrderInput = ({
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
         sellAsset={sellAsset}
-        sellAssetAccountId={sellAssetAccountId}
+        sellAssetAccountId={sellAccountId}
         handleSwitchAssets={handleSwitchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={handleSetSellAsset}
-        setSellAssetAccountId={setSellAssetAccountId}
+        setSellAssetAccountId={setSellAccountId}
       >
         <Stack>
           <LimitOrderBuyAsset
             asset={buyAsset}
-            accountId={buyAssetAccountId}
+            accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            onAccountIdChange={setBuyAssetAccountId}
+            onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={handleSetBuyAsset}
           />
           <Divider />
@@ -303,15 +314,49 @@ export const LimitOrderInput = ({
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
-    sellAssetAccountId,
+    sellAccountId,
     handleSwitchAssets,
     handleSetSellAsset,
-    setSellAssetAccountId,
-    buyAssetAccountId,
-    setBuyAssetAccountId,
+    setSellAccountId,
+    buyAccountId,
+    setBuyAccountId,
     handleSetBuyAsset,
     limitPriceBuyAssetCryptoPrecision,
   ])
+
+  const onManualReceiveAddressError = useCallback(() => {
+    setManualReceiveAddress(undefined)
+  }, [])
+
+  const onEditManualReceiveAddress = useCallback(() => {
+    setManualReceiveAddressIsEditing(true)
+  }, [])
+
+  const onCancelManualReceiveAddress = useCallback(() => {
+    setManualReceiveAddressIsEditing(false)
+    // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
+    setManualReceiveAddressIsValid(undefined)
+  }, [])
+
+  const onResetManualReceiveAddress = useCallback(() => {
+    // Reset the manual receive address in store
+    setManualReceiveAddress(undefined)
+    // Reset the valid state in store
+    setManualReceiveAddressIsValid(undefined)
+  }, [])
+
+  const onSubmitManualReceiveAddress = useCallback((address: string) => {
+    setManualReceiveAddress(address)
+    setManualReceiveAddressIsEditing(false)
+  }, [])
+
+  const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
+    shouldForceManualAddressEntry: false,
+    sellAccountId,
+    buyAsset,
+    manualReceiveAddress,
+    walletReceiveAddress,
+  })
 
   const footerContent = useMemo(() => {
     return (
@@ -324,32 +369,55 @@ export const LimitOrderInput = ({
         isCompact={isCompact}
         isError={false}
         isLoading={isLoading}
-        manualAddressEntryDescription={undefined}
         onRateClick={handleOpenCompactQuoteList}
         quoteStatusTranslation={'trade.previewTrade'}
         rate={activeQuote?.rate}
-        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
-        recipientAddressDescription={undefined}
         sellAsset={sellAsset}
-        sellAssetAccountId={sellAssetAccountId}
-        shouldDisablePreviewButton={false}
-        shouldForceManualAddressEntry={false}
+        sellAssetAccountId={sellAccountId}
+        shouldDisablePreviewButton={
+          manualReceiveAddressIsRequired ||
+          manualReceiveAddressIsValidating ||
+          manualReceiveAddressIsEditing ||
+          manualReceiveAddressIsValid === false
+        }
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
         totalNetworkFeeFiatPrecision={'1.1234'}
-      />
+      >
+        <SharedRecipientAddress
+          buyAsset={buyAsset}
+          manualReceiveAddress={manualReceiveAddress}
+          walletReceiveAddress={walletReceiveAddress}
+          onCancel={onCancelManualReceiveAddress}
+          onEdit={onEditManualReceiveAddress}
+          onError={onManualReceiveAddressError}
+          onIsValidatingChange={setManualReceiveAddressIsValidating}
+          onIsValidChange={setManualReceiveAddressIsValid}
+          onReset={onResetManualReceiveAddress}
+          onSubmit={onSubmitManualReceiveAddress}
+        />
+      </SharedTradeInputFooter>
     )
   }, [
-    activeQuote?.rate,
     buyAsset,
     handleOpenCompactQuoteList,
     hasUserEnteredAmount,
     isCompact,
     isLoading,
-    manualReceiveAddress,
+    activeQuote?.rate,
     sellAsset,
-    sellAssetAccountId,
+    sellAccountId,
+    manualReceiveAddressIsRequired,
+    manualReceiveAddressIsValid,
+    manualReceiveAddressIsEditing,
+    manualReceiveAddressIsValidating,
+    manualReceiveAddress,
     walletReceiveAddress,
+    onCancelManualReceiveAddress,
+    onEditManualReceiveAddress,
+    onManualReceiveAddressError,
+    onResetManualReceiveAddress,
+    onSubmitManualReceiveAddress,
   ])
 
   return (

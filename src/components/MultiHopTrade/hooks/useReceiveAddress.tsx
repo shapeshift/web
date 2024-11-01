@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -6,11 +7,6 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isUtxoAccountId } from 'lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
-import {
-  selectInputBuyAsset,
-  selectLastHopBuyAccountId,
-  selectManualReceiveAddress,
-} from 'state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const getReceiveAddress = async ({
@@ -30,20 +26,23 @@ export const getReceiveAddress = async ({
 
 export const useReceiveAddress = ({
   fetchUnchainedAddress,
-}: { fetchUnchainedAddress?: boolean } = {}) => {
+  buyAccountId,
+  buyAsset,
+}: {
+  fetchUnchainedAddress: boolean | undefined
+  buyAccountId: AccountId | undefined
+  buyAsset: Asset | undefined
+}) => {
   // Hooks
   const wallet = useWallet().state.wallet
   // TODO: this should live in redux
   const [walletReceiveAddress, setWalletReceiveAddress] = useState<string | undefined>(undefined)
 
   // Selectors
-  const buyAsset = useAppSelector(selectInputBuyAsset)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
-  const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const getReceiveAddressFromBuyAsset = useCallback(
     async (buyAsset: Asset) => {
@@ -94,10 +93,5 @@ export const useReceiveAddress = ({
   }, [buyAsset, getReceiveAddressFromBuyAsset])
 
   // Always use the manual receive address if it is set
-  const result = useMemo(
-    () => ({ manualReceiveAddress, walletReceiveAddress }),
-    [manualReceiveAddress, walletReceiveAddress],
-  )
-
-  return result
+  return { walletReceiveAddress }
 }

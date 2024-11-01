@@ -9,8 +9,8 @@ import {
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -126,13 +126,7 @@ export const useGetTradeQuotes = () => {
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const useReceiveAddressArgs = useMemo(
-    () => ({
-      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-    }),
-    [wallet],
-  )
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
+  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 

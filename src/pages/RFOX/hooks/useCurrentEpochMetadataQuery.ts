@@ -4,10 +4,11 @@ import axios from 'axios'
 import { CURRENT_EPOCH_IPFS_HASH, IPFS_GATEWAY } from '../constants'
 import type { CurrentEpochMetadata } from '../types'
 
-type CurrentEpochMetadataQueryKey = ['currentEpochMetadata']
+type CurrentEpochMetadataQueryKey = ['currentEpochMetadata', string]
 
 export const getCurrentEpochMetadataQueryKey = (): CurrentEpochMetadataQueryKey => [
   'currentEpochMetadata',
+  CURRENT_EPOCH_IPFS_HASH,
 ]
 
 export const fetchCurrentEpochMetadata = async (): Promise<CurrentEpochMetadata> => {

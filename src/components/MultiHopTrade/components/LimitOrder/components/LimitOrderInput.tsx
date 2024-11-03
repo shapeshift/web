@@ -1,7 +1,6 @@
 import { Divider, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
@@ -60,7 +59,7 @@ export const LimitOrderInput = ({
 }: LimitOrderInputProps) => {
   const {
     dispatch: walletDispatch,
-    state: { isConnected, isDemoWallet, wallet },
+    state: { isConnected, isDemoWallet },
   } = useWallet()
 
   const history = useHistory()
@@ -85,7 +84,6 @@ export const LimitOrderInput = ({
   const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
 
   const { walletReceiveAddress } = useReceiveAddress({
-    fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
     buyAccountId,
     buyAsset,
   })

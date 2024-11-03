@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
@@ -25,11 +26,9 @@ export const getReceiveAddress = async ({
 }
 
 export const useReceiveAddress = ({
-  fetchUnchainedAddress,
   buyAccountId,
   buyAsset,
 }: {
-  fetchUnchainedAddress: boolean | undefined
   buyAccountId: AccountId | undefined
   buyAsset: Asset | undefined
 }) => {
@@ -66,6 +65,9 @@ export const useReceiveAddress = ({
       if (buyAssetChainId !== buyAssetAccountChainId) {
         return
       }
+
+      const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+
       const receiveAddress = await getReceiveAddress({
         asset: buyAsset,
         wallet,
@@ -75,7 +77,7 @@ export const useReceiveAddress = ({
       })
       return receiveAddress
     },
-    [buyAccountId, buyAccountMetadata, fetchUnchainedAddress, wallet],
+    [buyAccountId, buyAccountMetadata, wallet],
   )
 
   // Set the receiveAddress when the buy asset changes

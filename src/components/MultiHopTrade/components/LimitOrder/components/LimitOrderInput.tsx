@@ -10,8 +10,6 @@ import { useFormContext } from 'react-hook-form'
 import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
-import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -35,10 +33,10 @@ import {
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
+import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
 import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
@@ -69,12 +67,6 @@ export const LimitOrderInput = ({
 
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
-  const [manualReceiveAddress, setManualReceiveAddress] = useState<string | undefined>(undefined)
-  const [manualReceiveAddressIsValid, setManualReceiveAddressIsValid] = useState<
-    boolean | undefined
-  >(undefined)
-  const [manualReceiveAddressIsEditing, setManualReceiveAddressIsEditing] = useState(false)
-  const [manualReceiveAddressIsValidating, setManualReceiveAddressIsValidating] = useState(false)
 
   const defaultAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset.chainId),
@@ -83,10 +75,13 @@ export const LimitOrderInput = ({
   const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
   const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
 
-  const { walletReceiveAddress } = useReceiveAddress({
-    buyAccountId,
-    buyAsset,
-  })
+  const { isRecipientAddressEntryActive, renderedRecipientAddress } = useLimitOrderRecipientAddress(
+    {
+      buyAsset,
+      buyAccountId,
+      sellAccountId,
+    },
+  )
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -322,40 +317,6 @@ export const LimitOrderInput = ({
     limitPriceBuyAssetCryptoPrecision,
   ])
 
-  const onManualReceiveAddressError = useCallback(() => {
-    setManualReceiveAddress(undefined)
-  }, [])
-
-  const onEditManualReceiveAddress = useCallback(() => {
-    setManualReceiveAddressIsEditing(true)
-  }, [])
-
-  const onCancelManualReceiveAddress = useCallback(() => {
-    setManualReceiveAddressIsEditing(false)
-    // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
-    setManualReceiveAddressIsValid(undefined)
-  }, [])
-
-  const onResetManualReceiveAddress = useCallback(() => {
-    // Reset the manual receive address in store
-    setManualReceiveAddress(undefined)
-    // Reset the valid state in store
-    setManualReceiveAddressIsValid(undefined)
-  }, [])
-
-  const onSubmitManualReceiveAddress = useCallback((address: string) => {
-    setManualReceiveAddress(address)
-    setManualReceiveAddressIsEditing(false)
-  }, [])
-
-  const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
-    shouldForceManualAddressEntry: false,
-    sellAccountId,
-    buyAsset,
-    manualReceiveAddress,
-    walletReceiveAddress,
-  })
-
   const footerContent = useMemo(() => {
     return (
       <SharedTradeInputFooter
@@ -372,28 +333,12 @@ export const LimitOrderInput = ({
         rate={activeQuote?.rate}
         sellAsset={sellAsset}
         sellAssetAccountId={sellAccountId}
-        shouldDisablePreviewButton={
-          manualReceiveAddressIsRequired ||
-          manualReceiveAddressIsValidating ||
-          manualReceiveAddressIsEditing ||
-          manualReceiveAddressIsValid === false
-        }
+        shouldDisablePreviewButton={isRecipientAddressEntryActive}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
         totalNetworkFeeFiatPrecision={'1.1234'}
       >
-        <SharedRecipientAddress
-          buyAsset={buyAsset}
-          manualReceiveAddress={manualReceiveAddress}
-          walletReceiveAddress={walletReceiveAddress}
-          onCancel={onCancelManualReceiveAddress}
-          onEdit={onEditManualReceiveAddress}
-          onError={onManualReceiveAddressError}
-          onIsValidatingChange={setManualReceiveAddressIsValidating}
-          onIsValidChange={setManualReceiveAddressIsValid}
-          onReset={onResetManualReceiveAddress}
-          onSubmit={onSubmitManualReceiveAddress}
-        />
+        {renderedRecipientAddress}
       </SharedTradeInputFooter>
     )
   }, [
@@ -405,17 +350,8 @@ export const LimitOrderInput = ({
     activeQuote?.rate,
     sellAsset,
     sellAccountId,
-    manualReceiveAddressIsRequired,
-    manualReceiveAddressIsValid,
-    manualReceiveAddressIsEditing,
-    manualReceiveAddressIsValidating,
-    manualReceiveAddress,
-    walletReceiveAddress,
-    onCancelManualReceiveAddress,
-    onEditManualReceiveAddress,
-    onManualReceiveAddressError,
-    onResetManualReceiveAddress,
-    onSubmitManualReceiveAddress,
+    isRecipientAddressEntryActive,
+    renderedRecipientAddress,
   ])
 
   return (

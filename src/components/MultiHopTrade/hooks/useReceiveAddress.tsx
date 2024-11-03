@@ -32,12 +32,8 @@ export const useReceiveAddress = ({
   buyAccountId: AccountId | undefined
   buyAsset: Asset | undefined
 }) => {
-  // Hooks
   const wallet = useWallet().state.wallet
-  // TODO: this should live in redux
   const [walletReceiveAddress, setWalletReceiveAddress] = useState<string | undefined>(undefined)
-
-  // Selectors
   const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
@@ -81,6 +77,7 @@ export const useReceiveAddress = ({
   )
 
   // Set the receiveAddress when the buy asset changes
+  // TODO: This belongs in a react query to avoid race conditions.
   useEffect(() => {
     if (!buyAsset) return
     ;(async () => {

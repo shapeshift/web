@@ -13,9 +13,9 @@ export const getUtxoTxFees = async ({
   sellAdapter,
   publicKey,
 }: GetUtxoTxFeesInput): Promise<string> => {
-  // TODO: Get Chainflip BTC vault address
   const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
-    to: '',
+    // One of many vault addresses - just used as a placeholder for the sake of loosely estimating fees - we *need* a *to* address for simulation or this will throw
+    to: 'bc1pfh5x55a3v92klcrdy5yv6yrt7fzr0g929klkdtapp3njfyu4qsyq8qacyf',
     value: sellAmountCryptoBaseUnit,
     chainSpecific: { pubkey: publicKey },
   }

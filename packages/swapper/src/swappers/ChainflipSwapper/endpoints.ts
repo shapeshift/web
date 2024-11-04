@@ -9,19 +9,12 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { EvmTransactionRequest, GetUnsignedEvmTransactionArgs, SwapperApi } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
 import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from './constants'
-import type { ChainflipBaasStatusEgress } from './models/ChainflipBaasStatusEgress'
 import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import { getUnsignedUtxoTransaction } from './swapperApi/getUnsignedUtxoTransaction'
+import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
-
-// Non-exhaustive
-type ChainFlipStatus = {
-  status: {
-    state: 'waiting' | 'receiving' | 'swapping' | 'sending' | 'sent' | 'completed' | 'failed'
-    swapEgress?: ChainflipBaasStatusEgress
-  }
-}
+import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
 
 // Persists the ID so we can look it up later when checking the status
 const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
@@ -172,19 +165,20 @@ export const chainflipApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
     const {
-      status: { state, swapEgress },
+      status: { swapEgress },
     } = statusResponse
 
-    // Assume any state that isn't completed is pending.
-    // Going forward, we will want to add granular status polling similar to what we do for THOR.
-    if (state !== 'completed' || !swapEgress?.transactionReference) {
+    // Assume no outbound Tx is a pending Tx
+    if (!swapEgress?.transactionReference) {
       return {
         buyTxHash: undefined,
         status: TxStatus.Pending,
-        message: undefined,
+        message: getLatestChainflipStatusMessage(statusResponse),
       }
     }
 
+    // Assume as soon as we have an outbound Tx, the swap is complete.
+    // Chainflip waits for 3 confirmations to assume complete (vs. 1 for us), which is turbo long.
     return {
       buyTxHash: swapEgress.transactionReference,
       status: TxStatus.Confirmed,

@@ -141,34 +141,35 @@ const _getTradeQuote = async (
 
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
 
-  const getNetworkFeeCryptoBaseUnit = async () => {
+  const getFeeData = async () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
         // TODO(gomes): double check dis correct
-        return await getEvmTxFees({
+        const networkFeeCryptoBaseUnit = await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
           sendAsset: sellChainflipChainKey,
         })
+        return { networkFeeCryptoBaseUnit }
       }
 
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
         const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
-        // TODO(gomes): double check dis correct
-        return await getUtxoTxFees({
+        const feeData = await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
           publicKey,
         })
+
+        return feeData
       }
 
       // TODO(gomes): Solana support
       case CHAIN_NAMESPACE.Solana:
-        return undefined
       default:
         throw new Error('Unsupported chainNamespace')
     }
@@ -234,6 +235,7 @@ const _getTradeQuote = async (
 
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
+    const feeData = await getFeeData()
 
     if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
       // DCA currently disabled - Streaming swap logic is very much tied to THOR currently and will deserve its own PR to generalize
@@ -264,8 +266,8 @@ const _getTradeQuote = async (
             sellAmountIncludingProtocolFeesCryptoBaseUnit:
               singleQuoteResponse.boostQuote.ingressAmountNative!,
             feeData: {
-              networkFeeCryptoBaseUnit: await getNetworkFeeCryptoBaseUnit(),
               protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
+              ...feeData,
             },
             rate: boostRate,
             source: getSwapSource(singleQuoteResponse.type, true),
@@ -303,8 +305,8 @@ const _getTradeQuote = async (
           buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
           feeData: {
-            networkFeeCryptoBaseUnit: await getNetworkFeeCryptoBaseUnit(),
             protocolFees: getProtocolFees(singleQuoteResponse),
+            ...feeData,
           },
           rate,
           source: getSwapSource(singleQuoteResponse.type, false),

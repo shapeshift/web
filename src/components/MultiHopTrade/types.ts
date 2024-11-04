@@ -10,7 +10,6 @@ export enum TradeRoutePaths {
   QuoteList = '/trade/quote-list',
   Claim = '/trade/claim',
   LimitOrder = '/trade/limit-order',
-  LimitOrderQuoteList = '/trade/limit-order-quote-list',
 }
 
 export type GetReceiveAddressArgs = {

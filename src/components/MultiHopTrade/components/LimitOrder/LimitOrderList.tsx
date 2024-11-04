@@ -14,19 +14,21 @@ import type { FC } from 'react'
 import { usdcAssetId } from 'test/mocks/accounts'
 import { Text } from 'components/Text'
 
+import { WithBackButton } from '../WithBackButton'
 import { LimitOrderCard } from './components/LimitOrderCard'
 import { LimitOrderStatus } from './types'
 
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
+  onBack?: () => void
 }
 
 const textColorBaseProps = {
   color: 'text.base',
 }
 
-export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
+export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
   // FIXME: Use real data
   const MockOpenOrderCard = () => (
     <LimitOrderCard
@@ -57,46 +59,48 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
   return (
     <Card {...cardProps}>
       <CardHeader px={0} pt={4} h='full'>
-        <Tabs variant='unstyled' display='flex' flexDirection='column' h='full'>
-          <TabList gap={4} flex='0 0 auto' mb={2} ml={6}>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color='text.subtle'
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.openOrders' />
-            </Tab>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color='text.subtle'
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.orderHistory' />
-            </Tab>
-          </TabList>
+        <WithBackButton onBack={onBack}>
+          <Tabs variant='unstyled' display='flex' flexDirection='column' h='full'>
+            <TabList gap={4} flex='0 0 auto' mb={2} ml={6}>
+              <Tab
+                p={0}
+                fontSize='md'
+                fontWeight='bold'
+                color='text.subtle'
+                _selected={textColorBaseProps}
+              >
+                <Text translation='limitOrders.openOrders' />
+              </Tab>
+              <Tab
+                p={0}
+                fontSize='md'
+                fontWeight='bold'
+                color='text.subtle'
+                _selected={textColorBaseProps}
+              >
+                <Text translation='limitOrders.orderHistory' />
+              </Tab>
+            </TabList>
 
-          <TabPanels flex='1' overflowY='auto' minH={0} px={2}>
-            <TabPanel px={0}>
-              <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <MockOpenOrderCard key={index} />
-                ))}
-              </CardBody>
-            </TabPanel>
+            <TabPanels flex='1' overflowY='auto' minH={0} px={2}>
+              <TabPanel px={0}>
+                <CardBody px={0} overflowY='auto' flex='1 1 auto'>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <MockOpenOrderCard key={index} />
+                  ))}
+                </CardBody>
+              </TabPanel>
 
-            <TabPanel px={0}>
-              <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <MockHistoryOrderCard key={index} />
-                ))}
-              </CardBody>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+              <TabPanel px={0}>
+                <CardBody px={0} overflowY='auto' flex='1 1 auto'>
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <MockHistoryOrderCard key={index} />
+                  ))}
+                </CardBody>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </WithBackButton>
       </CardHeader>
     </Card>
   )

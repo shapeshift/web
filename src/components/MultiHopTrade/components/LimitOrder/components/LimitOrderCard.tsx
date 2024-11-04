@@ -94,7 +94,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Asset amounts row */}
         <Flex justify='space-between' align='flex-start'>
           <Flex>
-            <AssetIconWithBadge size='lg' assetId={ethAssetId} secondaryAssetId={avalancheAssetId}>
+            <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
               <Center borderRadius='full' boxSize='100%' bg='purple.500'>
                 <SwapBoldIcon boxSize='100%' />
               </Center>

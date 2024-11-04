@@ -121,7 +121,7 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
             />
             <AssetIcon
               showNetworkIcon={false}
-              assetId={secondaryAssetId}
+              assetId={assetId}
               clipPath={bottomClipPath}
               size={size}
               position='absolute'
@@ -129,7 +129,12 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
               top={0}
             />
           </Box>
-          <AssetIcon showNetworkIcon={false} assetId={assetId} clipPath={topClipPath} size={size} />
+          <AssetIcon
+            showNetworkIcon={false}
+            assetId={secondaryAssetId}
+            clipPath={topClipPath}
+            size={size}
+          />
         </>
       )
     }

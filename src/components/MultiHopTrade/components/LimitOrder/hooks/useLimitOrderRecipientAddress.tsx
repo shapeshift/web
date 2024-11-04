@@ -1,5 +1,6 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
+import type { Address } from 'viem'
 import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 
@@ -104,5 +105,6 @@ export const useLimitOrderRecipientAddress = ({
   return {
     isRecipientAddressEntryActive,
     renderedRecipientAddress,
+    recipientAddress: (manualReceiveAddress ?? walletReceiveAddress) as Address | undefined,
   }
 }

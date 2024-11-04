@@ -41,6 +41,7 @@ export type LimitOrderQuoteParams = {
   affiliateBps: string
   sellAccountAddress: Address | undefined
   sellAmountCryptoBaseUnit: string
+  recipientAddress: Address | undefined
 }
 
 export const limitOrderApi = createApi({
@@ -58,6 +59,7 @@ export const limitOrderApi = createApi({
         affiliateBps,
         sellAccountAddress,
         sellAmountCryptoBaseUnit,
+        recipientAddress,
       }: LimitOrderQuoteParams) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
@@ -79,10 +81,9 @@ export const limitOrderApi = createApi({
         const limitOrderQuoteRequest: LimitOrderQuoteRequest = {
           sellToken: fromAssetId(sellAssetId).assetReference,
           buyToken: fromAssetId(buyAssetId).assetReference,
-          receiver: undefined, // TODO: implement useReceiveAddress
-
+          receiver: recipientAddress,
           sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          from: sellAccountAddress ?? zeroAddress,
+          from: sellAccountAddress ?? zeroAddress, // Zero address used to enable quotes without wallet connected
           priceQuality: PriceQuality.Optimal,
           signingScheme: CoWSwapSigningScheme.EIP712,
           onChainOrder: undefined,

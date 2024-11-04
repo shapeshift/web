@@ -75,13 +75,12 @@ export const LimitOrderInput = ({
   const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
   const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
 
-  const { isRecipientAddressEntryActive, renderedRecipientAddress } = useLimitOrderRecipientAddress(
-    {
+  const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
+    useLimitOrderRecipientAddress({
       buyAsset,
       buyAccountId,
       sellAccountId,
-    },
-  )
+    })
 
   const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
@@ -236,6 +235,7 @@ export const LimitOrderInput = ({
       affiliateBps: '0', // TODO: wire this up!
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
+      recipientAddress,
     }
   }, [
     buyAsset.assetId,
@@ -243,6 +243,7 @@ export const LimitOrderInput = ({
     sellAmountCryptoBaseUnit,
     sellAsset.assetId,
     sellAsset.chainId,
+    recipientAddress,
   ])
 
   const { data, error } = useQuoteLimitOrderQuery(limitOrderQuoteParams)

@@ -1,6 +1,5 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
 import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -94,7 +93,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Asset amounts row */}
         <Flex justify='space-between' align='flex-start'>
           <Flex>
-            <AssetIconWithBadge size='lg' assetId={ethAssetId}>
+            <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
               <Center borderRadius='full' boxSize='100%' bg='purple.500'>
                 <SwapBoldIcon boxSize='100%' />
               </Center>

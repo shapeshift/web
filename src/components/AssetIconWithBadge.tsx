@@ -20,6 +20,7 @@ import {
 type AssetIconWithBadgeProps = {
   size?: AvatarProps['size']
   assetId?: AssetId
+  secondaryAssetId?: AssetId
   transfersByType?: Record<TransferType, Transfer[]>
   type?: string
 } & PropsWithChildren
@@ -96,6 +97,7 @@ const TransferIcon: React.FC<{
 export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
   size,
   assetId,
+  secondaryAssetId,
   transfersByType,
   type,
   children,
@@ -104,6 +106,34 @@ export const AssetIconWithBadge: React.FC<AssetIconWithBadgeProps> = ({
   const webIcon = <LuGlobe />
 
   const renderContent = () => {
+    if (assetId && secondaryAssetId) {
+      return (
+        <>
+          <Box>
+            <Image
+              src={FlipShadow}
+              position='absolute'
+              width='100%'
+              height='100%'
+              left={0}
+              top={0}
+              zIndex={2}
+            />
+            <AssetIcon
+              showNetworkIcon={false}
+              assetId={secondaryAssetId}
+              clipPath={bottomClipPath}
+              size={size}
+              position='absolute'
+              left={0}
+              top={0}
+            />
+          </Box>
+          <AssetIcon showNetworkIcon={false} assetId={assetId} clipPath={topClipPath} size={size} />
+        </>
+      )
+    }
+
     if (assetId) {
       return (
         <AssetIcon

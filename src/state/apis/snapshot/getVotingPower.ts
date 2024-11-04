@@ -25,8 +25,6 @@ export const getVotingPower = async (
     'Content-Type': 'application/json',
   }
   const body = {
-    jsonrpc: '2.0',
-    method: 'POST',
     params: {
       addresses,
       network,

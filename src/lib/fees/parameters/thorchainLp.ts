@@ -1,6 +1,5 @@
 import type { FeeCurveParameters } from './types'
 
-// THOR asset doesn't have any fee models for now as it's not using curves, we only zero out values to make TS happy with less risks
 const FEE_CURVE_MAX_FEE_BPS = 50 // basis points
 const FEE_CURVE_MIN_FEE_BPS = 20 // basis points
 const FEE_CURVE_NO_FEE_THRESHOLD_USD = 2_000 // usd

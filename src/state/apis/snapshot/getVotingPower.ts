@@ -4,7 +4,7 @@ import axiosRetry from 'axios-retry'
 import type { Strategy } from './validators'
 
 export const getVotingPower = async (
-  address: string,
+  addresses: string[],
   network: string,
   strategies: Strategy[],
   snapshot: number | 'latest',
@@ -26,9 +26,9 @@ export const getVotingPower = async (
   }
   const body = {
     jsonrpc: '2.0',
-    method: 'get_vp',
+    method: 'POST',
     params: {
-      address,
+      addresses,
       network,
       strategies,
       snapshot,
@@ -37,7 +37,7 @@ export const getVotingPower = async (
     },
   }
 
-  const { data } = await axiosWithRetry.post('https://score.snapshot.org', body, {
+  const { data } = await axiosWithRetry.post('https://score.snapshot.org/api/scores', body, {
     headers,
   })
   return data.result

@@ -3,7 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { createThrottle } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { PURGE } from 'redux-persist'
@@ -11,13 +10,12 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
-import { isFulfilled } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
 import type { Proposal, Strategy } from './validators'
-import { ProposalSchema, SnapshotSchema, VotingPowerSchema } from './validators'
+import { ProposalSchema, ScoresSchema, SnapshotSchema } from './validators'
 
 type FoxVotingPowerCryptoBalance = string
 
@@ -26,16 +24,6 @@ const THORSWAP_SNAPSHOT_SPACE = 'thorswapcommunity.eth'
 
 // https://snapshot.org/#/thorswapcommunity.eth/proposal/0x66a6c22cd2f4d88713bd4b4fd9068dfa35fee2fce94bb76fe274b8602cee556d
 const THOR_TIP_014_BLOCK_NUMBER = 21072340
-
-// As per https://docs.snapshot.org/tools/api/api-keys#limits rate limit should be 100
-// but sometime the request fail randomly making it hard to know how much requests we can send
-// dividing this limit by 2 seems sane enough assuming it's already a edge case
-const { throttle, clear } = createThrottle({
-  capacity: 50,
-  costPerReq: 1,
-  drainPerInterval: 50,
-  intervalMs: 60_000, // 1mn
-})
 
 export const initialState: SnapshotState = {
   votingPowerByModel: {
@@ -111,26 +99,26 @@ const getThorVotingPower = async (
     }, new Set()),
   )
   const delegation = false // don't let people delegate for discounts - ambiguous in spec
-  const votingPowerResults = await Promise.allSettled(
-    evmAddresses.map(async address => {
-      await throttle()
-      const votingPowerUnvalidated = await getVotingPower(
-        address,
-        '1',
-        strategies,
-        THOR_TIP_014_BLOCK_NUMBER,
-        THORSWAP_SNAPSHOT_SPACE,
-        delegation,
-      )
-      // vp is THOR in crypto balance
-      return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-    }),
+  const votingPowerResults = await getVotingPower(
+    evmAddresses,
+    '1',
+    strategies,
+    THOR_TIP_014_BLOCK_NUMBER,
+    THORSWAP_SNAPSHOT_SPACE,
+    delegation,
   )
-  const thorHeld = BigNumber.sum(
-    ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-  ).toNumber()
 
-  // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
+  const scores = ScoresSchema.parse(votingPowerResults).scores
+
+  const thorHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
+    const values = Object.values(scoreByAddress)
+
+    if (!values.length) return acc
+
+    return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
+  }, 0)
+
+  // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
   if (isNaN(thorHeld)) {
     const data = 'NaN thorHeld value'
     return { error: { data, status: 400 } }
@@ -158,7 +146,6 @@ export const snapshotApi = createApi({
             }
           }
         `
-        await throttle()
         // https://hub.snapshot.org/graphql?query=query%20%7B%0A%20%20space(id%3A%20%22shapeshiftdao.eth%22)%20%7B%0A%20%20%20%20strategies%20%7B%0A%20%20%20%20%20%20name%0A%20%20%20%20%20%20network%0A%20%20%20%20%20%20params%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D
         const { data: resData } = await axios.post(
           'https://hub.snapshot.org/graphql',
@@ -172,8 +159,6 @@ export const snapshotApi = createApi({
         } catch (e) {
           console.error('snapshotApi getStrategies', e)
           return { data: [] }
-        } finally {
-          clear()
         }
       },
     }),
@@ -191,7 +176,6 @@ export const snapshotApi = createApi({
             }
           }
         `
-        await throttle()
         // https://hub.snapshot.org/graphql?query=query%20%7B%0A%20%20space(id%3A%20%22shapeshiftdao.eth%22)%20%7B%0A%20%20%20%20strategies%20%7B%0A%20%20%20%20%20%20name%0A%20%20%20%20%20%20network%0A%20%20%20%20%20%20params%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D
         const { data: resData } = await axios.post(
           'https://hub.snapshot.org/graphql',
@@ -235,24 +219,27 @@ export const snapshotApi = createApi({
             FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.allSettled(
-            evmAddresses.map(async address => {
-              await throttle()
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                foxDiscountBlock,
-                SNAPSHOT_SPACE,
-                delegation,
-              )
-              // vp is FOX in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
+
+          const votingPowerResults = await getVotingPower(
+            evmAddresses,
+            '1',
+            strategies,
+            foxDiscountBlock,
+            SNAPSHOT_SPACE,
+            delegation,
           )
-          const foxHeld = BigNumber.sum(
-            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-          ).toNumber()
+
+          const scores = ScoresSchema.parse(votingPowerResults).scores
+
+          console.log(scores, ScoresSchema.parse(votingPowerResults))
+
+          const foxHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
+            const values = Object.values(scoreByAddress)
+
+            if (!values.length) return acc
+
+            return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
+          }, 0)
 
           // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
           if (isNaN(foxHeld)) {
@@ -271,8 +258,6 @@ export const snapshotApi = createApi({
           console.error(e)
 
           return { error: { data: e, status: 400 } }
-        } finally {
-          clear()
         }
       },
     }),
@@ -319,7 +304,6 @@ export const snapshotApi = createApi({
             }
           }
         `
-        await throttle()
         const { data: resData } = await axios.post(
           'https://hub.snapshot.org/graphql',
           { query },

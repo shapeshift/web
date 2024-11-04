@@ -166,13 +166,11 @@ const _getTradeQuote = async (
         })
       }
 
-      // TODO(gomes): Cosmos SDK too
-      case CHAIN_NAMESPACE.CosmosSdk:
+      // TODO(gomes): Solana support
       case CHAIN_NAMESPACE.Solana:
-      default: {
-        // TODO: Solana gas calc
         return undefined
-      }
+      default:
+        throw new Error('Unsupported chainNamespace')
     }
   }
 

@@ -231,8 +231,6 @@ export const snapshotApi = createApi({
 
           const scores = ScoresSchema.parse(votingPowerResults).scores
 
-          console.log(scores, ScoresSchema.parse(votingPowerResults))
-
           const foxHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
             const values = Object.values(scoreByAddress)
 

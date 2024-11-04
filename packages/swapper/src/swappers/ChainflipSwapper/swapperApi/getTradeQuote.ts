@@ -8,10 +8,12 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
+  GetTradeRateInput,
   GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../../types'
 import {
   type GetEvmTradeQuoteInput,
@@ -37,7 +39,7 @@ import { getEvmTxFees } from '../utils/getEvmTxFees'
 import { getUtxoTxFees } from '../utils/getUtxoTxFees'
 import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 
-export const getTradeQuote = async (
+const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
@@ -49,15 +51,6 @@ export const getTradeQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     affiliateBps: commissionBps,
   } = input
-
-  if (accountNumber === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `accountNumber is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
 
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(
@@ -330,4 +323,33 @@ export const getTradeQuote = async (
   }
 
   return Ok(quotes)
+}
+
+// This isn't a mistake. A trade rate *is* a trade quote. Chainflip doesn't really have a notion of a trade quote,
+// they do have a notion of a "swap" (which we effectively only use to get the deposit address), which is irrelevant to the notion of quote vs. rate
+export const getTradeRate = async (
+  input: GetTradeRateInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeRate[], SwapErrorRight>> => {
+  const rates = await _getTradeQuote(input as unknown as CommonTradeQuoteInput, deps)
+  return rates as Result<TradeRate[], SwapErrorRight>
+}
+
+export const getTradeQuote = async (
+  input: CommonTradeQuoteInput,
+  deps: SwapperDeps,
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  const { accountNumber } = input
+
+  if (accountNumber === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `accountNumber is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  const quotes = await _getTradeQuote(input, deps)
+  return quotes
 }

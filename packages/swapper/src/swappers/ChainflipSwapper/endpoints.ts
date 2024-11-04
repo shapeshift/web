@@ -2,14 +2,13 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { SwapperApi } from '../../types'
-import { getTradeQuote } from './swapperApi/getTradeQuote'
+import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import { getUnsignedEvmTransaction } from './swapperApi/getUnsignedEvmTransaction'
 import { getUnsignedUtxoTransaction } from './swapperApi/getUnsignedUtxoTransaction'
 
 export const chainflipApi: SwapperApi = {
   getTradeQuote,
-  // @ts-ignore TODO(gomes): this won't work with the public trade routes flag on, split me once we got this working
-  getTradeRate: undefined,
+  getTradeRate,
   getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction,
   checkTradeStatus: (

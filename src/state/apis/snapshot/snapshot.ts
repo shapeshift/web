@@ -13,7 +13,7 @@ import type { ReduxState } from 'state/reducer'
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
 import type { Proposal, Strategy } from './validators'
-import { ProposalSchema, ScoresSchema, SnapshotSchema } from './validators'
+import { ProposalSchema, SnapshotSchema } from './validators'
 
 type FoxVotingPowerCryptoBalance = string
 
@@ -174,21 +174,16 @@ export const snapshotApi = createApi({
             delegation,
           )
 
-          const scores = ScoresSchema.parse(votingPowerResults).scores
+          const foxHeld = votingPowerResults.reduce(
+            (acc: BigNumber, scoreByAddress: Record<string, number>) => {
+              const values = Object.values(scoreByAddress)
 
-          const foxHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
-            const values = Object.values(scoreByAddress)
+              if (!values.length) return acc
 
-            if (!values.length) return acc
-
-            return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
-          }, 0)
-
-          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
-          if (isNaN(foxHeld)) {
-            const data = 'NaN foxHeld value'
-            return { error: { data, status: 400 } }
-          }
+              return acc.plus(BigNumber.sum(...values.map(bnOrZero)))
+            },
+            bnOrZero(0),
+          )
 
           dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
 
@@ -236,21 +231,16 @@ export const snapshotApi = createApi({
             delegation,
           )
 
-          const scores = ScoresSchema.parse(votingPowerResults).scores
+          const thorHeld = votingPowerResults.reduce(
+            (acc: BigNumber, scoreByAddress: Record<string, number>) => {
+              const values = Object.values(scoreByAddress)
 
-          const thorHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
-            const values = Object.values(scoreByAddress)
+              if (!values.length) return acc
 
-            if (!values.length) return acc
-
-            return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
-          }, 0)
-
-          // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
-          if (isNaN(thorHeld)) {
-            const data = 'NaN thorHeld value'
-            return { error: { data, status: 400 } }
-          }
+              return acc.plus(BigNumber.sum(...values.map(bnOrZero)))
+            },
+            bnOrZero(0),
+          )
 
           dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
           return { data: thorHeld.toString() }

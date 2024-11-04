@@ -76,59 +76,6 @@ export const snapshot = createSlice({
   extraReducers: builder => builder.addCase(PURGE, () => initialState),
 })
 
-const getThorVotingPower = async (
-  dispatch: ThunkDispatch<any, any, any>,
-  getState: () => unknown,
-) => {
-  const accountIds: AccountId[] = (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
-  const strategies = await (async () => {
-    const maybeSliceStragies = (getState() as ReduxState).snapshot.thorStrategies
-    if (maybeSliceStragies) return maybeSliceStragies
-
-    const strategiesResult = await dispatch(snapshotApi.endpoints.getThorStrategies.initiate())
-    return strategiesResult?.data
-  })()
-  if (!strategies) {
-    console.error('snapshotApi getThorVotingPower could not get strategies')
-    return { data: bn(0).toString() }
-  }
-  const evmAddresses = Array.from(
-    accountIds.reduce<Set<string>>((acc, accountId) => {
-      const { account, chainId } = fromAccountId(accountId)
-      isEvmChainId(chainId) && acc.add(account)
-      return acc
-    }, new Set()),
-  )
-  const delegation = false // don't let people delegate for discounts - ambiguous in spec
-  const votingPowerResults = await getVotingPower(
-    evmAddresses,
-    '1',
-    strategies,
-    THOR_TIP_014_BLOCK_NUMBER,
-    THORSWAP_SNAPSHOT_SPACE,
-    delegation,
-  )
-
-  const scores = ScoresSchema.parse(votingPowerResults).scores
-
-  const thorHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
-    const values = Object.values(scoreByAddress)
-
-    if (!values.length) return acc
-
-    return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
-  }, 0)
-
-  // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
-  if (isNaN(thorHeld)) {
-    const data = 'NaN thorHeld value'
-    return { error: { data, status: 400 } }
-  }
-
-  dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
-  return { data: thorHeld.toString() }
-}
-
 export const snapshotApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'snapshotApi',
@@ -248,10 +195,6 @@ export const snapshotApi = createApi({
 
           dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
 
-          if (getConfig().REACT_APP_FEATURE_THOR_FREE_FEES) {
-            await getThorVotingPower(dispatch, getState)
-          }
-
           return { data: foxHeld.toString() }
         } catch (e) {
           console.error(e)
@@ -286,23 +229,25 @@ export const snapshotApi = createApi({
             }, new Set()),
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
+
+          const votingPowerResults = await getVotingPower(
+            evmAddresses,
+            '1',
+            strategies,
+            THOR_TIP_014_BLOCK_NUMBER,
+            THORSWAP_SNAPSHOT_SPACE,
+            delegation,
           )
-          const thorHeld = BigNumber.sum(
-            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-          ).toNumber()
+
+          const scores = ScoresSchema.parse(votingPowerResults).scores
+
+          const thorHeld = scores.reduce((acc: number, scoreByAddress: Record<string, number>) => {
+            const values = Object.values(scoreByAddress)
+
+            if (!values.length) return acc
+
+            return acc + BigNumber.sum(...values.map(bnOrZero)).toNumber()
+          }, 0)
 
           // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
           if (isNaN(thorHeld)) {

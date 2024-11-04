@@ -1,4 +1,4 @@
-import type { AssetReference, ChainId } from '@shapeshiftoss/caip'
+import type { AssetReference, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   CoWSwapBuyTokenDestination,
   CoWSwapOrderKind,
@@ -6,8 +6,31 @@ import type {
   CoWSwapSigningScheme,
 } from '@shapeshiftoss/swapper'
 
-export type LimitOrder = string
-export type LimitOrderRequest = {
+export enum PriceQuality {
+  Fast = 'fast',
+  Optimal = 'optimal',
+  Verified = 'verified',
+}
+
+export type LimitOrderId = Nominal<string, 'LimitOrderId'>
+export type LimitOrderQuoteId = Nominal<number, 'LimitOrderQuoteId'>
+export type LimitOrderQuoteRequest = {
+  sellToken: AssetReference
+  buyToken: AssetReference
+  receiver?: string
+  appData?: string
+  appDataHash?: string
+  sellTokenBalance?: CoWSwapSellTokenSource
+  buyTokenBalance?: CoWSwapBuyTokenDestination
+  from: string
+  priceQuality?: PriceQuality
+  signingScheme?: CoWSwapSigningScheme
+  onChainOrder?: boolean
+  kind: CoWSwapOrderKind.Sell
+  sellAmountBeforeFee: string
+}
+
+export type LimitOrder = {
   sellToken: AssetReference
   buyToken: AssetReference
   receiver?: string
@@ -22,17 +45,15 @@ export type LimitOrderRequest = {
   signingScheme: CoWSwapSigningScheme
   signature: string
   from?: string
-  quoteId?: number
+  quoteId?: LimitOrderQuoteId
   appData: string
   appDataHash?: string
-  chainId: ChainId
 }
 
 export type CancelLimitOrdersRequest = {
   orderUids?: string[]
   signature: string
   signingScheme: CoWSwapSigningScheme
-  chainId: ChainId
 }
 
 export type OrderExecutionStatus =

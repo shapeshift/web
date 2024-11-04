@@ -12,23 +12,25 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetTradeQuoteInput,
+  CommonTradeQuoteInput,
+  GetTradeRateInput,
   MultiHopTradeQuoteSteps,
+  MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote, ThorTradeRate } from '../getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { addL1ToLongtailPartsToMemo } from './addL1ToLongtailPartsToMemo'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1quote } from './getL1quote'
+import { getL1Quote, getL1Rate } from './getL1quote'
 import type { AggregatorContract } from './longTailHelpers'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
 export const getL1ToLongtailQuote = async (
-  input: GetTradeQuoteInput,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
   streamingInterval: number,
 ): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
@@ -37,7 +39,6 @@ export const getL1ToLongtailQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
     sellAsset,
     slippageTolerancePercentageDecimal,
-    hasWallet,
   } = input
 
   const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
@@ -95,14 +96,14 @@ export const getL1ToLongtailQuote = async (
     )
   }
 
-  const l1Tol1QuoteInput: GetTradeQuoteInput = {
+  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
     ...input,
     buyAsset: buyAssetFeeAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
   }
 
-  const maybeThorchainQuotes = await getL1quote(
+  const maybeThorchainQuotes = await getL1Quote(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
@@ -135,28 +136,18 @@ export const getL1ToLongtailQuote = async (
       bestAggregator = unwrappedResult.bestAggregator
       quotedAmountOut = unwrappedResult.quotedAmountOut
 
-      if (hasWallet && !quote.memo)
-        return Err(
-          makeSwapErrorRight({
-            message: '[getL1ToLongtailQuote] - quote memo is missing',
-            code: TradeQuoteError.InternalError,
-          }),
-        )
-
-      const updatedMemo = hasWallet
-        ? addL1ToLongtailPartsToMemo({
-            sellAssetChainId,
-            aggregator: bestAggregator,
-            finalAssetAssetId: buyAsset.assetId,
-            finalAssetAmountOut: quotedAmountOut.toString(),
-            slippageBps: convertDecimalPercentageToBasisPoints(
-              slippageTolerancePercentageDecimal ??
-                getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
-            ).toString(),
-            quotedMemo: quote.memo,
-            longtailTokens,
-          })
-        : ''
+      const updatedMemo = addL1ToLongtailPartsToMemo({
+        sellAssetChainId,
+        aggregator: bestAggregator,
+        finalAssetAssetId: buyAsset.assetId,
+        finalAssetAmountOut: quotedAmountOut.toString(),
+        slippageBps: convertDecimalPercentageToBasisPoints(
+          slippageTolerancePercentageDecimal ??
+            getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Thorchain),
+        ).toString(),
+        quotedMemo: quote.memo,
+        longtailTokens,
+      })
 
       return Ok({
         ...quote,
@@ -170,6 +161,149 @@ export const getL1ToLongtailQuote = async (
           buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
           allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
         })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps,
+        isLongtail: true,
+        longtailData: {
+          L1ToLongtailExpectedAmountOut: quotedAmountOut,
+        },
+      })
+    }),
+  )
+
+  if (promises.every(promise => isRejected(promise) || isResolvedErr(promise))) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[getThorTradeQuote] - failed to get best aggregator',
+        code: TradeQuoteError.InternalError,
+      }),
+    )
+  }
+
+  const updatedQuotes = promises.filter(isFulfilled).map(element => element.value.unwrap())
+
+  return Ok(updatedQuotes)
+}
+
+export const getL1ToLongtailRate = async (
+  input: GetTradeRateInput,
+  deps: SwapperDeps,
+  streamingInterval: number,
+): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
+  const {
+    buyAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+    sellAsset,
+  } = input
+
+  const longtailTokensJson = await import('../generated/generatedThorLongtailTokens.json')
+  const longtailTokens: AssetId[] = longtailTokensJson.default
+
+  if (!longtailTokens.includes(buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported buyAssetId ${buyAsset.assetId}.`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { buyAsset, sellAsset },
+      }),
+    )
+  }
+
+  /*
+    We only support L1 -> ethereum longtail swaps for now.
+  */
+  if (buyAsset.chainId !== ethChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - Unsupported chainId ${buyAsset.chainId}.`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { buyAssetChainId: buyAsset.chainId },
+      }),
+    )
+  }
+
+  const sellAssetChainId = sellAsset.chainId
+  const buyAssetChainId = buyAsset.chainId
+
+  const sellAssetFeeAssetId = deps.assertGetChainAdapter(sellAssetChainId).getFeeAssetId()
+  const sellAssetFeeAsset = sellAssetFeeAssetId ? deps.assetsById[sellAssetFeeAssetId] : undefined
+
+  const buyAssetFeeAssetId = deps.assertGetChainAdapter(buyAssetChainId).getFeeAssetId()
+  const buyAssetFeeAsset = buyAssetFeeAssetId ? deps.assetsById[buyAssetFeeAssetId] : undefined
+
+  if (!buyAssetFeeAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - No native buy asset found for ${buyAssetChainId}.`,
+        code: TradeQuoteError.InternalError,
+        details: { buyAssetChainId },
+      }),
+    )
+  }
+
+  if (!sellAssetFeeAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[getThorTradeQuote] - No native buy asset found for ${sellAssetChainId}.`,
+        code: TradeQuoteError.InternalError,
+        details: { sellAssetChainId },
+      }),
+    )
+  }
+
+  const l1Tol1RateInput: GetTradeRateInput = {
+    ...input,
+    buyAsset: buyAssetFeeAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
+  }
+
+  const maybeThorchainRates = await getL1Rate(
+    l1Tol1RateInput,
+    deps,
+    streamingInterval,
+    TradeType.L1ToLongTail,
+  )
+
+  if (maybeThorchainRates.isErr()) return Err(maybeThorchainRates.unwrapErr())
+
+  const thorchainRates = maybeThorchainRates.unwrap()
+
+  let bestAggregator: AggregatorContract
+  let quotedAmountOut: bigint
+
+  const promises = await Promise.allSettled(
+    thorchainRates.map(async quote => {
+      // A quote always has a first step
+      const onlyStep = getHopByIndex(quote, 0)!
+
+      const maybeBestAggregator = await getBestAggregator(
+        buyAssetFeeAsset,
+        getWrappedToken(buyAssetFeeAsset),
+        getTokenFromAsset(buyAsset),
+        onlyStep.buyAmountAfterFeesCryptoBaseUnit,
+      )
+
+      if (maybeBestAggregator.isErr()) return Err(maybeBestAggregator.unwrapErr())
+
+      const unwrappedResult = maybeBestAggregator.unwrap()
+
+      bestAggregator = unwrappedResult.bestAggregator
+      quotedAmountOut = unwrappedResult.quotedAmountOut
+
+      // No memo is returned upstream for rates
+      const updatedMemo = ''
+
+      return Ok({
+        ...quote,
+        memo: updatedMemo,
+        aggregator: bestAggregator,
+        steps: quote.steps.map(s => ({
+          ...s,
+          buyAsset,
+          buyAmountAfterFeesCryptoBaseUnit: quotedAmountOut.toString(),
+          // This is wrong, we should get the get the value before fees or display ETH value received after the thorchain bridge
+          buyAmountBeforeFeesCryptoBaseUnit: quotedAmountOut.toString(),
+          allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+        })) as MultiHopTradeRateSteps, // assuming multi-hop rate steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {
           L1ToLongtailExpectedAmountOut: quotedAmountOut,

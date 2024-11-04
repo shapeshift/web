@@ -56,9 +56,9 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
 
   return (
     <Card {...cardProps}>
-      <CardHeader px={6} pt={4}>
-        <Tabs variant='unstyled'>
-          <TabList gap={4}>
+      <CardHeader px={0} pt={4} h='full'>
+        <Tabs variant='unstyled' display='flex' flexDirection='column' h='full'>
+          <TabList gap={4} flex='0 0 auto' mb={2} ml={6}>
             <Tab
               p={0}
               fontSize='md'
@@ -79,7 +79,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
             </Tab>
           </TabList>
 
-          <TabPanels>
+          <TabPanels flex='1' overflowY='auto' minH={0} px={2}>
             <TabPanel px={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {Array.from({ length: 3 }).map((_, index) => (

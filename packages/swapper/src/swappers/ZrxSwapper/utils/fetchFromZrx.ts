@@ -22,8 +22,8 @@ import { AFFILIATE_ADDRESS } from './constants'
 import { assetIdToZrxToken, baseUrlFromChainId } from './helpers/helpers'
 import { zrxServiceFactory } from './zrxService'
 
-export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
-  priceOrQuote: T
+type FetchFromZrxInput<T extends 'rate' | 'quote'> = {
+  quoteOrRate: T
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
@@ -33,8 +33,28 @@ export type FetchFromZrxArgs<T extends 'price' | 'quote'> = {
   zrxBaseUrl: string
 }
 
-export const fetchFromZrx = async <T extends 'price' | 'quote'>({
-  priceOrQuote,
+type FetchZrxQuoteInput = {
+  buyAsset: Asset
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  receiveAddress: string
+  affiliateBps: string
+  slippageTolerancePercentageDecimal: string
+  zrxBaseUrl: string
+}
+
+type FetchZrxPriceInput = {
+  buyAsset: Asset
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  receiveAddress: string | undefined
+  affiliateBps: string
+  slippageTolerancePercentageDecimal: string
+  zrxBaseUrl: string
+}
+
+const fetchFromZrx = async <T extends 'rate' | 'quote'>({
+  quoteOrRate,
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -42,7 +62,7 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   affiliateBps,
   slippageTolerancePercentageDecimal,
   zrxBaseUrl,
-}: FetchFromZrxArgs<T>): Promise<
+}: FetchFromZrxInput<T>): Promise<
   Result<T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse, SwapErrorRight>
 > => {
   const baseUrl = baseUrlFromChainId(zrxBaseUrl, buyAsset.chainId as ZrxSupportedChainId)
@@ -54,10 +74,13 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
     } catch (err) {}
   })()
 
+  // Rates are gotten using ZRX /swap/v1/price endpoint
+  const endpoint = quoteOrRate === 'quote' ? 'quote' : 'price'
+
   // https://docs.0x.org/0x-swap-api/api-references/get-swap-v1-quote
   const maybeZrxPriceResponse = await zrxService.get<
     T extends 'quote' ? ZrxQuoteResponse : ZrxPriceResponse
-  >(`/swap/v1/${priceOrQuote}`, {
+  >(`/swap/v1/${endpoint}`, {
     params: {
       enableSlippageProtection: true,
       buyToken: assetIdToZrxToken(buyAsset.assetId),
@@ -85,8 +108,20 @@ export const fetchFromZrx = async <T extends 'price' | 'quote'>({
   return Ok(maybeZrxPriceResponse.unwrap().data)
 }
 
-export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
-  priceOrQuote,
+export const fetchZrxPermit2Price = (args: FetchZrxPriceInput) =>
+  fetchFromZrxPermit2({
+    quoteOrRate: 'rate',
+    ...args,
+  })
+
+export const fetchZrxPermit2Quote = (args: FetchZrxQuoteInput) =>
+  fetchFromZrxPermit2({
+    quoteOrRate: 'quote',
+    ...args,
+  })
+
+const fetchFromZrxPermit2 = async <T extends 'rate' | 'quote'>({
+  quoteOrRate,
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -94,7 +129,7 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
   affiliateBps,
   slippageTolerancePercentageDecimal,
   zrxBaseUrl,
-}: FetchFromZrxArgs<T>): Promise<
+}: FetchFromZrxInput<T>): Promise<
   Result<T extends 'quote' ? ZrxPermit2QuoteResponse : ZrxPermit2PriceResponse, SwapErrorRight>
 > => {
   const zrxService = zrxServiceFactory({ baseUrl: zrxBaseUrl })
@@ -105,11 +140,14 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
     } catch (err) {}
   })()
 
+  // Rates are gotten using ZRX /swap/permit2/price endpoint
+  const endpoint = quoteOrRate === 'quote' ? 'quote' : 'price'
+
   // https://0x.org/docs/api#tag/Swap/operation/swap::permit2::getPrice
   // https://0x.org/docs/api#tag/Swap/operation/swap::permit2::getQuote
   const maybeZrxPriceResponse = await zrxService.get<
     T extends 'quote' ? ZrxPermit2QuoteResponse : ZrxPermit2PriceResponse
-  >(`/swap/permit2/${priceOrQuote}`, {
+  >(`/swap/permit2/${endpoint}`, {
     params: {
       chainId: viemNetworkIdByChainId[sellAsset.chainId],
       buyToken: assetIdToZrxToken(buyAsset.assetId),
@@ -132,3 +170,19 @@ export const fetchFromZrxPermit2 = async <T extends 'price' | 'quote'>({
 
   return Ok(maybeZrxPriceResponse.unwrap().data)
 }
+
+export const fetchZrxQuote = (
+  input: FetchZrxQuoteInput,
+): Promise<Result<ZrxQuoteResponse, SwapErrorRight>> =>
+  fetchFromZrx({
+    quoteOrRate: 'quote',
+    ...input,
+  })
+
+export const fetchZrxPrice = (
+  input: FetchZrxPriceInput,
+): Promise<Result<ZrxPriceResponse, SwapErrorRight>> =>
+  fetchFromZrx({
+    quoteOrRate: 'rate',
+    ...input,
+  })

@@ -1,5 +1,9 @@
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
+import type {
+  FoxEthStakingContract,
+  FoxEthStakingContractAbi,
+  KnownContractAddress,
+} from '@shapeshiftoss/contracts'
 import {
   ETH_FOX_POOL_CONTRACT,
   fetchUniV2PairData,
@@ -55,7 +59,7 @@ export const ethFoxStakingMetadataResolver = async ({
 
   assertIsFoxEthStakingContractAddress(contractAddress)
   const foxFarmingContract = getOrCreateContractByAddress(
-    contractAddress,
+    contractAddress as KnownContractAddress,
   ) as FoxEthStakingContract<FoxEthStakingContractAbi>
   const uniV2LPContract = getOrCreateContractByAddress(ETH_FOX_POOL_CONTRACT)
 
@@ -138,7 +142,7 @@ export const ethFoxStakingUserDataResolver = async ({
   )
   const lpTokenPrice = lpTokenMarketData?.price
 
-  const { assetReference: contractAddress } = fromAssetId(opportunityId)
+  const { assetReference } = fromAssetId(opportunityId)
   const { account } = fromAccountId(accountId)
   const accountAddress = getAddress(account)
 
@@ -146,9 +150,11 @@ export const ethFoxStakingUserDataResolver = async ({
     throw new Error(`Market data not ready for ${foxEthLpAssetId}`)
   }
 
-  assertIsFoxEthStakingContractAddress(contractAddress)
+  const maybeContractAddress = assetReference as string
 
-  const foxFarmingContract = getOrCreateContractByAddress(contractAddress)
+  assertIsFoxEthStakingContractAddress(maybeContractAddress)
+
+  const foxFarmingContract = getOrCreateContractByAddress(maybeContractAddress)
 
   const stakedBalance = await foxFarmingContract.read.balanceOf([accountAddress])
   const earned = await foxFarmingContract.read.earned([accountAddress])

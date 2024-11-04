@@ -8,6 +8,7 @@ import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useMixpanelPortfolioTracking } from 'hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from 'hooks/useModal/useModal'
@@ -61,6 +62,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
+  const isThorFreeFeesEnabled = useFeatureFlag('ThorFreeFees')
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
@@ -134,7 +136,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(
       snapshotApi.endpoints.getVotingPower.initiate({ model: 'SWAPPER' }, { forceRefetch: true }),
     )
-  }, [dispatch, isConnected, portfolioLoadingStatus])
+
+    if (isThorFreeFeesEnabled) {
+      dispatch(snapshotApi.endpoints.getThorVotingPower.initiate(undefined, { forceRefetch: true }))
+    }
+  }, [dispatch, isConnected, portfolioLoadingStatus, isThorFreeFeesEnabled])
 
   // Resets the sell and buy asset AccountIDs on wallet change to that we don't get stale trade input account selections while we're loading the new wallet
   useEffect(() => {

@@ -20,10 +20,12 @@ export type CowSwapQuoteResponse = {
 }
 
 // Most likely non-exhaustive, see https://github.com/cowprotocol/contracts/blob/aaffdc55b2a13738b7c32de96f487d3eb5b4f8c6/src/ts/api.ts#L110
-// But we only handle SellAmountDoesNotCoverFee for now so that's fine. Add other errors here as needed.
-enum CowSwapQuoteErrorType {
+// But we only handle a few of them for now so that's fine. Add other errors here as needed.
+export enum CowSwapQuoteErrorType {
   SellAmountDoesNotCoverFee = 'SellAmountDoesNotCoverFee',
   NoLiquidity = 'NoLiquidity',
+  ZeroAmount = 'ZeroAmount',
+  UnsupportedToken = 'UnsupportedToken',
 }
 
 export type CowSwapQuoteError = {

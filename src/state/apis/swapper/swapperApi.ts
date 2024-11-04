@@ -1,14 +1,15 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
-import type { SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
   getSupportedSellAssetIds,
   getTradeQuotes,
+  getTradeRates,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
@@ -51,6 +52,7 @@ export const swapperApi = createApi({
           buyAsset,
           affiliateBps,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          quoteOrRate,
         } = tradeQuoteInput
 
         const isCrossAccountTrade = sendAddress !== receiveAddress
@@ -75,14 +77,34 @@ export const swapperApi = createApi({
           config: getConfig(),
         }
 
-        const quoteResult = await getTradeQuotes(
-          {
-            ...tradeQuoteInput,
-            affiliateBps,
-          },
-          swapperName,
-          swapperDeps,
-        )
+        const getQuoteResult = () => {
+          // Always get a trade rate if quoteOrRate === 'rate', which is passed if the PublicTradeRoute flag is on for the time being
+          // this is the sanest way for the time being, since we want to store rates exactly the same as quotes, and fetch a quote instead of a rate at pre-execution time
+          // when we wire this up fully. Going further, we may or may not want to change heuristics here.
+          if (quoteOrRate === 'rate')
+            return getTradeRates(
+              {
+                ...tradeQuoteInput,
+                affiliateBps,
+              } as GetTradeRateInput,
+              swapperName,
+              swapperDeps,
+            )
+
+          if (!tradeQuoteInput.receiveAddress)
+            throw new Error('Cannot get a trade quote without a receive address')
+
+          return getTradeQuotes(
+            {
+              ...tradeQuoteInput,
+              affiliateBps,
+            },
+            swapperName,
+            swapperDeps,
+          )
+        }
+
+        const quoteResult = await getQuoteResult()
 
         if (quoteResult === undefined) {
           return { data: {} }
@@ -187,7 +209,7 @@ export const swapperApi = createApi({
               isTradingActiveOnBuyPool,
               sendAddress,
               inputSellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              hasWallet: tradeQuoteInput.hasWallet,
+              quoteOrRate: tradeQuoteInput.quoteOrRate,
             })
             return {
               id: quoteSource,

@@ -10,6 +10,7 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
+import { isFulfilled } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
@@ -252,6 +253,65 @@ export const snapshotApi = createApi({
           }
 
           return { data: foxHeld.toString() }
+        } catch (e) {
+          console.error(e)
+
+          return { error: { data: e, status: 400 } }
+        }
+      },
+    }),
+    getThorVotingPower: build.query<FoxVotingPowerCryptoBalance, void>({
+      queryFn: async (_, { dispatch, getState }) => {
+        try {
+          const accountIds: AccountId[] =
+            (getState() as ReduxState).portfolio.accountMetadata.ids ?? []
+          const strategies = await (async () => {
+            const maybeSliceStragies = (getState() as ReduxState).snapshot.thorStrategies
+            if (maybeSliceStragies) return maybeSliceStragies
+
+            const strategiesResult = await dispatch(
+              snapshotApi.endpoints.getThorStrategies.initiate(),
+            )
+            return strategiesResult?.data
+          })()
+          if (!strategies) {
+            console.error('snapshotApi getThorVotingPower could not get strategies')
+            return { data: bn(0).toString() }
+          }
+          const evmAddresses = Array.from(
+            accountIds.reduce<Set<string>>((acc, accountId) => {
+              const { account, chainId } = fromAccountId(accountId)
+              isEvmChainId(chainId) && acc.add(account)
+              return acc
+            }, new Set()),
+          )
+          const delegation = false // don't let people delegate for discounts - ambiguous in spec
+          const votingPowerResults = await Promise.allSettled(
+            evmAddresses.map(async address => {
+              const votingPowerUnvalidated = await getVotingPower(
+                address,
+                '1',
+                strategies,
+                THOR_TIP_014_BLOCK_NUMBER,
+                THORSWAP_SNAPSHOT_SPACE,
+                delegation,
+              )
+              // vp is THOR in crypto balance
+              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
+            }),
+          )
+          const thorHeld = BigNumber.sum(
+            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
+          ).toNumber()
+
+          // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
+          if (isNaN(thorHeld)) {
+            const data = 'NaN thorHeld value'
+            return { error: { data, status: 400 } }
+          }
+
+          dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
+          return { data: thorHeld.toString() }
         } catch (e) {
           console.error(e)
 

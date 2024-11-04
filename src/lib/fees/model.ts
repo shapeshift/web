@@ -56,9 +56,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
   const isThorFreeEnabled = getConfig().REACT_APP_FEATURE_THOR_FREE_FEES
 
   // trades below the fee threshold are free.
-  const isFree =
-    tradeAmountUsd.lt(noFeeThresholdUsd) ||
-    (isThorFreeEnabled && thorHeld?.isGreaterThanOrEqualTo(THORSWAP_UNIT_THRESHOLD))
+  const isFree = tradeAmountUsd.lt(noFeeThresholdUsd)
 
   const isThorFree =
     isThorFreeEnabled &&

@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Ascending",
+    "descending": "Descending",
     "free": "Free",
     "trade": "Trade",
     "trades": "Trades",
@@ -159,6 +161,9 @@
     "import": "Import",
     "accountsLoading": "Loading Accounts",
     "noAccounts": "No accounts for the selected filters.",
+    "sortBy": "Sort By",
+    "orderBy": "Order By",
+    "filterBy": "Filter By",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -235,6 +240,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
@@ -1021,7 +1027,15 @@
     "previewOrder": "Preview Order",
     "youGet": "You Get",
     "whenPriceReaches": "When price reaches",
-    "expiry": "Expiry"
+    "expiry": "Expiry",
+    "expiryOption": {
+      "oneHour": "1 hour",
+      "oneDay": "1 day",
+      "threeDays": "3 days",
+      "sevenDays": "7 days",
+      "twentyEightDays": "28 days",
+      "custom": "Custom"
+    }
   },
   "modals": {
     "assetSearch": {

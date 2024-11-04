@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetTradeQuoteInput,
+  CommonTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
@@ -38,7 +38,7 @@ import { getUtxoTxFees } from '../utils/getUtxoTxFees'
 import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 
 export const getTradeQuote = async (
-  input: GetTradeQuoteInput,
+  input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
@@ -154,6 +154,7 @@ export const getTradeQuote = async (
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+        // TODO(gomes): double check dis correct
         return await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
@@ -164,6 +165,7 @@ export const getTradeQuote = async (
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
         const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
+        // TODO(gomes): double check dis correct
         return await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
@@ -171,13 +173,14 @@ export const getTradeQuote = async (
         })
       }
 
-      case CHAIN_NAMESPACE.Solana: {
+      // TODO(gomes): Cosmos SDK too
+      case CHAIN_NAMESPACE.CosmosSdk:
+      case CHAIN_NAMESPACE.Solana:
+      default: {
         // TODO: Solana gas calc
         return undefined
       }
     }
-
-    return undefined
   }
 
   const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {

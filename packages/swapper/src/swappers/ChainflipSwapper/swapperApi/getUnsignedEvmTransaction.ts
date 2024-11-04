@@ -4,7 +4,7 @@ import type { EvmChainId } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 
 import type { EvmTransactionRequest, GetUnsignedEvmTransactionArgs } from '../../../types'
-import { isExecutableTradeQuote, isToken } from '../../../utils'
+import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from '../constants'
 import type { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
@@ -83,6 +83,8 @@ export const getUnsignedEvmTransaction = async ({
   }
   const feeData = await adapter.getFeeData(getFeeDataInput)
   const fees = feeData[FeeDataKey.Average]
+
+  if (!isExecutableTradeStep(step)) throw Error('Unable to execute trade step')
 
   const unsignedTxInput = await adapter.buildSendApiTransaction({
     to: depositAddress,

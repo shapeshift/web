@@ -3,7 +3,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 
 import type { GetUnsignedUtxoTransactionArgs, UtxoFeeData } from '../../../types'
-import { isExecutableTradeQuote } from '../../../utils'
+import { isExecutableTradeQuote, isExecutableTradeStep } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from '../constants'
 import type { ChainflipBaasSwapDepositAddress } from '../models'
 import { chainflipService } from '../utils/chainflipService'
@@ -21,6 +21,9 @@ export const getUnsignedUtxoTransaction = async ({
   const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
   const step = tradeQuote.steps[0]
+
+  if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+
   const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
     chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]
   }`

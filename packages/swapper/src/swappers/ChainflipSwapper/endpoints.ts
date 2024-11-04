@@ -8,11 +8,12 @@ import { getUnsignedUtxoTransaction } from './swapperApi/getUnsignedUtxoTransact
 
 export const chainflipApi: SwapperApi = {
   getTradeQuote,
+  // @ts-ignore TODO(gomes): this won't work with the public trade routes flag on, split me once we got this working
+  getTradeRate: undefined,
   getUnsignedEvmTransaction,
   getUnsignedUtxoTransaction,
-  checkTradeStatus: async (
-    // @ts-ignore TODO(gomes): implement me
-    input,
+  checkTradeStatus: (
+    _input,
   ): Promise<{
     status: TxStatus
     buyTxHash: string | undefined
@@ -20,6 +21,7 @@ export const chainflipApi: SwapperApi = {
   }> => {
     // TODO(gomes): implement me
     return {
+      // @ts-ignore TODO(gomes): implement me
       buyTxHash: undefined,
       status: TxStatus.Unknown,
       message: undefined,

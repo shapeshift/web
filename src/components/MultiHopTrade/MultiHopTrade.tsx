@@ -12,7 +12,8 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LimitOrder } from './components/LimitOrder/LimitOrder'
 import { MultiHopTradeConfirm } from './components/MultiHopTradeConfirm/MultiHopTradeConfirm'
-import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
+import { QuoteList } from './components/QuoteList/QuoteList'
+import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
@@ -155,9 +156,11 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
             <VerifyAddresses />
           </Route>
           <Route key={TradeRoutePaths.QuoteList} path={TradeRoutePaths.QuoteList}>
-            <QuoteListRoute
+            <SlideTransitionRoute
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              component={QuoteList}
+              parentRoute={TradeRoutePaths.Input}
             />
           </Route>
           <Route key={TradeRoutePaths.Claim} path={TradeRoutePaths.Claim}>

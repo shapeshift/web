@@ -15,6 +15,7 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { localAssetData } from 'lib/asset-service'
+import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
@@ -23,6 +24,7 @@ import {
   selectFirstAccountIdByChainId,
   selectIsAnyAccountMetadataLoadedForChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectUsdRateByAssetId,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -43,6 +45,7 @@ import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
+const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
 type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
@@ -92,6 +95,8 @@ export const LimitOrderInput = ({
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = true
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
+  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -227,22 +232,35 @@ export const LimitOrderInput = ({
       return skipToken
     }
 
+    const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
+
+    const { feeBps } = calculateFees({
+      tradeAmountUsd,
+      foxHeld: bnOrZero(votingPower),
+      thorHeld: bnOrZero(thorVotingPower),
+      feeModel: 'SWAPPER',
+    })
+
     return {
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
       slippageTolerancePercentageDecimal: '0', // TODO: wire this up!
-      affiliateBps: '0', // TODO: wire this up!
+      affiliateBps: feeBps.toFixed(0),
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
     }
   }, [
-    buyAsset.assetId,
-    sellAccountAddress,
     sellAmountCryptoBaseUnit,
+    sellAssetUsdRate,
+    sellAmountCryptoPrecision,
+    votingPower,
+    thorVotingPower,
     sellAsset.assetId,
     sellAsset.chainId,
+    buyAsset.assetId,
+    sellAccountAddress,
     recipientAddress,
   ])
 

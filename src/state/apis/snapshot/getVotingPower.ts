@@ -1,7 +1,8 @@
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 
-import { ScoresSchema, type Strategy } from './validators'
+import type { Strategy } from './validators'
+import { ScoresSchema } from './validators'
 
 export const getVotingPower = async (
   addresses: string[],

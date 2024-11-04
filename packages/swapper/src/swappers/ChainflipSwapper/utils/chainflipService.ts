@@ -1,7 +1,7 @@
 import { SwapperName } from '../../../types'
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
-const maxAge = 60 * 60 * 1000 // 1 hour cache for assets
+const maxAge = 15 * 1000 // 15 seconds ttl for all except cached to get fresh status updates
 const cachedUrls = ['/assets/']
 
 const axiosConfig = {

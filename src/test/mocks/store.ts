@@ -26,6 +26,12 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   },
 })
 
+const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
+  provided: {
+    LimitOrder: {},
+  },
+})
+
 export const mockStore: ReduxState = {
   assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
@@ -41,6 +47,7 @@ export const mockStore: ReduxState = {
   snapshotApi: mockApiFactory('snapshotApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  limitOrderApi: mockLimitOrderApi,
   portfolio: {
     _persist: {
       version: 0,
@@ -125,6 +132,7 @@ export const mockStore: ReduxState = {
       Chainflip: false,
       ChainflipDca: false,
       PublicTradeRoute: false,
+      ThorFreeFees: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -246,8 +254,10 @@ export const mockStore: ReduxState = {
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
+      THORSWAP: undefined,
     },
     strategies: undefined,
+    thorStrategies: undefined,
     proposals: undefined,
   },
   localWalletSlice: {

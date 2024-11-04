@@ -1,6 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { OrderDirection } from 'components/OrderDropdown/types'
+import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { PORTALS_NETWORK_TO_CHAIN_ID } from 'lib/portals/constants'
 import type { TokenInfo } from 'lib/portals/types'
 import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from 'lib/portals/utils'
@@ -18,9 +20,13 @@ export type PortalsAssets = {
 export const usePortalsAssetsQuery = ({
   enabled,
   chainIds,
+  sortBy,
+  orderBy,
 }: {
   enabled: boolean
   chainIds: ChainId[] | undefined
+  sortBy?: SortOptionsKeys
+  orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
   const assets = useAppSelector(selectAssets)
@@ -32,15 +38,18 @@ export const usePortalsAssetsQuery = ({
   })
 
   return useQuery({
-    queryKey: ['portalsAssets', { chainIds }],
+    queryKey: ['portalsAssets', { chainIds, orderBy, sortBy }],
     queryFn:
       enabled && portalsPlatformsData
         ? () =>
             fetchPortalsTokens({
               limit: 10,
               chainIds,
-              sortBy: 'apy',
-              sortDirection: 'desc',
+              sortBy: sortBy === SortOptionsKeys.Volume ? 'volumeUsd1d' : 'apy',
+              sortDirection:
+                orderBy === OrderDirection.Ascending && sortBy !== SortOptionsKeys.MarketCap
+                  ? 'asc'
+                  : 'desc',
             })
         : skipToken,
     gcTime: 60 * 1000 * 5,

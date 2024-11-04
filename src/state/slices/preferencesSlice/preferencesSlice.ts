@@ -71,6 +71,7 @@ export type FeatureFlags = {
   Chainflip: boolean
   ChainflipDca: boolean
   PublicTradeRoute: boolean
+  ThorFreeFees: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -165,6 +166,7 @@ const initialState: Preferences = {
     Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
     ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA,
     PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
+    ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

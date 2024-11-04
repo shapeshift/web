@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import { isExecutableTradeStep, type SwapperName, type TradeQuote } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
@@ -278,6 +278,8 @@ export const selectSecondHopSellAccountId = createSelector(
   (accountIdsByAccountNumberAndChainId, isMultiHopTrade, secondHop) => {
     // No second hop sellAccountId if there is no second hop
     if (!isMultiHopTrade || !secondHop) return
+    if (!isExecutableTradeStep(secondHop)) return
+
     const secondHopSellAssetAccountNumber = secondHop.accountNumber
     const secondHopSellAssetChainId = secondHop.sellAsset.chainId
 

@@ -1,7 +1,7 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'

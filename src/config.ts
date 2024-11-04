@@ -179,6 +179,7 @@ const validators = {
   REACT_APP_CHAINFLIP_API_KEY: str(),
   REACT_APP_CHAINFLIP_API_URL: url(),
   REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
+  REACT_APP_FEATURE_THOR_FREE_FEES: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

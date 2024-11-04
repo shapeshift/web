@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Ascending",
+    "descending": "Descending",
     "free": "Free",
     "trade": "Trade",
     "trades": "Trades",
@@ -159,6 +161,9 @@
     "import": "Import",
     "accountsLoading": "Loading Accounts",
     "noAccounts": "No accounts for the selected filters.",
+    "sortBy": "Sort By",
+    "orderBy": "Order By",
+    "filterBy": "Filter By",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -235,6 +240,7 @@
       "balance": "Balance",
       "price": "Price",
       "value": "Value",
+      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
@@ -1015,7 +1021,7 @@
     "limitPrice": "Limit Price",
     "provider": "Provider",
     "expiration": "Expiration",
-    "networkFee":"Network Fee",
+    "networkFee": "Network Fee",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
     "previewOrder": "Preview Order",
@@ -2712,5 +2718,9 @@
       "cancelled": "Cancelled",
       "expired": "Expired"
     }
+  },
+  "thorFees": {
+    "title": "Here from THORSwap?",
+    "description": "THOR holders trade for free through 2024."
   }
 }

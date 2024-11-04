@@ -237,7 +237,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [amountCryptoPrecision, fiatAmount])
 
   const {
-    isLoading: _isEstimatedFormFeesLoading,
+    isFetching: _isEstimatedFormFeesFetching,
     data: estimatedFees,
     error,
   } = useQuery({
@@ -249,6 +249,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     staleTime: 15 * 1000,
     // Consider failed queries as fresh, not stale, and don't do the default retry of 3 for them, as failures *are* expected here with insufficient funds
     retry: false,
+    // If the user get back and forth between the address and the amount form, we want to refetch the fees so it revalidate the form
+    refetchOnMount: 'always',
+    gcTime: 0,
   })
 
   const {
@@ -302,7 +305,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     isTransitioning ||
     isEstimatedSendMaxFeesLoading ||
     isEstimatedSendMaxFeesRefetching ||
-    _isEstimatedFormFeesLoading
+    _isEstimatedFormFeesFetching
 
   useEffect(() => {
     // Since we are debouncing the query, ensure reverting back to an empty input doesn't end up in the previous error being displayed

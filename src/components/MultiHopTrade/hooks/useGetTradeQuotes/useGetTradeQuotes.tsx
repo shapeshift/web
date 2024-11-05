@@ -37,11 +37,13 @@ import {
 import {
   selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
+  selectConfirmedTradeExecution,
   selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import type { TradeExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -127,6 +129,9 @@ export const useGetTradeQuotes = () => {
   const activeTradeIdRef = useRef<string | undefined>()
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
   const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
+  // TODO(gomes): set trade execution of quote to the same as we stopped in rate to reconciliate things
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const confirmedTradeExecutionRef = useRef<TradeExecutionMetadata | undefined>()
 
   useEffect(
     () => {
@@ -355,6 +360,8 @@ export const useGetTradeQuotes = () => {
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
+    // We already have an executable active trade, don't rerun this or this will run forever
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return
     const swapperName = activeQuoteMetaRef.current?.swapperName
     if (!swapperName) return
     if (!queryStateMeta?.data) return

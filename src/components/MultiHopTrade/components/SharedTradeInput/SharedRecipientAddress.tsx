@@ -109,6 +109,7 @@ const ManualRecipientAddressLabels = ({
 type SharedRecipientAddressProps = {
   buyAsset: Asset
   customRecipientAddressDescription?: string
+  isWalletReceiveAddressLoading: boolean
   manualAddressEntryDescription?: string
   manualReceiveAddress: string | undefined
   shouldForceManualAddressEntry?: boolean
@@ -125,6 +126,7 @@ type SharedRecipientAddressProps = {
 export const SharedRecipientAddress = ({
   buyAsset,
   customRecipientAddressDescription,
+  isWalletReceiveAddressLoading,
   manualAddressEntryDescription,
   manualReceiveAddress,
   shouldForceManualAddressEntry,
@@ -253,6 +255,7 @@ export const SharedRecipientAddress = ({
   )
 
   const forceDisplayManualAddressEntry = useMemo(() => {
+    if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAssetAccountId) return false
     if (manualReceiveAddress) return false
@@ -274,7 +277,20 @@ export const SharedRecipientAddress = ({
     wallet,
     buyAssetAccountIds.length,
     shouldForceManualAddressEntry,
+    isWalletReceiveAddressLoading,
   ])
+
+  if (forceDisplayManualAddressEntry) {
+    console.log({
+      isWalletReceiveAddressLoading,
+      '!isConnected': !isConnected,
+      'isAccountsMetadataLoading && !sellAssetAccountId':
+        isAccountsMetadataLoading && !sellAssetAccountId,
+      manualReceiveAddress,
+      '!walletReceiveAddress': !walletReceiveAddress,
+      shouldForceManualAddressEntry,
+    })
+  }
 
   // The manual receive address input form
   if (isRecipientAddressEditing || forceDisplayManualAddressEntry) {

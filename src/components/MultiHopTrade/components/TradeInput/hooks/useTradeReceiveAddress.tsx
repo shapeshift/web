@@ -11,10 +11,10 @@ export const useTradeReceiveAddress = () => {
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
-  const { walletReceiveAddress } = useReceiveAddress({
+  const { walletReceiveAddress, isLoading } = useReceiveAddress({
     buyAccountId,
     buyAsset,
   })
 
-  return { manualReceiveAddress, walletReceiveAddress }
+  return { manualReceiveAddress, walletReceiveAddress, isLoading }
 }

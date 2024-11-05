@@ -19,7 +19,12 @@ export const RecipientAddress = ({
 }: RecipientAddressProps) => {
   const dispatch = useAppDispatch()
 
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
+  const {
+    manualReceiveAddress,
+    walletReceiveAddress,
+    isLoading: isWalletReceiveAddressLoading,
+  } = useTradeReceiveAddress()
+
   const buyAsset = useAppSelector(selectInputBuyAsset)
 
   const onIsValidatingChange = useCallback(
@@ -69,6 +74,7 @@ export const RecipientAddress = ({
     <SharedRecipientAddress
       buyAsset={buyAsset}
       customRecipientAddressDescription={recipientAddressDescription}
+      isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
       manualAddressEntryDescription={manualAddressEntryDescription}
       manualReceiveAddress={manualReceiveAddress}
       shouldForceManualAddressEntry={shouldForceManualAddressEntry}

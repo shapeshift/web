@@ -14,6 +14,7 @@ type UseManualReceiveAddressIsRequiredProps = {
   buyAsset: Asset
   manualReceiveAddress: string | undefined
   walletReceiveAddress: string | undefined
+  isWalletReceiveAddressLoading: boolean
 }
 
 export const useManualReceiveAddressIsRequired = ({
@@ -22,6 +23,7 @@ export const useManualReceiveAddressIsRequired = ({
   buyAsset,
   manualReceiveAddress,
   walletReceiveAddress,
+  isWalletReceiveAddressLoading,
 }: UseManualReceiveAddressIsRequiredProps) => {
   const {
     state: { isConnected, wallet },
@@ -35,6 +37,7 @@ export const useManualReceiveAddressIsRequired = ({
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const forceDisplayManualAddressEntry = useMemo(() => {
+    if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAccountId) return false
     if (manualReceiveAddress) return false
@@ -56,6 +59,7 @@ export const useManualReceiveAddressIsRequired = ({
     wallet,
     buyAssetAccountIds.length,
     shouldForceManualAddressEntry,
+    isWalletReceiveAddressLoading,
   ])
 
   return forceDisplayManualAddressEntry

@@ -2,7 +2,8 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import type { GetReceiveAddressArgs } from 'components/MultiHopTrade/types'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -32,65 +33,60 @@ export const useReceiveAddress = ({
   buyAccountId: AccountId | undefined
   buyAsset: Asset | undefined
 }) => {
-  const wallet = useWallet().state.wallet
-  const [walletReceiveAddress, setWalletReceiveAddress] = useState<string | undefined>(undefined)
+  const { wallet, deviceId } = useWallet().state
   const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
-  const getReceiveAddressFromBuyAsset = useCallback(
-    async (buyAsset: Asset) => {
-      if (!wallet) {
-        return
-      }
-      if (!buyAccountId) {
-        return
-      }
-      if (!buyAccountMetadata) {
-        return
-      }
-      if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata.accountType)
-        throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
-      const buyAssetChainId = buyAsset.chainId
-      const buyAssetAccountChainId = fromAccountId(buyAccountId).chainId
-      /**
-       * do NOT remove
-       * super dangerous - don't use the wrong bip44 params to generate receive addresses
-       */
-      if (buyAssetChainId !== buyAssetAccountChainId) {
-        return
-      }
+  // This flag is used to skip the query below and treat missing input as `isLoading` to prevent UI
+  // flashing during state changes. Any of the conditions below returning true should be treated as
+  // "we're not yet ready to determine if a wallet receive address is available"
+  const isInitializing = useMemo(() => {
+    if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
+      return true
+    }
 
-      const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+    const buyAssetChainId = buyAsset.chainId
+    const buyAssetAccountChainId = fromAccountId(buyAccountId).chainId
 
-      const receiveAddress = await getReceiveAddress({
-        asset: buyAsset,
-        wallet,
-        accountMetadata: buyAccountMetadata,
-        deviceId: await wallet.getDeviceID(),
-        pubKey: fetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
-      })
-      return receiveAddress
-    },
-    [buyAccountId, buyAccountMetadata, wallet],
-  )
+    /**
+     * do NOT remove
+     * super dangerous - don't use the wrong bip44 params to generate receive addresses
+     */
+    if (buyAssetChainId !== buyAssetAccountChainId) {
+      return true
+    }
 
-  // Set the receiveAddress when the buy asset changes
-  // TODO: This belongs in a react query to avoid race conditions.
-  useEffect(() => {
-    if (!buyAsset) return
-    ;(async () => {
-      try {
-        const updatedReceiveAddress = await getReceiveAddressFromBuyAsset(buyAsset)
-        setWalletReceiveAddress(updatedReceiveAddress)
-      } catch (e) {
-        console.error(e)
-        setWalletReceiveAddress(undefined)
-      }
-    })()
-  }, [buyAsset, getReceiveAddressFromBuyAsset])
+    return false
+  }, [buyAccountId, buyAccountMetadata, buyAsset, wallet])
 
-  // Always use the manual receive address if it is set
-  return { walletReceiveAddress }
+  const { data: walletReceiveAddress, isLoading } = useQuery({
+    queryKey: ['receiveAddress', buyAsset?.assetId, deviceId, buyAccountId],
+    queryFn: isInitializing
+      ? skipToken
+      : async () => {
+          // Already covered in shouldSkip, but TypeScript lyfe mang.
+          if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
+            return
+          }
+
+          if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
+            throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
+
+          const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+          const walletReceiveAddress = await getReceiveAddress({
+            asset: buyAsset,
+            wallet,
+            accountMetadata: buyAccountMetadata,
+            deviceId,
+            pubKey: fetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
+          })
+
+          return walletReceiveAddress
+        },
+    staleTime: Infinity,
+  })
+
+  return { walletReceiveAddress, isLoading: isInitializing || isLoading }
 }

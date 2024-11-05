@@ -164,7 +164,11 @@ export const ConfirmSummary = ({
     quoteRequestErrors?.length,
   ])
 
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
+  const {
+    manualReceiveAddress,
+    walletReceiveAddress,
+    isLoading: isWalletReceiveAddressLoading,
+  } = useTradeReceiveAddress()
 
   const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
     shouldForceManualAddressEntry: false,
@@ -172,6 +176,7 @@ export const ConfirmSummary = ({
     buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,
+    isWalletReceiveAddressLoading,
   })
 
   const shouldDisablePreviewButton = useMemo(() => {

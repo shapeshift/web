@@ -23,7 +23,7 @@ export const useLimitOrderRecipientAddress = ({
   >(undefined)
   const [manualReceiveAddressIsEditing, setManualReceiveAddressIsEditing] = useState(false)
   const [manualReceiveAddressIsValidating, setManualReceiveAddressIsValidating] = useState(false)
-  const { walletReceiveAddress } = useReceiveAddress({
+  const { walletReceiveAddress, isLoading: isWalletReceiveAddressLoading } = useReceiveAddress({
     buyAccountId,
     buyAsset,
   })
@@ -60,6 +60,7 @@ export const useLimitOrderRecipientAddress = ({
     buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,
+    isWalletReceiveAddressLoading,
   })
 
   const isRecipientAddressEntryActive = useMemo(() => {
@@ -80,6 +81,7 @@ export const useLimitOrderRecipientAddress = ({
     return (
       <SharedRecipientAddress
         buyAsset={buyAsset}
+        isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
         manualReceiveAddress={manualReceiveAddress}
         walletReceiveAddress={walletReceiveAddress}
         onCancel={onCancelManualReceiveAddress}
@@ -100,6 +102,7 @@ export const useLimitOrderRecipientAddress = ({
     onResetManualReceiveAddress,
     onSubmitManualReceiveAddress,
     walletReceiveAddress,
+    isWalletReceiveAddressLoading,
   ])
 
   return {

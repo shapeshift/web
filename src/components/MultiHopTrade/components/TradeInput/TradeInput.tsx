@@ -88,7 +88,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -126,6 +125,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
 
+  const {
+    manualReceiveAddress,
+    walletReceiveAddress,
+    isLoading: isWalletReceiveAddressLoading,
+  } = useTradeReceiveAddress()
+
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
   const isVotingPowerLoading = useMemo(
@@ -142,13 +147,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading,
+      isVotingPowerLoading ||
+      isWalletReceiveAddressLoading,
     [
       isAnyAccountMetadataLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,
+      isWalletReceiveAddressLoading,
     ],
   )
 

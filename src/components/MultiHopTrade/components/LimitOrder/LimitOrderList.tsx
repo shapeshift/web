@@ -1,6 +1,5 @@
 import type { CardProps } from '@chakra-ui/react'
 import {
-  Box,
   Card,
   CardBody,
   CardHeader,
@@ -71,14 +70,15 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   return (
     <Card {...cardProps}>
       {onBack && (
-        <CardHeader px={0} display='flex' flexDirection='column' pb={0}>
-          <Flex width='full' alignItems='center' mb={4} position='relative' mx={4}>
-            <Box position='absolute' left={0}>
+        <CardHeader px={4} display='flex' flexDirection='column' pb={0} width='100%'>
+          <Flex width='100%' alignItems='center'>
+            <Flex flex='1' justifyContent='flex-start'>
               <WithBackButton onBack={onBack} />
-            </Box>
-            <Heading width='full' textAlign='center' fontSize='md'>
+            </Flex>
+            <Heading flex='2' textAlign='center' fontSize='md'>
               <Text translation='limitOrders.orders' />
             </Heading>
+            <Flex flex='1' />
           </Flex>
         </CardHeader>
       )}

@@ -34,7 +34,7 @@ const baseHeaders: Record<string, string> = {
   'Permissions-Policy': 'document-domain=()',
   'Referrer-Policy': 'unsafe-url',
   'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
+  'X-Frame-Options': '*',
 }
 
 function makeHeaders(...csps: Csp[]): Record<string, string> {

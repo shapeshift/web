@@ -69,7 +69,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
 
   return (
     <Card {...cardProps}>
-      <CardHeader px={0} pt={4} h='full' display='flex' flexDirection='column'>
+      <CardHeader px={0} pt={4} display='flex' flexDirection='column'>
         <Flex width='full' alignItems='center' mb={4} position='relative' mx={4}>
           <Box position='absolute' left={0}>
             <WithBackButton onBack={onBack} />
@@ -80,29 +80,30 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             </Heading>
           )}
         </Flex>
-        <Tabs variant='unstyled' display='flex' flexDirection='column' h='full'>
-          <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color={onBack ? 'text.base' : 'text.subtle'}
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.openOrders' />
-            </Tab>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color={onBack ? 'text.base' : 'text.subtle'}
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.orderHistory' />
-            </Tab>
-          </TabList>
-
-          <TabPanels flex='1' overflowY='auto' minH={0} px={2}>
+      </CardHeader>
+      <Tabs variant='unstyled' display='flex' flexDirection='column' overflowY='auto'>
+        <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
+          <Tab
+            p={0}
+            fontSize='md'
+            fontWeight='bold'
+            color={onBack ? 'text.base' : 'text.subtle'}
+            _selected={textColorBaseProps}
+          >
+            <Text translation='limitOrders.openOrders' />
+          </Tab>
+          <Tab
+            p={0}
+            fontSize='md'
+            fontWeight='bold'
+            color={onBack ? 'text.base' : 'text.subtle'}
+            _selected={textColorBaseProps}
+          >
+            <Text translation='limitOrders.orderHistory' />
+          </Tab>
+        </TabList>
+        <CardBody flex='1' overflowY='auto' minH={0} px={2} py={0}>
+          <TabPanels>
             <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {Array.from({ length: 5 }).map((_, index) => (
@@ -119,8 +120,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
               </CardBody>
             </TabPanel>
           </TabPanels>
-        </Tabs>
-      </CardHeader>
+        </CardBody>
+      </Tabs>
     </Card>
   )
 }

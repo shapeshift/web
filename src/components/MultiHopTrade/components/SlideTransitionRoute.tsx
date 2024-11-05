@@ -1,7 +1,7 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import type { TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -12,7 +12,8 @@ import type { LimitOrderRoutePaths } from './LimitOrder/types'
 type SlideTransitionComponentProps = {
   onBack?: () => void
   isLoading: boolean
-} & CardProps
+  cardProps?: CardProps
+}
 
 type SlideTransitionRouteProps = {
   height: string | number
@@ -36,11 +37,19 @@ export const SlideTransitionRoute = ({
     history.push({ pathname: parentRoute })
   }, [history, parentRoute])
 
+  const cardProps: CardProps = useMemo(
+    () => ({
+      width,
+      height,
+    }),
+    [width, height],
+  )
+
   return (
     <TradeSlideTransition>
       <Flex width='full' justifyContent='center' maxWidth={isSmallerThanXl ? '500px' : undefined}>
         <Center width='inherit'>
-          <Component onBack={handleBack} isLoading={false} height={height} width={width} />
+          <Component onBack={handleBack} isLoading={false} cardProps={cardProps} />
         </Center>
       </Flex>
     </TradeSlideTransition>

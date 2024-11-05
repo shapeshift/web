@@ -41,6 +41,11 @@ const WalletConnectToDappsHeaderButton = lazy(() =>
   ),
 )
 
+const walletWidget = (
+  // eslint-disable-next-line react-memo/require-usememo
+  <WalletWidget theme={{ variant: 'dark' }} shape='squared' style={{ zIndex: 9999 }} />
+)
+
 const paddingBottomProp = { base: '0.5rem', md: 0 }
 const fontSizeProp = { base: 'sm', md: 'md' }
 const paddingTopProp1 = { base: 'calc(0.5rem + env(safe-area-inset-top))', md: 0 }
@@ -246,7 +251,7 @@ export const Header = memo(() => {
               )}
               {isLargerThanMd && <ChainMenu display={displayProp2} />}
               {isConnected && <TxWindow />}
-              <WalletWidget theme={{ variant: 'dark' }} shape='squared' style={{ zIndex: 9999 }} />
+              {walletWidget}
               {isLargerThanMd && (
                 <Box display={displayProp2}>
                   <UserMenu />

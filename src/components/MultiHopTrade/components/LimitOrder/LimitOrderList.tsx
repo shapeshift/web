@@ -13,7 +13,8 @@ import {
   Tabs,
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
-import { type FC, useMemo } from 'react'
+import type { FC } from 'react'
+import { useMemo } from 'react'
 import { usdcAssetId } from 'test/mocks/accounts'
 import { Text } from 'components/Text'
 

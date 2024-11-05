@@ -1,4 +1,5 @@
 import type { CardProps } from '@chakra-ui/react'
+import { useMemo } from 'react'
 
 import { QuoteList } from '../../QuoteList/QuoteList'
 import { HorizontalCollapse } from './HorizontalCollapse'
@@ -18,9 +19,18 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
   isLoading,
   ml,
 }) => {
+  const cardProps: CardProps = useMemo(
+    () => ({
+      ml,
+      height,
+      width,
+    }),
+    [ml, height, width],
+  )
+
   return (
     <HorizontalCollapse isOpen={isOpen} width={width} height={height}>
-      <QuoteList ml={ml} isLoading={isLoading} height={height} />
+      <QuoteList cardProps={cardProps} isLoading={isLoading} />
     </HorizontalCollapse>
   )
 }

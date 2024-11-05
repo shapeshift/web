@@ -59,7 +59,7 @@ export function getZrxTradeQuote(
   assetsById: AssetsByIdPartial,
   zrxBaseUrl: string,
 ): Promise<Result<TradeQuote, SwapErrorRight>> {
-  if (!isPermit2Enabled) return _getZrxTradePseudoQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
+  if (!isPermit2Enabled) return _getZrxTradeQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
   return _getZrxPermit2TradeQuote(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
 }
 
@@ -72,143 +72,6 @@ export function getZrxTradeRate(
 ): Promise<Result<TradeRate, SwapErrorRight>> {
   if (!isPermit2Enabled) return _getZrxTradeRate(input, assertGetEvmChainAdapter, zrxBaseUrl)
   return _getZrxPermit2TradeRate(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
-}
-
-// TODO(gomes): temporary concept for the purpose of being non-breaking, remove me, this really gets a rate
-async function _getZrxTradePseudoQuote(
-  input: GetEvmTradeQuoteInput,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  zrxBaseUrl: string,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    receiveAddress,
-    affiliateBps,
-    potentialAffiliateBps,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    supportsEIP1559,
-    chainId,
-  } = input
-
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx)
-
-  const sellAssetChainId = sellAsset.chainId
-  const buyAssetChainId = buyAsset.chainId
-
-  if (!isSupportedChainId(sellAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
-
-  if (!isSupportedChainId(buyAssetChainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
-
-  if (sellAssetChainId !== buyAssetChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.CrossChainNotSupported,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
-
-  const maybeZrxPriceResponse = await fetchZrxPrice({
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
-    affiliateBps,
-    slippageTolerancePercentageDecimal,
-    zrxBaseUrl,
-  })
-
-  if (maybeZrxPriceResponse.isErr()) return Err(maybeZrxPriceResponse.unwrapErr())
-  const zrxPriceResponse = maybeZrxPriceResponse.unwrap()
-
-  const {
-    buyAmount: buyAmountAfterFeesCryptoBaseUnit,
-    grossBuyAmount: buyAmountBeforeFeesCryptoBaseUnit,
-    price,
-    allowanceTarget,
-    gas,
-    expectedSlippage,
-  } = zrxPriceResponse
-
-  const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
-  const rate = useSellAmount ? price : bn(1).div(price).toString()
-
-  const adapter = assertGetEvmChainAdapter(chainId)
-  const { average } = await adapter.getGasFeeData()
-
-  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-    ...average,
-    supportsEIP1559: Boolean(supportsEIP1559),
-    // add gas limit buffer to account for the fact we perform all of our validation on the trade quote estimations
-    // which are inaccurate and not what we use for the tx to broadcast
-    gasLimit: bnOrZero(gas).times(1.2).toFixed(),
-  })
-
-  // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
-  // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.
-  try {
-    return Ok({
-      id: uuid(),
-      receiveAddress: undefined,
-      potentialAffiliateBps,
-      affiliateBps,
-      // Slippage protection is only provided for specific pairs.
-      // If slippage protection is not provided, assume a no slippage limit.
-      // If slippage protection is provided, return the limit instead of the estimated slippage.
-      // https://0x.org/docs/0x-swap-api/api-references/get-swap-v1-quote
-      slippageTolerancePercentageDecimal: expectedSlippage
-        ? slippageTolerancePercentageDecimal
-        : undefined,
-      rate,
-      steps: [
-        {
-          estimatedExecutionTimeMs: undefined,
-          allowanceContract: allowanceTarget,
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          rate,
-          feeData: {
-            protocolFees: {},
-            networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
-          },
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          source: SwapperName.Zrx,
-        },
-      ] as SingleHopTradeQuoteSteps,
-    })
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'failed to get fee data',
-        cause: err,
-        code: TradeQuoteError.NetworkFeeEstimationFailed,
-      }),
-    )
-  }
 }
 
 async function _getZrxTradeQuote(
@@ -278,7 +141,15 @@ async function _getZrxTradeQuote(
   })
 
   if (maybeZrxQuoteResponse.isErr()) return Err(maybeZrxQuoteResponse.unwrapErr())
-  const zrxPriceResponse = maybeZrxQuoteResponse.unwrap()
+  const zrxQuoteResponse = maybeZrxQuoteResponse.unwrap()
+
+  const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
+    to: zrxQuoteResponse.to,
+    data: zrxQuoteResponse.data as `0x${string}`,
+    gasPrice: zrxQuoteResponse.gasPrice ? BigInt(zrxQuoteResponse.gasPrice) : undefined,
+    gas: zrxQuoteResponse.gas ? BigInt(zrxQuoteResponse.gas) : undefined,
+    value: BigInt(zrxQuoteResponse.value),
+  }
 
   const {
     buyAmount: buyAmountAfterFeesCryptoBaseUnit,
@@ -288,7 +159,7 @@ async function _getZrxTradeQuote(
     estimatedGas,
     gasPrice,
     expectedSlippage,
-  } = zrxPriceResponse
+  } = zrxQuoteResponse
 
   const useSellAmount = !!sellAmountIncludingProtocolFeesCryptoBaseUnit
   const rate = useSellAmount ? price : bn(1).div(price).toString()
@@ -311,6 +182,7 @@ async function _getZrxTradeQuote(
       rate,
       steps: [
         {
+          transactionMetadata,
           estimatedExecutionTimeMs: undefined,
           allowanceContract: allowanceTarget,
           buyAsset,
@@ -631,7 +503,7 @@ async function _getZrxPermit2TradeQuote(
 
     return Ok({
       id: uuid(),
-      receiveAddress: undefined,
+      receiveAddress,
       potentialAffiliateBps,
       affiliateBps,
       // Slippage protection is always enabled for 0x api v2 unlike api v1 which was only supported on specific pairs.

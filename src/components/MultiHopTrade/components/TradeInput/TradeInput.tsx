@@ -232,6 +232,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!activeQuote) throw Error('missing activeQuote')
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
+      dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })

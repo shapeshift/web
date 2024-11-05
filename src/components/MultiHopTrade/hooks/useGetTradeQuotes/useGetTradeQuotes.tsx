@@ -131,7 +131,6 @@ export const useGetTradeQuotes = () => {
   const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
   // TODO(gomes): set trade execution of quote to the same as we stopped in rate to reconciliate things
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
-  const confirmedTradeExecutionRef = useRef<TradeExecutionMetadata | undefined>()
 
   useEffect(
     () => {
@@ -360,6 +359,7 @@ export const useGetTradeQuotes = () => {
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
+    if (!confirmedTradeExecution) return
     // We already have an executable active trade, don't rerun this or this will run forever
     if (activeTrade && isExecutableTradeQuote(activeTrade)) return
     const swapperName = activeQuoteMetaRef.current?.swapperName
@@ -368,12 +368,18 @@ export const useGetTradeQuotes = () => {
     const quoteData = queryStateMeta.data[swapperName]
     if (!quoteData?.quote) return
 
+    // Set the execution metadata to that of the previous rate so we can take over
+    dispatch(
+      tradeQuoteSlice.actions.setTradeExecutionMetadata({
+        id: quoteData.quote.id,
+        executionMetadata: confirmedTradeExecution,
+      }),
+    )
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     // And re-confirm the trade since we're effectively resetting the state machine here
-    dispatch(tradeQuoteSlice.actions.confirmTrade(quoteData.quote.id))
-  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data])
+    // dispatch(tradeQuoteSlice.actions.confirmTrade(quoteData.quote.id))
+  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {

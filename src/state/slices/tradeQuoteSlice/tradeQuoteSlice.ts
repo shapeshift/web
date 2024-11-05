@@ -50,7 +50,9 @@ export const tradeQuoteSlice = createSlice({
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote>) => {
       state.confirmedQuote = action.payload
-      state.tradeExecution[action.payload.id] = initialTradeExecutionState
+    },
+    clearQuoteExecutionState: (state, action: PayloadAction<TradeQuote['id']>) => {
+      state.tradeExecution[action.payload] = initialTradeExecutionState
     },
     setTradeExecutionMetadata: (
       state,

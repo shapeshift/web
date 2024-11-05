@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
@@ -19,12 +18,10 @@ import {
   type SwapErrorRight,
   type SwapperApi,
   type SwapperDeps,
-  SwapperName,
   type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
 import { getZrxTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchZrxQuote } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
@@ -69,52 +66,21 @@ export const zrxApi: SwapperApi = {
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-    config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
-    const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
-    const {
-      buyAsset,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      transactionMetadata,
-    } = steps[0]
+    const { steps } = tradeQuote
+    const { transactionMetadata } = steps[0]
 
-    console.log({ tradeQuote })
+    if (!transactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data, estimatedGas } = await (async () => {
-      // If this is a quote from the 0x V2 API, i.e. has `transactionMetadata`, the comment below RE
-      // re-fetching does not apply. We must use the original transaction returned in the quote
-      // because the Permit2 signature is coupled to it.
-      if (transactionMetadata) {
-        return {
-          value: transactionMetadata.value?.toString() ?? '0',
-          to: transactionMetadata.to ?? '0x',
-          data: transactionMetadata.data ?? '0x',
-          estimatedGas: transactionMetadata.gas?.toString() ?? '0',
-        }
+    const { value, to, data, estimatedGas } = (() => {
+      return {
+        value: transactionMetadata.value?.toString() ?? '0',
+        to: transactionMetadata.to ?? '0x',
+        data: transactionMetadata.data ?? '0x',
+        estimatedGas: transactionMetadata.gas?.toString() ?? '0',
       }
-
-      // We need to re-fetch the quote from 0x here because actual quote fetches include validation of
-      // approvals, which prevent quotes during trade input from succeeding if the user hasn't already
-      // approved the token they are getting a quote for.
-      // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
-      const zrxQuoteResponse = await fetchZrxQuote({
-        buyAsset,
-        sellAsset,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        receiveAddress,
-        affiliateBps: affiliateBps ?? '0',
-        slippageTolerancePercentageDecimal:
-          slippageTolerancePercentageDecimal ??
-          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
-        zrxBaseUrl: config.REACT_APP_ZRX_BASE_URL,
-      })
-
-      if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
-
-      return zrxQuoteResponse.unwrap()
     })()
 
     const calldataWithSignature = (() => {

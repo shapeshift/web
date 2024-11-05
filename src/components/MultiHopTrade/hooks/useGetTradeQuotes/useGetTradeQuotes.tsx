@@ -339,7 +339,8 @@ export const useGetTradeQuotes = () => {
         // Skip trade quotes fetching which aren't for the swapper we have a rate for
         skip: !swapperName || !shouldRefetchTradeQuotes,
         pollingInterval:
-          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+          swappers[swapperName as SwapperName]?.pollingInterval ??
+          DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
     [shouldRefetchTradeQuotes, tradeQuoteInput],

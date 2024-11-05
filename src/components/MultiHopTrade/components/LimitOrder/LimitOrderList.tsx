@@ -69,19 +69,20 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
 
   return (
     <Card {...cardProps}>
-      <CardHeader px={0} pt={4} display='flex' flexDirection='column'>
-        <Flex width='full' alignItems='center' mb={4} position='relative' mx={4}>
-          <Box position='absolute' left={0}>
-            <WithBackButton onBack={onBack} />
-          </Box>
-          {onBack && (
+      {onBack && (
+        <CardHeader px={0} display='flex' flexDirection='column' pb={0}>
+          <Flex width='full' alignItems='center' mb={4} position='relative' mx={4}>
+            <Box position='absolute' left={0}>
+              <WithBackButton onBack={onBack} />
+            </Box>
             <Heading width='full' textAlign='center' fontSize='md'>
               <Text translation='limitOrders.orders' />
             </Heading>
-          )}
-        </Flex>
-      </CardHeader>
-      <Tabs variant='unstyled' display='flex' flexDirection='column' overflowY='auto'>
+          </Flex>
+        </CardHeader>
+      )}
+
+      <Tabs variant='unstyled' display='flex' flexDirection='column' overflowY='auto' mt={4}>
         <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
           <Tab
             p={0}

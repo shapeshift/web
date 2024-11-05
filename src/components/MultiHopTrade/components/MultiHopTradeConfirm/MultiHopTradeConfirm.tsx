@@ -73,7 +73,7 @@ export const MultiHopTradeConfirm = memo(() => {
       previousTradeExecutionState !== confirmedTradeExecutionState &&
       previousTradeExecutionState === TradeExecutionState.FirstHop
     ) {
-      if (isFirstHopOpen) onToggleFirstHop()
+      if (!isFirstHopOpen) onToggleFirstHop()
       if (!isSecondHopOpen) onToggleSecondHop()
     }
   }, [

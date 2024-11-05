@@ -81,6 +81,8 @@ export const zrxApi: SwapperApi = {
       transactionMetadata,
     } = steps[0]
 
+    console.log({ tradeQuote })
+
     const { value, to, data, estimatedGas } = await (async () => {
       // If this is a quote from the 0x V2 API, i.e. has `transactionMetadata`, the comment below RE
       // re-fetching does not apply. We must use the original transaction returned in the quote

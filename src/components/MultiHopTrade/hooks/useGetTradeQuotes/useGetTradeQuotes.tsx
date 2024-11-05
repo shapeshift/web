@@ -1,14 +1,14 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
-  SwapperName,
+  isExecutableTradeQuote,
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useHasFocus } from 'hooks/useHasFocus'
@@ -121,9 +121,25 @@ export const useGetTradeQuotes = () => {
   } = useWallet()
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const activeTradeId = activeQuote?.id
+  const activeTrade = useAppSelector(selectActiveQuote)
+  const activeTradeId = activeTrade?.id
+  const activeRateRef = useRef<TradeQuote | undefined>()
+  const activeTradeIdRef = useRef<string | undefined>()
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
+  const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
+
+  useEffect(
+    () => {
+      activeRateRef.current = activeTrade
+      activeTradeIdRef.current = activeTradeId
+      activeQuoteMetaRef.current = activeQuoteMeta
+    },
+    // WARNING: DO NOT SET ANY DEP HERE.
+    // We're using this to keep the ref of the rate and matching tradeId for it on mount.
+    // This should never update afterwards
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   const hopExecutionMetadataFilter = useMemo(() => {
     if (!activeTradeId) return undefined
@@ -209,6 +225,10 @@ export const useGetTradeQuotes = () => {
     () =>
       Boolean(
         hasFocus &&
+          // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
+          activeTrade &&
+          !isExecutableTradeQuote(activeTrade) &&
+          // and if we're actually at pre-execution time
           hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
           wallet &&
           sellAccountId &&
@@ -218,6 +238,7 @@ export const useGetTradeQuotes = () => {
       ),
     [
       hasFocus,
+      activeTrade,
       hopExecutionMetadata?.state,
       wallet,
       sellAccountId,
@@ -230,6 +251,8 @@ export const useGetTradeQuotes = () => {
   useEffect(() => {
     // Only run this effect when we're actually ready
     if (hopExecutionMetadata?.state !== HopExecutionState.AwaitingSwap) return
+    // And only run it once
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return
 
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
@@ -305,14 +328,16 @@ export const useGetTradeQuotes = () => {
     isBuyAssetChainSupported,
     quoteOrRate,
     hopExecutionMetadata?.state,
+    activeTrade,
   ])
 
   const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName): UseGetSwapperTradeQuoteArgs => {
+    (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteArgs => {
       return {
         swapperName,
         tradeQuoteInput,
-        skip: !shouldRefetchTradeQuotes,
+        // Skip trade quotes fetching which aren't for the swapper we have a rate for
+        skip: !swapperName || !shouldRefetchTradeQuotes,
         pollingInterval:
           swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
@@ -320,30 +345,25 @@ export const useGetTradeQuotes = () => {
     [shouldRefetchTradeQuotes, tradeQuoteInput],
   )
 
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
+  const queryStateMeta = useGetSwapperTradeQuote(
+    getTradeQuoteArgs(activeQuoteMetaRef.current?.swapperName),
+  )
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
-    // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isAnyTradeQuoteLoading) return
+    const swapperName = activeQuoteMetaRef.current?.swapperName
+    if (!swapperName) return
+    if (!queryStateMeta?.data) return
+    const quoteData = queryStateMeta.data[swapperName]
+    if (!quoteData?.quote) return
 
-    const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
-
-    // don't auto-select nothing, don't auto-select errored quotes
-    if (bestQuote?.quote === undefined || bestQuote.errors.length > 0) {
-      return
-    }
-
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
+    // Set as both confirmed *and* active
+    dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData?.quote))
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {

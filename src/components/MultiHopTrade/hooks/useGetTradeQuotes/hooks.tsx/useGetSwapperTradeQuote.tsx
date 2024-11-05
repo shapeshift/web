@@ -6,7 +6,7 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch } from 'state/store'
 
 export type UseGetSwapperTradeQuoteArgs = {
-  swapperName: SwapperName
+  swapperName: SwapperName | undefined
   tradeQuoteInput: GetTradeQuoteInput | typeof skipToken
   skip: boolean
   pollingInterval: number | undefined
@@ -20,7 +20,7 @@ export const useGetSwapperTradeQuote = ({
 }: UseGetSwapperTradeQuoteArgs) => {
   const dispatch = useAppDispatch()
   const tradeQuoteRequest = useMemo(() => {
-    return skip || tradeQuoteInput === skipToken
+    return skip || tradeQuoteInput === skipToken || !swapperName
       ? skipToken
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [skip, swapperName, tradeQuoteInput])
@@ -37,7 +37,7 @@ export const useGetSwapperTradeQuote = ({
   )
 
   const queryStateRequest = useMemo(() => {
-    return tradeQuoteInput === skipToken
+    return tradeQuoteInput === skipToken || !swapperName
       ? skipToken
       : Object.assign({}, tradeQuoteInput, { swapperName })
   }, [swapperName, tradeQuoteInput])
@@ -51,6 +51,7 @@ export const useGetSwapperTradeQuote = ({
   const queryStateMeta = swapperApi.endpoints.getTradeQuote.useQueryState(queryStateRequest)
 
   useEffect(() => {
+    if (!swapperName) return
     // Ensures we don't rug the state by upserting undefined data  - this is *not* the place to do so and will rug the switch between quotes and rates
     if (!queryStateMeta.data) return
     dispatch(

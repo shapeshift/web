@@ -170,7 +170,7 @@ async function _getZrxTradePseudoQuote(
   try {
     return Ok({
       id: uuid(),
-      receiveAddress,
+      receiveAddress: undefined,
       potentialAffiliateBps,
       affiliateBps,
       // Slippage protection is only provided for specific pairs.
@@ -752,7 +752,7 @@ async function _getZrxPermit2TradeRate(
   return Ok({
     id: uuid(),
     accountNumber: undefined,
-    receiveAddress,
+    receiveAddress: undefined,
     potentialAffiliateBps,
     affiliateBps,
     // Slippage protection is only provided for specific pairs.

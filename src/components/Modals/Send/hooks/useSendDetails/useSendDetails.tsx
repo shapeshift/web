@@ -146,7 +146,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     }) => {
       const [, { sendMax, amountCryptoPrecision }] = queryKey
 
-      if (bnOrZero(amountCryptoPrecision).lt(0)) return null
+      if (bnOrZero(amountCryptoPrecision).lte(0)) return null
       if (!asset || !accountId) return null
 
       const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(bnOrZero(amountCryptoPrecision))

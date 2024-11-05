@@ -48,6 +48,7 @@ export const setupQuote = () => {
     supportsEIP1559: false,
     allowMultiHop: false,
     slippageTolerancePercentageDecimal: DEFAULT_SLIPPAGE,
+    quoteOrRate: 'quote',
   }
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }

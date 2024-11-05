@@ -50,6 +50,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <TradeAssetSearch
         onAssetClick={handleAssetClick}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        isSwapper={true}
       />
     </Dialog>
   )

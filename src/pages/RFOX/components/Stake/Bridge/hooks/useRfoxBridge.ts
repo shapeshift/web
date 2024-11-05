@@ -93,7 +93,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
     )
   }, [confirmedQuote.buyAssetAccountId, l2TxHash])
 
-  const wallet = useWallet().state.wallet
+  const { wallet, walletInfo } = useWallet().state
   const sellAsset = useAppSelector(state => selectAssetById(state, confirmedQuote.sellAssetId))
   const chainId = useMemo(
     () => (sellAsset?.chainId && isEvmChainId(sellAsset.chainId) ? sellAsset.chainId : undefined),
@@ -142,6 +142,8 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
+      hasWallet: Boolean(walletInfo?.deviceId),
+      quoteOrRate: 'quote' as const,
     }),
     [
       buyAsset,
@@ -151,6 +153,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       confirmedQuote.sellAssetAccountId,
       sellAsset,
       sellAssetAccountNumber,
+      walletInfo?.deviceId,
     ],
   )
 
@@ -176,7 +179,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   }, [assetsById])
 
   const tradeQuoteInputWithWallet = useMemo(
-    () => ({ ...tradeQuoteInput, wallet }),
+    () => ({ ...tradeQuoteInput, wallet, quoteOrRate: 'quote' as const }),
     [tradeQuoteInput, wallet],
   )
 
@@ -231,6 +234,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
         stepIndex: 0,
         supportsEIP1559,
         slippageTolerancePercentageDecimal: '0',
+        permit2Signature: undefined,
         ...swapperDeps,
       })
 

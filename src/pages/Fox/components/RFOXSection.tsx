@@ -19,7 +19,7 @@ import {
   fromAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -35,15 +35,17 @@ import { useCurrentApyQuery } from 'pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from 'pages/RFOX/hooks/useCurrentEpochRewardsQuery'
 import { useLifetimeRewardsQuery } from 'pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { useRFOXContext } from 'pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from 'pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from 'pages/RFOX/types'
+import { marketApi } from 'state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { RFOXSimulator } from './RFOXSimulator'
@@ -82,9 +84,15 @@ export const RFOXSection = () => {
   const history = useHistory()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
   const { assetAccountNumber } = useFoxPageContext()
+  const { setStakingAssetAccountId } = useRFOXContext()
   const stakingAssetId = foxOnArbitrumOneAssetId
+  const appDispatch = useAppDispatch()
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  useEffect(() => {
+    appDispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
+  }, [appDispatch, stakingAssetId])
 
   const {
     data: apy,
@@ -95,10 +103,6 @@ export const RFOXSection = () => {
   const isApyLoading = useMemo(() => {
     return isApyQueryLoading || isApyFetching
   }, [isApyQueryLoading, isApyFetching])
-
-  const handleManageClick = useCallback(() => {
-    history.push('/rfox')
-  }, [history])
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdByAccountNumberAndChainId,
@@ -119,6 +123,13 @@ export const RFOXSection = () => {
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
+
+  const handleManageClick = useCallback(() => {
+    setStakingAssetAccountId(stakingAssetAccountId)
+    history.push({
+      pathname: '/rfox',
+    })
+  }, [history, stakingAssetAccountId, setStakingAssetAccountId])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
@@ -230,7 +241,7 @@ export const RFOXSection = () => {
             <Text fontSize='md' color='text.subtle' mt={2} translation='foxPage.rfox.whatIs' />
           </Box>
 
-          <Card>
+          <Card width='100%' maxWidth='400px'>
             <CardBody py={4} px={4}>
               <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
 

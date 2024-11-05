@@ -11,6 +11,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getStyledMenuButtonProps } from 'components/AssetSelection/helpers'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isAssetSupportedByWallet } from 'state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from 'state/slices/related-assets-selectors'
@@ -132,3 +133,17 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     )
   },
 )
+
+export const StyledAssetChainDropdown = ({
+  isDisabled,
+  rightIcon,
+  buttonProps,
+  ...rest
+}: AssetChainDropdownProps & { rightIcon?: React.ReactElement }) => {
+  const combinedButtonProps = useMemo(
+    () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
+    [isDisabled, rightIcon, buttonProps],
+  )
+
+  return <AssetChainDropdown {...rest} buttonProps={combinedButtonProps} isDisabled={isDisabled} />
+}

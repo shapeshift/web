@@ -14,9 +14,10 @@ import { encodeFunctionData, parseAbiItem } from 'viem'
 
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
+  CommonTradeQuoteInput,
   CosmosSdkFeeData,
   EvmTransactionRequest,
-  GetTradeQuoteInput,
+  GetTradeRateInput,
   GetUnsignedCosmosSdkTransactionArgs,
   GetUnsignedEvmTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
@@ -24,14 +25,22 @@ import type {
   SwapperApi,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
   UtxoFeeData,
 } from '../../types'
-import { checkSafeTransactionStatus } from '../../utils'
+import {
+  checkSafeTransactionStatus,
+  isExecutableTradeQuote,
+  isExecutableTradeStep,
+} from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
-import type { ThorEvmTradeQuote } from './getThorTradeQuote/getTradeQuote'
-import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
+import {
+  getThorTradeQuote,
+  getThorTradeRate,
+  type ThorEvmTradeQuote,
+} from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
@@ -47,7 +56,7 @@ const deductOutboundRuneFee = (fee: string): string => {
 
 export const thorchainApi: SwapperApi = {
   getTradeQuote: async (
-    input: GetTradeQuoteInput,
+    input: CommonTradeQuoteInput,
     deps: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
     const { affiliateBps } = input
@@ -60,7 +69,20 @@ export const thorchainApi: SwapperApi = {
       deps,
     )
   },
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps,
+  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
+    const { affiliateBps } = input
 
+    return await getThorTradeRate(
+      {
+        ...input,
+        affiliateBps,
+      },
+      deps,
+    )
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,
@@ -69,6 +91,8 @@ export const thorchainApi: SwapperApi = {
     assertGetEvmChainAdapter,
     config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const {
       router,
@@ -83,6 +107,8 @@ export const thorchainApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = steps[0]
+
+    if (!tcMemo) throw new Error('Cannot execute Tx without a memo')
 
     const value = isNativeEvmAsset(sellAsset.assetId)
       ? sellAmountIncludingProtocolFeesCryptoBaseUnit
@@ -207,10 +233,18 @@ export const thorchainApi: SwapperApi = {
     assertGetUtxoChainAdapter,
     config,
   }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
     const { accountNumber, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } =
-      steps[0]
+      firstStep
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     const { vault, opReturnData } = await getUtxoThorTxInfo({
       sellAsset,
@@ -241,9 +275,13 @@ export const thorchainApi: SwapperApi = {
     from,
     config,
   }: GetUnsignedCosmosSdkTransactionArgs): Promise<StdSignDoc> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
     // TODO: pull these from db using id so we don't have type zoo and casting hell
     const { steps, memo } = tradeQuote as ThorEvmTradeQuote
     const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset, feeData } = steps[0]
+
+    if (!memo) throw new Error('Cannot execute Tx without a memo')
 
     // TODO: split up getTradeQuote into separate function per chain family to negate need for cast
     const gas = (feeData.chainSpecific as CosmosSdkFeeData).estimatedGasCryptoBaseUnit

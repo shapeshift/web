@@ -1,11 +1,9 @@
-import type { ResponsiveValue } from '@chakra-ui/react'
 import { Skeleton, useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
-import type * as CSS from 'csstype'
 import type { DepositValues } from 'features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from 'features/defi/components/Deposit/Deposit'
 import type {
@@ -26,7 +24,7 @@ import { Amount } from 'components/Amount/Amount'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
-import { useIsApprovalRequired } from 'hooks/queries/useIsApprovalRequired'
+import { useAllowanceApprovalRequirements } from 'hooks/queries/useAllowanceApprovalRequirements'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
@@ -78,9 +76,6 @@ type DepositProps = StepComponentProps & {
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
-const infoAcknowledgementBoxProps = {
-  position: 'static' as ResponsiveValue<CSS.Property.Position>,
-}
 
 export const Deposit: React.FC<DepositProps> = ({
   accountId,
@@ -214,8 +209,8 @@ export const Deposit: React.FC<DepositProps> = ({
     enableEstimateFees: Boolean(!isApprovalRequired && bnOrZero(inputValues?.cryptoAmount).gt(0)),
   })
 
-  const { isAllowanceResetRequired, isApprovalRequired: _isApprovalRequired } =
-    useIsApprovalRequired({
+  const { isAllowanceApprovalRequired: _isApprovalRequired, isAllowanceResetRequired } =
+    useAllowanceApprovalRequirements({
       assetId,
       amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
       spender: inboundAddress,
@@ -855,19 +850,19 @@ export const Deposit: React.FC<DepositProps> = ({
   if (!state || !contextDispatch || !opportunityData) return null
 
   return (
-    <InfoAcknowledgement
-      message={translate('defi.liquidityLockupWarning', {
-        time: formatSecondsToDuration(
-          isRunePool
-            ? thorchainMimirTimes?.runePoolDepositMaturityTime ?? 0
-            : thorchainMimirTimes?.liquidityLockupTime ?? 0,
-        ),
-      })}
-      onAcknowledge={handleAcknowledge}
-      shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
-      setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
-      boxProps={infoAcknowledgementBoxProps}
-    >
+    <>
+      <InfoAcknowledgement
+        message={translate('defi.liquidityLockupWarning', {
+          time: formatSecondsToDuration(
+            isRunePool
+              ? thorchainMimirTimes?.runePoolDepositMaturityTime ?? 0
+              : thorchainMimirTimes?.liquidityLockupTime ?? 0,
+          ),
+        })}
+        onAcknowledge={handleAcknowledge}
+        shouldShowAcknowledgement={shouldShowInfoAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowInfoAcknowledgement}
+      />
       <ReusableDeposit
         accountId={accountId}
         onAccountIdChange={handleAccountIdChange}
@@ -926,6 +921,6 @@ export const Deposit: React.FC<DepositProps> = ({
           </>
         ) : null}
       </ReusableDeposit>
-    </InfoAcknowledgement>
+    </>
   )
 }

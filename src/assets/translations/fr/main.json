@@ -16,6 +16,7 @@
     "done": "Terminé",
     "cancel": "Annuler",
     "close": "Fermer",
+    "closed": "Fermé",
     "loadMore": "Charger plus",
     "saveChanges": "Enregistrer les modifications",
     "new": "Nouveau",
@@ -49,6 +50,7 @@
     "overview": "Vue d'ensemble",
     "getStarted": "Commencer",
     "connectWallet": "Connecter un porte-monnaie",
+    "connectWalletToGetStartedWith": "Connectez un porte-monnaie pour commencer à utiliser %{feature}",
     "connectedWallet": "Porte-monnaie connecté",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
@@ -156,6 +158,7 @@
     "asymmetric": "Asymétrique (%{assetSymbol})",
     "import": "Importer",
     "accountsLoading": "Chargement des comptes",
+    "noAccounts": "Aucun compte pour les filtres sélectionnés.",
     "carousel": {
       "next": "Suivant",
       "prev": "Précédent",
@@ -442,7 +445,7 @@
         "cannotWithdrawWhilePendingTx": "Impossible de retirer tant que des Txs sont en attente",
         "dangerousWithdrawWarning": "Les frais THORChain pourraient entraîner la perte totale des fonds retirés. Envisagez de retirer un montant plus élevé pour éviter ce problème.",
         "agreeRunePool": {
-          "1": "Je comprends que RUNEPool a à la fois un blocage minimum de 90 jours et un risque accru de pertes impermanentes."
+          "1": "Je comprends que RUNEPool implique à la fois un verrouillage minimum de 30 jours et un risque accru de pertes impermanentes."
         }
       }
     },
@@ -617,6 +620,7 @@
     "lending": "Prêts",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "foxBenefits": "Avantages FOX",
     "markets": "Marchés",
     "actionMenu": {
       "send": {
@@ -789,7 +793,11 @@
       "description": "Bridger via Arbitrum",
       "waitWarning": "Le pont natif d'Arbitrum est plus sécurisé mais peut prendre jusqu'à une semaine pour la réclamation de fonds.",
       "waitCta": "Je comprends qu'il faudra ~7 jours avant de pouvoir réclamer des fonds sur Ethereum.",
-      "claimCta": "Je comprends qu'après avoir réclamé mes fonds, je devrai envoyer une autre transaction moyennant des frais"
+      "claimCta": "Je comprends qu'après avoir réclamé mes fonds, je devrai envoyer une autre transaction moyennant des frais",
+      "success": {
+        "tradeSuccess": "Transfert initié",
+        "withdrawComplete": "Transfert en %{symbol} vers %{chainName} initié avec succès."
+      }
     },
     "claim": "Réclamer",
     "claimReceiveAddress": "Adresse de réception de réclamation",
@@ -801,7 +809,10 @@
     "pendingClaims": "En cours",
     "noPendingClaims": "Aucune réclamation en cours",
     "availableIn": "Disponible dans %{time}",
-    "confirmAndClaim": "Confirmer et réclamer"
+    "confirmAndClaim": "Confirmer et réclamer",
+    "viewClaims": "Voir les réclamations",
+    "viewClaimStatus": "Afficher le statut de la réclamation",
+    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !"
   },
   "trade": {
     "trade": "Échanger",
@@ -901,6 +912,13 @@
         "negativeRatio": "Montant de vente insuffisant"
       }
     },
+    "permit2": {
+      "title": "Autoriser le transfert de jetons :",
+      "description": "Accordez au contrat intelligent l’autorisation d’utiliser des %{symbol} en votre nom.",
+      "tooltip": "Cette transaction dispose d'une fonctionnalité de sécurité supplémentaire appelée \"Permit2\" qui vous oblige à accorder la permission à l'application d'effectuer la transaction en votre nom.",
+      "error": "Un problème est survenu lors de la signature du message Permit2",
+      "signMessage": "Signer le message"
+    },
     "errors": {
       "title": "Il y a eu un problème",
       "amountTooSmall": "Minimum : %{minLimit}",
@@ -948,12 +966,14 @@
     "priceImpactWarning": "En raison de la taille de cette transaction par rapport à la liquidité disponible, l'impact attendu sur le prix de cette échange est de %{priceImpactPercentage} %. Êtes-vous sûr de vouloir faire cet échange ?",
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
     "connectChain": "connectez %{chainName}",
-    "approvalGasFee": "Frais d'autorisation de carburant %{fee}",
-    "approvalGasFeeLoading": "Chargement des frais de carburant pour l'autorisation...",
-    "approvalResetGasFee": "Frais de carburant pour réinitialisation de l'autorisation %{fee}",
-    "approvalResetGasFeeLoading": "Chargement des frais de carburant pour réinitialisation de l'autorisation...",
+    "approvalGasFee": "Frais de carburant pour l'autorisation d'allocation %{fee}",
+    "approvalGasFeeLoading": "Chargement des frais de carburant pour l'autorisation d'allocation...",
+    "approvalResetGasFee": "Frais de carburant pour la réinitialisation d'allocation %{fee}",
+    "approvalResetGasFeeLoading": "Chargement des frais de carburant pour la réinitialisation d'allocation...",
     "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
     "approvalResetFailed": "Un problème est survenu lors de la réinitialisation de l'allocation",
+    "allowanceResetTxName": "Tx. de réinitialisation d'allocation :",
+    "allowanceApprovalTxName": "Tx. d'autorisation d'allocation :",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
     "doAnotherTrade": "Faire un autre échange",
     "showDetails": "Afficher les détails",
@@ -981,6 +1001,9 @@
       "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userslippageFormatted}) pour %{swapperName}",
       "slippage": "Glissement/Slippage : %{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "Ordre limité"
   },
   "modals": {
     "assetSearch": {
@@ -1510,20 +1533,21 @@
       "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
       "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec MetaMask",
-        "connectFailure": "Impossible de se connecter au porte-monnaie MetaMask",
-        "multipleWallets": "Le fournisseur Ethereum détecté n'est pas MetaMask. Avez-vous plusieurs porte-monnaie installés ?"
-      },
+    "mipd": {
       "connect": {
-        "header": "Appairer MetaMask",
-        "body": "Cliquez sur Appairer et connectez-vous à MetaMask à partir de la fenêtre popup",
+        "header": "Appairer %{name}",
+        "body": "Cliquez sur Appairer et identifiez-vous sur %{name} à partir de la fenêtre popup",
         "button": "Appairer"
       },
-      "failure": {
-        "body": "Impossible de se connecter au porte-monnaie MetaMask"
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec %{name}",
+        "connectFailure": "Impossible de connecter le porte-monnaie %{name}"
       },
+      "failure": {
+        "body": "Impossible de connecter le porte-monnaie %{name}"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "Ouvrir dans l'app MetaMask",
         "body": "Cliquez pour ouvrir le tableau de bord de ShapeShift dans MetaMask",
@@ -1610,26 +1634,6 @@
       },
       "failure": {
         "body": "Impossible de se connecter au porte-monnaie WalletConnect"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "Une erreur inattendue s'est produite lors de la communication avec XDEFI",
-        "connectFailure": "Impossible de connecter le porte-monnaie XDEFI",
-        "multipleWallets": "Le fournisseur Ethereum détecté n’est pas XDEFI. Avez-vous plusieurs porte-monnaie installés et activés ? Donnez la priorité à XDEFI dans les paramètres et appuyez à nouveau sur Appairer."
-      },
-      "connect": {
-        "header": "Appairer XDEFI",
-        "body": "Cliquez sur Appairer et connectez-vous à XDEFI à partir de la fenêtre popup",
-        "button": "Appairer"
-      },
-      "failure": {
-        "body": "Impossible de connecter le porte-monnaie XDEFI"
-      },
-      "redirect": {
-        "header": "Ouvrir dans l'app XDEFI",
-        "body": "Cliquez pour ouvrir le tableau de bord de ShapeShift dans XDEFI",
-        "button": "Ouvrir"
       }
     },
     "shapeShift": {
@@ -2596,6 +2600,77 @@
   },
   "markets": {
     "recommended": "Recommandé",
-    "watchlist": "Mes actifs suivis"
+    "watchlist": "Mes actifs suivis",
+    "marketsBody": "Découvrez les cryptomonnaies les plus intéressantes. Suivez les meilleures performances, les jetons émergents, les opportunités DeFi et bien plus encore. Enregistrez, partagez et échangez vos favoris.",
+    "watchlistEmpty": {
+      "emptyTitle": "Aucun actif dans la liste de suivi",
+      "emptyBody": "Il semble que vous n'ayez pas encore ajouté d'actifs favori. Commencez à ajouter des actifs à votre liste de suivi dès maintenant pour les surveiller !"
+    },
+    "emptyTitle": "Aucun actif trouvé",
+    "emptyBody": "Aucun actif n'a été trouvé avec le filtre actuel. Affichez plus d'éléments en ajustant la chaîne sélectionnée.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Actifs DeFi en un clic",
+        "subtitle": "Découvrez le rendement qui vous convient le mieux ! Passez sans effort entre les pools, les coffres-forts, les options de prêts et les LSD grâce à Portals."
+      },
+      "thorchainDefi": {
+        "title": "DeFi THORChain",
+        "subtitle": "Gagnez un rendement natif sur vos actifs avec les THORCHain Savers."
+      },
+      "trending": {
+        "title": "Tendance",
+        "subtitle": "Les actifs les plus consultés au cours des dernières 24 heures."
+      },
+      "tradingVolume": {
+        "title": "Volume d'échanges",
+        "subtitle": "Principaux actifs avec le volume de transactions le plus élevé au cours des dernières 24 heures."
+      },
+      "marketCap": {
+        "title": "Capitalisation de marché",
+        "subtitle": "Principaux actifs avec la capitalisation de marché la plus élevée au cours des dernières 24 heures."
+      },
+      "topMovers": {
+        "title": "Plus fortes variations",
+        "subtitle": "Principaux actifs qui ont varié de %{percentage}% ou plus."
+      },
+      "recentlyAdded": {
+        "title": "Ajoutés récemment",
+        "subtitle": "Découvrez les lancements récents."
+      }
+    }
+  },
+  "foxPage": {
+    "title": "Tableau de bord du jeton FOX",
+    "description": "Depuis 2019, notre jeton FOX évolue sans cesse et offre aux utilisateurs une gamme d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous offre des réductions sur les frais, une part des revenus sur THORChain et vous permet d'influencer l'avenir de ShapeShift grâce à vos votes. Misez, échangez, achetez, approvisionnez et gérez vos avoirs FOX ici.",
+    "foxToken": "Jeton FOX",
+    "24hrPriceChange": "Évolution du prix sur 24h",
+    "rfox": {
+      "whatIs": "Qu'est-ce que c'est miser avec rFOX ?",
+      "totalFoxBurn": "Total des FOX brûlés",
+      "simulateTitle": "Simulateur rFOX",
+      "simulateSubtle": "Entrez le montant de dépôt désiré",
+      "estimatedRewards": "Récompenses estimées",
+      "depositAmount": "Montant du dépôt",
+      "shapeshiftRevenue": "Revenus de ShapeShift",
+      "30days": "30 jours"
+    },
+    "foxFarming": {
+      "title": "Farming de FOX+",
+      "description": "Vous en avez assez de déplacer vos %{rewardAssetSymbol} d'un farming à l'autre ? Misez simplement vos %{assetSymbol} et gagnez des %{rewardAssetSymbol} en permanence.",
+      "totalClaimableRewards": "Total des récompenses réclamables",
+      "totalStakingValue": "Valeur totale misée",
+      "nextEpoch": "Prochaine époque"
+    },
+    "governance": {
+      "title": "Gouvernance",
+      "description": {
+        "0": "Rejoignez-nous",
+        "1": "sur le forum",
+        "2": "et façonnez l’avenir de la DAO."
+      },
+      "totalVotingPower": "Pouvoir de vote total",
+      "noActiveProposals": "Aucune proposition active disponible",
+      "noClosedProposals": "Aucune proposition fermée disponible"
+    }
   }
 }

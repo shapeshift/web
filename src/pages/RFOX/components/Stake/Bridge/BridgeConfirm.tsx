@@ -1,7 +1,6 @@
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import {
   Button,
-  Card,
   CardBody,
   CardFooter,
   CardHeader,
@@ -15,8 +14,7 @@ import { type FC, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
-import { AssetIcon } from 'components/AssetIcon'
-import { FormDivider } from 'components/FormDivider'
+import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { Row, type RowProps } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
@@ -115,39 +113,6 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     history.push({ pathname: BridgeRoutePaths.Status, state: confirmedQuote })
   }, [confirmedQuote, history, feeAsset, handleApprove, isApprovalRequired])
 
-  const bridgeCard = useMemo(() => {
-    if (!(sellAsset && buyAsset)) return null
-    return (
-      <>
-        <Card
-          display='flex'
-          alignItems='stretch'
-          justifyContent='space-evenly'
-          flexDir='row'
-          gap={4}
-          py={6}
-          px={4}
-        >
-          <Stack alignItems='center'>
-            <AssetIcon size='sm' assetId={sellAsset?.assetId} />
-            <Stack textAlign='center' spacing={0}>
-              <Amount.Crypto value={bridgeAmountCryptoPrecision} symbol={sellAsset.symbol} />
-              <Amount.Fiat fontSize='sm' color='text.subtle' value={bridgeAmountUserCurrency} />
-            </Stack>
-          </Stack>
-          <FormDivider my={-6} orientation='vertical' />
-          <Stack alignItems='center'>
-            <AssetIcon size='sm' assetId={buyAsset?.assetId} />
-            <Stack textAlign='center' spacing={0}>
-              <Amount.Crypto value={bridgeAmountCryptoPrecision} symbol={buyAsset.symbol} />
-              <Amount.Fiat fontSize='sm' color='text.subtle' value={bridgeAmountUserCurrency} />
-            </Stack>
-          </Stack>
-        </Card>
-      </>
-    )
-  }, [sellAsset, buyAsset, bridgeAmountCryptoPrecision, bridgeAmountUserCurrency])
-
   const errorCopy = useMemo(() => {
     if (!hasEnoughFeeBalance)
       return translate('common.insufficientAmountForGas', {
@@ -173,7 +138,14 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
       </CardHeader>
       <CardBody>
         <Stack spacing={6}>
-          {bridgeCard}
+          <AssetToAssetCard
+            sellAsset={sellAsset}
+            buyAsset={buyAsset}
+            sellAmountCryptoPrecision={bridgeAmountCryptoPrecision}
+            sellAmountUserCurrency={bridgeAmountUserCurrency}
+            buyAmountCryptoPrecision={bridgeAmountCryptoPrecision}
+            buyAmountUserCurrency={bridgeAmountUserCurrency}
+          />
           <Timeline>
             <TimelineItem>
               <CustomRow>

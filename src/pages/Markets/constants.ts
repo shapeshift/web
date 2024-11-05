@@ -1,16 +1,49 @@
-export const gridTemplateColumnSx = { base: 'minmax(0, 1fr)', md: 'repeat(20, 1fr)' }
-export const gridTemplateRowsSx = { base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }
-export const colSpanSparklineSx = { base: 1, md: 8 }
-export const colSpanSmallSx = { base: 1, md: 4 }
-export const colSpanSx = { base: 1, md: 5 }
-export const rowSpanSparklineSx = { base: 1, md: 2 }
+import type { MarketData } from '@shapeshiftoss/types'
+import { SortOptionsKeys } from 'components/SortDropdown/types'
 
-export enum MARKETS_CATEGORIES {
-  TRADING_VOLUME = 'tradingVolume',
-  MARKET_CAP = 'marketCap',
-  TRENDING = 'trending',
-  TOP_MOVERS = 'topMovers',
-  RECENTLY_ADDED = 'recentlyAdded',
-  ONE_CLICK_DEFI = 'oneClickDefiAssets',
-  THORCHAIN_DEFI = 'thorchainDefi',
+export enum MarketsCategories {
+  TradingVolume = 'tradingVolume',
+  MarketCap = 'marketCap',
+  Trending = 'trending',
+  TopMovers = 'topMovers',
+  RecentlyAdded = 'recentlyAdded',
+  OneClickDefi = 'oneClickDefiAssets',
+  ThorchainDefi = 'thorchainDefi',
+}
+
+export const sortOptionsByCategory: Record<MarketsCategories, SortOptionsKeys[] | undefined> = {
+  [MarketsCategories.TradingVolume]: undefined,
+  [MarketsCategories.MarketCap]: undefined,
+  [MarketsCategories.Trending]: [
+    SortOptionsKeys.Volume,
+    SortOptionsKeys.PriceChange,
+    SortOptionsKeys.MarketCap,
+  ],
+  [MarketsCategories.TopMovers]: [
+    SortOptionsKeys.Volume,
+    SortOptionsKeys.PriceChange,
+    SortOptionsKeys.MarketCap,
+  ],
+  [MarketsCategories.RecentlyAdded]: [
+    SortOptionsKeys.Volume,
+    SortOptionsKeys.PriceChange,
+    SortOptionsKeys.MarketCap,
+  ],
+  [MarketsCategories.OneClickDefi]: [
+    SortOptionsKeys.Apy,
+    SortOptionsKeys.Volume,
+    SortOptionsKeys.MarketCap,
+  ],
+  [MarketsCategories.ThorchainDefi]: [
+    SortOptionsKeys.Apy,
+    SortOptionsKeys.Volume,
+    SortOptionsKeys.MarketCap,
+  ],
+}
+
+export const marketDataBySortKey: Record<SortOptionsKeys, keyof MarketData | 'apy'> = {
+  [SortOptionsKeys.Apy]: 'apy',
+  [SortOptionsKeys.MarketCap]: 'marketCap',
+  [SortOptionsKeys.Volume]: 'volume',
+  [SortOptionsKeys.PriceChange]: 'changePercent24Hr',
 }

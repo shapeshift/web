@@ -18,9 +18,13 @@ import { MobileConfig } from 'context/WalletProvider/MobileWallet/config'
 import { getWallet } from 'context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from 'context/WalletProvider/routes'
 import { useWalletConnectV2EventHandler } from 'context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
-import { useMipdProviders } from 'lib/mipd'
+import { METAMASK_RDNS, useMipdProviders } from 'lib/mipd'
 import { localWalletSlice } from 'state/slices/localWalletSlice/localWalletSlice'
-import { selectWalletDeviceId, selectWalletType } from 'state/slices/localWalletSlice/selectors'
+import {
+  selectWalletDeviceId,
+  selectWalletRdns,
+  selectWalletType,
+} from 'state/slices/localWalletSlice/selectors'
 import { portfolio } from 'state/slices/portfolioSlice/portfolioSlice'
 import { store } from 'state/store'
 
@@ -344,19 +348,22 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
   const {
     localWalletType: walletType,
     localWalletDeviceId,
-    rdns,
     setLocalWallet,
     setLocalNativeWalletName,
   } = useLocalWallet()
 
   const mipdProviders = useMipdProviders()
 
-  const maybeMipdProvider = useMemo(() => {
-    return mipdProviders.find(provider => provider.info.rdns === (state.modalType ?? rdns))
-  }, [mipdProviders, rdns, state.modalType])
-
   const getAdapter: GetAdapter = useCallback(
     async (keyManager, index = 0) => {
+      // DO NOT MOVE ME OUTSIDE OF THIS FUNCTION
+      // This not being a `useSelector` hook is intentional, we are rugged by stale closures here
+      // and cannot be exhaustive in the deps we use either or the app will be turbo broken
+      const rdns = selectWalletRdns(store.getState())
+      const maybeMipdProvider = mipdProviders.find(
+        provider => provider.info.rdns === (state.modalType ?? rdns),
+      )
+
       let currentStateAdapters = state.adapters
 
       // Check if adapter is already in the state
@@ -367,10 +374,14 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
         // If not, create a new instance of the adapter
         try {
           const Adapter = await SUPPORTED_WALLETS[keyManager].adapters[index].loadAdapter()
-          const keyManagerOptions =
-            keyManager === KeyManager.MetaMask && maybeMipdProvider
-              ? maybeMipdProvider.info.rdns
-              : getKeyManagerOptions(keyManager, isDarkMode)
+          const keyManagerOptions = (() => {
+            if (keyManager === KeyManager.MetaMask && maybeMipdProvider)
+              return maybeMipdProvider.info.rdns
+            // MetaMask connect *intent* - MM may not be installed, and we need to pass the rdns for onboarding purposes
+            if (keyManager === KeyManager.MetaMask && state.modalType === METAMASK_RDNS)
+              return METAMASK_RDNS
+            return getKeyManagerOptions(keyManager, isDarkMode)
+          })()
           // @ts-ignore tsc is drunk as well, not narrowing to the specific adapter and its KeyManager options here
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -391,7 +402,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [isDarkMode, maybeMipdProvider, state.adapters, state.keyring],
+    [isDarkMode, mipdProviders, state.adapters, state.keyring, state.modalType],
   )
 
   const disconnect = useCallback(() => {

@@ -1,4 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
+import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -39,6 +40,10 @@ export const MultiHopTradeConfirm = memo(() => {
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
 
   const { isLoading } = useIsApprovalInitiallyNeeded()
+
+  const isArbitrumBridgeWithdraw = useMemo(() => {
+    return isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal'
+  }, [activeQuote])
 
   useEffect(() => {
     if (isLoading || !activeQuote) return
@@ -111,40 +116,47 @@ export const MultiHopTradeConfirm = memo(() => {
           onAcknowledge={handleTradeConfirm}
           shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
           setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-        >
-          <CardHeader px={6} pt={4}>
-            <WithBackButton onBack={handleBack}>
-              <Heading textAlign='center' fontSize='md'>
-                <Text
-                  translation={
-                    [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-                      confirmedTradeExecutionState,
-                    )
-                      ? 'trade.confirmDetails'
-                      : 'trade.trade'
-                  }
-                />
-              </Heading>
-            </WithBackButton>
-          </CardHeader>
-          {isTradeComplete ? (
-            <TradeSuccess handleBack={handleBack}>
-              <Hops isFirstHopOpen isSecondHopOpen />
-            </TradeSuccess>
-          ) : (
-            <>
-              <CardBody py={0} px={0}>
-                <Hops
-                  isFirstHopOpen={isFirstHopOpen}
-                  isSecondHopOpen={isSecondHopOpen}
-                  onToggleFirstHop={onToggleFirstHop}
-                  onToggleSecondHop={onToggleSecondHop}
-                />
-              </CardBody>
-              <Footer isLoading={isLoading} handleSubmit={handleSubmit} />
-            </>
-          )}
-        </WarningAcknowledgement>
+        />
+        <CardHeader px={6} pt={4}>
+          <WithBackButton onBack={handleBack}>
+            <Heading textAlign='center' fontSize='md'>
+              <Text
+                translation={
+                  [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+                    confirmedTradeExecutionState,
+                  )
+                    ? 'trade.confirmDetails'
+                    : 'trade.trade'
+                }
+              />
+            </Heading>
+          </WithBackButton>
+        </CardHeader>
+        {isTradeComplete ? (
+          <TradeSuccess
+            handleBack={handleBack}
+            titleTranslation={
+              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
+            }
+            descriptionTranslation={
+              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.withdrawComplete' : undefined
+            }
+          >
+            <Hops isFirstHopOpen isSecondHopOpen />
+          </TradeSuccess>
+        ) : (
+          <>
+            <CardBody py={0} px={0}>
+              <Hops
+                isFirstHopOpen={isFirstHopOpen}
+                isSecondHopOpen={isSecondHopOpen}
+                onToggleFirstHop={onToggleFirstHop}
+                onToggleSecondHop={onToggleSecondHop}
+              />
+            </CardBody>
+            <Footer isLoading={isLoading} handleSubmit={handleSubmit} />
+          </>
+        )}
       </Card>
     </TradeSlideTransition>
   )

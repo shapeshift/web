@@ -33,10 +33,12 @@ const calculatePercentChange = (openPrice: string, closePrice: string): number =
 }
 
 const { throttle, clear } = createThrottle({
-  capacity: 500, // 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
+  // in theory, 500 rpm as per https://github.com/shapeshift/web/pull/7401#discussion_r1687499650
+  // in practice, we get rate limited way before that
+  capacity: 50,
   costPerReq: 1,
-  drainPerInterval: 125, // Replenish 125 requests every 15 seconds
-  intervalMs: 15000, // 15 seconds
+  drainPerInterval: 50,
+  intervalMs: 60_000, // 1mn
 })
 
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })

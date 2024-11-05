@@ -31,6 +31,10 @@ export enum MixPanelEvent {
   RepayConfirm = 'Repay Confirm',
   TradeConfirmSecondHop = 'Trade Confirm Second Hop',
   TradeSuccess = 'Trade Success',
+  ThorDiscountTradeSuccess = 'Thor Discount Trade Success',
+  ThorDiscountTradeFailed = 'Thor Discount Trade Failed',
+  ThorDiscountTradeConfirm = 'Thor Discount Trade Confirm',
+  ThorDiscountTradeConfirmSecondHop = 'Thor Discount Trade Second Hop',
   BorrowSuccess = 'Borrow Success',
   RepaySuccess = 'Repay Success',
   TradeFailed = 'Trade Failed',
@@ -61,6 +65,7 @@ export enum MixPanelEvent {
   LpIncompleteWithdrawPreview = 'LP Incomplete Withdraw Preview',
   LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
   CustomAssetAdded = 'Custom Asset Added',
+  ToggleWatchAsset = 'Toggle Watch Asset',
 }
 
 export type TrackOpportunityProps = {

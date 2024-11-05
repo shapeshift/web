@@ -1,7 +1,9 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { Asset } from '@shapeshiftoss/types'
+import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -12,12 +14,15 @@ import {
   StreamingAcknowledgement,
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
+import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
@@ -28,8 +33,11 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectIsInputtingFiatSellAmount,
 } from 'state/slices/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
@@ -46,13 +54,18 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
+import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
+import { TradeAssetInput } from '../TradeAssetInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
+import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const acknowledgementBoxProps = {
-  display: 'flex',
-  justifyContent: 'center',
+const emptyPercentOptions: number[] = []
+const formControlProps = {
+  borderRadius: 0,
+  background: 'transparent',
+  borderWidth: 0,
 }
 
 const STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD = 1_000 * 60 * 5
@@ -80,6 +93,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   })
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
+  const buyAssetSearch = useModal('buyTradeAssetSearch')
 
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -88,11 +102,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
@@ -107,6 +124,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
+
+  const inputOutputDifferenceDecimalPercentage =
+    useInputOutputDifferenceDecimalPercentage(activeQuote)
 
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
@@ -212,6 +232,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
 
+      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Unable to execute trade')
+
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
 
       if (isLedger(wallet)) {
@@ -264,58 +286,153 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [isUnsafeQuote, activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit],
   )
 
+  const handleChangeSellAmountCryptoPrecision = useCallback(
+    (sellAmountCryptoPrecision: string) => {
+      dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+    },
+    [dispatch],
+  )
+
+  const handleIsInputtingFiatSellAmountChange = useCallback(
+    (isInputtingFiatSellAmount: boolean) => {
+      dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+    },
+    [dispatch],
+  )
+
+  const handleBuyAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: setBuyAsset,
+      title: 'trade.tradeTo',
+    })
+  }, [buyAssetSearch, setBuyAsset])
+
+  const buyTradeAssetSelect = useMemo(
+    () => (
+      <TradeAssetSelect
+        assetId={buyAsset.assetId}
+        onAssetClick={handleBuyAssetClick}
+        onAssetChange={setBuyAsset}
+        onlyConnectedChains={false}
+      />
+    ),
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
+  )
+
+  const bodyContent = useMemo(() => {
+    return (
+      <SharedTradeInputBody
+        buyAsset={buyAsset}
+        sellAssetAccountId={sellAssetAccountId}
+        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+        isLoading={isLoading}
+        sellAsset={sellAsset}
+        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+        sellAmountUserCurrency={sellAmountUserCurrency}
+        handleSwitchAssets={handleSwitchAssets}
+        setSellAsset={setSellAsset}
+        setSellAssetAccountId={setSellAssetAccountId}
+        onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
+        onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
+      >
+        <TradeAssetInput
+          // Disable account selection when user set a manual receive address
+          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+          isReadOnly={true}
+          accountId={buyAssetAccountId}
+          assetId={buyAsset.assetId}
+          assetSymbol={buyAsset.symbol}
+          assetIcon={buyAsset.icon}
+          cryptoAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed() : '0'
+          }
+          fiatAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+          }
+          percentOptions={emptyPercentOptions}
+          showInputSkeleton={isLoading}
+          showFiatSkeleton={isLoading}
+          label={translate('trade.youGet')}
+          onAccountIdChange={setBuyAssetAccountId}
+          formControlProps={formControlProps}
+          labelPostFix={buyTradeAssetSelect}
+          inputOutputDifferenceDecimalPercentage={inputOutputDifferenceDecimalPercentage}
+        />
+      </SharedTradeInputBody>
+    )
+  }, [
+    buyAmountAfterFeesCryptoPrecision,
+    buyAmountAfterFeesUserCurrency,
+    buyAsset,
+    buyAssetAccountId,
+    sellAssetAccountId,
+    isInputtingFiatSellAmount,
+    isLoading,
+    manualReceiveAddress,
+    sellAsset,
+    sellAmountCryptoPrecision,
+    sellAmountUserCurrency,
+    hasUserEnteredAmount,
+    translate,
+    buyTradeAssetSelect,
+    inputOutputDifferenceDecimalPercentage,
+    handleSwitchAssets,
+    setBuyAssetAccountId,
+    setSellAsset,
+    setSellAssetAccountId,
+    handleIsInputtingFiatSellAmountChange,
+    handleChangeSellAmountCryptoPrecision,
+  ])
+
+  const footerContent = useMemo(() => {
+    return (
+      <ConfirmSummary
+        isCompact={isCompact}
+        isLoading={isLoading}
+        receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
+      />
+    )
+  }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
+
+  // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
+  // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
+  // ArbitrumBridgeAcknowledgement, but never both. While the current implementation works, its by
+  // accident and we should implement better control flow to handle this in a more robust way so if
+  // we make any changes to these we aren't left in a broken state.
   return (
     <MessageOverlay show={isKeplr} title={overlayTitle}>
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
         shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
-        boxProps={acknowledgementBoxProps}
-      >
-        <StreamingAcknowledgement
-          onAcknowledge={handleFormSubmit}
-          shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
-          setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
-          estimatedTimeMs={
-            tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
-          }
-          boxProps={acknowledgementBoxProps}
-        >
-          <WarningAcknowledgement
-            message={warningAcknowledgementMessage}
-            onAcknowledge={handleWarningAcknowledgementSubmit}
-            shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
-            setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-            boxProps={acknowledgementBoxProps}
-          >
-            <SharedTradeInput
-              activeQuote={activeQuote}
-              buyAmountAfterFeesCryptoPrecision={buyAmountAfterFeesCryptoPrecision}
-              buyAmountAfterFeesUserCurrency={buyAmountAfterFeesUserCurrency}
-              buyAsset={buyAsset}
-              hasUserEnteredAmount={hasUserEnteredAmount}
-              headerRightContent={headerRightContent}
-              buyAssetAccountId={buyAssetAccountId}
-              sellAssetAccountId={sellAssetAccountId}
-              isCompact={isCompact}
-              isLoading={isLoading}
-              manualReceiveAddress={manualReceiveAddress}
-              sellAsset={sellAsset}
-              sideComponent={CollapsibleQuoteList}
-              tradeInputRef={tradeInputRef}
-              tradeInputTab={TradeInputTab.Trade}
-              walletReceiveAddress={walletReceiveAddress}
-              handleSwitchAssets={handleSwitchAssets}
-              onSubmit={handleTradeQuoteConfirm}
-              setBuyAsset={setBuyAsset}
-              setBuyAssetAccountId={setBuyAssetAccountId}
-              setSellAsset={setSellAsset}
-              setSellAssetAccountId={setSellAssetAccountId}
-              onChangeTab={onChangeTab}
-            />
-          </WarningAcknowledgement>
-        </StreamingAcknowledgement>
-      </ArbitrumBridgeAcknowledgement>
+      />
+      <StreamingAcknowledgement
+        onAcknowledge={handleFormSubmit}
+        shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
+        estimatedTimeMs={
+          tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
+        }
+      />
+      <WarningAcknowledgement
+        message={warningAcknowledgementMessage}
+        onAcknowledge={handleWarningAcknowledgementSubmit}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
+      <SharedTradeInput
+        bodyContent={bodyContent}
+        footerContent={footerContent}
+        shouldOpenSideComponent={hasUserEnteredAmount}
+        headerRightContent={headerRightContent}
+        isCompact={isCompact}
+        isLoading={isLoading}
+        sideComponent={CollapsibleQuoteList}
+        tradeInputRef={tradeInputRef}
+        tradeInputTab={TradeInputTab.Trade}
+        onSubmit={handleTradeQuoteConfirm}
+        onChangeTab={onChangeTab}
+      />
     </MessageOverlay>
   )
 }

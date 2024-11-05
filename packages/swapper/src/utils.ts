@@ -13,10 +13,14 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
+  ExecutableTradeQuote,
+  ExecutableTradeStep,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
   TradeQuote,
+  TradeQuoteOrRate,
+  TradeQuoteStep,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -146,7 +150,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export const getHopByIndex = (
-  quote: TradeQuote | undefined,
+  quote: TradeQuoteOrRate | undefined,
   index: SupportedTradeQuoteStepIndex,
 ) => {
   if (quote === undefined) return undefined
@@ -285,3 +289,9 @@ export const getRate = ({
   const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
+
+export const isExecutableTradeQuote = (quote: TradeQuote): quote is ExecutableTradeQuote =>
+  !!quote.receiveAddress
+
+export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
+  step.accountNumber !== undefined

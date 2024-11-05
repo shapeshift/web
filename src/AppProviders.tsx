@@ -7,6 +7,7 @@ import {
 import { createWallet } from '@passkeys/core'
 import { WalletProvider as PassKeysWalletProvider } from '@passkeys/react'
 import { captureException } from '@sentry/react'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { DefiManagerProvider } from 'features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
 import { WalletConnectV2Provider } from 'plugins/walletConnectToDapps/WalletConnectV2Provider'
 import React, { useCallback } from 'react'
@@ -32,6 +33,8 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { wagmiConfig } from 'lib/wagmi-config'
 import { ErrorPage } from 'pages/ErrorPage/ErrorPage'
+import { FoxPageProvider } from 'pages/Fox/hooks/useFoxPageContext'
+import { RFOXProvider } from 'pages/RFOX/hooks/useRfoxContext'
 import { SplashScreen } from 'pages/SplashScreen/SplashScreen'
 import { persistor, store } from 'state/store'
 import { theme } from 'theme/theme'
@@ -49,6 +52,7 @@ const wallet = createWallet({
     ethereum: true,
   },
 })
+const rfoxStakingAssetId = foxOnArbitrumOneAssetId
 
 export function AppProviders({ children }: ProvidersProps) {
   const { ToastContainer } = createStandaloneToast()
@@ -88,7 +92,11 @@ export function AppProviders({ children }: ProvidersProps) {
                                     <TransactionsProvider>
                                       <AppProvider>
                                         <FoxEthProvider>
-                                          <DefiManagerProvider>{children}</DefiManagerProvider>
+                                          <DefiManagerProvider>
+                                            <RFOXProvider stakingAssetId={rfoxStakingAssetId}>
+                                              <FoxPageProvider>{children}</FoxPageProvider>
+                                            </RFOXProvider>
+                                          </DefiManagerProvider>
                                         </FoxEthProvider>
                                       </AppProvider>
                                     </TransactionsProvider>

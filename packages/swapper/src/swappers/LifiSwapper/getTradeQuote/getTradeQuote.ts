@@ -15,6 +15,8 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapperDeps,
@@ -34,9 +36,9 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-export async function getTradeQuote(
+async function getTrade(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
@@ -92,7 +94,13 @@ export async function getTradeQuote(
       // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
-      bridges: { deny: ['stargate', 'stargateV2', 'amarok', 'arbitrum'] },
+      // Routes via Stargate or Amarok can always be executed in one step, as LiFi can make those
+      // bridges swap into any requested token on the destination chain. Other bridges my require
+      // two steps. As such, additional balance checks on the destination chain are required which
+      // are currently incompatible with our fee calculations, leading to incorrect fee display,
+      // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
+      // these bridges are disabled.
+      bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -201,7 +209,7 @@ export async function getTradeQuote(
           const networkFeeCryptoBaseUnit = await getNetworkFeeCryptoBaseUnit({
             chainId: stepChainId,
             lifiStep,
-            supportsEIP1559,
+            supportsEIP1559: Boolean(supportsEIP1559),
             deps,
           })
 
@@ -279,4 +287,24 @@ export async function getTradeQuote(
   }
 
   return Ok(promises.filter(isFulfilled).map(({ value }) => value))
+}
+
+// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
+
+export const getTradeQuote = (
+  input: GetEvmTradeQuoteInputBase,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+
+export const getTradeRate = async (
+  input: GetEvmTradeRateInput,
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeRate[], SwapErrorRight>> => {
+  const rate = (await getTrade(input, deps, lifiChainMap)) as Result<
+    LifiTradeRate[],
+    SwapErrorRight
+  >
+  return rate
 }

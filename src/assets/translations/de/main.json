@@ -16,6 +16,7 @@
     "done": "Erledigt",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "closed": "Abgeschlossen",
     "loadMore": "Mehr laden",
     "saveChanges": "Änderungen speichern",
     "new": "Neu",
@@ -49,6 +50,7 @@
     "overview": "Übersicht",
     "getStarted": "Loslegen",
     "connectWallet": "Verbinde Wallet",
+    "connectWalletToGetStartedWith": "Verbinden Sie eine Wallet, um mit %{feature} zu beginnen",
     "connectedWallet": "Verbundene Wallet",
     "connectedWalletSettings": "Wallet Einstellungen",
     "noWallet": "Keine Wallet verbunden",
@@ -156,6 +158,7 @@
     "asymmetric": "Asymmetrische (%{assetSymbol})",
     "import": "Importieren",
     "accountsLoading": "Lade Konten",
+    "noAccounts": "Keine Konten für die ausgewählten Filter.",
     "carousel": {
       "next": "Weiter",
       "prev": "Zuvor",
@@ -442,7 +445,7 @@
         "cannotWithdrawWhilePendingTx": "Kann nicht auszahlen, während Txs ausstehen",
         "dangerousWithdrawWarning": "Die THORChain-Gebühr kann zum Totalverlust der abgehobenen Mittel führen. Um dieses Problem zu vermeiden, sollten Sie einen höheren Betrag abheben.",
         "agreeRunePool": {
-          "1": "Mir ist bewusst, dass RUNEPool eine Mindestsperrfrist von 90 Tagen hat und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
+          "1": "Mir ist bewusst, dass bei RUNEPool eine Mindestsperrfrist von 30 Tagen besteht und ein erhöhtes Risiko eines vorübergehenden Verlusts besteht."
         }
       }
     },
@@ -617,6 +620,7 @@
     "lending": "Verleihen",
     "pools": "Pools",
     "rFOX": "rFOX",
+    "foxBenefits": "FOX Vorteile",
     "markets": "Märkte",
     "actionMenu": {
       "send": {
@@ -789,7 +793,11 @@
       "description": "Bridge über Arbitrum",
       "waitWarning": "Die natives bridging von Arbitrum ist sicherer, aber die Geltendmachung kann bis zu einer Woche dauern.",
       "waitCta": "Ich verstehe, dass es zirka 7 Tage dauern wird, bis ich Guthaben auf Ethereum einfordern kann",
-      "claimCta": "Ich verstehe, dass ich nach der Beantragung meines Geldes eine weitere gebührenpflichtige Transaktion durchführen muss."
+      "claimCta": "Ich verstehe, dass ich nach der Beantragung meines Geldes eine weitere gebührenpflichtige Transaktion durchführen muss.",
+      "success": {
+        "tradeSuccess": "Bridging initiiert",
+        "withdrawComplete": "Das Bridging von %{symbol} zu %{chainName} wurde erfolgreich initiiert."
+      }
     },
     "claim": "Beanspruchen",
     "claimReceiveAddress": "Adresse für den Erhalt des Anspruchs",
@@ -801,7 +809,10 @@
     "pendingClaims": "Ausstehend",
     "noPendingClaims": "Keine Ansprüche offen",
     "availableIn": "Verfügbar in %{time}",
-    "confirmAndClaim": "Bestätigen und Beanspruchen"
+    "confirmAndClaim": "Bestätigen und Beanspruchen",
+    "viewClaims": "Ansprüche anzeigen",
+    "viewClaimStatus": "Anspruchsstatus anzeigen",
+    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!"
   },
   "trade": {
     "trade": "Handeln",
@@ -901,6 +912,13 @@
         "negativeRatio": "Unzureichender Verkaufsbetrag"
       }
     },
+    "permit2": {
+      "title": "Token-Übertragung zulassen:",
+      "description": "Erteilen Sie dem Smart Contract die Berechtigung, %{symbol} in Ihrem Namen zu verwenden.",
+      "tooltip": "Dieser Handel verfügt über eine zusätzliche Sicherheitsfunktion namens „Permit2“, die erfordert, dass Sie der Anwendung die Berechtigung erteilen, den Handel in Ihrem Namen abzuschließen.",
+      "error": "Beim Signieren der Permit2-Nachricht ist ein Problem aufgetreten",
+      "signMessage": "Nachricht signieren"
+    },
     "errors": {
       "title": "Etwas ist schief gelaufen",
       "amountTooSmall": "Minimum: %{minLimit}",
@@ -948,12 +966,14 @@
     "priceImpactWarning": "Aufgrund der Größe dieses Handels im Verhältnis zur verfügbaren Liquidität beträgt die erwartete Preisauswirkung dieses Handels %{priceImpactPercentage}%. Sind Sie sicher, dass Sie handeln möchten?",
     "enableMetaMaskSnap": "Verwenden Sie den Multichain Snap",
     "connectChain": "verbinde %{chainName}",
-    "approvalGasFee": "Genehmigungsgasgebühr %{fee}",
-    "approvalGasFeeLoading": "Gasgebühr für Genehmigung wird geladen...",
-    "approvalResetGasFee": "Gasgebühr %{fee} zum Zurücksetzen der Genehmigung",
-    "approvalResetGasFeeLoading": "Gasgebühr zum Zurücksetzen der Genehmigung wird geladen …",
+    "approvalGasFee": "Gasgebühr für die Genehmigung des Zuschusses %{fee}",
+    "approvalGasFeeLoading": "Zuschussgenehmigung Gasgebühr wird geladen...",
+    "approvalResetGasFee": "Gasgebühr für das Zurücksetzen des Kontingents %{fee}",
+    "approvalResetGasFeeLoading": "Kontingent zurücksetzen, Gasgebühr wird geladen …",
     "approvalFailed": "Bei der Genehmigung ist ein Problem aufgetreten",
     "approvalResetFailed": "Beim Zurücksetzen der Genehmigung ist ein Problem aufgetreten",
+    "allowanceResetTxName": "Zurücksetzen des Zuschusses tx:",
+    "allowanceApprovalTxName": "Genehmigung der Zulage tx:",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
     "showDetails": "Zeige Details",
@@ -981,6 +1001,9 @@
       "cantSetSlippage": "Wir können keine benutzerdefinierte Slippage (%{userSlippageFormatted}) für %{swapperName} festlegen",
       "slippage": "Slippage: %{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "Limit-Auftrag"
   },
   "modals": {
     "assetSearch": {
@@ -1510,20 +1533,21 @@
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
       "signWarning": "Stellen Sie vor dem Signieren sicher, dass die %{chain} App auf Ihrem Gerät geöffnet ist."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "Bei der Kommunikation mit MetaMask ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "MetaMask Wallet kann nicht verbunden werden",
-        "multipleWallets": "Erkannter Ethereum-Anbieter ist nicht MetaMask. Hast du mehrere Wallets installiert?"
-      },
+    "mipd": {
       "connect": {
-        "header": "mit MetaMask verbinden",
-        "body": "Klicken Sie im Popup-Fenster auf Koppeln und melden Sie sich bei MetaMask an",
-        "button": "Paar"
+        "header": "Koppeln %{name}",
+        "body": "Klicken Sie auf „Koppeln“ und melden Sie sich im Popup-Fenster bei %{name} an.",
+        "button": "Koppeln"
+      },
+      "errors": {
+        "unknown": "Bei der Kommunikation mit %{name} ist ein unerwarteter Fehler aufgetreten",
+        "connectFailure": "Verbindung zu %{name} nicht möglich"
       },
       "failure": {
-        "body": "MetaMask Wallet kann nicht verbunden werden"
-      },
+        "body": "Verbindung zu %{name} nicht möglich"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "In der MetaMask Applikation \n öffnen",
         "body": "Klicken Sie hier, um das ShapeShift Dashboard in MetaMask zu öffnen",
@@ -1610,26 +1634,6 @@
       },
       "failure": {
         "body": "WalletConnect Wallet kann nicht verbunden werden"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "Bei der Kommunikation mit XDEFI ist ein unerwarteter Fehler aufgetreten",
-        "connectFailure": "XDEFI Wallet kann nicht verbunden werden",
-        "multipleWallets": "Der erkannte Ethereum-Anbieter ist nicht XDEFI. Haben Sie mehrere Wallets installiert und eingeschaltet? Priorisieren Sie XDEFI in den Einstellungen und drücken Sie erneut auf „Pair“."
-      },
-      "connect": {
-        "header": "XDEFI koppeln",
-        "body": "Klicken Sie im Popup-Fenster auf Koppeln und melden Sie sich bei XDEFI an",
-        "button": "Koppeln"
-      },
-      "failure": {
-        "body": "XDEFI Wallet kann nicht verbunden werden"
-      },
-      "redirect": {
-        "header": "In der XDEFI-App öffnen",
-        "body": "Klicken Sie hier, um das ShapeShift-Dashboard in XDEFI zu öffnen",
-        "button": "Öffnen"
       }
     },
     "shapeShift": {
@@ -2596,6 +2600,77 @@
   },
   "markets": {
     "recommended": "Empfohlen",
-    "watchlist": "Meine Merkliste"
+    "watchlist": "Meine Merkliste",
+    "marketsBody": "Entdecken Sie die aufregendsten Kryptowährungen. Verfolgen Sie die Top-Mover, aufstrebende Token, DeFi-Chancen und vieles mehr. Speichern, teilen und handeln Sie Ihre Favoriten.",
+    "watchlistEmpty": {
+      "emptyTitle": "Keine Vermögenswerte in der Beobachtungsliste",
+      "emptyBody": "Es scheint, dass Sie bisher keine Vermögenswerte mit einem Stern markiert haben. Fügen Sie jetzt Vermögenswerte zu Ihrer Beobachtungsliste hinzu, um sie zu verfolgen!"
+    },
+    "emptyTitle": "Keine Vermögenswerte gefunden",
+    "emptyBody": "Mit dem aktuellen Filter wurden keine Assets gefunden. Weitere Assets können Sie anzeigen, indem Sie die ausgewählte Kette anpassen.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "DeFi-Vermögenswerte mit einem Klick",
+        "subtitle": "Entdecken Sie die Rendite, die am besten zu Ihnen passt! Wechseln Sie mühelos mit Portalen zwischen Pools, Tresoren, Kreditoptionen und LSDs."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "Erzielen Sie mit THORChain Savers eine lokale Rendite auf Ihr Vermögen."
+      },
+      "trending": {
+        "title": "Beliebt",
+        "subtitle": "Die am häufigsten angesehenen Vermögenswerte der letzten 24 Stunden."
+      },
+      "tradingVolume": {
+        "title": "Handelsvolumen",
+        "subtitle": "Top-Werte mit dem höchsten Handelsvolumen in den letzten 24 Stunden."
+      },
+      "marketCap": {
+        "title": "Marktkapitalisierung",
+        "subtitle": "Top-Werte mit der höchsten Marktkapitalisierung in den letzten 24 Stunden."
+      },
+      "topMovers": {
+        "title": "Top Auf- oder Absteiger",
+        "subtitle": "Top-Vermögenswerte, die um %{percentage}% oder mehr gestiegen sind."
+      },
+      "recentlyAdded": {
+        "title": "Kürzlich hinzugefügt",
+        "subtitle": "Entdecken Sie aktuelle Produkteinführungen."
+      }
+    }
+  },
+  "foxPage": {
+    "title": "FOX-Token-Dashboard",
+    "description": "Seit 2019 bietet unser \"Shapeshifting\" FOX Token den Benutzern eine ständig wachsende Welt voller Nutzen und Vorteile. Heute erhalten Sie mit unserem ERC20 Governance Token Gebührenrabatte, einen Anteil an den Einnahmen von THORChain und können die Zukunft von ShapeShift durch Ihre Stimme beeinflussen. Setzen Sie hier Ihre FOX-Bestände ein, tauschen Sie sie, kaufen Sie sie, senden Sie sie und verwalten Sie sie.",
+    "foxToken": "FOX Token",
+    "24hrPriceChange": "24h Preisänderung",
+    "rfox": {
+      "whatIs": "Was ist rFOX Staking?",
+      "totalFoxBurn": "Alle verbrannten FOX",
+      "simulateTitle": "rFOX Simulator",
+      "simulateSubtle": "Geben Sie die Anzahl der Einzahlungen ein",
+      "estimatedRewards": "Geschätzte Belohnungen",
+      "depositAmount": "Einzahlungsbetrag",
+      "shapeshiftRevenue": "ShapeShift Umsatz",
+      "30days": "30 Tage"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "Sind Sie es leid, Ihr %{rewardAssetSymbol} von Farm zu Farm zu migrieren? Setzen Sie einfach Ihre %{assetSymbol} ein und verdienen Sie dauerhaft %{rewardAssetSymbol}.",
+      "totalClaimableRewards": "Gesamte einforderbare Belohnungen",
+      "totalStakingValue": "Gesamter Einsatzwert",
+      "nextEpoch": "Nächste Epoche"
+    },
+    "governance": {
+      "title": "Verwaltung",
+      "description": {
+        "0": "Folgen Sie uns",
+        "1": "im Forum",
+        "2": "und gestalten Sie die Zukunft der DAO."
+      },
+      "totalVotingPower": "Gesamtstimmrecht",
+      "noActiveProposals": "Keine aktiven Vorschläge verfügbar",
+      "noClosedProposals": "Keine abgeschlossenen Vorschläge verfügbar"
+    }
   }
 }

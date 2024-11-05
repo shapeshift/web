@@ -8,12 +8,13 @@ import { AssetIcon } from 'components/AssetIcon'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
+import { getStyledMenuButtonProps } from '../helpers'
 import { AssetRowLoading } from './AssetRowLoading'
 
 export type AssetMenuButtonProps = {
   assetId?: AssetId
   onAssetClick?: (asset: Asset) => void
-  isDisabled: boolean
+  isDisabled?: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
   showNetworkIcon?: boolean
@@ -58,4 +59,18 @@ export const AssetMenuButton = ({
       </Flex>
     </Button>
   )
+}
+
+export const StyledAssetMenuButton = ({
+  isDisabled,
+  rightIcon,
+  buttonProps,
+  ...rest
+}: AssetMenuButtonProps & { rightIcon?: React.ReactElement }) => {
+  const combinedButtonProps = useMemo(
+    () => getStyledMenuButtonProps({ isDisabled, rightIcon, buttonProps }),
+    [isDisabled, rightIcon, buttonProps],
+  )
+
+  return <AssetMenuButton {...rest} buttonProps={combinedButtonProps} isDisabled={isDisabled} />
 }

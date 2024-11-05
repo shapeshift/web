@@ -9,7 +9,12 @@ import type {
   SupportedTradeQuoteStepIndex,
   TradeQuote,
 } from '@shapeshiftoss/swapper'
-import { getHopByIndex, SwapperName, TradeExecutionEvent } from '@shapeshiftoss/swapper'
+import {
+  getHopByIndex,
+  isExecutableTradeQuote,
+  SwapperName,
+  TradeExecutionEvent,
+} from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
@@ -17,16 +22,20 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { bnOrZero } from 'lib/bignumber/bignumber'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
+import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectHopExecutionMetadata,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -46,6 +55,14 @@ export const useTradeExecution = (
   const { showErrorToast } = useErrorHandler()
   const trackMixpanelEvent = useMixpanel()
   const hasMixpanelSuccessOrFailFiredRef = useRef(false)
+  const thorVotingPower = useAppSelector(selectThorVotingPower)
+
+  const isThorFreeTrade = useMemo(
+    () =>
+      bnOrZero(thorVotingPower).toNumber() >= THORSWAP_UNIT_THRESHOLD &&
+      new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [thorVotingPower],
+  )
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
@@ -55,6 +72,17 @@ export const useTradeExecution = (
 
   const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
+  )
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: confirmedTradeId,
+      hopIndex,
+    }
+  }, [confirmedTradeId, hopIndex])
+
+  const { permit2 } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
   const accountMetadataFilter = useMemo(
@@ -108,6 +136,10 @@ export const useTradeExecution = (
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeFailed)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (isThorFreeTrade) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeFailed)
+          }
         }
 
         resolve()
@@ -119,6 +151,14 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event)
+
+        if (isThorFreeTrade) {
+          trackMixpanelEvent(
+            hopIndex === 0
+              ? MixPanelEvent.ThorDiscountTradeConfirm
+              : MixPanelEvent.ThorDiscountTradeConfirmSecondHop,
+          )
+        }
       }
 
       const execution = new TradeExecution()
@@ -194,6 +234,10 @@ export const useTradeExecution = (
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
+
+          if (isThorFreeTrade) {
+            trackMixpanelEvent(MixPanelEvent.ThorDiscountTradeSuccess)
+          }
         }
 
         resolve()
@@ -206,6 +250,8 @@ export const useTradeExecution = (
       const stepSellAssetChainId = hop.sellAsset.chainId
       const stepSellAssetAssetId = hop.sellAsset.assetId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
+
+      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
@@ -242,7 +288,7 @@ export const useTradeExecution = (
       const { chainNamespace: stepSellAssetChainNamespace } = fromChainId(stepSellAssetChainId)
 
       const receiverAddress =
-        tradeQuote.receiveAddress && stepBuyAssetAssetId === bchAssetId
+        stepBuyAssetAssetId === bchAssetId
           ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
           : tradeQuote.receiveAddress
 
@@ -259,6 +305,7 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             supportsEIP1559,
+            permit2Signature: permit2.permit2Signature,
             signAndBroadcastTransaction: async (transactionRequest: EvmTransactionRequest) => {
               const { txToSign } = await adapter.buildCustomTx({
                 ...transactionRequest,
@@ -283,6 +330,7 @@ export const useTradeExecution = (
         }
         case CHAIN_NAMESPACE.Utxo: {
           if (accountType === undefined) throw Error('Missing UTXO account type')
+
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
           const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
           const _senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
@@ -379,6 +427,8 @@ export const useTradeExecution = (
     translate,
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
+    permit2.permit2Signature,
+    isThorFreeTrade,
   ])
 
   return executeTrade

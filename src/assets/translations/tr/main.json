@@ -16,6 +16,7 @@
     "done": "Tamamlandı",
     "cancel": "İptal",
     "close": "Kapat",
+    "closed": "Kapalı",
     "loadMore": "Daha fazla",
     "saveChanges": "Değişiklikleri Kaydet",
     "new": "Yeni",
@@ -49,6 +50,7 @@
     "overview": "Genel Bakış",
     "getStarted": "Başlayın",
     "connectWallet": "Cüzdan Bağla",
+    "connectWalletToGetStartedWith": "%{feature} ile başlamak için bir cüzdan bağlayın",
     "connectedWallet": "Cüzdan Bağlandı",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
@@ -156,6 +158,7 @@
     "asymmetric": "Asimetrik (%{assetSymbol})",
     "import": "İçe aktar",
     "accountsLoading": "Hesaplar Yükleniyor",
+    "noAccounts": "Seçilen filtrelere ait hesap bulunamadı.",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -442,7 +445,7 @@
         "cannotWithdrawWhilePendingTx": "Tx'ler beklemedeyken çekim yapılamaz",
         "dangerousWithdrawWarning": "THORChain ücreti, çekilen fonların tamamen kaybedilmesine neden olabilir. Bu sorunu önlemek için daha yüksek bir miktar çekmeyi düşünün.",
         "agreeRunePool": {
-          "1": "RUNEPool'un hem 90 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu biliyorum."
+          "1": "RUNEPool'un hem 30 günlük asgari bir kilitleme süresine sahip olduğunu hem de kalıcı olmayan kayıp riskinin yüksek olduğunu anlıyorum."
         }
       }
     },
@@ -617,6 +620,7 @@
     "lending": "Borç Verme",
     "pools": "Havuzlar",
     "rFOX": "rFOX",
+    "foxBenefits": "FOX Avantajları",
     "markets": "Piyasalar",
     "actionMenu": {
       "send": {
@@ -789,7 +793,11 @@
       "description": "Arbitrum ile Köprü",
       "waitWarning": "Arbitrum'un yerel köprüsü daha güvenlidir ancak alınması bir hafta kadar sürebilir.",
       "waitCta": "Ethereum'da fon talebinde bulunabilmemin ~7 gün süreceğini biliyorum",
-      "claimCta": "Paramı talep ettikten sonra ücretli başka bir işlem göndermem gerekeceğini anlıyorum"
+      "claimCta": "Paramı talep ettikten sonra ücretli başka bir işlem göndermem gerekeceğini anlıyorum",
+      "success": {
+        "tradeSuccess": "Köprü başlatıldı",
+        "withdrawComplete": "%{symbol} ile %{chainName} arasındaki köprüleme başarıyla başlatıldı."
+      }
     },
     "claim": "Talep Et",
     "claimReceiveAddress": "Alıcı Adresi Talep Et",
@@ -801,7 +809,10 @@
     "pendingClaims": "Bekleyen",
     "noPendingClaims": "Bekleyen hiçbir talep yok",
     "availableIn": "%{time} içinde mevcut",
-    "confirmAndClaim": "Onayla ve Talep Et"
+    "confirmAndClaim": "Onayla ve Talep Et",
+    "viewClaims": "Talepleri Görüntüle",
+    "viewClaimStatus": "Talep Durumunu Görüntüle",
+    "availableClaimsNotification": "Köprü talepleriniz hazır!"
   },
   "trade": {
     "trade": "Takas",
@@ -901,6 +912,13 @@
         "negativeRatio": "Yetersiz satış tutarı"
       }
     },
+    "permit2": {
+      "title": "Token transferine izin ver:",
+      "description": "Akıllı sözleşmeye sizin adınıza %{symbol} kullanma izni verin.",
+      "tooltip": "Bu işlem, uygulamanın sizin adınıza işlemi tamamlaması için izin vermenizi gerektiren 'Permit2' adı verilen ek bir güvenlik özelliğine sahiptir.",
+      "error": "Permit2 mesajının imzalanmasında bir sorun oluştu",
+      "signMessage": "Mesajı imzala"
+    },
     "errors": {
       "title": "Bir şeyler ters gitti",
       "amountTooSmall": "Minimum: %{minLimit}",
@@ -948,12 +966,14 @@
     "priceImpactWarning": "Mevcut likiditeye göre bu işlemin boyutu nedeniyle, bu işlemin beklenen fiyat etkisi %{priceImpactPercentage}% şeklindedir. Takas yapmak istediğinizden emin misiniz?",
     "enableMetaMaskSnap": "Multichain snap'i kullan",
     "connectChain": "%{chainName}'i bağla",
-    "approvalGasFee": "Gaz ücreti onayı %{fee}",
-    "approvalGasFeeLoading": "Onaylanan gaz ücreti yükleniyor...",
-    "approvalResetGasFee": "Onaylanan gaz ücretini sıfırla %{fee}",
-    "approvalResetGasFeeLoading": "Onaylanan gaz ücreti sıfırlama yükleniyor...",
+    "approvalGasFee": "Tahsisat onayı gaz ücreti %{fee}",
+    "approvalGasFeeLoading": "Tahsisat onayı gaz ücreti yükleniyor...",
+    "approvalResetGasFee": "Tahsisat sıfırlama gaz ücreti %{fee}",
+    "approvalResetGasFeeLoading": "Tahsisat sıfırlama gaz ücreti yükleniyor...",
     "approvalFailed": "Ödenek onayı sırasında bir sorun oluştu",
     "approvalResetFailed": "Ödenek sıfırlama sırasında bir sorun oluştu",
+    "allowanceResetTxName": "Tahsisat sıfırlama tx:",
+    "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
     "showDetails": "Detayları göster",
@@ -981,6 +1001,9 @@
       "cantSetSlippage": "%{swapperName} için özel bir kayma (%{userSlippageFormatted}) ayarlayamıyoruz",
       "slippage": "Kayma: %{slippageFormatted}"
     }
+  },
+  "limitOrder": {
+    "heading": "Limit Emri"
   },
   "modals": {
     "assetSearch": {
@@ -1510,20 +1533,21 @@
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
       "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."
     },
-    "metaMask": {
-      "errors": {
-        "unknown": "MetaMask ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "MetaMask cüzdanına bağlanılamıyor",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı MetaMask değil. Yüklü birden fazla cüzdanınız var mı?"
-      },
+    "mipd": {
       "connect": {
-        "header": "MetaMask'la Eşleştir",
-        "body": "Eşleştir'e tıklayın ve açılır pencereden MetaMask'ta oturum açın",
-        "button": "Eşleştir"
+        "header": "Eş %{name}",
+        "body": "Eşleştir'e tıklayın ve açılan pencereden %{name}'e giriş yapın",
+        "button": "Eş"
+      },
+      "errors": {
+        "unknown": "%{name} ile iletişim kurulurken beklenmeyen bir hata oluştu",
+        "connectFailure": "%{name}'e bağlanılamıyor"
       },
       "failure": {
-        "body": "MetaMask cüzdanına bağlanılamıyor"
-      },
+        "body": "%{name}'e bağlanılamıyor"
+      }
+    },
+    "metaMask": {
       "redirect": {
         "header": "MetaMask Uygulamasında Aç",
         "body": "ShapeShift panosunu MetaMask'ta açmak için tıklayın",
@@ -1610,26 +1634,6 @@
       },
       "failure": {
         "body": "WalletConnect cüzdanına bağlanılamıyor"
-      }
-    },
-    "xdefi": {
-      "errors": {
-        "unknown": "XDEFI ile iletişim kurulurken beklenmeyen bir hata oluştu",
-        "connectFailure": "XDEFI cüzdanına bağlanılamıyor",
-        "multipleWallets": "Tespit edilen Ethereum sağlayıcısı XDEFI değil. Yüklü ve açık birden fazla cüzdanınız mı var? Ayarlarda XDEFI'ye öncelik verin ve tekrar eşleştirmeye basın."
-      },
-      "connect": {
-        "header": "XDEFI'yi eşle",
-        "body": "Açılan pencereden Eşleştir'e tıklayın ve XDEFI'de oturum açın",
-        "button": "Eşle"
-      },
-      "failure": {
-        "body": "XDEFI cüzdanına bağlanılamıyor"
-      },
-      "redirect": {
-        "header": "XDEFI Uygulamasında aç",
-        "body": "XDEFI'de ShapeShift kontrol panelini açmak için tıklayın",
-        "button": "Aç"
       }
     },
     "shapeShift": {
@@ -2596,6 +2600,77 @@
   },
   "markets": {
     "recommended": "Önerilen",
-    "watchlist": "İzleme Listem"
+    "watchlist": "İzleme Listem",
+    "marketsBody": "En heyecan verici kripto paraları keşfedin. En çok hareket edenleri, yükselen token'ları, DeFi fırsatlarını ve çok daha fazlasını takip edin. Favorilerinizi kaydedin, paylaşın ve ticaretini yapın.",
+    "watchlistEmpty": {
+      "emptyTitle": "İzleme Listesinde varlık yok",
+      "emptyBody": "Görünüşe göre henüz hiçbir varlığı yıldızlamadınız. Varlıkları takip etmek için onları şimdi izleme listenize eklemeye başlayın!"
+    },
+    "emptyTitle": "Hiçbir varlık bulunamadı",
+    "emptyBody": "Mevcut filtreyle hiçbir varlık bulunamadı. Seçilen zinciri ayarlayarak daha fazla varlık görün.",
+    "categories": {
+      "oneClickDefiAssets": {
+        "title": "Tek Tıkla DeFi Varlıkları",
+        "subtitle": "Size en uygun getiriyi keşfedin! Portallar ile Havuzlar, Kasalar, borç verme seçenekleri ve LSD'ler arasında zahmetsizce geçiş yapın."
+      },
+      "thorchainDefi": {
+        "title": "THORChain DeFi",
+        "subtitle": "THORCHain Savers ile varlıklarınızdan yerel getiri elde edin."
+      },
+      "trending": {
+        "title": "Trendler",
+        "subtitle": "Son 24 saatte en çok görüntülenen varlıklar."
+      },
+      "tradingVolume": {
+        "title": "Ticaret Hacmi",
+        "subtitle": "Son 24 saatte en yüksek işlem hacmine sahip varlıklar."
+      },
+      "marketCap": {
+        "title": "Piyasa Değeri",
+        "subtitle": "Son 24 saatte en yüksek piyasa değerine sahip en önemli varlıklar."
+      },
+      "topMovers": {
+        "title": "En Çok Hareket Edenler",
+        "subtitle": "%{percentage}% veya daha fazla artış gösteren en iyi varlıklar."
+      },
+      "recentlyAdded": {
+        "title": "Son Eklenenler",
+        "subtitle": "Son lansmanları keşfedin."
+      }
+    }
+  },
+  "foxPage": {
+    "title": "FOX Token Panosu",
+    "description": "2019'dan beri, şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantaj dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size ücret indirimleri, THORChain'de gelirlerde bir pay sağlıyor ve ShapeShift'in geleceğini oylarınızla etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, tedarik edin ve yönetin.",
+    "foxToken": "FOX Token",
+    "24hrPriceChange": "24sa Fiyat Değişimi",
+    "rfox": {
+      "whatIs": "rFOX Staking Nedir?",
+      "totalFoxBurn": "Toplam FOX Yanması",
+      "simulateTitle": "rFOX Simülatörü",
+      "simulateSubtle": "Yatırma işleminin girdi numarası",
+      "estimatedRewards": "Tahmini Ödüller",
+      "depositAmount": "Depozito Tutarı",
+      "shapeshiftRevenue": "ShapeShift Revenue",
+      "30days": "30 gün"
+    },
+    "foxFarming": {
+      "title": "FOX Farming+",
+      "description": "%{rewardAssetSymbol}'unuzu çiftlikten çiftliğe taşımaktan bıktınız mı? Sadece %{assetSymbol}'unuzu stake edin ve sonsuza dek %{rewardAssetSymbol} kazanın.",
+      "totalClaimableRewards": "Toplam Talep Edilebilir Ödüller",
+      "totalStakingValue": "Toplam Staking Değeri",
+      "nextEpoch": "Sonraki Dönem"
+    },
+    "governance": {
+      "title": "Yönetim",
+      "description": {
+        "0": "Forumda",
+        "1": "bize katılın",
+        "2": "ve DAO'nun geleceğini şekillendireceğiz."
+      },
+      "totalVotingPower": "Toplam Oy Gücü",
+      "noActiveProposals": "Aktif teklif yok",
+      "noClosedProposals": "Kapalı teklif yok"
+    }
   }
 }

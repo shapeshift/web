@@ -1,9 +1,12 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
+import { fromAssetId } from '@shapeshiftoss/caip'
+import type { ResponseError } from '@shapeshiftoss/unchained-client/src/generated/arbitrum'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { selectAssetById } from 'state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { store } from 'state/store'
 
 import type { SendInput } from '../../Form'
@@ -57,6 +60,39 @@ export const useFormSend = () => {
         // If we're here, we know asset is defined
         const asset = selectAssetById(store.getState(), sendInput.assetId)!
         console.error(e)
+
+        if ((e as Error).name === 'ResponseError') {
+          const error = await (e as ResponseError).response.json()
+          const jsonError = JSON.parse(error.message)
+
+          const chainAdapterManager = getChainAdapterManager()
+
+          const feeAssetId = chainAdapterManager
+            .get(fromAssetId(asset.assetId).chainId)
+            ?.getFeeAssetId()
+
+          const feeAsset = selectFeeAssetById(store.getState(), feeAssetId ?? '')
+
+          // @TODO: as this is the first time we are handling errors from unchained in this scope, we dont have a complete error handling strategy
+          // If we need to handle more errors, we should create a proper error handler
+          if (jsonError.code === -32000) {
+            toast({
+              title: translate('modals.send.errorTitle', {
+                asset: asset.name,
+              }),
+              description: translate('modals.send.errors.notEnoughNativeToken', {
+                asset: feeAsset?.symbol,
+              }),
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+              position: 'top-right',
+            })
+          }
+
+          return
+        }
+
         toast({
           title: translate('modals.send.errorTitle', {
             asset: asset.name,

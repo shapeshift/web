@@ -7,10 +7,11 @@ import {
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -67,6 +68,7 @@ type GetMixPanelDataFromApiQuotesReturn = {
 }
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
+const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
 const getMixPanelDataFromApiQuotes = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
@@ -112,7 +114,12 @@ const getMixPanelDataFromApiQuotes = (
 
 export const useGetTradeQuotes = () => {
   const dispatch = useAppDispatch()
-  const wallet = useWallet().state.wallet
+  const {
+    state: { wallet },
+  } = useWallet()
+  const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
+  // TODO(gomes): This is temporary, and we will want to do one better when wiring this up
+  const quoteOrRate = isPublicTradeRouteEnabled ? 'rate' : 'quote'
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -161,6 +168,7 @@ export const useGetTradeQuotes = () => {
 
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],
@@ -172,14 +180,23 @@ export const useGetTradeQuotes = () => {
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        hasFocus &&
+        (hasFocus &&
           wallet &&
           sellAccountId &&
           sellAccountMetadata &&
           receiveAddress &&
-          !isVotingPowerLoading,
+          !isVotingPowerLoading) ||
+          quoteOrRate === 'rate',
       ),
-    [hasFocus, wallet, sellAccountId, sellAccountMetadata, receiveAddress, isVotingPowerLoading],
+    [
+      hasFocus,
+      wallet,
+      sellAccountId,
+      sellAccountMetadata,
+      receiveAddress,
+      isVotingPowerLoading,
+      quoteOrRate,
+    ],
   )
 
   useEffect(() => {
@@ -196,18 +213,15 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      !wallet ||
-      !sellAccountId ||
-      !sellAccountMetadata ||
-      !receiveAddress ||
-      isVotingPowerLoading
+      (quoteOrRate === 'quote' &&
+        (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
     ) {
       setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
       return
     }
     ;(async () => {
-      const { accountNumber: sellAccountNumber } = sellAccountMetadata.bip44Params
+      const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
       const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
@@ -216,19 +230,25 @@ export const useGetTradeQuotes = () => {
       const { feeBps, feeBpsBeforeDiscount } = calculateFees({
         tradeAmountUsd,
         foxHeld: bnOrZero(votingPower),
+        thorHeld: bnOrZero(thorVotingPower),
         feeModel: 'SWAPPER',
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
+      if (quoteOrRate === 'quote' && sellAccountNumber === undefined)
+        throw new Error('sellAccountNumber is required')
+      if (quoteOrRate === 'quote' && !receiveAddress) throw new Error('receiveAddress is required')
+
       const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
         sellAccountNumber,
         receiveAccountNumber,
-        sellAccountType: sellAccountMetadata.accountType,
+        sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
-        wallet,
+        wallet: wallet ?? undefined,
+        quoteOrRate,
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -236,7 +256,10 @@ export const useGetTradeQuotes = () => {
         potentialAffiliateBps,
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey: isLedger(wallet) ? fromAccountId(sellAccountId).account : undefined,
+        pubKey:
+          wallet && isLedger(wallet) && sellAccountId
+            ? fromAccountId(sellAccountId).account
+            : undefined,
       })
 
       setTradeQuoteInput(updatedTradeQuoteInput)
@@ -249,6 +272,7 @@ export const useGetTradeQuotes = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     votingPower,
+    thorVotingPower,
     wallet,
     receiveAccountMetadata?.bip44Params,
     userSlippageTolerancePercentageDecimal,
@@ -256,6 +280,7 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
+    quoteOrRate,
   ])
 
   const getTradeQuoteArgs = useCallback(
@@ -272,7 +297,6 @@ export const useGetTradeQuotes = () => {
   )
 
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.OneInch))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))

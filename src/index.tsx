@@ -1,7 +1,6 @@
 import './wdyr'
 import 'lib/polyfills'
 
-import { WalletWidget } from '@passkeys/react'
 import {
   breadcrumbsIntegration,
   browserApiErrorsIntegration,

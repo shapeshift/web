@@ -14,7 +14,6 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { CoingeckoAssetPlatform } from '@shapeshiftoss/caip/src/adapters'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -59,7 +58,7 @@ const getCoinDetails = async (
         return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
 
       const chainId = adapters.coingeckoAssetPlatformToChainId(
-        asset_platform_id as CoingeckoAssetPlatform,
+        asset_platform_id as adapters.CoingeckoAssetPlatform,
       )
       if (!chainId) return
 
@@ -122,7 +121,13 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
 }
 
 export const getCoingeckoMarkets = async (
-  order: 'market_cap_desc' | 'volume_desc',
+  order:
+    | 'market_cap_asc'
+    | 'market_cap_desc'
+    | 'volume_desc'
+    | 'volume_asc'
+    | 'price_change_percentage_24h_desc'
+    | 'price_change_percentage_24h_asc',
 ): Promise<CoingeckoAsset[]> => {
   const { data } = await axios.get<CoinGeckoMarketCap[]>(
     `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}`,

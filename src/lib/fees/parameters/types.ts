@@ -8,4 +8,4 @@ export type FeeCurveParameters = {
   FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS: number
 }
 
-export type ParameterModel = 'SWAPPER' | 'THORCHAIN_LP'
+export type ParameterModel = 'SWAPPER' | 'THORCHAIN_LP' | 'THORSWAP'

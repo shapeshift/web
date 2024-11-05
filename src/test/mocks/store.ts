@@ -26,6 +26,12 @@ const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
   },
 })
 
+const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
+  provided: {
+    LimitOrder: {},
+  },
+})
+
 export const mockStore: ReduxState = {
   assetApi: mockApiFactory('assetApi' as const),
   portfolioApi: mockApiFactory('portfolioApi' as const),
@@ -41,12 +47,12 @@ export const mockStore: ReduxState = {
   snapshotApi: mockApiFactory('snapshotApi' as const),
   opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
   abiApi: mockApiFactory('abiApi' as const),
+  limitOrderApi: mockLimitOrderApi,
   portfolio: {
     _persist: {
       version: 0,
       rehydrated: false,
     },
-    isAccountsMetadataLoading: false,
     isAccountMetadataLoadingByAccountId: {},
     accounts: {
       byId: {},
@@ -85,7 +91,6 @@ export const mockStore: ReduxState = {
       Yat: false,
       WalletConnectToDapps: false,
       WalletConnectToDappsV2: false,
-      Wherever: false,
       SaversVaults: false,
       SaversVaultsDeposit: false,
       SaversVaultsWithdraw: false,
@@ -93,7 +98,6 @@ export const mockStore: ReduxState = {
       LifiSwap: false,
       DynamicLpAssets: false,
       ReadOnlyAssets: false,
-      OneInch: false,
       CovalentJaypegs: false,
       Chatwoot: false,
       AdvancedSlippage: false,
@@ -122,7 +126,11 @@ export const mockStore: ReduxState = {
       FoxPage: false,
       FoxPageRFOX: false,
       FoxPageFoxSection: false,
+      FoxPageFoxFarmingSection: false,
+      FoxPageGovernance: false,
       LimitOrders: false,
+      PublicTradeRoute: false,
+      ThorFreeFees: false,
     },
     selectedLocale: 'en',
     balanceThreshold: '0',
@@ -244,8 +252,11 @@ export const mockStore: ReduxState = {
     votingPowerByModel: {
       SWAPPER: undefined,
       THORCHAIN_LP: undefined,
+      THORSWAP: undefined,
     },
     strategies: undefined,
+    thorStrategies: undefined,
+    proposals: undefined,
   },
   localWalletSlice: {
     _persist: {

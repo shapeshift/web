@@ -303,7 +303,7 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
   ],
 }
 
-describe('getCowTradeQuote', () => {
+describe('getCowSwapTradeQuote', () => {
   it('should throw an exception if sell asset is not an erc20', async () => {
     const input: GetTradeQuoteInput = {
       chainId: KnownChainIds.EthereumMainnet,
@@ -317,6 +317,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, MOCK_COWSWAP_CONFIG)
@@ -343,6 +344,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -387,6 +389,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -431,6 +434,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -475,6 +479,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(
@@ -519,6 +524,7 @@ describe('getCowTradeQuote', () => {
       supportsEIP1559: false,
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
+      quoteOrRate: 'quote',
     }
 
     mockedCowService.post.mockReturnValue(

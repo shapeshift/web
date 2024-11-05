@@ -501,141 +501,73 @@ export const BorrowInput = ({
         onAcknowledge={onSubmit}
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
-      >
-        <Stack spacing={0}>
-          <TradeAssetInput
-            accountId={collateralAccountId}
-            assetId={collateralAssetId}
-            assetSymbol={collateralAsset.symbol}
-            assetIcon={collateralAsset.icon}
-            onChange={handleDepositInputChange}
-            onToggleIsFiat={toggleCollateralAssetIsFiat}
-            isFiat={collateralAssetIsFiat}
-            cryptoAmount={depositAmountCryptoPrecision ?? '0'}
-            fiatAmount={fiatDepositAmount ?? '0'}
-            isAccountSelectionDisabled={isAccountSelectionDisabled}
-            isSendMaxDisabled={false}
-            percentOptions={percentOptions}
-            showInputSkeleton={false}
-            showFiatSkeleton={false}
-            label={translate('lending.depositAsset', { asset: collateralAsset.symbol })}
-            onAccountIdChange={handleCollateralAccountIdChange}
-            formControlProps={formControlProps}
-            layout='inline'
-            labelPostFix={collateralAssetSelectComponent}
+      />
+      <Stack spacing={0}>
+        <TradeAssetInput
+          accountId={collateralAccountId}
+          assetId={collateralAssetId}
+          assetSymbol={collateralAsset.symbol}
+          assetIcon={collateralAsset.icon}
+          onChange={handleDepositInputChange}
+          onToggleIsFiat={toggleCollateralAssetIsFiat}
+          isFiat={collateralAssetIsFiat}
+          cryptoAmount={depositAmountCryptoPrecision ?? '0'}
+          fiatAmount={fiatDepositAmount ?? '0'}
+          isAccountSelectionDisabled={isAccountSelectionDisabled}
+          isSendMaxDisabled={false}
+          percentOptions={percentOptions}
+          showInputSkeleton={false}
+          showFiatSkeleton={false}
+          label={translate('lending.depositAsset', { asset: collateralAsset.symbol })}
+          onAccountIdChange={handleCollateralAccountIdChange}
+          formControlProps={formControlProps}
+          layout='inline'
+          labelPostFix={collateralAssetSelectComponent}
+        />
+        <Flex alignItems='center' justifyContent='center' my={-2}>
+          <Divider />
+          <IconButton
+            isRound
+            size='sm'
+            position='relative'
+            variant='outline'
+            borderColor='border.base'
+            zIndex={1}
+            aria-label={translate('lending.switchAssets')}
+            icon={swapIcon}
           />
-          <Flex alignItems='center' justifyContent='center' my={-2}>
-            <Divider />
-            <IconButton
-              isRound
-              size='sm'
-              position='relative'
-              variant='outline'
-              borderColor='border.base'
-              zIndex={1}
-              aria-label={translate('lending.switchAssets')}
-              icon={swapIcon}
-            />
-            <Divider />
-          </Flex>
-          <TradeAssetInput
-            assetId={borrowAsset?.assetId ?? ''}
-            assetSymbol={borrowAsset.symbol}
-            assetIcon={borrowAsset.icon}
-            cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
-            fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
-            isReadOnly
-            onToggleIsFiat={toggleBorrowAssetIsFiat}
-            isFiat={borrowAssetIsFiat}
-            isSendMaxDisabled={false}
-            percentOptions={percentOptions}
-            showInputSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
-            showFiatSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
-            label={translate('lending.borrow')}
-            onAccountIdChange={handleBorrowAccountIdChange}
-            formControlProps={formControlProps}
-            layout='inline'
-            labelPostFix={borrowAssetSelectComponent}
+          <Divider />
+        </Flex>
+        <TradeAssetInput
+          assetId={borrowAsset?.assetId ?? ''}
+          assetSymbol={borrowAsset.symbol}
+          assetIcon={borrowAsset.icon}
+          cryptoAmount={lendingQuoteData?.quoteBorrowedAmountCryptoPrecision ?? '0'}
+          fiatAmount={lendingQuoteData?.quoteBorrowedAmountUserCurrency ?? '0'}
+          isReadOnly
+          onToggleIsFiat={toggleBorrowAssetIsFiat}
+          isFiat={borrowAssetIsFiat}
+          isSendMaxDisabled={false}
+          percentOptions={percentOptions}
+          showInputSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
+          showFiatSkeleton={isLendingQuoteLoading || isLendingQuoteRefetching}
+          label={translate('lending.borrow')}
+          onAccountIdChange={handleBorrowAccountIdChange}
+          formControlProps={formControlProps}
+          layout='inline'
+          labelPostFix={borrowAssetSelectComponent}
+        />
+        <Collapse in={isLendingQuoteSuccess}>
+          <LoanSummary
+            confirmedQuote={confirmedQuote}
+            isLoading={isLendingQuoteLoading || isLendingQuoteRefetching}
+            collateralAssetId={collateralAssetId}
+            collateralAccountId={collateralAccountId}
+            debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
+            depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
+            borrowAssetId={borrowAsset?.assetId ?? ''}
+            borrowAccountId={borrowAccountId}
           />
-          <Collapse in={isLendingQuoteSuccess}>
-            <LoanSummary
-              confirmedQuote={confirmedQuote}
-              isLoading={isLendingQuoteLoading || isLendingQuoteRefetching}
-              collateralAssetId={collateralAssetId}
-              collateralAccountId={collateralAccountId}
-              debtOccuredAmountUserCurrency={lendingQuoteData?.quoteDebtAmountUserCurrency ?? '0'}
-              depositAmountCryptoPrecision={depositAmountCryptoPrecision ?? '0'}
-              borrowAssetId={borrowAsset?.assetId ?? ''}
-              borrowAccountId={borrowAccountId}
-            />
-            <CardFooter
-              borderTopWidth={1}
-              borderColor='border.subtle'
-              flexDir='column'
-              gap={4}
-              px={6}
-              py={4}
-              bg='background.surface.raised.accent'
-            >
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.slippage')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
-                    <Amount.Crypto
-                      value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
-                      symbol={borrowAsset.symbol}
-                    />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.gasFee')}</Row.Label>
-                <Row.Value>
-                  <Skeleton
-                    isLoaded={
-                      isEstimatedFeesDataSuccess &&
-                      isLendingQuoteSuccess &&
-                      !isLendingQuoteRefetching
-                    }
-                  >
-                    <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-              {isSweepNeeded && (
-                <Row fontSize='sm' fontWeight='medium'>
-                  <HelperTooltip label={translate('modals.send.consolidate.tooltip')}>
-                    <Row.Label>{translate('modals.send.consolidate.consolidateFunds')}</Row.Label>
-                  </HelperTooltip>
-                  <Row.Value>
-                    <Skeleton
-                      isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
-                    >
-                      <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiat ?? '0'} />
-                    </Skeleton>
-                  </Row.Value>
-                </Row>
-              )}
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('common.fees')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
-                    <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-              <Row fontSize='sm' fontWeight='medium'>
-                <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
-                <Row.Value>
-                  <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
-                    <RawText fontWeight='bold'>
-                      {prettyMilliseconds(lendingQuoteData?.quoteTotalTimeMs ?? 0)}
-                    </RawText>
-                  </Skeleton>
-                </Row.Value>
-              </Row>
-            </CardFooter>
-          </Collapse>
           <CardFooter
             borderTopWidth={1}
             borderColor='border.subtle'
@@ -644,43 +576,106 @@ export const BorrowInput = ({
             px={6}
             py={4}
             bg='background.surface.raised.accent'
-            borderBottomRadius='xl'
           >
-            <Button
-              size='lg-multiline'
-              colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
-              mx={-2}
-              onClick={handleBorrowSubmit}
-              isLoading={
-                isPoolDataLoading ||
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.slippage')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <Amount.Crypto
+                    value={lendingQuoteData?.quoteSlippageBorrowedAssetCryptoPrecision ?? '0'}
+                    symbol={borrowAsset.symbol}
+                  />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.gasFee')}</Row.Label>
+              <Row.Value>
+                <Skeleton
+                  isLoaded={
+                    isEstimatedFeesDataSuccess && isLendingQuoteSuccess && !isLendingQuoteRefetching
+                  }
+                >
+                  <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            {isSweepNeeded && (
+              <Row fontSize='sm' fontWeight='medium'>
+                <HelperTooltip label={translate('modals.send.consolidate.tooltip')}>
+                  <Row.Label>{translate('modals.send.consolidate.consolidateFunds')}</Row.Label>
+                </HelperTooltip>
+                <Row.Value>
+                  <Skeleton
+                    isLoaded={Boolean(isEstimatedSweepFeesDataSuccess && estimatedSweepFeesData)}
+                  >
+                    <Amount.Fiat value={estimatedSweepFeesData?.txFeeFiat ?? '0'} />
+                  </Skeleton>
+                </Row.Value>
+              </Row>
+            )}
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('common.fees')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <Amount.Fiat value={lendingQuoteData?.quoteTotalFeesFiatUserCurrency ?? '0'} />
+                </Skeleton>
+              </Row.Value>
+            </Row>
+            <Row fontSize='sm' fontWeight='medium'>
+              <Row.Label>{translate('bridge.waitTimeLabel')}</Row.Label>
+              <Row.Value>
+                <Skeleton isLoaded={isLendingQuoteSuccess && !isLendingQuoteRefetching}>
+                  <RawText fontWeight='bold'>
+                    {prettyMilliseconds(lendingQuoteData?.quoteTotalTimeMs ?? 0)}
+                  </RawText>
+                </Skeleton>
+              </Row.Value>
+            </Row>
+          </CardFooter>
+        </Collapse>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+          bg='background.surface.raised.accent'
+          borderBottomRadius='xl'
+        >
+          <Button
+            size='lg-multiline'
+            colorScheme={isLendingQuoteError || quoteErrorTranslation ? 'red' : 'blue'}
+            mx={-2}
+            onClick={handleBorrowSubmit}
+            isLoading={
+              isPoolDataLoading ||
+              isLendingQuoteLoading ||
+              isLendingQuoteRefetching ||
+              isEstimatedFeesDataLoading ||
+              isEstimatedSweepFeesDataLoading ||
+              isEstimatedSweepFeesDataLoading ||
+              isAddressByteCodeLoading ||
+              isSweepNeededLoading
+            }
+            isDisabled={Boolean(
+              isHardCapReached ||
+                !isThorchainLendingBorrowEnabled ||
+                bnOrZero(depositAmountCryptoPrecision).isZero() ||
+                isLendingQuoteError ||
                 isLendingQuoteLoading ||
                 isLendingQuoteRefetching ||
+                quoteErrorTranslation ||
+                isEstimatedFeesDataError ||
                 isEstimatedFeesDataLoading ||
-                isEstimatedSweepFeesDataLoading ||
-                isEstimatedSweepFeesDataLoading ||
-                isAddressByteCodeLoading ||
-                isSweepNeededLoading
-              }
-              isDisabled={Boolean(
-                isHardCapReached ||
-                  !isThorchainLendingBorrowEnabled ||
-                  bnOrZero(depositAmountCryptoPrecision).isZero() ||
-                  isLendingQuoteError ||
-                  isLendingQuoteLoading ||
-                  isLendingQuoteRefetching ||
-                  quoteErrorTranslation ||
-                  isEstimatedFeesDataError ||
-                  isEstimatedFeesDataLoading ||
-                  disableSmartContractDeposit,
-              )}
-            >
-              {quoteErrorTranslation
-                ? translate(quoteErrorTranslation)
-                : translate('lending.borrow')}
-            </Button>
-          </CardFooter>
-        </Stack>
-      </WarningAcknowledgement>
+                disableSmartContractDeposit,
+            )}
+          >
+            {quoteErrorTranslation ? translate(quoteErrorTranslation) : translate('lending.borrow')}
+          </Button>
+        </CardFooter>
+      </Stack>
     </SlideTransition>
   )
 }

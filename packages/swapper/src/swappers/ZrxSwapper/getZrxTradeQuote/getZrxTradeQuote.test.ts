@@ -12,7 +12,7 @@ import { BTC } from '../../utils/test-data/assets'
 import { gasFeeData } from '../../utils/test-data/fees'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { getZrxTradeQuote } from './getZrxTradeQuote'
+import { getZrxPseudoTradeQuote } from './getZrxTradeQuote'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -59,29 +59,37 @@ vi.mock('@shapeshiftoss/chain-adapters', async () => {
 const mockOk = Ok
 const mockErr = Err
 describe('getZrxTradeQuote', () => {
+  const zrxBaseUrl = 'https://0x.shapeshift.com/ethereum/'
+
   const assertGetChainAdapter = (_chainId: ChainId) =>
     ({
       getChainId: () => KnownChainIds.EthereumMainnet,
       getGasFeeData: () => Promise.resolve(gasFeeData),
     }) as unknown as EvmChainAdapter
-  const zrxService = zrxServiceFactory({ baseUrl: 'https://0x.shapeshift.com/ethereum/' })
+  const zrxService = zrxServiceFactory({ baseUrl: zrxBaseUrl })
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockOk({
-          data: { price: '100', gasPrice: '1000', gas: '1000000', auxiliaryChainData: {} },
+          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
         } as AxiosResponse<unknown, any>),
       ),
     )
-    const maybeQuote = await getZrxTradeQuote(quoteInput, assertGetChainAdapter)
+    const maybeQuote = await getZrxPseudoTradeQuote(
+      quoteInput,
+      assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
+    )
 
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
     expect(quote.steps[0].feeData).toStrictEqual({
       protocolFees: {},
-      networkFeeCryptoBaseUnit: '94843800000000000',
+      networkFeeCryptoBaseUnit: '42',
     })
     expect(quote.steps[0].rate).toBe('100')
   })
@@ -96,7 +104,13 @@ describe('getZrxTradeQuote', () => {
         >,
       ),
     )
-    const maybeTradeQuote = await getZrxTradeQuote(quoteInput, assertGetChainAdapter)
+    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+      quoteInput,
+      assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
+    )
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -112,7 +126,13 @@ describe('getZrxTradeQuote', () => {
       }) as unknown as never,
     )
 
-    const maybeTradeQuote = await getZrxTradeQuote(quoteInput, assertGetChainAdapter)
+    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+      quoteInput,
+      assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
+    )
 
     expect(maybeTradeQuote.isErr()).toBe(true)
     expect(maybeTradeQuote.unwrapErr()).toMatchObject({
@@ -125,17 +145,23 @@ describe('getZrxTradeQuote', () => {
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         Ok({
-          data: { price: '100', auxiliaryChainData: {} },
+          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
         } as AxiosResponse<unknown>),
       ),
     )
-    const maybeQuote = await getZrxTradeQuote(quoteInput, assertGetChainAdapter)
+    const maybeQuote = await getZrxPseudoTradeQuote(
+      quoteInput,
+      assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
+    )
     expect(maybeQuote.isErr()).toBe(false)
     const quote = maybeQuote.unwrap()
 
     expect(quote?.steps[0].feeData).toStrictEqual({
       protocolFees: {},
-      networkFeeCryptoBaseUnit: '0',
+      networkFeeCryptoBaseUnit: '42',
     })
   })
 
@@ -143,12 +169,15 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput } = setupQuote()
     vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({} as AxiosResponse<unknown>)))
 
-    const maybeTradeQuote = await getZrxTradeQuote(
+    const maybeTradeQuote = await getZrxPseudoTradeQuote(
       {
         ...quoteInput,
         buyAsset: BTC,
       },
       assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
     )
 
     expect(maybeTradeQuote.isErr()).toBe(true)
@@ -166,12 +195,15 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve(Ok({} as AxiosResponse<unknown, any>)),
     )
 
-    const maybeTradeQuote = await getZrxTradeQuote(
+    const maybeTradeQuote = await getZrxPseudoTradeQuote(
       {
         ...quoteInput,
         sellAsset: { ...sellAsset, chainId: btcChainId },
       },
       assertGetChainAdapter,
+      false,
+      {},
+      zrxBaseUrl,
     )
 
     expect(maybeTradeQuote.isErr()).toBe(true)

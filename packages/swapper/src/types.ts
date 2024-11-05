@@ -22,13 +22,13 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
+import type { TransactionRequest } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {
-  REACT_APP_ONE_INCH_API_URL: string
   REACT_APP_UNCHAINED_THORCHAIN_HTTP_URL: string
   REACT_APP_UNCHAINED_COSMOS_HTTP_URL: string
   REACT_APP_THORCHAIN_NODE_URL: string
@@ -45,6 +45,8 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
+  REACT_APP_FEATURE_ZRX_PERMIT2: boolean
+  REACT_APP_ZRX_BASE_URL: string
 }
 
 export enum SwapperName {
@@ -53,7 +55,6 @@ export enum SwapperName {
   Zrx = '0x',
   Test = 'Test',
   LIFI = 'LI.FI',
-  OneInch = '1INCH',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
 }
@@ -89,6 +90,8 @@ export enum TradeQuoteError {
   RateLimitExceeded = 'RateLimitExceeded',
   // catch-all for XHRs that can fail
   QueryFailed = 'QueryFailed',
+  // the response from the API was invalid or unexpected
+  InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
   // catch-all for unknown issues
@@ -123,40 +126,88 @@ export type BuyAssetBySellIdInput = {
   config: SwapperConfig
 }
 
-type CommonTradeInput = {
+type CommonTradeInputBase = {
   sellAsset: Asset
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sendAddress?: string
-  receiveAddress: string
-  accountNumber: number
-  receiveAccountNumber?: number
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
 
-export type GetEvmTradeQuoteInput = CommonTradeInput & {
+export type CommonTradeQuoteInput = CommonTradeInputBase & {
+  sendAddress?: string
+  receiveAccountNumber?: number
+  receiveAddress: string
+  accountNumber: number
+  quoteOrRate: 'quote'
+}
+
+type CommonTradeRateInput = CommonTradeInputBase & {
+  sendAddress?: undefined
+  receiveAccountNumber?: undefined
+  receiveAddress: undefined
+  accountNumber: undefined
+  quoteOrRate: 'rate'
+}
+
+type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
+
+export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
   supportsEIP1559: boolean
+}
+export type GetEvmTradeRateInput = CommonTradeRateInput & {
+  chainId: EvmChainId
+  supportsEIP1559: false
+}
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+
+export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
+  chainId: CosmosSdkChainId
 }
 
 export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
-export type GetUtxoTradeQuoteInput = CommonTradeInput & {
+export type GetCosmosSdkTradeRateInput = CommonTradeRateInput & {
+  chainId: CosmosSdkChainId
+}
+
+type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
   accountNumber: number
   xpub: string
 }
 
+type GetUtxoTradeRateInput = CommonTradeRateInput & {
+  chainId: UtxoChainId
+  // We need a dummy script type when getting a quote without a wallet
+  // so we always use SegWit (which works across all UTXO chains)
+  accountType: UtxoAccountType.P2pkh
+  accountNumber: undefined
+  xpub: undefined
+}
+
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet | GetUtxoTradeRateInput
+
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+
+export type GetTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetCosmosSdkTradeRateInput
+  | GetUtxoTradeRateInput
+
+export type GetTradeQuoteInputWithWallet =
+  | GetUtxoTradeQuoteWithWallet
+  | GetEvmTradeQuoteInputBase
+  | GetCosmosSdkTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -184,18 +235,24 @@ export type TradeQuoteStep = {
   source: SwapSource
   buyAsset: Asset
   sellAsset: Asset
-  accountNumber: number
+  // Undefined in case this is a trade rate - this means we *cannot* execute this guy
+  accountNumber: number | undefined
   // describes intermediary asset and amount the user may end up with in the event of a trade
   // execution failure
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
+  permit2Eip712?: TypedData
+  transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
 }
+
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
 
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string
+  receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
   receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
@@ -203,6 +260,8 @@ type TradeQuoteBase = {
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
 }
+
+type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }
 
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
@@ -220,6 +279,9 @@ type TupleOf<T, N extends number> = N extends N
 export type SingleHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 1>
 export type MultiHopTradeQuoteSteps = TupleOf<TradeQuoteStep, 2>
 
+export type SingleHopTradeRateSteps = TupleOf<TradeRateStep, 1>
+export type MultiHopTradeRateSteps = TupleOf<TradeRateStep, 2>
+
 export type SupportedTradeQuoteStepIndex = 0 | 1
 
 export type SingleHopTradeQuote = TradeQuoteBase & {
@@ -234,6 +296,17 @@ export type MultiHopTradeQuote = TradeQuoteBase & {
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 }
+
+export type TradeRate = TradeRateBase & {
+  steps: SingleHopTradeRateSteps | MultiHopTradeRateSteps
+} & {
+  receiveAddress: undefined
+  accountNumber: undefined
+}
+
+export type TradeQuoteOrRate = TradeQuote | TradeRate
+
+export type ExecutableTradeQuote = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
@@ -275,10 +348,12 @@ export type CommonGetUnsignedTransactionArgs = {
 }
 
 export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
-  EvmAccountMetadata & { supportsEIP1559: boolean } & Omit<
-    EvmSwapperDeps,
-    'fetchIsSmartContractAddressQuery'
-  >
+  EvmAccountMetadata &
+  Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'> & {
+    permit2Signature: string | undefined
+    supportsEIP1559: boolean
+  }
+
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
@@ -322,6 +397,7 @@ export type CheckTradeStatusInput = {
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {
   gasLimit: string
@@ -365,7 +441,8 @@ export type SwapperApi = {
     buyTxHash: string | undefined
     message: string | [string, InterpolationOptions] | undefined
   }>
-  getTradeQuote: (input: GetTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeQuote: (input: CommonTradeQuoteInput, deps: SwapperDeps) => Promise<TradeQuoteResult>
+  getTradeRate: (input: GetTradeRateInput, deps: SwapperDeps) => Promise<TradeRateResult>
   getUnsignedTx?: (input: GetUnsignedTxArgs) => Promise<UnsignedTx>
 
   getUnsignedEvmTransaction?: (
@@ -382,6 +459,10 @@ export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
   swapperName: SwapperName
 }
 
+export type RateResult = Result<TradeRate[], SwapErrorRight> & {
+  swapperName: SwapperName
+}
+
 export type CommonTradeExecutionInput = {
   swapperName: SwapperName
   tradeQuote: TradeQuote
@@ -391,7 +472,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & { supportsEIP1559: boolean }
+  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &

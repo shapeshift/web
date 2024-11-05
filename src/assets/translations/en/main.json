@@ -164,6 +164,7 @@
     "sortBy": "Sort By",
     "orderBy": "Order By",
     "filterBy": "Filter By",
+    "filterAndSort": "Filter and Sort",
     "carousel": {
       "next": "Next",
       "prev": "Previous",

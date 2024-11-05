@@ -70,7 +70,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   return (
     <Card {...cardProps}>
       <CardHeader px={0} pt={4} h='full' display='flex' flexDirection='column'>
-        <Flex width='full' alignItems='center' mb={4} position='relative'>
+        <Flex width='full' alignItems='center' mb={4} position='relative' mx={4}>
           <Box position='absolute' left={0}>
             <WithBackButton onBack={onBack} />
           </Box>
@@ -81,7 +81,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           )}
         </Flex>
         <Tabs variant='unstyled' display='flex' flexDirection='column' h='full'>
-          <TabList gap={4} flex='0 0 auto' mb={2} ml={6}>
+          <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
             <Tab
               p={0}
               fontSize='md'
@@ -103,7 +103,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           </TabList>
 
           <TabPanels flex='1' overflowY='auto' minH={0} px={2}>
-            <TabPanel px={0}>
+            <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {Array.from({ length: 5 }).map((_, index) => (
                   <MockOpenOrderCard key={index} />
@@ -111,7 +111,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
               </CardBody>
             </TabPanel>
 
-            <TabPanel px={0}>
+            <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {Array.from({ length: 2 }).map((_, index) => (
                   <MockHistoryOrderCard key={index} />

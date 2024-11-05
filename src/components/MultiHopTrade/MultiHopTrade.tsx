@@ -17,6 +17,7 @@ import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
 import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeInputTab, TradeRoutePaths } from './types'
 
 const TradeRouteEntries = [
@@ -38,7 +39,12 @@ type MatchParams = {
   assetSubId?: string
 }
 
-// dummy component to allow us to mount or unmount the `useGetTradeQuotes` hook conditionally
+// dummy component to allow us to mount or unmount the `useGetTradeRates` hook conditionally
+const GetTradeRates = () => {
+  useGetTradeRates()
+  return <></>
+}
+// dummy component to allow us to mount or unmount the `useGetTradeRates` hook conditionally
 const GetTradeQuotes = () => {
   useGetTradeQuotes()
   return <></>
@@ -111,11 +117,16 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
-  const shouldUseTradeQuotes = useMemo(() => {
-    // We only want to fetch quotes when the user is on the trade input or quote list route
+  const shouldUseTradeRates = useMemo(() => {
+    // We only want to fetch rates when the user is on the trade input or quote list route
     return [TradeRoutePaths.Input, TradeRoutePaths.QuoteList].includes(
       location.pathname as TradeRoutePaths,
     )
+  }, [location.pathname])
+
+  const shouldUseTradeQuotes = useMemo(() => {
+    // We only want to fetch rates when the user is on the trade input or quote list route
+    return [TradeRoutePaths.Confirm].includes(location.pathname as TradeRoutePaths)
   }, [location.pathname])
 
   const handleChangeTab = useCallback(
@@ -175,6 +186,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
       {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
       {/* corrupted from state being mutated during trade execution. */}
       {/* TODO: move the hook into a react-query or similar and pass a flag  */}
+      {shouldUseTradeRates ? <GetTradeRates /> : null}
       {shouldUseTradeQuotes ? <GetTradeQuotes /> : null}
     </>
   )

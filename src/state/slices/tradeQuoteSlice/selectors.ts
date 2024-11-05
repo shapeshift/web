@@ -200,7 +200,10 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 )
 
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
+    console.log({ tradeQuoteState })
+    return tradeQuoteState.confirmedQuote
+  })
 
 export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
@@ -619,9 +622,10 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeIdParamFromRequiredFilter,
   selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
+    console.log({ tradeExecution: swappers.tradeExecution })
     return hopIndex === 0
-      ? swappers.tradeExecution[tradeId].firstHop
-      : swappers.tradeExecution[tradeId].secondHop
+      ? swappers.tradeExecution[tradeId]?.firstHop
+      : swappers.tradeExecution[tradeId]?.secondHop
   },
 )
 

@@ -51,6 +51,8 @@ export const useGetSwapperTradeQuote = ({
   const queryStateMeta = swapperApi.endpoints.getTradeQuote.useQueryState(queryStateRequest)
 
   useEffect(() => {
+    // Ensures we don't rug the state by upserting undefined data  - this is *not* the place to do so and will rug the switch between quotes and rates
+    if (!queryStateMeta.data) return
     dispatch(
       tradeQuoteSlice.actions.upsertTradeQuotes({
         swapperName,

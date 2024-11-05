@@ -11,6 +11,7 @@ import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/Thorchain
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -35,14 +36,11 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
 import {
-  selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
-  selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
@@ -114,38 +112,19 @@ const getMixPanelDataFromApiQuotes = (
   }
 }
 
-export const useGetTradeQuotes = () => {
+export const useGetTradeRates = () => {
   const dispatch = useAppDispatch()
   const {
     state: { wallet },
   } = useWallet()
+  const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const activeTradeId = activeQuote?.id
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const hopExecutionMetadataFilter = useMemo(() => {
-    if (!activeTradeId) return undefined
-
-    return {
-      tradeId: activeTradeId,
-      // TODO(gomes): multi-hop here
-      hopIndex: 0,
-    }
-  }, [activeTradeId])
-
-  const hopExecutionMetadata = useAppSelector(state =>
-    hopExecutionMetadataFilter
-      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
-      : undefined,
-  )
-
   const quoteOrRate = useMemo(() => {
-    return 'quote' as const
-  }, [])
-
-  console.log({ hopExecutionMetadata })
+    return isPublicTradeRouteEnabled ? 'rate' : 'quote'
+  }, [isPublicTradeRouteEnabled])
 
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
@@ -204,34 +183,38 @@ export const useGetTradeQuotes = () => {
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
-  // TODO(gomes): this should *not* refetch, this should refetch the *correct* swapper/quote once and call cache it forever until unmount
   const shouldRefetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        hasFocus &&
-          hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+        (hasFocus &&
           wallet &&
           sellAccountId &&
           sellAccountMetadata &&
           receiveAddress &&
-          !isVotingPowerLoading,
+          !isVotingPowerLoading) ||
+          quoteOrRate === 'rate',
       ),
     [
       hasFocus,
-      hopExecutionMetadata?.state,
       wallet,
       sellAccountId,
       sellAccountMetadata,
       receiveAddress,
       isVotingPowerLoading,
+      quoteOrRate,
     ],
   )
 
   useEffect(() => {
-    // Only run this effect when we're actually ready
-    if (hopExecutionMetadata?.state !== HopExecutionState.AwaitingSwap) return
-
+    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
+    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
+    // That effectively means we'll unsubscribe to queries, considering them stale
     dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+
+    // Clear the slice before asynchronously generating the input and running the request.
+    // This is to ensure the initial state change is done synchronously to prevent race conditions
+    // and losing sync on loading state etc.
+    dispatch(tradeQuoteSlice.actions.clear())
 
     // Early exit on any invalid state
     if (
@@ -304,7 +287,6 @@ export const useGetTradeQuotes = () => {
     isVotingPowerLoading,
     isBuyAssetChainSupported,
     quoteOrRate,
-    hopExecutionMetadata?.state,
   ])
 
   const getTradeQuoteArgs = useCallback(

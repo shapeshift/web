@@ -23,7 +23,7 @@ import {
   type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
-import { getZrxPseudoTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
+import { getZrxTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
 import { fetchZrxQuote } from './utils/fetchFromZrx'
 
 export const zrxApi: SwapperApi = {
@@ -34,7 +34,7 @@ export const zrxApi: SwapperApi = {
     // TODO(gomes): when we wire this up, this should consume getZrTradeQuote and we should ditch this guy
     // getTradeQuote() is currently consumed at input time (for all swappers, not just ZRX) with weird Frankenstein "quote endpoint fetching ZRX rate endpoint
     // but actually expecting quote input/output" logic. This is a temporary method to get the ZRX swapper working with the new swapper architecture.
-    const tradeQuoteResult = await getZrxPseudoTradeQuote(
+    const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       config.REACT_APP_FEATURE_ZRX_PERMIT2,

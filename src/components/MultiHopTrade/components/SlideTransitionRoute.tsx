@@ -7,6 +7,8 @@ import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransit
 import type { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { breakpoints } from 'theme/theme'
 
+import type { LimitOrderRoutePaths } from './LimitOrder/types'
+
 type SlideTransitionComponentProps = {
   onBack?: () => void
   isLoading: boolean
@@ -16,7 +18,7 @@ type SlideTransitionRouteProps = {
   height: string | number
   width: string | number
   component: FC<SlideTransitionComponentProps>
-  parentRoute: TradeRoutePaths
+  parentRoute: TradeRoutePaths | LimitOrderRoutePaths
 }
 
 export const SlideTransitionRoute = ({
@@ -30,7 +32,7 @@ export const SlideTransitionRoute = ({
   const history = useHistory()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
 
-  const handleClose = useCallback(() => {
+  const handleBack = useCallback(() => {
     history.push({ pathname: parentRoute })
   }, [history, parentRoute])
 
@@ -38,7 +40,7 @@ export const SlideTransitionRoute = ({
     <TradeSlideTransition>
       <Flex width='full' justifyContent='center' maxWidth={isSmallerThanXl ? '500px' : undefined}>
         <Center width='inherit'>
-          <Component onBack={handleClose} isLoading={false} height={height} width={width} />
+          <Component onBack={handleBack} isLoading={false} height={height} width={width} />
         </Center>
       </Flex>
     </TradeSlideTransition>

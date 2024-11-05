@@ -2717,7 +2717,8 @@
       "filled": "Filled",
       "cancelled": "Cancelled",
       "expired": "Expired"
-    }
+    },
+    "orders": "Orders"
   },
   "thorFees": {
     "title": "Here from THORSwap?",

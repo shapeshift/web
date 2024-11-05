@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -44,7 +44,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   return (
     <MemoryRouter initialEntries={LimitOrderRouteEntries} initialIndex={0}>
       <Switch location={location}>
-        <Box flex={1} width='full'>
+        <Flex flex={1} width='full' justifyContent='center'>
           <Route
             key={LimitOrderRoutePaths.Input}
             path={LimitOrderRoutePaths.Input}
@@ -60,7 +60,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
             path={LimitOrderRoutePaths.Status}
             render={renderLimitOrderStatus}
           />
-        </Box>
+        </Flex>
       </Switch>
     </MemoryRouter>
   )

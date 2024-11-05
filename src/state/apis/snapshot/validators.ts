@@ -1,5 +1,5 @@
 import type { Infer } from 'myzod'
-import { array, boolean, keySignature, number, object, string, unknown } from 'myzod'
+import { array, boolean, keySignature, number, object, record, string, unknown } from 'myzod'
 
 const MethodABI = object({
   name: string(),
@@ -80,13 +80,12 @@ export type SnapshotStrategies = Infer<typeof SnapshotSchema>
 
 // ###### voting power
 
-export const VotingPowerSchema = object({
-  vp: number(),
-  vp_by_strategy: array(number()),
-  vp_state: string(),
+export const ScoresSchema = object({
+  state: string(),
+  scores: array(record(number())),
 })
 
-export type VotingPower = Infer<typeof VotingPowerSchema>
+export type VotingPower = Infer<typeof ScoresSchema>
 
 // ###### proposals type
 

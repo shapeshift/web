@@ -12,7 +12,6 @@ import {
   TagLabel,
   Tooltip,
 } from '@chakra-ui/react'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -22,10 +21,10 @@ import { AddressInput } from 'components/Modals/Send/AddressInput/AddressInput'
 import type { SendInput } from 'components/Modals/Send/Form'
 import { SendFormFields } from 'components/Modals/Send/SendCommon'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
+import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
-import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   checkIsMetaMaskDesktop,
@@ -33,14 +32,9 @@ import {
 } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import {
-  useWalletSupportsChain,
-  useWalletSupportsChainAtRuntime,
-} from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useWalletSupportsChainAtRuntime } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { parseAddressInputWithChainId } from 'lib/address/address'
 import { middleEllipsis } from 'lib/utils'
-import { selectAccountIdsByAssetId } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
 
 const editIcon = <EditIcon />
 const checkIcon = <CheckIcon />
@@ -142,11 +136,7 @@ export const SharedRecipientAddress = ({
   onSubmit,
 }: SharedRecipientAddressProps) => {
   const translate = useTranslate()
-  const {
-    state: { isConnected, wallet },
-  } = useWallet()
   const { sellAssetAccountId } = useAccountIds()
-
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = buyAsset
   const {
@@ -154,13 +144,6 @@ export const SharedRecipientAddress = ({
     setValue: setFormValue,
     handleSubmit: handleFormContextSubmit,
   } = useFormContext()
-
-  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
-
-  const buyAssetAccountIds = useAppSelector(state =>
-    selectAccountIdsByAssetId(state, { assetId: buyAsset.assetId }),
-  )
 
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
@@ -255,31 +238,14 @@ export const SharedRecipientAddress = ({
     [handleFormContextSubmit, handleSubmit],
   )
 
-  const shouldForceDisplayManualAddressEntry = useMemo(() => {
-    if (isWalletReceiveAddressLoading) return false
-    if (!isConnected) return false
-    if (isAccountsMetadataLoading && !sellAssetAccountId) return false
-    if (manualReceiveAddress) return false
-    if (!walletReceiveAddress) return true
-    if (!walletSupportsBuyAssetChain) return true
-    // Ledger "supports" all chains, but may not have them connected
-    if (wallet && isLedger(wallet)) return !buyAssetAccountIds.length
-    // We want to display the manual address entry if the wallet doesn't support the buy asset chain
-    if (shouldForceManualAddressEntry) return true
-
-    return false
-  }, [
-    isConnected,
-    isAccountsMetadataLoading,
-    sellAssetAccountId,
+  const shouldForceDisplayManualAddressEntry = useIsManualReceiveAddressRequired({
+    shouldForceManualAddressEntry: Boolean(shouldForceManualAddressEntry),
+    sellAccountId: sellAssetAccountId,
+    buyAsset,
     manualReceiveAddress,
     walletReceiveAddress,
-    walletSupportsBuyAssetChain,
-    wallet,
-    buyAssetAccountIds.length,
-    shouldForceManualAddressEntry,
     isWalletReceiveAddressLoading,
-  ])
+  })
 
   // The manual receive address input form
   if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {

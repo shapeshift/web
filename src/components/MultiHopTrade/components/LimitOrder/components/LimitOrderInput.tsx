@@ -275,12 +275,12 @@ export const LimitOrderInput = ({
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
         sellAsset={sellAsset}
-        sellAssetAccountId={sellAccountId}
+        sellAccountId={sellAccountId}
         handleSwitchAssets={handleSwitchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={handleSetSellAsset}
-        setSellAssetAccountId={setSellAccountId}
+        setSellAccountId={setSellAccountId}
       >
         <Stack>
           <LimitOrderBuyAsset
@@ -333,7 +333,7 @@ export const LimitOrderInput = ({
         quoteStatusTranslation={'trade.previewTrade'}
         rate={activeQuote?.rate}
         sellAsset={sellAsset}
-        sellAssetAccountId={sellAccountId}
+        sellAccountId={sellAccountId}
         shouldDisablePreviewButton={isRecipientAddressEntryActive}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}

@@ -328,7 +328,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     return (
       <SharedTradeInputBody
         buyAsset={buyAsset}
-        sellAssetAccountId={sellAssetAccountId}
+        sellAccountId={sellAssetAccountId}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         sellAsset={sellAsset}
@@ -336,7 +336,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         sellAmountUserCurrency={sellAmountUserCurrency}
         handleSwitchAssets={handleSwitchAssets}
         setSellAsset={setSellAsset}
-        setSellAssetAccountId={setSellAssetAccountId}
+        setSellAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
       >

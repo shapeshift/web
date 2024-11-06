@@ -378,7 +378,7 @@ export const ConfirmSummary = ({
       buyAsset={buyAsset}
       hasUserEnteredAmount={hasUserEnteredAmount}
       sellAsset={sellAsset}
-      sellAssetAccountId={sellAssetAccountId}
+      sellAccountId={sellAssetAccountId}
       totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
       receiveSummaryDetails={receiveSummaryDetails}
     >

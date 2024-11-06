@@ -44,11 +44,6 @@ const GetTradeRates = () => {
   useGetTradeRates()
   return <></>
 }
-// dummy component to allow us to mount or unmount the `useGetTradeRates` hook conditionally
-const GetTradeQuotes = () => {
-  useGetTradeQuotes()
-  return <></>
-}
 
 export const MultiHopTrade = memo(({ defaultBuyAssetId, isCompact }: TradeCardProps) => {
   const location = useLocation()
@@ -124,11 +119,6 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
     )
   }, [location.pathname])
 
-  const shouldUseTradeQuotes = useMemo(() => {
-    // We only want to fetch rates when the user is on the trade input or quote list route
-    return [TradeRoutePaths.Confirm].includes(location.pathname as TradeRoutePaths)
-  }, [location.pathname])
-
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
       switch (newTab) {
@@ -187,7 +177,6 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
       {/* corrupted from state being mutated during trade execution. */}
       {/* TODO: move the hook into a react-query or similar and pass a flag  */}
       {shouldUseTradeRates ? <GetTradeRates /> : null}
-      {shouldUseTradeQuotes ? <GetTradeQuotes /> : null}
     </>
   )
 })

@@ -32,15 +32,7 @@ import {
 } from '../utils/fetchFromZrx'
 import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
-// We can' just split between quotes and rates just yet, but need a temporary notion of a "quote which is actually a rate which is acting like a quote".
-// This is because of (classic, not permit2 ZRX) being v. weird
-// I've lost too many brain cells with the current flow, and we *have* to have some intermediary notion of a "pseudo-quote", or however we want to call it.
-// The reason why we need this:
-// - Current getTradeQuote endpoint actually calls the `/price` endpoint, which seems relatively simple to tackle and seemingly just a rename needed.
-// - However, we then use the `gas` (gasLimit) property and factor supportsEIP1559 to do pseudo-fees calculation
-// This means that the current implementation isn't really a rate (requires quote input), but not really a quote either (we don't fetch the quote endpoint),
-// and to avoid breaking changes in the interim, we've renamed the current `_getTradeQuote` implementation to this
-// TODO(gomes): ditch this when wiring things up, and bring sanity back to the world
+// TODO(gomes): rm me and update tests back to getZrxTradeQuote
 export function getZrxPseudoTradeQuote(
   input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
@@ -134,7 +126,8 @@ async function _getZrxTradeQuote(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    // Cross-account not supported for ZRX
+    sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
     zrxBaseUrl,
@@ -269,7 +262,8 @@ async function _getZrxTradeRate(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    // Cross-account not supported for ZRX
+    sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
     zrxBaseUrl,
@@ -406,7 +400,8 @@ async function _getZrxPermit2TradeQuote(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    // Cross-account not supported for ZRX
+    sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
     zrxBaseUrl,
@@ -599,7 +594,8 @@ async function _getZrxPermit2TradeRate(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    // Cross-account not supported for ZRX
+    sellAddress: receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
     zrxBaseUrl,
@@ -637,7 +633,7 @@ async function _getZrxPermit2TradeRate(
       {
         estimatedExecutionTimeMs: undefined,
         // We don't care about this - this is a rate, and if we really wanted to, we know the permit2 allowance target
-        allowanceContract: undefined,
+        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : PERMIT2_CONTRACT,
         buyAsset,
         sellAsset,
         accountNumber,

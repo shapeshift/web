@@ -1,6 +1,10 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import assert from 'assert'
+import { fetchZrxPermit2Quote } from '@shapeshiftoss/swapper/dist/swappers/ZrxSwapper/utils/fetchFromZrx'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import { getConfig } from 'config'
+import type { TypedData } from 'eip-712'
 import { useCallback, useMemo } from 'react'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -30,6 +34,38 @@ export const useSignPermit2 = (
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
+  const sellAssetAccountAddress = useMemo(
+    () => (sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined),
+    [sellAssetAccountId],
+  )
+
+  // Fetch permit2 in-place
+  const { isFetching, data: permit2Eip712Data } = useQuery({
+    queryKey: ['zrxPermit2', tradeQuoteStep],
+    queryFn: sellAssetAccountAddress
+      ? () =>
+          fetchZrxPermit2Quote({
+            buyAsset: tradeQuoteStep.buyAsset,
+            sellAsset: tradeQuoteStep.sellAsset,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit:
+              tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAddress: sellAssetAccountAddress,
+            // irrelevant, we're only concerned about this query for the sole purpose of getting eip712 typed data
+            affiliateBps: '0',
+            // irrelevant for the same reason as above
+            slippageTolerancePercentageDecimal: '0.020',
+            zrxBaseUrl: getConfig().REACT_APP_ZRX_BASE_URL,
+          })
+      : skipToken,
+    select: data => {
+      if (data.isErr()) throw data.unwrapErr()
+
+      const { permit2 } = data.unwrap()
+
+      return permit2?.eip712 as TypedData | undefined
+    },
+  })
+
   const accountMetadataFilter = useMemo(
     () => ({ accountId: sellAssetAccountId }),
     [sellAssetAccountId],
@@ -39,7 +75,7 @@ export const useSignPermit2 = (
   )
 
   const signPermit2 = useCallback(async () => {
-    if (!wallet || !accountMetadata) return
+    if (!wallet || !accountMetadata || !permit2Eip712Data) return
 
     dispatch(
       tradeQuoteSlice.actions.setPermit2SignaturePending({
@@ -49,10 +85,9 @@ export const useSignPermit2 = (
     )
 
     try {
-      assert(tradeQuoteStep.permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
       const typedDataToSign = {
         addressNList: toAddressNList(accountMetadata.bip44Params),
-        typedData: tradeQuoteStep?.permit2Eip712,
+        typedData: permit2Eip712Data,
       }
 
       const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
@@ -80,13 +115,14 @@ export const useSignPermit2 = (
     confirmedTradeId,
     dispatch,
     hopIndex,
+    permit2Eip712Data,
     showErrorToast,
-    tradeQuoteStep.permit2Eip712,
     tradeQuoteStep.sellAsset.chainId,
     wallet,
   ])
 
   return {
     signPermit2,
+    isLoading: isFetching,
   }
 }

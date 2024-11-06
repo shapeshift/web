@@ -13,6 +13,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
@@ -151,6 +152,8 @@ export const HopTransactionStep = ({
     // eslint-disable-next-line react-memo/require-usememo
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])
+
+  useGetTradeQuotes()
 
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {

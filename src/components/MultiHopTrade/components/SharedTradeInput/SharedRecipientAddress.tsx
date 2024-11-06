@@ -255,7 +255,7 @@ export const SharedRecipientAddress = ({
     [handleFormContextSubmit, handleSubmit],
   )
 
-  const forceDisplayManualAddressEntry = useMemo(() => {
+  const shouldForceDisplayManualAddressEntry = useMemo(() => {
     if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAssetAccountId) return false
@@ -281,24 +281,12 @@ export const SharedRecipientAddress = ({
     isWalletReceiveAddressLoading,
   ])
 
-  if (forceDisplayManualAddressEntry) {
-    console.log({
-      isWalletReceiveAddressLoading,
-      '!isConnected': !isConnected,
-      'isAccountsMetadataLoading && !sellAssetAccountId':
-        isAccountsMetadataLoading && !sellAssetAccountId,
-      manualReceiveAddress,
-      '!walletReceiveAddress': !walletReceiveAddress,
-      shouldForceManualAddressEntry,
-    })
-  }
-
   // The manual receive address input form
-  if (isRecipientAddressEditing || forceDisplayManualAddressEntry) {
+  if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {
     return (
       <form>
         <FormControl>
-          {forceDisplayManualAddressEntry && (
+          {shouldForceDisplayManualAddressEntry && (
             <ManualRecipientAddressLabels
               buyAsset={buyAsset}
               manualAddressEntryDescription={manualAddressEntryDescription}

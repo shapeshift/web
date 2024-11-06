@@ -124,14 +124,14 @@ export const ConfirmSummary = ({
     [buyAsset.chainId, receiveAddress],
   )
 
-  const disableThorTaprootReceiveAddress = useMemo(() => {
+  const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
     // Taproot addresses are not supported by THORChain swapper currently
     if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
 
     return false
   }, [activeSwapperName, isTaprootReceiveAddress])
 
-  const disableThorNativeSmartContractReceive = useMemo(() => {
+  const shouldDisableThorNativeSmartContractReceive = useMemo(() => {
     // THORChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
     if (
@@ -187,9 +187,9 @@ export const ConfirmSummary = ({
       isManualReceiveAddressEditing ||
       isManualReceiveAddressValid === false ||
       // don't execute trades for smart contract receive addresses for THOR native assets receives
-      disableThorNativeSmartContractReceive ||
+      shouldDisableThorNativeSmartContractReceive ||
       // Taproot not supported by THORChain swapper currently
-      disableThorTaprootReceiveAddress ||
+      shouldDisableThorTaprootReceiveAddress ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -203,8 +203,8 @@ export const ConfirmSummary = ({
     isManualReceiveAddressValidating,
     isManualReceiveAddressEditing,
     isManualReceiveAddressValid,
-    disableThorNativeSmartContractReceive,
-    disableThorTaprootReceiveAddress,
+    shouldDisableThorNativeSmartContractReceive,
+    shouldDisableThorTaprootReceiveAddress,
     activeQuote,
     hasUserEnteredAmount,
     activeSwapperName,
@@ -272,8 +272,8 @@ export const ConfirmSummary = ({
     }, [buyAsset, buyAssetFeeAsset, sellAsset])
 
   const manualAddressEntryDescription = useMemo(() => {
-    if (disableThorNativeSmartContractReceive)
-      return translate('trade.disableThorNativeSmartContractReceive', {
+    if (shouldDisableThorNativeSmartContractReceive)
+      return translate('trade.shouldDisableThorNativeSmartContractReceive', {
         chainName: buyAssetFeeAsset?.networkName,
         nativeAssetSymbol: buyAssetFeeAsset?.symbol,
       })
@@ -281,7 +281,7 @@ export const ConfirmSummary = ({
   }, [
     buyAssetFeeAsset?.networkName,
     buyAssetFeeAsset?.symbol,
-    disableThorNativeSmartContractReceive,
+    shouldDisableThorNativeSmartContractReceive,
     translate,
   ])
 
@@ -392,9 +392,9 @@ export const ConfirmSummary = ({
           <></>
         )}
         <RecipientAddress
-          shouldForceManualAddressEntry={disableThorNativeSmartContractReceive}
+          shouldForceManualAddressEntry={shouldDisableThorNativeSmartContractReceive}
           recipientAddressDescription={
-            disableThorTaprootReceiveAddress
+            shouldDisableThorTaprootReceiveAddress
               ? translate('trade.disableThorTaprootReceive')
               : undefined
           }

@@ -42,7 +42,7 @@ export const useIsManualReceiveAddressRequired = ({
     wallet,
   )
 
-  const forceDisplayManualAddressEntry = useMemo(() => {
+  const shouldForceDisplayManualAddressEntry = useMemo(() => {
     if (isWalletReceiveAddressLoading) return false
     if (!isConnected) return false
     if (isAccountsMetadataLoading && !sellAccountId) return false
@@ -69,5 +69,5 @@ export const useIsManualReceiveAddressRequired = ({
     walletSupportsBuyAssetChainAtRuntime,
   ])
 
-  return forceDisplayManualAddressEntry
+  return shouldForceDisplayManualAddressEntry
 }

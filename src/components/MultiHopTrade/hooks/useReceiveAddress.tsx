@@ -74,13 +74,13 @@ export const useReceiveAddress = ({
           if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
             throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
-          const fetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+          const shouldFetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
           const walletReceiveAddress = await getReceiveAddress({
             asset: buyAsset,
             wallet,
             accountMetadata: buyAccountMetadata,
             deviceId,
-            pubKey: fetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
+            pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
           })
 
           return walletReceiveAddress

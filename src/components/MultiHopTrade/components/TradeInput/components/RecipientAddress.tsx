@@ -27,42 +27,42 @@ export const RecipientAddress = ({
 
   const buyAsset = useAppSelector(selectInputBuyAsset)
 
-  const onIsValidatingChange = useCallback(
+  const handleIsValidatingChange = useCallback(
     (isValidating: boolean) => {
       dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
     },
     [dispatch],
   )
 
-  const onIsValidChange = useCallback(
+  const handleIsValidChange = useCallback(
     (isValid: boolean) => {
       dispatch(tradeInput.actions.setManualReceiveAddressIsValid(isValid))
     },
     [dispatch],
   )
 
-  const onError = useCallback(() => {
+  const handleError = useCallback(() => {
     dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
   }, [dispatch])
 
-  const onEdit = useCallback(() => {
+  const handleEdit = useCallback(() => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(true))
   }, [dispatch])
 
-  const onCancel = useCallback(() => {
+  const handleCancel = useCallback(() => {
     dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
     dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
   }, [dispatch])
 
-  const onReset = useCallback(() => {
+  const handleReset = useCallback(() => {
     // Reset the manual receive address in store
     dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
     // Reset the valid state in store
     dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
   }, [dispatch])
 
-  const onSubmit = useCallback(
+  const handleSubmit = useCallback(
     (address: string) => {
       dispatch(tradeInput.actions.setManualReceiveAddress(address))
       dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
@@ -79,13 +79,13 @@ export const RecipientAddress = ({
       manualReceiveAddress={manualReceiveAddress}
       shouldForceManualAddressEntry={shouldForceManualAddressEntry}
       walletReceiveAddress={walletReceiveAddress}
-      onCancel={onCancel}
-      onEdit={onEdit}
-      onError={onError}
-      onIsValidatingChange={onIsValidatingChange}
-      onIsValidChange={onIsValidChange}
-      onReset={onReset}
-      onSubmit={onSubmit}
+      onCancel={handleCancel}
+      onEdit={handleEdit}
+      onError={handleError}
+      onIsValidatingChange={handleIsValidatingChange}
+      onIsValidChange={handleIsValidChange}
+      onReset={handleReset}
+      onSubmit={handleSubmit}
     />
   )
 }

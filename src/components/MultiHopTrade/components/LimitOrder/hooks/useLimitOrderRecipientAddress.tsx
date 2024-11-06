@@ -28,28 +28,28 @@ export const useLimitOrderRecipientAddress = ({
     buyAsset,
   })
 
-  const onManualReceiveAddressError = useCallback(() => {
+  const handleManualReceiveAddressError = useCallback(() => {
     setManualReceiveAddress(undefined)
   }, [])
 
-  const onEditManualReceiveAddress = useCallback(() => {
+  const handleEditManualReceiveAddress = useCallback(() => {
     setIsManualReceiveAddressEditing(true)
   }, [])
 
-  const onCancelManualReceiveAddress = useCallback(() => {
+  const handleCancelManualReceiveAddress = useCallback(() => {
     setIsManualReceiveAddressEditing(false)
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
     setIsManualReceiveAddressValid(undefined)
   }, [])
 
-  const onResetManualReceiveAddress = useCallback(() => {
+  const handleResetManualReceiveAddress = useCallback(() => {
     // Reset the manual receive address in store
     setManualReceiveAddress(undefined)
     // Reset the valid state in store
     setIsManualReceiveAddressValid(undefined)
   }, [])
 
-  const onSubmitManualReceiveAddress = useCallback((address: string) => {
+  const handleSubmitManualReceiveAddress = useCallback((address: string) => {
     setManualReceiveAddress(address)
     setIsManualReceiveAddressEditing(false)
   }, [])
@@ -84,23 +84,23 @@ export const useLimitOrderRecipientAddress = ({
         isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
         manualReceiveAddress={manualReceiveAddress}
         walletReceiveAddress={walletReceiveAddress}
-        onCancel={onCancelManualReceiveAddress}
-        onEdit={onEditManualReceiveAddress}
-        onError={onManualReceiveAddressError}
+        onCancel={handleCancelManualReceiveAddress}
+        onEdit={handleEditManualReceiveAddress}
+        onError={handleManualReceiveAddressError}
         onIsValidatingChange={setIsManualReceiveAddressValidating}
         onIsValidChange={setIsManualReceiveAddressValid}
-        onReset={onResetManualReceiveAddress}
-        onSubmit={onSubmitManualReceiveAddress}
+        onReset={handleResetManualReceiveAddress}
+        onSubmit={handleSubmitManualReceiveAddress}
       />
     )
   }, [
     buyAsset,
     manualReceiveAddress,
-    onCancelManualReceiveAddress,
-    onEditManualReceiveAddress,
-    onManualReceiveAddressError,
-    onResetManualReceiveAddress,
-    onSubmitManualReceiveAddress,
+    handleCancelManualReceiveAddress,
+    handleEditManualReceiveAddress,
+    handleManualReceiveAddressError,
+    handleResetManualReceiveAddress,
+    handleSubmitManualReceiveAddress,
     walletReceiveAddress,
     isWalletReceiveAddressLoading,
   ])

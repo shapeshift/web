@@ -1,11 +1,10 @@
-import { Divider, Stack } from '@chakra-ui/react'
+import { Divider, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
-import { noop } from 'lodash'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -34,6 +33,7 @@ import {
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
@@ -67,6 +67,7 @@ export const LimitOrderInput = ({
   const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
     fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
   })
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
@@ -96,6 +97,11 @@ export const LimitOrderInput = ({
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
+
+  const handleOpenCompactQuoteList = useCallback(() => {
+    if (!isCompact && !isSmallerThanXl) return
+    history.push({ pathname: LimitOrderRoutePaths.QuoteList })
+  }, [history, isCompact, isSmallerThanXl])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -319,7 +325,7 @@ export const LimitOrderInput = ({
         isError={false}
         isLoading={isLoading}
         manualAddressEntryDescription={undefined}
-        onRateClick={noop}
+        onRateClick={handleOpenCompactQuoteList}
         quoteStatusTranslation={'trade.previewTrade'}
         rate={activeQuote?.rate}
         receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
@@ -336,6 +342,7 @@ export const LimitOrderInput = ({
   }, [
     activeQuote?.rate,
     buyAsset,
+    handleOpenCompactQuoteList,
     hasUserEnteredAmount,
     isCompact,
     isLoading,

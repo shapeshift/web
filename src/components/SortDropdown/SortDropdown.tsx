@@ -22,7 +22,9 @@ type SortDropdownProps = {
   options: SortOptionsKeys[]
 }
 
-const width = { base: 'full', md: 'auto' }
+const colWidth = { base: '50%', xl: 'auto' }
+const marginYProp = { base: 2, xl: 0 }
+const marginBottomProp = { base: 4, xl: 0 }
 
 const chevronDownIcon = <ChevronDownIcon />
 
@@ -53,10 +55,12 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
   }, [translate, value, options])
 
   return (
-    <Flex alignItems='center' mx={2}>
-      <Text me={4}>{translate('common.sortBy')}</Text>
+    <Flex alignItems='center' mx={2} my={marginYProp} mb={marginBottomProp}>
+      <Text width={colWidth} me={4}>
+        {translate('common.sortBy')}
+      </Text>
       <Menu>
-        <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
+        <MenuButton width={colWidth} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
           {selectedLabel}
         </MenuButton>
         <MenuList zIndex='banner'>

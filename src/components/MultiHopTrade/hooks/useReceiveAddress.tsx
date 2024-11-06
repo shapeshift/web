@@ -27,9 +27,11 @@ export const getReceiveAddress = async ({
 }
 
 export const useReceiveAddress = ({
+  sellAccountId,
   buyAccountId,
   buyAsset,
 }: {
+  sellAccountId: AccountId | undefined
   buyAccountId: AccountId | undefined
   buyAsset: Asset | undefined
 }) => {
@@ -62,7 +64,15 @@ export const useReceiveAddress = ({
   }, [buyAccountId, buyAccountMetadata, buyAsset, wallet])
 
   const { data: walletReceiveAddress, isLoading } = useQuery({
-    queryKey: ['receiveAddress', buyAsset?.assetId, deviceId, buyAccountId],
+    queryKey: [
+      'receiveAddress',
+      buyAsset?.assetId,
+      deviceId,
+      // IMPORTANT: Required to invalidate query cache when changing wallet - different ledgers can
+      // have the same deviceId.
+      sellAccountId,
+      buyAccountId,
+    ],
     queryFn: isInitializing
       ? skipToken
       : async () => {

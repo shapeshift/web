@@ -302,7 +302,7 @@ export const SharedRecipientAddress = ({
     )
   }
 
-  // The summary of the receive address (existing or custom )
+  // The summary of the receive address (existing or custom)
   return (
     <>
       {customRecipientAddressDescription && (

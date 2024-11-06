@@ -24,6 +24,7 @@ export const useLimitOrderRecipientAddress = ({
   const [isManualReceiveAddressEditing, setIsManualReceiveAddressEditing] = useState(false)
   const [isManualReceiveAddressValidating, setIsManualReceiveAddressValidating] = useState(false)
   const { walletReceiveAddress, isLoading: isWalletReceiveAddressLoading } = useReceiveAddress({
+    sellAccountId,
     buyAccountId,
     buyAsset,
   })

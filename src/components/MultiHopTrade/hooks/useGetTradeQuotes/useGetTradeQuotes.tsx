@@ -43,7 +43,6 @@ import {
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import type { TradeExecutionMetadata } from 'state/slices/tradeQuoteSlice/types'
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
@@ -224,8 +223,7 @@ export const useGetTradeQuotes = () => {
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
-  // TODO(gomes): this should *not* refetch, this should refetch the *correct* swapper/quote once and call cache it forever until unmount
-  const shouldRefetchTradeQuotes = useMemo(
+  const shouldFetchTradeQuotes = useMemo(
     () =>
       Boolean(
         hasFocus &&
@@ -341,13 +339,13 @@ export const useGetTradeQuotes = () => {
         swapperName,
         tradeQuoteInput,
         // Skip trade quotes fetching which aren't for the swapper we have a rate for
-        skip: !swapperName || !shouldRefetchTradeQuotes,
+        skip: !swapperName || !shouldFetchTradeQuotes,
         pollingInterval:
           swappers[swapperName as SwapperName]?.pollingInterval ??
           DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
-    [shouldRefetchTradeQuotes, tradeQuoteInput],
+    [shouldFetchTradeQuotes, tradeQuoteInput],
   )
 
   const queryStateMeta = useGetSwapperTradeQuote(

@@ -1,11 +1,13 @@
-import { Box } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import type { TradeInputTab } from 'components/MultiHopTrade/types'
+import { type TradeInputTab } from 'components/MultiHopTrade/types'
 
+import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
 import { LimitOrderInput } from './components/LimitOrderInput'
 import { LimitOrderStatus } from './components/LimitOrderStatus'
+import { LimitOrderList } from './LimitOrderList'
 import { LimitOrderRoutePaths } from './types'
 
 const LimitOrderRouteEntries = [
@@ -44,7 +46,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   return (
     <MemoryRouter initialEntries={LimitOrderRouteEntries} initialIndex={0}>
       <Switch location={location}>
-        <Box flex={1} width='full'>
+        <Flex flex={1} width='full' justifyContent='center'>
           <Route
             key={LimitOrderRoutePaths.Input}
             path={LimitOrderRoutePaths.Input}
@@ -60,7 +62,15 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
             path={LimitOrderRoutePaths.Status}
             render={renderLimitOrderStatus}
           />
-        </Box>
+          <Route key={LimitOrderRoutePaths.QuoteList} path={LimitOrderRoutePaths.QuoteList}>
+            <SlideTransitionRoute
+              height={tradeInputRef.current?.offsetHeight ?? '500px'}
+              width={tradeInputRef.current?.offsetWidth ?? 'full'}
+              component={LimitOrderList}
+              parentRoute={LimitOrderRoutePaths.Input}
+            />
+          </Route>
+        </Flex>
       </Switch>
     </MemoryRouter>
   )

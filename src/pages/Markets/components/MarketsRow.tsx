@@ -33,10 +33,10 @@ const chevronDownIcon = <ChevronDownIcon />
 
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
 const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
-const colWidth = { base: '50%', xl: 'auto' }
+const colWidth = { base: '50%', md: 'max-content' }
 const chainButtonProps = {
   width: colWidth,
-  my: { base: 2, xl: 0 },
+  my: { base: 2, md: 0 },
 }
 const headerMx = { base: 0, xl: -2 }
 
@@ -74,7 +74,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`)
+  const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
     if (!supportedChainIds)
@@ -147,7 +147,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
           {Subtitle}
         </Box>
         <Flex alignItems='center' mx={headerMx} alignSelf='flex-end'>
-          {params.category && isSmallerThanXl ? (
+          {params.category && isSmallerThanLg ? (
             <Menu>
               <MenuButton as={Button} rightIcon={chevronDownIcon}>
                 {translate('common.filterAndSort')}
@@ -180,19 +180,21 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
             </Menu>
           ) : null}
 
-          {showSortFilter && params.category && !isSmallerThanXl ? (
+          {showSortFilter && params.category && !isSmallerThanLg ? (
             <SortDropdown
               options={sortOptionsByCategory[params.category] ?? []}
               value={selectedSort}
               onClick={setSelectedSort}
             />
           ) : null}
-          {showOrderFilter && !isSmallerThanXl ? (
+          {showOrderFilter && !isSmallerThanLg ? (
             <OrderDropdown value={selectedOrder} onClick={setSelectedOrder} />
           ) : null}
-          {!isSmallerThanXl ? (
+          {!isSmallerThanLg ? (
             <Flex alignItems='center' mx={2}>
-              <Text me={4}>{translate('common.filterBy')}</Text>
+              <Text me={4} width='max-content'>
+                {translate('common.filterBy')}
+              </Text>
               <ChainDropdown
                 chainIds={chainIds}
                 chainId={selectedChainId}

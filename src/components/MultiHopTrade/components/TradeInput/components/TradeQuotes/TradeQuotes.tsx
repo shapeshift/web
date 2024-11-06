@@ -11,12 +11,14 @@ import {
 } from '@chakra-ui/react'
 import { dogeAssetId } from '@shapeshiftoss/caip'
 import type { SwapperName } from '@shapeshiftoss/swapper'
+import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/selectors'
 import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
@@ -98,11 +100,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const translate = useTranslate()
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
+  const unavailableAccordionRef = useRef<HTMLDivElement>(null)
 
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId
   }, [buyAsset?.assetId, sellAsset?.assetId])
-  console.log({ buyAsset, sellAsset, shouldUseComisSansMs })
 
   useEffect(() => {
     dispatch(
@@ -208,6 +210,17 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     onBack,
   ])
 
+  const invalidQuotesLength = useMemo(
+    () =>
+      invalidTradeQuotesDisplayCache.filter(
+        invalidQuote =>
+          ![TradeQuoteValidationError.UnknownError, SwapperTradeQuoteError.UnknownError].includes(
+            invalidQuote.errors?.[0]?.error,
+          ),
+      ).length,
+    [invalidTradeQuotesDisplayCache],
+  )
+
   // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
   // only show these placeholders when quotes aren't already visible in the list
   const fetchingSwappers = useMemo(() => {
@@ -255,14 +268,18 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         width='full'
         px={2}
         pt={0}
-        pb={4}
         transitionProperty='max-height'
         transitionDuration='0.65s'
         transitionTimingFunction='ease-in-out'
         gap={2}
         minHeight='full'
       >
-        <Flex minHeight='calc(100% - 22px)' flexDirection='column' gap={2}>
+        <Flex
+          // minHeight={`calc(100% - ${unavailableAccordionRef.current?.style.height}px)`}
+          flexDirection='column'
+          gap={2}
+          flexGrow='1'
+        >
           <LayoutGroup>
             <AnimatePresence>
               {quotes}
@@ -292,7 +309,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
           ) : null}
         </Flex>
 
-        <Accordion allowMultiple>
+        <Accordion allowMultiple ref={unavailableAccordionRef}>
           <AccordionItem borderBottom='none' borderTop='1px solid' borderColor='border.base'>
             <h2>
               <AccordionButton color='text.subtle'>
@@ -301,7 +318,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
                 </Box>
                 <Flex alignItems='center'>
                   <Tag colorScheme='gray' size='sm' me={2} lineHeight='1'>
-                    {invalidQuotes.length}
+                    {invalidQuotesLength}
                   </Tag>
                   <AccordionIcon />
                 </Flex>

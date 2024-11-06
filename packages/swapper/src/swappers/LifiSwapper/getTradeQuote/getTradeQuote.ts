@@ -53,6 +53,7 @@ async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -246,7 +247,7 @@ async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
-        receiveAddress,
+        receiveAddress: quoteOrRate === 'quote' ? receiveAddress : undefined,
         affiliateBps,
         potentialAffiliateBps,
         steps,

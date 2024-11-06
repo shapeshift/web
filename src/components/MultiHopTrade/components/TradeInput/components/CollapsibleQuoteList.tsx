@@ -23,9 +23,8 @@ export const CollapsibleQuoteList: React.FC<CollapsibleQuoteListProps> = ({
     () => ({
       ml,
       height,
-      width,
     }),
-    [ml, height, width],
+    [ml, height],
   )
 
   return (

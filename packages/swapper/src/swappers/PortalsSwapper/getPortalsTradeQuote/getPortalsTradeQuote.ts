@@ -27,8 +27,8 @@ import {
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
-import { getDummyQuoteParams, isSupportedChainId } from '../utils/helpers'
+import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
   input: GetEvmTradeRateInput,
@@ -261,7 +261,6 @@ export async function getPortalsTradeQuote(
     const inputToken = `${portalsNetwork}:${sellAssetAddress}`
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
-    // Attempt fetching a quote with validation enabled to leverage upstream gasLimit estimate
     const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
       sender: sendAddress,
       inputToken,
@@ -274,78 +273,6 @@ export async function getPortalsTradeQuote(
       feePercentage: affiliateBpsPercentage,
       validate: true,
       swapperConfig,
-    }).catch(async e => {
-      // If validation fails, fire 3 more quotes:
-      // 1. a quote estimate (does not require approval) to get the optimal slippage tolerance
-      // 2. a quote with validation enabled, but using a well-funded address to get a rough gasLimit estimate
-      // 3. another quote with validation disabled, to get an actual quote (using the user slippage, or the optimal from the estimate)
-      console.info('failed to get Portals quote with validation enabled', e)
-
-      // Use the quote estimate endpoint to get the optimal slippage tolerance
-      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-        sender: sendAddress,
-        inputToken,
-        outputToken,
-        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        swapperConfig,
-      }).catch(e => {
-        console.info('failed to get Portals quote estimate', e)
-        return undefined
-      })
-
-      const dummyQuoteParams = getDummyQuoteParams(sellAsset.chainId)
-
-      const dummySellAssetAddress = fromAssetId(dummyQuoteParams.sellAssetId).assetReference
-      const dummyBuyAssetAddress = fromAssetId(dummyQuoteParams.buyAssetId).assetReference
-
-      const dummyInputToken = `${portalsNetwork}:${dummySellAssetAddress}`
-      const dummyOutputToken = `${portalsNetwork}:${dummyBuyAssetAddress}`
-
-      const userSlippageTolerancePercentageOrDefault =
-        userSlippageTolerancePercentageDecimalOrDefault
-          ? userSlippageTolerancePercentageDecimalOrDefault * 100
-          : undefined
-
-      // Use a dummy request to the portal endpoint to get a rough gasLimit estimate
-      const dummyOrderResponse = await fetchPortalsTradeOrder({
-        sender: dummyQuoteParams.accountAddress,
-        inputToken: dummyInputToken,
-        outputToken: dummyOutputToken,
-        inputAmount: dummyQuoteParams.sellAmountCryptoBaseUnit,
-        slippageTolerancePercentage: userSlippageTolerancePercentageOrDefault,
-        partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-        feePercentage: affiliateBpsPercentage,
-        validate: true,
-        swapperConfig,
-      })
-        .then(({ context }) => ({
-          maybeGasLimit: context.gasLimit,
-        }))
-        .catch(e => {
-          console.info('failed to get Portals quote with validation enabled using dummy address', e)
-          return undefined
-        })
-
-      const order = await fetchPortalsTradeOrder({
-        sender: sendAddress,
-        inputToken,
-        outputToken,
-        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        slippageTolerancePercentage:
-          userSlippageTolerancePercentageOrDefault ??
-          quoteEstimateResponse?.context.slippageTolerancePercentage ??
-          bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
-            .times(100)
-            .toNumber(),
-        partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-        feePercentage: affiliateBpsPercentage,
-        validate: false,
-        swapperConfig,
-      })
-
-      if (dummyOrderResponse?.maybeGasLimit)
-        order.context.gasLimit = dummyOrderResponse.maybeGasLimit
-      return order
     })
 
     const {

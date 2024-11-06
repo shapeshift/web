@@ -10,7 +10,7 @@ import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
-import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
+import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
@@ -83,9 +83,9 @@ export const ConfirmSummary = ({
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const manualReceiveAddressIsValidating = useAppSelector(selectManualReceiveAddressIsValidating)
-  const manualReceiveAddressIsEditing = useAppSelector(selectManualReceiveAddressIsEditing)
-  const manualReceiveAddressIsValid = useAppSelector(selectManualReceiveAddressIsValid)
+  const isManualReceiveAddressValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const isManualReceiveAddressEditing = useAppSelector(selectManualReceiveAddressIsEditing)
+  const isManualReceiveAddressValid = useAppSelector(selectManualReceiveAddressIsValid)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
@@ -170,7 +170,7 @@ export const ConfirmSummary = ({
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
-  const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
+  const isManualReceiveAddressRequired = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: false,
     sellAccountId: sellAssetAccountId,
     buyAsset,
@@ -182,10 +182,10 @@ export const ConfirmSummary = ({
   const shouldDisablePreviewButton = useMemo(() => {
     return (
       // don't execute trades while address is validating
-      manualReceiveAddressIsRequired ||
-      manualReceiveAddressIsValidating ||
-      manualReceiveAddressIsEditing ||
-      manualReceiveAddressIsValid === false ||
+      isManualReceiveAddressRequired ||
+      isManualReceiveAddressValidating ||
+      isManualReceiveAddressEditing ||
+      isManualReceiveAddressValid === false ||
       // don't execute trades for smart contract receive addresses for THOR native assets receives
       disableThorNativeSmartContractReceive ||
       // Taproot not supported by THORChain swapper currently
@@ -199,10 +199,10 @@ export const ConfirmSummary = ({
       isTradeQuoteApiQueryPending[activeSwapperName]
     )
   }, [
-    manualReceiveAddressIsRequired,
-    manualReceiveAddressIsValidating,
-    manualReceiveAddressIsEditing,
-    manualReceiveAddressIsValid,
+    isManualReceiveAddressRequired,
+    isManualReceiveAddressValidating,
+    isManualReceiveAddressEditing,
+    isManualReceiveAddressValid,
     disableThorNativeSmartContractReceive,
     disableThorTaprootReceiveAddress,
     activeQuote,

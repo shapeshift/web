@@ -8,7 +8,7 @@ import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSu
 import { selectAccountIdsByAssetId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-type UseManualReceiveAddressIsRequiredProps = {
+type UseIsManualReceiveAddressRequiredProps = {
   shouldForceManualAddressEntry: boolean
   sellAccountId: AccountId | undefined
   buyAsset: Asset
@@ -17,14 +17,14 @@ type UseManualReceiveAddressIsRequiredProps = {
   isWalletReceiveAddressLoading: boolean
 }
 
-export const useManualReceiveAddressIsRequired = ({
+export const useIsManualReceiveAddressRequired = ({
   shouldForceManualAddressEntry,
   sellAccountId,
   buyAsset,
   manualReceiveAddress,
   walletReceiveAddress,
   isWalletReceiveAddressLoading,
-}: UseManualReceiveAddressIsRequiredProps) => {
+}: UseIsManualReceiveAddressRequiredProps) => {
   const {
     state: { isConnected, wallet },
   } = useWallet()

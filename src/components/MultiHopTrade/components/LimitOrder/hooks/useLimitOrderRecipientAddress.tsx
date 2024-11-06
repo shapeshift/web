@@ -1,7 +1,7 @@
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import type { Address } from 'viem'
-import { useManualReceiveAddressIsRequired } from 'components/MultiHopTrade/hooks/useManualReceiveAddressIsRequired'
+import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 
 import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
@@ -18,11 +18,11 @@ export const useLimitOrderRecipientAddress = ({
   sellAccountId,
 }: UseLimitOrderRecipientAddressProps) => {
   const [manualReceiveAddress, setManualReceiveAddress] = useState<string | undefined>(undefined)
-  const [manualReceiveAddressIsValid, setManualReceiveAddressIsValid] = useState<
+  const [isManualReceiveAddressValid, setIsManualReceiveAddressValid] = useState<
     boolean | undefined
   >(undefined)
-  const [manualReceiveAddressIsEditing, setManualReceiveAddressIsEditing] = useState(false)
-  const [manualReceiveAddressIsValidating, setManualReceiveAddressIsValidating] = useState(false)
+  const [isManualReceiveAddressEditing, setIsManualReceiveAddressEditing] = useState(false)
+  const [isManualReceiveAddressValidating, setIsManualReceiveAddressValidating] = useState(false)
   const { walletReceiveAddress, isLoading: isWalletReceiveAddressLoading } = useReceiveAddress({
     buyAccountId,
     buyAsset,
@@ -33,28 +33,28 @@ export const useLimitOrderRecipientAddress = ({
   }, [])
 
   const onEditManualReceiveAddress = useCallback(() => {
-    setManualReceiveAddressIsEditing(true)
+    setIsManualReceiveAddressEditing(true)
   }, [])
 
   const onCancelManualReceiveAddress = useCallback(() => {
-    setManualReceiveAddressIsEditing(false)
+    setIsManualReceiveAddressEditing(false)
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
-    setManualReceiveAddressIsValid(undefined)
+    setIsManualReceiveAddressValid(undefined)
   }, [])
 
   const onResetManualReceiveAddress = useCallback(() => {
     // Reset the manual receive address in store
     setManualReceiveAddress(undefined)
     // Reset the valid state in store
-    setManualReceiveAddressIsValid(undefined)
+    setIsManualReceiveAddressValid(undefined)
   }, [])
 
   const onSubmitManualReceiveAddress = useCallback((address: string) => {
     setManualReceiveAddress(address)
-    setManualReceiveAddressIsEditing(false)
+    setIsManualReceiveAddressEditing(false)
   }, [])
 
-  const manualReceiveAddressIsRequired = useManualReceiveAddressIsRequired({
+  const isManualReceiveAddressRequired = useIsManualReceiveAddressRequired({
     shouldForceManualAddressEntry: false,
     sellAccountId,
     buyAsset,
@@ -65,16 +65,16 @@ export const useLimitOrderRecipientAddress = ({
 
   const isRecipientAddressEntryActive = useMemo(() => {
     return (
-      manualReceiveAddressIsRequired ||
-      manualReceiveAddressIsValidating ||
-      manualReceiveAddressIsEditing ||
-      manualReceiveAddressIsValid === false
+      isManualReceiveAddressRequired ||
+      isManualReceiveAddressValidating ||
+      isManualReceiveAddressEditing ||
+      isManualReceiveAddressValid === false
     )
   }, [
-    manualReceiveAddressIsEditing,
-    manualReceiveAddressIsRequired,
-    manualReceiveAddressIsValid,
-    manualReceiveAddressIsValidating,
+    isManualReceiveAddressEditing,
+    isManualReceiveAddressRequired,
+    isManualReceiveAddressValid,
+    isManualReceiveAddressValidating,
   ])
 
   const renderedRecipientAddress = useMemo(() => {
@@ -87,8 +87,8 @@ export const useLimitOrderRecipientAddress = ({
         onCancel={onCancelManualReceiveAddress}
         onEdit={onEditManualReceiveAddress}
         onError={onManualReceiveAddressError}
-        onIsValidatingChange={setManualReceiveAddressIsValidating}
-        onIsValidChange={setManualReceiveAddressIsValid}
+        onIsValidatingChange={setIsManualReceiveAddressValidating}
+        onIsValidChange={setIsManualReceiveAddressValid}
         onReset={onResetManualReceiveAddress}
         onSubmit={onSubmitManualReceiveAddress}
       />

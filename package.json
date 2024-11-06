@@ -265,7 +265,7 @@
     "eslint-plugin-react-memo": "^0.0.3",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "fast-json-stable-stringify": "^2.1.0",
-    "happy-dom": "^12.10.3",
+    "happy-dom": "^15.10.1",
     "http-proxy-middleware": "^2.0.7",
     "inquirer": "8.2.4",
     "jscodeshift": "^0.15.2",

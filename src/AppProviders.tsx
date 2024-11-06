@@ -48,6 +48,7 @@ const manager = createLocalStorageManager('ss-theme')
 const splashScreen = <SplashScreen />
 
 const wallet = createWallet({
+  appId: '66d4c617-e18d-4100-b568-5df862885015',
   providers: {
     ethereum: true,
   },

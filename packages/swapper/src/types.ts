@@ -22,7 +22,7 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { TransactionRequest } from 'viem'
+import type { Address, TransactionRequest } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -243,7 +243,13 @@ export type TradeQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   permit2Eip712?: TypedData
-  transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
+  transactionMetadata?: {
+    to: Address
+    data: Address
+    gasPrice: string | undefined
+    gas: string | undefined
+    value: string
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

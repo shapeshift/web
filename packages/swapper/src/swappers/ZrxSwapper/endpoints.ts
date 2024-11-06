@@ -74,14 +74,7 @@ export const zrxApi: SwapperApi = {
 
     if (!transactionMetadata) throw new Error('Transaction metadata is required')
 
-    const { value, to, data, estimatedGas } = (() => {
-      return {
-        value: transactionMetadata.value?.toString() ?? '0',
-        to: transactionMetadata.to ?? '0x',
-        data: transactionMetadata.data ?? '0x',
-        estimatedGas: transactionMetadata.gas?.toString() ?? '0',
-      }
-    })()
+    const { value, to, data, gas: estimatedGas } = transactionMetadata
 
     const calldataWithSignature = (() => {
       if (!permit2Signature) return data
@@ -114,7 +107,7 @@ export const zrxApi: SwapperApi = {
       chainId: Number(fromChainId(chainId).chainReference),
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for
       // total gas used.
-      gasLimit: BigNumber.max(gasLimit, estimatedGas).toFixed(),
+      gasLimit: BigNumber.max(gasLimit, estimatedGas ?? '0').toFixed(),
       ...feeData,
     }
   },

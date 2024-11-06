@@ -146,9 +146,9 @@ async function _getZrxTradeQuote(
   const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
     to: zrxQuoteResponse.to,
     data: zrxQuoteResponse.data as `0x${string}`,
-    gasPrice: zrxQuoteResponse.gasPrice ? BigInt(zrxQuoteResponse.gasPrice) : undefined,
-    gas: zrxQuoteResponse.gas ? BigInt(zrxQuoteResponse.gas) : undefined,
-    value: BigInt(zrxQuoteResponse.value),
+    gasPrice: zrxQuoteResponse.gasPrice ? zrxQuoteResponse.gasPrice : undefined,
+    gas: zrxQuoteResponse.gas ? zrxQuoteResponse.gas : undefined,
+    value: zrxQuoteResponse.value,
   }
 
   const {
@@ -442,9 +442,9 @@ async function _getZrxPermit2TradeQuote(
   const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
     to: transaction.to,
     data: transaction.data as `0x${string}`,
-    gasPrice: transaction.gasPrice ? BigInt(transaction.gasPrice) : undefined,
-    gas: transaction.gas ? BigInt(transaction.gas) : undefined,
-    value: BigInt(transaction.value),
+    gasPrice: transaction.gasPrice ? transaction.gasPrice : undefined,
+    gas: transaction.gas ? transaction.gas : undefined,
+    value: transaction.value,
   }
 
   // for the rate to be valid, both amounts must be converted to the same precision

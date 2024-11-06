@@ -22,9 +22,10 @@ type SortDropdownProps = {
   options: SortOptionsKeys[]
 }
 
-const colWidth = { base: '50%', md: 'max-content' }
-const marginYProp = { base: 2, md: 0 }
-const marginBottomProp = { base: 4, md: 0 }
+const colWidth = { base: '50%', lg: 'max-content' }
+const marginYProp = { base: 2, lg: 0 }
+const marginBottomProp = { base: 4, lg: 0 }
+const justifyContentProp = { base: 'space-between', lg: 'flex-end' }
 
 const chevronDownIcon = <ChevronDownIcon />
 
@@ -60,7 +61,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
       mx={2}
       my={marginYProp}
       mb={marginBottomProp}
-      justifyContent='flex-end'
+      justifyContent={justifyContentProp}
     >
       <Text width={colWidth} me={4}>
         {translate('common.sortBy')}

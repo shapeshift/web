@@ -33,13 +33,13 @@ const chevronDownIcon = <ChevronDownIcon />
 
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
 const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
-const colWidth = { base: 'auto', md: 'max-content' }
 
-const colMinWidth = { base: '50%', md: 'auto' }
+const colWidth = { base: 'auto', lg: 'max-content' }
+const colMinWidth = { base: '50%', lg: 'auto' }
 const chainButtonProps = {
   width: colWidth,
   minWidth: colMinWidth,
-  my: { base: 2, md: 0 },
+  my: { base: 2, lg: 0 },
 }
 const headerMx = { base: 0, xl: -2 }
 

@@ -70,7 +70,7 @@ export const zrxApi: SwapperApi = {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     const { steps } = tradeQuote
-    const { transactionMetadata } = steps[0]
+    const { zrxTransactionMetadata: transactionMetadata } = steps[0]
 
     if (!transactionMetadata) throw new Error('Transaction metadata is required')
 

@@ -136,7 +136,7 @@ async function _getZrxTradeQuote(
   if (maybeZrxQuoteResponse.isErr()) return Err(maybeZrxQuoteResponse.unwrapErr())
   const zrxQuoteResponse = maybeZrxQuoteResponse.unwrap()
 
-  const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
+  const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
     to: zrxQuoteResponse.to,
     data: zrxQuoteResponse.data as `0x${string}`,
     gasPrice: zrxQuoteResponse.gasPrice ? zrxQuoteResponse.gasPrice : undefined,
@@ -175,7 +175,7 @@ async function _getZrxTradeQuote(
       rate,
       steps: [
         {
-          transactionMetadata,
+          zrxTransactionMetadata: transactionMetadata,
           estimatedExecutionTimeMs: undefined,
           allowanceContract: allowanceTarget,
           buyAsset,
@@ -434,7 +434,7 @@ async function _getZrxPermit2TradeQuote(
     )
   }
 
-  const transactionMetadata: TradeQuoteStep['transactionMetadata'] = {
+  const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
     to: transaction.to,
     data: transaction.data as `0x${string}`,
     gasPrice: transaction.gasPrice ? transaction.gasPrice : undefined,
@@ -521,7 +521,7 @@ async function _getZrxPermit2TradeQuote(
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Zrx,
           permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
-          transactionMetadata,
+          zrxTransactionMetadata: transactionMetadata,
         },
       ] as SingleHopTradeQuoteSteps,
     })

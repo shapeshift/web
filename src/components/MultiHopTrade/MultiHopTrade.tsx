@@ -16,7 +16,6 @@ import { QuoteListRoute } from './components/QuoteList/QuoteListRoute'
 import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
-import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeInputTab, TradeRoutePaths } from './types'
 

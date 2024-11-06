@@ -113,20 +113,20 @@ async function _getCowSwapTradeQuote(
     return Err(maybeQuoteResponse.unwrapErr())
   }
 
-  const { data } = maybeQuoteResponse.unwrap()
+  const { data: cowswapQuoteResponse } = maybeQuoteResponse.unwrap()
 
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = cowswapQuoteResponse.quote
 
   const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
     getValuesFromQuoteResponse({
       buyAsset,
       sellAsset,
-      response: data,
+      response: cowswapQuoteResponse,
       affiliateBps,
     })
 
   const quote: TradeQuote = {
-    id: data.id.toString(),
+    id: cowswapQuoteResponse.id.toString(),
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,
@@ -155,6 +155,7 @@ async function _getCowSwapTradeQuote(
         buyAsset,
         sellAsset,
         accountNumber,
+        cowswapQuoteResponse,
       },
     ],
   }
@@ -257,7 +258,7 @@ async function _getCowSwapTradeRate(
   const quote: TradeRate = {
     id: data.id.toString(),
     accountNumber,
-    receiveAddress,
+    receiveAddress: undefined,
     affiliateBps,
     potentialAffiliateBps,
     rate,

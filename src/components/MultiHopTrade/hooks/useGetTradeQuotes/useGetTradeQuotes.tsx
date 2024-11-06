@@ -160,12 +160,6 @@ export const useGetTradeQuotes = () => {
       : undefined,
   )
 
-  const quoteOrRate = useMemo(() => {
-    return 'quote' as const
-  }, [])
-
-  console.log({ hopExecutionMetadata })
-
   const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
     skipToken,
   )
@@ -261,8 +255,10 @@ export const useGetTradeQuotes = () => {
     // Early exit on any invalid state
     if (
       bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      (quoteOrRate === 'quote' &&
-        (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
+      !sellAccountId ||
+      !sellAccountMetadata ||
+      !receiveAddress ||
+      isVotingPowerLoading
     ) {
       setTradeQuoteInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
@@ -285,9 +281,8 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      if (quoteOrRate === 'quote' && sellAccountNumber === undefined)
-        throw new Error('sellAccountNumber is required')
-      if (quoteOrRate === 'quote' && !receiveAddress) throw new Error('receiveAddress is required')
+      if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
+      if (!receiveAddress) throw new Error('receiveAddress is required')
 
       const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
@@ -296,7 +291,7 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        quoteOrRate,
+        quoteOrRate: 'quote',
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -328,7 +323,6 @@ export const useGetTradeQuotes = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
-    quoteOrRate,
     hopExecutionMetadata?.state,
     activeTrade,
   ])

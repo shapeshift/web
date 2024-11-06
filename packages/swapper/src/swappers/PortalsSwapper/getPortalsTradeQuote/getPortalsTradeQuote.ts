@@ -38,7 +38,6 @@ export async function getPortalsTradeRate(
   const {
     sellAsset,
     buyAsset,
-    sendAddress,
     accountNumber,
     affiliateBps,
     potentialAffiliateBps,
@@ -106,17 +105,25 @@ export async function getPortalsTradeRate(
       ? Number(input.slippageTolerancePercentageDecimal)
       : undefined // Use auto slippage if no user preference is provided
 
-    // Use the quote estimate endpoint to get a quote without a wallet
-    const quoteEstimateResponse = await fetchPortalsTradeEstimate({
-      sender: sendAddress,
+    // TODO(gomes): we should use the fetchPortalsTradeEstimate method here (leveraing /v2/portal/estimate) but we can't do it yet
+    // because of upstream not returning us the allowance target
+    const quoteEstimateResponse = await fetchPortalsTradeOrder({
+      // Portals needs a (any) valid address for the `/v2/portal` endpoint. Once we switch to the `/v2/portal/estimate` endpoint here, we can remove this madness
+      sender: zeroAddress,
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
         ? userSlippageTolerancePercentageDecimalOrDefault * 100
-        : undefined,
+        : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+            .times(100)
+            .toNumber(),
+      partner: getTreasuryAddressFromChainId(sellAsset.chainId),
+      // Effectively emulating the estimate endpoint here by skipping validation
+      validate: false,
       swapperConfig,
     })
+    // Use the quote estimate endpoint to get a quote without a wallet
 
     const rate = getRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -128,23 +135,24 @@ export async function getPortalsTradeRate(
     const tradeRate = {
       id: uuid(),
       accountNumber,
-      receiveAddress: input.receiveAddress,
+      receiveAddress: undefined,
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: quoteEstimateResponse?.context.slippageTolerancePercentage
+      slippageTolerancePercentageDecimal: quoteEstimateResponse.context.slippageTolerancePercentage
         ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
         : undefined,
       steps: [
         {
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
-          allowanceContract: undefined,
+          // TODO(gomes): we will most likely need this for allowance checks. How do?
+          allowanceContract: quoteEstimateResponse.context.target,
           accountNumber,
           rate,
           buyAsset,
           sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
-          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.outputAmount,
+          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.context.minOutputAmount,
+          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.context.outputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {

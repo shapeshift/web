@@ -13,7 +13,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -28,7 +27,10 @@ import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
+import {
+  checkIsMetaMaskDesktop,
+  useIsSnapInstalled,
+} from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import {
@@ -70,7 +72,7 @@ const ManualRecipientAddressLabels = ({
   }, [buyAsset])
 
   const isMetaMaskWalletWithoutSnap = useMemo(() => {
-    return !isSnapInstalled && wallet && isMetaMask(wallet)
+    return !isSnapInstalled && wallet && checkIsMetaMaskDesktop(wallet)
   }, [isSnapInstalled, wallet])
 
   // We're enabling the snap, so no versioning concerns here
@@ -149,7 +151,6 @@ export const SharedRecipientAddress = ({
   const { chainId: buyAssetChainId, assetId: buyAssetAssetId } = buyAsset
   const {
     formState: { isValidating, isValid },
-    // trigger: formTrigger, // TODO(gomes): do we need this?
     setValue: setFormValue,
     handleSubmit: handleFormContextSubmit,
   } = useFormContext()

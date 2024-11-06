@@ -247,6 +247,10 @@ export const SharedRecipientAddress = ({
     isWalletReceiveAddressLoading,
   })
 
+  if (isWalletReceiveAddressLoading) {
+    return null
+  }
+
   // The manual receive address input form
   if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {
     return (

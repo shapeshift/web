@@ -27,8 +27,8 @@ import {
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
-import { isSupportedChainId } from '../utils/helpers'
+import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
   input: GetEvmTradeRateInput,
@@ -79,6 +79,8 @@ export async function getPortalsTradeRate(
   }
 
   try {
+    if (!isSupportedChainId(chainId)) throw new Error(`Unsupported chainId ${sellAsset.chainId}`)
+
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
 
     if (!portalsNetwork) {
@@ -105,11 +107,7 @@ export async function getPortalsTradeRate(
       ? Number(input.slippageTolerancePercentageDecimal)
       : undefined // Use auto slippage if no user preference is provided
 
-    // TODO(gomes): we should use the fetchPortalsTradeEstimate method here (leveraing /v2/portal/estimate) but we can't do it yet
-    // because of upstream not returning us the allowance target
-    const quoteEstimateResponse = await fetchPortalsTradeOrder({
-      // Portals needs a (any) valid address for the `/v2/portal` endpoint. Once we switch to the `/v2/portal/estimate` endpoint here, we can remove this madness
-      sender: zeroAddress,
+    const quoteEstimateResponse = await fetchPortalsTradeEstimate({
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -118,9 +116,6 @@ export async function getPortalsTradeRate(
         : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
             .times(100)
             .toNumber(),
-      partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-      // Effectively emulating the estimate endpoint here by skipping validation
-      validate: false,
       swapperConfig,
     })
     // Use the quote estimate endpoint to get a quote without a wallet
@@ -131,6 +126,8 @@ export async function getPortalsTradeRate(
       sellAsset,
       buyAsset,
     })
+
+    const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
     const tradeRate = {
       id: uuid(),
@@ -145,13 +142,12 @@ export async function getPortalsTradeRate(
       steps: [
         {
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
-          // TODO(gomes): we will most likely need this for allowance checks. How do?
-          allowanceContract: quoteEstimateResponse.context.target,
+          allowanceContract,
           accountNumber,
           rate,
           buyAsset,
           sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.context.minOutputAmount,
+          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
           buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.context.outputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,

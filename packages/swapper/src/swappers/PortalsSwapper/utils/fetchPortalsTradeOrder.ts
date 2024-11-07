@@ -20,7 +20,7 @@ type PortalsTradeOrderParams = {
 type PortalsTradeOrderEstimateParams = Omit<
   PortalsTradeOrderParams,
   'partner' | 'validate' | 'sender'
-> & { sender: string | undefined }
+>
 
 type PortalsTradeOrderResponse = {
   context: {
@@ -116,7 +116,6 @@ export const fetchPortalsTradeOrder = async ({
 }
 
 export const fetchPortalsTradeEstimate = async ({
-  sender,
   inputToken,
   inputAmount,
   outputToken,
@@ -126,7 +125,6 @@ export const fetchPortalsTradeEstimate = async ({
   const url = `${swapperConfig.REACT_APP_PORTALS_BASE_URL}/v2/portal/estimate`
 
   const params = new URLSearchParams({
-    ...(sender ? { sender } : {}),
     inputToken,
     inputAmount,
     outputToken,

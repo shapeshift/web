@@ -45,23 +45,12 @@ export const useReceiveAddress = ({
   // flashing during state changes. Any of the conditions below returning true should be treated as
   // "we're not yet ready to determine if a wallet receive address is available"
   const isInitializing = useMemo(() => {
-    if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
-      return true
-    }
-
-    const buyAssetChainId = buyAsset.chainId
-    const buyAssetAccountChainId = fromAccountId(buyAccountId).chainId
-
-    /**
-     * do NOT remove
-     * super dangerous - don't use the wrong bip44 params to generate receive addresses
-     */
-    if (buyAssetChainId !== buyAssetAccountChainId) {
+    if (!buyAsset || !wallet) {
       return true
     }
 
     return false
-  }, [buyAccountId, buyAccountMetadata, buyAsset, wallet])
+  }, [buyAsset, wallet])
 
   const { data: walletReceiveAddress, isLoading } = useQuery({
     queryKey: [
@@ -76,9 +65,22 @@ export const useReceiveAddress = ({
     queryFn: isInitializing
       ? skipToken
       : async () => {
-          // Already covered in shouldSkip, but TypeScript lyfe mang.
+          // Already partially covered in isInitializing, but TypeScript lyfe mang.
           if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
-            return
+            return undefined
+          }
+
+          const buyAssetChainId = buyAsset.chainId
+          const buyAssetAccountChainId = buyAccountId
+            ? fromAccountId(buyAccountId).chainId
+            : undefined
+
+          /**
+           * do NOT remove
+           * super dangerous - don't use the wrong bip44 params to generate receive addresses
+           */
+          if (buyAssetChainId !== buyAssetAccountChainId) {
+            return undefined
           }
 
           if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)

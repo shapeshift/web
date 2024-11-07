@@ -82,17 +82,17 @@ const swapPriceButtonProps = { pr: 4 }
 type LimitOrderConfigProps = {
   sellAsset: Asset
   buyAsset: Asset
-  marketPriceBuyAssetCryptoPrecision: string
-  limitPriceBuyAssetCryptoPrecision: string
-  setLimitPriceBuyAssetCryptoPrecision: (priceBuyAssetCryptoPrecision: string) => void
+  marketPriceBuyAsset: string
+  limitPriceBuyAsset: string
+  setLimitPriceBuyAsset: (newLimitPriceBuyAsset: string) => void
 }
 
 export const LimitOrderConfig = ({
   sellAsset,
   buyAsset,
-  marketPriceBuyAssetCryptoPrecision,
-  limitPriceBuyAssetCryptoPrecision,
-  setLimitPriceBuyAssetCryptoPrecision,
+  marketPriceBuyAsset,
+  limitPriceBuyAsset,
+  setLimitPriceBuyAsset,
 }: LimitOrderConfigProps) => {
   const priceAmountRef = useRef<string | null>(null)
 
@@ -120,14 +120,14 @@ export const LimitOrderConfig = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const priceCryptoFormatted = useMemo(() => {
-    const cryptoAmountIntegerCount = bnOrZero(
-      bnOrZero(limitPriceBuyAssetCryptoPrecision).toFixed(0),
-    ).precision(true)
+    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(limitPriceBuyAsset).toFixed(0)).precision(
+      true,
+    )
 
     return cryptoAmountIntegerCount <= 8
-      ? limitPriceBuyAssetCryptoPrecision
-      : bnOrZero(limitPriceBuyAssetCryptoPrecision).toFixed(3)
-  }, [limitPriceBuyAssetCryptoPrecision])
+      ? limitPriceBuyAsset
+      : bnOrZero(limitPriceBuyAsset).toFixed(3)
+  }, [limitPriceBuyAsset])
 
   const arrow = useMemo(() => {
     return priceDirection === PriceDirection.Default ? '↑' : '↓'
@@ -152,14 +152,14 @@ export const LimitOrderConfig = ({
             assertUnreachable(presetLimit)
         }
       })()
-      const adjustedLimitPrice = bn(marketPriceBuyAssetCryptoPrecision).times(multiplier).toFixed()
+      const adjustedLimitPrice = bn(marketPriceBuyAsset).times(multiplier).toFixed()
       const maybeReversedPrice =
         priceDirection === PriceDirection.Reversed
           ? bn(1).div(adjustedLimitPrice).toFixed()
           : adjustedLimitPrice
-      setLimitPriceBuyAssetCryptoPrecision(maybeReversedPrice)
+      setLimitPriceBuyAsset(maybeReversedPrice)
     },
-    [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision],
+    [marketPriceBuyAsset, setLimitPriceBuyAsset],
   )
 
   const handleSetMarketLimit = useCallback(() => {
@@ -191,37 +191,31 @@ export const LimitOrderConfig = ({
 
     if (isCustomLimit) {
       // For custom limit, just take the reciprocal as we don't know what the original input value was
-      setLimitPriceBuyAssetCryptoPrecision(bn(1).div(limitPriceBuyAssetCryptoPrecision).toFixed())
+      setLimitPriceBuyAsset(bn(1).div(limitPriceBuyAsset).toFixed())
     } else {
       // Otherwise set it to the precise value based on the original market price
       handleSetPresetLimit(presetLimit, newPriceDirection)
     }
-  }, [
-    handleSetPresetLimit,
-    limitPriceBuyAssetCryptoPrecision,
-    presetLimit,
-    priceDirection,
-    setLimitPriceBuyAssetCryptoPrecision,
-  ])
+  }, [handleSetPresetLimit, limitPriceBuyAsset, presetLimit, priceDirection, setLimitPriceBuyAsset])
 
   const handlePriceChange = useCallback(() => {
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
     // Now when the max buttons are clicked the onChange will not fire
-    setLimitPriceBuyAssetCryptoPrecision(priceAmountRef.current ?? '0')
+    setLimitPriceBuyAsset(priceAmountRef.current ?? '0')
 
     // Unset the preset limit, as this is a custom value
     setPresetLimit(undefined)
-  }, [setLimitPriceBuyAssetCryptoPrecision])
+  }, [setLimitPriceBuyAsset])
 
   const handleValueChange = useCallback(
     (values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       priceAmountRef.current = values.value
-      setLimitPriceBuyAssetCryptoPrecision(values.value)
+      setLimitPriceBuyAsset(values.value)
     },
-    [setLimitPriceBuyAssetCryptoPrecision],
+    [setLimitPriceBuyAsset],
   )
 
   const expiryOptionTranslation = useMemo(() => {

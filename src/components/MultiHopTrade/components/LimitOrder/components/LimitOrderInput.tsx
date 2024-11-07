@@ -3,7 +3,7 @@ import { skipToken } from '@reduxjs/toolkit/query'
 import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -31,7 +31,6 @@ import {
   selectActiveQuote,
   selectCalculatedFees,
   selectDefaultSlippagePercentage,
-  // selectBuyAmountAfterFeesUserCurrency,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -75,6 +74,7 @@ export const LimitOrderInput = ({
   const [userSlippagePercentage, setUserSlippagePercentage] = useState<string | undefined>()
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
+  const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
 
   const defaultAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset.chainId),
@@ -97,7 +97,6 @@ export const LimitOrderInput = ({
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
-  // const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
@@ -281,25 +280,25 @@ export const LimitOrderInput = ({
     recipientAddress,
   ])
 
-  const { data, error } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
+  // This fetches the quote only, not the limit order. The quote is used to determine the market
+  // price. When submitting a limit order, the buyAmount is (optionally) modified based on the user
+  // input, and then re-attached to the `LimitOrder` before signing and submitting via our
+  // `placeLimitOrder` endpoint in limitOrderApi
+  const { data } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
+  const marketPriceBuyAsset = useMemo(() => {
+    if (!data) return '0'
+    return bnOrZero(fromBaseUnit(data.quote.buyAmount, buyAsset.precision))
+      .div(fromBaseUnit(data.quote.sellAmount, sellAsset.precision))
+      .toFixed()
+  }, [buyAsset.precision, data, sellAsset.precision])
+
+  // Reset the limit price when the market price changes.
+  // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
+  // not reset the user's config unless the asset pair changes.
   useEffect(() => {
-    /*
-      This is the quote only, not the limit order. The quote is used to determine the market price.
-      When submitting a limit order, the buyAmount is (optionally) modified based on the user input,
-      and then re-attached to the `LimitOrder` before signing and submitting via our
-      `placeLimitOrder` endpoint in limitOrderApi
-    */
-    console.log('limit order quote response:', data)
-    console.log('limit order quote error:', error)
-  }, [data, error])
-
-  const marketPriceBuyAssetCryptoPrecision = '123423'
-
-  // TODO: debounce this with `useDebounce` when including in the query
-  const [limitPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision] = useState(
-    marketPriceBuyAssetCryptoPrecision,
-  )
+    setLimitPriceBuyAsset(marketPriceBuyAsset)
+  }, [marketPriceBuyAsset])
 
   const headerRightContent = useMemo(() => {
     return (
@@ -340,28 +339,27 @@ export const LimitOrderInput = ({
           <LimitOrderConfig
             sellAsset={sellAsset}
             buyAsset={buyAsset}
-            marketPriceBuyAssetCryptoPrecision={marketPriceBuyAssetCryptoPrecision}
-            limitPriceBuyAssetCryptoPrecision={limitPriceBuyAssetCryptoPrecision}
-            setLimitPriceBuyAssetCryptoPrecision={setLimitPriceBuyAssetCryptoPrecision}
+            marketPriceBuyAsset={marketPriceBuyAsset}
+            limitPriceBuyAsset={limitPriceBuyAsset}
+            setLimitPriceBuyAsset={setLimitPriceBuyAsset}
           />
         </Stack>
       </SharedTradeInputBody>
     )
   }, [
+    buyAccountId,
     buyAsset,
     isInputtingFiatSellAmount,
     isLoading,
+    limitPriceBuyAsset,
+    marketPriceBuyAsset,
+    sellAccountId,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
-    sellAccountId,
-    handleSwitchAssets,
-    handleSetSellAsset,
-    setSellAccountId,
-    buyAccountId,
-    setBuyAccountId,
     handleSetBuyAsset,
-    limitPriceBuyAssetCryptoPrecision,
+    handleSetSellAsset,
+    handleSwitchAssets,
   ])
 
   const { feeUsd } = useAppSelector(state =>

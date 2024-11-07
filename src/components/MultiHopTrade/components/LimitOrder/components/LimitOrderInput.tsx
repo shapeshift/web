@@ -124,25 +124,6 @@ export const LimitOrderInput = ({
     [isSnapshotApiQueriesPending, votingPower],
   )
 
-  const isLoading = useMemo(
-    () =>
-      // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
-      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
-      isConfirmationLoading ||
-      // Only consider snapshot API queries as pending if we don't have voting power yet
-      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
-      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading,
-    [
-      isAnyAccountMetadataLoadedForChainId,
-      shouldShowTradeQuoteOrAwaitInput,
-      isTradeQuoteRequestAborted,
-      isConfirmationLoading,
-      isVotingPowerLoading,
-    ],
-  )
-
   const sellAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId),
   )
@@ -284,7 +265,8 @@ export const LimitOrderInput = ({
   // price. When submitting a limit order, the buyAmount is (optionally) modified based on the user
   // input, and then re-attached to the `LimitOrder` before signing and submitting via our
   // `placeLimitOrder` endpoint in limitOrderApi
-  const { data } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
+  const { data, isFetching: isLimitOrderQuoteFetching } =
+    useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
     if (!data) return '0'
@@ -299,6 +281,27 @@ export const LimitOrderInput = ({
   useEffect(() => {
     setLimitPriceBuyAsset(marketPriceBuyAsset)
   }, [marketPriceBuyAsset])
+
+  const isLoading = useMemo(() => {
+    return (
+      isLimitOrderQuoteFetching ||
+      // No account meta loaded for that chain
+      !isAnyAccountMetadataLoadedForChainId ||
+      (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
+      isConfirmationLoading ||
+      // Only consider snapshot API queries as pending if we don't have voting power yet
+      // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
+      // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
+      isVotingPowerLoading
+    )
+  }, [
+    isAnyAccountMetadataLoadedForChainId,
+    isConfirmationLoading,
+    isLimitOrderQuoteFetching,
+    isTradeQuoteRequestAborted,
+    isVotingPowerLoading,
+    shouldShowTradeQuoteOrAwaitInput,
+  ])
 
   const headerRightContent = useMemo(() => {
     return (

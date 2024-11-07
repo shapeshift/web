@@ -184,7 +184,7 @@ export async function getTradeRate(
     return Ok({
       id: uuid(),
       accountNumber: undefined,
-      receiveAddress,
+      receiveAddress: undefined,
       affiliateBps: '0',
       potentialAffiliateBps: '0',
       rate,

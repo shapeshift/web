@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
@@ -99,6 +99,20 @@ export const LimitOrderConfig = ({
   const [priceDirection, setPriceDirection] = useState(PriceDirection.Default)
   const [presetLimit, setPresetLimit] = useState<PresetLimit | undefined>(PresetLimit.Market)
   const [expiryOption, setExpiryOption] = useState(ExpiryOption.SevenDays)
+
+  // Reset the user config when the assets change
+  useEffect(
+    () => {
+      setPriceDirection(PriceDirection.Default)
+      setPresetLimit(PresetLimit.Market)
+      setExpiryOption(ExpiryOption.SevenDays)
+      setLimitPriceBuyAsset(marketPriceBuyAsset)
+    },
+    // NOTE: we DO NOT want to react to `marketPriceBuyAsset` here, because polling will reset it
+    // every time!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sellAsset, buyAsset, setLimitPriceBuyAsset],
+  )
 
   const {
     number: { localeParts },

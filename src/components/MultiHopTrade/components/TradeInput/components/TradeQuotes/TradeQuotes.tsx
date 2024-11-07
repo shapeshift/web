@@ -13,16 +13,18 @@ import { dogeAssetId } from '@shapeshiftoss/caip'
 import type { SwapperName } from '@shapeshiftoss/swapper'
 import { TradeQuoteError as SwapperTradeQuoteError } from '@shapeshiftoss/swapper'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import { memo, useEffect, useMemo, useRef } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { FaDog } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { PathIcon } from 'components/Icons/PathIcon'
 import { Text } from 'components/Text'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import type { ApiQuote } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/selectors'
-import { getBuyAmountAfterFeesCryptoPrecision } from 'state/slices/tradeQuoteSlice/helpers'
 import {
   selectActiveQuoteMetaOrDefault,
+  selectBuyAmountAfterFeesCryptoPrecision,
   selectIsSwapperResponseAvailable,
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
@@ -49,42 +51,6 @@ const motionBoxProps = {
   transition: { type: 'spring', stiffness: 100, damping: 20 },
 }
 
-const noQuotesIcon = (
-  <svg xmlns='http://www.w3.org/2000/svg' width='43' height='42' viewBox='0 0 43 42' fill='none'>
-    <g clipPath='url(#clip0_636_4564)'>
-      <path
-        d='M5.75 33.25C5.75 34.1783 6.11875 35.0685 6.77513 35.7249C7.4315 36.3813 8.32174 36.75 9.25 36.75C10.1783 36.75 11.0685 36.3813 11.7249 35.7249C12.3813 35.0685 12.75 34.1783 12.75 33.25C12.75 32.3217 12.3813 31.4315 11.7249 30.7751C11.0685 30.1187 10.1783 29.75 9.25 29.75C8.32174 29.75 7.4315 30.1187 6.77513 30.7751C6.11875 31.4315 5.75 32.3217 5.75 33.25Z'
-        stroke='white'
-        strokeOpacity='0.36'
-        strokeWidth='3'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      <path
-        d='M33.75 12.25C34.6783 12.25 35.5685 11.8813 36.2249 11.2249C36.8813 10.5685 37.25 9.67826 37.25 8.75C37.25 7.82174 36.8813 6.9315 36.2249 6.27513C35.5685 5.61875 34.6783 5.25 33.75 5.25C32.8217 5.25 31.9315 5.61875 31.2751 6.27513C30.6187 6.9315 30.25 7.82174 30.25 8.75C30.25 9.67826 30.6187 10.5685 31.2751 11.2249C31.9315 11.8813 32.8217 12.25 33.75 12.25Z'
-        stroke='white'
-        strokeOpacity='0.36'
-        strokeWidth='3'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      <path
-        d='M19.75 33.25H29.375C30.9995 33.25 32.5574 32.6047 33.706 31.456C34.8547 30.3074 35.5 28.7495 35.5 27.125C35.5 25.5005 34.8547 23.9426 33.706 22.794C32.5574 21.6453 30.9995 21 29.375 21H15.375C13.7505 21 12.1926 20.3547 11.044 19.206C9.89531 18.0574 9.25 16.4995 9.25 14.875C9.25 13.2505 9.89531 11.6926 11.044 10.544C12.1926 9.39531 13.7505 8.75 15.375 8.75H23.25'
-        stroke='white'
-        strokeOpacity='0.36'
-        strokeWidth='3'
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-    </g>
-    <defs>
-      <clipPath id='clip0_636_4564'>
-        <rect width='42' height='42' fill='white' transform='translate(0.5)' />
-      </clipPath>
-    </defs>
-  </svg>
-)
-
 export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack }) => {
   const dispatch = useAppDispatch()
 
@@ -101,6 +67,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const unavailableAccordionRef = useRef<HTMLDivElement>(null)
+  const bestTotalReceiveAmountCryptoPrecision = useAppSelector(
+    selectBuyAmountAfterFeesCryptoPrecision,
+  )
 
   const shouldUseComisSansMs = useMemo(() => {
     return buyAsset?.assetId === dogeAssetId || sellAsset?.assetId === dogeAssetId
@@ -116,19 +85,35 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     )
   }, [dispatch, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable, sortedQuotes])
 
+  const isQuoteRefetching = useCallback(
+    (quoteData: ApiQuote) => {
+      const { swapperName } = quoteData
+
+      return (
+        isLoading ||
+        isTradeQuoteApiQueryPending[quoteData.swapperName] ||
+        !isSwapperQuoteAvailable[swapperName]
+      )
+    },
+    [isLoading, isTradeQuoteApiQueryPending, isSwapperQuoteAvailable],
+  )
+
+  const isQuoteLoading = useCallback(
+    (quoteData: ApiQuote) => {
+      const { isStale } = quoteData
+
+      return Boolean(isTradeQuoteApiQueryPending[quoteData.swapperName]) && isStale
+    },
+    [isTradeQuoteApiQueryPending],
+  )
+
   const quotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
     }
 
-    const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
-      ? getBuyAmountAfterFeesCryptoPrecision({
-          quote: bestQuoteData.quote,
-        })
-      : undefined
-
     return validTradeQuotesDisplayCache.map((quoteData, i) => {
-      const { swapperName, id, errors, isStale } = quoteData
+      const { id, errors } = quoteData
 
       const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
 
@@ -136,12 +121,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         <MotionBox key={id} layout {...motionBoxProps}>
           <TradeQuote
             isActive={isActive}
-            isLoading={Boolean(isTradeQuoteApiQueryPending[quoteData.swapperName]) && isStale}
-            isRefetching={
-              isLoading ||
-              isTradeQuoteApiQueryPending[quoteData.swapperName] ||
-              !isSwapperQuoteAvailable[swapperName]
-            }
+            isLoading={isQuoteLoading(quoteData)}
+            isRefetching={isQuoteRefetching(quoteData)}
             isBest={i === 0 && errors.length === 0}
             key={id}
             quoteData={quoteData}
@@ -154,14 +135,13 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData?.quote,
     bestQuoteData?.inputOutputRatio,
     validTradeQuotesDisplayCache,
     activeQuoteMeta,
-    isTradeQuoteApiQueryPending,
-    isLoading,
-    isSwapperQuoteAvailable,
+    isQuoteRefetching,
+    isQuoteLoading,
     onBack,
+    bestTotalReceiveAmountCryptoPrecision,
   ])
 
   const invalidQuotes = useMemo(() => {
@@ -169,30 +149,16 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
       return []
     }
 
-    const bestTotalReceiveAmountCryptoPrecision = bestQuoteData?.quote
-      ? getBuyAmountAfterFeesCryptoPrecision({
-          quote: bestQuoteData.quote,
-        })
-      : undefined
-
-    return invalidTradeQuotesDisplayCache.map((quoteData, i) => {
-      const { swapperName, id, errors, isStale } = quoteData
-
-      const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
-
+    return invalidTradeQuotesDisplayCache.map(quoteData => {
       return (
         <TradeQuote
-          isActive={isActive}
-          isLoading={Boolean(isTradeQuoteApiQueryPending[quoteData.swapperName]) && isStale}
-          isRefetching={
-            isLoading ||
-            isTradeQuoteApiQueryPending[quoteData.swapperName] ||
-            !isSwapperQuoteAvailable[swapperName]
-          }
-          isBest={i === 0 && errors.length === 0}
-          key={id}
+          isActive={false}
+          isLoading={isQuoteLoading(quoteData)}
+          isRefetching={isQuoteRefetching(quoteData)}
+          isBest={false}
+          key={quoteData.id}
           quoteData={quoteData}
-          bestTotalReceiveAmountCryptoPrecision={bestTotalReceiveAmountCryptoPrecision}
+          bestTotalReceiveAmountCryptoPrecision={undefined}
           bestInputOutputRatio={bestQuoteData?.inputOutputRatio}
           onBack={onBack}
         />
@@ -200,13 +166,10 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     })
   }, [
     isTradeQuoteRequestAborted,
-    bestQuoteData?.quote,
     bestQuoteData?.inputOutputRatio,
     invalidTradeQuotesDisplayCache,
-    activeQuoteMeta,
-    isTradeQuoteApiQueryPending,
-    isLoading,
-    isSwapperQuoteAvailable,
+    isQuoteRefetching,
+    isQuoteLoading,
     onBack,
   ])
 
@@ -274,12 +237,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         gap={2}
         minHeight='full'
       >
-        <Flex
-          // minHeight={`calc(100% - ${unavailableAccordionRef.current?.style.height}px)`}
-          flexDirection='column'
-          gap={2}
-          flexGrow='1'
-        >
+        <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>
             <AnimatePresence>
               {quotes}
@@ -298,9 +256,9 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
                 fontFamily={shouldUseComisSansMs ? 'Comic Sans Ms, sans-serif' : 'inherit'}
               >
                 {!shouldUseComisSansMs ? (
-                  noQuotesIcon
+                  <PathIcon color='subtle' boxSize={10} fill='none' />
                 ) : (
-                  <Icon as={FaDog} color='text.subtle' boxSize={8} />
+                  <Icon as={FaDog} color='text.subtle' boxSize={10} />
                 )}
                 <Text translation='trade.noQuotesAvailable' mt={2} />
                 <Text translation='trade.noQuotesAvailableDescription' color='text.subtle' />

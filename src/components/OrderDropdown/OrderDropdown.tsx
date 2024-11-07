@@ -21,8 +21,8 @@ type OrderDropdownProps = {
   buttonProps?: ButtonProps
 }
 
-const colWidth = { base: '50%', md: 'max-content' }
-const marginBottomProp = { base: 2, md: 0 }
+const colWidth = { base: '50%', lg: 'max-content' }
+const marginBottomProp = { base: 2, lg: 0 }
 
 const chevronDownIcon = <ChevronDownIcon />
 

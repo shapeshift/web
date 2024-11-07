@@ -153,14 +153,21 @@ export const HopTransactionStep = ({
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])
 
-  useGetTradeQuotes()
+  const { isFetching, data } = useGetTradeQuotes()
 
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <Button colorScheme='blue' size='sm' onClick={handleSignTx} width='100%'>
+            <Button
+              colorScheme='blue'
+              size='sm'
+              onClick={handleSignTx}
+              isLoading={isFetching}
+              isDisabled={!data}
+              width='100%'
+            >
               {translate('common.signTransaction')}
             </Button>
           </CardBody>
@@ -183,14 +190,16 @@ export const HopTransactionStep = ({
       )
     }
   }, [
-    handleSignTx,
-    hopIndex,
     isActive,
-    sellTxHash,
     swapTxState,
-    activeTradeId,
     tradeQuoteStep.source,
+    sellTxHash,
+    handleSignTx,
+    isFetching,
+    data,
     translate,
+    hopIndex,
+    activeTradeId,
   ])
 
   const description = useMemo(() => {

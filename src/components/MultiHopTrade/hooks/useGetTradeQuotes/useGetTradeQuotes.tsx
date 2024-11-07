@@ -382,4 +382,6 @@ export const useGetTradeQuotes = () => {
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
+
+  return queryStateMeta
 }

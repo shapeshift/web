@@ -342,6 +342,7 @@ export const LimitOrderInput = ({
           <LimitOrderConfig
             sellAsset={sellAsset}
             buyAsset={buyAsset}
+            isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
             limitPriceBuyAsset={limitPriceBuyAsset}
             setLimitPriceBuyAsset={setLimitPriceBuyAsset}

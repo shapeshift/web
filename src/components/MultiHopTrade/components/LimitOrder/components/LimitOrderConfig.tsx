@@ -8,6 +8,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
@@ -77,11 +78,13 @@ const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
 
 const timePeriodRightIcon = <ChevronDownIcon />
 const swapIcon = <SwapIcon />
-const swapPriceButtonProps = { pr: 4 }
+const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const swapPriceButtonProps = { pr: 4, _disabled: disabledProps }
 
 type LimitOrderConfigProps = {
   sellAsset: Asset
   buyAsset: Asset
+  isLoading: boolean
   marketPriceBuyAsset: string
   limitPriceBuyAsset: string
   setLimitPriceBuyAsset: (newLimitPriceBuyAsset: string) => void
@@ -90,6 +93,7 @@ type LimitOrderConfigProps = {
 export const LimitOrderConfig = ({
   sellAsset,
   buyAsset,
+  isLoading,
   marketPriceBuyAsset,
   limitPriceBuyAsset,
   setLimitPriceBuyAsset,
@@ -247,7 +251,7 @@ export const LimitOrderConfig = ({
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.expiry' mr={4} />
           <Menu isLazy>
-            <MenuButton as={Button} rightIcon={timePeriodRightIcon}>
+            <MenuButton as={Button} rightIcon={timePeriodRightIcon} isDisabled={isLoading}>
               <Text translation={expiryOptionTranslation} />
             </MenuButton>
             <MenuList zIndex='modal'>
@@ -263,23 +267,26 @@ export const LimitOrderConfig = ({
         </Flex>
       </Flex>
       <HStack width='full' justify='space-between'>
-        <NumberFormat
-          customInput={AmountInput}
-          decimalScale={priceAsset.precision}
-          isNumericString={true}
-          decimalSeparator={localeParts.decimal}
-          inputMode='decimal'
-          allowedDecimalSeparators={allowedDecimalSeparators}
-          thousandSeparator={localeParts.group}
-          value={priceCryptoFormatted}
-          onValueChange={handleValueChange}
-          onChange={handlePriceChange}
-        />
+        <Skeleton height={6} isLoaded={!isLoading}>
+          <NumberFormat
+            customInput={AmountInput}
+            decimalScale={priceAsset.precision}
+            isNumericString={true}
+            decimalSeparator={localeParts.decimal}
+            inputMode='decimal'
+            allowedDecimalSeparators={allowedDecimalSeparators}
+            thousandSeparator={localeParts.group}
+            value={priceCryptoFormatted}
+            onValueChange={handleValueChange}
+            onChange={handlePriceChange}
+          />
+        </Skeleton>
         <StyledAssetMenuButton
           rightIcon={swapIcon}
           assetId={priceAsset.assetId}
           buttonProps={swapPriceButtonProps}
           onAssetClick={handleTogglePriceDirection}
+          isDisabled={isLoading}
         />
       </HStack>
       <Flex justifyContent='space-between'>
@@ -288,6 +295,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.Market}
           onClick={handleSetMarketLimit}
+          isDisabled={isLoading}
         >
           Market
         </Button>
@@ -296,6 +304,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.OnePercent}
           onClick={handleSetOnePercentLimit}
+          isDisabled={isLoading}
         >
           1% {arrow}
         </Button>
@@ -304,6 +313,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.TwoPercent}
           onClick={handleSetTwoPercentLimit}
+          isDisabled={isLoading}
         >
           2% {arrow}
         </Button>
@@ -312,6 +322,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.FivePercent}
           onClick={handleSetFivePercentLimit}
+          isDisabled={isLoading}
         >
           5% {arrow}
         </Button>
@@ -320,6 +331,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.TenPercent}
           onClick={handleSetTenPercentLimit}
+          isDisabled={isLoading}
         >
           10% {arrow}
         </Button>

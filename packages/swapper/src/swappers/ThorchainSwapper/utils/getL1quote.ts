@@ -583,7 +583,7 @@ export const getL1Rate = async (
           sellAsset,
           buyAssetId: buyAsset.assetId,
           sellAmountCryptoBaseUnit,
-          receiveAddress,
+          receiveAddress: undefined,
           streaming: true,
           affiliateBps: requestedAffiliateBps,
           streamingInterval,

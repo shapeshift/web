@@ -27,7 +27,6 @@ export type GetTradeQuoteInputArgs = {
   isSnapInstalled?: boolean
   pubKey?: string | undefined
   quoteOrRate: 'quote' | 'rate'
-  receiveAccountNumber?: number
   receiveAddress: string | undefined
   sellAccountNumber: number | undefined
   wallet: HDWallet | undefined
@@ -41,7 +40,6 @@ export const getTradeQuoteInput = async ({
   wallet,
   quoteOrRate,
   receiveAddress,
-  receiveAccountNumber,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
   affiliateBps,
@@ -80,18 +78,15 @@ export const getTradeQuoteInput = async ({
             })
           : undefined
 
-      if (
-        quoteOrRate === 'quote' &&
-        (receiveAccountNumber === undefined || receiveAddress === undefined)
-      )
-        throw new Error('missing receiveAccountNumber')
+      if (quoteOrRate === 'quote' && receiveAddress === undefined) {
+        throw new Error('missing receiveAddress')
+      }
 
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as EvmChainId,
         supportsEIP1559: Boolean(supportsEIP1559),
         sendAddress,
-        receiveAccountNumber,
       } as GetTradeQuoteInput
     }
 
@@ -110,7 +105,6 @@ export const getTradeQuoteInput = async ({
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
-        receiveAccountNumber,
       } as GetTradeQuoteInput
     }
 
@@ -170,7 +164,6 @@ export const getTradeQuoteInput = async ({
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
-        receiveAccountNumber,
       } as GetTradeQuoteInput
     }
     default:

@@ -59,6 +59,14 @@ export const tradeInput = createSlice({
         state.sellAmountCryptoPrecision = '0'
       }
 
+      // Reset the buyAssetAccountId if the chain has changed
+      if (asset.chainId !== state.buyAsset.chainId) {
+        state.buyAssetAccountId = undefined
+      }
+
+      // Reset the manual receive address
+      state.manualReceiveAddress = undefined
+
       state.buyAsset = asset
     },
     setSellAsset: (state, action: PayloadAction<Asset>) => {
@@ -76,6 +84,14 @@ export const tradeInput = createSlice({
       // clear the sell amount
       state.sellAmountCryptoPrecision = '0'
 
+      // Reset the sellAssetAccountId if the chain has changed
+      if (asset.chainId !== state.sellAsset.chainId) {
+        state.sellAssetAccountId = undefined
+      }
+
+      // Reset the manual receive address
+      state.manualReceiveAddress = undefined
+
       state.sellAsset = action.payload
     },
     setSellAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
@@ -89,10 +105,19 @@ export const tradeInput = createSlice({
       state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
     },
     switchAssets: state => {
+      // Switch the assets
       const buyAsset = state.sellAsset
       state.sellAsset = state.buyAsset
       state.buyAsset = buyAsset
       state.sellAmountCryptoPrecision = '0'
+
+      // Switch the account IDs
+      const sellAssetAccountId = state.sellAssetAccountId
+      state.sellAssetAccountId = state.buyAssetAccountId
+      state.buyAssetAccountId = sellAssetAccountId
+
+      // Reset the manual receive address
+      state.manualReceiveAddress = undefined
     },
     setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
       state.manualReceiveAddress = action.payload

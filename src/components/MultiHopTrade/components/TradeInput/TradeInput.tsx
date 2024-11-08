@@ -18,7 +18,6 @@ import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
@@ -59,6 +58,7 @@ import { TradeAssetInput } from '../TradeAssetInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
+import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const emptyPercentOptions: number[] = []
@@ -88,9 +88,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const mixpanel = getMixPanel()
   const history = useHistory()
   const { showErrorToast } = useErrorHandler()
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress({
-    fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-  })
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -128,6 +125,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
 
+  const {
+    manualReceiveAddress,
+    walletReceiveAddress,
+    isLoading: isWalletReceiveAddressLoading,
+  } = useTradeReceiveAddress()
+
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
   const isVotingPowerLoading = useMemo(
@@ -144,13 +147,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
-      isVotingPowerLoading,
+      isVotingPowerLoading ||
+      isWalletReceiveAddressLoading,
     [
       isAnyAccountMetadataLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
       isConfirmationLoading,
       isVotingPowerLoading,
+      isWalletReceiveAddressLoading,
     ],
   )
 
@@ -323,7 +328,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     return (
       <SharedTradeInputBody
         buyAsset={buyAsset}
-        sellAssetAccountId={sellAssetAccountId}
+        sellAccountId={sellAssetAccountId}
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         sellAsset={sellAsset}
@@ -331,7 +336,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         sellAmountUserCurrency={sellAmountUserCurrency}
         handleSwitchAssets={handleSwitchAssets}
         setSellAsset={setSellAsset}
-        setSellAssetAccountId={setSellAssetAccountId}
+        setSellAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
       >

@@ -17,7 +17,7 @@ export const QuoteList: React.FC<QuoteListProps> = ({ onBack, isLoading, cardPro
       <CardHeader px={6} pt={4}>
         <WithBackButton onBack={onBack}>
           <Heading textAlign='center' fontSize='md'>
-            <Text translation='trade.availableQuotes' />
+            <Text translation='trade.availableSwappers' />
           </Heading>
         </WithBackButton>
       </CardHeader>

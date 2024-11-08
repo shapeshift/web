@@ -865,7 +865,7 @@
     "receiveInclFee": "Recevoir (frais inclus)",
     "approvingAsset": "Autoriser les %{symbol}",
     "viewTransaction": "Voir la transaction",
-    "availableQuotes": "Devis disponibles",
+    "availableSwappers": "Devis disponibles",
     "unlimited": "Illimitée",
     "streamStatus": "Statut du stream",
     "swapsFailed": "%{failedSwaps} échange(s) échoué(s)",

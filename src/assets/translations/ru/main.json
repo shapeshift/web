@@ -865,7 +865,7 @@
     "receiveInclFee": "Поступления (вкл. комиссию)",
     "approvingAsset": "Подтверждение %{symbol}",
     "viewTransaction": "Посмотреть транзакцию",
-    "availableQuotes": "Доступные котировки",
+    "availableSwappers": "Доступные котировки",
     "unlimited": "Безлимитный",
     "streamStatus": "Статус операции",
     "swapsFailed": "%{failedSwaps} обмен не удался",

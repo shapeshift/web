@@ -865,7 +865,7 @@
     "receiveInclFee": "受け取り（手数料含む）",
     "approvingAsset": "%{symbol}を承認しています",
     "viewTransaction": "トランザクションの表示",
-    "availableQuotes": "利用可能な見積もり",
+    "availableSwappers": "利用可能な見積もり",
     "unlimited": "無制限",
     "streamStatus": "ストリームステータス",
     "swapsFailed": "%{failedSwaps} のスワップが失敗しました",

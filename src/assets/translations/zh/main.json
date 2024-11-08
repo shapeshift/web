@@ -865,7 +865,7 @@
     "receiveInclFee": "接收（含手续费）",
     "approvingAsset": "授权 %{symbol}",
     "viewTransaction": "查看交易",
-    "availableQuotes": "可用报价",
+    "availableSwappers": "可用报价",
     "unlimited": "无限的",
     "streamStatus": "Stream 状态",
     "swapsFailed": "%{failedSwaps} 兑换失败",

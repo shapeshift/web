@@ -655,7 +655,7 @@ export const selectLoadingSwappers = createSelector(
   },
 )
 
-export const selectUserValidTradeQuotes = createSelector(
+export const selectUserAvailableTradeQuotes = createSelector(
   selectTradeQuoteDisplayCache,
   tradeQuoteDisplayCache => {
     return tradeQuoteDisplayCache.filter(
@@ -665,7 +665,7 @@ export const selectUserValidTradeQuotes = createSelector(
   },
 )
 
-export const selectUserInvalidTradeQuotes = createSelector(
+export const selectUserUnavailableTradeQuotes = createSelector(
   selectTradeQuoteDisplayCache,
   tradeQuoteDisplayCache => {
     return tradeQuoteDisplayCache.filter(

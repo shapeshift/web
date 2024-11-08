@@ -29,8 +29,8 @@ import {
   selectIsTradeQuoteRequestAborted,
   selectLoadingSwappers,
   selectSortedTradeQuotes,
-  selectUserInvalidTradeQuotes,
-  selectUserValidTradeQuotes,
+  selectUserAvailableTradeQuotes,
+  selectUserUnavailableTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
@@ -59,8 +59,8 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
   const isTradeQuoteApiQueryPending = useAppSelector(selectIsTradeQuoteApiQueryPending)
   const isSwapperQuoteAvailable = useAppSelector(selectIsSwapperResponseAvailable)
-  const validTradeQuotesDisplayCache = useAppSelector(selectUserValidTradeQuotes)
-  const invalidTradeQuotesDisplayCache = useAppSelector(selectUserInvalidTradeQuotes)
+  const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
+  const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
   const loadingSwappers = useAppSelector(selectLoadingSwappers)
   const bestQuoteData = sortedQuotes[0]?.errors.length === 0 ? sortedQuotes[0] : undefined
   const translate = useTranslate()
@@ -107,12 +107,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     [isTradeQuoteApiQueryPending],
   )
 
-  const quotes = useMemo(() => {
+  const availableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
     }
 
-    return validTradeQuotesDisplayCache.map((quoteData, i) => {
+    return availableTradeQuotesDisplayCache.map((quoteData, i) => {
       const { id, errors } = quoteData
 
       const isActive = activeQuoteMeta !== undefined && activeQuoteMeta.identifier === id
@@ -136,7 +136,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   }, [
     isTradeQuoteRequestAborted,
     bestQuoteData?.inputOutputRatio,
-    validTradeQuotesDisplayCache,
+    availableTradeQuotesDisplayCache,
     activeQuoteMeta,
     isQuoteRefetching,
     isQuoteLoading,
@@ -144,12 +144,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
     bestTotalReceiveAmountCryptoPrecision,
   ])
 
-  const invalidQuotes = useMemo(() => {
+  const unavailableQuotes = useMemo(() => {
     if (isTradeQuoteRequestAborted) {
       return []
     }
 
-    return invalidTradeQuotesDisplayCache.map(quoteData => {
+    return unavailableTradeQuotesDisplayCache.map(quoteData => {
       return (
         <TradeQuote
           isActive={false}
@@ -167,21 +167,21 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
   }, [
     isTradeQuoteRequestAborted,
     bestQuoteData?.inputOutputRatio,
-    invalidTradeQuotesDisplayCache,
+    unavailableTradeQuotesDisplayCache,
     isQuoteRefetching,
     isQuoteLoading,
     onBack,
   ])
 
-  const invalidQuotesLength = useMemo(
+  const unavailableQuotesLength = useMemo(
     () =>
-      invalidTradeQuotesDisplayCache.filter(
-        invalidQuote =>
+      unavailableTradeQuotesDisplayCache.filter(
+        unavailableQuote =>
           ![TradeQuoteValidationError.UnknownError, SwapperTradeQuoteError.UnknownError].includes(
-            invalidQuote.errors?.[0]?.error,
+            unavailableQuote.errors?.[0]?.error,
           ),
       ).length,
-    [invalidTradeQuotesDisplayCache],
+    [unavailableTradeQuotesDisplayCache],
   )
 
   // add some loading state per swapper so missing quotes have obvious explanation as to why they arent in the list
@@ -240,12 +240,12 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
         <Flex flexDirection='column' gap={2} flexGrow='1'>
           <LayoutGroup>
             <AnimatePresence>
-              {quotes}
+              {availableQuotes}
               {fetchingSwappers}
             </AnimatePresence>
           </LayoutGroup>
 
-          {!quotes.length && !fetchingSwappers.length ? (
+          {!availableQuotes.length && !fetchingSwappers.length ? (
             <Flex height='100%' whiteSpace='normal' alignItems='center' justifyContent='center'>
               <Flex
                 maxWidth='300px'
@@ -272,11 +272,11 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
             <h2>
               <AccordionButton color='text.subtle'>
                 <Box as='span' flex='1' textAlign='left'>
-                  {translate('trade.unavailableQuotes')}
+                  {translate('trade.unavailableSwappers')}
                 </Box>
                 <Flex alignItems='center'>
                   <Tag colorScheme='gray' size='sm' me={2} lineHeight='1'>
-                    {invalidQuotesLength}
+                    {unavailableQuotesLength}
                   </Tag>
                   <AccordionIcon />
                 </Flex>
@@ -292,7 +292,7 @@ export const TradeQuotes: React.FC<TradeQuotesProps> = memo(({ isLoading, onBack
                 transitionTimingFunction='ease-in-out'
                 gap={2}
               >
-                {invalidQuotes}
+                {unavailableQuotes}
               </Flex>
             </AccordionPanel>
           </AccordionItem>

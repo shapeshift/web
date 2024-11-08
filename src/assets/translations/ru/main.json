@@ -1002,9 +1002,7 @@
       "slippage": "Проскальзывание: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Лимитный ордер"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Мои активы",

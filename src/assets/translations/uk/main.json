@@ -1002,9 +1002,7 @@
       "slippage": "Прослизання: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Лімітний ордер"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Мої активи",

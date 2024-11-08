@@ -1002,9 +1002,7 @@
       "slippage": "Slippage: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Ordem Limite"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Meus Ativos",

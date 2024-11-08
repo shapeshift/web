@@ -1002,9 +1002,7 @@
       "slippage": "スリッページ: %{ SlippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "指値注文"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "マイ資産",

@@ -1002,9 +1002,7 @@
       "slippage": "Kayma: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Limit Emri"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Varlıklarım",

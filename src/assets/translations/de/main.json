@@ -1002,9 +1002,7 @@
       "slippage": "Slippage: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Limit-Auftrag"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Mein Vermögen",

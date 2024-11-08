@@ -1002,9 +1002,7 @@
       "slippage": "Deslizamiento: %{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "Límite de Orden"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "Mis Activos",

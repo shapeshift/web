@@ -1002,9 +1002,7 @@
       "slippage": "滑点：%{slippageFormatted}"
     }
   },
-  "limitOrder": {
-    "heading": "限价订单"
-  },
+  "limitOrder": {},
   "modals": {
     "assetSearch": {
       "myAssets": "我的资产",

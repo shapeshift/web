@@ -38,16 +38,16 @@ export const usePermit2Content = ({
     allowanceApproval,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
-  const { isLoading, signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
+  const { signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
 
   const isButtonDisabled = useMemo(() => {
     const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2
     const isError = permit2.state === TransactionExecutionState.Failed
     const isAwaitingConfirmation = permit2.state === TransactionExecutionState.AwaitingConfirmation
-    const isDisabled = isLoading || !isAwaitingPermit2 || !(isError || isAwaitingConfirmation)
+    const isDisabled = !isAwaitingPermit2 || !(isError || isAwaitingConfirmation)
 
     return isDisabled
-  }, [hopExecutionState, permit2.state, isLoading])
+  }, [permit2.state, hopExecutionState])
 
   const subHeadingTranslation: [string, InterpolationOptions] = useMemo(() => {
     return ['trade.permit2.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
@@ -59,7 +59,10 @@ export const usePermit2Content = ({
       <ApprovalContent
         buttonTranslation='trade.permit2.signMessage'
         isDisabled={isButtonDisabled}
-        isLoading={isLoading}
+        isLoading={
+          /* NOTE: No loading state when signature in progress because it's instant */
+          false
+        }
         subHeadingTranslation={subHeadingTranslation}
         titleTranslation='trade.permit2.title'
         tooltipTranslation='trade.permit2.tooltip'
@@ -67,14 +70,7 @@ export const usePermit2Content = ({
         onSubmit={signPermit2}
       />
     )
-  }, [
-    hopExecutionState,
-    isButtonDisabled,
-    isLoading,
-    permit2.state,
-    signPermit2,
-    subHeadingTranslation,
-  ])
+  }, [hopExecutionState, isButtonDisabled, permit2.state, signPermit2, subHeadingTranslation])
 
   const description = useMemo(() => {
     const txLines = [

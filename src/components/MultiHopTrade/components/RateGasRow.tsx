@@ -189,9 +189,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   </Row.Label>
                   <Row.Value>
                     {!gasFee ? (
-                      <Tooltip isDisabled={!!gasFee} label={translate('trade.tooltip.tbdGas')}>
-                        <Text translation={'common.tbd'} fontSize='sm' />
-                      </Tooltip>
+                      <Text translation={'trade.unknownGas'} fontSize='sm' />
                     ) : (
                       <Amount.Fiat fontSize='sm' value={gasFee} />
                     )}

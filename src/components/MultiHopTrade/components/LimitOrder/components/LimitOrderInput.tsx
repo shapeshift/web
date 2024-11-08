@@ -378,7 +378,7 @@ export const LimitOrderInput = ({
         inputAmountUsd={sellAmountUsd}
         isError={Boolean(error)}
         isLoading={isLoading}
-        quoteStatusTranslation={'trade.previewTrade'}
+        quoteStatusTranslation={'limitOrder.previewOrder'}
         rate={bnOrZero(limitPriceBuyAsset).isZero() ? undefined : limitPriceBuyAsset}
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick

@@ -1,10 +1,11 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput, SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
+  SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
@@ -44,7 +45,7 @@ import {
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
@@ -210,6 +211,19 @@ export const useGetTradeQuotes = () => {
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
+  // Is the step we're in a step which requires final quote fetching?
+  const isFetchStep = useMemo(() => {
+    const swapperName = activeQuoteMetaRef.current?.swapperName
+    if (!swapperName) return
+    const permit2 = hopExecutionMetadata?.permit2
+    if (swapperName === SwapperName.Zrx)
+      return (
+        permit2?.isRequired && permit2?.state === TransactionExecutionState.AwaitingConfirmation
+      )
+
+    return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
+  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state])
+
   const shouldFetchTradeQuotes = useMemo(
     () =>
       Boolean(
@@ -218,7 +232,7 @@ export const useGetTradeQuotes = () => {
           activeTrade &&
           !isExecutableTradeQuote(activeTrade) &&
           // and if we're actually at pre-execution time
-          hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+          isFetchStep &&
           sellAccountId &&
           sellAccountMetadata &&
           receiveAddress,
@@ -236,7 +250,7 @@ export const useGetTradeQuotes = () => {
 
   const queryFnOrSkip = useMemo(() => {
     // Only run this query when we're actually ready
-    if (hopExecutionMetadata?.state !== HopExecutionState.AwaitingSwap) return reactQuerySkipToken
+    if (!isFetchStep) return reactQuerySkipToken
     // And only run it once
     if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
 
@@ -289,7 +303,7 @@ export const useGetTradeQuotes = () => {
     activeTrade,
     buyAsset,
     dispatch,
-    hopExecutionMetadata?.state,
+    isFetchStep,
     receiveAccountMetadata?.bip44Params,
     receiveAddress,
     sellAccountId,

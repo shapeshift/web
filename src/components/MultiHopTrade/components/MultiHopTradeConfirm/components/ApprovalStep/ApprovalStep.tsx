@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { FaThumbsUp } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { SlideTransitionX } from 'components/SlideTransitionX'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -60,6 +61,10 @@ export const ApprovalStep = ({
       hopIndex,
       activeTradeId,
     })
+
+  // TODO: permit2 quotes at pre-signing time
+  const test = useGetTradeQuotes()
+  console.log({ test })
 
   const { content: permit2Content, description: permit2Description } = usePermit2Content({
     tradeQuoteStep,

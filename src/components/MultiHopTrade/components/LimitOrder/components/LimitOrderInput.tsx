@@ -360,7 +360,6 @@ export const LimitOrderInput = ({
     handleSwitchAssets,
   ])
 
-  // TODO: Remove me as this is dummy data from spot trade not limit orders
   const { feeUsd } = useAppSelector(state =>
     selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: sellAmountUsd }),
   )

@@ -250,6 +250,13 @@ export type TradeQuoteStep = {
     gas: string | undefined
     value: string
   }
+  portalsTransactionMetadata?: {
+    to: Address
+    from: Address
+    data: string
+    value: string
+    gasLimit: string
+  }
   cowswapQuoteResponse?: CowSwapQuoteResponse
 }
 

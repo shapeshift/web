@@ -281,7 +281,10 @@ export async function getPortalsTradeQuote(
         feeAmount,
         gasLimit,
       },
+      tx,
     } = portalsTradeOrderResponse
+
+    if (!tx) throw new Error('Portals Tx simulation failed upstream')
 
     const rate = getRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -336,6 +339,7 @@ export async function getPortalsTradeQuote(
           },
           source: SwapperName.Portals,
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
+          portalsTransactionMetadata: tx,
         },
       ] as SingleHopTradeQuoteSteps,
     }

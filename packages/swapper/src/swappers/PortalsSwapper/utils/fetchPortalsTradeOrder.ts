@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { Address } from 'viem'
 
 import type { SwapperConfig } from '../../../types'
 
@@ -48,8 +49,8 @@ type PortalsTradeOrderResponse = {
     feeAmountUsd?: number
   }
   tx?: {
-    to: string
-    from: string
+    to: Address
+    from: Address
     data: string
     value: string
     gasLimit: string

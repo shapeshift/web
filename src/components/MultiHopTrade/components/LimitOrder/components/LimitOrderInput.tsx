@@ -1,4 +1,4 @@
-import { Divider, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -28,14 +28,12 @@ import {
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import {
-  selectActiveQuote,
   selectCalculatedFees,
   selectDefaultSlippagePercentage,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopover'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -69,7 +67,6 @@ export const LimitOrderInput = ({
   const history = useHistory()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const [userSlippagePercentage, setUserSlippagePercentage] = useState<string | undefined>()
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
@@ -105,7 +102,6 @@ export const LimitOrderInput = ({
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const activeQuote = useAppSelector(selectActiveQuote)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -113,11 +109,6 @@ export const LimitOrderInput = ({
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
-
-  const handleOpenCompactQuoteList = useCallback(() => {
-    if (!isCompact && !isSmallerThanXl) return
-    history.push({ pathname: LimitOrderRoutePaths.QuoteList })
-  }, [history, isCompact, isSmallerThanXl])
 
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending && votingPower === undefined,
@@ -265,8 +256,11 @@ export const LimitOrderInput = ({
   // price. When submitting a limit order, the buyAmount is (optionally) modified based on the user
   // input, and then re-attached to the `LimitOrder` before signing and submitting via our
   // `placeLimitOrder` endpoint in limitOrderApi
-  const { data, isFetching: isLimitOrderQuoteFetching } =
-    useQuoteLimitOrderQuery(limitOrderQuoteParams)
+  const {
+    data,
+    error,
+    isFetching: isLimitOrderQuoteFetching,
+  } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
     if (!data) return '0'
@@ -366,6 +360,7 @@ export const LimitOrderInput = ({
     handleSwitchAssets,
   ])
 
+  // TODO: Remove me as this is dummy data from spot trade not limit orders
   const { feeUsd } = useAppSelector(state =>
     selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: sellAmountUsd }),
   )
@@ -382,18 +377,17 @@ export const LimitOrderInput = ({
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={sellAmountUsd}
-        isCompact={isCompact}
-        isError={false}
+        isError={Boolean(error)}
         isLoading={isLoading}
-        onRateClick={handleOpenCompactQuoteList}
         quoteStatusTranslation={'trade.previewTrade'}
-        rate={activeQuote?.rate}
-        sellAsset={sellAsset}
+        rate={bnOrZero(limitPriceBuyAsset).isZero() ? undefined : limitPriceBuyAsset}
         sellAccountId={sellAccountId}
+        shouldDisableGasRateRowClick
         shouldDisablePreviewButton={isRecipientAddressEntryActive}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
-        totalNetworkFeeFiatPrecision={'1.1234'}
+        totalNetworkFeeFiatPrecision='0' // CoW protocol always zero network fee
+        sellAsset={sellAsset}
       >
         {renderedRecipientAddress}
       </SharedTradeInputFooter>
@@ -402,15 +396,14 @@ export const LimitOrderInput = ({
     affiliateBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
-    handleOpenCompactQuoteList,
     hasUserEnteredAmount,
     sellAmountUsd,
-    isCompact,
+    error,
     isLoading,
-    activeQuote?.rate,
-    sellAsset,
+    limitPriceBuyAsset,
     sellAccountId,
     isRecipientAddressEntryActive,
+    sellAsset,
     renderedRecipientAddress,
   ])
 

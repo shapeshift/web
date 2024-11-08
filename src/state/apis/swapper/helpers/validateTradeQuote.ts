@@ -17,6 +17,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIds,
+  selectWalletId,
 } from 'state/slices/common-selectors'
 import {
   selectAssets,
@@ -113,6 +114,9 @@ export const validateTradeQuote = (
 
   // This should really never happen in case the wallet *is* connected but in case it does:
   if (quoteOrRate === 'quote' && !sendAddress) throw new Error('sendAddress is required')
+
+  // If we have a walletId at the time we hit this, we have a wallet. Else, none is connected, meaning we shouldn't surface balance errors
+  const walletId = selectWalletId(state)
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!
@@ -265,7 +269,8 @@ export const validateTradeQuote = (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
-      !firstHopHasSufficientBalanceForGas &&
+      walletId !== undefined &&
+        !firstHopHasSufficientBalanceForGas &&
         quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
@@ -275,7 +280,8 @@ export const validateTradeQuote = (
               : '',
           },
         },
-      !secondHopHasSufficientBalanceForGas &&
+      walletId !== undefined &&
+        !secondHopHasSufficientBalanceForGas &&
         quoteOrRate === 'rate' && {
           error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
           meta: {

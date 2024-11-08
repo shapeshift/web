@@ -35,7 +35,7 @@ type RateGasRowProps = {
   sellSymbol?: string
   buySymbol?: string
   rate?: string
-  gasFee: string
+  gasFee: string | undefined
   isLoading?: boolean
   allowSelectQuote: boolean
   swapperName?: SwapperName
@@ -188,7 +188,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     <FaGasPump />
                   </Row.Label>
                   <Row.Value>
-                    <Amount.Fiat fontSize='sm' value={gasFee} />
+                    {!gasFee ? (
+                      <Tooltip isDisabled={!!gasFee} label={translate('trade.tooltip.tbdGas')}>
+                        <Text translation={'common.tbd'} fontSize='sm' />
+                      </Tooltip>
+                    ) : (
+                      <Amount.Fiat fontSize='sm' value={gasFee} />
+                    )}
                   </Row.Value>
                 </Row>
                 {isOpen ? (

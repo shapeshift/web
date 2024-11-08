@@ -461,14 +461,21 @@ export const selectHopNetworkFeeUserCurrencyPrecision = createDeepEqualOutputSel
   },
 )
 
-export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string> =
+export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectFirstHopNetworkFeeUserCurrencyPrecision,
     selectSecondHopNetworkFeeUserCurrencyPrecision,
-    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) =>
-      bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
+    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) => {
+      if (
+        firstHopNetworkFeeUserCurrencyPrecision === undefined &&
+        secondHopNetworkFeeUserCurrencyPrecision === undefined
+      )
+        return
+
+      return bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
         .plus(secondHopNetworkFeeUserCurrencyPrecision ?? 0)
-        .toString(),
+        .toString()
+    },
   )
 
 export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(

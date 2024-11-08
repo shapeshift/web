@@ -104,7 +104,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         quote,
         getFeeAsset,
         getFeeAssetUserCurrencyRate,
-      ).toString()
+      )?.toString()
     }, [quote])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here

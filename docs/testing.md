@@ -5,7 +5,7 @@ Bug fixes and features should always come with tests.
 ### Testing Tools
 
 - Unit - test both frontend code in isolation
-  - [vitest](https://vitest.dev/guide/), [react testing library](https://testing-library.com/docs/react-testing-library/intro/), [react testing library](https://testing-library.com/docs/react-testing-library/api/#renderhook)
+  - [vitest](https://vitest.dev/guide/), [react testing library](https://testing-library.com/docs/react-testing-library/intro/)
 - Workflows - tools and libraries for GitHub Workflows or any DevOps processes
   - [act](https://github.com/nektos/act) - Emulates GitHub Workflows virtual environment via Docker containers.
 
@@ -25,7 +25,7 @@ import { describe, it, expect } from 'vitest'
 const UserData = { id: 1, name: 'UserName' }
 
 const mockUserData = id => {
-  mockAxios.get.mockImplementationOnce(() => Promise.resolve(id ? data : undefined))
+  mockAxios.get.mockImplementationOnce(() => Promise.resolve(id ? Userdata : undefined))
 }
 
 describe('isLoggedIn', () => {
@@ -62,7 +62,7 @@ describe('useIsComponentMounted hook', () => {
     expect(result.current.current).toBe(true)
   })
 
-  it('should false on unmount', () => {
+  it('should be false on unmount', () => {
     const { result, unmount } = setup()
     unmount()
     expect(result.current.current).toBe(false)

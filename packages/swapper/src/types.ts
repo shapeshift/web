@@ -4,6 +4,7 @@ import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
+  solana,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
@@ -220,7 +221,6 @@ export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) =>
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
-
 export type SolanaSwapperDeps = {
   assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
 }
@@ -414,6 +414,14 @@ export type CheckTradeStatusInput = {
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
+
+export type SolanaTransactionRequest = {
+  gasLimit: string
+  to: string
+  from: string
+  value: string
+  data: string
+}
 
 export type EvmTransactionRequest = {
   gasLimit: string

@@ -48,6 +48,8 @@ export type UtxoChainId =
   | KnownChainIds.DogecoinMainnet
   | KnownChainIds.LitecoinMainnet
 
+export type SolanaChainId = KnownChainIds.SolanaMainnet
+
 export enum WithdrawType {
   DELAYED,
   INSTANT,

@@ -50,7 +50,7 @@ expect(toAccountId({ chainNamespace, chainReference, account })).toEqual('eip155
 ```ts
 const accountId = 'eip155:1:0xa44c286ba83bb771cd0107b2c1df678435bd1535'
 const { account, chainId, chainNamespace, chainReference } = fromAccountId(accountId)
-expect(account).toEqual(0xa44c286ba83bb771cd0107b2c1df678435bd1535)
+expect(account).toEqual('0xa44c286ba83bb771cd0107b2c1df678435bd1535')
 expect(chainNamespace).toEqual('eip155')
 expect(chainReference).toEqual('1')
 expect(chainId).toEqual('eip155:1')

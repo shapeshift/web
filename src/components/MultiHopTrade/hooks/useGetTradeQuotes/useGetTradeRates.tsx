@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   SwapperName,
@@ -10,7 +10,6 @@ import {
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
-import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -120,20 +119,12 @@ export const useGetTradeRates = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
+  const [tradeRateInput, setTradeRateInput] = useState<GetTradeRateInput | typeof skipToken>(
     skipToken,
   )
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const useReceiveAddressArgs = useMemo(
-    () => ({
-      fetchUnchainedAddress: Boolean(wallet && isLedger(wallet)),
-    }),
-    [wallet],
-  )
-  const { manualReceiveAddress, walletReceiveAddress } = useReceiveAddress(useReceiveAddressArgs)
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
@@ -192,7 +183,7 @@ export const useGetTradeRates = () => {
 
     // Early exit on any invalid state
     if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-      setTradeQuoteInput(skipToken)
+      setTradeRateInput(skipToken)
       dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
       return
     }
@@ -213,7 +204,7 @@ export const useGetTradeRates = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
+      const updatedTradeRateInput = (await getTradeQuoteInput({
         sellAsset,
         sellAccountNumber,
         receiveAccountNumber,
@@ -221,7 +212,7 @@ export const useGetTradeRates = () => {
         buyAsset,
         wallet: wallet ?? undefined,
         quoteOrRate: 'rate',
-        receiveAddress,
+        receiveAddress: undefined,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
         affiliateBps,
@@ -232,14 +223,13 @@ export const useGetTradeRates = () => {
           wallet && isLedger(wallet) && sellAccountId
             ? fromAccountId(sellAccountId).account
             : undefined,
-      })
+      })) as GetTradeRateInput
 
-      setTradeQuoteInput(updatedTradeQuoteInput)
+      setTradeRateInput(updatedTradeRateInput)
     })()
   }, [
     buyAsset,
     dispatch,
-    receiveAddress,
     sellAccountMetadata,
     sellAmountCryptoPrecision,
     sellAsset,
@@ -258,13 +248,13 @@ export const useGetTradeRates = () => {
     (swapperName: SwapperName): UseGetSwapperTradeQuoteArgs => {
       return {
         swapperName,
-        tradeQuoteInput,
+        tradeQuoteInput: tradeRateInput,
         skip: !shouldRefetchTradeQuotes,
         pollingInterval:
           swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
-    [shouldRefetchTradeQuotes, tradeQuoteInput],
+    [shouldRefetchTradeQuotes, tradeRateInput],
   )
 
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))

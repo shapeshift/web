@@ -55,7 +55,8 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
-        const isCrossAccountTrade = sendAddress !== receiveAddress
+        const isCrossAccountTrade =
+          Boolean(sendAddress && receiveAddress) && sendAddress !== receiveAddress
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 

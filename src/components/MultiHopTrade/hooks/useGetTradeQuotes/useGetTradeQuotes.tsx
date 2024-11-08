@@ -1,4 +1,4 @@
-import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { GetTradeQuoteInput, SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
@@ -8,7 +8,8 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { useHasFocus } from 'hooks/useHasFocus'
@@ -20,7 +21,7 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectVotingPower } from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
 import {
@@ -160,9 +161,6 @@ export const useGetTradeQuotes = () => {
       : undefined,
   )
 
-  const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
-    skipToken,
-  )
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -206,13 +204,8 @@ export const useGetTradeQuotes = () => {
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
@@ -226,45 +219,30 @@ export const useGetTradeQuotes = () => {
           !isExecutableTradeQuote(activeTrade) &&
           // and if we're actually at pre-execution time
           hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
-          wallet &&
           sellAccountId &&
           sellAccountMetadata &&
-          receiveAddress &&
-          !isVotingPowerLoading,
+          receiveAddress,
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       hasFocus,
       activeTrade,
       hopExecutionMetadata?.state,
-      wallet,
       sellAccountId,
       sellAccountMetadata,
       receiveAddress,
-      isVotingPowerLoading,
     ],
   )
 
-  useEffect(() => {
-    // Only run this effect when we're actually ready
-    if (hopExecutionMetadata?.state !== HopExecutionState.AwaitingSwap) return
+  const queryFnOrSkip = useMemo(() => {
+    // Only run this query when we're actually ready
+    if (hopExecutionMetadata?.state !== HopExecutionState.AwaitingSwap) return reactQuerySkipToken
     // And only run it once
-    if (activeTrade && isExecutableTradeQuote(activeTrade)) return
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
 
-    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+    return async () => {
+      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    // Early exit on any invalid state
-    if (
-      bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      !sellAccountId ||
-      !sellAccountMetadata ||
-      !receiveAddress ||
-      isVotingPowerLoading
-    ) {
-      setTradeQuoteInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-      return
-    }
-    ;(async () => {
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
       const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
       const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
@@ -305,33 +283,56 @@ export const useGetTradeQuotes = () => {
             : undefined,
       })
 
-      setTradeQuoteInput(updatedTradeQuoteInput)
-    })()
+      return updatedTradeQuoteInput
+    }
   }, [
+    activeTrade,
     buyAsset,
     dispatch,
+    hopExecutionMetadata?.state,
+    receiveAccountMetadata?.bip44Params,
     receiveAddress,
-    sellAccountMetadata,
+    sellAccountId,
+    sellAccountMetadata?.accountType,
+    sellAccountMetadata?.bip44Params?.accountNumber,
     sellAmountCryptoPrecision,
     sellAsset,
-    votingPower,
-    thorVotingPower,
-    wallet,
-    receiveAccountMetadata?.bip44Params,
-    userSlippageTolerancePercentageDecimal,
     sellAssetUsdRate,
-    sellAccountId,
-    isVotingPowerLoading,
-    isBuyAssetChainSupported,
-    hopExecutionMetadata?.state,
-    activeTrade,
+    thorVotingPower,
+    userSlippageTolerancePercentageDecimal,
+    votingPower,
+    wallet,
   ])
+
+  const { data: tradeQuoteInput } = useQuery({
+    queryKey: [
+      'getTradeQuoteInput',
+      {
+        buyAsset,
+        dispatch,
+        receiveAddress,
+        sellAccountMetadata,
+        sellAmountCryptoPrecision,
+        sellAsset,
+        votingPower,
+        thorVotingPower,
+        receiveAccountMetadata,
+        userSlippageTolerancePercentageDecimal,
+        sellAssetUsdRate,
+        sellAccountId,
+        isBuyAssetChainSupported,
+        hopExecutionMetadata,
+        activeTrade,
+      },
+    ],
+    queryFn: queryFnOrSkip,
+  })
 
   const getTradeQuoteArgs = useCallback(
     (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteArgs => {
       return {
         swapperName,
-        tradeQuoteInput,
+        tradeQuoteInput: tradeQuoteInput ?? reduxSkipToken,
         // Skip trade quotes fetching which aren't for the swapper we have a rate for
         skip: !swapperName || !shouldFetchTradeQuotes,
         pollingInterval:

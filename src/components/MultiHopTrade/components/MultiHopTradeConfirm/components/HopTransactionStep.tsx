@@ -153,7 +153,7 @@ export const HopTransactionStep = ({
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])
 
-  const { isFetching, data } = useGetTradeQuotes()
+  const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
 
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
@@ -165,7 +165,7 @@ export const HopTransactionStep = ({
               size='sm'
               onClick={handleSignTx}
               isLoading={isFetching}
-              isDisabled={!data}
+              isDisabled={!tradeQuoteQueryData}
               width='100%'
             >
               {translate('common.signTransaction')}
@@ -196,7 +196,7 @@ export const HopTransactionStep = ({
     sellTxHash,
     handleSignTx,
     isFetching,
-    data,
+    tradeQuoteQueryData,
     translate,
     hopIndex,
     activeTradeId,

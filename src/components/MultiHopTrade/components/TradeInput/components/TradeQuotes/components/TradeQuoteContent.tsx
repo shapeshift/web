@@ -9,7 +9,7 @@ import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 export type TradeQuoteContentProps = {
@@ -150,7 +150,12 @@ export const TradeQuoteContent = ({
               {
                 // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
                 !networkFeeFiatUserCurrency ? (
-                  translate('trade.unknownGas')
+                  <Tooltip
+                    isDisabled={!!networkFeeFiatUserCurrency}
+                    label={translate('trade.tooltip.continueSwapping')}
+                  >
+                    <Text translation={'trade.unknownGas'} fontSize='sm' />
+                  </Tooltip>
                 ) : (
                   <Amount.Fiat value={networkFeeFiatUserCurrency} />
                 )

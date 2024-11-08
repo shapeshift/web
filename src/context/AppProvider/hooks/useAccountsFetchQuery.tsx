@@ -196,6 +196,7 @@ export const useAccountsFetchQuery = () => {
       {
         deviceId,
         supportedChains,
+        isSnapInstalled,
       },
     ],
     queryFn: deviceId && !hasManagedAccounts ? queryFn : skipToken,

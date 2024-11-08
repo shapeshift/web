@@ -33,10 +33,13 @@ const chevronDownIcon = <ChevronDownIcon />
 
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
 const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
-const colWidth = { base: '50%', md: 'max-content' }
+
+const colWidth = { base: 'auto', lg: 'max-content' }
+const colMinWidth = { base: '50%', lg: 'auto' }
 const chainButtonProps = {
   width: colWidth,
-  my: { base: 2, md: 0 },
+  minWidth: colMinWidth,
+  my: { base: 2, lg: 0 },
 }
 const headerMx = { base: 0, xl: -2 }
 
@@ -163,7 +166,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
                 {showOrderFilter ? (
                   <OrderDropdown value={selectedOrder} onClick={setSelectedOrder} />
                 ) : null}
-                <Flex alignItems='center' mx={2}>
+                <Flex alignItems='center' justifyContent='space-between' mx={2}>
                   <Text width={colWidth} me={4}>
                     {translate('common.filterBy')}
                   </Text>

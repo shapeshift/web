@@ -365,7 +365,7 @@ export const ConfirmSummary = ({
       hasUserEnteredAmount={hasUserEnteredAmount}
       sellAsset={sellAsset}
       sellAssetAccountId={sellAssetAccountId}
-      totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
+      networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
       receiveSummaryDetails={receiveSummaryDetails}
     >
       {nativeAssetBridgeWarning ? (

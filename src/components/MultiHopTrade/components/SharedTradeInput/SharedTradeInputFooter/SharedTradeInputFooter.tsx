@@ -39,7 +39,7 @@ type SharedTradeInputFooterProps = {
   shouldForceManualAddressEntry: boolean
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
-  totalNetworkFeeFiatPrecision: string | undefined
+  networkFeeFiatUserCurrency: string | undefined
   receiveSummaryDetails?: JSX.Element | null
   onRateClick: () => void
 }
@@ -65,7 +65,7 @@ export const SharedTradeInputFooter = ({
   shouldForceManualAddressEntry,
   swapperName,
   swapSource,
-  totalNetworkFeeFiatPrecision,
+  networkFeeFiatUserCurrency,
   receiveSummaryDetails,
   onRateClick,
 }: SharedTradeInputFooterProps) => {
@@ -135,7 +135,7 @@ export const SharedTradeInputFooter = ({
           <RateGasRow
             sellSymbol={sellAsset.symbol}
             buySymbol={buyAsset.symbol}
-            gasFee={totalNetworkFeeFiatPrecision}
+            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             rate={rate}
             isLoading={isLoading}
             swapperName={swapperName}

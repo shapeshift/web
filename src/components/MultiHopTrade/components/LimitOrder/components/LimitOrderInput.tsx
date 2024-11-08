@@ -336,7 +336,7 @@ export const LimitOrderInput = ({
         shouldForceManualAddressEntry={false}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
-        totalNetworkFeeFiatPrecision={'1.1234'}
+        networkFeeFiatUserCurrency={'1.1234'}
       />
     )
   }, [

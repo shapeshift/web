@@ -895,7 +895,7 @@
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
     "tooltip": {
-      "tbdGas": "This swapper does not support gas estimations yet. Stay tuned!",
+      "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",

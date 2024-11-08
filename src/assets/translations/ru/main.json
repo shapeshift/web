@@ -401,9 +401,9 @@
         "confirmAndClaim": "Подтвердить и получить",
         "rewardAmount": "Сумма вознаграждения",
         "claimingRewards": "Полученные вознаграждения ",
-        "claimAmount": "Сума клейма",
+        "claimAmount": "Сумма клейма",
         "claimToAddress": "Заклеймить на",
-        "confirmClaim": "Подтвредить клейм",
+        "confirmClaim": "Подтвердить клейм",
         "claimNow": "Заклеймить сейчас",
         "claimYour": "Заклеймить свои %{opportunity}"
       },

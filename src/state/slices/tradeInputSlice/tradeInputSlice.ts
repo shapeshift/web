@@ -24,5 +24,7 @@ const initialState: TradeInputState = {
 export const tradeInput = createTradeInputBaseSlice({
   name: 'tradeInput',
   initialState,
-  extraReducers: {},
+  extraReducers: {
+    // Add any reducers specific to tradeInput slice here that aren't shared with other slices
+  },
 })

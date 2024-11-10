@@ -6,6 +6,16 @@ import { createDeepEqualOutputSelector } from 'state/selector-utils'
 import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
 import type { TradeInputBaseState } from './createTradeInputBaseSlice'
 
+/**
+ * Creates a set of reusable Redux selectors for trade input functionality. This is a higher-order
+ * selector factory that generates selectors for any slice that handles trade inputs. It provides
+ * selectors for common trade-related data like buy/sell assets, exchange rates, and slippage
+ * preferences. This allows multiple features (like trading and limit orders) to reuse the same
+ * selector logic while maintaining their own independent state.
+ *
+ * @param sliceName - The name of the Redux slice to create selectors for
+ * @returns An object containing all the generated selectors
+ */
 export const createTradeInputBaseSelectors = (sliceName: keyof ReduxState) => {
   // Base selector to get the slice
   const selectBaseSlice = (state: ReduxState) => state[sliceName] as TradeInputBaseState

@@ -24,6 +24,8 @@ import {
 import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
 import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 
+// Shared selectors from the base trade input slice that handle common functionality like input
+// assets, rates, and slippage preferences
 export const {
   selectBaseSlice,
   selectInputBuyAsset,

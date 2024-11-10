@@ -18,6 +18,18 @@ export interface TradeInputBaseState {
   slippagePreferencePercentage: string | undefined
 }
 
+/**
+ * Creates a reusable Redux slice for trade input functionality. This is a higher-order slice
+ * factory that generates a slice with common trade-related reducers. It provides base functionality
+ * for managing trade state like buy/sell assets, account IDs, amounts, and slippage preferences.
+ * This allows multiple features (like trading and limit orders) to reuse the same reducer logic
+ * while maintaining their own independent state.
+ *
+ * @param name - The name of the Redux slice
+ * @param initialState - The initial state extending the base trade input state
+ * @param extraReducers - Additional reducers specific to the implementing slice
+ * @returns A configured Redux slice with all the base trade input reducers
+ */
 export function createTradeInputBaseSlice<
   S extends Record<string, any>,
   T extends TradeInputBaseState,

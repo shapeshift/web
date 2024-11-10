@@ -15,6 +15,7 @@ export interface TradeInputBaseState {
   manualReceiveAddressIsValidating: boolean
   manualReceiveAddressIsEditing: boolean
   manualReceiveAddressIsValid: boolean | undefined
+  slippagePreferencePercentage: string | undefined
 }
 
 export function createTradeInputBaseSlice<
@@ -102,6 +103,12 @@ export function createTradeInputBaseSlice<
       },
       setIsInputtingFiatSellAmount: (state, action: PayloadAction<boolean>) => {
         state.isInputtingFiatSellAmount = action.payload
+      },
+      setSlippagePreferencePercentage: (
+        state: TradeInputBaseState,
+        action: PayloadAction<string | undefined>,
+      ) => {
+        state.slippagePreferencePercentage = action.payload
       },
       ...extraReducers,
     },

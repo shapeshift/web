@@ -7,11 +7,11 @@ import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
+import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import {
   selectEnabledWalletAccountIds,
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '../common-selectors'
-import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../marketDataSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectPortfolioAccountMetadata,
@@ -24,67 +24,21 @@ import {
 import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
 import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 
-const selectTradeInput = (state: ReduxState) => state.tradeInput
-
-export const selectInputBuyAsset = createDeepEqualOutputSelector(
-  selectTradeInput,
-  tradeInput => tradeInput.buyAsset,
-)
-
-export const selectInputSellAsset = createDeepEqualOutputSelector(
-  selectTradeInput,
-  tradeInput => tradeInput.sellAsset,
-)
-
-export const selectInputSellAssetUsdRate = createSelector(
-  selectInputSellAsset,
-  selectMarketDataUsd,
-  (sellAsset, marketDataUsd) => {
-    if (sellAsset === undefined) return
-    return marketDataUsd[sellAsset.assetId]?.price
-  },
-)
-
-export const selectInputBuyAssetUsdRate = createSelector(
+export const {
+  selectBaseSlice,
   selectInputBuyAsset,
-  selectMarketDataUsd,
-  (buyAsset, marketDataUsd) => {
-    if (buyAsset === undefined) return
-    return marketDataUsd[buyAsset.assetId]?.price
-  },
-)
-
-export const selectInputSellAssetUserCurrencyRate = createSelector(
+  selectInputSellAsset,
   selectInputSellAssetUsdRate,
-  selectUserCurrencyToUsdRate,
-  (sellAssetUsdRate, userCurrencyToUsdRate) => {
-    if (sellAssetUsdRate === undefined) return
-    return bn(sellAssetUsdRate).times(userCurrencyToUsdRate).toString()
-  },
-)
-
-export const selectInputBuyAssetUserCurrencyRate = createSelector(
   selectInputBuyAssetUsdRate,
-  selectUserCurrencyToUsdRate,
-  (buyAssetUsdRate, userCurrencyToUsdRate) => {
-    if (buyAssetUsdRate === undefined) return
-    return bn(buyAssetUsdRate).times(userCurrencyToUsdRate).toString()
-  },
-)
-
-export const selectUserSlippagePercentage: Selector<ReduxState, string | undefined> =
-  createSelector(selectTradeInput, tradeInput => tradeInput.slippagePreferencePercentage)
-
-// User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
-export const selectUserSlippagePercentageDecimal: Selector<ReduxState, string | undefined> =
-  createSelector(selectUserSlippagePercentage, slippagePercentage => {
-    if (!slippagePercentage) return
-    return bn(slippagePercentage).div(100).toString()
-  })
+  selectInputSellAssetUserCurrencyRate,
+  selectInputBuyAssetUserCurrencyRate,
+  selectUserSlippagePercentage,
+  selectUserSlippagePercentageDecimal,
+} = createTradeInputBaseSelectors('tradeInput')
 
 // selects the account ID we're selling from for the first hop
 export const selectFirstHopSellAccountId = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   selectInputSellAsset,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
   selectEnabledWalletAccountIds,
@@ -105,7 +59,7 @@ export const selectFirstHopSellAccountId = createSelector(
 
 // selects the account ID we're buying into for the last hop
 export const selectLastHopBuyAccountId = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   selectInputBuyAsset,
   selectEnabledWalletAccountIds,
   selectAccountIdByAccountNumberAndChainId,
@@ -145,7 +99,7 @@ export const selectLastHopBuyAccountId = createSelector(
 )
 
 export const selectInputSellAmountCryptoPrecision = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.sellAmountCryptoPrecision,
 )
 
@@ -157,22 +111,22 @@ export const selectInputSellAmountCryptoBaseUnit = createSelector(
 )
 
 export const selectManualReceiveAddress = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.manualReceiveAddress,
 )
 
 export const selectManualReceiveAddressIsValidating = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.manualReceiveAddressIsValidating,
 )
 
 export const selectManualReceiveAddressIsEditing = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.manualReceiveAddressIsEditing,
 )
 
 export const selectManualReceiveAddressIsValid = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.manualReceiveAddressIsValid,
 )
 
@@ -204,7 +158,7 @@ export const selectSellAssetBalanceCryptoBaseUnit = createSelector(
 )
 
 export const selectIsInputtingFiatSellAmount = createSelector(
-  selectTradeInput,
+  selectBaseSlice,
   tradeInput => tradeInput.isInputtingFiatSellAmount,
 )
 

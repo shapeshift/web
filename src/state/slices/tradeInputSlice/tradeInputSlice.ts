@@ -1,14 +1,11 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
-import type { TradeInputBaseState } from '../common/createTradeInputBaseSlice'
-import { createTradeInputBaseSlice } from '../common/createTradeInputBaseSlice'
+import type { TradeInputBaseState } from '../common/tradeInputBase/createTradeInputBaseSlice'
+import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 
-interface TradeInputState extends TradeInputBaseState {
-  slippagePreferencePercentage: string | undefined
-}
+type TradeInputState = TradeInputBaseState
 
 const initialState: TradeInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
@@ -27,12 +24,5 @@ const initialState: TradeInputState = {
 export const tradeInput = createTradeInputBaseSlice({
   name: 'tradeInput',
   initialState,
-  extraReducers: {
-    setSlippagePreferencePercentage: (
-      state: TradeInputState,
-      action: PayloadAction<string | undefined>,
-    ) => {
-      state.slippagePreferencePercentage = action.payload
-    },
-  },
+  extraReducers: {},
 })

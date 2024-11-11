@@ -1,5 +1,6 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -20,12 +21,13 @@ import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
+  selectBuyAccountId,
   selectInputSellAsset,
   selectLimitPriceBuyAsset,
+  selectSellAccountId,
   selectUserSlippagePercentage,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import {
-  selectFirstAccountIdByChainId,
   selectInputBuyAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
   selectMarketDataByAssetIdUserCurrency,
@@ -77,18 +79,14 @@ export const LimitOrderInput = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
+  const sellAccountId = useAppSelector(selectSellAccountId)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
 
-  const defaultAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, sellAsset.chainId),
-  )
   const defaultSlippagePercentage = useMemo(() => {
     return bn(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap))
       .times(100)
       .toString()
   }, [])
-
-  const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
-  const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -194,6 +192,20 @@ export const LimitOrderInput = ({
       handleFormSubmit()
     },
     [handleFormSubmit],
+  )
+
+  const handleSetSellAccountId = useCallback(
+    (newSellAccountId: AccountId) => {
+      dispatch(limitOrderInput.actions.setSellAssetAccountId(newSellAccountId))
+    },
+    [dispatch],
+  )
+
+  const handleSetBuyAccountId = useCallback(
+    (newBuyAccountId: AccountId) => {
+      dispatch(limitOrderInput.actions.setBuyAssetAccountId(newBuyAccountId))
+    },
+    [dispatch],
   )
 
   const sellAmountCryptoBaseUnit = useMemo(() => {
@@ -333,14 +345,14 @@ export const LimitOrderInput = ({
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={handleSetSellAsset}
-        setSellAccountId={setSellAccountId}
+        setSellAccountId={handleSetSellAccountId}
       >
         <Stack>
           <LimitOrderBuyAsset
             asset={buyAsset}
             accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            onAccountIdChange={setBuyAccountId}
+            onAccountIdChange={handleSetBuyAccountId}
             onSetBuyAsset={handleSetBuyAsset}
           />
           <Divider />
@@ -366,8 +378,10 @@ export const LimitOrderInput = ({
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
     sellAsset,
+    handleSetBuyAccountId,
     handleSetBuyAsset,
     handleSetLimitPriceBuyAsset,
+    handleSetSellAccountId,
     handleSetSellAsset,
     handleSwitchAssets,
   ])

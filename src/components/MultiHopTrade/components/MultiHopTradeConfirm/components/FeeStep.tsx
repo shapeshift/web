@@ -8,12 +8,9 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
-import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
+import { selectCalculatedFees, selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd } from 'state/slices/selectors'
-import {
-  selectActiveQuoteAffiliateBps,
-  selectCalculatedFees,
-} from 'state/slices/tradeQuoteSlice/selectors'
+import { selectActiveQuoteAffiliateBps } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'

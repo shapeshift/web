@@ -18,7 +18,12 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectCalculatedFees,
+  selectIsSnapshotApiQueriesPending,
+  selectIsSnapshotApiQueriesRejected,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
@@ -36,7 +41,6 @@ import {
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import {
-  selectCalculatedFees,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -206,6 +210,8 @@ export const LimitOrderInput = ({
     return fromAccountId(sellAccountId).account as Address
   }, [sellAccountId])
 
+  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
+
   const affiliateBps = useMemo(() => {
     const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
 
@@ -214,10 +220,17 @@ export const LimitOrderInput = ({
       foxHeld: bnOrZero(votingPower),
       thorHeld: bnOrZero(thorVotingPower),
       feeModel: 'SWAPPER',
+      isSnapshotApiQueriesRejected,
     })
 
     return feeBps.toFixed(0)
-  }, [sellAmountCryptoPrecision, sellAssetUsdRate, thorVotingPower, votingPower])
+  }, [
+    isSnapshotApiQueriesRejected,
+    sellAmountCryptoPrecision,
+    sellAssetUsdRate,
+    thorVotingPower,
+    votingPower,
+  ])
 
   const limitOrderQuoteParams = useMemo(() => {
     // Return skipToken if any required params are missing
@@ -374,9 +387,12 @@ export const LimitOrderInput = ({
     handleSwitchAssets,
   ])
 
-  const { feeUsd } = useAppSelector(state =>
-    selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: inputSellAmountUsd }),
+  const feeParams = useMemo(
+    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
+    [inputSellAmountUsd],
   )
+
+  const { feeUsd } = useAppSelector(state => selectCalculatedFees(state, feeParams))
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
     return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)

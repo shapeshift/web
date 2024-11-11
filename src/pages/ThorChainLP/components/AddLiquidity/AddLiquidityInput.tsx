@@ -84,7 +84,11 @@ import { useUserLpData } from 'pages/ThorChainLP/queries/hooks/useUserLpData'
 import { getThorchainLpPosition } from 'pages/ThorChainLP/queries/queries'
 import type { Opportunity } from 'pages/ThorChainLP/utils'
 import { fromOpportunityId, toOpportunityId } from 'pages/ThorChainLP/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectIsSnapshotApiQueriesPending,
+  selectIsSnapshotApiQueriesRejected,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
 import { snapshotApi } from 'state/apis/snapshot/snapshot'
 import {
   selectAccountIdsByAssetId,
@@ -167,6 +171,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
+  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { isSnapInstalled } = useIsSnapInstalled()
   const isVotingPowerLoading = useMemo(
     () => isSnapshotApiQueriesPending,
@@ -1015,6 +1020,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       tradeAmountUsd: bn(totalAmountUsd),
       foxHeld: bnOrZero(votingPower),
       feeModel: 'THORCHAIN_LP',
+      isSnapshotApiQueriesRejected,
     })
 
     setConfirmedQuote({
@@ -1056,6 +1062,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     totalGasFeeFiatUserCurrency,
     userCurrencyToUsdRate,
     votingPower,
+    isSnapshotApiQueriesRejected,
   ])
 
   const percentOptions = useMemo(() => [], [])

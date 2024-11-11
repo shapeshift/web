@@ -29,14 +29,14 @@ export const RecipientAddress = ({
 
   const handleIsValidatingChange = useCallback(
     (isValidating: boolean) => {
-      dispatch(tradeInput.actions.setManualReceiveAddressIsValidating(isValidating))
+      dispatch(tradeInput.actions.setIsManualReceiveAddressValidating(isValidating))
     },
     [dispatch],
   )
 
   const handleIsValidChange = useCallback(
     (isValid: boolean) => {
-      dispatch(tradeInput.actions.setManualReceiveAddressIsValid(isValid))
+      dispatch(tradeInput.actions.setIsManualReceiveAddressValid(isValid))
     },
     [dispatch],
   )
@@ -46,26 +46,26 @@ export const RecipientAddress = ({
   }, [dispatch])
 
   const handleEdit = useCallback(() => {
-    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(true))
+    dispatch(tradeInput.actions.setIsManualReceiveAddressEditing(true))
   }, [dispatch])
 
   const handleCancel = useCallback(() => {
-    dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
+    dispatch(tradeInput.actions.setIsManualReceiveAddressEditing(false))
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
-    dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
+    dispatch(tradeInput.actions.setIsManualReceiveAddressValid(undefined))
   }, [dispatch])
 
   const handleReset = useCallback(() => {
     // Reset the manual receive address in store
     dispatch(tradeInput.actions.setManualReceiveAddress(undefined))
     // Reset the valid state in store
-    dispatch(tradeInput.actions.setManualReceiveAddressIsValid(undefined))
+    dispatch(tradeInput.actions.setIsManualReceiveAddressValid(undefined))
   }, [dispatch])
 
   const handleSubmit = useCallback(
     (address: string) => {
       dispatch(tradeInput.actions.setManualReceiveAddress(address))
-      dispatch(tradeInput.actions.setManualReceiveAddressIsEditing(false))
+      dispatch(tradeInput.actions.setIsManualReceiveAddressEditing(false))
     },
     [dispatch],
   )

@@ -104,7 +104,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectEnabledWalletAccountIds,
     (baseSlice, sellAsset, accountIdAssetValues, accountIds) => {
       // return the users selection if it exists
-      if (baseSlice.sellAssetAccountId) return baseSlice.sellAssetAccountId
+      if (baseSlice.sellAccountId) return baseSlice.sellAccountId
 
       const highestFiatBalanceSellAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
         accountIdAssetValues,
@@ -134,8 +134,8 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
       accountMetadata,
     ) => {
       // return the users selection if it exists
-      if (baseSlice.buyAssetAccountId) {
-        return baseSlice.buyAssetAccountId
+      if (baseSlice.buyAccountId) {
+        return baseSlice.buyAccountId
       }
 
       // maybe convert the account id to an account number
@@ -175,19 +175,19 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     baseSlice => baseSlice.manualReceiveAddress,
   )
 
-  const selectManualReceiveAddressIsValidating = createSelector(
+  const selectIsManualReceiveAddressValidating = createSelector(
     selectBaseSlice,
-    baseSlice => baseSlice.manualReceiveAddressIsValidating,
+    baseSlice => baseSlice.isManualReceiveAddressValidating,
   )
 
-  const selectManualReceiveAddressIsEditing = createSelector(
+  const selectIsManualReceiveAddressEditing = createSelector(
     selectBaseSlice,
-    baseSlice => baseSlice.manualReceiveAddressIsEditing,
+    baseSlice => baseSlice.isManualReceiveAddressEditing,
   )
 
-  const selectManualReceiveAddressIsValid = createSelector(
+  const selectIsManualReceiveAddressValid = createSelector(
     selectBaseSlice,
-    baseSlice => baseSlice.manualReceiveAddressIsValid,
+    baseSlice => baseSlice.isManualReceiveAddressValid,
   )
 
   const selectInputSellAmountUsd = createSelector(
@@ -241,9 +241,9 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectBuyAccountId,
     selectInputSellAmountCryptoBaseUnit,
     selectManualReceiveAddress,
-    selectManualReceiveAddressIsValidating,
-    selectManualReceiveAddressIsEditing,
-    selectManualReceiveAddressIsValid,
+    selectIsManualReceiveAddressValidating,
+    selectIsManualReceiveAddressEditing,
+    selectIsManualReceiveAddressValid,
     selectInputSellAmountUsd,
     selectInputSellAmountUserCurrency,
     selectSellAssetBalanceCryptoBaseUnit,

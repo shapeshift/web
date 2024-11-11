@@ -5,10 +5,10 @@ import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hook
 import { useReceiveAddress } from 'components/MultiHopTrade/hooks/useReceiveAddress'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
+  selectIsManualReceiveAddressEditing,
+  selectIsManualReceiveAddressValid,
+  selectIsManualReceiveAddressValidating,
   selectManualReceiveAddress,
-  selectManualReceiveAddressIsEditing,
-  selectManualReceiveAddressIsValid,
-  selectManualReceiveAddressIsValidating,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
@@ -28,9 +28,9 @@ export const useLimitOrderRecipientAddress = ({
   const dispatch = useAppDispatch()
 
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
-  const isManualReceiveAddressValid = useAppSelector(selectManualReceiveAddressIsValid)
-  const isManualReceiveAddressEditing = useAppSelector(selectManualReceiveAddressIsEditing)
-  const isManualReceiveAddressValidating = useAppSelector(selectManualReceiveAddressIsValidating)
+  const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)
+  const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
+  const isManualReceiveAddressValidating = useAppSelector(selectIsManualReceiveAddressValidating)
 
   const { walletReceiveAddress, isLoading: isWalletReceiveAddressLoading } = useReceiveAddress({
     sellAccountId,
@@ -43,40 +43,40 @@ export const useLimitOrderRecipientAddress = ({
   }, [dispatch])
 
   const handleEditManualReceiveAddress = useCallback(() => {
-    dispatch(limitOrderInput.actions.setManualReceiveAddressIsEditing(true))
+    dispatch(limitOrderInput.actions.setIsManualReceiveAddressEditing(true))
   }, [dispatch])
 
   const handleCancelManualReceiveAddress = useCallback(() => {
-    dispatch(limitOrderInput.actions.setManualReceiveAddressIsEditing(false))
+    dispatch(limitOrderInput.actions.setIsManualReceiveAddressEditing(false))
     // Reset form value and valid state on cancel so the valid check doesn't wrongly evaluate to false after bailing out of editing an invalid address
-    dispatch(limitOrderInput.actions.setManualReceiveAddressIsValid(undefined))
+    dispatch(limitOrderInput.actions.setIsManualReceiveAddressValid(undefined))
   }, [dispatch])
 
   const handleResetManualReceiveAddress = useCallback(() => {
     // Reset the manual receive address in store
     dispatch(limitOrderInput.actions.setManualReceiveAddress(undefined))
     // Reset the valid state in store
-    dispatch(limitOrderInput.actions.setManualReceiveAddressIsValid(undefined))
+    dispatch(limitOrderInput.actions.setIsManualReceiveAddressValid(undefined))
   }, [dispatch])
 
   const handleSubmitManualReceiveAddress = useCallback(
     (address: string) => {
       dispatch(limitOrderInput.actions.setManualReceiveAddress(address))
-      dispatch(limitOrderInput.actions.setManualReceiveAddressIsEditing(false))
+      dispatch(limitOrderInput.actions.setIsManualReceiveAddressEditing(false))
     },
     [dispatch],
   )
 
   const handleIsManualReceiveAddressValidatingChange = useCallback(
     (isValidating: boolean) => {
-      dispatch(limitOrderInput.actions.setManualReceiveAddressIsValidating(isValidating))
+      dispatch(limitOrderInput.actions.setIsManualReceiveAddressValidating(isValidating))
     },
     [dispatch],
   )
 
   const handleIsManualReceiveAddressValidChange = useCallback(
     (isValid: boolean) => {
-      dispatch(limitOrderInput.actions.setManualReceiveAddressIsValid(isValid))
+      dispatch(limitOrderInput.actions.setIsManualReceiveAddressValid(isValid))
     },
     [dispatch],
   )

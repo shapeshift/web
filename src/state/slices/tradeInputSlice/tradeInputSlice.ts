@@ -10,14 +10,14 @@ type TradeInputState = TradeInputBaseState
 const initialState: TradeInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
   sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
-  sellAssetAccountId: undefined,
-  buyAssetAccountId: undefined,
+  sellAccountId: undefined,
+  buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
   isInputtingFiatSellAmount: false,
   manualReceiveAddress: undefined,
-  manualReceiveAddressIsValidating: false,
-  manualReceiveAddressIsValid: undefined,
-  manualReceiveAddressIsEditing: false,
+  isManualReceiveAddressValidating: false,
+  isManualReceiveAddressValid: undefined,
+  isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
 }
 

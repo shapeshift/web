@@ -20,14 +20,14 @@ export const useAccountIds = (): {
 
   const setSellAssetAccountId = useCallback(
     (accountId: AccountId | undefined) => {
-      dispatch(tradeInput.actions.setSellAssetAccountId(accountId))
+      dispatch(tradeInput.actions.setSellAccountId(accountId))
     },
     [dispatch],
   )
 
   const setBuyAssetAccountId = useCallback(
     (accountId: AccountId | undefined) => {
-      dispatch(tradeInput.actions.setBuyAssetAccountId(accountId))
+      dispatch(tradeInput.actions.setBuyAccountId(accountId))
     },
     [dispatch],
   )

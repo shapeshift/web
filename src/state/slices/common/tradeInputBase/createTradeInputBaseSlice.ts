@@ -7,14 +7,14 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 export interface TradeInputBaseState {
   buyAsset: Asset
   sellAsset: Asset
-  sellAssetAccountId: AccountId | undefined
-  buyAssetAccountId: AccountId | undefined
+  sellAccountId: AccountId | undefined
+  buyAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
   isInputtingFiatSellAmount: boolean
   manualReceiveAddress: string | undefined
-  manualReceiveAddressIsValidating: boolean
-  manualReceiveAddressIsEditing: boolean
-  manualReceiveAddressIsValid: boolean | undefined
+  isManualReceiveAddressValidating: boolean
+  isManualReceiveAddressEditing: boolean
+  isManualReceiveAddressValid: boolean | undefined
   slippagePreferencePercentage: string | undefined
 }
 
@@ -57,7 +57,7 @@ export function createTradeInputBaseSlice<
         }
 
         if (asset.chainId !== state.buyAsset.chainId) {
-          state.buyAssetAccountId = undefined
+          state.buyAccountId = undefined
         }
 
         state.manualReceiveAddress = undefined
@@ -74,17 +74,17 @@ export function createTradeInputBaseSlice<
         state.sellAmountCryptoPrecision = '0'
 
         if (asset.chainId !== state.sellAsset.chainId) {
-          state.sellAssetAccountId = undefined
+          state.sellAccountId = undefined
         }
 
         state.manualReceiveAddress = undefined
         state.sellAsset = action.payload
       },
-      setSellAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
-        state.sellAssetAccountId = action.payload
+      setSellAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
+        state.sellAccountId = action.payload
       },
-      setBuyAssetAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
-        state.buyAssetAccountId = action.payload
+      setBuyAccountId: (state, action: PayloadAction<AccountId | undefined>) => {
+        state.buyAccountId = action.payload
       },
       setSellAmountCryptoPrecision: (state, action: PayloadAction<string>) => {
         state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
@@ -95,23 +95,23 @@ export function createTradeInputBaseSlice<
         state.buyAsset = buyAsset
         state.sellAmountCryptoPrecision = '0'
 
-        const sellAssetAccountId = state.sellAssetAccountId
-        state.sellAssetAccountId = state.buyAssetAccountId
-        state.buyAssetAccountId = sellAssetAccountId
+        const sellAssetAccountId = state.sellAccountId
+        state.sellAccountId = state.buyAccountId
+        state.buyAccountId = sellAssetAccountId
 
         state.manualReceiveAddress = undefined
       },
       setManualReceiveAddress: (state, action: PayloadAction<string | undefined>) => {
         state.manualReceiveAddress = action.payload
       },
-      setManualReceiveAddressIsValidating: (state, action: PayloadAction<boolean>) => {
-        state.manualReceiveAddressIsValidating = action.payload
+      setIsManualReceiveAddressValidating: (state, action: PayloadAction<boolean>) => {
+        state.isManualReceiveAddressValidating = action.payload
       },
-      setManualReceiveAddressIsEditing: (state, action: PayloadAction<boolean>) => {
-        state.manualReceiveAddressIsEditing = action.payload
+      setIsManualReceiveAddressEditing: (state, action: PayloadAction<boolean>) => {
+        state.isManualReceiveAddressEditing = action.payload
       },
-      setManualReceiveAddressIsValid: (state, action: PayloadAction<boolean | undefined>) => {
-        state.manualReceiveAddressIsValid = action.payload
+      setIsManualReceiveAddressValid: (state, action: PayloadAction<boolean | undefined>) => {
+        state.isManualReceiveAddressValid = action.payload
       },
       setIsInputtingFiatSellAmount: (state, action: PayloadAction<boolean>) => {
         state.isInputtingFiatSellAmount = action.payload

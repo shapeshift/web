@@ -26,9 +26,9 @@ import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectManualReceiveAddressIsEditing,
-  selectManualReceiveAddressIsValid,
-  selectManualReceiveAddressIsValidating,
+  selectIsManualReceiveAddressEditing,
+  selectIsManualReceiveAddressValid,
+  selectIsManualReceiveAddressValidating,
 } from 'state/slices/selectors'
 import {
   selectActiveQuote,
@@ -83,9 +83,9 @@ export const ConfirmSummary = ({
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const isManualReceiveAddressValidating = useAppSelector(selectManualReceiveAddressIsValidating)
-  const isManualReceiveAddressEditing = useAppSelector(selectManualReceiveAddressIsEditing)
-  const isManualReceiveAddressValid = useAppSelector(selectManualReceiveAddressIsValid)
+  const isManualReceiveAddressValidating = useAppSelector(selectIsManualReceiveAddressValidating)
+  const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
+  const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)

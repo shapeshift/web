@@ -92,8 +92,8 @@ export const LimitOrderInput = ({
     switchAssets,
     setSellAsset,
     setBuyAsset,
-    setSellAssetAccountId,
-    setBuyAssetAccountId,
+    setSellAccountId,
+    setBuyAccountId,
     setLimitPriceBuyAsset,
     setSlippagePreferencePercentage,
     setIsInputtingFiatSellAmount,
@@ -281,14 +281,14 @@ export const LimitOrderInput = ({
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}
-        setSellAccountId={setSellAssetAccountId}
+        setSellAccountId={setSellAccountId}
       >
         <Stack>
           <LimitOrderBuyAsset
             asset={buyAsset}
             accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            onAccountIdChange={setBuyAssetAccountId}
+            onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
           />
           <Divider />
@@ -315,12 +315,12 @@ export const LimitOrderInput = ({
     sellAmountCryptoPrecision,
     sellAsset,
     setBuyAsset,
-    setBuyAssetAccountId,
+    setBuyAccountId,
     setIsInputtingFiatSellAmount,
     setLimitPriceBuyAsset,
     setSellAmountCryptoPrecision,
     setSellAsset,
-    setSellAssetAccountId,
+    setSellAccountId,
     switchAssets,
   ])
 

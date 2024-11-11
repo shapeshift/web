@@ -22,6 +22,8 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
+  selectInputSellAmountUsd,
+  selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectLimitPriceBuyAsset,
   selectSellAccountId,
@@ -30,7 +32,6 @@ import {
 import {
   selectInputBuyAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
-  selectMarketDataByAssetIdUserCurrency,
   selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
@@ -120,21 +121,8 @@ export const LimitOrderInput = ({
     [isSnapshotApiQueriesPending, votingPower],
   )
 
-  const sellAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId),
-  )
-
-  const sellAmountUserCurrency = useMemo(() => {
-    return bnOrZero(sellAmountCryptoPrecision)
-      .times(sellAssetMarketDataUserCurrency.price)
-      .toFixed()
-  }, [sellAssetMarketDataUserCurrency.price, sellAmountCryptoPrecision])
-
-  const sellAmountUsd = useMemo(() => {
-    return bnOrZero(sellAmountCryptoPrecision)
-      .times(sellAssetUsdRate ?? '0')
-      .toFixed()
-  }, [sellAmountCryptoPrecision, sellAssetUsdRate])
+  const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+  const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -338,7 +326,7 @@ export const LimitOrderInput = ({
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={sellAmountUserCurrency}
+        sellAmountUserCurrency={inputSellAmountUserCurrency}
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         handleSwitchAssets={handleSwitchAssets}
@@ -376,7 +364,7 @@ export const LimitOrderInput = ({
     marketPriceBuyAsset,
     sellAccountId,
     sellAmountCryptoPrecision,
-    sellAmountUserCurrency,
+    inputSellAmountUserCurrency,
     sellAsset,
     handleSetBuyAccountId,
     handleSetBuyAsset,
@@ -387,7 +375,7 @@ export const LimitOrderInput = ({
   ])
 
   const { feeUsd } = useAppSelector(state =>
-    selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: sellAmountUsd }),
+    selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: inputSellAmountUsd }),
   )
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
@@ -401,7 +389,7 @@ export const LimitOrderInput = ({
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
-        inputAmountUsd={sellAmountUsd}
+        inputAmountUsd={inputSellAmountUsd}
         isError={Boolean(error)}
         isLoading={isLoading}
         quoteStatusTranslation={'limitOrder.previewOrder'}
@@ -422,7 +410,7 @@ export const LimitOrderInput = ({
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
     hasUserEnteredAmount,
-    sellAmountUsd,
+    inputSellAmountUsd,
     error,
     isLoading,
     limitPriceBuyAsset,

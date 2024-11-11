@@ -22,8 +22,8 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import {
-  selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,
+  selectIsVotingPowerLoading,
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
@@ -165,13 +165,9 @@ export const useGetTradeQuotes = () => {
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain

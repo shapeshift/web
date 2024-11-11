@@ -15,15 +15,8 @@ import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
-import {
-  selectCalculatedFees,
-  selectIsSnapshotApiQueriesPending,
-  selectIsSnapshotApiQueriesRejected,
-  selectVotingPower,
-} from 'state/apis/snapshot/selectors'
+import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
@@ -37,7 +30,6 @@ import {
 import {
   selectInputBuyAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
-  selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import {
@@ -55,9 +47,6 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
-
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
 type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
@@ -86,6 +75,15 @@ export const LimitOrderInput = ({
   const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
+  const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+  const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
+
+  const feeParams = useMemo(
+    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
+    [inputSellAmountUsd],
+  )
+
+  const { feeUsd, feeBps } = useAppSelector(state => selectCalculatedFees(state, feeParams))
 
   const defaultSlippagePercentage = useMemo(() => {
     return bn(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap))
@@ -105,12 +103,8 @@ export const LimitOrderInput = ({
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = true
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -120,13 +114,7 @@ export const LimitOrderInput = ({
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
 
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
-
-  const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
-  const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -210,28 +198,6 @@ export const LimitOrderInput = ({
     return fromAccountId(sellAccountId).account as Address
   }, [sellAccountId])
 
-  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
-
-  const affiliateBps = useMemo(() => {
-    const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
-
-    const { feeBps } = calculateFees({
-      tradeAmountUsd,
-      foxHeld: bnOrZero(votingPower),
-      thorHeld: bnOrZero(thorVotingPower),
-      feeModel: 'SWAPPER',
-      isSnapshotApiQueriesRejected,
-    })
-
-    return feeBps.toFixed(0)
-  }, [
-    isSnapshotApiQueriesRejected,
-    sellAmountCryptoPrecision,
-    sellAssetUsdRate,
-    thorVotingPower,
-    votingPower,
-  ])
-
   const limitOrderQuoteParams = useMemo(() => {
     // Return skipToken if any required params are missing
     if (bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
@@ -245,7 +211,7 @@ export const LimitOrderInput = ({
       slippageTolerancePercentageDecimal: bn(userSlippagePercentage ?? defaultSlippagePercentage)
         .div(100)
         .toString(),
-      affiliateBps,
+      affiliateBps: feeBps.toFixed(0),
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
@@ -257,7 +223,7 @@ export const LimitOrderInput = ({
     buyAsset.assetId,
     userSlippagePercentage,
     defaultSlippagePercentage,
-    affiliateBps,
+    feeBps,
     sellAccountAddress,
     recipientAddress,
   ])
@@ -387,13 +353,6 @@ export const LimitOrderInput = ({
     handleSwitchAssets,
   ])
 
-  const feeParams = useMemo(
-    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
-    [inputSellAmountUsd],
-  )
-
-  const { feeUsd } = useAppSelector(state => selectCalculatedFees(state, feeParams))
-
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
     return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)
   }, [feeUsd, userCurrencyRate])
@@ -401,7 +360,7 @@ export const LimitOrderInput = ({
   const footerContent = useMemo(() => {
     return (
       <SharedTradeInputFooter
-        affiliateBps={affiliateBps}
+        affiliateBps={feeBps.toFixed(0)}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
@@ -422,7 +381,7 @@ export const LimitOrderInput = ({
       </SharedTradeInputFooter>
     )
   }, [
-    affiliateBps,
+    feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
     hasUserEnteredAmount,

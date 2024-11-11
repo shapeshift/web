@@ -23,12 +23,11 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -60,7 +59,6 @@ import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const emptyPercentOptions: number[] = []
 const formControlProps = {
   borderRadius: 0,
@@ -104,13 +102,11 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -133,10 +129,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const isLoading = useMemo(
     () =>

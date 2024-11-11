@@ -26,6 +26,7 @@ import {
   selectLimitPriceBuyAsset,
   selectSellAccountId,
   selectUserSlippagePercentage,
+  selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import {
   selectInputBuyAsset,
@@ -69,6 +70,7 @@ export const LimitOrderInput = ({
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
 
+  const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -85,11 +87,12 @@ export const LimitOrderInput = ({
 
   const { feeUsd, feeBps } = useAppSelector(state => selectCalculatedFees(state, feeParams))
 
-  const defaultSlippagePercentage = useMemo(() => {
-    return bn(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap))
-      .times(100)
-      .toString()
+  const defaultSlippagePercentageDecimal = useMemo(() => {
+    return getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
   }, [])
+  const defaultSlippagePercentage = useMemo(() => {
+    return bn(defaultSlippagePercentageDecimal).times(100).toString()
+  }, [defaultSlippagePercentageDecimal])
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -208,9 +211,8 @@ export const LimitOrderInput = ({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
-      slippageTolerancePercentageDecimal: bn(userSlippagePercentage ?? defaultSlippagePercentage)
-        .div(100)
-        .toString(),
+      slippageTolerancePercentageDecimal:
+        userSlippagePercentageDecimal ?? defaultSlippagePercentageDecimal,
       affiliateBps: feeBps.toFixed(0),
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
@@ -221,8 +223,8 @@ export const LimitOrderInput = ({
     sellAsset.assetId,
     sellAsset.chainId,
     buyAsset.assetId,
-    userSlippagePercentage,
-    defaultSlippagePercentage,
+    userSlippagePercentageDecimal,
+    defaultSlippagePercentageDecimal,
     feeBps,
     sellAccountAddress,
     recipientAddress,

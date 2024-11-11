@@ -142,14 +142,14 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      (walletId && !isAnyAccountMetadataLoadedForChainId) ||
+      Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading ||
-      (walletId && isWalletReceiveAddressLoading),
+      Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
       isAnyAccountMetadataLoadedForChainId,

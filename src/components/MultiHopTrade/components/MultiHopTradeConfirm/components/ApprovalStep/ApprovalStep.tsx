@@ -33,6 +33,9 @@ export const ApprovalStep = ({
   isLoading,
   activeTradeId,
 }: ApprovalStepProps) => {
+  // DO NOT REMOVE ME. Fetches and upserts permit2 quotes at pre-permit2-signing time
+  useGetTradeQuotes()
+
   const translate = useTranslate()
 
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -61,10 +64,6 @@ export const ApprovalStep = ({
       hopIndex,
       activeTradeId,
     })
-
-  // TODO: permit2 quotes at pre-signing time
-  const test = useGetTradeQuotes()
-  console.log({ test })
 
   const { content: permit2Content, description: permit2Description } = usePermit2Content({
     tradeQuoteStep,

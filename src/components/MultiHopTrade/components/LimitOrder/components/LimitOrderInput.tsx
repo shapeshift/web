@@ -1,6 +1,6 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
@@ -21,7 +21,10 @@ import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
-import { selectUserSlippagePercentage } from 'state/slices/limitOrderInputSlice/selectors'
+import {
+  selectInputSellAsset,
+  selectUserSlippagePercentage,
+} from 'state/slices/limitOrderInputSlice/selectors'
 import {
   selectFirstAccountIdByChainId,
   selectIsAnyAccountMetadataLoadedForChainId,
@@ -72,7 +75,7 @@ export const LimitOrderInput = ({
   const { showErrorToast } = useErrorHandler()
 
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
-  const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
   const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
 
@@ -140,20 +143,14 @@ export const LimitOrderInput = ({
   }, [])
 
   const handleSwitchAssets = useCallback(() => {
-    setSellAsset(buyAsset)
-    setBuyAsset(sellAsset)
-    setSellAmountCryptoPrecision('0')
-  }, [buyAsset, sellAsset])
+    dispatch(limitOrderInput.actions.switchAssets())
+  }, [dispatch])
 
   const handleSetSellAsset = useCallback(
     (newSellAsset: Asset) => {
-      if (newSellAsset === sellAsset) {
-        handleSwitchAssets()
-        return
-      }
-      setSellAsset(newSellAsset)
+      dispatch(limitOrderInput.actions.setSellAsset(newSellAsset))
     },
-    [handleSwitchAssets, sellAsset],
+    [dispatch],
   )
 
   const handleSetBuyAsset = useCallback(

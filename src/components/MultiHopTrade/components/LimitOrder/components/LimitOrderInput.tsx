@@ -20,9 +20,12 @@ import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/sna
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
+  selectHasUserEnteredAmount,
+  selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
+  selectIsInputtingFiatSellAmount,
   selectLimitPriceBuyAsset,
   selectSellAccountId,
   selectUserSlippagePercentage,
@@ -79,6 +82,13 @@ export const LimitOrderInput = ({
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
+  const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
+  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
+  const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -101,14 +111,9 @@ export const LimitOrderInput = ({
       sellAccountId,
     })
 
-  const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
-  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
-  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
-  const hasUserEnteredAmount = true
-  const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
+
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -116,8 +121,6 @@ export const LimitOrderInput = ({
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
-
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
@@ -289,6 +292,20 @@ export const LimitOrderInput = ({
     [dispatch],
   )
 
+  const handleSetIsInputtingFiatSellAmount = useCallback(
+    (isInputtingFiatSellAmount: boolean) => {
+      dispatch(limitOrderInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+    },
+    [dispatch],
+  )
+
+  const handleSetSellAmountCryptoPrecision = useCallback(
+    (sellAmountCryptoPrecision: string) => {
+      dispatch(limitOrderInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+    },
+    [dispatch],
+  )
+
   const headerRightContent = useMemo(() => {
     return (
       <SharedSlippagePopover
@@ -311,8 +328,8 @@ export const LimitOrderInput = ({
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         handleSwitchAssets={handleSwitchAssets}
-        onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
-        onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
+        onChangeIsInputtingFiatSellAmount={handleSetIsInputtingFiatSellAmount}
+        onChangeSellAmountCryptoPrecision={handleSetSellAmountCryptoPrecision}
         setSellAsset={handleSetSellAsset}
         setSellAccountId={handleSetSellAccountId}
       >
@@ -339,18 +356,20 @@ export const LimitOrderInput = ({
   }, [
     buyAccountId,
     buyAsset,
+    inputSellAmountUserCurrency,
     isInputtingFiatSellAmount,
     isLoading,
     limitPriceBuyAsset,
     marketPriceBuyAsset,
     sellAccountId,
     sellAmountCryptoPrecision,
-    inputSellAmountUserCurrency,
     sellAsset,
+    handleSetIsInputtingFiatSellAmount,
     handleSetBuyAccountId,
     handleSetBuyAsset,
     handleSetLimitPriceBuyAsset,
     handleSetSellAccountId,
+    handleSetSellAmountCryptoPrecision,
     handleSetSellAsset,
     handleSwitchAssets,
   ])

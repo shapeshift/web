@@ -20,6 +20,8 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
+import { selectUserSlippagePercentage } from 'state/slices/limitOrderInputSlice/selectors'
 import {
   selectFirstAccountIdByChainId,
   selectIsAnyAccountMetadataLoadedForChainId,
@@ -33,7 +35,7 @@ import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopover'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -63,12 +65,13 @@ export const LimitOrderInput = ({
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet },
   } = useWallet()
+  const dispatch = useAppDispatch()
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
 
-  const [userSlippagePercentage, setUserSlippagePercentage] = useState<string | undefined>()
+  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
   const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
   const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
@@ -297,16 +300,23 @@ export const LimitOrderInput = ({
     shouldShowTradeQuoteOrAwaitInput,
   ])
 
+  const handleSetUserSlippagePercentage = useCallback(
+    (slippagePercentage: string | undefined) => {
+      dispatch(limitOrderInput.actions.setSlippagePreferencePercentage(slippagePercentage))
+    },
+    [dispatch],
+  )
+
   const headerRightContent = useMemo(() => {
     return (
       <SharedSlippagePopover
         defaultSlippagePercentage={defaultSlippagePercentage}
         quoteSlippagePercentage={undefined} // No slippage returned by CoW
         userSlippagePercentage={userSlippagePercentage}
-        setUserSlippagePercentage={setUserSlippagePercentage}
+        setUserSlippagePercentage={handleSetUserSlippagePercentage}
       />
     )
-  }, [defaultSlippagePercentage, userSlippagePercentage])
+  }, [defaultSlippagePercentage, handleSetUserSlippagePercentage, userSlippagePercentage])
 
   const bodyContent = useMemo(() => {
     return (

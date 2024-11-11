@@ -865,7 +865,7 @@
     "receiveInclFee": "Erhalten (inkl. Gebühren)",
     "approvingAsset": "%{symbol} wird genehmigt",
     "viewTransaction": "Transaktion anzeigen",
-    "availableQuotes": "Verfügbare Angebote",
+    "availableSwappers": "Verfügbare Angebote",
     "unlimited": "Unbegrenzt",
     "streamStatus": "Stream Status",
     "swapsFailed": "%{failedSwaps} Tausche sind fehlgeschlagen",

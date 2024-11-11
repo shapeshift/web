@@ -260,8 +260,8 @@ export const validateTradeQuote = (
           ).getDisplayName(),
         },
       },
-      !walletSupportsIntermediaryAssetChain &&
-        quoteOrRate === 'quote' &&
+      walletId &&
+        !walletSupportsIntermediaryAssetChain &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -269,9 +269,8 @@ export const validateTradeQuote = (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
-      walletId !== undefined &&
-        !firstHopHasSufficientBalanceForGas &&
-        quoteOrRate === 'rate' && {
+      walletId &&
+        !firstHopHasSufficientBalanceForGas && {
           error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
             assetSymbol: firstHopSellFeeAsset?.symbol,
@@ -280,9 +279,8 @@ export const validateTradeQuote = (
               : '',
           },
         },
-      walletId !== undefined &&
-        !secondHopHasSufficientBalanceForGas &&
-        quoteOrRate === 'rate' && {
+      walletId &&
+        !secondHopHasSufficientBalanceForGas && {
           error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
           meta: {
             assetSymbol: secondHopSellFeeAsset?.symbol,

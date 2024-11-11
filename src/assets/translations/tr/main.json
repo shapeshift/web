@@ -865,7 +865,7 @@
     "receiveInclFee": "Al (ücretler dahil)",
     "approvingAsset": "%{symbol} onaylanıyor",
     "viewTransaction": "İşlemi Görüntüle",
-    "availableQuotes": "Mevcut Fiyat Teklifleri",
+    "availableSwappers": "Mevcut Fiyat Teklifleri",
     "unlimited": "Limitsiz",
     "streamStatus": "Yayın Durumu",
     "swapsFailed": "%{failedSwaps} takas başarısız oldu",

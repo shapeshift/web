@@ -865,7 +865,7 @@
     "receiveInclFee": "Receba (incluindo taxas)",
     "approvingAsset": "Aprovando %{symbol}",
     "viewTransaction": "Ver transação",
-    "availableQuotes": "Cotações disponíveis",
+    "availableSwappers": "Cotações disponíveis",
     "unlimited": "Ilimitado",
     "streamStatus": "Status do Stream ",
     "swapsFailed": "%{failedSwaps} swaps falharam",

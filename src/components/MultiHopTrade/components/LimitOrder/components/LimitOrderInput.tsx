@@ -1,6 +1,6 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
@@ -14,12 +14,10 @@ import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { localAssetData } from 'lib/asset-service'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectInputSellAsset,
@@ -27,6 +25,7 @@ import {
 } from 'state/slices/limitOrderInputSlice/selectors'
 import {
   selectFirstAccountIdByChainId,
+  selectInputBuyAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectUsdRateByAssetId,
@@ -76,7 +75,7 @@ export const LimitOrderInput = ({
 
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
-  const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
   const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
 
   const defaultAccountId = useAppSelector(state =>
@@ -155,13 +154,9 @@ export const LimitOrderInput = ({
 
   const handleSetBuyAsset = useCallback(
     (newBuyAsset: Asset) => {
-      if (newBuyAsset === buyAsset) {
-        handleSwitchAssets()
-        return
-      }
-      setBuyAsset(newBuyAsset)
+      dispatch(limitOrderInput.actions.setBuyAsset(newBuyAsset))
     },
-    [buyAsset, handleSwitchAssets],
+    [dispatch],
   )
 
   const handleConnect = useCallback(() => {

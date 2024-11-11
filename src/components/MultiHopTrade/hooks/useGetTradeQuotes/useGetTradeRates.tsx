@@ -189,8 +189,6 @@ export const useGetTradeRates = () => {
     }
     ;(async () => {
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
-      const receiveAssetBip44Params = receiveAccountMetadata?.bip44Params
-      const receiveAccountNumber = receiveAssetBip44Params?.accountNumber
 
       const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
 
@@ -207,7 +205,6 @@ export const useGetTradeRates = () => {
       const updatedTradeRateInput = (await getTradeQuoteInput({
         sellAsset,
         sellAccountNumber,
-        receiveAccountNumber,
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,

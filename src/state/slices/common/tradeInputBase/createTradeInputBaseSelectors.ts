@@ -29,9 +29,11 @@ import type { TradeInputBaseState } from './createTradeInputBaseSlice'
  * @param sliceName - The name of the Redux slice to create selectors for
  * @returns An object containing all the generated selectors
  */
-export const createTradeInputBaseSelectors = (sliceName: keyof ReduxState) => {
+export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
+  sliceName: keyof ReduxState,
+) => {
   // Base selector to get the slice
-  const selectBaseSlice = (state: ReduxState) => state[sliceName] as TradeInputBaseState
+  const selectBaseSlice = (state: ReduxState) => state[sliceName] as T
 
   // Create reusable selectors
   const selectInputBuyAsset = createDeepEqualOutputSelector(

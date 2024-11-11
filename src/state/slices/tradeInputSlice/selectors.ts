@@ -13,7 +13,6 @@ import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
 // Shared selectors from the base trade input slice that handle common functionality like input
 // assets, rates, and slippage preferences
 export const {
-  selectBaseSlice,
   selectInputBuyAsset,
   selectInputSellAsset,
   selectInputSellAssetUsdRate,
@@ -37,13 +36,15 @@ export const {
   ...privateSelectors
 } = createTradeInputBaseSelectors('tradeInput')
 
+const { selectSellAccountId, selectBuyAccountId } = privateSelectors
+
 // We rename this to include the specific hop to avoid confusion in multi-hop contexts
 // Selects the account ID we're selling from for the first hop
-export const selectFirstHopSellAccountId = privateSelectors.selectSellAccountId
+export const selectFirstHopSellAccountId = selectSellAccountId
 
 // We rename this to include the specific hop to avoid confusion in multi-hop contexts
 // Selects the account ID we're buying into for the last hop
-export const selectLastHopBuyAccountId = privateSelectors.selectBuyAccountId
+export const selectLastHopBuyAccountId = selectBuyAccountId
 
 // All the below selectors are re-declared from tradeQuoteSlice/selectors to avoid circular deps
 // and allow selectSecondHopSellAccountId to keep a pwetty API

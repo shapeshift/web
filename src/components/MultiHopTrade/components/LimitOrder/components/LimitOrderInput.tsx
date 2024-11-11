@@ -21,6 +21,7 @@ import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectInputSellAsset,
+  selectLimitPriceBuyAsset,
   selectUserSlippagePercentage,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import {
@@ -75,9 +76,7 @@ export const LimitOrderInput = ({
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-
-  // TODO: Move to redux slice
-  const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
+  const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
 
   const defaultAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset.chainId),
@@ -271,8 +270,15 @@ export const LimitOrderInput = ({
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
-    setLimitPriceBuyAsset(marketPriceBuyAsset)
-  }, [marketPriceBuyAsset])
+    dispatch(limitOrderInput.actions.setLimitPriceBuyAsset(marketPriceBuyAsset))
+  }, [dispatch, marketPriceBuyAsset])
+
+  const handleSetLimitPriceBuyAsset = useCallback(
+    (newMarketPriceBuyAsset: string) => {
+      dispatch(limitOrderInput.actions.setLimitPriceBuyAsset(newMarketPriceBuyAsset))
+    },
+    [dispatch],
+  )
 
   const isLoading = useMemo(() => {
     return (
@@ -344,7 +350,7 @@ export const LimitOrderInput = ({
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
             limitPriceBuyAsset={limitPriceBuyAsset}
-            setLimitPriceBuyAsset={setLimitPriceBuyAsset}
+            setLimitPriceBuyAsset={handleSetLimitPriceBuyAsset}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -361,6 +367,7 @@ export const LimitOrderInput = ({
     sellAmountUserCurrency,
     sellAsset,
     handleSetBuyAsset,
+    handleSetLimitPriceBuyAsset,
     handleSetSellAsset,
     handleSwitchAssets,
   ])

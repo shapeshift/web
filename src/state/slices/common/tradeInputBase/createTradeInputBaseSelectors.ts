@@ -1,9 +1,22 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
+import {
+  selectEnabledWalletAccountIds,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from '../../common-selectors'
 import { selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectPortfolioAccountMetadata,
+  selectPortfolioAssetAccountBalancesSortedUserCurrency,
+} from '../../portfolioSlice/selectors'
+import {
+  getFirstAccountIdByChainId,
+  getHighestUserCurrencyBalanceAccountByAssetId,
+} from '../../portfolioSlice/utils'
 import type { TradeInputBaseState } from './createTradeInputBaseSlice'
 
 /**
@@ -81,6 +94,137 @@ export const createTradeInputBaseSelectors = (sliceName: keyof ReduxState) => {
     },
   )
 
+  // selects the account ID we're selling from
+  const selectSellAccountId = createSelector(
+    selectBaseSlice,
+    selectInputSellAsset,
+    selectPortfolioAssetAccountBalancesSortedUserCurrency,
+    selectEnabledWalletAccountIds,
+    (baseSlice, sellAsset, accountIdAssetValues, accountIds) => {
+      // return the users selection if it exists
+      if (baseSlice.sellAssetAccountId) return baseSlice.sellAssetAccountId
+
+      const highestFiatBalanceSellAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
+        accountIdAssetValues,
+        sellAsset.assetId,
+      )
+      const firstSellAssetAccountId = getFirstAccountIdByChainId(accountIds, sellAsset.chainId)
+
+      // otherwise return a sane default
+      return highestFiatBalanceSellAccountId ?? firstSellAssetAccountId
+    },
+  )
+
+  // selects the account ID we're buying into
+  const selectBuyAccountId = createSelector(
+    selectBaseSlice,
+    selectInputBuyAsset,
+    selectEnabledWalletAccountIds,
+    selectAccountIdByAccountNumberAndChainId,
+    selectSellAccountId,
+    selectPortfolioAccountMetadata,
+    (
+      baseSlice,
+      buyAsset,
+      accountIds,
+      accountIdByAccountNumberAndChainId,
+      firstHopSellAccountId,
+      accountMetadata,
+    ) => {
+      // return the users selection if it exists
+      if (baseSlice.buyAssetAccountId) {
+        return baseSlice.buyAssetAccountId
+      }
+
+      // maybe convert the account id to an account number
+      const maybeMatchingBuyAccountNumber = firstHopSellAccountId
+        ? accountMetadata[firstHopSellAccountId]?.bip44Params.accountNumber
+        : undefined
+
+      // maybe convert account number to account id on the buy asset chain
+      const maybeMatchingBuyAccountId = maybeMatchingBuyAccountNumber
+        ? accountIdByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[buyAsset.chainId]
+        : undefined
+
+      // an AccountId was found matching the sell asset's account number and chainId, return it
+      if (maybeMatchingBuyAccountId) {
+        return maybeMatchingBuyAccountId
+      }
+
+      // otherwise return a sane default
+      return getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
+    },
+  )
+
+  const selectInputSellAmountCryptoPrecision = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.sellAmountCryptoPrecision,
+  )
+
+  const selectInputSellAmountCryptoBaseUnit = createSelector(
+    selectInputSellAmountCryptoPrecision,
+    selectInputSellAsset,
+    (sellAmountCryptoPrecision, sellAsset) =>
+      toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision),
+  )
+
+  const selectManualReceiveAddress = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.manualReceiveAddress,
+  )
+
+  const selectManualReceiveAddressIsValidating = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.manualReceiveAddressIsValidating,
+  )
+
+  const selectManualReceiveAddressIsEditing = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.manualReceiveAddressIsEditing,
+  )
+
+  const selectManualReceiveAddressIsValid = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.manualReceiveAddressIsValid,
+  )
+
+  const selectInputSellAmountUsd = createSelector(
+    selectInputSellAmountCryptoPrecision,
+    selectInputSellAssetUsdRate,
+    (sellAmountCryptoPrecision, sellAssetUsdRate) => {
+      if (!sellAssetUsdRate) return
+      return bn(sellAmountCryptoPrecision).times(sellAssetUsdRate).toFixed()
+    },
+  )
+
+  const selectInputSellAmountUserCurrency = createSelector(
+    selectInputSellAmountCryptoPrecision,
+    selectInputSellAssetUserCurrencyRate,
+    (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
+      if (!sellAssetUserCurrencyRate) return
+      return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
+    },
+  )
+
+  const selectSellAssetBalanceCryptoBaseUnit = createSelector(
+    (state: ReduxState) =>
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+        accountId: selectSellAccountId(state),
+        assetId: selectInputSellAsset(state).assetId,
+      }),
+    sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
+  )
+
+  const selectIsInputtingFiatSellAmount = createSelector(
+    selectBaseSlice,
+    baseSlice => baseSlice.isInputtingFiatSellAmount,
+  )
+
+  const selectHasUserEnteredAmount = createSelector(
+    selectInputSellAmountCryptoPrecision,
+    sellAmountCryptoPrecision => bnOrZero(sellAmountCryptoPrecision).gt(0),
+  )
+
   return {
     selectBaseSlice,
     selectInputBuyAsset,
@@ -91,5 +235,18 @@ export const createTradeInputBaseSelectors = (sliceName: keyof ReduxState) => {
     selectInputBuyAssetUserCurrencyRate,
     selectUserSlippagePercentage,
     selectUserSlippagePercentageDecimal,
+    selectSellAccountId,
+    selectBuyAccountId,
+    selectInputSellAmountCryptoBaseUnit,
+    selectManualReceiveAddress,
+    selectManualReceiveAddressIsValidating,
+    selectManualReceiveAddressIsEditing,
+    selectManualReceiveAddressIsValid,
+    selectInputSellAmountUsd,
+    selectInputSellAmountUserCurrency,
+    selectSellAssetBalanceCryptoBaseUnit,
+    selectIsInputtingFiatSellAmount,
+    selectHasUserEnteredAmount,
+    selectInputSellAmountCryptoPrecision,
   }
 }

@@ -1,9 +1,7 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -13,6 +11,7 @@ import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
@@ -40,7 +39,7 @@ import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopover'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -67,7 +66,6 @@ export const LimitOrderInput = ({
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet },
   } = useWallet()
-  const dispatch = useAppDispatch()
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
@@ -89,6 +87,18 @@ export const LimitOrderInput = ({
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  const {
+    switchAssets,
+    setSellAsset,
+    setBuyAsset,
+    setSellAssetAccountId,
+    setBuyAssetAccountId,
+    setLimitPriceBuyAsset,
+    setSlippagePreferencePercentage,
+    setIsInputtingFiatSellAmount,
+    setSellAmountCryptoPrecision,
+  } = useActions(limitOrderInput.actions)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -127,24 +137,6 @@ export const LimitOrderInput = ({
     return ''
   }, [])
 
-  const handleSwitchAssets = useCallback(() => {
-    dispatch(limitOrderInput.actions.switchAssets())
-  }, [dispatch])
-
-  const handleSetSellAsset = useCallback(
-    (newSellAsset: Asset) => {
-      dispatch(limitOrderInput.actions.setSellAsset(newSellAsset))
-    },
-    [dispatch],
-  )
-
-  const handleSetBuyAsset = useCallback(
-    (newBuyAsset: Asset) => {
-      dispatch(limitOrderInput.actions.setBuyAsset(newBuyAsset))
-    },
-    [dispatch],
-  )
-
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [walletDispatch])
@@ -178,20 +170,6 @@ export const LimitOrderInput = ({
       handleFormSubmit()
     },
     [handleFormSubmit],
-  )
-
-  const handleSetSellAccountId = useCallback(
-    (newSellAccountId: AccountId) => {
-      dispatch(limitOrderInput.actions.setSellAssetAccountId(newSellAccountId))
-    },
-    [dispatch],
-  )
-
-  const handleSetBuyAccountId = useCallback(
-    (newBuyAccountId: AccountId) => {
-      dispatch(limitOrderInput.actions.setBuyAssetAccountId(newBuyAccountId))
-    },
-    [dispatch],
   )
 
   const sellAmountCryptoBaseUnit = useMemo(() => {
@@ -254,15 +232,8 @@ export const LimitOrderInput = ({
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
-    dispatch(limitOrderInput.actions.setLimitPriceBuyAsset(marketPriceBuyAsset))
-  }, [dispatch, marketPriceBuyAsset])
-
-  const handleSetLimitPriceBuyAsset = useCallback(
-    (newMarketPriceBuyAsset: string) => {
-      dispatch(limitOrderInput.actions.setLimitPriceBuyAsset(newMarketPriceBuyAsset))
-    },
-    [dispatch],
-  )
+    setLimitPriceBuyAsset(marketPriceBuyAsset)
+  }, [setLimitPriceBuyAsset, marketPriceBuyAsset])
 
   const isLoading = useMemo(() => {
     return (
@@ -285,37 +256,16 @@ export const LimitOrderInput = ({
     shouldShowTradeQuoteOrAwaitInput,
   ])
 
-  const handleSetUserSlippagePercentage = useCallback(
-    (slippagePercentage: string | undefined) => {
-      dispatch(limitOrderInput.actions.setSlippagePreferencePercentage(slippagePercentage))
-    },
-    [dispatch],
-  )
-
-  const handleSetIsInputtingFiatSellAmount = useCallback(
-    (isInputtingFiatSellAmount: boolean) => {
-      dispatch(limitOrderInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
-    },
-    [dispatch],
-  )
-
-  const handleSetSellAmountCryptoPrecision = useCallback(
-    (sellAmountCryptoPrecision: string) => {
-      dispatch(limitOrderInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
-    },
-    [dispatch],
-  )
-
   const headerRightContent = useMemo(() => {
     return (
       <SharedSlippagePopover
         defaultSlippagePercentage={defaultSlippagePercentage}
         quoteSlippagePercentage={undefined} // No slippage returned by CoW
         userSlippagePercentage={userSlippagePercentage}
-        setUserSlippagePercentage={handleSetUserSlippagePercentage}
+        setUserSlippagePercentage={setSlippagePreferencePercentage}
       />
     )
-  }, [defaultSlippagePercentage, handleSetUserSlippagePercentage, userSlippagePercentage])
+  }, [defaultSlippagePercentage, setSlippagePreferencePercentage, userSlippagePercentage])
 
   const bodyContent = useMemo(() => {
     return (
@@ -327,19 +277,19 @@ export const LimitOrderInput = ({
         sellAmountUserCurrency={inputSellAmountUserCurrency}
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
-        handleSwitchAssets={handleSwitchAssets}
-        onChangeIsInputtingFiatSellAmount={handleSetIsInputtingFiatSellAmount}
-        onChangeSellAmountCryptoPrecision={handleSetSellAmountCryptoPrecision}
-        setSellAsset={handleSetSellAsset}
-        setSellAccountId={handleSetSellAccountId}
+        handleSwitchAssets={switchAssets}
+        onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
+        onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
+        setSellAsset={setSellAsset}
+        setSellAccountId={setSellAssetAccountId}
       >
         <Stack>
           <LimitOrderBuyAsset
             asset={buyAsset}
             accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-            onAccountIdChange={handleSetBuyAccountId}
-            onSetBuyAsset={handleSetBuyAsset}
+            onAccountIdChange={setBuyAssetAccountId}
+            onSetBuyAsset={setBuyAsset}
           />
           <Divider />
           <LimitOrderConfig
@@ -348,7 +298,7 @@ export const LimitOrderInput = ({
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
             limitPriceBuyAsset={limitPriceBuyAsset}
-            setLimitPriceBuyAsset={handleSetLimitPriceBuyAsset}
+            setLimitPriceBuyAsset={setLimitPriceBuyAsset}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -364,14 +314,14 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAmountCryptoPrecision,
     sellAsset,
-    handleSetIsInputtingFiatSellAmount,
-    handleSetBuyAccountId,
-    handleSetBuyAsset,
-    handleSetLimitPriceBuyAsset,
-    handleSetSellAccountId,
-    handleSetSellAmountCryptoPrecision,
-    handleSetSellAsset,
-    handleSwitchAssets,
+    setBuyAsset,
+    setBuyAssetAccountId,
+    setIsInputtingFiatSellAmount,
+    setLimitPriceBuyAsset,
+    setSellAmountCryptoPrecision,
+    setSellAsset,
+    setSellAssetAccountId,
+    switchAssets,
   ])
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {

@@ -1,7 +1,7 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
@@ -33,7 +33,6 @@ import {
 } from 'state/slices/selectors'
 import {
   selectCalculatedFees,
-  selectDefaultSlippagePercentage,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -76,14 +75,18 @@ export const LimitOrderInput = ({
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+
+  // TODO: Move to redux slice
   const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
 
   const defaultAccountId = useAppSelector(state =>
     selectFirstAccountIdByChainId(state, sellAsset.chainId),
   )
-  const defaultSlippagePercentage = useAppSelector(state =>
-    selectDefaultSlippagePercentage(state, SwapperName.CowSwap),
-  )
+  const defaultSlippagePercentage = useMemo(() => {
+    return bn(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap))
+      .times(100)
+      .toString()
+  }, [])
 
   const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
   const [sellAccountId, setSellAccountId] = useState(defaultAccountId)

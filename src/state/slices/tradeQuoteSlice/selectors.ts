@@ -202,7 +202,6 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
-    console.log({ tradeQuoteState })
     return tradeQuoteState.confirmedQuote
   })
 

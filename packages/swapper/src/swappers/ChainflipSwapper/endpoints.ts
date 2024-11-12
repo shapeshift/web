@@ -1,7 +1,7 @@
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftoss/caip'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { AxiosError } from 'axios'
@@ -10,6 +10,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type {
   EvmTransactionRequest,
   GetUnsignedEvmTransactionArgs,
+  GetUnsignedSolanaTransactionArgs,
   GetUnsignedUtxoTransactionArgs,
   SwapperApi,
   UtxoFeeData,
@@ -205,6 +206,90 @@ export const chainflipApi: SwapperApi = {
       },
     })
   },
+  getUnsignedSolanaTransaction: async ({
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+    config,
+  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
+    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
+
+    const step = tradeQuote.steps[0]
+
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+
+    const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
+      chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]
+    }`
+    const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${
+      chainIdToChainflipNetwork[step.buyAsset.chainId as KnownChainIds]
+    }`
+
+    // Subtract the BaaS fee to end up at the final displayed commissionBps
+    let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
+    if (serviceCommission < 0) serviceCommission = 0
+
+    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
+      `${brokerUrl}/swap` +
+        `?apiKey=${apiKey}` +
+        `&sourceAsset=${sellChainflipChainKey}` +
+        `&destinationAsset=${buyChainflipChainKey}` +
+        `&destinationAddress=${tradeQuote.receiveAddress}` +
+        `&boostFee=10` +
+        // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+        // `&minimumPrice=` +
+        // `&refundAddress=${from}` +
+        // `&retryDurationInBlocks=10` +
+        `&commissionBps=${serviceCommission}`,
+
+      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
+    )
+
+    if (maybeSwapResponse.isErr()) {
+      const error = maybeSwapResponse.unwrapErr()
+      const cause = error.cause as AxiosError<any, any>
+      throw Error(cause.response!.data.detail)
+    }
+
+    const { data: swapResponse } = maybeSwapResponse.unwrap()
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    const contractAddress =
+      step.sellAsset.assetId === solAssetId
+        ? undefined
+        : fromAssetId(step.sellAsset.assetId).assetReference
+
+    const depositAddress = swapResponse.address!
+
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: depositAddress,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        from,
+        tokenId: contractAddress,
+      },
+    }
+    const { fast } = await adapter.getFeeData(getFeeDataInput)
+
+    const buildSendTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
+      to: depositAddress,
+      from,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      accountNumber: step.accountNumber,
+      chainSpecific: {
+        tokenId: contractAddress,
+        computeUnitLimit: fast.chainSpecific.computeUnits,
+        computeUnitPrice: fast.chainSpecific.priorityFee,
+      },
+    }
+
+    return (await adapter.buildSendApiTransaction(buildSendTxInput)).txToSign
+  },
+
   checkTradeStatus: async ({
     config,
     quoteId,

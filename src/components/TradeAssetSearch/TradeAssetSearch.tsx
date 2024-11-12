@@ -162,12 +162,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       return walletConnectedChainIds
     })()
 
-    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(chainId =>
-      isSwapper ? chainId !== KnownChainIds.SolanaMainnet : true,
-    )
+    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
 
     return ['All', ...sortedChainIds]
-  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds, isSwapper])
+  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {

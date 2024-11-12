@@ -192,6 +192,8 @@ export const chainflipApi: SwapperApi = {
 
     const { data: swapResponse } = maybeSwapResponse.unwrap()
 
+    tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
+
     const depositAddress = swapResponse.address!
 
     return assertGetUtxoChainAdapter(step.sellAsset.chainId).buildSendApiTransaction({
@@ -255,6 +257,8 @@ export const chainflipApi: SwapperApi = {
     }
 
     const { data: swapResponse } = maybeSwapResponse.unwrap()
+
+    tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 

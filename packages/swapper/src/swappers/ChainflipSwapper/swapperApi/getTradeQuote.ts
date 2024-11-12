@@ -273,9 +273,9 @@ const _getTradeQuote = async (
         potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming,
-        slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-          SwapperName.Chainflip,
-        ),
+        slippageTolerancePercentageDecimal:
+          input.slippageTolerancePercentageDecimal ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
         steps: [
           {
             buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
@@ -313,9 +313,9 @@ const _getTradeQuote = async (
       potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming,
-      slippageTolerancePercentageDecimal: getDefaultSlippageDecimalPercentageForSwapper(
-        SwapperName.Chainflip,
-      ),
+      slippageTolerancePercentageDecimal:
+        input.slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
       steps: [
         {
           buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,

@@ -22,6 +22,7 @@ import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
+import { calculateChainflipMinPrice } from './utils/helpers'
 
 // Persists the ID so we can look it up later when checking the status
 const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
@@ -50,6 +51,15 @@ export const chainflipApi: SwapperApi = {
       chainIdToChainflipNetwork[step.buyAsset.chainId]
     }`
 
+    const minimumPrice = calculateChainflipMinPrice({
+      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
+      sellAsset: step.sellAsset,
+      buyAsset: step.buyAsset,
+      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit:
+        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    })
+
     // Subtract the BaaS fee to end up at the final displayed commissionBps
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
     if (serviceCommission < 0) serviceCommission = 0
@@ -61,18 +71,10 @@ export const chainflipApi: SwapperApi = {
         `&destinationAsset=${buyChainflipChainKey}` +
         `&destinationAddress=${tradeQuote.receiveAddress}` +
         `&boostFee=10` +
-        // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit, step.buyAmountAfterFeesCryptoBaseUnit
-        // `&minimumPrice=` +
-        // `&refundAddress=${from}` +
-        // `&retryDurationInBlocks=10` +
+        `&minimumPrice=${minimumPrice}` +
+        `&refundAddress=${from}` +
+        `&retryDurationInBlocks=10` +
         `&commissionBps=${serviceCommission}`,
-
-      // TODO: Below is the reference code of Chainflip to calculate the minPrice parameter
-      //     const tolerance = new BigNumber(params.slippageTolerancePercent);
-      //     const estimatedPrice = new BigNumber(quote.estimatedPrice);
-      //     minPrice = estimatedPrice
-      //       .times(new BigNumber(100).minus(tolerance).dividedBy(100))
-      //       .toFixed(assetConstants[destAsset].decimals);
 
       // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
     )
@@ -168,6 +170,26 @@ export const chainflipApi: SwapperApi = {
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
     if (serviceCommission < 0) serviceCommission = 0
 
+    const minimumPrice = calculateChainflipMinPrice({
+      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
+      sellAsset: step.sellAsset,
+      buyAsset: step.buyAsset,
+      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit:
+        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    })
+
+    const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
+
+    const sendAddress = await adapter.getAddress({
+      accountNumber: step.accountNumber,
+      // @ts-ignore this is a rare occurence of wallet not being passed but this being fine as we pass a pubKey instead
+      // types are stricter than they should for the sake of paranoia
+      wallet,
+      accountType,
+      pubKey: xpub,
+    })
+
     const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
       `${brokerUrl}/swap` +
         `?apiKey=${apiKey}` +
@@ -175,10 +197,9 @@ export const chainflipApi: SwapperApi = {
         `&destinationAsset=${buyChainflipChainKey}` +
         `&destinationAddress=${tradeQuote.receiveAddress}` +
         `&boostFee=10` +
-        // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-        // `&minimumPrice=` +
-        // `&refundAddress=${from}` +
-        // `&retryDurationInBlocks=10` +
+        `&minimumPrice=${minimumPrice}` +
+        `&refundAddress=${sendAddress}` +
+        `&retryDurationInBlocks=10` +
         `&commissionBps=${serviceCommission}`,
 
       // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
@@ -196,7 +217,7 @@ export const chainflipApi: SwapperApi = {
 
     const depositAddress = swapResponse.address!
 
-    return assertGetUtxoChainAdapter(step.sellAsset.chainId).buildSendApiTransaction({
+    return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub: xpub!,
       to: depositAddress,
@@ -234,6 +255,15 @@ export const chainflipApi: SwapperApi = {
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
     if (serviceCommission < 0) serviceCommission = 0
 
+    const minimumPrice = calculateChainflipMinPrice({
+      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
+      sellAsset: step.sellAsset,
+      buyAsset: step.buyAsset,
+      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit:
+        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    })
+
     const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
       `${brokerUrl}/swap` +
         `?apiKey=${apiKey}` +
@@ -241,10 +271,9 @@ export const chainflipApi: SwapperApi = {
         `&destinationAsset=${buyChainflipChainKey}` +
         `&destinationAddress=${tradeQuote.receiveAddress}` +
         `&boostFee=10` +
-        // TODO: Calculate minprice based on tradeQuote.slippageTolerancePercentageDecimal, step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-        // `&minimumPrice=` +
-        // `&refundAddress=${from}` +
-        // `&retryDurationInBlocks=10` +
+        `&minimumPrice=${minimumPrice}` +
+        `&refundAddress=${from}` +
+        `&retryDurationInBlocks=10` +
         `&commissionBps=${serviceCommission}`,
 
       // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters

@@ -43,6 +43,35 @@ import { selectAccountIdsByChainIdFilter } from 'state/slices/portfolioSlice/sel
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { store, useAppSelector } from 'state/store'
 
+type CheckWalletHasRuntimeSupportArgs = {
+  isSnapInstalled: boolean | null
+  chainId: ChainId
+  wallet: HDWallet | null
+}
+
+const checkWalletHasRuntimeSupport = ({
+  chainId,
+  wallet,
+  isSnapInstalled,
+}: CheckWalletHasRuntimeSupportArgs) => {
+  if (!wallet) return false
+
+  // Non-EVM ChainIds are only supported with the MM multichain snap installed
+  if (
+    isMetaMask(wallet) &&
+    // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
+    // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
+    (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
+    !isEvmChainId(chainId)
+  )
+    return false
+
+  // We are now sure we have runtime support for the chain.
+  // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
+  // any other wallet, which supports static wallet feature-detection
+  return true
+}
+
 type WalletSupportsChainArgs = {
   isSnapInstalled: boolean | null
   chainId: ChainId
@@ -65,22 +94,7 @@ export const walletSupportsChain = ({
   if (!wallet) return false
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
-  const hasRuntimeSupport = (() => {
-    // Non-EVM ChainIds are only supported with the MM multichain snap installed
-    if (
-      isMetaMask(wallet) &&
-      // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
-      // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
-      (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
-      !isEvmChainId(chainId)
-    )
-      return false
-
-    // We are now sure we have runtime support for the chain.
-    // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
-    // any other wallet, which supports static wallet feature-detection
-    return true
-  })()
+  const hasRuntimeSupport = checkWalletHasRuntimeSupport({ wallet, isSnapInstalled, chainId })
 
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
@@ -148,6 +162,23 @@ export const useWalletSupportsChain = (
       checkConnectedAccountIds: chainAccountIds,
     })
   }, [chainAccountIds, chainId, isSnapInstalled, wallet])
+
+  return result
+}
+
+export const useWalletSupportsChainAtRuntime = (
+  chainId: ChainId,
+  wallet: HDWallet | null,
+): boolean | null => {
+  const { isSnapInstalled } = useIsSnapInstalled()
+
+  const result = useMemo(() => {
+    return checkWalletHasRuntimeSupport({
+      isSnapInstalled,
+      chainId,
+      wallet,
+    })
+  }, [chainId, isSnapInstalled, wallet])
 
   return result
 }

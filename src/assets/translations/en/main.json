@@ -164,6 +164,7 @@
     "sortBy": "Sort By",
     "orderBy": "Order By",
     "filterBy": "Filter By",
+    "filterAndSort": "Filter and Sort",
     "carousel": {
       "next": "Next",
       "prev": "Previous",
@@ -871,7 +872,10 @@
     "receiveInclFee": "Receive (incl. fees)",
     "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
-    "availableQuotes": "Available Quotes",
+    "noQuotesAvailable": "No Quotes Available",
+    "noQuotesAvailableDescription": "No available quotes found at this time. Try selecting another pair.",
+    "availableSwappers": "Available Swappers",
+    "unavailableSwappers": "Unavailable Swappers",
     "unlimited": "Unlimited",
     "streamStatus": "Stream Status",
     "swapsFailed": "%{failedSwaps} swaps failed",
@@ -2717,7 +2721,8 @@
       "filled": "Filled",
       "cancelled": "Cancelled",
       "expired": "Expired"
-    }
+    },
+    "orders": "Orders"
   },
   "thorFees": {
     "title": "Here from THORSwap?",

@@ -1,6 +1,17 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import { Box, Flex, Heading, IconButton, Text } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuList,
+  Text,
+  useMediaQuery,
+} from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { useMemo, useState } from 'react'
@@ -13,12 +24,24 @@ import { SortDropdown } from 'components/SortDropdown/SortDropdown'
 import { SortOptionsKeys } from 'components/SortDropdown/types'
 import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { type MarketsCategories, sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
+const chevronDownIcon = <ChevronDownIcon />
+
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
 const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
+
+const colWidth = { base: 'auto', lg: 'max-content' }
+const colMinWidth = { base: '50%', lg: 'auto' }
+const chainButtonProps = {
+  width: colWidth,
+  minWidth: colMinWidth,
+  my: { base: 2, lg: 0 },
+}
+const headerMx = { base: 0, xl: -2 }
 
 type MarketsRowProps = {
   title?: string
@@ -54,6 +77,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
+  const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
     if (!supportedChainIds)
@@ -125,27 +149,64 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
           </Flex>
           {Subtitle}
         </Box>
-        <Flex alignItems='center' mx={-2}>
-          {showSortFilter && params.category ? (
+        <Flex alignItems='center' mx={headerMx} alignSelf='flex-end'>
+          {params.category && isSmallerThanLg ? (
+            <Menu>
+              <MenuButton as={Button} rightIcon={chevronDownIcon}>
+                {translate('common.filterAndSort')}
+              </MenuButton>
+              <MenuList zIndex='banner' minWidth='340px' px={2}>
+                {showSortFilter && params.category ? (
+                  <SortDropdown
+                    options={sortOptionsByCategory[params.category] ?? []}
+                    value={selectedSort}
+                    onClick={setSelectedSort}
+                  />
+                ) : null}
+                {showOrderFilter ? (
+                  <OrderDropdown value={selectedOrder} onClick={setSelectedOrder} />
+                ) : null}
+                <Flex alignItems='center' justifyContent='space-between' mx={2}>
+                  <Text width={colWidth} me={4}>
+                    {translate('common.filterBy')}
+                  </Text>
+                  <ChainDropdown
+                    chainIds={chainIds}
+                    chainId={selectedChainId}
+                    onClick={setSelectedChainId}
+                    showAll
+                    includeBalance
+                    buttonProps={chainButtonProps}
+                  />
+                </Flex>
+              </MenuList>
+            </Menu>
+          ) : null}
+
+          {showSortFilter && params.category && !isSmallerThanLg ? (
             <SortDropdown
               options={sortOptionsByCategory[params.category] ?? []}
               value={selectedSort}
               onClick={setSelectedSort}
             />
           ) : null}
-          {showOrderFilter ? (
+          {showOrderFilter && !isSmallerThanLg ? (
             <OrderDropdown value={selectedOrder} onClick={setSelectedOrder} />
           ) : null}
-          <Flex alignItems='center' mx={2}>
-            <Text me={4}>{translate('common.filterBy')}</Text>
-            <ChainDropdown
-              chainIds={chainIds}
-              chainId={selectedChainId}
-              onClick={setSelectedChainId}
-              showAll
-              includeBalance
-            />
-          </Flex>
+          {!isSmallerThanLg ? (
+            <Flex alignItems='center' mx={2}>
+              <Text me={4} width='max-content'>
+                {translate('common.filterBy')}
+              </Text>
+              <ChainDropdown
+                chainIds={chainIds}
+                chainId={selectedChainId}
+                onClick={setSelectedChainId}
+                showAll
+                includeBalance
+              />
+            </Flex>
+          ) : null}
         </Flex>
       </Flex>
       {children({ selectedChainId, showSparkline, ...childrenProps })}

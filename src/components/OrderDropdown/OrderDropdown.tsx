@@ -21,7 +21,8 @@ type OrderDropdownProps = {
   buttonProps?: ButtonProps
 }
 
-const width = { base: 'full', md: 'auto' }
+const colWidth = { base: '50%', lg: 'max-content' }
+const marginBottomProp = { base: 2, lg: 0 }
 
 const chevronDownIcon = <ChevronDownIcon />
 
@@ -47,10 +48,12 @@ export const OrderDropdown: React.FC<OrderDropdownProps> = ({ onClick, value, bu
   }, [translate, value])
 
   return (
-    <Flex alignItems='center' mx={2}>
-      <Text me={4}>{translate('common.orderBy')}</Text>
+    <Flex alignItems='center' mx={2} mb={marginBottomProp} justifyContent='flex-end'>
+      <Text width={colWidth} me={4}>
+        {translate('common.orderBy')}
+      </Text>
       <Menu>
-        <MenuButton width={width} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
+        <MenuButton width={colWidth} as={Button} rightIcon={chevronDownIcon} {...buttonProps}>
           {selectedLabel}
         </MenuButton>
         <MenuList zIndex='banner'>

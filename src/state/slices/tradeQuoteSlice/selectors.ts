@@ -58,6 +58,7 @@ import {
   selectUserCurrencyToUsdRate,
 } from '../marketDataSlice/selectors'
 import { selectFeatureFlags } from '../preferencesSlice/selectors'
+import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
@@ -651,6 +652,26 @@ export const selectLoadingSwappers = createSelector(
           !tradeQuoteDisplayCache.some(quoteData => quoteData.swapperName === swapperName),
       )
       .map(([swapperName, _isQuoteAvailable]) => swapperName)
+  },
+)
+
+export const selectUserAvailableTradeQuotes = createSelector(
+  selectTradeQuoteDisplayCache,
+  tradeQuoteDisplayCache => {
+    return tradeQuoteDisplayCache.filter(
+      quoteData =>
+        SWAPPER_USER_ERRORS.includes(quoteData.errors[0]?.error) || !quoteData.errors.length,
+    )
+  },
+)
+
+export const selectUserUnavailableTradeQuotes = createSelector(
+  selectTradeQuoteDisplayCache,
+  tradeQuoteDisplayCache => {
+    return tradeQuoteDisplayCache.filter(
+      quoteData =>
+        quoteData.errors.length && !SWAPPER_USER_ERRORS.includes(quoteData.errors[0]?.error),
+    )
   },
 )
 

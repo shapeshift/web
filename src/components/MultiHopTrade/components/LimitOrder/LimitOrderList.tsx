@@ -3,6 +3,8 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Flex,
+  Heading,
   Tab,
   TabList,
   TabPanel,
@@ -11,22 +13,33 @@ import {
 } from '@chakra-ui/react'
 import { foxAssetId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
+import { useMemo } from 'react'
 import { usdcAssetId } from 'test/mocks/accounts'
 import { Text } from 'components/Text'
 
+import { WithBackButton } from '../WithBackButton'
 import { LimitOrderCard } from './components/LimitOrderCard'
 import { LimitOrderStatus } from './types'
 
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
+  onBack?: () => void
 }
 
-const textColorBaseProps = {
-  color: 'text.base',
-}
+export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
+  const textColorBaseProps = useMemo(() => {
+    return {
+      color: 'text.base',
+      ...(onBack && {
+        bg: 'blue.500',
+        px: 4,
+        py: 2,
+        borderRadius: 'full',
+      }),
+    }
+  }, [onBack])
 
-export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
   // FIXME: Use real data
   const MockOpenOrderCard = () => (
     <LimitOrderCard
@@ -56,39 +69,52 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
 
   return (
     <Card {...cardProps}>
-      <CardHeader px={6} pt={4}>
-        <Tabs variant='unstyled'>
-          <TabList gap={4}>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color='text.subtle'
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.openOrders' />
-            </Tab>
-            <Tab
-              p={0}
-              fontSize='md'
-              fontWeight='bold'
-              color='text.subtle'
-              _selected={textColorBaseProps}
-            >
-              <Text translation='limitOrders.orderHistory' />
-            </Tab>
-          </TabList>
+      {onBack && (
+        <CardHeader px={4} display='flex' flexDirection='column' pb={0} width='100%'>
+          <Flex width='100%' alignItems='center'>
+            <Flex flex='1' justifyContent='flex-start'>
+              <WithBackButton onBack={onBack} />
+            </Flex>
+            <Heading flex='2' textAlign='center' fontSize='md'>
+              <Text translation='limitOrders.orders' />
+            </Heading>
+            <Flex flex='1' />
+          </Flex>
+        </CardHeader>
+      )}
 
+      <Tabs variant='unstyled' display='flex' flexDirection='column' overflowY='auto' mt={4}>
+        <TabList gap={4} flex='0 0 auto' mb={2} ml={4}>
+          <Tab
+            p={0}
+            fontSize='md'
+            fontWeight='bold'
+            color={onBack ? 'text.base' : 'text.subtle'}
+            _selected={textColorBaseProps}
+          >
+            <Text translation='limitOrders.openOrders' />
+          </Tab>
+          <Tab
+            p={0}
+            fontSize='md'
+            fontWeight='bold'
+            color={onBack ? 'text.base' : 'text.subtle'}
+            _selected={textColorBaseProps}
+          >
+            <Text translation='limitOrders.orderHistory' />
+          </Tab>
+        </TabList>
+        <CardBody flex='1' overflowY='auto' minH={0} px={2} py={0}>
           <TabPanels>
-            <TabPanel px={0}>
+            <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {Array.from({ length: 3 }).map((_, index) => (
+                {Array.from({ length: 5 }).map((_, index) => (
                   <MockOpenOrderCard key={index} />
                 ))}
               </CardBody>
             </TabPanel>
 
-            <TabPanel px={0}>
+            <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {Array.from({ length: 2 }).map((_, index) => (
                   <MockHistoryOrderCard key={index} />
@@ -96,8 +122,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps }) => {
               </CardBody>
             </TabPanel>
           </TabPanels>
-        </Tabs>
-      </CardHeader>
+        </CardBody>
+      </Tabs>
     </Card>
   )
 }

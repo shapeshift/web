@@ -142,7 +142,6 @@ type CommonTradeInputBase = {
 
 export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
-  receiveAccountNumber?: number
   receiveAddress: string
   accountNumber: number
   quoteOrRate: 'quote'
@@ -150,7 +149,6 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 
 type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
-  receiveAccountNumber?: undefined
   receiveAddress: undefined
   accountNumber: undefined
   quoteOrRate: 'rate'
@@ -257,7 +255,6 @@ type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
   receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
-  receiveAccountNumber?: number
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean

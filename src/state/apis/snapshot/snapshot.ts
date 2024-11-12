@@ -8,13 +8,12 @@ import { BigNumber, bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { FEE_CURVE_PARAMETERS } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { findClosestFoxDiscountDelayBlockNumber } from 'lib/fees/utils'
-import { isFulfilled } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import { getVotingPower } from './getVotingPower'
 import type { Proposal, Strategy } from './validators'
-import { ProposalSchema, SnapshotSchema, VotingPowerSchema } from './validators'
+import { ProposalSchema, SnapshotSchema } from './validators'
 
 type FoxVotingPowerCryptoBalance = string
 
@@ -165,31 +164,29 @@ export const snapshotApi = createApi({
             FEE_CURVE_PARAMETERS[model].FEE_CURVE_FOX_DISCOUNT_DELAY_HOURS,
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                foxDiscountBlock,
-                SNAPSHOT_SPACE,
-                delegation,
-              )
-              // vp is FOX in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
-          const foxHeld = BigNumber.sum(
-            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-          ).toNumber()
 
-          // Return an error tuple in case of an invalid foxHeld value so we don't cache an errored value
-          if (isNaN(foxHeld)) {
-            const data = 'NaN foxHeld value'
-            return { error: { data, status: 400 } }
-          }
+          const votingPowerResults = await getVotingPower(
+            evmAddresses,
+            '1',
+            strategies,
+            foxDiscountBlock,
+            SNAPSHOT_SPACE,
+            delegation,
+          )
+
+          const foxHeld = votingPowerResults.reduce(
+            (acc: BigNumber, scoreByAddress: Record<string, number>) => {
+              const values = Object.values(scoreByAddress)
+
+              if (!values.length) return acc
+
+              return acc.plus(BigNumber.sum(...values.map(bnOrZero)))
+            },
+            bnOrZero(0),
+          )
 
           dispatch(snapshot.actions.setVotingPower({ foxHeld: foxHeld.toString(), model }))
+
           return { data: foxHeld.toString() }
         } catch (e) {
           console.error(e)
@@ -224,29 +221,26 @@ export const snapshotApi = createApi({
             }, new Set()),
           )
           const delegation = false // don't let people delegate for discounts - ambiguous in spec
-          const votingPowerResults = await Promise.allSettled(
-            evmAddresses.map(async address => {
-              const votingPowerUnvalidated = await getVotingPower(
-                address,
-                '1',
-                strategies,
-                THOR_TIP_014_BLOCK_NUMBER,
-                THORSWAP_SNAPSHOT_SPACE,
-                delegation,
-              )
-              // vp is THOR in crypto balance
-              return bnOrZero(VotingPowerSchema.parse(votingPowerUnvalidated).vp)
-            }),
-          )
-          const thorHeld = BigNumber.sum(
-            ...votingPowerResults.filter(isFulfilled).map(r => r.value),
-          ).toNumber()
 
-          // Return an error tuple in case of an invalid thorHeld value so we don't cache an errored value
-          if (isNaN(thorHeld)) {
-            const data = 'NaN thorHeld value'
-            return { error: { data, status: 400 } }
-          }
+          const votingPowerResults = await getVotingPower(
+            evmAddresses,
+            '1',
+            strategies,
+            THOR_TIP_014_BLOCK_NUMBER,
+            THORSWAP_SNAPSHOT_SPACE,
+            delegation,
+          )
+
+          const thorHeld = votingPowerResults.reduce(
+            (acc: BigNumber, scoreByAddress: Record<string, number>) => {
+              const values = Object.values(scoreByAddress)
+
+              if (!values.length) return acc
+
+              return acc.plus(BigNumber.sum(...values.map(bnOrZero)))
+            },
+            bnOrZero(0),
+          )
 
           dispatch(snapshot.actions.setThorVotingPower(thorHeld.toString()))
           return { data: thorHeld.toString() }

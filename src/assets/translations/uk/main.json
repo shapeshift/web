@@ -865,7 +865,7 @@
     "receiveInclFee": "Отримання (в т.ч. комісія)",
     "approvingAsset": "Затвердити %{symbol}",
     "viewTransaction": "Переглянути транзакцію",
-    "availableQuotes": "Доступні котирування",
+    "availableSwappers": "Доступні котирування",
     "unlimited": "Необмежено",
     "streamStatus": "Статус передачі",
     "swapsFailed": "%{failedSwaps} не вдалося виконати обмін",

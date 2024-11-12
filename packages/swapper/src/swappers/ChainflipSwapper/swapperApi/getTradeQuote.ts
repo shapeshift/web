@@ -1,5 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -147,7 +149,6 @@ const _getTradeQuote = async (
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm: {
         const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-        // TODO(gomes): double check dis correct
         const networkFeeCryptoBaseUnit = await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
@@ -168,8 +169,24 @@ const _getTradeQuote = async (
         return feeData
       }
 
-      // TODO(gomes): Solana support
-      case CHAIN_NAMESPACE.Solana:
+      case CHAIN_NAMESPACE.Solana: {
+        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+        const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+          // Simulates a self-send, since we don't know the to just yet at this stage
+          to: input.sendAddress!,
+          value: sellAmount,
+          chainSpecific: {
+            from: input.sendAddress!,
+            tokenId:
+              sellAsset.assetId === solAssetId
+                ? undefined
+                : fromAssetId(sellAsset.assetId).assetReference,
+          },
+        }
+        const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
+        return { networkFeeCryptoBaseUnit: fast.txFee }
+      }
+
       default:
         throw new Error('Unsupported chainNamespace')
     }

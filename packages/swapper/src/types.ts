@@ -4,7 +4,6 @@ import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
-  solana,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'

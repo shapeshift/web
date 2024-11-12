@@ -1,4 +1,5 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -6,7 +7,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type {
   CommonTradeQuoteInput,
   GetUnsignedSolanaTransactionArgs,
-  SolanaTransactionRequest,
   TradeRate,
 } from '../../types'
 import {
@@ -35,7 +35,7 @@ export const jupiterApi: SwapperApi = {
     from,
     tradeQuote,
     config,
-  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaTransactionRequest> => {
+  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
     return {
@@ -48,7 +48,7 @@ export const jupiterApi: SwapperApi = {
       // total gas used.
       gasLimit: '1',
       // @TODO: remove this
-    } as unknown as Promise<SolanaTransactionRequest>
+    } as unknown as Promise<SolanaSignTx>
   },
 
   checkTradeStatus: (): Promise<{

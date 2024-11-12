@@ -3,12 +3,13 @@ import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput, Swapper, UtxoTransactionExecutionProps } from '../../types'
-import { executeEvmTransaction } from '../../utils'
+import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './constants'
 import { isSupportedAssetId } from './utils/helpers'
 
 export const chainflipSwapper: Swapper = {
   executeEvmTransaction,
+  executeSolanaTransaction,
 
   executeUtxoTransaction: async (
     txToSign: BTCSignTx,

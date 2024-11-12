@@ -7,7 +7,7 @@ import type {
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
-import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -342,7 +342,12 @@ export type CosmosSdkTransactionExecutionProps = {
   signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
+export type SolanaTransactionExecutionProps = {
+  signAndBroadcastTransaction: (transactionRequest: SolanaSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
+type SolanaAccountMetadata = { from: string }
 type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -360,6 +365,10 @@ export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
     permit2Signature: string | undefined
     supportsEIP1559: boolean
   }
+
+export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs &
+  SolanaAccountMetadata &
+  SolanaSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -440,6 +449,10 @@ export type Swapper = {
     txToSign: StdSignDoc,
     callbacks: CosmosSdkTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaTransaction?: (
+    txToSign: SolanaSignTx,
+    callbacks: SolanaTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -460,6 +473,7 @@ export type SwapperApi = {
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<StdSignDoc>
+  getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -492,6 +506,10 @@ export type UtxoTransactionExecutionInput = CommonTradeExecutionInput &
 export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
   CosmosSdkTransactionExecutionProps &
   CosmosSdkAccountMetadata
+
+export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
+  SolanaTransactionExecutionProps &
+  SolanaAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

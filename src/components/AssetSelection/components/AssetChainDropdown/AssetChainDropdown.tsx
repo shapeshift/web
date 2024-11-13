@@ -76,7 +76,8 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const renderedChains = useMemo(() => {
       if (!assetId) return null
       return filteredRelatedAssetIds.map(relatedAssetId => {
-        const isSupported = wallet && isAssetSupportedByWallet(relatedAssetId, wallet)
+        const isSupported =
+          !onlyConnectedChains || (wallet && isAssetSupportedByWallet(relatedAssetId, wallet))
 
         return (
           <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={!isSupported}>
@@ -84,7 +85,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           </MenuItemOption>
         )
       })
-    }, [assetId, filteredRelatedAssetIds, wallet])
+    }, [assetId, filteredRelatedAssetIds, onlyConnectedChains, wallet])
 
     const handleChangeAsset = useCallback(
       (value: string | string[]) => {

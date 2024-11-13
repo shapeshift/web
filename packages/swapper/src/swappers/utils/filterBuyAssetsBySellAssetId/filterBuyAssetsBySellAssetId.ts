@@ -1,6 +1,5 @@
 import { arbitrumNovaChainId, type ChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isSolanaChainId } from '@shapeshiftoss/chain-adapters/src/solana/SolanaChainAdapter'
+import { isEvmChainId, isSolanaChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 
 import type { BuyAssetBySellIdInput } from '../../../types'

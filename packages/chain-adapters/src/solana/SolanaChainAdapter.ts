@@ -8,7 +8,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, SolanaChainId } from '@shapeshiftoss/types'
+import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { BigNumber, bn } from '@shapeshiftoss/utils'
@@ -58,12 +58,6 @@ import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { microLamportsToLamports } from './utils'
 
 export const solanaChainIds = [KnownChainIds.SolanaMainnet] as const
-
-export const isSolanaChainId = (
-  maybeSolanaChainId: string | SolanaChainId,
-): maybeSolanaChainId is SolanaChainId => {
-  return solanaChainIds.includes(maybeSolanaChainId as SolanaChainId)
-}
 
 // Maximum compute units allowed for a single solana transaction
 const MAX_COMPUTE_UNITS = 1400000

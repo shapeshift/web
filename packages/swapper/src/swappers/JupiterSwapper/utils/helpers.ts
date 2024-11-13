@@ -1,6 +1,4 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 

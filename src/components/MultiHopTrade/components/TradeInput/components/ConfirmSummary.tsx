@@ -363,24 +363,24 @@ export const ConfirmSummary = ({
 
   return (
     <SharedTradeInputFooter
-      isCompact={isCompact}
-      isLoading={isLoading}
-      inputAmountUsd={inputAmountUsd}
       affiliateBps={affiliateBps}
       affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
-      quoteStatusTranslation={quoteStatusTranslation}
-      onRateClick={handleOpenCompactQuoteList}
-      shouldDisablePreviewButton={shouldDisablePreviewButton}
-      isError={quoteHasError}
-      swapSource={tradeQuoteStep?.source}
-      rate={activeQuote?.rate}
-      swapperName={activeSwapperName}
       buyAsset={buyAsset}
       hasUserEnteredAmount={hasUserEnteredAmount}
-      sellAsset={sellAsset}
-      sellAccountId={sellAssetAccountId}
-      networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
+      inputAmountUsd={inputAmountUsd}
+      isError={quoteHasError}
+      isLoading={isLoading}
+      onGasRateRowClick={handleOpenCompactQuoteList}
+      quoteStatusTranslation={quoteStatusTranslation}
+      rate={activeQuote?.rate}
       receiveSummaryDetails={receiveSummaryDetails}
+      sellAccountId={sellAssetAccountId}
+      sellAsset={sellAsset}
+      shouldDisableGasRateRowClick={!Boolean(isSmallerThanXl || isCompact)}
+      shouldDisablePreviewButton={shouldDisablePreviewButton}
+      swapperName={activeSwapperName}
+      swapSource={tradeQuoteStep?.source}
+      networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
     >
       <>
         {nativeAssetBridgeWarning ? (

@@ -1,4 +1,4 @@
-import { CardFooter, useMediaQuery } from '@chakra-ui/react'
+import { CardFooter } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -9,7 +9,6 @@ import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { breakpoints } from 'theme/theme'
 
 import { ReceiveSummary } from './components/ReceiveSummary'
 
@@ -20,19 +19,19 @@ type SharedTradeInputFooterProps = {
   children?: JSX.Element
   hasUserEnteredAmount: boolean
   inputAmountUsd: string | undefined
-  isCompact: boolean | undefined
   isError: boolean
   isLoading: boolean
   quoteStatusTranslation: string | [string, InterpolationOptions]
   rate: string | undefined
-  sellAsset: Asset
+  receiveSummaryDetails?: JSX.Element | null
   sellAccountId: string | undefined
+  sellAsset: Asset
+  shouldDisableGasRateRowClick?: boolean
   shouldDisablePreviewButton: boolean | undefined
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
   networkFeeFiatUserCurrency: string | undefined
-  receiveSummaryDetails?: JSX.Element | null
-  onRateClick: () => void
+  onGasRateRowClick?: () => void
 }
 
 export const SharedTradeInputFooter = ({
@@ -42,22 +41,20 @@ export const SharedTradeInputFooter = ({
   children,
   hasUserEnteredAmount,
   inputAmountUsd,
-  isCompact,
   isError,
   isLoading: isParentLoading,
   quoteStatusTranslation,
   rate,
-  sellAsset,
+  receiveSummaryDetails,
   sellAccountId,
+  sellAsset,
+  shouldDisableGasRateRowClick,
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   swapperName,
   swapSource,
   networkFeeFiatUserCurrency,
-  receiveSummaryDetails,
-  onRateClick,
+  onGasRateRowClick,
 }: SharedTradeInputFooterProps) => {
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
@@ -101,15 +98,15 @@ export const SharedTradeInputFooter = ({
       >
         {hasUserEnteredAmount && (
           <RateGasRow
-            sellSymbol={sellAsset.symbol}
-            buySymbol={buyAsset.symbol}
-            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
+            buyAssetSymbol={buyAsset.symbol}
+            sellAssetSymbol={sellAsset.symbol}
+            isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
             isLoading={isLoading}
+            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
-            onRateClick={onRateClick}
-            allowSelectQuote={Boolean(isSmallerThanXl || isCompact)}
+            onClick={onGasRateRowClick}
           >
             <ReceiveSummary
               isLoading={isLoading}

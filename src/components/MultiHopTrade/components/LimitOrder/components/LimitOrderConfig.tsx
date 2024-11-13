@@ -8,11 +8,12 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
@@ -77,28 +78,45 @@ const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
 
 const timePeriodRightIcon = <ChevronDownIcon />
 const swapIcon = <SwapIcon />
-const swapPriceButtonProps = { pr: 4 }
+const disabledProps = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const swapPriceButtonProps = { pr: 4, _disabled: disabledProps }
 
 type LimitOrderConfigProps = {
   sellAsset: Asset
   buyAsset: Asset
-  marketPriceBuyAssetCryptoPrecision: string
-  limitPriceBuyAssetCryptoPrecision: string
-  setLimitPriceBuyAssetCryptoPrecision: (priceBuyAssetCryptoPrecision: string) => void
+  isLoading: boolean
+  marketPriceBuyAsset: string
+  limitPriceBuyAsset: string
+  setLimitPriceBuyAsset: (newLimitPriceBuyAsset: string) => void
 }
 
 export const LimitOrderConfig = ({
   sellAsset,
   buyAsset,
-  marketPriceBuyAssetCryptoPrecision,
-  limitPriceBuyAssetCryptoPrecision,
-  setLimitPriceBuyAssetCryptoPrecision,
+  isLoading,
+  marketPriceBuyAsset,
+  limitPriceBuyAsset,
+  setLimitPriceBuyAsset,
 }: LimitOrderConfigProps) => {
   const priceAmountRef = useRef<string | null>(null)
 
   const [priceDirection, setPriceDirection] = useState(PriceDirection.Default)
   const [presetLimit, setPresetLimit] = useState<PresetLimit | undefined>(PresetLimit.Market)
   const [expiryOption, setExpiryOption] = useState(ExpiryOption.SevenDays)
+
+  // Reset the user config when the assets change
+  useEffect(
+    () => {
+      setPriceDirection(PriceDirection.Default)
+      setPresetLimit(PresetLimit.Market)
+      setExpiryOption(ExpiryOption.SevenDays)
+      setLimitPriceBuyAsset(marketPriceBuyAsset)
+    },
+    // NOTE: we DO NOT want to react to `marketPriceBuyAsset` here, because polling will reset it
+    // every time!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sellAsset, buyAsset, setLimitPriceBuyAsset],
+  )
 
   const {
     number: { localeParts },
@@ -120,14 +138,14 @@ export const LimitOrderConfig = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const priceCryptoFormatted = useMemo(() => {
-    const cryptoAmountIntegerCount = bnOrZero(
-      bnOrZero(limitPriceBuyAssetCryptoPrecision).toFixed(0),
-    ).precision(true)
+    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(limitPriceBuyAsset).toFixed(0)).precision(
+      true,
+    )
 
     return cryptoAmountIntegerCount <= 8
-      ? limitPriceBuyAssetCryptoPrecision
-      : bnOrZero(limitPriceBuyAssetCryptoPrecision).toFixed(3)
-  }, [limitPriceBuyAssetCryptoPrecision])
+      ? limitPriceBuyAsset
+      : bnOrZero(limitPriceBuyAsset).toFixed(3)
+  }, [limitPriceBuyAsset])
 
   const arrow = useMemo(() => {
     return priceDirection === PriceDirection.Default ? '↑' : '↓'
@@ -152,14 +170,14 @@ export const LimitOrderConfig = ({
             assertUnreachable(presetLimit)
         }
       })()
-      const adjustedLimitPrice = bn(marketPriceBuyAssetCryptoPrecision).times(multiplier).toFixed()
+      const adjustedLimitPrice = bn(marketPriceBuyAsset).times(multiplier).toFixed()
       const maybeReversedPrice =
         priceDirection === PriceDirection.Reversed
           ? bn(1).div(adjustedLimitPrice).toFixed()
           : adjustedLimitPrice
-      setLimitPriceBuyAssetCryptoPrecision(maybeReversedPrice)
+      setLimitPriceBuyAsset(maybeReversedPrice)
     },
-    [marketPriceBuyAssetCryptoPrecision, setLimitPriceBuyAssetCryptoPrecision],
+    [marketPriceBuyAsset, setLimitPriceBuyAsset],
   )
 
   const handleSetMarketLimit = useCallback(() => {
@@ -191,37 +209,31 @@ export const LimitOrderConfig = ({
 
     if (isCustomLimit) {
       // For custom limit, just take the reciprocal as we don't know what the original input value was
-      setLimitPriceBuyAssetCryptoPrecision(bn(1).div(limitPriceBuyAssetCryptoPrecision).toFixed())
+      setLimitPriceBuyAsset(bn(1).div(limitPriceBuyAsset).toFixed())
     } else {
       // Otherwise set it to the precise value based on the original market price
       handleSetPresetLimit(presetLimit, newPriceDirection)
     }
-  }, [
-    handleSetPresetLimit,
-    limitPriceBuyAssetCryptoPrecision,
-    presetLimit,
-    priceDirection,
-    setLimitPriceBuyAssetCryptoPrecision,
-  ])
+  }, [handleSetPresetLimit, limitPriceBuyAsset, presetLimit, priceDirection, setLimitPriceBuyAsset])
 
   const handlePriceChange = useCallback(() => {
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
     // Now when the max buttons are clicked the onChange will not fire
-    setLimitPriceBuyAssetCryptoPrecision(priceAmountRef.current ?? '0')
+    setLimitPriceBuyAsset(priceAmountRef.current ?? '0')
 
     // Unset the preset limit, as this is a custom value
     setPresetLimit(undefined)
-  }, [setLimitPriceBuyAssetCryptoPrecision])
+  }, [setLimitPriceBuyAsset])
 
   const handleValueChange = useCallback(
     (values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       priceAmountRef.current = values.value
-      setLimitPriceBuyAssetCryptoPrecision(values.value)
+      setLimitPriceBuyAsset(values.value)
     },
-    [setLimitPriceBuyAssetCryptoPrecision],
+    [setLimitPriceBuyAsset],
   )
 
   const expiryOptionTranslation = useMemo(() => {
@@ -239,7 +251,7 @@ export const LimitOrderConfig = ({
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.expiry' mr={4} />
           <Menu isLazy>
-            <MenuButton as={Button} rightIcon={timePeriodRightIcon}>
+            <MenuButton as={Button} rightIcon={timePeriodRightIcon} isDisabled={isLoading}>
               <Text translation={expiryOptionTranslation} />
             </MenuButton>
             <MenuList zIndex='modal'>
@@ -255,23 +267,26 @@ export const LimitOrderConfig = ({
         </Flex>
       </Flex>
       <HStack width='full' justify='space-between'>
-        <NumberFormat
-          customInput={AmountInput}
-          decimalScale={priceAsset.precision}
-          isNumericString={true}
-          decimalSeparator={localeParts.decimal}
-          inputMode='decimal'
-          allowedDecimalSeparators={allowedDecimalSeparators}
-          thousandSeparator={localeParts.group}
-          value={priceCryptoFormatted}
-          onValueChange={handleValueChange}
-          onChange={handlePriceChange}
-        />
+        <Skeleton height={6} isLoaded={!isLoading}>
+          <NumberFormat
+            customInput={AmountInput}
+            decimalScale={priceAsset.precision}
+            isNumericString={true}
+            decimalSeparator={localeParts.decimal}
+            inputMode='decimal'
+            allowedDecimalSeparators={allowedDecimalSeparators}
+            thousandSeparator={localeParts.group}
+            value={priceCryptoFormatted}
+            onValueChange={handleValueChange}
+            onChange={handlePriceChange}
+          />
+        </Skeleton>
         <StyledAssetMenuButton
           rightIcon={swapIcon}
           assetId={priceAsset.assetId}
           buttonProps={swapPriceButtonProps}
           onAssetClick={handleTogglePriceDirection}
+          isDisabled={isLoading}
         />
       </HStack>
       <Flex justifyContent='space-between'>
@@ -280,6 +295,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.Market}
           onClick={handleSetMarketLimit}
+          isDisabled={isLoading}
         >
           Market
         </Button>
@@ -288,6 +304,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.OnePercent}
           onClick={handleSetOnePercentLimit}
+          isDisabled={isLoading}
         >
           1% {arrow}
         </Button>
@@ -296,6 +313,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.TwoPercent}
           onClick={handleSetTwoPercentLimit}
+          isDisabled={isLoading}
         >
           2% {arrow}
         </Button>
@@ -304,6 +322,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.FivePercent}
           onClick={handleSetFivePercentLimit}
+          isDisabled={isLoading}
         >
           5% {arrow}
         </Button>
@@ -312,6 +331,7 @@ export const LimitOrderConfig = ({
           size='sm'
           isActive={presetLimit === PresetLimit.TenPercent}
           onClick={handleSetTenPercentLimit}
+          isDisabled={isLoading}
         >
           10% {arrow}
         </Button>

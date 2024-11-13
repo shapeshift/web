@@ -564,6 +564,8 @@ type AffiliateFeesProps = {
   inputAmountUsd: string | undefined
 }
 
+// TODO: Move out of tradeQuoteSlice as this is used for limit orders also, and is not spot
+// specific
 export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
   createCachedSelector(
     (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,

@@ -21,6 +21,7 @@ import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
+import type { LimitOrderQuoteResponse } from './types'
 import {
   type CancelLimitOrdersRequest,
   type CompetitionOrderStatus,
@@ -50,7 +51,7 @@ export const limitOrderApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['LimitOrder'],
   endpoints: build => ({
-    quoteLimitOrder: build.query<LimitOrder, LimitOrderQuoteParams>({
+    quoteLimitOrder: build.query<LimitOrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async ({
         sellAssetId,
         buyAssetId,
@@ -97,7 +98,7 @@ export const limitOrderApi = createApi({
         limitOrderQuoteRequest.appDataHash = appDataHash
 
         try {
-          const result = await axios.post<LimitOrder>(
+          const result = await axios.post<LimitOrderQuoteResponse>(
             `${baseUrl}/${network}/api/v1/quote/`,
             limitOrderQuoteRequest,
           )

@@ -5,6 +5,7 @@ import type {
   CoWSwapSellTokenSource,
   CoWSwapSigningScheme,
 } from '@shapeshiftoss/swapper'
+import type { Address } from 'viem'
 
 export enum PriceQuality {
   Fast = 'fast',
@@ -28,6 +29,33 @@ export type LimitOrderQuoteRequest = {
   onChainOrder?: boolean
   kind: CoWSwapOrderKind.Sell
   sellAmountBeforeFee: string
+}
+
+export type LimitOrderQuote = {
+  sellToken: AssetReference
+  buyToken: AssetReference
+  receiver?: string
+  sellAmount: string
+  buyAmount: string
+  validTo: number
+  feeAmount: string
+  kind: CoWSwapOrderKind
+  partiallyFillable: boolean
+  sellTokenBalance?: CoWSwapSellTokenSource
+  buyTokenBalance?: CoWSwapBuyTokenDestination
+  signingScheme: CoWSwapSigningScheme
+  signature: string
+  from?: string
+  appData: string
+  appDataHash?: string
+}
+
+export type LimitOrderQuoteResponse = {
+  expiration: string
+  from: Address
+  id: LimitOrderQuoteId
+  quote: LimitOrderQuote
+  verified: boolean
 }
 
 export type LimitOrder = {

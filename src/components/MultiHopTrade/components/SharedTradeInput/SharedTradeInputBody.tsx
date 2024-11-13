@@ -7,7 +7,7 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -37,6 +37,8 @@ type SharedTradeInputBodyProps = {
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
   sellAccountId: AccountId | undefined
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
   onSwitchAssets: () => void
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
@@ -53,6 +55,8 @@ export const SharedTradeInputBody = ({
   sellAmountUserCurrency,
   sellAsset,
   sellAccountId,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
   onSwitchAssets,
   onChangeIsInputtingFiatSellAmount,
   onChangeSellAmountCryptoPrecision,
@@ -108,8 +112,10 @@ export const SharedTradeInputBody = ({
     sellAssetSearch.open({
       onAssetClick: setSellAsset,
       title: 'trade.tradeFrom',
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     })
-  }, [sellAssetSearch, setSellAsset])
+  }, [assetFilterPredicate, chainIdFilterPredicate, sellAssetSearch, setSellAsset])
 
   const sellTradeAssetSelect = useMemo(
     () => (

@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { memo, useCallback } from 'react'
@@ -16,11 +17,15 @@ import { useModal } from 'hooks/useModal/useModal'
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
   onAssetClick: Required<TradeAssetSearchProps>['onAssetClick']
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
 }
 
 type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   isOpen: boolean
   close: () => void
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
 }
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
@@ -29,6 +34,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   isOpen,
   allowWalletUnsupportedAssets,
   title = 'common.selectAsset',
+  assetFilterPredicate,
 }) => {
   const translate = useTranslate()
 
@@ -50,6 +56,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
       <TradeAssetSearch
         onAssetClick={handleAssetClick}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
+        assetFilterPredicate={assetFilterPredicate}
       />
     </Dialog>
   )

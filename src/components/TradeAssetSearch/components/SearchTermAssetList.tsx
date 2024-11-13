@@ -23,6 +23,7 @@ export type SearchTermAssetListProps = {
   activeChainId: ChainId | 'All'
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
+  assetFilterPredicate?: (asset: Asset) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
 }
@@ -32,6 +33,7 @@ export const SearchTermAssetList = ({
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
+  assetFilterPredicate,
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
@@ -56,15 +58,22 @@ export const SearchTermAssetList = ({
 
   const assetsForChain = useMemo(() => {
     if (activeChainId === 'All') {
-      if (allowWalletUnsupportedAssets) return assets
-      return assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
+      if (allowWalletUnsupportedAssets) return _assets
+      return _assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
     return assets.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+  }, [
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    assets,
+    walletConnectedChainIds,
+    assetFilterPredicate,
+  ])
 
   const customAssets: Asset[] = useMemo(
     () =>

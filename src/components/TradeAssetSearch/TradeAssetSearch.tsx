@@ -4,6 +4,7 @@ import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/rea
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
+import { noop } from 'lodash'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -45,11 +46,15 @@ export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
+  assetFilterPredicate?: (asset: Asset) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
@@ -105,14 +110,20 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    if (allowWalletUnsupportedAssets || !hasWallet) return unfilteredPopularAssets
-    return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+    const filteredPopularAssets = assetFilterPredicate
+      ? unfilteredPopularAssets.filter(assetFilterPredicate)
+      : unfilteredPopularAssets
+    if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
+
+    // TODO: move `allowWalletUnsupportedAssets` into `assetFilterPredicate`
+    return filteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [
     popularAssetsByChainId,
     activeChainId,
     allowWalletUnsupportedAssets,
     hasWallet,
     walletConnectedChainIds,
+    assetFilterPredicate,
   ])
 
   const quickAccessAssets = useMemo(() => {
@@ -139,12 +150,16 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
+    const filteredPortfolioAssetsSortedByBalance = assetFilterPredicate
+      ? portfolioAssetsSortedByBalance.filter(assetFilterPredicate)
+      : portfolioAssetsSortedByBalance
+
     if (activeChainId === 'All') {
-      return portfolioAssetsSortedByBalance
+      return filteredPortfolioAssetsSortedByBalance
     }
 
-    return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance])
+    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
+  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
@@ -155,10 +170,12 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       return walletConnectedChainIds
     })()
 
-    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds)
+    const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(
+      chainIdFilterPredicate ?? noop,
+    )
 
     return ['All', ...sortedChainIds]
-  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds])
+  }, [allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds, chainIdFilterPredicate])
 
   const quickAccessAssetButtons = useMemo(() => {
     if (isPopularAssetIdsLoading) {
@@ -237,6 +254,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
+          assetFilterPredicate={assetFilterPredicate}
           allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
         />
       ) : (

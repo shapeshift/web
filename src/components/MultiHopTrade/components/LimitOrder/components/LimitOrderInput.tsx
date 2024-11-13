@@ -222,11 +222,13 @@ export const LimitOrderInput = ({
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
-    if (!data) return '0'
+    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
+    if (!data || limitOrderQuoteParams === skipToken) return '0'
+
     return bnOrZero(fromBaseUnit(data.quote.buyAmount, buyAsset.precision))
       .div(fromBaseUnit(data.quote.sellAmount, sellAsset.precision))
       .toFixed()
-  }, [buyAsset.precision, data, sellAsset.precision])
+  }, [buyAsset.precision, data, sellAsset.precision, limitOrderQuoteParams])
 
   // Reset the limit price when the market price changes.
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
@@ -277,7 +279,7 @@ export const LimitOrderInput = ({
         sellAmountUserCurrency={inputSellAmountUserCurrency}
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
-        handleSwitchAssets={switchAssets}
+        onSwitchAssets={switchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}
@@ -314,13 +316,13 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAmountCryptoPrecision,
     sellAsset,
-    setBuyAsset,
     setBuyAccountId,
+    setBuyAsset,
     setIsInputtingFiatSellAmount,
     setLimitPriceBuyAsset,
+    setSellAccountId,
     setSellAmountCryptoPrecision,
     setSellAsset,
-    setSellAccountId,
     switchAssets,
   ])
 

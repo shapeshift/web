@@ -106,9 +106,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
   const popularAssets = useMemo(() => {
-    const unfilteredPopularAssets = (popularAssetsByChainId?.[activeChainId] ?? []).filter(asset =>
-      isSwapper ? asset.chainId !== KnownChainIds.SolanaMainnet : true,
-    )
+    const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
     if (allowWalletUnsupportedAssets || !hasWallet) return unfilteredPopularAssets
     return unfilteredPopularAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
   }, [
@@ -117,7 +115,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     allowWalletUnsupportedAssets,
     hasWallet,
     walletConnectedChainIds,
-    isSwapper,
   ])
 
   const quickAccessAssets = useMemo(() => {
@@ -145,13 +142,11 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
     if (activeChainId === 'All') {
-      return portfolioAssetsSortedByBalance.filter(asset =>
-        isSwapper ? asset.chainId !== KnownChainIds.SolanaMainnet : true,
-      )
+      return portfolioAssetsSortedByBalance
     }
 
     return portfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance, isSwapper])
+  }, [activeChainId, portfolioAssetsSortedByBalance])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {

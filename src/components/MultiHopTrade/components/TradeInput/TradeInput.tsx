@@ -335,9 +335,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
         onlyConnectedChains={false}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset, chainIdFilterPredicate],
   )
 
   const bodyContent = useMemo(() => {

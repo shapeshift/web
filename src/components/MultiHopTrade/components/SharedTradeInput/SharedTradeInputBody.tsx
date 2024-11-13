@@ -124,9 +124,10 @@ export const SharedTradeInputBody = ({
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
         onlyConnectedChains={true}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset, chainIdFilterPredicate],
   )
 
   // disable switching assets if the buy asset isn't supported

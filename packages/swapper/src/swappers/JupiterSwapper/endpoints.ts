@@ -1,40 +1,20 @@
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { Result } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import type {
-  CommonTradeQuoteInput,
-  GetUnsignedSolanaTransactionArgs,
-  TradeRate,
-} from '../../types'
-import {
-  type GetTradeQuoteInput,
-  type SwapErrorRight,
-  type SwapperApi,
-  type TradeQuote,
-} from '../../types'
+import type { GetUnsignedSolanaTransactionArgs } from '../../types'
+import { type SwapperApi } from '../../types'
 import { isExecutableTradeQuote } from '../../utils'
+import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 
 export const jupiterApi: SwapperApi = {
-  getTradeQuote: (
-    input: CommonTradeQuoteInput,
-    // { assertGetSolanaChainAdapter, assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    return [] as unknown as Promise<Result<TradeRate[], SwapErrorRight>>
-  },
-  getTradeRate: (
-    input: GetTradeQuoteInput,
-    // { assertGetSolanaChainAdapter, assetsById, config }: SwapperDeps,
-  ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-    return [] as unknown as Promise<Result<TradeRate[], SwapErrorRight>>
-  },
+  getTradeQuote,
+  getTradeRate,
   getUnsignedSolanaTransaction: ({
     chainId,
     from,
     tradeQuote,
-    config,
   }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 

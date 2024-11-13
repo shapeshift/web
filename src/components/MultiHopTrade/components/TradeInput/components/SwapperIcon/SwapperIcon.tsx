@@ -8,6 +8,7 @@ import ZrxIcon from './0x-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
+import JupiterIcon from './jupiter-icon.svg'
 import LiFiIcon from './lifi-icon.png'
 import PortalsIcon from './portals-icon.png'
 import THORChainIcon from './thorchain-icon.png'
@@ -35,6 +36,8 @@ export const SwapperIcon = ({
         return PortalsIcon
       case SwapperName.Chainflip:
         return ChainflipIcon
+      case SwapperName.Jupiter:
+        return JupiterIcon
       case SwapperName.Test:
         return ''
       default:

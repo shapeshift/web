@@ -1,45 +1,22 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
   GetTradeRateInput,
-  GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
   TradeRate,
 } from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
-  type ProtocolFee,
-  SwapperName,
-  TradeQuoteError,
-} from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
-import {
-  CHAINFLIP_BAAS_COMMISSION,
-  CHAINFLIP_BOOST_SWAP_SOURCE,
-  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
-  CHAINFLIP_DCA_QUOTE,
-  CHAINFLIP_DCA_SWAP_SOURCE,
-  CHAINFLIP_REGULAR_QUOTE,
-  CHAINFLIP_SWAP_SOURCE,
-  chainIdToChainflipNetwork,
-  usdcAsset,
-} from '../constants'
-import type { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
-import { chainflipService } from '../utils/chainflipService'
-import { getEvmTxFees } from '../utils/getEvmTxFees'
-import { getUtxoTxFees } from '../utils/getUtxoTxFees'
-import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
+import { getJupiterSwap, isSupportedChainId } from '../utils/helpers'
 
 const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -48,11 +25,14 @@ const _getTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
-    accountNumber,
-    receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    affiliateBps: commissionBps,
+    affiliateBps,
+    receiveAddress,
+    accountNumber,
+    slippageTolerancePercentageDecimal,
   } = input
+
+  const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
 
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(
@@ -74,65 +54,16 @@ const _getTradeQuote = async (
     )
   }
 
-  if (!isSupportedAssetId(sellAsset.chainId, sellAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-        details: { chainId: sellAsset.chainId, assetId: sellAsset.assetId },
-      }),
-    )
-  }
-
-  if (!isSupportedAssetId(buyAsset.chainId, buyAsset.assetId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
-        code: TradeQuoteError.UnsupportedTradePair,
-        details: { chainId: buyAsset.chainId, assetId: buyAsset.assetId },
-      }),
-    )
-  }
-
-  const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[sellAsset.chainId]
-  }`
-  const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[buyAsset.chainId]
-  }`
-
-  const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
-  const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
-
-  // Subtract the BaaS fee to end up at the final displayed commissionBps
-  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION
-  if (serviceCommission < 0) serviceCommission = 0
-
-  const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
-    `${brokerUrl}/quotes-native` +
-      `?apiKey=${apiKey}` +
-      `&sourceAsset=${sellChainflipChainKey}` +
-      `&destinationAsset=${buyChainflipChainKey}` +
-      `&amount=${sellAmount}` +
-      `&commissionBps=${serviceCommission}`,
-  )
+  const maybeQuoteResponse = await getJupiterSwap({
+    apiUrl: jupiterUrl,
+    sourceAsset: sellAsset.assetId,
+    destinationAsset: buyAsset.assetId,
+    commissionBps: affiliateBps,
+    amount: sellAmount,
+    slippageBps: slippageTolerancePercentageDecimal,
+  })
 
   if (maybeQuoteResponse.isErr()) {
-    const error = maybeQuoteResponse.unwrapErr()
-    const cause = error.cause as AxiosError<any, any>
-
-    if (
-      cause.message.includes('code 400') &&
-      cause.response!.data.detail.includes('Amount outside asset bounds')
-    ) {
-      return Err(
-        makeSwapErrorRight({
-          message: cause.response!.data.detail,
-          code: TradeQuoteError.SellAmountBelowMinimum,
-        }),
-      )
-    }
-
     return Err(
       makeSwapErrorRight({
         message: 'Quote request failed',
@@ -147,28 +78,6 @@ const _getTradeQuote = async (
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
     switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Evm: {
-        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-        const networkFeeCryptoBaseUnit = await getEvmTxFees({
-          adapter: sellAdapter,
-          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
-          sendAsset: sellChainflipChainKey,
-        })
-        return { networkFeeCryptoBaseUnit }
-      }
-
-      case CHAIN_NAMESPACE.Utxo: {
-        const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
-        const feeData = await getUtxoTxFees({
-          sellAmountCryptoBaseUnit: sellAmount,
-          sellAdapter,
-          publicKey,
-        })
-
-        return feeData
-      }
-
       case CHAIN_NAMESPACE.Solana: {
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
@@ -192,43 +101,6 @@ const _getTradeQuote = async (
     }
   }
 
-  const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
-    if (fee.type === 'ingress' || fee.type === 'boost') return sellAsset
-
-    if (fee.type === 'egress') return buyAsset
-
-    if (fee.type === 'liquidity' && fee.asset === sellChainflipChainKey) return sellAsset
-
-    if (fee.type === 'liquidity' && fee.asset === buyChainflipChainKey) return buyAsset
-
-    if (fee.type === 'liquidity' && fee.asset === 'usdc.eth') return usdcAsset
-
-    if (fee.type === 'network') return usdcAsset
-  }
-
-  const getProtocolFees = (singleQuoteResponse: ChainflipBaasQuoteQuote) => {
-    const protocolFees: Record<AssetId, ProtocolFee> = {}
-
-    for (const fee of singleQuoteResponse.includedFees!) {
-      if (fee.type === 'broker') continue
-
-      const asset = getFeeAsset(fee)!
-      if (!(asset.assetId in protocolFees)) {
-        protocolFees[asset.assetId] = {
-          amountCryptoBaseUnit: '0',
-          requiresBalance: false,
-          asset,
-        }
-      }
-
-      protocolFees[asset.assetId].amountCryptoBaseUnit = (
-        BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative!)
-      ).toString()
-    }
-
-    return protocolFees
-  }
-
   const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
     return getRate({
       sellAmountCryptoBaseUnit,
@@ -238,106 +110,44 @@ const _getTradeQuote = async (
     })
   }
 
-  const getSwapSource = (swapType: string | undefined, isBoosted: boolean) => {
-    return swapType === CHAINFLIP_REGULAR_QUOTE
-      ? isBoosted
-        ? CHAINFLIP_BOOST_SWAP_SOURCE
-        : CHAINFLIP_SWAP_SOURCE
-      : isBoosted
-      ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE
-      : CHAINFLIP_DCA_SWAP_SOURCE
-  }
-
   const quotes: TradeQuote[] = []
 
-  for (const singleQuoteResponse of quoteResponse) {
-    const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
-    const feeData = await getFeeData()
+  const feeData = await getFeeData()
 
-    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
-      // DCA currently disabled - Streaming swap logic is very much tied to THOR currently and will deserve its own PR to generalize
-      // Even if we manage to get DCA swaps to execute, we wouldn't manage to properly poll with current web THOR-centric arch
-      continue
-    }
+  const rate = getQuoteRate(quoteResponse.inAmount, quoteResponse.outAmount)
 
-    if (singleQuoteResponse.boostQuote) {
-      const boostRate = getQuoteRate(
-        singleQuoteResponse.boostQuote.ingressAmountNative!,
-        singleQuoteResponse.boostQuote.egressAmountNative!,
-      )
-
-      const boostTradeQuote: TradeQuote = {
-        id: uuid(),
-        rate: boostRate,
-        receiveAddress,
-        potentialAffiliateBps: commissionBps,
-        affiliateBps: commissionBps,
-        isStreaming,
-        slippageTolerancePercentageDecimal:
-          input.slippageTolerancePercentageDecimal ??
-          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
-        steps: [
-          {
-            buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
-            buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit:
-              singleQuoteResponse.boostQuote.ingressAmountNative!,
-            feeData: {
-              protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
-              ...feeData,
-            },
-            rate: boostRate,
-            source: getSwapSource(singleQuoteResponse.type, true),
-            buyAsset,
-            sellAsset,
-            accountNumber,
-            allowanceContract: '0x0', // Chainflip does not use contracts
-            estimatedExecutionTimeMs:
-              singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000,
-          },
-        ],
-      }
-
-      quotes.push(boostTradeQuote)
-    }
-
-    const rate = getQuoteRate(
-      singleQuoteResponse.ingressAmountNative!,
-      singleQuoteResponse.egressAmountNative!,
-    )
-
-    const tradeQuote: TradeQuote = {
-      id: uuid(),
-      rate,
-      receiveAddress,
-      potentialAffiliateBps: commissionBps,
-      affiliateBps: commissionBps,
-      isStreaming,
-      slippageTolerancePercentageDecimal:
-        input.slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
-      steps: [
-        {
-          buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
-          buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
-          feeData: {
-            protocolFees: getProtocolFees(singleQuoteResponse),
-            ...feeData,
-          },
-          rate,
-          source: getSwapSource(singleQuoteResponse.type, false),
-          buyAsset,
-          sellAsset,
-          accountNumber,
-          allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
-          estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000,
+  const tradeQuote: TradeQuote = {
+    id: uuid(),
+    rate,
+    receiveAddress,
+    potentialAffiliateBps: affiliateBps,
+    affiliateBps,
+    isStreaming: false,
+    slippageTolerancePercentageDecimal:
+      input.slippageTolerancePercentageDecimal ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
+    steps: [
+      {
+        buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.outAmount,
+        buyAmountAfterFeesCryptoBaseUnit: quoteResponse.outAmount,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: quoteResponse.inAmount,
+        feeData: {
+          // @TODO: calculate fees
+          protocolFees: {},
+          ...feeData,
         },
-      ],
-    }
-
-    quotes.push(tradeQuote)
+        rate,
+        source: SwapperName.Jupiter,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
+        estimatedExecutionTimeMs: quoteResponse.timeTaken! * 1000,
+      },
+    ],
   }
+
+  quotes.push(tradeQuote)
 
   return Ok(quotes)
 }

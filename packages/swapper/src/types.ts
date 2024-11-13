@@ -6,7 +6,7 @@ import type {
   EvmChainAdapter,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
+// import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
 import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
@@ -51,6 +51,7 @@ export type SwapperConfig = {
   REACT_APP_CHAINFLIP_API_KEY: string
   REACT_APP_CHAINFLIP_API_URL: string
   REACT_APP_FEATURE_CHAINFLIP_DCA: boolean
+  REACT_APP_JUPITER_API_URL: string
 }
 
 export enum SwapperName {
@@ -62,6 +63,7 @@ export enum SwapperName {
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
+  Jupiter = 'Jupiter',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -221,7 +223,7 @@ export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
 export type SolanaSwapperDeps = {
-  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+  assertGetSolanaChainAdapter: (chainId: ChainId) => any
 }
 
 export type SwapperDeps = {

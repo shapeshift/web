@@ -22,7 +22,7 @@ import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
-import { calculateChainflipMinPrice } from './utils/helpers'
+import { calculateChainflipMinPrice, getChainFlipSwap } from './utils/helpers'
 
 // Persists the ID so we can look it up later when checking the status
 const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
@@ -64,20 +64,16 @@ export const chainflipApi: SwapperApi = {
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
     if (serviceCommission < 0) serviceCommission = 0
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${from}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset: sellChainflipChainKey,
+      destinationAsset: buyChainflipChainKey,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: from,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()
@@ -190,20 +186,16 @@ export const chainflipApi: SwapperApi = {
       pubKey: xpub,
     })
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${sendAddress}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset: sellChainflipChainKey,
+      destinationAsset: buyChainflipChainKey,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: sendAddress,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()
@@ -264,20 +256,16 @@ export const chainflipApi: SwapperApi = {
         step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     })
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${from}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset: sellChainflipChainKey,
+      destinationAsset: buyChainflipChainKey,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: from,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()

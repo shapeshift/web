@@ -4,7 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import type { Asset } from '@shapeshiftoss/types'
+import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import {
   BigNumber,
   bn,
@@ -183,11 +183,15 @@ export const LimitOrderInput = ({
   )
 
   const assetFilterPredicate = useCallback((asset: Asset) => {
-    return isEvmChainId(asset.chainId) && !isNativeEvmAsset(asset.assetId)
+    return (
+      asset.chainId !== KnownChainIds.SolanaMainnet &&
+      isEvmChainId(asset.chainId) &&
+      !isNativeEvmAsset(asset.assetId)
+    )
   }, [])
 
   const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
-    return isEvmChainId(chainId)
+    return chainId !== KnownChainIds.SolanaMainnet && isEvmChainId(chainId)
   }, [])
 
   const sellAmountCryptoBaseUnit = useMemo(() => {

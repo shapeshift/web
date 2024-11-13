@@ -8,3 +8,10 @@ export type ChainFlipStatus = {
     swapEgress?: ChainflipBaasStatusEgress
   }
 }
+
+export enum ChainflipNetwork {
+  Bitcoin = 'Bitcoin',
+  Ethereum = 'Ethereum',
+  Arbitrum = 'Arbitrum',
+  Solana = 'Solana',
+}

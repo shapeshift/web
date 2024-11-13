@@ -1,9 +1,44 @@
-import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import type { AxiosResponse } from 'axios'
 
+import type { SwapErrorRight } from '../../../types'
+import { isToken } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'
-import { ChainflipSupportedAssetIdsByChainId, ChainflipSupportedChainIds } from '../constants'
+import {
+  ChainflipSupportedAssetIdsByChainId,
+  ChainflipSupportedChainIds,
+  chainIdToChainflipNetwork,
+} from '../constants'
+import type { ChainflipBaasSwapDepositAddress } from '../models'
+import type { ChainflipNetwork } from '../types'
+import { chainflipService } from './chainflipService'
+
+type ChainFlipBrokerBaseArgs = {
+  brokerUrl: string
+  apiKey: string
+}
+
+type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
+  sourceAsset: string
+  destinationAsset: string
+  destinationAddress: string
+  boostFee?: number
+  minimumPrice: string
+  refundAddress: string
+  retryDurationInBlocks?: number
+  commissionBps: number
+}
+
+type ChainflipAsset = {
+  id: string
+  ticker: string
+  name: string
+  network: ChainflipNetwork
+  contractAddress?: string
+}
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSupportedChainId => {
   return ChainflipSupportedChainIds.includes(chainId as ChainflipSupportedChainId)
@@ -49,4 +84,70 @@ export const calculateChainflipMinPrice = ({
     .toFixed(buyAsset.precision)
 
   return minimumRate
+}
+
+export const getChainFlipSwap = ({
+  brokerUrl,
+  apiKey,
+  sourceAsset,
+  destinationAsset,
+  destinationAddress,
+  boostFee = 10,
+  minimumPrice,
+  refundAddress,
+  retryDurationInBlocks = 10,
+  commissionBps,
+}: GetChainFlipSwapArgs): Promise<
+  Result<AxiosResponse<ChainflipBaasSwapDepositAddress, any>, SwapErrorRight>
+> =>
+  // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
+  chainflipService.get<ChainflipBaasSwapDepositAddress>(
+    `${brokerUrl}/swap` +
+      `?apiKey=${apiKey}` +
+      `&sourceAsset=${sourceAsset}` +
+      `&destinationAsset=${destinationAsset}` +
+      `&destinationAddress=${destinationAddress}` +
+      `&boostFee=${boostFee}` +
+      `&minimumPrice=${minimumPrice}` +
+      `&refundAddress=${refundAddress}` +
+      `&retryDurationInBlocks=${retryDurationInBlocks}` +
+      `&commissionBps=${commissionBps}`,
+  )
+
+const fetchChainFlipAssets = async ({
+  brokerUrl,
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'>): Promise<ChainflipAsset[]> => {
+  const result = await chainflipService.get<{ assets: ChainflipAsset[] }>(`${brokerUrl}/assets`)
+
+  if (result.isErr()) throw result.unwrapErr()
+
+  const { data } = result.unwrap()
+
+  return data.assets
+}
+
+export const getChainFlipIdFromAssetId = async ({
+  assetId,
+  brokerUrl,
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'> & { assetId: AssetId }) => {
+  const chainflipAssets = await fetchChainFlipAssets({
+    brokerUrl,
+  })
+  const { assetReference, chainId } = fromAssetId(assetId)
+  const _isToken = isToken(assetId)
+
+  const chainflipAsset = chainflipAssets.find(asset => {
+    const isCorrectNetwork = asset.network === chainIdToChainflipNetwork[chainId]
+    if (!isCorrectNetwork) return false
+
+    if (_isToken) {
+      return asset.contractAddress?.toLowerCase() === assetReference.toLowerCase()
+    }
+
+    return !asset.contractAddress
+  })
+
+  if (!chainflipAsset) throw new Error('Asset not found')
+
+  return chainflipAsset.id
 }

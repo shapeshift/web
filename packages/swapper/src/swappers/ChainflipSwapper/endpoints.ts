@@ -16,13 +16,17 @@ import type {
   UtxoFeeData,
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
-import { CHAINFLIP_BAAS_COMMISSION, chainIdToChainflipNetwork } from './constants'
+import { CHAINFLIP_BAAS_COMMISSION } from './constants'
 import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
-import { calculateChainflipMinPrice } from './utils/helpers'
+import {
+  calculateChainflipMinPrice,
+  getChainFlipIdFromAssetId,
+  getChainFlipSwap,
+} from './utils/helpers'
 
 // Persists the ID so we can look it up later when checking the status
 const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
@@ -44,12 +48,16 @@ export const chainflipApi: SwapperApi = {
     const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
     const step = tradeQuote.steps[0]
-    const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.sellAsset.chainId]
-    }`
-    const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.buyAsset.chainId]
-    }`
+
+    const isTokenSend = isToken(step.sellAsset.assetId)
+    const sourceAsset = await getChainFlipIdFromAssetId({
+      assetId: step.sellAsset.assetId,
+      brokerUrl,
+    })
+    const destinationAsset = await getChainFlipIdFromAssetId({
+      assetId: step.buyAsset.assetId,
+      brokerUrl,
+    })
 
     const minimumPrice = calculateChainflipMinPrice({
       slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
@@ -64,20 +72,16 @@ export const chainflipApi: SwapperApi = {
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
     if (serviceCommission < 0) serviceCommission = 0
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${from}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset,
+      destinationAsset,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: from,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()
@@ -93,7 +97,6 @@ export const chainflipApi: SwapperApi = {
 
     const depositAddress = swapResponse.address!
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
-    const isTokenSend = isToken(step.sellAsset.assetId)
 
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
 
@@ -159,12 +162,14 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]
-    }`
-    const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.buyAsset.chainId as KnownChainIds]
-    }`
+    const sourceAsset = await getChainFlipIdFromAssetId({
+      assetId: step.sellAsset.assetId,
+      brokerUrl,
+    })
+    const destinationAsset = await getChainFlipIdFromAssetId({
+      assetId: step.buyAsset.assetId,
+      brokerUrl,
+    })
 
     // Subtract the BaaS fee to end up at the final displayed commissionBps
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
@@ -190,20 +195,16 @@ export const chainflipApi: SwapperApi = {
       pubKey: xpub,
     })
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${sendAddress}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset,
+      destinationAsset,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: sendAddress,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()
@@ -244,12 +245,14 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    const sellChainflipChainKey = `${step.sellAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.sellAsset.chainId as KnownChainIds]
-    }`
-    const buyChainflipChainKey = `${step.buyAsset.symbol.toLowerCase()}.${
-      chainIdToChainflipNetwork[step.buyAsset.chainId as KnownChainIds]
-    }`
+    const sourceAsset = await getChainFlipIdFromAssetId({
+      assetId: step.sellAsset.assetId,
+      brokerUrl,
+    })
+    const destinationAsset = await getChainFlipIdFromAssetId({
+      assetId: step.buyAsset.assetId,
+      brokerUrl,
+    })
 
     // Subtract the BaaS fee to end up at the final displayed commissionBps
     let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
@@ -264,20 +267,16 @@ export const chainflipApi: SwapperApi = {
         step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     })
 
-    const maybeSwapResponse = await chainflipService.get<ChainflipBaasSwapDepositAddress>(
-      `${brokerUrl}/swap` +
-        `?apiKey=${apiKey}` +
-        `&sourceAsset=${sellChainflipChainKey}` +
-        `&destinationAsset=${buyChainflipChainKey}` +
-        `&destinationAddress=${tradeQuote.receiveAddress}` +
-        `&boostFee=10` +
-        `&minimumPrice=${minimumPrice}` +
-        `&refundAddress=${from}` +
-        `&retryDurationInBlocks=10` +
-        `&commissionBps=${serviceCommission}`,
-
-      // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-    )
+    const maybeSwapResponse = await getChainFlipSwap({
+      brokerUrl,
+      apiKey,
+      sourceAsset,
+      destinationAsset,
+      destinationAddress: tradeQuote.receiveAddress,
+      minimumPrice,
+      refundAddress: from,
+      commissionBps: serviceCommission,
+    })
 
     if (maybeSwapResponse.isErr()) {
       const error = maybeSwapResponse.unwrapErr()

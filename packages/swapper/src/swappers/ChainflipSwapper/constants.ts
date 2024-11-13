@@ -16,6 +16,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'
+import { ChainflipNetwork } from './types'
 
 export const CHAINFLIP_REGULAR_QUOTE = 'regular'
 export const CHAINFLIP_DCA_QUOTE = 'dca'
@@ -37,11 +38,11 @@ export const ChainflipSupportedAssetIdsByChainId: Partial<Record<KnownChainIds, 
   [KnownChainIds.SolanaMainnet]: [solAssetId, usdcOnSolanaAssetId],
 }
 
-export const chainIdToChainflipNetwork: Partial<Record<ChainId, string>> = {
-  [KnownChainIds.EthereumMainnet]: 'eth',
-  [KnownChainIds.ArbitrumMainnet]: 'arb',
-  [KnownChainIds.BitcoinMainnet]: 'btc',
-  [KnownChainIds.SolanaMainnet]: 'sol',
+export const chainIdToChainflipNetwork: Partial<Record<ChainId, ChainflipNetwork>> = {
+  [KnownChainIds.EthereumMainnet]: ChainflipNetwork.Ethereum,
+  [KnownChainIds.ArbitrumMainnet]: ChainflipNetwork.Arbitrum,
+  [KnownChainIds.BitcoinMainnet]: ChainflipNetwork.Bitcoin,
+  [KnownChainIds.SolanaMainnet]: ChainflipNetwork.Solana,
 }
 
 export const CHAINFLIP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

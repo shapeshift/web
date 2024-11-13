@@ -29,16 +29,18 @@ import {
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
 import {
+  selectPortfolioAccountMetadataByAccountId,
+  selectUsdRateByAssetId,
+} from 'state/slices/selectors'
+import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAsset,
   selectLastHopBuyAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-  selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,

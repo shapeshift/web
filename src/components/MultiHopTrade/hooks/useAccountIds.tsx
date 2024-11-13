@@ -1,6 +1,9 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { selectFirstHopSellAccountId, selectLastHopBuyAccountId } from 'state/slices/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectLastHopBuyAccountId,
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

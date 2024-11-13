@@ -20,8 +20,8 @@ import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIs
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isToken } from 'lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import {
-  selectFeeAssetById,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountUsd,
@@ -29,7 +29,7 @@ import {
   selectIsManualReceiveAddressEditing,
   selectIsManualReceiveAddressValid,
   selectIsManualReceiveAddressValidating,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,

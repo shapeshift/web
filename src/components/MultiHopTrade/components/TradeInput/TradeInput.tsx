@@ -28,15 +28,15 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import { selectIsAnyAccountMetadataLoadedForChainId } from 'state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
-  selectIsAnyAccountMetadataLoadedForChainId,
   selectIsInputtingFiatSellAmount,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,

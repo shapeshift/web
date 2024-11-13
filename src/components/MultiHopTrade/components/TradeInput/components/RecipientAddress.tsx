@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { selectInputBuyAsset } from 'state/slices/selectors'
+import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 

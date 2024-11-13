@@ -9,7 +9,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { selectCalculatedFees, selectThorVotingPower } from 'state/apis/snapshot/selectors'
-import { selectInputSellAmountUsd } from 'state/slices/selectors'
+import { selectInputSellAmountUsd } from 'state/slices/tradeInputSlice/selectors'
 import { selectActiveQuoteAffiliateBps } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 

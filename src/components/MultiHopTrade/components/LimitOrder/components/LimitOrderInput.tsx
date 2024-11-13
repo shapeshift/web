@@ -20,6 +20,7 @@ import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInp
 import {
   selectBuyAccountId,
   selectHasUserEnteredAmount,
+  selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAmountUserCurrency,
@@ -31,7 +32,6 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import {
-  selectInputBuyAsset,
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'

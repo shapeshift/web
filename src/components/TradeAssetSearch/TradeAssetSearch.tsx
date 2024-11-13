@@ -4,7 +4,6 @@ import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/rea
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { type Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { knownChainIds } from 'constants/chains'
-import { noop } from 'lodash'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -171,7 +170,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     })()
 
     const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(
-      chainIdFilterPredicate ?? noop,
+      chainIdFilterPredicate ?? (() => true),
     )
 
     return ['All', ...sortedChainIds]

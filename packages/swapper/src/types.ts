@@ -6,7 +6,7 @@ import type {
   EvmChainAdapter,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-// import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
 import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
@@ -223,7 +223,7 @@ export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
 export type SolanaSwapperDeps = {
-  assertGetSolanaChainAdapter: (chainId: ChainId) => any
+  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
 }
 
 export type SwapperDeps = {

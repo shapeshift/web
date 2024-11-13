@@ -170,7 +170,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     })()
 
     const sortedChainIds = sortChainIdsByDisplayName(unsortedChainIds).filter(
-      chainIdFilterPredicate ?? (() => true),
+      chainId => chainIdFilterPredicate?.(chainId) ?? true,
     )
 
     return ['All', ...sortedChainIds]

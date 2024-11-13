@@ -35,6 +35,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   allowWalletUnsupportedAssets,
   title = 'common.selectAsset',
   assetFilterPredicate,
+  chainIdFilterPredicate,
 }) => {
   const translate = useTranslate()
 
@@ -57,6 +58,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
         onAssetClick={handleAssetClick}
         allowWalletUnsupportedAssets={allowWalletUnsupportedAssets}
         assetFilterPredicate={assetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     </Dialog>
   )

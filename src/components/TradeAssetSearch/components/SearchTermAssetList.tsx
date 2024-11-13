@@ -23,7 +23,6 @@ export type SearchTermAssetListProps = {
   activeChainId: ChainId | 'All'
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
-  isSwapper?: boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
 }
@@ -33,7 +32,6 @@ export const SearchTermAssetList = ({
   activeChainId,
   searchString,
   allowWalletUnsupportedAssets,
-  isSwapper,
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {

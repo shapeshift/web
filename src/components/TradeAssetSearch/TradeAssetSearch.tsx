@@ -45,13 +45,11 @@ export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
-  isSwapper?: boolean
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
-  isSwapper,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
@@ -239,7 +237,6 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
           onAssetClick={handleAssetClick}
           onImportClick={handleImportIntent}
           isLoading={isPopularAssetIdsLoading}
-          isSwapper={isSwapper}
           allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
         />
       ) : (

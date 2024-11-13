@@ -141,7 +141,7 @@ const _getTradeQuote = async (
         buyAsset,
         sellAsset,
         accountNumber,
-        allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
+        allowanceContract: '0x0',
         estimatedExecutionTimeMs: quoteResponse.timeTaken! * 1000,
       },
     ],

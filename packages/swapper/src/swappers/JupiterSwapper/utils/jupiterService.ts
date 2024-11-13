@@ -16,5 +16,5 @@ const jupiterServiceBase = createCache(maxAge, cachedUrls, axiosConfig)
 
 export const jupiterService = makeSwapperAxiosServiceMonadic(
   jupiterServiceBase,
-  SwapperName.Chainflip,
+  SwapperName.Jupiter,
 )

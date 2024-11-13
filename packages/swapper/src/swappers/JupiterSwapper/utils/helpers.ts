@@ -14,39 +14,6 @@ export const isSupportedChainId = (chainId: ChainId): chainId is JupiterSupporte
   return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
 }
 
-export const calculateChainflipMinPrice = ({
-  sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  buyAmountAfterFeesCryptoBaseUnit,
-  slippageTolerancePercentageDecimal,
-  sellAsset,
-  buyAsset,
-}: {
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  buyAmountAfterFeesCryptoBaseUnit: string
-  slippageTolerancePercentageDecimal: string | undefined
-  sellAsset: Asset
-  buyAsset: Asset
-}): string => {
-  const sellAmountCryptoPrecision = fromBaseUnit(
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset.precision,
-  )
-
-  const buyAmountCryptoPrecision = fromBaseUnit(
-    buyAmountAfterFeesCryptoBaseUnit,
-    buyAsset.precision,
-  )
-
-  const estimatedPrice = bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision)
-
-  // This is called minimumPrice upstream but this really is a rate, let's not honour confusing terminology
-  const minimumRate = estimatedPrice
-    .times(bn(1).minus(bnOrZero(slippageTolerancePercentageDecimal)))
-    .toFixed(buyAsset.precision)
-
-  return minimumRate
-}
-
 type GetJupiterSwapArgs = {
   apiUrl: string
   sourceAsset: string

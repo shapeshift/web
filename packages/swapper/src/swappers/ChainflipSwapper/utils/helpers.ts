@@ -1,18 +1,27 @@
-import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight } from '../../../types'
+import { isToken } from '../../../utils'
 import type { ChainflipSupportedChainId } from '../constants'
-import { ChainflipSupportedAssetIdsByChainId, ChainflipSupportedChainIds } from '../constants'
+import {
+  ChainflipSupportedAssetIdsByChainId,
+  ChainflipSupportedChainIds,
+  chainIdToChainflipNetwork,
+} from '../constants'
 import type { ChainflipBaasSwapDepositAddress } from '../models'
+import type { ChainflipNetwork } from '../types'
 import { chainflipService } from './chainflipService'
 
-type GetChainFlipSwapArgs = {
+type ChainFlipBrokerBaseArgs = {
   brokerUrl: string
   apiKey: string
+}
+
+type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
   sourceAsset: string
   destinationAsset: string
   destinationAddress: string
@@ -21,6 +30,14 @@ type GetChainFlipSwapArgs = {
   refundAddress: string
   retryDurationInBlocks?: number
   commissionBps: number
+}
+
+type ChainflipAsset = {
+  id: string
+  ticker: string
+  name: string
+  network: ChainflipNetwork
+  contractAddress?: string
 }
 
 export const isSupportedChainId = (chainId: ChainId): chainId is ChainflipSupportedChainId => {
@@ -96,3 +113,41 @@ export const getChainFlipSwap = ({
       `&retryDurationInBlocks=${retryDurationInBlocks}` +
       `&commissionBps=${commissionBps}`,
   )
+
+const fetchChainFlipAssets = async ({
+  brokerUrl,
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'>): Promise<ChainflipAsset[]> => {
+  const result = await chainflipService.get<{ assets: ChainflipAsset[] }>(`${brokerUrl}/assets`)
+
+  if (result.isErr()) throw result.unwrapErr()
+
+  const { data } = result.unwrap()
+
+  return data.assets
+}
+
+export const getChainFlipIdFromAssetId = async ({
+  assetId,
+  brokerUrl,
+}: Omit<ChainFlipBrokerBaseArgs, 'apiKey'> & { assetId: AssetId }) => {
+  const chainflipAssets = await fetchChainFlipAssets({
+    brokerUrl,
+  })
+  const { assetReference, chainId } = fromAssetId(assetId)
+  const _isToken = isToken(assetId)
+
+  const chainflipAsset = chainflipAssets.find(asset => {
+    const isCorrectNetwork = asset.network === chainIdToChainflipNetwork[chainId]
+    if (!isCorrectNetwork) return false
+
+    if (_isToken) {
+      return asset.contractAddress?.toLowerCase() === assetReference.toLowerCase()
+    }
+
+    return !asset.contractAddress
+  })
+
+  if (!chainflipAsset) throw new Error('Asset not found')
+
+  return chainflipAsset.id
+}

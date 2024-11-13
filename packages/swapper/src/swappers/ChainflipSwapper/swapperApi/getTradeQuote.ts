@@ -32,14 +32,13 @@ import {
   CHAINFLIP_DCA_SWAP_SOURCE,
   CHAINFLIP_REGULAR_QUOTE,
   CHAINFLIP_SWAP_SOURCE,
-  chainIdToChainflipNetwork,
   usdcAsset,
 } from '../constants'
 import type { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
 import { chainflipService } from '../utils/chainflipService'
 import { getEvmTxFees } from '../utils/getEvmTxFees'
 import { getUtxoTxFees } from '../utils/getUtxoTxFees'
-import { isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
+import { getChainFlipIdFromAssetId, isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 
 const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -94,15 +93,17 @@ const _getTradeQuote = async (
     )
   }
 
-  const sellChainflipChainKey = `${sellAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[sellAsset.chainId]
-  }`
-  const buyChainflipChainKey = `${buyAsset.symbol.toLowerCase()}.${
-    chainIdToChainflipNetwork[buyAsset.chainId]
-  }`
-
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
+
+  const sourceAsset = await getChainFlipIdFromAssetId({
+    assetId: sellAsset.assetId,
+    brokerUrl,
+  })
+  const destinationAsset = await getChainFlipIdFromAssetId({
+    assetId: buyAsset.assetId,
+    brokerUrl,
+  })
 
   // Subtract the BaaS fee to end up at the final displayed commissionBps
   let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION
@@ -111,8 +112,8 @@ const _getTradeQuote = async (
   const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
     `${brokerUrl}/quotes-native` +
       `?apiKey=${apiKey}` +
-      `&sourceAsset=${sellChainflipChainKey}` +
-      `&destinationAsset=${buyChainflipChainKey}` +
+      `&sourceAsset=${sourceAsset}` +
+      `&destinationAsset=${destinationAsset}` +
       `&amount=${sellAmount}` +
       `&commissionBps=${serviceCommission}`,
   )
@@ -152,7 +153,7 @@ const _getTradeQuote = async (
         const networkFeeCryptoBaseUnit = await getEvmTxFees({
           adapter: sellAdapter,
           supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
-          sendAsset: sellChainflipChainKey,
+          sendAsset: sourceAsset,
         })
         return { networkFeeCryptoBaseUnit }
       }
@@ -197,9 +198,9 @@ const _getTradeQuote = async (
 
     if (fee.type === 'egress') return buyAsset
 
-    if (fee.type === 'liquidity' && fee.asset === sellChainflipChainKey) return sellAsset
+    if (fee.type === 'liquidity' && fee.asset === sourceAsset) return sellAsset
 
-    if (fee.type === 'liquidity' && fee.asset === buyChainflipChainKey) return buyAsset
+    if (fee.type === 'liquidity' && fee.asset === destinationAsset) return buyAsset
 
     if (fee.type === 'liquidity' && fee.asset === 'usdc.eth') return usdcAsset
 

@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "\nВосходящий",
+    "descending": "Нисходящий",
     "free": "Бесплатно",
     "trade": "Торговля",
     "trades": "Сделки",
@@ -159,6 +161,10 @@
     "import": "Импорт",
     "accountsLoading": "Загрузка аккаунтов",
     "noAccounts": "Нет учетных записей для выбранных фильтров.",
+    "sortBy": "Сортировать по",
+    "orderBy": "Журнал",
+    "filterBy": "Фильтр по",
+    "filterAndSort": "Фильтр и сортировка",
     "carousel": {
       "next": "Далее",
       "prev": "Предыдущий",
@@ -235,6 +241,7 @@
       "balance": "Баланс",
       "price": "Цена",
       "value": "Обьем",
+      "apy": "APY",
       "priceChange": "Изменение цены",
       "allocation": "Распределение",
       "marketCap": "Рыночная капитализация",
@@ -865,7 +872,10 @@
     "receiveInclFee": "Поступления (вкл. комиссию)",
     "approvingAsset": "Подтверждение %{symbol}",
     "viewTransaction": "Посмотреть транзакцию",
+    "noQuotesAvailable": "Котировки отсутствуют",
+    "noQuotesAvailableDescription": "В данный момент доступных котировок не найдено. Попробуйте выбрать другую пару.",
     "availableSwappers": "Доступные котировки",
+    "unavailableSwappers": "Недоступные обменники",
     "unlimited": "Безлимитный",
     "streamStatus": "Статус операции",
     "swapsFailed": "%{failedSwaps} обмен не удался",
@@ -1002,7 +1012,35 @@
       "slippage": "Проскальзывание: %{slippageFormatted}"
     }
   },
-  "limitOrder": {},
+  "limitOrder": {
+    "heading": "Ограничение",
+    "confirm": "Подтвердить",
+    "placeOrderPending": "Ожидание подтверждения",
+    "placeOrderSuccess": "Успех!",
+    "placeOrderFailed": "Что-то пошло не так",
+    "placeOrder": "Разместить заказ",
+    "viewOrder": "Посмотреть заказ",
+    "viewOnChain": "Просмотр транзакции по цепочке",
+    "yourOrderHasBeenPlaced": "Ваш заказ оформлен.",
+    "limitPrice": "Предельная цена",
+    "provider": "Поставщик",
+    "expiration": "Срок действия",
+    "networkFee": "Комиссия за сеть",
+    "confirmInfo": "Лимитный ордер может не исполниться именно тогда, когда цены на цепи достигнут лимитной цены.",
+    "learnMore": "Узнать больше",
+    "previewOrder": "Предварительный заказ",
+    "youGet": "Вы получаете",
+    "whenPriceReaches": "Когда цена достигает",
+    "expiry": "Срок действия",
+    "expiryOption": {
+      "oneHour": "1 час",
+      "oneDay": "1 день",
+      "threeDays": "3 дня",
+      "sevenDays": "7 дней",
+      "twentyEightDays": "28 дней",
+      "custom": "Пользовательское"
+    }
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "Мои активы",
@@ -2670,5 +2708,24 @@
       "noActiveProposals": "Активные предложения отсутствуют",
       "noClosedProposals": "Закрытые предложения отсутствуют"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Лимитные заказы",
+    "limitPrice": "Предельная цена",
+    "expiresIn": "Срок действия истекает",
+    "filled": "Заполненный",
+    "openOrders": "Открытые заказы",
+    "orderHistory": "История заказов",
+    "status": {
+      "open": "Открыть",
+      "filled": "Заполненный",
+      "cancelled": "Отменено",
+      "expired": "Просроченный"
+    },
+    "orders": "Заказы"
+  },
+  "thorFees": {
+    "title": "Здесь из THORSwap?",
+    "description": "Обладатели THOR будут торговать бесплатно до 2024 года."
   }
 }

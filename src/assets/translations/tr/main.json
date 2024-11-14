@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Yükselen",
+    "descending": "Azalan",
     "free": "Uygun",
     "trade": "Takas",
     "trades": "İşlemler",
@@ -159,6 +161,10 @@
     "import": "İçe aktar",
     "accountsLoading": "Hesaplar Yükleniyor",
     "noAccounts": "Seçilen filtrelere ait hesap bulunamadı.",
+    "sortBy": "Göre sırala",
+    "orderBy": "Emire göre sırala",
+    "filterBy": "Filtrele",
+    "filterAndSort": "Filtrele ve Sırala",
     "carousel": {
       "next": "Sonraki",
       "prev": "Önceki",
@@ -235,6 +241,7 @@
       "balance": "Bakiye",
       "price": "Fiyat",
       "value": "Değer",
+      "apy": "APY",
       "priceChange": "Fiyat Değişikliği",
       "allocation": "Dağılım",
       "marketCap": "Piyasa değeri",
@@ -865,7 +872,10 @@
     "receiveInclFee": "Al (ücretler dahil)",
     "approvingAsset": "%{symbol} onaylanıyor",
     "viewTransaction": "İşlemi Görüntüle",
+    "noQuotesAvailable": "Teklif Yok",
+    "noQuotesAvailableDescription": "Şu anda kullanılabilir teklif bulunamadı. Başka bir çift seçmeyi deneyin.",
     "availableSwappers": "Mevcut Fiyat Teklifleri",
+    "unavailableSwappers": "Kullanılamayan Swapper'lar",
     "unlimited": "Limitsiz",
     "streamStatus": "Yayın Durumu",
     "swapsFailed": "%{failedSwaps} takas başarısız oldu",
@@ -1002,7 +1012,35 @@
       "slippage": "Kayma: %{slippageFormatted}"
     }
   },
-  "limitOrder": {},
+  "limitOrder": {
+    "heading": "Limit",
+    "confirm": "Onayla",
+    "placeOrderPending": "Onay Bekleniyor",
+    "placeOrderSuccess": "Başarılı!",
+    "placeOrderFailed": "Bir Şeyler Ters Gitti",
+    "placeOrder": "Emir Ver",
+    "viewOrder": "Emiri Görüntüle",
+    "viewOnChain": "İşlemi zincirde görüntüle",
+    "yourOrderHasBeenPlaced": "Emir verildi.",
+    "limitPrice": "Limit Fiyatı",
+    "provider": "Sağlayıcı",
+    "expiration": "Sona erme",
+    "networkFee": "Ağ Ücreti",
+    "confirmInfo": "Limit emri, zincir üstü fiyatlar limit fiyatına ulaştığında tam olarak doldurulamayabilir.",
+    "learnMore": "Daha fazla bilgi edin",
+    "previewOrder": "Siparişi Önizleme ",
+    "youGet": "Alırsın",
+    "whenPriceReaches": "Fiyat ulaştığında",
+    "expiry": "Sona erme",
+    "expiryOption": {
+      "oneHour": "1 saat",
+      "oneDay": "1 gün",
+      "threeDays": "3 gün",
+      "sevenDays": "7 gün",
+      "twentyEightDays": "28 gün",
+      "custom": "Özel"
+    }
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "Varlıklarım",
@@ -2670,5 +2708,24 @@
       "noActiveProposals": "Aktif teklif yok",
       "noClosedProposals": "Kapalı teklif yok"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Limit Emirleri",
+    "limitPrice": "Limit Fiyatı",
+    "expiresIn": "Sona Eriyor",
+    "filled": "Yerine getirildi",
+    "openOrders": "Açık Emirler",
+    "orderHistory": "Emir Geçmişi",
+    "status": {
+      "open": "Açık",
+      "filled": "Yerine getirildi",
+      "cancelled": "İptal edildi",
+      "expired": "Süresi geçti"
+    },
+    "orders": "Emirler"
+  },
+  "thorFees": {
+    "title": "THORSwap'tan mı buradasın?",
+    "description": "THOR sahipleri 2024 yılına kadar ücretsiz işlem yapabilecek."
   }
 }

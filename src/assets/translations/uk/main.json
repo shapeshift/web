@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "По зростаючій",
+    "descending": "По спадаючій",
     "free": "Безкоштовно",
     "trade": "Обмін",
     "trades": "Угоди",
@@ -159,6 +161,10 @@
     "import": "Імпорт",
     "accountsLoading": "Завантаження акаунтів",
     "noAccounts": "Немає акаунтів для вибраних фільтрів.",
+    "sortBy": "Сортувати за",
+    "orderBy": "Замовлення за",
+    "filterBy": "Фільтрувати за",
+    "filterAndSort": "Фільтр і сортування",
     "carousel": {
       "next": "Далі",
       "prev": "Попередній",
@@ -235,6 +241,7 @@
       "balance": "Залишок",
       "price": "Ціна",
       "value": "Вартість",
+      "apy": "APY",
       "priceChange": "Динаміка цін",
       "allocation": "Розподіл",
       "marketCap": "Ринкова капіталізація",
@@ -865,7 +872,10 @@
     "receiveInclFee": "Отримання (в т.ч. комісія)",
     "approvingAsset": "Затвердити %{symbol}",
     "viewTransaction": "Переглянути транзакцію",
+    "noQuotesAvailable": "Котирування не доступні",
+    "noQuotesAvailableDescription": "Наразі не знайдено доступних котирувань. Спробуйте вибрати іншу пару.",
     "availableSwappers": "Доступні котирування",
+    "unavailableSwappers": "Недоступні обмінники",
     "unlimited": "Необмежено",
     "streamStatus": "Статус передачі",
     "swapsFailed": "%{failedSwaps} не вдалося виконати обмін",
@@ -1002,7 +1012,35 @@
       "slippage": "Прослизання: %{slippageFormatted}"
     }
   },
-  "limitOrder": {},
+  "limitOrder": {
+    "heading": "Ліміт",
+    "confirm": "Підтвердити",
+    "placeOrderPending": "Очікування підтвердження",
+    "placeOrderSuccess": "Вдалося!",
+    "placeOrderFailed": "Щось пішло не так",
+    "placeOrder": "Розмістити замовлення",
+    "viewOrder": "Переглянути замовлення",
+    "viewOnChain": "Переглянути транзакцію по мережі",
+    "yourOrderHasBeenPlaced": "Ваше замовлення відправлено.",
+    "limitPrice": "Лімітна ціна",
+    "provider": "Провайдер",
+    "expiration": "Закінчення терміну дії",
+    "networkFee": "Мережева комісія",
+    "confirmInfo": "Лімітний ордер може не виконатися саме тоді, коли ціни в мережі досягнуть лімітної ціни.",
+    "learnMore": "Дізнатися більше",
+    "previewOrder": "Попередній перегляд замовлення",
+    "youGet": "Ви отримаєте",
+    "whenPriceReaches": "Коли ціна сягне",
+    "expiry": "Закінчення терміну дії",
+    "expiryOption": {
+      "oneHour": "1 година",
+      "oneDay": "1 день",
+      "threeDays": "3 дні",
+      "sevenDays": "7 днів",
+      "twentyEightDays": "28 днів",
+      "custom": "Користувацький"
+    }
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "Мої активи",
@@ -2670,5 +2708,24 @@
       "noActiveProposals": "Активних пропозицій немає",
       "noClosedProposals": "Закриті пропозиції відсутні"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Лімітні замовлення",
+    "limitPrice": "Лімітна ціна",
+    "expiresIn": "Закінчується через",
+    "filled": "Заповнено",
+    "openOrders": "Відкриті замовлення",
+    "orderHistory": "Історія замовлень",
+    "status": {
+      "open": "Відкрити",
+      "filled": "Заповнено",
+      "cancelled": "Скасовано",
+      "expired": "Закінчився"
+    },
+    "orders": "Замовлення"
+  },
+  "thorFees": {
+    "title": "Це з THORSwap?",
+    "description": "Власники THOR можуть торгувати безкоштовно до 2024 року."
   }
 }

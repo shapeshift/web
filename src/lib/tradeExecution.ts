@@ -5,6 +5,7 @@ import type {
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
   SellTxHashArgs,
+  SolanaTransactionExecutionInput,
   StatusArgs,
   Swapper,
   SwapperApi,
@@ -28,6 +29,7 @@ import { store } from 'state/store'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 export class TradeExecution {
@@ -320,6 +322,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSolanaTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: SolanaTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSolanaTransaction) {
+        throw Error('missing implementation for getUnsignedSolanaTransaction')
+      }
+      if (!swapper.executeSolanaTransaction) {
+        throw Error('missing implementation for executeSolanaTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedSolanaTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetSolanaChainAdapter,
+      })
+
+      return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

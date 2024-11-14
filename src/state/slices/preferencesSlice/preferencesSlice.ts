@@ -68,6 +68,8 @@ export type FeatureFlags = {
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
   LimitOrders: boolean
+  Chainflip: boolean
+  ChainflipDca: boolean
   PublicTradeRoute: boolean
   ThorFreeFees: boolean
 }
@@ -161,6 +163,8 @@ const initialState: Preferences = {
     FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
+    Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
+    ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA,
     PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
   },

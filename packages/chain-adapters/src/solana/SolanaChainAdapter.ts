@@ -453,6 +453,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const destinationTokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(tokenId),
       new PublicKey(to),
+      true,
     )
 
     // check if destination token account exists and add creation instruction if it doesn't
@@ -477,7 +478,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     instructions.push(
       createTransferInstruction(
-        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from)),
+        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
         destinationTokenAccount,
         new PublicKey(from),
         Number(value),

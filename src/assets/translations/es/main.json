@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Ascendente",
+    "descending": "Descendente",
     "free": "Gratis",
     "trade": "Intercambiar",
     "trades": "Intercambios",
@@ -159,6 +161,10 @@
     "import": "Importar",
     "accountsLoading": "Cargando Cuentas",
     "noAccounts": "No hay cuentas para los filtros seleccionados.",
+    "sortBy": "Ordenar por",
+    "orderBy": "Agrupar por",
+    "filterBy": "Filtrar por",
+    "filterAndSort": "Filtrar y Ordenar",
     "carousel": {
       "next": "Siguiente",
       "prev": "Anterior",
@@ -235,6 +241,7 @@
       "balance": "Balance",
       "price": "Precio",
       "value": "Valor",
+      "apy": "APY",
       "priceChange": "Cambio de precio",
       "allocation": "Asignación",
       "marketCap": "Capitalizacion de Mercado",
@@ -865,7 +872,10 @@
     "receiveInclFee": "Recibir (incl. tarifas)",
     "approvingAsset": "Aprobando %{symbol}",
     "viewTransaction": "Ver Transacción",
+    "noQuotesAvailable": "No hay Cotizaciones Disponibles",
+    "noQuotesAvailableDescription": "No se encontraron cotizaciones disponibles en este momento. Intente seleccionar otro par.",
     "availableSwappers": "Cotizaciones Disponibles",
+    "unavailableSwappers": "Intercambiadores No Disponibles",
     "unlimited": "Ilimitado",
     "streamStatus": "Estado Stream",
     "swapsFailed": "%{failedSwaps} intercambios fallidos",
@@ -1002,7 +1012,35 @@
       "slippage": "Deslizamiento: %{slippageFormatted}"
     }
   },
-  "limitOrder": {},
+  "limitOrder": {
+    "heading": "Límite",
+    "confirm": "Confirmar",
+    "placeOrderPending": "Esperando Confirmación",
+    "placeOrderSuccess": "¡Éxito!",
+    "placeOrderFailed": "Algo Salió Mal",
+    "placeOrder": "Realizar Pedido",
+    "viewOrder": "Ver Pedido",
+    "viewOnChain": "Ver transacción en blockchain",
+    "yourOrderHasBeenPlaced": "Su orden ha sido realizado.",
+    "limitPrice": "Precio Límite",
+    "provider": "Proveedor",
+    "expiration": "Vencimiento",
+    "networkFee": "Tarifa de Red",
+    "confirmInfo": "Es posible que la orden límite no se complete exactamente cuando los precios alcancen el precio límite.",
+    "learnMore": "Más información",
+    "previewOrder": "Vista previa del pedido",
+    "youGet": "Tú Obtienes",
+    "whenPriceReaches": "Cuando el precio alcance",
+    "expiry": "Expiración",
+    "expiryOption": {
+      "oneHour": "1 hora",
+      "oneDay": "1 día",
+      "threeDays": "3 días",
+      "sevenDays": "7 días",
+      "twentyEightDays": "28 días",
+      "custom": "Personalizado"
+    }
+  },
   "modals": {
     "assetSearch": {
       "myAssets": "Mis Activos",
@@ -2670,5 +2708,24 @@
       "noActiveProposals": "No hay propuestas activas disponibles",
       "noClosedProposals": "No hay propuestas cerradas disponibles"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Límite de Orden",
+    "limitPrice": "Límite de Precio",
+    "expiresIn": "Caduca en",
+    "filled": "Completado",
+    "openOrders": "Órdenes Abiertas",
+    "orderHistory": "Historial de Órdenes",
+    "status": {
+      "open": "Abierta",
+      "filled": "Completado",
+      "cancelled": "Cancelado",
+      "expired": "Caducado"
+    },
+    "orders": "Órdenes"
+  },
+  "thorFees": {
+    "title": "¿Eres de THORSwap?",
+    "description": "Los titulares de THOR intercambian gratis en 2024."
   }
 }

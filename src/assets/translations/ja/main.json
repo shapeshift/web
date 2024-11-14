@@ -161,6 +161,9 @@
     "import": "インポート",
     "accountsLoading": "アカウントの読み込み中",
     "noAccounts": "選択したフィルターに該当するアカウントはありません。",
+    "sortBy": "並べ替える",
+    "orderBy": "並び替える",
+    "filterBy": "の条件でフィルター",
     "filterAndSort": "フィルターと並べ替え",
     "carousel": {
       "next": "次",
@@ -869,6 +872,7 @@
     "receiveInclFee": "受け取り（手数料含む）",
     "approvingAsset": "%{symbol}を承認しています",
     "viewTransaction": "トランザクションの表示",
+    "noQuotesAvailable": "利用できる引用はありません",
     "noQuotesAvailableDescription": "現時点では利用可能な引用が見つかりません。別のペアを選択してください。",
     "availableSwappers": "利用可能な見積もり",
     "unavailableSwappers": "利用できないスワッパー",
@@ -1012,15 +1016,21 @@
     "heading": "制限",
     "confirm": "確認する",
     "placeOrderPending": "確認待ち",
+    "placeOrderSuccess": "成功しました！",
     "placeOrderFailed": "問題が発生しました",
     "placeOrder": "注文する",
     "viewOrder": "注文を表示",
+    "viewOnChain": "オンチェーントランザクションを表示",
     "yourOrderHasBeenPlaced": "ご注文が完了しました。",
     "limitPrice": "制限価格",
     "provider": "プロバイダー",
     "expiration": "有効期限",
     "networkFee": "ネットワーク料金",
+    "confirmInfo": "オンチェーン価格が制限価格に達したときに、指値注文が正確に約定されない場合があります。",
     "learnMore": "もっと詳しく知る",
+    "previewOrder": "注文のプレビュー",
+    "youGet": "獲得したもの",
+    "whenPriceReaches": "価格が達したとき",
     "expiry": "有効期限",
     "expiryOption": {
       "oneHour": "1時間",
@@ -2708,6 +2718,8 @@
     "orderHistory": "注文履歴",
     "status": {
       "open": "開ける",
+      "filled": "満たされた",
+      "cancelled": "キャンセルされました",
       "expired": "期限切れ"
     },
     "orders": "注文"

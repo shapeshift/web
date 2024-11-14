@@ -359,10 +359,10 @@ export const useGetTradeQuotes = () => {
     if (!confirmedTradeExecution) return
     // We already have an executable active trade, don't rerun this or this will run forever
     if (activeTrade && isExecutableTradeQuote(activeTrade)) return
-    const swapperName = activeQuoteMetaRef.current?.swapperName
-    if (!swapperName) return
+    const identifier = activeQuoteMetaRef.current?.identifier
+    if (!identifier) return
     if (!queryStateMeta?.data) return
-    const quoteData = queryStateMeta.data[swapperName]
+    const quoteData = queryStateMeta.data[identifier]
     if (!quoteData?.quote) return
 
     // Set the execution metadata to that of the previous rate so we can take over

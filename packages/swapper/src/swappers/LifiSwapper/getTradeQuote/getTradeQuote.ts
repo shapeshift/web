@@ -53,7 +53,6 @@ async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -247,7 +246,10 @@ async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
-        receiveAddress: quoteOrRate === 'quote' ? receiveAddress : undefined,
+        // This isn't a mistake - with Li.Fi, we can never go with our full-on intent of rate vs. quotes. As soon as a wallet is connected, we get a *quote*
+        // even though we're lying and saying this is a rate. With the "rate" containing a receiveAddress, a quote will *not* be fired at pre-sign time, which
+        // ensures users aren't rugged with routes that aren't available anymore when going from input to confirm
+        receiveAddress,
         affiliateBps,
         potentialAffiliateBps,
         steps,

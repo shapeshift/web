@@ -28,6 +28,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import {
   selectAccountNumberByAccountId,
@@ -171,6 +172,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       assertGetEvmChainAdapter,
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,
+      assertGetSolanaChainAdapter,
       getEthersV5Provider,
       fetchIsSmartContractAddressQuery,
       viemClientByChainId,

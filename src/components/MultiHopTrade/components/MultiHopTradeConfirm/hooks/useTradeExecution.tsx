@@ -2,7 +2,12 @@ import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, ETHSignTypedData, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  BTCSignTx,
+  ETHSignTypedData,
+  SolanaSignTx,
+  ThorchainSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type {
   EvmTransactionRequest,
@@ -29,6 +34,7 @@ import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from 'lib/utils/evm'
+import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -407,8 +413,33 @@ export const useTradeExecution = (
           cancelPollingRef.current = output?.cancelPolling
           return
         }
-        case CHAIN_NAMESPACE.Solana:
+        case CHAIN_NAMESPACE.Solana: {
+          const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
+          const from = await adapter.getAddress({ accountNumber, wallet })
+          const output = await execution.execSolanaTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
+              const signedTx = await adapter.signTransaction({
+                txToSign,
+                wallet,
+              })
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress: tradeQuote.receiveAddress,
+                hex: signedTx,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
           return
+        }
         default:
           assertUnreachable(stepSellAssetChainNamespace)
       }

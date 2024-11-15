@@ -311,6 +311,8 @@
     "react-scripts/workbox-webpack-plugin": "^7.1.0",
     "p-queue": "^6.6.2",
     "web3": "4.2.1-dev.a0d6730.0",
-    "react-scripts@^5.0.1": "patch:react-scripts@npm%3A5.0.1#./.yarn/patches/react-scripts-npm-5.0.1-d06bd2d5ad.patch"
+    "react-scripts@^5.0.1": "patch:react-scripts@npm%3A5.0.1#./.yarn/patches/react-scripts-npm-5.0.1-d06bd2d5ad.patch",
+    "bitcoinjs-lib@^5.2.0": "patch:bitcoinjs-lib@npm%3A5.2.0#./.yarn/patches/bitcoinjs-lib-npm-5.2.0-f462e8de5e.patch",
+    "bitcoinjs-lib@^5.0.3": "patch:bitcoinjs-lib@npm%3A5.2.0#./.yarn/patches/bitcoinjs-lib-npm-5.2.0-f462e8de5e.patch"
   }
 }

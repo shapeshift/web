@@ -1,0 +1,19 @@
+diff --git a/src/bufferutils.js b/src/bufferutils.js
+index a68fd31ceae3e9c465b09efd7b486fe60f88a965..e7bcf783ac92a4fcdf7ff32e31707bb2c10bfaed 100644
+--- a/src/bufferutils.js
++++ b/src/bufferutils.js
+@@ -4,12 +4,12 @@ const types = require('./types');
+ const typeforce = require('typeforce');
+ const varuint = require('varuint-bitcoin');
+ // https://github.com/feross/buffer/blob/master/index.js#L1127
+-function verifuint(value, max) {
++function verifuint(value, _max) {
+   if (typeof value !== 'number')
+     throw new Error('cannot write a non-number as a number');
+   if (value < 0)
+     throw new Error('specified a negative value for writing an unsigned value');
+-  if (value > max) throw new Error('RangeError: value out of range');
++  // if (value > max) throw new Error('RangeError: value out of range');
+   if (Math.floor(value) !== value)
+     throw new Error('value has a fractional component');
+ }

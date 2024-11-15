@@ -26,7 +26,7 @@ import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ErrorHandler } from '../error/ErrorHandler'
+import { ChainAdapterError, ErrorHandler, handleError } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -170,28 +170,37 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
-  supportsChain(wallet: HDWallet, chainReference?: number): wallet is ETHWallet {
-    switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
-      case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
-        return supportsAvalanche(wallet)
-      case Number(fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference):
-        return supportsBSC(wallet)
-      case Number(fromChainId(KnownChainIds.EthereumMainnet).chainReference):
-        return supportsETH(wallet)
-      case Number(fromChainId(KnownChainIds.OptimismMainnet).chainReference):
-        return supportsOptimism(wallet)
-      case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
-        return supportsPolygon(wallet)
-      case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
-        return supportsGnosis(wallet)
-      case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
-        return supportsArbitrum(wallet)
-      case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
-        return supportsArbitrumNova(wallet)
-      case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
-        return supportsBase(wallet)
-      default:
-        return false
+  assertSupportsChain(wallet: HDWallet, chainReference?: number): asserts wallet is ETHWallet {
+    const support = (() => {
+      switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
+        case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
+          return supportsAvalanche(wallet)
+        case Number(fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference):
+          return supportsBSC(wallet)
+        case Number(fromChainId(KnownChainIds.EthereumMainnet).chainReference):
+          return supportsETH(wallet)
+        case Number(fromChainId(KnownChainIds.OptimismMainnet).chainReference):
+          return supportsOptimism(wallet)
+        case Number(fromChainId(KnownChainIds.PolygonMainnet).chainReference):
+          return supportsPolygon(wallet)
+        case Number(fromChainId(KnownChainIds.GnosisMainnet).chainReference):
+          return supportsGnosis(wallet)
+        case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
+          return supportsArbitrum(wallet)
+        case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
+          return supportsArbitrumNova(wallet)
+        case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
+          return supportsBase(wallet)
+        default:
+          return false
+      }
+    })()
+
+    if (!support) {
+      throw new ChainAdapterError(`wallet does not support: ${this.getDisplayName()}`, {
+        translation: 'chainAdapters.errors.unsupportedChain',
+        options: { chain: this.getDisplayName() },
+      })
     }
   }
 
@@ -206,8 +215,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
     // error if wallet and adapter chains don't match, but switch chain isn't supported by the wallet
     if (!wallet.ethSwitchChain) {
-      throw new Error(
+      throw new ChainAdapterError(
         `wallet does not support switching chains: wallet network (${walletChainReference}) and adapter network (${adapterChainReference}) do not match.`,
+        { translation: 'chainAdapters.errors.switchChainUnsupported' },
       )
     }
 
@@ -260,17 +270,24 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       },
     }[this.chainId]
 
-    await wallet.ethSwitchChain({
-      chainId: toHex(adapterChainReference),
-      chainName: this.getDisplayName(),
-      nativeCurrency: {
-        name: targetNetwork.name,
-        symbol: targetNetwork.symbol,
-        decimals: 18,
-      },
-      rpcUrls: [this.getRpcUrl()],
-      blockExplorerUrls: [targetNetwork.explorer],
-    })
+    try {
+      await wallet.ethSwitchChain({
+        chainId: toHex(adapterChainReference),
+        chainName: this.getDisplayName(),
+        nativeCurrency: {
+          name: targetNetwork.name,
+          symbol: targetNetwork.symbol,
+          decimals: 18,
+        },
+        rpcUrls: [this.getRpcUrl()],
+        blockExplorerUrls: [targetNetwork.explorer],
+      })
+    } catch (err) {
+      throw new ChainAdapterError(err, {
+        translation: 'switchChainFailed',
+        options: { chain: this.getDisplayName() },
+      })
+    }
   }
 
   async buildSendApiTransaction(input: BuildSendApiTxInput<T>): Promise<SignTx<T>> {
@@ -316,7 +333,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return txToSign
     } catch (err) {
-      return ErrorHandler(err)
+      throw new ChainAdapterError(handleError(err), {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -324,16 +343,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     txToSign: SignTx<T>
   }> {
     try {
-      if (!this.supportsChain(input.wallet)) {
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-      }
+      this.assertSupportsChain(input.wallet)
 
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
       return { txToSign }
     } catch (err) {
-      return ErrorHandler(err)
+      throw new ChainAdapterError(handleError(err), {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -380,7 +399,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         pubkey,
       } as Account<T>
     } catch (err) {
-      return ErrorHandler(err)
+      throw new ChainAdapterError(handleError(err), {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
     }
   }
 
@@ -410,10 +432,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { txToSign, wallet } = signTxInput
 
-      if (!this.supportsChain(wallet, txToSign.chainId)) {
-        throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
-      }
-
+      this.assertSupportsChain(wallet, txToSign.chainId)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.ethSignTx(txToSign)
@@ -439,9 +458,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { txToSign, wallet } = signTxInput
 
-      if (!this.supportsChain(wallet, txToSign.chainId))
-        throw new Error(`wallet does not support chain reference: ${txToSign.chainId}`)
-
+      this.assertSupportsChain(wallet, txToSign.chainId)
       await this.assertSwitchChain(wallet)
 
       const txHash = await wallet.ethSendTx?.(txToSign)
@@ -470,9 +487,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { messageToSign, wallet } = signMessageInput
 
-      if (!this.supportsChain(wallet))
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-
+      this.assertSupportsChain(wallet)
       await this.assertSwitchChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
@@ -490,9 +505,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { typedDataToSign, wallet } = input
 
-      if (!this.supportsChain(wallet)) {
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-      }
+      this.assertSupportsChain(wallet)
 
       if (!wallet.ethSignTypedData) {
         throw new Error('wallet does not support signing typed data')
@@ -519,18 +532,25 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       return input.pubKey
     }
 
-    if (!this.supportsChain(wallet)) {
-      throw new Error(`wallet does not support ${this.getDisplayName()}`)
-    }
-
+    this.assertSupportsChain(wallet)
     await verifyLedgerAppOpen(this.chainId, wallet)
 
-    const address = await (wallet as ETHWallet).ethGetAddress({
-      addressNList: toAddressNList(bip44Params),
-      showDisplay: showOnDevice,
-    })
+    const address = await (async () => {
+      try {
+        return await wallet.ethGetAddress({
+          addressNList: toAddressNList(bip44Params),
+          showDisplay: showOnDevice,
+        })
+      } catch (err) {
+        throw new ChainAdapterError(err, { translation: 'chainAdapters.errors.getAddress' })
+      }
+    })()
 
-    if (!address) throw new Error('EvmBaseAdapter: no address available from wallet')
+    if (!address) {
+      throw new ChainAdapterError('EvmBaseAdapter: no address available from wallet', {
+        translation: 'chainAdapters.errors.getAddress',
+      })
+    }
 
     return address
   }
@@ -612,9 +632,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { wallet, accountNumber } = input
 
-      if (!this.supportsChain(wallet)) {
-        throw new Error(`wallet does not support ${this.getDisplayName()}`)
-      }
+      this.assertSupportsChain(wallet)
 
       const from = await this.getAddress({ accountNumber, wallet })
       const txToSign = await this.buildCustomApiTx({ ...input, from })

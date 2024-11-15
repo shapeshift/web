@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Link, Text, useToast } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { ChainAdaptersError } from '@shapeshiftoss/chain-adapters'
 import type { ResponseError } from '@shapeshiftoss/unchained-client/src/generated/arbitrum'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -97,7 +98,10 @@ export const useFormSend = () => {
           title: translate('modals.send.errorTitle', {
             asset: asset.name,
           }),
-          description: translate('modals.send.errors.transactionRejected'),
+          description:
+            e instanceof ChainAdaptersError
+              ? translate(e.metadata.translation, e.metadata.options)
+              : translate('modals.send.errors.transactionRejected'),
           status: 'error',
           duration: 9000,
           isClosable: true,

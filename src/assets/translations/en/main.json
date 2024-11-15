@@ -2727,5 +2727,17 @@
   "thorFees": {
     "title": "Here from THORSwap?",
     "description": "THOR holders trade for free through 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Address %{address} not supported.",
+      "unsupportedChain": "Wallet does not support %{chain}.",
+      "ledgerAppOpenCancelled": "Ledger app open cancelled.",
+      "getAddress": "Failed to get address from wallet.",
+      "getAccount": "Failed to get account for: %{pubkey}.",
+      "switchChainUnsupported": "Wallet does not support switching chains.",
+      "switchChainFailed": "Failed to switch wallet to chain %{chain}.",
+      "buildTransaction": "Failed to build transaction."
+    }
   }
 }

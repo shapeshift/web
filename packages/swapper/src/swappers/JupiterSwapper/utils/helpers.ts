@@ -13,7 +13,7 @@ export const isSupportedChainId = (chainId: ChainId): chainId is JupiterSupporte
   return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
 }
 
-const SHAPESHIFT_SOLANA_FEE_ACCOUNT = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
+// const SHAPESHIFT_SOLANA_FEE_ACCOUNT = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
 
 type GetJupiterQuoteArgs = {
   apiUrl: string
@@ -56,7 +56,8 @@ export const getJupiterSwapInstructions = ({
 > =>
   jupiterService.post<SwapInstructionsResponse>(`${apiUrl}/swap-instructions`, {
     userPublicKey: fromAddress,
-    feeAccount: SHAPESHIFT_SOLANA_FEE_ACCOUNT,
+    // feeAccount: SHAPESHIFT_SOLANA_FEE_ACCOUNT,
+    // feeAccount: '',
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',

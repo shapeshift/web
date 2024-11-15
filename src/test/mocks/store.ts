@@ -260,6 +260,10 @@ export const mockStore: ReduxState = {
     tradeQuoteDisplayCache: [],
     isTradeQuoteRequestAborted: false,
   },
+  limitOrderSlice: {
+    activeQuote: undefined,
+    orderSubmission: {},
+  },
   snapshot: {
     _persist: {
       version: 0,

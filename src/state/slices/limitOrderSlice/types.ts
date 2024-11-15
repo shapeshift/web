@@ -1,5 +1,5 @@
 import type { InterpolationOptions } from 'node-polyglot'
-import type { LimitOrderId, LimitOrderQuote } from 'state/apis/limit-orders/types'
+import type { LimitOrderQuote, LimitOrderQuoteId } from 'state/apis/limit-orders/types'
 
 import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'
 import type { LimitOrderSubmissionState } from './constants'
@@ -18,6 +18,6 @@ export type LimitOrderSubmissionMetadata = {
 }
 
 export type LimitOrderState = {
-  confirmedQuote: { id: LimitOrderId; quote: LimitOrderQuote } | undefined
-  orderSubmission: Record<LimitOrderId, LimitOrderSubmissionMetadata>
+  activeQuote: { id: LimitOrderQuoteId; quote: LimitOrderQuote } | undefined
+  orderSubmission: Record<LimitOrderQuoteId, LimitOrderSubmissionMetadata>
 }

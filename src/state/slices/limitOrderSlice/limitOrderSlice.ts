@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { LimitOrderId, LimitOrderQuote } from 'state/apis/limit-orders/types'
+import type { LimitOrderQuote, LimitOrderQuoteId } from 'state/apis/limit-orders/types'
 
 import { TransactionExecutionState } from '../tradeQuoteSlice/types'
 import {
@@ -18,14 +18,18 @@ export const limitOrderSlice = createSlice({
       ...initialState,
       orderSubmission: state.orderSubmission, // Leave the limit order submission state alone
     }),
-    setConfirmedQuote: (
+    setActiveQuote: (
       state,
-      action: PayloadAction<{ id: LimitOrderId; quote: LimitOrderQuote }>,
+      action: PayloadAction<{ id: LimitOrderQuoteId; quote: LimitOrderQuote } | undefined>,
     ) => {
-      state.confirmedQuote = action.payload
+      if (action.payload === undefined) {
+        state.activeQuote = undefined
+        return
+      }
+      state.activeQuote = action.payload
       state.orderSubmission[action.payload.id] = limitOrderSubmissionInitialState
     },
-    confirmSubmit: (state, action: PayloadAction<LimitOrderId>) => {
+    confirmSubmit: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const limitOrderQuoteId = action.payload
       if (state.orderSubmission[limitOrderQuoteId].state !== LimitOrderSubmissionState.Previewing) {
         if (
@@ -58,34 +62,34 @@ export const limitOrderSlice = createSlice({
           break
       }
     },
-    setAllowanceResetTxPending: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceResetTxPending: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceReset.state = TransactionExecutionState.Pending
     },
-    setAllowanceApprovalTxPending: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceApprovalTxPending: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Pending
     },
-    setAllowanceResetTxFailed: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceResetTxFailed: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Failed
     },
-    setAllowanceApprovalTxFailed: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceApprovalTxFailed: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Failed
     },
-    setAllowanceResetTxComplete: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceResetTxComplete: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceReset.state = TransactionExecutionState.Complete
     },
     // marks the approval tx as complete, but the allowance check needs to pass before proceeding to swap step
-    setAllowanceApprovalTxComplete: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceApprovalTxComplete: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].allowanceApproval.state = TransactionExecutionState.Complete
     },
     // This is deliberately disjoint to the allowance reset transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    setAllowanceResetStepComplete: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceResetStepComplete: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
 
       // Don't update the state if we're on a different stage of the flow
@@ -97,7 +101,7 @@ export const limitOrderSlice = createSlice({
     },
     // This is deliberately disjoint to the allowance approval transaction orchestration to allow users to
     // complete an approval externally and have the app respond to the updated allowance on chain.
-    setAllowanceApprovalStepComplete: (state, action: PayloadAction<LimitOrderId>) => {
+    setAllowanceApprovalStepComplete: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
 
       // Don't update the state if we're on a different stage of the flow
@@ -107,18 +111,18 @@ export const limitOrderSlice = createSlice({
 
       state.orderSubmission[id].state = LimitOrderSubmissionState.AwaitingLimitOrderSubmission
     },
-    setLimitOrderTxPending: (state, action: PayloadAction<LimitOrderId>) => {
+    setLimitOrderTxPending: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Pending
     },
-    setLimitOrderTxFailed: (state, action: PayloadAction<LimitOrderId>) => {
+    setLimitOrderTxFailed: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
       state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Failed
     },
     setLimitOrderTxMessage: (
       state,
       action: PayloadAction<{
-        id: LimitOrderId
+        id: LimitOrderQuoteId
         hopIndex: number
         message: string | [string, InterpolationOptions] | undefined
       }>,
@@ -126,7 +130,7 @@ export const limitOrderSlice = createSlice({
       const { id, message } = action.payload
       state.orderSubmission[id].limitOrder.message = message
     },
-    setLimitOrderTxComplete: (state, action: PayloadAction<LimitOrderId>) => {
+    setLimitOrderTxComplete: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const id = action.payload
 
       state.orderSubmission[id].limitOrder.state = TransactionExecutionState.Complete
@@ -135,7 +139,7 @@ export const limitOrderSlice = createSlice({
     },
     setInitialApprovalRequirements: (
       state,
-      action: PayloadAction<{ isAllowanceApprovalRequired: boolean; id: LimitOrderId }>,
+      action: PayloadAction<{ isAllowanceApprovalRequired: boolean; id: LimitOrderQuoteId }>,
     ) => {
       state.orderSubmission[action.payload.id].allowanceApproval.isRequired =
         action.payload?.isAllowanceApprovalRequired
@@ -144,7 +148,7 @@ export const limitOrderSlice = createSlice({
     },
     setAllowanceResetRequirements: (
       state,
-      action: PayloadAction<{ isAllowanceResetRequired: boolean; id: LimitOrderId }>,
+      action: PayloadAction<{ isAllowanceResetRequired: boolean; id: LimitOrderQuoteId }>,
     ) => {
       state.orderSubmission[action.payload.id].allowanceReset.isRequired =
         action.payload?.isAllowanceResetRequired
@@ -155,7 +159,7 @@ export const limitOrderSlice = createSlice({
       state,
       action: PayloadAction<{
         txHash: string
-        id: LimitOrderId
+        id: LimitOrderQuoteId
       }>,
     ) => {
       const { txHash, id } = action.payload
@@ -165,7 +169,7 @@ export const limitOrderSlice = createSlice({
       state,
       action: PayloadAction<{
         txHash: string
-        id: LimitOrderId
+        id: LimitOrderQuoteId
       }>,
     ) => {
       const { txHash, id } = action.payload
@@ -173,7 +177,7 @@ export const limitOrderSlice = createSlice({
     },
     setLimitOrderSubmissionTxHash: (
       state,
-      action: PayloadAction<{ txHash: string; id: LimitOrderId }>,
+      action: PayloadAction<{ txHash: string; id: LimitOrderQuoteId }>,
     ) => {
       const { txHash } = action.payload
       state.orderSubmission[action.payload.id].limitOrder.txHash = txHash

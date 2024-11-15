@@ -21,6 +21,6 @@ export const limitOrderSubmissionInitialState = {
 }
 
 export const initialState: LimitOrderState = {
-  confirmedQuote: undefined,
+  activeQuote: undefined,
   orderSubmission: {},
 }

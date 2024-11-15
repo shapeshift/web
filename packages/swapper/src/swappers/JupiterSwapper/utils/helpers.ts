@@ -13,6 +13,8 @@ export const isSupportedChainId = (chainId: ChainId): chainId is JupiterSupporte
   return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
 }
 
+const SHAPESHIFT_SOLANA_FEE_ACCOUNT = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
+
 type GetJupiterQuoteArgs = {
   apiUrl: string
   sourceAsset: string
@@ -25,8 +27,6 @@ type GetJupiterQuoteArgs = {
 type GetJupiterSwapArgs = {
   apiUrl: string
   fromAddress: string
-  // @TODO: make this mandatory when we have the DAO fee account
-  feeAccount?: string
   rawQuote: unknown
 }
 
@@ -50,14 +50,13 @@ export const getJupiterQuote = ({
 export const getJupiterSwapInstructions = ({
   apiUrl,
   fromAddress,
-  feeAccount,
   rawQuote,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>
   jupiterService.post<SwapInstructionsResponse>(`${apiUrl}/swap-instructions`, {
     userPublicKey: fromAddress,
-    feeAccount,
+    feeAccount: SHAPESHIFT_SOLANA_FEE_ACCOUNT,
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',

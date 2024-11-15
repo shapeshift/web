@@ -515,6 +515,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
+  public async getTxStatus(tx: unchained.solana.Tx, pubkey: string): Promise<unchained.TxStatus> {
+    const parsedTx = await this.parseTx(tx, pubkey)
+
+    return parsedTx.status
+  }
+
   private async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
     const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
 
@@ -529,5 +535,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         value: transfer.totalValue,
       })),
     }
+  }
+
+  get httpProvider(): unchained.solana.Api {
+    return this.providers.http
   }
 }

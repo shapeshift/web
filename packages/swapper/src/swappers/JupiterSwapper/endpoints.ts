@@ -1,13 +1,11 @@
 import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { AxiosError } from 'axios'
-import type { InterpolationOptions } from 'node-polyglot'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
 import { type SwapperApi } from '../../types'
-import { isExecutableTradeQuote, isExecutableTradeStep } from '../../utils'
+import { checkSolanaSwapStatus, isExecutableTradeQuote, isExecutableTradeStep } from '../../utils'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import { getJupiterSwapInstructions } from './utils/helpers'
 
@@ -30,7 +28,6 @@ export const jupiterApi: SwapperApi = {
 
     if (!tradeQuote.rawQuote) throw Error('Missing raw quote')
 
-    // @TODO: add feeAccount
     const maybeSwapResponse = await getJupiterSwapInstructions({
       apiUrl: jupiterUrl,
       fromAddress: from,
@@ -70,43 +67,17 @@ export const jupiterApi: SwapperApi = {
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
       from,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
         instructions: [...computeBudgetInstructions, ...setupInstructions, swapInstruction],
       },
-    } as unknown as BuildSendApiTxInput<KnownChainIds.SolanaMainnet>
+    }
 
     return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
   },
 
-  checkTradeStatus: (): Promise<{
-    status: TxStatus
-    buyTxHash: string | undefined
-    message: string | [string, InterpolationOptions] | undefined
-  }> => {
-    try {
-      return {
-        buyTxHash: '',
-        status: TxStatus.Pending,
-        message: '',
-      } as unknown as Promise<{
-        status: TxStatus
-        buyTxHash: string | undefined
-        message: string | [string, InterpolationOptions] | undefined
-      }>
-    } catch (e) {
-      console.error(e)
-      return {
-        buyTxHash: undefined,
-        status: TxStatus.Unknown,
-        message: undefined,
-      } as unknown as Promise<{
-        status: TxStatus
-        buyTxHash: string | undefined
-        message: string | [string, InterpolationOptions] | undefined
-      }>
-    }
-  },
+  checkTradeStatus: checkSolanaSwapStatus,
 }

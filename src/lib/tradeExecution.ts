@@ -104,6 +104,7 @@ export class TradeExecution {
             assertGetEvmChainAdapter,
             assertGetUtxoChainAdapter,
             assertGetCosmosSdkChainAdapter,
+            assertGetSolanaChainAdapter,
             fetchIsSmartContractAddressQuery,
           })
 

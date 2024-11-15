@@ -410,7 +410,8 @@ export type CheckTradeStatusInput = {
   config: SwapperConfig
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
-  CosmosSdkSwapperDeps
+  CosmosSdkSwapperDeps &
+  SolanaSwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated

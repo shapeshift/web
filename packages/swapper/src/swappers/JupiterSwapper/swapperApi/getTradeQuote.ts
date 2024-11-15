@@ -6,6 +6,7 @@ import {
   fromAssetId,
   solAssetId,
   toAssetId,
+  wrappedSolAssetId,
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -68,8 +69,8 @@ const _getTradeQuote = async (
 
   const maybeQuoteResponse = await getJupiterQuote({
     apiUrl: jupiterUrl,
-    sourceAsset: sellAsset.assetId,
-    destinationAsset: buyAsset.assetId,
+    sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
+    destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
     commissionBps: affiliateBps,
     amount: sellAmount,
     slippageBps: convertDecimalPercentageToBasisPoints(

@@ -267,6 +267,7 @@ type TradeQuoteBase = {
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
+  rawQuote?: unknown
 }
 
 type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }

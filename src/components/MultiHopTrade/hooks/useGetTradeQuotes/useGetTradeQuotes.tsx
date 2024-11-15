@@ -294,6 +294,7 @@ export const useGetTradeQuotes = () => {
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
   useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
+  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Jupiter))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

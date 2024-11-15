@@ -1,6 +1,15 @@
-import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  fromAssetId,
+  solAssetId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -9,6 +18,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type {
   CommonTradeQuoteInput,
   GetTradeRateInput,
+  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -16,7 +26,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
-import { getJupiterSwap, isSupportedChainId } from '../utils/helpers'
+import { getJupiterQuote, isSupportedChainId } from '../utils/helpers'
 
 const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -31,6 +41,8 @@ const _getTradeQuote = async (
     accountNumber,
     slippageTolerancePercentageDecimal,
   } = input
+
+  const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
 
@@ -54,13 +66,16 @@ const _getTradeQuote = async (
     )
   }
 
-  const maybeQuoteResponse = await getJupiterSwap({
+  const maybeQuoteResponse = await getJupiterQuote({
     apiUrl: jupiterUrl,
     sourceAsset: sellAsset.assetId,
     destinationAsset: buyAsset.assetId,
     commissionBps: affiliateBps,
     amount: sellAmount,
-    slippageBps: slippageTolerancePercentageDecimal,
+    slippageBps: convertDecimalPercentageToBasisPoints(
+      slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
+    ).toFixed(),
   })
 
   if (maybeQuoteResponse.isErr()) {
@@ -101,6 +116,31 @@ const _getTradeQuote = async (
     }
   }
 
+  const protocolFees: Record<AssetId, ProtocolFee> = quoteResponse.routePlan.reduce(
+    (acc, route) => {
+      const feeAssetId = toAssetId({
+        assetReference: route.swapInfo.feeMint,
+        assetNamespace: ASSET_NAMESPACE.splToken,
+        chainNamespace: CHAIN_NAMESPACE.Solana,
+        chainReference: CHAIN_REFERENCE.SolanaMainnet,
+      })
+      const feeAsset = assetsById[feeAssetId]
+
+      // If we can't find the feeAsset, we can't provide a protocol fee to display
+      // But these fees exists at protocol level, it's mostly to make TS happy as we should have the market data and assets
+      if (!feeAsset) return acc
+
+      acc[feeAssetId] = {
+        requiresBalance: false,
+        amountCryptoBaseUnit: bnOrZero(route.swapInfo.feeAmount).toString(),
+        asset: feeAsset,
+      }
+
+      return acc
+    },
+    {} as Record<AssetId, ProtocolFee>,
+  )
+
   const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
     return getRate({
       sellAmountCryptoBaseUnit,
@@ -123,8 +163,9 @@ const _getTradeQuote = async (
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
     isStreaming: false,
+    rawQuote: quoteResponse,
     slippageTolerancePercentageDecimal:
-      input.slippageTolerancePercentageDecimal ??
+      slippageTolerancePercentageDecimal ??
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
     steps: [
       {
@@ -132,8 +173,7 @@ const _getTradeQuote = async (
         buyAmountAfterFeesCryptoBaseUnit: quoteResponse.outAmount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: quoteResponse.inAmount,
         feeData: {
-          // @TODO: calculate fees
-          protocolFees: {},
+          protocolFees,
           ...feeData,
         },
         rate,

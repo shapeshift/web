@@ -1,34 +1,84 @@
-import { fromChainId } from '@shapeshiftoss/caip'
+import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { AxiosError } from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
 import { type SwapperApi } from '../../types'
-import { isExecutableTradeQuote } from '../../utils'
+import { isExecutableTradeQuote, isExecutableTradeStep } from '../../utils'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
+import { getJupiterSwapInstructions } from './utils/helpers'
 
 export const jupiterApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
-  getUnsignedSolanaTransaction: ({
-    chainId,
-    from,
+  getUnsignedSolanaTransaction: async ({
     tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+    config,
   }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
-    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
-    return {
-      to: '',
+    const jupiterUrl = config.REACT_APP_JUPITER_API_URL
+
+    const step = tradeQuote.steps[0]
+
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+
+    if (!tradeQuote.rawQuote) throw Error('Missing raw quote')
+
+    // @TODO: add feeAccount
+    const maybeSwapResponse = await getJupiterSwapInstructions({
+      apiUrl: jupiterUrl,
+      fromAddress: from,
+      rawQuote: tradeQuote.rawQuote,
+    })
+
+    if (maybeSwapResponse.isErr()) {
+      const error = maybeSwapResponse.unwrapErr()
+      const cause = error.cause as AxiosError<any, any>
+      throw Error(cause.response!.data.detail)
+    }
+
+    const { data: swapResponse } = maybeSwapResponse.unwrap()
+
+    const computeBudgetInstructions = swapResponse.computeBudgetInstructions.map(instruction => {
+      return {
+        ...instruction,
+        keys: instruction.accounts,
+        data: Buffer.from(instruction.data, 'base64'),
+      }
+    })
+
+    const setupInstructions = swapResponse.setupInstructions.map(instruction => {
+      return {
+        ...instruction,
+        keys: instruction.accounts,
+        data: Buffer.from(instruction.data, 'base64'),
+      }
+    })
+
+    const swapInstruction = {
+      ...swapResponse.swapInstruction,
+      keys: swapResponse.swapInstruction.accounts,
+      data: Buffer.from(swapResponse.swapInstruction.data, 'base64'),
+    }
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       from,
-      value: '',
-      data: '',
-      chainId: Number(fromChainId(chainId).chainReference),
-      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for
-      // total gas used.
-      gasLimit: '1',
-      // @TODO: remove this
-    } as unknown as Promise<SolanaSignTx>
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      accountNumber: step.accountNumber,
+      chainSpecific: {
+        instructions: [...computeBudgetInstructions, ...setupInstructions, swapInstruction],
+      },
+    } as unknown as BuildSendApiTxInput<KnownChainIds.SolanaMainnet>
+
+    return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
   },
 
   checkTradeStatus: (): Promise<{

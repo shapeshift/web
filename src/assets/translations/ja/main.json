@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "上昇",
+    "descending": "降順",
     "free": "無料",
     "trade": "トレード",
     "trades": "トレード",
@@ -159,6 +161,10 @@
     "import": "インポート",
     "accountsLoading": "アカウントの読み込み中",
     "noAccounts": "選択したフィルターに該当するアカウントはありません。",
+    "sortBy": "並べ替える",
+    "orderBy": "並び替える",
+    "filterBy": "の条件でフィルター",
+    "filterAndSort": "フィルターと並べ替え",
     "carousel": {
       "next": "次",
       "prev": "前",
@@ -235,6 +241,7 @@
       "balance": "バランス",
       "price": "価格",
       "value": "価値",
+      "apy": "年利",
       "priceChange": "価格変更",
       "allocation": "割り当て",
       "marketCap": "時価総額",
@@ -865,7 +872,10 @@
     "receiveInclFee": "受け取り（手数料含む）",
     "approvingAsset": "%{symbol}を承認しています",
     "viewTransaction": "トランザクションの表示",
+    "noQuotesAvailable": "利用できる引用はありません",
+    "noQuotesAvailableDescription": "現時点では利用可能な引用が見つかりません。別のペアを選択してください。",
     "availableSwappers": "利用可能な見積もり",
+    "unavailableSwappers": "利用できないスワッパー",
     "unlimited": "無制限",
     "streamStatus": "ストリームステータス",
     "swapsFailed": "%{failedSwaps} のスワップが失敗しました",
@@ -1003,7 +1013,33 @@
     }
   },
   "limitOrder": {
-    "heading": "指値注文"
+    "heading": "制限",
+    "confirm": "確認する",
+    "placeOrderPending": "確認待ち",
+    "placeOrderSuccess": "成功しました！",
+    "placeOrderFailed": "問題が発生しました",
+    "placeOrder": "注文する",
+    "viewOrder": "注文を表示",
+    "viewOnChain": "オンチェーントランザクションを表示",
+    "yourOrderHasBeenPlaced": "ご注文が完了しました。",
+    "limitPrice": "制限価格",
+    "provider": "プロバイダー",
+    "expiration": "有効期限",
+    "networkFee": "ネットワーク料金",
+    "confirmInfo": "オンチェーン価格が制限価格に達したときに、指値注文が正確に約定されない場合があります。",
+    "learnMore": "もっと詳しく知る",
+    "previewOrder": "注文のプレビュー",
+    "youGet": "獲得したもの",
+    "whenPriceReaches": "価格が達したとき",
+    "expiry": "有効期限",
+    "expiryOption": {
+      "oneHour": "1時間",
+      "oneDay": "1日",
+      "threeDays": "3日間",
+      "sevenDays": "7日間",
+      "twentyEightDays": "28日",
+      "custom": "カスタム"
+    }
   },
   "modals": {
     "assetSearch": {
@@ -2672,5 +2708,24 @@
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"
     }
+  },
+  "limitOrders": {
+    "listTitle": "指値注文",
+    "limitPrice": "制限価格",
+    "expiresIn": "有効期限",
+    "filled": "満たされた",
+    "openOrders": "オープン注文",
+    "orderHistory": "注文履歴",
+    "status": {
+      "open": "開ける",
+      "filled": "満たされた",
+      "cancelled": "キャンセルされました",
+      "expired": "期限切れ"
+    },
+    "orders": "注文"
+  },
+  "thorFees": {
+    "title": "THORSwapから来ましたか?",
+    "description": "THOR保有者は2024年まで無料で取引できます。"
   }
 }

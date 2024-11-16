@@ -25,10 +25,14 @@ import {
   selectActiveQuoteBuyAmountCryptoPrecision,
   selectActiveQuoteBuyAmountUserCurrency,
   selectActiveQuoteBuyAsset,
+  selectActiveQuoteExpirationTimestamp,
+  selectActiveQuoteFeeAsset,
+  selectActiveQuoteNetworkFeeCryptoPrecision,
   selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
+import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
@@ -55,10 +59,14 @@ export const LimitOrderConfirm = () => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
   const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
+  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
   const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
   const sellAmountUserCurrency = useAppSelector(selectActiveQuoteSellAmountUserCurrency)
   const buyAmountUserCurrency = useAppSelector(selectActiveQuoteBuyAmountUserCurrency)
+  const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
+  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')
@@ -114,7 +122,7 @@ export const LimitOrderConfirm = () => {
                   {/* TODO: Wire up limit price based on appdata in the quote */}
                   <Amount.Crypto value={'0.002134'} symbol={'WETH'} />
                   <RawText>=</RawText>
-                  <Amount.Fiat fiatType='USD' value={'1'} />
+                  <Amount.Fiat fiatType={selectedCurrency} value={'1'} />
                 </HStack>
               </Row.Value>
             </Row>
@@ -133,13 +141,13 @@ export const LimitOrderConfirm = () => {
               <Row.Label>
                 <Text translation='limitOrder.expiration' />
               </Row.Label>
-              <TransactionDate blockTime={Date.now() / 1000} />
+              <TransactionDate blockTime={quoteExpirationTimestamp} />
             </Row>
             <Row px={2}>
               <Row.Label>
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
-              <Amount.Crypto value={'0.0'} symbol={'ETH'} />
+              <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
             </Row>
             <Card bg='background.surface.raised.pressed' borderRadius={6} p={4}>
               <HStack>

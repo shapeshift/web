@@ -2,13 +2,25 @@ import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 
-import { selectAssetById, selectMarketDataUsd, selectUserCurrencyToUsdRate } from '../selectors'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectMarketDataUsd,
+  selectUserCurrencyToUsdRate,
+} from '../selectors'
 
 const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
 
 export const selectActiveQuote = createSelector(
   selectLimitOrderSlice,
   limitOrderSlice => limitOrderSlice.activeQuote,
+)
+
+export const selectActiveQuoteExpirationTimestamp = createSelector(
+  selectActiveQuote,
+  _activeQuote => {
+    return Date.now() / 1000 // TODO: retrieve this from quote appdata or params
+  },
 )
 
 export const selectActiveQuoteSellAsset = (state: ReduxState) => {
@@ -21,12 +33,17 @@ export const selectActiveQuoteBuyAsset = (state: ReduxState) => {
   return buyAssetId ? selectAssetById(state, buyAssetId) : undefined
 }
 
+export const selectActiveQuoteFeeAsset = (state: ReduxState) => {
+  const sellAssetId = state.limitOrderSlice.activeQuote?.params.sellAssetId
+  return sellAssetId ? selectFeeAssetById(state, sellAssetId) : undefined
+}
+
 export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
   selectActiveQuote,
   selectActiveQuoteSellAsset,
-  (activeQuote, sellAsset) => {
-    if (!activeQuote || !sellAsset) return '0'
-    const { precision } = sellAsset
+  (activeQuote, asset) => {
+    if (!activeQuote || !asset) return '0'
+    const { precision } = asset
     return fromBaseUnit(activeQuote.response.quote.sellAmount, precision)
   },
 )
@@ -34,10 +51,23 @@ export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
 export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
   selectActiveQuote,
   selectActiveQuoteBuyAsset,
-  (activeQuote, buyAsset) => {
-    if (!activeQuote || !buyAsset) return '0'
-    const { precision } = buyAsset
+  (activeQuote, asset) => {
+    if (!activeQuote || !asset) return '0'
+    const { precision } = asset
     return fromBaseUnit(activeQuote.response.quote.buyAmount, precision)
+  },
+)
+
+export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
+  selectActiveQuote,
+  selectActiveQuoteFeeAsset,
+  (activeQuote, asset) => {
+    if (!activeQuote || !asset) return '0'
+    const { precision } = asset
+    // CoW does not cost a network fee to submit, but the calcs are implemented as though they did
+    // in case we ever wire them in for a different protocol in the future.
+    const networkFee = '0'
+    return fromBaseUnit(networkFee, precision)
   },
 )
 
@@ -71,6 +101,14 @@ export const selectActiveQuoteSellAmountUserCurrency = createSelector(
 
 export const selectActiveQuoteBuyAmountUserCurrency = createSelector(
   selectActiveQuoteBuyAmountCryptoPrecision,
+  selectActiveQuoteBuyAssetUserCurrencyRate,
+  (amountCryptoPrecision, userCurrencyRate) => {
+    return bn(amountCryptoPrecision).times(userCurrencyRate).toString()
+  },
+)
+
+export const selectActiveQuoteNetworkFeeUserCurrency = createSelector(
+  selectActiveQuoteNetworkFeeCryptoPrecision,
   selectActiveQuoteBuyAssetUserCurrencyRate,
   (amountCryptoPrecision, userCurrencyRate) => {
     return bn(amountCryptoPrecision).times(userCurrencyRate).toString()

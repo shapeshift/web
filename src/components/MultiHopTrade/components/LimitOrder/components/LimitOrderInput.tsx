@@ -2,17 +2,14 @@ import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
+import {
+  getCowswapNetwork,
+  getDefaultSlippageDecimalPercentageForSwapper,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { type Asset } from '@shapeshiftoss/types'
-import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  fromBaseUnit,
-  isEvmChainId,
-  toBaseUnit,
-} from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -41,6 +38,7 @@ import {
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUserCurrencyToUsdRate,
@@ -109,6 +107,7 @@ export const LimitOrderInput = ({
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
   } = useActions(limitOrderInput.actions)
+  const { setActiveQuote } = useActions(limitOrderSlice.actions)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -182,17 +181,23 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
-  const sellAssetFilterPredicate = useCallback((asset: Asset) => {
-    return isEvmChainId(asset.chainId) && !isNativeEvmAsset(asset.assetId)
-  }, [])
-
-  const buyAssetFilterPredicate = useCallback((asset: Asset) => {
-    return isEvmChainId(asset.chainId)
-  }, [])
-
   const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
-    return isEvmChainId(chainId)
+    return getCowswapNetwork(chainId).isOk()
   }, [])
+
+  const sellAssetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      return chainIdFilterPredicate(asset.chainId) && !isNativeEvmAsset(asset.assetId)
+    },
+    [chainIdFilterPredicate],
+  )
+
+  const buyAssetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      return chainIdFilterPredicate(asset.chainId)
+    },
+    [chainIdFilterPredicate],
+  )
 
   const sellAmountCryptoBaseUnit = useMemo(() => {
     return toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision)
@@ -243,12 +248,23 @@ export const LimitOrderInput = ({
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
+  // Set the active quote in redux
+  useEffect(() => {
+    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
+    if (!data || limitOrderQuoteParams === skipToken) {
+      setActiveQuote(undefined)
+      return
+    }
+
+    setActiveQuote(data)
+  }, [data, limitOrderQuoteParams, setActiveQuote])
+
   const marketPriceBuyAsset = useMemo(() => {
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
     if (!data || limitOrderQuoteParams === skipToken) return '0'
 
-    return bnOrZero(fromBaseUnit(data.quote.buyAmount, buyAsset.precision))
-      .div(fromBaseUnit(data.quote.sellAmount, sellAsset.precision))
+    return bnOrZero(fromBaseUnit(data.response.quote.buyAmount, buyAsset.precision))
+      .div(fromBaseUnit(data.response.quote.sellAmount, sellAsset.precision))
       .toFixed()
   }, [buyAsset.precision, data, sellAsset.precision, limitOrderQuoteParams])
 

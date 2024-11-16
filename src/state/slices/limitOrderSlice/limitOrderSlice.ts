@@ -1,7 +1,8 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { LimitOrderQuote, LimitOrderQuoteId } from 'state/apis/limit-orders/types'
+import type { QuoteLimitOrderResult } from 'state/apis/limit-orders/limitOrderApi'
+import type { LimitOrderQuoteId } from 'state/apis/limit-orders/types'
 
 import { TransactionExecutionState } from '../tradeQuoteSlice/types'
 import {
@@ -18,16 +19,13 @@ export const limitOrderSlice = createSlice({
       ...initialState,
       orderSubmission: state.orderSubmission, // Leave the limit order submission state alone
     }),
-    setActiveQuote: (
-      state,
-      action: PayloadAction<{ id: LimitOrderQuoteId; quote: LimitOrderQuote } | undefined>,
-    ) => {
+    setActiveQuote: (state, action: PayloadAction<QuoteLimitOrderResult | undefined>) => {
       if (action.payload === undefined) {
         state.activeQuote = undefined
         return
       }
       state.activeQuote = action.payload
-      state.orderSubmission[action.payload.id] = limitOrderSubmissionInitialState
+      state.orderSubmission[action.payload.response.id] = limitOrderSubmissionInitialState
     },
     confirmSubmit: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const limitOrderQuoteId = action.payload

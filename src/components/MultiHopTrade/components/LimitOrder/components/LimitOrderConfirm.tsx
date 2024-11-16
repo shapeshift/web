@@ -14,19 +14,30 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { ethereum, fox } from 'test/mocks/assets'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import {
+  selectActiveQuote,
+  selectActiveQuoteBuyAmountCryptoPrecision,
+  selectActiveQuoteBuyAmountUserCurrency,
+  selectActiveQuoteBuyAsset,
+  selectActiveQuoteSellAmountCryptoPrecision,
+  selectActiveQuoteSellAmountUserCurrency,
+  selectActiveQuoteSellAsset,
+} from 'state/slices/limitOrderSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
 import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
+
+// TODO: Populate this!
 const learnMoreUrl = ''
 
 export const LimitOrderConfirm = () => {
@@ -40,6 +51,20 @@ export const LimitOrderConfirm = () => {
   const handleConfirm = useCallback(() => {
     history.push(LimitOrderRoutePaths.Status)
   }, [history])
+
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
+  const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
+  const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
+  const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
+  const sellAmountUserCurrency = useAppSelector(selectActiveQuoteSellAmountUserCurrency)
+  const buyAmountUserCurrency = useAppSelector(selectActiveQuoteBuyAmountUserCurrency)
+
+  if (!activeQuote) {
+    console.error('Attempted to submit an undefined limit order')
+    history.push(LimitOrderRoutePaths.Input)
+    return null
+  }
 
   return (
     <SlideTransition>
@@ -62,12 +87,12 @@ export const LimitOrderConfirm = () => {
 
         <CardBody px={6} pt={0} pb={6}>
           <AssetToAssetCard
-            sellAsset={ethereum}
-            buyAsset={fox}
-            sellAmountCryptoPrecision={'0.103123213'}
-            sellAmountUserCurrency={'123.42234'}
-            buyAmountCryptoPrecision={'123.412323452345412543'}
-            buyAmountUserCurrency={'123.234'}
+            sellAsset={sellAsset}
+            buyAsset={buyAsset}
+            sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+            sellAmountUserCurrency={sellAmountUserCurrency}
+            buyAmountCryptoPrecision={buyAmountCryptoPrecision}
+            buyAmountUserCurrency={buyAmountUserCurrency}
           />
         </CardBody>
         <CardFooter
@@ -86,6 +111,7 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
+                  {/* TODO: Wire up limit price based on appdata in the quote */}
                   <Amount.Crypto value={'0.002134'} symbol={'WETH'} />
                   <RawText>=</RawText>
                   <Amount.Fiat fiatType='USD' value={'1'} />
@@ -98,8 +124,8 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
-                  <SwapperIcon swapperName={SwapperName.Zrx} />
-                  <RawText>0x</RawText>
+                  <SwapperIcon swapperName={SwapperName.CowSwap} />
+                  <RawText>{SwapperName.CowSwap}</RawText>
                 </HStack>
               </Row.Value>
             </Row>
@@ -113,7 +139,7 @@ export const LimitOrderConfirm = () => {
               <Row.Label>
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
-              <Amount.Crypto value={'0.0002134'} symbol={'ETH'} />
+              <Amount.Crypto value={'0.0'} symbol={'ETH'} />
             </Row>
             <Card bg='background.surface.raised.pressed' borderRadius={6} p={4}>
               <HStack>

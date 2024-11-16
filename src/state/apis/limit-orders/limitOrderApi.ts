@@ -47,23 +47,29 @@ export type LimitOrderQuoteParams = {
   recipientAddress: Address | undefined
 }
 
+export type QuoteLimitOrderResult = {
+  params: LimitOrderQuoteParams
+  response: LimitOrderQuoteResponse
+}
+
 export const limitOrderApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['LimitOrder'],
   endpoints: build => ({
-    quoteLimitOrder: build.query<LimitOrderQuoteResponse, LimitOrderQuoteParams>({
-      queryFn: async ({
-        sellAssetId,
-        buyAssetId,
-        chainId,
-        slippageTolerancePercentageDecimal,
-        affiliateBps,
-        sellAccountAddress,
-        sellAmountCryptoBaseUnit,
-        recipientAddress,
-      }: LimitOrderQuoteParams) => {
+    quoteLimitOrder: build.query<QuoteLimitOrderResult, LimitOrderQuoteParams>({
+      queryFn: async (params: LimitOrderQuoteParams) => {
+        const {
+          sellAssetId,
+          buyAssetId,
+          chainId,
+          slippageTolerancePercentageDecimal,
+          affiliateBps,
+          sellAccountAddress,
+          sellAmountCryptoBaseUnit,
+          recipientAddress,
+        } = params
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
         const maybeNetwork = getCowswapNetwork(chainId)
@@ -102,12 +108,14 @@ export const limitOrderApi = createApi({
         limitOrderQuoteRequest.appDataHash = appDataHash
 
         try {
-          const result = await axios.post<LimitOrderQuoteResponse>(
+          const axiosResponse = await axios.post<LimitOrderQuoteResponse>(
             `${baseUrl}/${network}/api/v1/quote/`,
             limitOrderQuoteRequest,
           )
-          const order = result.data
-          return { data: order }
+          const response = axiosResponse.data
+
+          // Both the params and the response are returned to provide complete information downstream without race conditions
+          return { data: { params, response } }
         } catch (e) {
           const axiosError = e as AxiosError
 

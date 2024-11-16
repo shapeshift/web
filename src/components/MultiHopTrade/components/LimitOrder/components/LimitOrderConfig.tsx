@@ -26,8 +26,9 @@ import { ExpiryOption, PriceDirection } from 'state/slices/limitOrderInputSlice/
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectExpiry,
-  selectLimitPrice,
   selectLimitPriceDirection,
+  selectLimitPriceForSelectedPriceDirection,
+  selectLimitPriceOppositeDirection,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from 'state/store'
@@ -92,8 +93,11 @@ export const LimitOrderConfig = ({
 
   const [presetLimit, setPresetLimit] = useState<PresetLimit | undefined>(PresetLimit.Market)
 
-  const limitPrice = useAppSelector(selectLimitPrice)
+  const limitPriceForSelectedPriceDirection = useAppSelector(
+    selectLimitPriceForSelectedPriceDirection,
+  )
   const priceDirection = useAppSelector(selectLimitPriceDirection)
+  const oppositePriceDirection = useAppSelector(selectLimitPriceOppositeDirection)
   const expiry = useAppSelector(selectExpiry)
 
   const { setLimitPriceDirection, setExpiry, setLimitPrice } = useActions(limitOrderInput.actions)
@@ -104,7 +108,10 @@ export const LimitOrderConfig = ({
       setLimitPriceDirection(PriceDirection.BuyAssetDenomination)
       setPresetLimit(PresetLimit.Market)
       setExpiry(ExpiryOption.SevenDays)
-      setLimitPrice(marketPriceBuyAsset)
+      setLimitPrice({
+        [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
+        [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
+      })
     },
     // NOTE: we DO NOT want to react to `marketPriceBuyAsset` here, because polling will reset it
     // every time!
@@ -132,17 +139,21 @@ export const LimitOrderConfig = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const priceCryptoFormatted = useMemo(() => {
-    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(limitPrice).toFixed(0)).precision(true)
+    const cryptoAmountIntegerCount = bnOrZero(
+      bnOrZero(limitPriceForSelectedPriceDirection).toFixed(0),
+    ).precision(true)
 
-    return cryptoAmountIntegerCount <= 8 ? limitPrice : bnOrZero(limitPrice).toFixed(3)
-  }, [limitPrice])
+    return cryptoAmountIntegerCount <= 8
+      ? limitPriceForSelectedPriceDirection
+      : bnOrZero(limitPriceForSelectedPriceDirection).toFixed(3)
+  }, [limitPriceForSelectedPriceDirection])
 
   const arrow = useMemo(() => {
     return priceDirection === PriceDirection.BuyAssetDenomination ? '↑' : '↓'
   }, [priceDirection])
 
   const handleSetPresetLimit = useCallback(
-    (presetLimit: PresetLimit, priceDirection: PriceDirection) => {
+    (presetLimit: PresetLimit) => {
       setPresetLimit(presetLimit)
       const multiplier = (() => {
         switch (presetLimit) {
@@ -160,35 +171,34 @@ export const LimitOrderConfig = ({
             assertUnreachable(presetLimit)
         }
       })()
-      const adjustedLimitPrice = bn(marketPriceBuyAsset).times(multiplier).toFixed()
-      const maybeReversedPrice =
-        priceDirection === PriceDirection.SellAssetDenomination
-          ? bn(1).div(adjustedLimitPrice).toFixed()
-          : adjustedLimitPrice
-      setLimitPrice(maybeReversedPrice)
+      const adjustedLimitPriceBuyAsset = bn(marketPriceBuyAsset).times(multiplier).toFixed()
+      setLimitPrice({
+        [PriceDirection.BuyAssetDenomination]: adjustedLimitPriceBuyAsset,
+        [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
+      })
     },
     [marketPriceBuyAsset, setLimitPrice],
   )
 
   const handleSetMarketLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.Market, priceDirection)
-  }, [handleSetPresetLimit, priceDirection])
+    handleSetPresetLimit(PresetLimit.Market)
+  }, [handleSetPresetLimit])
 
   const handleSetOnePercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.OnePercent, priceDirection)
-  }, [handleSetPresetLimit, priceDirection])
+    handleSetPresetLimit(PresetLimit.OnePercent)
+  }, [handleSetPresetLimit])
 
   const handleSetTwoPercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.TwoPercent, priceDirection)
-  }, [handleSetPresetLimit, priceDirection])
+    handleSetPresetLimit(PresetLimit.TwoPercent)
+  }, [handleSetPresetLimit])
 
   const handleSetFivePercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.FivePercent, priceDirection)
-  }, [handleSetPresetLimit, priceDirection])
+    handleSetPresetLimit(PresetLimit.FivePercent)
+  }, [handleSetPresetLimit])
 
   const handleSetTenPercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.TenPercent, priceDirection)
-  }, [handleSetPresetLimit, priceDirection])
+    handleSetPresetLimit(PresetLimit.TenPercent)
+  }, [handleSetPresetLimit])
 
   const handleTogglePriceDirection = useCallback(() => {
     const newPriceDirection =
@@ -196,43 +206,38 @@ export const LimitOrderConfig = ({
         ? PriceDirection.SellAssetDenomination
         : PriceDirection.BuyAssetDenomination
     setLimitPriceDirection(newPriceDirection)
-
-    const isCustomLimit = presetLimit === undefined
-
-    if (isCustomLimit) {
-      // For custom limit, just take the reciprocal as we don't know what the original input value was
-      setLimitPrice(bn(1).div(limitPrice).toFixed())
-    } else {
-      // Otherwise set it to the precise value based on the original market price
-      handleSetPresetLimit(presetLimit, newPriceDirection)
-    }
-  }, [
-    handleSetPresetLimit,
-    limitPrice,
-    presetLimit,
-    priceDirection,
-    setLimitPrice,
-    setLimitPriceDirection,
-  ])
+  }, [priceDirection, setLimitPriceDirection])
 
   const handlePriceChange = useCallback(() => {
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
     // Now when the max buttons are clicked the onChange will not fire
-    setLimitPrice(priceAmountRef.current ?? '0')
+    setLimitPrice({
+      [priceDirection]: priceAmountRef.current ?? '0',
+      [oppositePriceDirection]: bnOrZero(priceAmountRef.current).isZero()
+        ? '0'
+        : bn(1)
+            .div(priceAmountRef.current ?? NaN) // Never zero or nullish, stfu typescript
+            .toFixed(),
+    } as Record<PriceDirection, string>)
 
     // Unset the preset limit, as this is a custom value
     setPresetLimit(undefined)
-  }, [setLimitPrice])
+  }, [oppositePriceDirection, priceDirection, setLimitPrice])
 
   const handleValueChange = useCallback(
     (values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       priceAmountRef.current = values.value
-      setLimitPrice(values.value)
+      setLimitPrice({
+        [priceDirection]: values.value,
+        [oppositePriceDirection]: bnOrZero(values.value).isZero()
+          ? '0'
+          : bn(1).div(values.value).toFixed(),
+      } as Record<PriceDirection, string>)
     },
-    [setLimitPrice],
+    [oppositePriceDirection, priceDirection, setLimitPrice],
   )
 
   const expiryOptionTranslation = useMemo(() => {

@@ -22,6 +22,7 @@ import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import { PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from 'state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -36,7 +37,7 @@ import {
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
-  selectLimitPriceBuyAsset,
+  selectLimitPrice,
   selectSellAccountId,
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
@@ -86,7 +87,7 @@ export const LimitOrderInput = ({
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
+  const limitPrice = useAppSelector(selectLimitPrice)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
@@ -109,7 +110,7 @@ export const LimitOrderInput = ({
     setBuyAsset,
     setSellAccountId,
     setBuyAccountId,
-    setLimitPriceBuyAssetDenomination,
+    setLimitPrice,
     setSlippagePreferencePercentage,
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
@@ -233,8 +234,11 @@ export const LimitOrderInput = ({
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
-    setLimitPriceBuyAssetDenomination(marketPriceBuyAsset)
-  }, [setLimitPriceBuyAssetDenomination, marketPriceBuyAsset])
+    setLimitPrice({
+      [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
+      [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
+    } as Record<PriceDirection, string>)
+  }, [marketPriceBuyAsset, setLimitPrice])
 
   const onSubmit = useCallback(() => {
     // No preview happening if wallet isn't connected i.e is using the demo wallet
@@ -401,7 +405,11 @@ export const LimitOrderInput = ({
         isError={Boolean(error)}
         isLoading={isLoading}
         quoteStatusTranslation={'limitOrder.previewOrder'}
-        rate={bnOrZero(limitPriceBuyAsset).isZero() ? undefined : limitPriceBuyAsset}
+        rate={
+          bnOrZero(limitPrice.buyAssetDenomination).isZero()
+            ? undefined
+            : limitPrice.buyAssetDenomination
+        }
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={isRecipientAddressEntryActive}
@@ -421,7 +429,7 @@ export const LimitOrderInput = ({
     inputSellAmountUsd,
     error,
     isLoading,
-    limitPriceBuyAsset,
+    limitPrice,
     sellAccountId,
     isRecipientAddressEntryActive,
     sellAsset,

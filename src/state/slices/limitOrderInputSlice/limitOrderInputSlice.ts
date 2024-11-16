@@ -1,6 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
@@ -10,7 +9,7 @@ import { ExpiryOption, PriceDirection } from './constants'
 
 export type LimitOrderInputState = {
   limitPriceDirection: PriceDirection
-  limitPrice: string
+  limitPrice: Record<PriceDirection, string>
   expiry: ExpiryOption
 } & TradeInputBaseState
 
@@ -27,7 +26,10 @@ const initialState: LimitOrderInputState = {
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
   limitPriceDirection: PriceDirection.BuyAssetDenomination,
-  limitPrice: '0',
+  limitPrice: {
+    [PriceDirection.BuyAssetDenomination]: '0',
+    [PriceDirection.SellAssetDenomination]: '0',
+  },
   expiry: ExpiryOption.SevenDays,
 }
 
@@ -35,17 +37,10 @@ export const limitOrderInput = createTradeInputBaseSlice({
   name: 'limitOrderInput',
   initialState,
   extraReducers: {
-    // Sets the limitPrice based on a limit price denominated in the buy asset
-    setLimitPriceBuyAssetDenomination: (
+    setLimitPrice: (
       state: LimitOrderInputState,
-      action: PayloadAction<string>,
+      action: PayloadAction<Record<PriceDirection, string>>,
     ) => {
-      state.limitPrice =
-        state.limitPriceDirection === PriceDirection.BuyAssetDenomination
-          ? action.payload
-          : bn(1).div(action.payload).toFixed()
-    },
-    setLimitPrice: (state: LimitOrderInputState, action: PayloadAction<string>) => {
       state.limitPrice = action.payload
     },
     setLimitPriceDirection: (

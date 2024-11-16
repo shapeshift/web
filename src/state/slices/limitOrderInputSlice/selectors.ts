@@ -39,15 +39,21 @@ export const selectLimitPriceDirection = createSelector(
   baseSlice => baseSlice.limitPriceDirection,
 )
 
-export const selectLimitPrice = createSelector(selectBaseSlice, baseSlice => baseSlice.limitPrice)
-export const selectLimitPriceBuyAsset = createSelector(
-  selectLimitPrice,
+export const selectLimitPriceOppositeDirection = createSelector(
   selectLimitPriceDirection,
-  (limitPrice, limitPriceDirection) => {
-    return limitPriceDirection === PriceDirection.BuyAssetDenomination
-      ? limitPrice
-      : bn(1).div(limitPrice).toFixed()
+  priceDirection => {
+    return priceDirection === PriceDirection.BuyAssetDenomination
+      ? PriceDirection.SellAssetDenomination
+      : PriceDirection.BuyAssetDenomination
   },
+)
+
+export const selectLimitPrice = createSelector(selectBaseSlice, baseSlice => baseSlice.limitPrice)
+
+export const selectLimitPriceForSelectedPriceDirection = createSelector(
+  selectBaseSlice,
+  selectLimitPriceDirection,
+  (baseSlice, limitPriceDirection) => baseSlice.limitPrice[limitPriceDirection],
 )
 
 export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSlice.expiry)
@@ -55,8 +61,8 @@ export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSli
 // This is the buy amount based on the quote + user input.
 export const selectBuyAmountCryptoBaseUnit = createSelector(
   selectInputSellAmountCryptoBaseUnit,
-  selectLimitPriceBuyAsset,
-  (inputSellAmountCryptoBaseUnit, limitPriceBuyAsset) => {
-    return bn(inputSellAmountCryptoBaseUnit).times(limitPriceBuyAsset).toFixed(0)
+  selectLimitPrice,
+  (inputSellAmountCryptoBaseUnit, limitPrice) => {
+    return bn(inputSellAmountCryptoBaseUnit).times(limitPrice.buyAssetDenomination).toFixed(0)
   },
 )

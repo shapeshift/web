@@ -9,6 +9,6 @@ export enum ExpiryOption {
 }
 
 export enum PriceDirection {
-  BuyAssetDenomination = 'BuyAssetDenomination',
-  SellAssetDenomination = 'SellAssetDenomination',
+  BuyAssetDenomination = 'buyAssetDenomination',
+  SellAssetDenomination = 'sellAssetDenomination',
 }

@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { QuoteLimitOrderResult } from 'state/apis/limit-orders/limitOrderApi'
 import type { LimitOrderQuoteId } from 'state/apis/limit-orders/types'
 
 import { TransactionExecutionState } from '../tradeQuoteSlice/types'
@@ -10,6 +10,8 @@ import {
   limitOrderSubmissionInitialState,
   LimitOrderSubmissionState,
 } from './constants'
+import { buildUnsignedLimitOrder } from './helpers'
+import type { LimitOrderActiveQuote } from './types'
 
 export const limitOrderSlice = createSlice({
   name: 'limitOrder',
@@ -19,7 +21,7 @@ export const limitOrderSlice = createSlice({
       ...initialState,
       orderSubmission: state.orderSubmission, // Leave the limit order submission state alone
     }),
-    setActiveQuote: (state, action: PayloadAction<QuoteLimitOrderResult | undefined>) => {
+    setActiveQuote: (state, action: PayloadAction<LimitOrderActiveQuote | undefined>) => {
       if (action.payload === undefined) {
         state.activeQuote = undefined
         return
@@ -29,6 +31,19 @@ export const limitOrderSlice = createSlice({
     },
     confirmSubmit: (state, action: PayloadAction<LimitOrderQuoteId>) => {
       const limitOrderQuoteId = action.payload
+
+      // If there is no active quote, the state is corrupt.
+      if (state.activeQuote === undefined) {
+        console.error('attempted to confirm an non-existed limit order quote')
+        return
+      }
+
+      // If this is not true, the state is corrupt.
+      assert(state.activeQuote.response.id === limitOrderQuoteId)
+
+      const limitOrder = buildUnsignedLimitOrder(state.activeQuote)
+      state.confirmedLimitOrder[limitOrderQuoteId] = limitOrder
+
       if (state.orderSubmission[limitOrderQuoteId].state !== LimitOrderSubmissionState.Previewing) {
         if (
           state.orderSubmission[limitOrderQuoteId].state === LimitOrderSubmissionState.Initializing

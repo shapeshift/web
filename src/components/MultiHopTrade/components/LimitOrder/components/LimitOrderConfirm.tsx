@@ -141,7 +141,7 @@ export const LimitOrderConfirm = () => {
               <Row.Label>
                 <Text translation='limitOrder.expiration' />
               </Row.Label>
-              <TransactionDate blockTime={quoteExpirationTimestamp} />
+              <TransactionDate blockTime={quoteExpirationTimestamp ?? 0} />
             </Row>
             <Row px={2}>
               <Row.Label>

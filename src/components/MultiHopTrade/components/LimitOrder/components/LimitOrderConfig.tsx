@@ -19,17 +19,20 @@ import NumberFormat from 'react-number-format'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
+import { useActions } from 'hooks/useActions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertUnreachable } from 'lib/utils'
-import { ExpiryOption } from 'state/slices/limitOrderInputSlice/constants'
+import { ExpiryOption, PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
+import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
+import {
+  selectExpiry,
+  selectLimitPrice,
+  selectLimitPriceDirection,
+} from 'state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
+import { useAppSelector } from 'state/store'
 
 import { AmountInput } from '../../TradeAmountInput'
-
-enum PriceDirection {
-  Default = 'default',
-  Reversed = 'reversed',
-}
 
 enum PresetLimit {
   Market = 'market',
@@ -77,8 +80,6 @@ type LimitOrderConfigProps = {
   buyAsset: Asset
   isLoading: boolean
   marketPriceBuyAsset: string
-  limitPriceBuyAsset: string
-  setLimitPriceBuyAsset: (newLimitPriceBuyAsset: string) => void
 }
 
 export const LimitOrderConfig = ({
@@ -86,27 +87,29 @@ export const LimitOrderConfig = ({
   buyAsset,
   isLoading,
   marketPriceBuyAsset,
-  limitPriceBuyAsset,
-  setLimitPriceBuyAsset,
 }: LimitOrderConfigProps) => {
   const priceAmountRef = useRef<string | null>(null)
 
-  const [priceDirection, setPriceDirection] = useState(PriceDirection.Default)
   const [presetLimit, setPresetLimit] = useState<PresetLimit | undefined>(PresetLimit.Market)
-  const [expiryOption, setExpiryOption] = useState(ExpiryOption.SevenDays)
+
+  const limitPrice = useAppSelector(selectLimitPrice)
+  const priceDirection = useAppSelector(selectLimitPriceDirection)
+  const expiry = useAppSelector(selectExpiry)
+
+  const { setLimitPriceDirection, setExpiry, setLimitPrice } = useActions(limitOrderInput.actions)
 
   // Reset the user config when the assets change
   useEffect(
     () => {
-      setPriceDirection(PriceDirection.Default)
+      setLimitPriceDirection(PriceDirection.BuyAssetDenomination)
       setPresetLimit(PresetLimit.Market)
-      setExpiryOption(ExpiryOption.SevenDays)
-      setLimitPriceBuyAsset(marketPriceBuyAsset)
+      setExpiry(ExpiryOption.SevenDays)
+      setLimitPrice(marketPriceBuyAsset)
     },
     // NOTE: we DO NOT want to react to `marketPriceBuyAsset` here, because polling will reset it
     // every time!
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sellAsset, buyAsset, setLimitPriceBuyAsset],
+    [sellAsset, buyAsset, setLimitPrice],
   )
 
   const {
@@ -124,22 +127,18 @@ export const LimitOrderConfig = ({
   }, [])
 
   const priceAsset = useMemo(() => {
-    return priceDirection === PriceDirection.Default ? buyAsset : sellAsset
+    return priceDirection === PriceDirection.BuyAssetDenomination ? buyAsset : sellAsset
   }, [buyAsset, priceDirection, sellAsset])
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const priceCryptoFormatted = useMemo(() => {
-    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(limitPriceBuyAsset).toFixed(0)).precision(
-      true,
-    )
+    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(limitPrice).toFixed(0)).precision(true)
 
-    return cryptoAmountIntegerCount <= 8
-      ? limitPriceBuyAsset
-      : bnOrZero(limitPriceBuyAsset).toFixed(3)
-  }, [limitPriceBuyAsset])
+    return cryptoAmountIntegerCount <= 8 ? limitPrice : bnOrZero(limitPrice).toFixed(3)
+  }, [limitPrice])
 
   const arrow = useMemo(() => {
-    return priceDirection === PriceDirection.Default ? '↑' : '↓'
+    return priceDirection === PriceDirection.BuyAssetDenomination ? '↑' : '↓'
   }, [priceDirection])
 
   const handleSetPresetLimit = useCallback(
@@ -163,12 +162,12 @@ export const LimitOrderConfig = ({
       })()
       const adjustedLimitPrice = bn(marketPriceBuyAsset).times(multiplier).toFixed()
       const maybeReversedPrice =
-        priceDirection === PriceDirection.Reversed
+        priceDirection === PriceDirection.SellAssetDenomination
           ? bn(1).div(adjustedLimitPrice).toFixed()
           : adjustedLimitPrice
-      setLimitPriceBuyAsset(maybeReversedPrice)
+      setLimitPrice(maybeReversedPrice)
     },
-    [marketPriceBuyAsset, setLimitPriceBuyAsset],
+    [marketPriceBuyAsset, setLimitPrice],
   )
 
   const handleSetMarketLimit = useCallback(() => {
@@ -193,47 +192,59 @@ export const LimitOrderConfig = ({
 
   const handleTogglePriceDirection = useCallback(() => {
     const newPriceDirection =
-      priceDirection === PriceDirection.Default ? PriceDirection.Reversed : PriceDirection.Default
-    setPriceDirection(newPriceDirection)
+      priceDirection === PriceDirection.BuyAssetDenomination
+        ? PriceDirection.SellAssetDenomination
+        : PriceDirection.BuyAssetDenomination
+    setLimitPriceDirection(newPriceDirection)
 
     const isCustomLimit = presetLimit === undefined
 
     if (isCustomLimit) {
       // For custom limit, just take the reciprocal as we don't know what the original input value was
-      setLimitPriceBuyAsset(bn(1).div(limitPriceBuyAsset).toFixed())
+      setLimitPrice(bn(1).div(limitPrice).toFixed())
     } else {
       // Otherwise set it to the precise value based on the original market price
       handleSetPresetLimit(presetLimit, newPriceDirection)
     }
-  }, [handleSetPresetLimit, limitPriceBuyAsset, presetLimit, priceDirection, setLimitPriceBuyAsset])
+  }, [
+    handleSetPresetLimit,
+    limitPrice,
+    presetLimit,
+    priceDirection,
+    setLimitPrice,
+    setLimitPriceDirection,
+  ])
 
   const handlePriceChange = useCallback(() => {
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
     // Now when the max buttons are clicked the onChange will not fire
-    setLimitPriceBuyAsset(priceAmountRef.current ?? '0')
+    setLimitPrice(priceAmountRef.current ?? '0')
 
     // Unset the preset limit, as this is a custom value
     setPresetLimit(undefined)
-  }, [setLimitPriceBuyAsset])
+  }, [setLimitPrice])
 
   const handleValueChange = useCallback(
     (values: NumberFormatValues) => {
       // This fires anytime value changes including setting it on max click
       // Store the value in a ref to send when we actually want the onChange to fire
       priceAmountRef.current = values.value
-      setLimitPriceBuyAsset(values.value)
+      setLimitPrice(values.value)
     },
-    [setLimitPriceBuyAsset],
+    [setLimitPrice],
   )
 
   const expiryOptionTranslation = useMemo(() => {
-    return getExpiryOptionTranslation(expiryOption)
-  }, [expiryOption])
+    return getExpiryOptionTranslation(expiry)
+  }, [expiry])
 
-  const handleChangeExpiryOption = useCallback((newExpiry: string | string[]) => {
-    setExpiryOption(newExpiry as ExpiryOption)
-  }, [])
+  const handleChangeExpiryOption = useCallback(
+    (newExpiry: string | string[]) => {
+      setExpiry(newExpiry as ExpiryOption)
+    },
+    [setExpiry],
+  )
 
   return (
     <Stack spacing={4} px={6} py={4}>
@@ -246,11 +257,7 @@ export const LimitOrderConfig = ({
               <Text translation={expiryOptionTranslation} />
             </MenuButton>
             <MenuList zIndex='modal'>
-              <MenuOptionGroup
-                type='radio'
-                value={expiryOption}
-                onChange={handleChangeExpiryOption}
-              >
+              <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
                 {expiryOptions}
               </MenuOptionGroup>
             </MenuList>

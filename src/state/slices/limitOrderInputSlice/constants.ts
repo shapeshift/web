@@ -7,3 +7,8 @@ export enum ExpiryOption {
   // TODO: implement custom expiry
   // Custom = 'custom',
 }
+
+export enum PriceDirection {
+  BuyAssetDenomination = 'BuyAssetDenomination',
+  SellAssetDenomination = 'SellAssetDenomination',
+}

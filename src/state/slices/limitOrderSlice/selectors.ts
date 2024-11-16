@@ -1,9 +1,7 @@
-import { assertUnreachable, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
-import dayjs from 'dayjs'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 
-import { ExpiryOption } from '../limitOrderInputSlice/constants'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -21,23 +19,7 @@ export const selectActiveQuote = createSelector(
 export const selectActiveQuoteExpirationTimestamp = createSelector(
   selectActiveQuote,
   activeQuote => {
-    const expiry = activeQuote?.params.expiry
-    switch (expiry) {
-      case ExpiryOption.OneHour:
-        return dayjs().add(1, 'hour').unix()
-      case ExpiryOption.OneDay:
-        return dayjs().add(1, 'day').unix()
-      case ExpiryOption.ThreeDays:
-        return dayjs().add(3, 'day').unix()
-      case ExpiryOption.SevenDays:
-        return dayjs().add(7, 'day').unix()
-      case ExpiryOption.TwentyEightDays:
-        return dayjs().add(28, 'day').unix()
-      case undefined:
-        return 0
-      default:
-        assertUnreachable(expiry)
-    }
+    return activeQuote?.params.validTo
   },
 )
 

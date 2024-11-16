@@ -2,6 +2,7 @@ import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
 
+import { PriceDirection } from '../limitOrderInputSlice/constants'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -54,7 +55,9 @@ export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
   (activeQuote, asset) => {
     if (!activeQuote || !asset) return '0'
     const { precision } = asset
-    return fromBaseUnit(activeQuote.response.quote.buyAmount, precision)
+    // DANGER! DO NOT use the quote buy amount `activeQuote.response.quote.buyAmount`
+    // doing so will discard the user input limit and do a spot trade.
+    return fromBaseUnit(activeQuote.params.buyAmountCryptoBaseUnit, precision)
   },
 )
 
@@ -112,5 +115,20 @@ export const selectActiveQuoteNetworkFeeUserCurrency = createSelector(
   selectActiveQuoteBuyAssetUserCurrencyRate,
   (amountCryptoPrecision, userCurrencyRate) => {
     return bn(amountCryptoPrecision).times(userCurrencyRate).toString()
+  },
+)
+
+export const selectActiveQuoteLimitPrice = createSelector(
+  selectActiveQuoteSellAmountCryptoPrecision,
+  selectActiveQuoteBuyAmountCryptoPrecision,
+  (sellAmountCryptoPrecision, buyAmountCryptoPrecision) => {
+    return {
+      [PriceDirection.SellAssetDenomination]: bn(sellAmountCryptoPrecision)
+        .div(buyAmountCryptoPrecision)
+        .toFixed(),
+      [PriceDirection.BuyAssetDenomination]: bn(buyAmountCryptoPrecision)
+        .div(sellAmountCryptoPrecision)
+        .toFixed(),
+    }
   },
 )

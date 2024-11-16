@@ -1,4 +1,4 @@
-import { bn } from '@shapeshiftoss/utils'
+import { bn, toBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
@@ -60,9 +60,14 @@ export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSli
 
 // This is the buy amount based on the quote + user input.
 export const selectBuyAmountCryptoBaseUnit = createSelector(
-  selectInputSellAmountCryptoBaseUnit,
+  selectInputSellAmountCryptoPrecision,
+  selectInputBuyAsset,
   selectLimitPrice,
-  (inputSellAmountCryptoBaseUnit, limitPrice) => {
-    return bn(inputSellAmountCryptoBaseUnit).times(limitPrice.buyAssetDenomination).toFixed(0)
+  (inputSellAmountCryptoPrecision, buyAsset, limitPrice) => {
+    // Arithmetic MUST be in CryptoPrecision due to differing decimals on various tokens.
+    return toBaseUnit(
+      bn(inputSellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination),
+      buyAsset.precision,
+    )
   },
 )

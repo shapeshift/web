@@ -27,12 +27,12 @@ import {
   selectActiveQuoteBuyAsset,
   selectActiveQuoteExpirationTimestamp,
   selectActiveQuoteFeeAsset,
+  selectActiveQuoteLimitPrice,
   selectActiveQuoteNetworkFeeCryptoPrecision,
   selectActiveQuoteSellAmountCryptoPrecision,
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
-import { selectSelectedCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
@@ -65,7 +65,7 @@ export const LimitOrderConfirm = () => {
   const sellAmountUserCurrency = useAppSelector(selectActiveQuoteSellAmountUserCurrency)
   const buyAmountUserCurrency = useAppSelector(selectActiveQuoteBuyAmountUserCurrency)
   const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
-  const selectedCurrency = useAppSelector(selectSelectedCurrency)
+  const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   if (!activeQuote) {
@@ -119,10 +119,17 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
-                  {/* TODO: Wire up limit price based on appdata in the quote */}
-                  <Amount.Crypto value={'0.002134'} symbol={'WETH'} />
+                  {/*
+                    TODO: the rate differs from the input page because we're using the quoted values
+                    here instead of the user input. We need to decide how to handle this because the
+                    quote is likely what gets executed.
+                  */}
+                  <Amount.Crypto value={'1.0'} symbol={sellAsset?.symbol ?? ''} />
                   <RawText>=</RawText>
-                  <Amount.Fiat fiatType={selectedCurrency} value={'1'} />
+                  <Amount.Crypto
+                    value={limitPrice.buyAssetDenomination}
+                    symbol={buyAsset?.symbol ?? ''}
+                  />
                 </HStack>
               </Row.Value>
             </Row>

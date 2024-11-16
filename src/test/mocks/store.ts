@@ -250,7 +250,10 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
-    limitPrice: '0',
+    limitPrice: {
+      [PriceDirection.BuyAssetDenomination]: '0',
+      [PriceDirection.SellAssetDenomination]: '0',
+    },
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
   },

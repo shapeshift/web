@@ -5,8 +5,12 @@ import { localAssetData } from 'lib/asset-service'
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { TradeInputBaseState } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
+import { ExpiryOption } from './constants'
 
-export type LimitOrderInputState = { limitPriceBuyAsset: string } & TradeInputBaseState
+export type LimitOrderInputState = {
+  limitPriceBuyAsset: string
+  expiry: ExpiryOption
+} & TradeInputBaseState
 
 const initialState: LimitOrderInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
@@ -21,6 +25,7 @@ const initialState: LimitOrderInputState = {
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
   limitPriceBuyAsset: '0',
+  expiry: ExpiryOption.SevenDays,
 }
 
 export const limitOrderInput = createTradeInputBaseSlice({

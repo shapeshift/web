@@ -21,6 +21,7 @@ import axios from 'axios'
 import { getConfig } from 'config'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
+import type { ExpiryOption } from 'state/slices/limitOrderInputSlice/constants'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 import type { LimitOrderQuoteResponse } from './types'
@@ -45,6 +46,7 @@ export type LimitOrderQuoteParams = {
   sellAccountAddress: Address | undefined
   sellAmountCryptoBaseUnit: string
   recipientAddress: Address | undefined
+  expiry: ExpiryOption
 }
 
 export type QuoteLimitOrderResult = {

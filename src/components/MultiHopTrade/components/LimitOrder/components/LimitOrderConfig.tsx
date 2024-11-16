@@ -21,6 +21,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertUnreachable } from 'lib/utils'
+import { ExpiryOption } from 'state/slices/limitOrderInputSlice/constants'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 
 import { AmountInput } from '../../TradeAmountInput'
@@ -36,16 +37,6 @@ enum PresetLimit {
   TwoPercent = 'twoPercent',
   FivePercent = 'fivePercent',
   TenPercent = 'tenPercent',
-}
-
-enum ExpiryOption {
-  OneHour = 'oneHour',
-  OneDay = 'oneDay',
-  ThreeDays = 'threeDays',
-  SevenDays = 'sevenDays',
-  TwentyEightDays = 'twentyEightDays',
-  // TODO: implement custom expiry
-  // Custom = 'custom',
 }
 
 const EXPIRY_OPTIONS = [

@@ -1,6 +1,7 @@
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { ExpiryOption } from 'state/slices/limitOrderInputSlice/constants'
 import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
@@ -250,6 +251,7 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
     limitPriceBuyAsset: '0',
+    expiry: ExpiryOption.SevenDays,
   },
   tradeQuoteSlice: {
     activeQuoteMeta: undefined,

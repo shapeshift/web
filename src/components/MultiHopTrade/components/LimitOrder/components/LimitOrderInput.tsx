@@ -26,6 +26,7 @@ import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/sna
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
+  selectExpiry,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
@@ -97,6 +98,7 @@ export const LimitOrderInput = ({
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
+  const expiry = useAppSelector(selectExpiry)
 
   const {
     switchAssets,
@@ -227,6 +229,7 @@ export const LimitOrderInput = ({
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
+      expiry,
     }
   }, [
     sellAmountCryptoBaseUnit,
@@ -238,6 +241,7 @@ export const LimitOrderInput = ({
     feeBps,
     sellAccountAddress,
     recipientAddress,
+    expiry,
   ])
 
   // This fetches the quote only, not the limit order. The quote is used to determine the market

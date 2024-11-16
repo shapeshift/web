@@ -34,5 +34,7 @@ const { selectBaseSlice } = privateSelectors
 
 export const selectLimitPriceBuyAsset = createSelector(
   selectBaseSlice,
-  tradeInput => tradeInput.limitPriceBuyAsset,
+  baseSlice => baseSlice.limitPriceBuyAsset,
 )
+
+export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSlice.expiry)

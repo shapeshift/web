@@ -26,7 +26,7 @@ import { calculateFees } from 'lib/fees/model'
 import { FEE_CURVE_PARAMETERS, FEE_MODEL_TO_FEATURE_NAME } from 'lib/fees/parameters'
 import type { ParameterModel } from 'lib/fees/parameters/types'
 import { isSome } from 'lib/utils'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
 import { useAppSelector } from 'state/store'
 
 import { CHART_TRADE_SIZE_MAX_USD } from './common'
@@ -356,6 +356,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = ({ stackProps, ...props
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[props.feeModel]
   const votingPowerParams = useMemo(() => ({ feeModel: props.feeModel }), [props.feeModel])
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
+  const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
 
   const [tradeSizeUSD, setTradeSizeUSD] = useState(
     props.inputAmountUsd ? Number.parseFloat(props.inputAmountUsd) : FEE_CURVE_NO_FEE_THRESHOLD_USD,
@@ -384,6 +385,7 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = ({ stackProps, ...props
             setFoxHolding={setFoxHolding}
             currentFoxHoldings={votingPower ?? '0'}
             feeModel={props.feeModel}
+            isLoading={isVotingPowerQueriesPending}
           />
         </CardBody>
       </Card>

@@ -13,7 +13,7 @@ import {
   Stack,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -47,6 +47,22 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
   currentFoxHoldings,
   feeModel,
 }) => {
+  const [hasUserAdjustedFoxHolding, setHasUserAdjustedFoxHolding] = useState(false)
+
+  useEffect(() => {
+    if (!hasUserAdjustedFoxHolding) {
+      setFoxHolding(Number(currentFoxHoldings))
+    }
+  }, [currentFoxHoldings, setFoxHolding, hasUserAdjustedFoxHolding])
+
+  const handleSliderChange = useCallback(
+    (value: number) => {
+      setHasUserAdjustedFoxHolding(true)
+      setFoxHolding(value)
+    },
+    [setFoxHolding],
+  )
+
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[feeModel]
   const translate = useTranslate()
   const feature = translate(FEE_MODEL_TO_FEATURE_NAME[feeModel])
@@ -78,7 +94,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
       <Stack spacing={4} width='full'>
         <Flex width='full' justifyContent='space-between' alignItems='center' fontWeight='medium'>
           <Text translation='foxDiscounts.foxPower' />
-          <Skeleton isLoaded={!isLoading} width='35%'>
+          <Skeleton isLoaded={!isLoading || hasUserAdjustedFoxHolding} width='35%'>
             <Box sx={inputStyle}>
               <NumberFormat
                 decimalScale={2}
@@ -100,7 +116,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             max={CHART_TRADE_SIZE_MAX_FOX}
             value={foxHolding}
             defaultValue={Number(currentFoxHoldings)}
-            onChange={setFoxHolding}
+            onChange={handleSliderChange}
             focusThumbOnChange={false}
           >
             <SliderTrack>

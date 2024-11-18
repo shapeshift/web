@@ -100,7 +100,6 @@ export const MultiHopTradeConfirm = memo(() => {
     }
   }, [handleTradeConfirm, isModeratePriceImpact])
 
-  console.log({ confirmedTradeExecutionState })
   if (!confirmedTradeExecutionState) return null
 
   return (

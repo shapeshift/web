@@ -28,9 +28,6 @@ export const zrxApi: SwapperApi = {
     input: CommonTradeQuoteInput,
     { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    // TODO(gomes): when we wire this up, this should consume getZrTradeQuote and we should ditch this guy
-    // getTradeQuote() is currently consumed at input time (for all swappers, not just ZRX) with weird Frankenstein "quote endpoint fetching ZRX rate endpoint
-    // but actually expecting quote input/output" logic. This is a temporary method to get the ZRX swapper working with the new swapper architecture.
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,

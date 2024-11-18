@@ -128,10 +128,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                   </Row.Label>
                   <Row.Value>
                     {!networkFeeFiatUserCurrency ? (
-                      <Tooltip
-                        isDisabled={!!networkFeeFiatUserCurrency}
-                        label={translate('trade.tooltip.continueSwapping')}
-                      >
+                      <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                         <Text translation={'trade.unknownGas'} fontSize='sm' />
                       </Tooltip>
                     ) : (

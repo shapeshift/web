@@ -150,10 +150,7 @@ export const TradeQuoteContent = ({
               {
                 // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
                 !networkFeeFiatUserCurrency ? (
-                  <Tooltip
-                    isDisabled={!!networkFeeFiatUserCurrency}
-                    label={translate('trade.tooltip.continueSwapping')}
-                  >
+                  <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                     <Text translation={'trade.unknownGas'} fontSize='sm' />
                   </Tooltip>
                 ) : (

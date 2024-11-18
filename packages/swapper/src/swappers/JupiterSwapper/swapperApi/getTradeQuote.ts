@@ -71,7 +71,6 @@ const _getTradeQuote = async (
     apiUrl: jupiterUrl,
     sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
     destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
-    toAddress: receiveAddress,
     commissionBps: affiliateBps,
     amount: sellAmount,
     slippageBps: convertDecimalPercentageToBasisPoints(

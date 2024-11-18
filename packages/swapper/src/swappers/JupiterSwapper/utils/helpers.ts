@@ -22,20 +22,19 @@ type GetJupiterQuoteArgs = {
   commissionBps: string
   amount: string
   slippageBps?: string
-  toAddress: string
 }
 
 type GetJupiterSwapArgs = {
   apiUrl: string
   fromAddress: string
   rawQuote: unknown
+  toAddress: string
 }
 
 export const getJupiterQuote = ({
   apiUrl,
   sourceAsset,
   destinationAsset,
-  toAddress,
   commissionBps,
   amount,
   slippageBps,
@@ -43,7 +42,6 @@ export const getJupiterQuote = ({
   jupiterService.get<QuoteResponse>(
     `${apiUrl}/quote` +
       `?inputMint=${fromAssetId(sourceAsset).assetReference}` +
-      `&destinationTokenAccount=${toAddress}` +
       `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
       `&amount=${amount}` +
       `&slippageBps=${slippageBps}` +
@@ -53,12 +51,14 @@ export const getJupiterQuote = ({
 export const getJupiterSwapInstructions = ({
   apiUrl,
   fromAddress,
+  toAddress,
   rawQuote,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>
   jupiterService.post<SwapInstructionsResponse>(`${apiUrl}/swap-instructions`, {
     userPublicKey: fromAddress,
+    destinationTokenAccount: toAddress,
     // feeAccount: SHAPESHIFT_SOLANA_FEE_ACCOUNT,
     // feeAccount: '',
     quoteResponse: rawQuote,

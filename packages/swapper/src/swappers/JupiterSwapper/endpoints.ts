@@ -1,5 +1,6 @@
+import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 
@@ -31,6 +32,7 @@ export const jupiterApi: SwapperApi = {
     const maybeSwapResponse = await getJupiterSwapInstructions({
       apiUrl: jupiterUrl,
       fromAddress: from,
+      toAddress: tradeQuote.receiveAddress,
       rawQuote: tradeQuote.rawQuote,
     })
 
@@ -66,14 +68,34 @@ export const jupiterApi: SwapperApi = {
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
+    const contractAddress =
+      step.sellAsset.assetId === solAssetId
+        ? undefined
+        : fromAssetId(step.sellAsset.assetId).assetReference
+
+    const createTokenAccountInstructions = !contractAddress
+      ? []
+      : await adapter.buildTokenTransferInstructions({
+          from,
+          to: tradeQuote.receiveAddress,
+          tokenId: contractAddress,
+          value: '0',
+        })
+
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       to: '',
       from,
       value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
+        tokenId: contractAddress,
         addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
-        instructions: [...computeBudgetInstructions, ...setupInstructions, swapInstruction],
+        instructions: [
+          ...computeBudgetInstructions,
+          ...setupInstructions,
+          swapInstruction,
+          createTokenAccountInstructions[0] as unknown as SolanaTxInstruction,
+        ],
       },
     }
 

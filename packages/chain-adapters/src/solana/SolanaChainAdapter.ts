@@ -458,7 +458,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return Buffer.from(transaction.serialize()).toString('base64')
   }
 
-  private async buildTokenTransferInstructions({
+  public async buildTokenTransferInstructions({
     from,
     to,
     tokenId,

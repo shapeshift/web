@@ -62,10 +62,8 @@ import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
-const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
-)
+export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
+  createSelector(selectTradeQuoteSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,

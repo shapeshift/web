@@ -1,4 +1,5 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
 import type { Asset } from '@shapeshiftoss/types'
@@ -28,6 +29,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import type { ApiQuote } from 'state/apis/swapper/types'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -41,15 +43,18 @@ import {
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
+  selectActiveQuoteMeta,
+  selectActiveQuoteMetaOrDefault,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
   selectShouldShowTradeQuoteOrAwaitInput,
+  selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -99,6 +104,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -149,7 +155,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading ||
-      Boolean(walletId && isWalletReceiveAddressLoading),
+      isWalletReceiveAddressLoading,
     [
       walletId,
       isAnyAccountMetadataLoadedForChainId,
@@ -239,6 +245,13 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
 
+      const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
+
+      // Set the best quote as activeQuoteMeta, unless user has already a custom quote selected, in which case don't override it
+      if (!activeQuoteMeta && bestQuote?.quote !== undefined && !bestQuote.errors.length) {
+        dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+      }
+
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
@@ -256,6 +269,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     setIsConfirmationLoading(false)
   }, [
     activeQuote,
+    activeQuoteMeta,
     dispatch,
     handleConnect,
     history,

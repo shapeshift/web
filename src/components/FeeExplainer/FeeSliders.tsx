@@ -87,6 +87,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
 
   const handleSetSimulatedFoxHolding = useCallback(
     (values: NumberFormatValues) => {
+      setHasUserAdjustedFoxHolding(true)
       setSimulatedFoxHolding(bnOrZero(values.value).toNumber())
     },
     [setSimulatedFoxHolding],

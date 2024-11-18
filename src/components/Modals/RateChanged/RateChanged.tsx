@@ -29,7 +29,7 @@ export const RateChangedModal = () => {
             <Text translation='trade.rates.rateExpired.body' color='text.subtle' />
           </Stack>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter pb={6}>
           <Button onClick={close} colorScheme='blue' width='full'>
             {translate('trade.rates.rateExpired.cta')}
           </Button>

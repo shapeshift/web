@@ -130,7 +130,6 @@ export const useGetTradeQuotes = () => {
   const activeTradeIdRef = useRef<string | undefined>()
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
   const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
-  // TODO(gomes): set trade execution of quote to the same as we stopped in rate to reconciliate things
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
 
   useEffect(

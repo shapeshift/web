@@ -231,15 +231,7 @@ export const useGetTradeQuotes = () => {
           sellAccountMetadata &&
           receiveAddress,
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      hasFocus,
-      activeTrade,
-      hopExecutionMetadata?.state,
-      sellAccountId,
-      sellAccountMetadata,
-      receiveAddress,
-    ],
+    [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress],
   )
 
   const queryFnOrSkip = useMemo(() => {

@@ -6,7 +6,8 @@ import type {
   EvmChainAdapter,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
+import type { BTCSignTx, HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -47,6 +48,9 @@ export type SwapperConfig = {
   REACT_APP_PORTALS_BASE_URL: string
   REACT_APP_FEATURE_ZRX_PERMIT2: boolean
   REACT_APP_ZRX_BASE_URL: string
+  REACT_APP_CHAINFLIP_API_KEY: string
+  REACT_APP_CHAINFLIP_API_URL: string
+  REACT_APP_FEATURE_CHAINFLIP_DCA: boolean
 }
 
 export enum SwapperName {
@@ -57,6 +61,7 @@ export enum SwapperName {
   LIFI = 'LI.FI',
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
+  Chainflip = 'Chainflip',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -216,13 +221,18 @@ export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
 
+export type SolanaSwapperDeps = {
+  assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
   assertGetChainAdapter: (chainId: ChainId) => ChainAdapter<KnownChainIds>
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
-  CosmosSdkSwapperDeps
+  CosmosSdkSwapperDeps &
+  SolanaSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -346,7 +356,12 @@ export type CosmosSdkTransactionExecutionProps = {
   signAndBroadcastTransaction: (transactionRequest: StdSignDoc) => Promise<string>
 }
 
+export type SolanaTransactionExecutionProps = {
+  signAndBroadcastTransaction: (transactionRequest: SolanaSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
+type SolanaAccountMetadata = { from: string }
 type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -364,6 +379,10 @@ export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
     permit2Signature: string | undefined
     supportsEIP1559: boolean
   }
+
+export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs &
+  SolanaAccountMetadata &
+  SolanaSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -444,6 +463,10 @@ export type Swapper = {
     txToSign: StdSignDoc,
     callbacks: CosmosSdkTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaTransaction?: (
+    txToSign: SolanaSignTx,
+    callbacks: SolanaTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -464,6 +487,7 @@ export type SwapperApi = {
   getUnsignedCosmosSdkTransaction?: (
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<StdSignDoc>
+  getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -496,6 +520,10 @@ export type UtxoTransactionExecutionInput = CommonTradeExecutionInput &
 export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
   CosmosSdkTransactionExecutionProps &
   CosmosSdkAccountMetadata
+
+export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
+  SolanaTransactionExecutionProps &
+  SolanaAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

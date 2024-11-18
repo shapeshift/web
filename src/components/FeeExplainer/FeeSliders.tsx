@@ -27,9 +27,9 @@ import {
   FEE_MODEL_TO_FEATURE_NAME,
   FEE_MODEL_TO_FEATURE_NAME_PLURAL,
 } from 'lib/fees/parameters'
+import type { ParameterModel } from 'lib/fees/parameters/types'
 
 import { CHART_TRADE_SIZE_MAX_FOX, CHART_TRADE_SIZE_MAX_USD, labelStyles } from './common'
-import type { FeeSlidersProps } from './FeeExplainer'
 
 const inputStyle = {
   input: {
@@ -38,29 +38,39 @@ const inputStyle = {
   },
 }
 
+export type FeeSlidersProps = {
+  tradeSizeUSD: number
+  setTradeSizeUSD: (val: number) => void
+  simulatedFoxHolding: number
+  setSimulatedFoxHolding: (val: number) => void
+  actualFoxHoldings: string
+  isLoading?: boolean
+  feeModel: ParameterModel
+}
+
 export const FeeSliders: React.FC<FeeSlidersProps> = ({
   tradeSizeUSD,
   setTradeSizeUSD,
-  foxHolding,
-  setFoxHolding,
+  simulatedFoxHolding,
+  setSimulatedFoxHolding,
   isLoading,
-  currentFoxHoldings,
+  actualFoxHoldings,
   feeModel,
 }) => {
   const [hasUserAdjustedFoxHolding, setHasUserAdjustedFoxHolding] = useState(false)
 
   useEffect(() => {
     if (!hasUserAdjustedFoxHolding) {
-      setFoxHolding(Number(currentFoxHoldings))
+      setSimulatedFoxHolding(Number(actualFoxHoldings))
     }
-  }, [currentFoxHoldings, setFoxHolding, hasUserAdjustedFoxHolding])
+  }, [actualFoxHoldings, setSimulatedFoxHolding, hasUserAdjustedFoxHolding])
 
   const handleSliderChange = useCallback(
     (value: number) => {
       setHasUserAdjustedFoxHolding(true)
-      setFoxHolding(value)
+      setSimulatedFoxHolding(value)
     },
-    [setFoxHolding],
+    [setSimulatedFoxHolding],
   )
 
   const { FEE_CURVE_NO_FEE_THRESHOLD_USD } = FEE_CURVE_PARAMETERS[feeModel]
@@ -75,11 +85,11 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
     number: { toFiat, localeParts },
   } = useLocaleFormatter()
 
-  const handleSetFoxHolding = useCallback(
+  const handleSetSimulatedFoxHolding = useCallback(
     (values: NumberFormatValues) => {
-      setFoxHolding(bnOrZero(values.value).toNumber())
+      setSimulatedFoxHolding(bnOrZero(values.value).toNumber())
     },
-    [setFoxHolding],
+    [setSimulatedFoxHolding],
   )
 
   const handleSetTradeSizeUsd = useCallback(
@@ -104,8 +114,8 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
                 suffix={' FOX'}
                 decimalSeparator={localeParts.decimal}
                 thousandSeparator={localeParts.group}
-                value={foxHolding}
-                onValueChange={handleSetFoxHolding}
+                value={simulatedFoxHolding}
+                onValueChange={handleSetSimulatedFoxHolding}
               />
             </Box>
           </Skeleton>
@@ -114,8 +124,8 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           <Slider
             min={0}
             max={CHART_TRADE_SIZE_MAX_FOX}
-            value={foxHolding}
-            defaultValue={Number(currentFoxHoldings)}
+            value={simulatedFoxHolding}
+            defaultValue={Number(actualFoxHoldings)}
             onChange={handleSliderChange}
             focusThumbOnChange={false}
           >
@@ -137,9 +147,9 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
             </SliderMark>
             <SliderMark
               value={
-                bn(currentFoxHoldings).gt(CHART_TRADE_SIZE_MAX_FOX)
+                bn(actualFoxHoldings).gt(CHART_TRADE_SIZE_MAX_FOX)
                   ? CHART_TRADE_SIZE_MAX_FOX
-                  : Number(currentFoxHoldings)
+                  : Number(actualFoxHoldings)
               }
               top='-14px !important'
               color='yellow.500'
@@ -209,7 +219,7 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
           </Flex>
           <Amount.Crypto
             fontWeight='bold'
-            value={currentFoxHoldings}
+            value={actualFoxHoldings}
             symbol='FOX'
             maximumFractionDigits={0}
           />

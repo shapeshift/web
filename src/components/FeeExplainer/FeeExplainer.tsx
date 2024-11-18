@@ -246,16 +246,6 @@ const FeeChart: React.FC<FeeChartProps> = ({ foxHolding, tradeSize, feeModel }) 
   )
 }
 
-export type FeeSlidersProps = {
-  tradeSizeUSD: number
-  setTradeSizeUSD: (val: number) => void
-  foxHolding: number
-  setFoxHolding: (val: number) => void
-  currentFoxHoldings: string
-  isLoading?: boolean
-  feeModel: ParameterModel
-}
-
 type FeeOutputProps = {
   tradeSizeUSD: number
   foxHolding: number
@@ -381,9 +371,9 @@ export const FeeExplainer: React.FC<FeeExplainerProps> = ({ stackProps, ...props
           <FeeSliders
             tradeSizeUSD={tradeSizeUSD}
             setTradeSizeUSD={setTradeSizeUSD}
-            foxHolding={foxHolding}
-            setFoxHolding={setFoxHolding}
-            currentFoxHoldings={votingPower ?? '0'}
+            simulatedFoxHolding={foxHolding}
+            setSimulatedFoxHolding={setFoxHolding}
+            actualFoxHoldings={votingPower ?? '0'}
             feeModel={props.feeModel}
             isLoading={isVotingPowerQueriesPending}
           />

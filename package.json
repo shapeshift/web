@@ -103,7 +103,7 @@
     "@shapeshiftoss/hdwallet-metamask-multichain": "1.55.12",
     "@shapeshiftoss/hdwallet-native": "1.55.12",
     "@shapeshiftoss/hdwallet-native-vault": "1.55.12",
-    "@shapeshiftoss/hdwallet-phantom": "1.55.12",
+    "@shapeshiftoss/hdwallet-phantom": "../hdwallet/packages/hdwallet-phantom",
     "@shapeshiftoss/hdwallet-walletconnectv2": "1.55.12",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",

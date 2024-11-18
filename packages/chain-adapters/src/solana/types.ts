@@ -25,6 +25,7 @@ export type BuildTxInput = {
   computeUnitPrice?: string
   tokenId?: string
   instructions?: SolanaTxInstruction[]
+  addressLookupTableAccounts?: string[]
 }
 
 export type GetFeeDataInput = {

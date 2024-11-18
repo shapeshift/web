@@ -11451,9 +11451,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.55.12":
+"@shapeshiftoss/hdwallet-phantom@file:../hdwallet/packages/hdwallet-phantom::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
   version: 1.55.12
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.55.12"
+  resolution: "@shapeshiftoss/hdwallet-phantom@file:../hdwallet/packages/hdwallet-phantom#../hdwallet/packages/hdwallet-phantom::hash=31dd14&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": 1.55.12
@@ -11462,7 +11462,7 @@ __metadata:
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: eeaffafd3ccfb06b08349b5f45a28d0ce2b2c3677b625ff2dea29dd148b637074875c523acf7595e353868f18f9425af304ea0643de240682bc8802efdb23911
+  checksum: 1e79337defbaee14298d6f51f4d79072881ac59199d07b11943bde1c53fdb579a7fd41bf39c3423e11679386f3228864b7343011ae99feb22de05df9d8367c44
   languageName: node
   linkType: hard
 
@@ -11682,7 +11682,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-metamask-multichain": 1.55.12
     "@shapeshiftoss/hdwallet-native": 1.55.12
     "@shapeshiftoss/hdwallet-native-vault": 1.55.12
-    "@shapeshiftoss/hdwallet-phantom": 1.55.12
+    "@shapeshiftoss/hdwallet-phantom": ../hdwallet/packages/hdwallet-phantom
     "@shapeshiftoss/hdwallet-walletconnectv2": 1.55.12
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"

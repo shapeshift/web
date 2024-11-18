@@ -72,6 +72,7 @@ export const jupiterApi: SwapperApi = {
       value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
+        addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
         instructions: [...computeBudgetInstructions, ...setupInstructions, swapInstruction],
       },
     }

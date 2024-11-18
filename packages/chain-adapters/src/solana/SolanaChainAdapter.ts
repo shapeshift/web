@@ -22,6 +22,7 @@ import {
 } from '@solana/spl-token'
 import type { TransactionInstruction } from '@solana/web3.js'
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   PublicKey,
@@ -236,6 +237,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         )
       }
 
+      const addressLookupTableAccounts = await this.getAddressLookupTableAccounts(
+        chainSpecific.addressLookupTableAccounts ?? [],
+      )
+
       const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
         blockHash: blockhash,
@@ -244,6 +249,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         instructions,
         to: tokenId ? '' : to,
         value: tokenId ? '' : value,
+        addressLookupTableAccounts,
       }
 
       return { txToSign }
@@ -539,5 +545,28 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
   get httpProvider(): unchained.solana.Api {
     return this.providers.http
+  }
+
+  public async getAddressLookupTableAccounts(
+    addresses: string[],
+  ): Promise<AddressLookupTableAccount[]> {
+    const addressLookupTableAccountInfos = await this.connection.getMultipleAccountsInfo(
+      addresses.map(key => new PublicKey(key)),
+    )
+
+    return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
+      const addressLookupTableAddress = addresses[index]
+      if (accountInfo) {
+        const addressLookupTableAccount = new AddressLookupTableAccount({
+          key: new PublicKey(addressLookupTableAddress),
+          state: AddressLookupTableAccount.deserialize(
+            new Uint8Array(Buffer.from(accountInfo.data)),
+          ),
+        })
+        acc.push(addressLookupTableAccount)
+      }
+
+      return acc
+    }, new Array<AddressLookupTableAccount>())
   }
 }

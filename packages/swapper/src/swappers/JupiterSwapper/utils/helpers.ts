@@ -22,6 +22,7 @@ type GetJupiterQuoteArgs = {
   commissionBps: string
   amount: string
   slippageBps?: string
+  toAddress: string
 }
 
 type GetJupiterSwapArgs = {
@@ -34,6 +35,7 @@ export const getJupiterQuote = ({
   apiUrl,
   sourceAsset,
   destinationAsset,
+  toAddress,
   commissionBps,
   amount,
   slippageBps,
@@ -41,6 +43,7 @@ export const getJupiterQuote = ({
   jupiterService.get<QuoteResponse>(
     `${apiUrl}/quote` +
       `?inputMint=${fromAssetId(sourceAsset).assetReference}` +
+      `&destinationTokenAccount=${toAddress}` +
       `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
       `&amount=${amount}` +
       `&slippageBps=${slippageBps}` +

@@ -151,7 +151,6 @@ export const useGetTradeQuotes = () => {
 
     return {
       tradeId: activeTradeId,
-      // TODO(gomes): multi-hop here
       hopIndex: 0,
     }
   }, [activeTradeId])

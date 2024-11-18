@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import { v4 as uuid } from 'uuid'
+import type { Address } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -126,7 +127,7 @@ async function _getZrxTradeQuote(
 
   const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
     to: zrxQuoteResponse.to,
-    data: zrxQuoteResponse.data as `0x${string}`,
+    data: zrxQuoteResponse.data as Address,
     gasPrice: zrxQuoteResponse.gasPrice ? zrxQuoteResponse.gasPrice : undefined,
     gas: zrxQuoteResponse.gas ? zrxQuoteResponse.gas : undefined,
     value: zrxQuoteResponse.value,
@@ -424,7 +425,7 @@ async function _getZrxPermit2TradeQuote(
 
   const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
     to: transaction.to,
-    data: transaction.data as `0x${string}`,
+    data: transaction.data as Address,
     gasPrice: transaction.gasPrice ? transaction.gasPrice : undefined,
     gas: transaction.gas ? transaction.gas : undefined,
     value: transaction.value,

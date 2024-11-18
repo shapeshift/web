@@ -32,18 +32,6 @@ import {
 } from '../utils/fetchFromZrx'
 import { assetIdToZrxToken, isSupportedChainId, zrxTokenToAssetId } from '../utils/helpers/helpers'
 
-// TODO(gomes): rm me and update tests back to getZrxTradeQuote
-export function getZrxPseudoTradeQuote(
-  input: GetEvmTradeQuoteInputBase,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
-  isPermit2Enabled: boolean,
-  assetsById: AssetsByIdPartial,
-  zrxBaseUrl: string,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
-  if (!isPermit2Enabled) return _getZrxTradeQuote(input, assertGetEvmChainAdapter, zrxBaseUrl)
-  return _getZrxPermit2TradeQuote(input, assertGetEvmChainAdapter, assetsById, zrxBaseUrl)
-}
-
 export function getZrxTradeQuote(
   input: GetEvmTradeQuoteInputBase,
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,

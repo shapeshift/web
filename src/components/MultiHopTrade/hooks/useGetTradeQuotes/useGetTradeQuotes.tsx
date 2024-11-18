@@ -375,8 +375,6 @@ export const useGetTradeQuotes = () => {
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
-    // And re-confirm the trade since we're effectively resetting the state machine here
-    // dispatch(tradeQuoteSlice.actions.confirmTrade(quoteData.quote.id))
   }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 
   // TODO: move to separate hook so we don't need to pull quote data into here

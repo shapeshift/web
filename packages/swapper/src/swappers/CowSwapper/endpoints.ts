@@ -25,10 +25,8 @@ import {
   getHopByIndex,
   isExecutableTradeQuote,
 } from '../../utils'
-import {
-  getCowSwapTradeQuote,
-  getCowSwapTradeRate,
-} from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type { CowSwapOrder } from './types'
 import {
   CoWSwapBuyTokenDestination,

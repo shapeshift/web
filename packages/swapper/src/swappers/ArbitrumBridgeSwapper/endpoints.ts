@@ -25,7 +25,8 @@ import type {
   TradeRate,
 } from '../../types'
 import { checkEvmSwapStatus, getHopByIndex, isExecutableTradeQuote } from '../../utils'
-import { getTradeQuote, getTradeRate } from './getTradeQuote/getTradeQuote'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeRate } from './getTradeRate/getTradeRate'
 import { fetchArbitrumBridgeQuote } from './utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from './utils/helpers'
 

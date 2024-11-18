@@ -7,7 +7,7 @@ import {
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useHasFocus } from 'hooks/useHasFocus'
@@ -41,8 +41,8 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
-import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeQuoteArgs } from './hooks/useGetSwapperTradeQuote'
+import { useGetSwapperTradeQuote } from './hooks/useGetSwapperTradeQuote'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName

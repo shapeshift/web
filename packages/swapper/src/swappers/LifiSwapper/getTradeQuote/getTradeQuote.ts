@@ -16,7 +16,6 @@ import { Err, Ok } from '@sniptt/monads'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapperDeps,
@@ -36,9 +35,9 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
+import type { LifiTradeQuote } from '../utils/types'
 
-async function getTrade(
+export async function getTrade(
   input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
@@ -299,15 +298,3 @@ export const getTradeQuote = (
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
-
-export const getTradeRate = async (
-  input: GetEvmTradeRateInput,
-  deps: SwapperDeps,
-  lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeRate[], SwapErrorRight>> => {
-  const rate = (await getTrade(input, deps, lifiChainMap)) as Result<
-    LifiTradeRate[],
-    SwapErrorRight
-  >
-  return rate
-}

@@ -1,41 +1,39 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
-import type { GetEvmTradeQuoteInputBase, SwapperConfig } from '../../../types'
-import {
-  type SingleHopTradeQuoteSteps,
-  type SwapErrorRight,
-  SwapperName,
-  type TradeQuote,
-  TradeQuoteError,
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
+import type {
+  GetEvmTradeRateInput,
+  SingleHopTradeRateSteps,
+  SwapperConfig,
+  TradeRate,
 } from '../../../types'
+import { type SwapErrorRight, SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
-import { isSupportedChainId } from '../utils/helpers'
+import { fetchPortalsTradeEstimate } from '../utils/fetchPortalsTradeOrder'
+import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
-export async function getPortalsTradeQuote(
-  input: GetEvmTradeQuoteInputBase,
-  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
+export async function getPortalsTradeRate(
+  input: GetEvmTradeRateInput,
+  _assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   swapperConfig: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
-    sendAddress,
     accountNumber,
     affiliateBps,
     potentialAffiliateBps,
     chainId,
-    supportsEIP1559,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
@@ -72,18 +70,9 @@ export async function getPortalsTradeQuote(
     )
   }
 
-  // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%
-  const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
-    .times(100)
-    .toNumber()
-
-  const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-    ? Number(input.slippageTolerancePercentageDecimal)
-    : undefined // Use auto slippage if no user preference is provided
-
-  if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
-
   try {
+    if (!isSupportedChainId(chainId)) throw new Error(`Unsupported chainId ${sellAsset.chainId}`)
+
     const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
 
     if (!portalsNetwork) {
@@ -106,94 +95,65 @@ export async function getPortalsTradeQuote(
     const inputToken = `${portalsNetwork}:${sellAssetAddress}`
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
-    const portalsTradeOrderResponse = await fetchPortalsTradeOrder({
-      sender: sendAddress,
+    const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
+      ? Number(input.slippageTolerancePercentageDecimal)
+      : undefined // Use auto slippage if no user preference is provided
+
+    const quoteEstimateResponse = await fetchPortalsTradeEstimate({
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
         ? userSlippageTolerancePercentageDecimalOrDefault * 100
-        : undefined,
-      partner: getTreasuryAddressFromChainId(sellAsset.chainId),
-      feePercentage: affiliateBpsPercentage,
-      validate: true,
+        : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+            .times(100)
+            .toNumber(),
       swapperConfig,
     })
-
-    const {
-      context: {
-        orderId,
-        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
-        minOutputAmount: buyAmountBeforeFeesCryptoBaseUnit,
-        slippageTolerancePercentage,
-        target: allowanceContract,
-        feeAmount,
-        gasLimit,
-      },
-      tx,
-    } = portalsTradeOrderResponse
-
-    if (!tx) throw new Error('Portals Tx simulation failed upstream')
+    // Use the quote estimate endpoint to get a quote without a wallet
 
     const rate = getRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: quoteEstimateResponse?.context.outputAmount,
       sellAsset,
       buyAsset,
     })
 
-    const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
+    const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
-    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
-      supportsEIP1559: Boolean(supportsEIP1559),
-      // times 1 isn't a mistake, it's just so we can write this comment above to mention that Portals already add a
-      // buffer of ~15% to the gas limit
-      gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
-    })
-
-    const slippageTolerancePercentageDecimal = bnOrZero(slippageTolerancePercentage)
-      .div(100)
-      .toString()
-
-    const tradeQuote: TradeQuote = {
-      id: orderId,
-      receiveAddress: input.receiveAddress,
+    const tradeRate = {
+      id: uuid(),
+      accountNumber,
+      receiveAddress: undefined,
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal,
+      slippageTolerancePercentageDecimal: quoteEstimateResponse.context.slippageTolerancePercentage
+        ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
+        : undefined,
       steps: [
         {
-          accountNumber,
+          estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
           allowanceContract,
+          accountNumber,
           rate,
           buyAsset,
           sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit,
-          buyAmountAfterFeesCryptoBaseUnit,
+          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
+          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.context.outputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
-            networkFeeCryptoBaseUnit,
+            networkFeeCryptoBaseUnit: undefined,
             // Protocol fees are always denominated in sell asset here
-            protocolFees: {
-              [sellAsset.assetId]: {
-                amountCryptoBaseUnit: feeAmount,
-                asset: sellAsset,
-                requiresBalance: false,
-              },
-            },
+            protocolFees: {},
           },
           source: SwapperName.Portals,
-          estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
-          portalsTransactionMetadata: tx,
         },
-      ] as SingleHopTradeQuoteSteps,
+      ] as unknown as SingleHopTradeRateSteps,
     }
 
-    return Ok(tradeQuote)
+    return Ok(tradeRate)
   } catch (err) {
     return Err(
       makeSwapErrorRight({

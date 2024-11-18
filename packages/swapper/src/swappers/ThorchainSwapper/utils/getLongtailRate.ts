@@ -9,24 +9,24 @@ import { Err, Ok } from '@sniptt/monads'
 import assert from 'assert'
 
 import type {
-  CommonTradeQuoteInput,
-  MultiHopTradeQuoteSteps,
+  GetTradeRateInput,
+  MultiHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ThorTradeQuote } from '../types'
+import type { ThorTradeRate } from '../types'
 import { getBestAggregator } from './getBestAggregator'
-import { getL1Quote } from './getL1quote'
+import { getL1Rate } from './getL1Rate'
 import { getTokenFromAsset, getWrappedToken, TradeType } from './longTailHelpers'
 
 // This just uses UniswapV3 to get the longtail quote for now.
-export const getLongtailToL1Quote = async (
-  input: CommonTradeQuoteInput,
+export const getLongtailToL1Rate = async (
+  input: GetTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
   /*
@@ -73,36 +73,38 @@ export const getLongtailToL1Quote = async (
 
   const { bestAggregator, quotedAmountOut } = maybeBestAggregator.unwrap()
 
-  const l1Tol1QuoteInput: CommonTradeQuoteInput = {
+  const l1Tol1QuoteInput: GetTradeRateInput = {
     ...input,
     sellAsset: buyAssetFeeAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: quotedAmountOut.toString(),
   }
 
-  const thorchainQuotes = await getL1Quote(
+  const thorchainRates = await getL1Rate(
     l1Tol1QuoteInput,
     deps,
     streamingInterval,
     TradeType.LongTailToL1,
   )
 
-  return thorchainQuotes.andThen(quotes => {
-    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
+  return thorchainRates.andThen(rates => {
+    const updatedRates: ThorTradeRate[] = rates.map(q => ({
       ...q,
+      accountNumber: undefined,
       aggregator: bestAggregator,
       // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
       steps: q.steps.map(s => ({
         ...s,
+        accountNumber: undefined,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         sellAsset,
         allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
-      })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
+      })) as MultiHopTradeRateSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
       isLongtail: true,
       longtailData: {
         longtailToL1ExpectedAmountOut: quotedAmountOut,
       },
     }))
 
-    return Ok(updatedQuotes)
+    return Ok(updatedRates)
   })
 }

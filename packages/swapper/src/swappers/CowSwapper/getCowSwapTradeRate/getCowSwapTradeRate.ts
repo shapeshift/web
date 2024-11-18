@@ -6,12 +6,7 @@ import type { AxiosError } from 'axios'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetEvmTradeQuoteInputBase,
-  SwapErrorRight,
-  SwapperConfig,
-  TradeQuote,
-} from '../../../types'
+import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
@@ -31,10 +26,10 @@ import {
   getValuesFromQuoteResponse,
 } from '../utils/helpers/helpers'
 
-async function _getCowSwapTradeQuote(
-  input: GetEvmTradeQuoteInputBase,
+async function _getCowSwapTradeRate(
+  input: GetEvmTradeRateInput,
   config: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -88,7 +83,7 @@ async function _getCowSwapTradeQuote(
       appData,
       appDataHash,
       partiallyFillable: false,
-      from: receiveAddress ?? zeroAddress,
+      from: zeroAddress,
       kind: CoWSwapOrderKind.Sell,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
@@ -111,21 +106,22 @@ async function _getCowSwapTradeQuote(
     return Err(maybeQuoteResponse.unwrapErr())
   }
 
-  const { data: cowswapQuoteResponse } = maybeQuoteResponse.unwrap()
+  const { data } = maybeQuoteResponse.unwrap()
 
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = cowswapQuoteResponse.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
 
   const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
     getValuesFromQuoteResponse({
       buyAsset,
       sellAsset,
-      response: cowswapQuoteResponse,
+      response: data,
       affiliateBps,
     })
 
-  const quote: TradeQuote = {
-    id: cowswapQuoteResponse.id.toString(),
-    receiveAddress,
+  const quote: TradeRate = {
+    id: data.id.toString(),
+    accountNumber,
+    receiveAddress: undefined,
     affiliateBps,
     potentialAffiliateBps,
     rate,
@@ -153,7 +149,6 @@ async function _getCowSwapTradeQuote(
         buyAsset,
         sellAsset,
         accountNumber,
-        cowswapQuoteResponse,
       },
     ],
   }
@@ -161,7 +156,7 @@ async function _getCowSwapTradeQuote(
   return Ok(quote)
 }
 
-export const getCowSwapTradeQuote = (
-  input: GetEvmTradeQuoteInputBase,
+export const getCowSwapTradeRate = (
+  input: GetEvmTradeRateInput,
   config: SwapperConfig,
-): Promise<Result<TradeQuote, SwapErrorRight>> => _getCowSwapTradeQuote(input, config)
+): Promise<Result<TradeRate, SwapErrorRight>> => _getCowSwapTradeRate(input, config)

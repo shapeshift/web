@@ -17,10 +17,8 @@ import type {
   TradeRate,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
-import {
-  getPortalsTradeQuote,
-  getPortalsTradeRate,
-} from './getPortalsTradeQuote/getPortalsTradeQuote'
+import { getPortalsTradeQuote } from './getPortalsTradeQuote/getPortalsTradeQuote'
+import { getPortalsTradeRate } from './getPortalsTradeRate/getPortalsTradeRate'
 
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (

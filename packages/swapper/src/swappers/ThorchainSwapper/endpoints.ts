@@ -36,12 +36,9 @@ import {
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { THORCHAIN_OUTBOUND_FEE_RUNE_THOR_UNIT } from './constants'
 import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
-import {
-  getThorTradeQuote,
-  getThorTradeRate,
-  type ThorEvmTradeQuote,
-} from './getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
+import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
+import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
+import type { ThorEvmTradeQuote, ThornodeStatusResponse, ThornodeTxResponse } from './types'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'

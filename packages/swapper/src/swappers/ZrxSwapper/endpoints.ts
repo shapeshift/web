@@ -21,7 +21,8 @@ import {
   type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
-import { getZrxTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
+import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
+import { getZrxTradeRate } from './getZrxTradeRate/getZrxTradeRate'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (

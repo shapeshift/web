@@ -1,8 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
+  bn,
+  bnOrZero,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   fromBaseUnit,
@@ -10,20 +11,18 @@ import {
   isRejected,
   toBaseUnit,
 } from '@shapeshiftoss/utils'
-import { Err, Ok, type Result } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import { addLimitToMemo } from '../../../thorchain-utils/memo/addLimitToMemo'
-import type {
-  CommonTradeQuoteInput,
-  GetEvmTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
+import type { GetEvmTradeQuoteInput, ProtocolFee, SwapperDeps } from '../../../types'
+import {
+  type GetTradeRateInput,
+  type SwapErrorRight,
+  SwapperName,
+  TradeQuoteError,
 } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import {
   THOR_PRECISION,
@@ -33,25 +32,22 @@ import {
 } from '../constants'
 import { getThorTxInfo as getEvmThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
-  ThorEvmTradeQuote,
+  ThorEvmTradeRate,
   ThornodeQuoteResponseSuccess,
-  ThorTradeQuote,
-  ThorTradeUtxoOrCosmosQuote,
+  ThorTradeRate,
+  ThorTradeUtxoOrCosmosRate,
 } from '../types'
-import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
-import { getLimitWithManualSlippage } from './getLimitWithManualSlippage'
 import { getQuote } from './getQuote/getQuote'
 import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
-import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
-export const getL1Quote = async (
-  input: CommonTradeQuoteInput,
+export const getL1Rate = async (
+  input: GetTradeRateInput,
   deps: SwapperDeps,
   streamingInterval: number,
   tradeType: TradeType,
-): Promise<Result<ThorTradeQuote[], SwapErrorRight>> => {
+): Promise<Result<ThorTradeRate[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -100,7 +96,7 @@ export const getL1Quote = async (
           sellAsset,
           buyAssetId: buyAsset.assetId,
           sellAmountCryptoBaseUnit,
-          receiveAddress,
+          receiveAddress: undefined,
           streaming: true,
           affiliateBps: requestedAffiliateBps,
           streamingInterval,
@@ -228,30 +224,13 @@ export const getL1Quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-            slippageBps,
-          }): Promise<ThorEvmTradeQuote> => {
-            if (!quote.memo) throw new Error('no memo provided')
-
+          }): Promise<ThorEvmTradeRate> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
-            const limitWithManualSlippage = getLimitWithManualSlippage({
-              expectedAmountOutThorBaseUnit,
-              slippageBps,
-            })
-
-            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
-            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = (() => {
-              if (!quote.memo) throw new Error('no memo provided')
-
-              if (isStreaming) return quote.memo
-              return addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            })()
+            // No memo returned for rates
+            const memo = ''
 
             const { data, router, vault } = await getEvmThorTxInfo({
               sellAsset,
@@ -269,8 +248,9 @@ export const getL1Quote = async (
 
             return {
               id: uuid(),
+              accountNumber: undefined,
               memo,
-              receiveAddress,
+              receiveAddress: undefined,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -326,54 +306,27 @@ export const getL1Quote = async (
     case CHAIN_NAMESPACE.Utxo: {
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(
-          async ({
+          ({
             source,
             quote,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-            slippageBps,
-          }): Promise<ThorTradeUtxoOrCosmosQuote> => {
-            if (!quote.memo) throw new Error('no memo provided')
-
+          }): ThorTradeUtxoOrCosmosRate => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
 
-            const limitWithManualSlippage = getLimitWithManualSlippage({
-              expectedAmountOutThorBaseUnit,
-              slippageBps,
-            })
+            // No memo for trade rates
+            const memo = ''
 
-            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
-            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = (() => {
-              if (!quote.memo) throw new Error('no memo provided')
-
-              if (isStreaming) return quote.memo
-              return addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            })()
-
-            const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
-              sellAsset,
-              xpub: (input as GetUtxoTradeQuoteInput).xpub!,
-              memo,
-              config: deps.config,
-            })
-
-            const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-            const feeData = await getUtxoTxFees({
-              sellAmountCryptoBaseUnit,
-              vault,
-              opReturnData,
-              pubkey,
-              sellAdapter,
+            // TODO(gomes): for UTXOs, we should be able to get a very rough estimation (not taking users' UTXOs into account)
+            // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
+            const feeData = {
+              networkFeeCryptoBaseUnit: undefined,
               protocolFees: getProtocolFees(quote),
-            })
+            }
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,
@@ -383,8 +336,9 @@ export const getL1Quote = async (
 
             return {
               id: uuid(),
+              accountNumber: undefined,
               memo,
-              receiveAddress,
+              receiveAddress: undefined,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -405,7 +359,9 @@ export const getL1Quote = async (
                   source,
                   buyAsset,
                   sellAsset,
-                  accountNumber,
+                  // TODO(gomes): when we actually split between TradeQuote and TradeRate in https://github.com/shapeshift/web/issues/7941,
+                  // this won't be an issue anymore - for now this is tackled at runtime with the isConnected check above
+                  accountNumber: accountNumber!,
                   allowanceContract: '0x0', // not applicable to UTXOs
                   feeData,
                 },
@@ -444,10 +400,7 @@ export const getL1Quote = async (
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-            slippageBps,
-          }): ThorTradeUtxoOrCosmosQuote => {
-            if (!quote.memo) throw new Error('no memo provided')
-
+          }): ThorTradeUtxoOrCosmosRate => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -458,27 +411,14 @@ export const getL1Quote = async (
               outputExponent: buyAsset.precision,
             }).toFixed()
 
-            const limitWithManualSlippage = getLimitWithManualSlippage({
-              expectedAmountOutThorBaseUnit,
-              slippageBps,
-            })
-
-            // always use TC auto stream quote (0 limit = 5bps - 50bps, sometimes up to 100bps)
-            // see: https://discord.com/channels/838986635756044328/1166265575941619742/1166500062101250100
-            const memo = (() => {
-              if (!quote.memo) return ''
-
-              if (isStreaming) return quote.memo
-              return addLimitToMemo({
-                memo: quote.memo,
-                limit: limitWithManualSlippage,
-              })
-            })()
+            // No memo returned for rates
+            const memo = ''
 
             return {
               id: uuid(),
+              accountNumber: undefined,
               memo,
-              receiveAddress,
+              receiveAddress: undefined,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,

@@ -48,8 +48,8 @@ import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import type { UseGetSwapperTradeQuoteArgs } from './hooks/useGetSwapperTradeQuote'
-import { useGetSwapperTradeQuote } from './hooks/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -323,7 +323,7 @@ export const useGetTradeQuotes = () => {
   })
 
   const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteArgs => {
+    (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
         tradeQuoteInput: tradeQuoteInput ?? reduxSkipToken,
@@ -337,7 +337,7 @@ export const useGetTradeQuotes = () => {
     [shouldFetchTradeQuotes, tradeQuoteInput],
   )
 
-  const queryStateMeta = useGetSwapperTradeQuote(
+  const queryStateMeta = useGetSwapperTradeQuoteOrRate(
     getTradeQuoteArgs(activeQuoteMetaRef.current?.swapperName),
   )
 

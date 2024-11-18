@@ -5,19 +5,19 @@ import { swapperApi, useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch } from 'state/store'
 
-export type UseGetSwapperTradeQuoteArgs = {
+export type UseGetSwapperTradeQuoteOrRateArgs = {
   swapperName: SwapperName | undefined
   tradeQuoteInput: GetTradeQuoteInput | typeof skipToken
   skip: boolean
   pollingInterval: number | undefined
 }
 
-export const useGetSwapperTradeQuote = ({
+export const useGetSwapperTradeQuoteOrRate = ({
   swapperName,
   tradeQuoteInput,
   pollingInterval,
   skip,
-}: UseGetSwapperTradeQuoteArgs) => {
+}: UseGetSwapperTradeQuoteOrRateArgs) => {
   const dispatch = useAppDispatch()
   const tradeQuoteRequest = useMemo(() => {
     return skip || tradeQuoteInput === skipToken || !swapperName

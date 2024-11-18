@@ -41,8 +41,8 @@ import {
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import type { UseGetSwapperTradeQuoteArgs } from './hooks/useGetSwapperTradeQuote'
-import { useGetSwapperTradeQuote } from './hooks/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -242,7 +242,7 @@ export const useGetTradeRates = () => {
   ])
 
   const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName): UseGetSwapperTradeQuoteArgs => {
+    (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
         tradeQuoteInput: tradeRateInput,
@@ -254,13 +254,13 @@ export const useGetTradeRates = () => {
     [shouldRefetchTradeQuotes, tradeRateInput],
   )
 
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.CowSwap))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Portals))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.LIFI))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

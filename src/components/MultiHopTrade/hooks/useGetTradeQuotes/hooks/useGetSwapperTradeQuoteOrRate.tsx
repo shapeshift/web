@@ -1,6 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
-import isEmpty from 'lodash/isEmpty'
 import { useEffect, useMemo } from 'react'
 import { swapperApi, useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'

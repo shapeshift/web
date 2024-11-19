@@ -18,16 +18,24 @@ export type LimitOrderSubmissionMetadata = {
   limitOrder: LimitOrderTransactionMetadata
 }
 
+export type LimitOrderCreationParams = LimitOrderQuoteParams & {
+  validTo: number
+  buyAmountCryptoBaseUnit: string
+}
+
 export type LimitOrderActiveQuote = {
-  params: LimitOrderQuoteParams & { validTo: number; buyAmountCryptoBaseUnit: string }
+  params: LimitOrderCreationParams
   response: OrderQuoteResponse
 }
+
+export type UnsignedOrderCreation = Omit<OrderCreation, 'signature'> &
+  Partial<Pick<OrderCreation, 'signature'>>
 
 export type LimitOrderState = {
   activeQuote: LimitOrderActiveQuote | undefined
   confirmedLimitOrder: Record<
     QuoteId,
-    Omit<OrderCreation, 'signature'> & Partial<Pick<OrderCreation, 'signature'>>
+    { params: LimitOrderCreationParams; unsignedOrderCreation: UnsignedOrderCreation }
   >
   orderSubmission: Record<QuoteId, LimitOrderSubmissionMetadata>
 }

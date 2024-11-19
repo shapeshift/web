@@ -1,3 +1,4 @@
+import type { QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'
@@ -9,6 +10,7 @@ import {
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
 } from '../selectors'
+import type { LimitOrderState } from './types'
 
 const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
 
@@ -131,4 +133,11 @@ export const selectActiveQuoteLimitPrice = createSelector(
         .toFixed(),
     }
   },
+)
+
+export const selectConfirmedLimitOrder = createSelector(
+  selectLimitOrderSlice,
+  (_state: ReduxState, quoteId: QuoteId) => quoteId,
+  (limitOrderSlice: LimitOrderState, quoteId: QuoteId) =>
+    limitOrderSlice.confirmedLimitOrder[quoteId],
 )

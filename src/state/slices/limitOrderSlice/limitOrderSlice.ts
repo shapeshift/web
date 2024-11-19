@@ -47,8 +47,11 @@ export const limitOrderSlice = createSlice({
       // If this is not true, the state is corrupt.
       assert(state.activeQuote.response.id === limitOrderQuoteId)
 
-      const limitOrder = buildUnsignedLimitOrder(state.activeQuote)
-      state.confirmedLimitOrder[limitOrderQuoteId] = limitOrder
+      const unsignedOrderCreation = buildUnsignedLimitOrder(state.activeQuote)
+      state.confirmedLimitOrder[limitOrderQuoteId] = {
+        params: state.activeQuote.params,
+        unsignedOrderCreation,
+      }
 
       if (state.orderSubmission[limitOrderQuoteId].state !== LimitOrderSubmissionState.Previewing) {
         if (

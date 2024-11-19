@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Divider, useColorModeValue, useMediaQuery } from '@ch
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { bnOrZero, fromBaseUnit, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
+import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -119,18 +119,6 @@ export const ConfirmSummary = ({
     useIsSmartContractAddress(receiveAddress ?? '', buyAsset.chainId)
   const { sellAssetAccountId, buyAssetAccountId } = useAccountIds()
 
-  const isTaprootReceiveAddress = useMemo(
-    () => isUtxoChainId(buyAsset.chainId) && receiveAddress?.startsWith('bc1p'),
-    [buyAsset.chainId, receiveAddress],
-  )
-
-  const shouldDisableThorTaprootReceiveAddress = useMemo(() => {
-    // Taproot addresses are not supported by THORChain swapper currently
-    if (activeSwapperName === SwapperName.Thorchain && isTaprootReceiveAddress) return true
-
-    return false
-  }, [activeSwapperName, isTaprootReceiveAddress])
-
   const shouldDisableThorNativeSmartContractReceive = useMemo(() => {
     // THORChain is only affected by the sc limitation for native EVM receives
     // https://dev.thorchain.org/protocol-development/chain-clients/evm-chains.html#admonition-warning
@@ -188,8 +176,6 @@ export const ConfirmSummary = ({
       isManualReceiveAddressValid === false ||
       // don't execute trades for smart contract receive addresses for THOR native assets receives
       shouldDisableThorNativeSmartContractReceive ||
-      // Taproot not supported by THORChain swapper currently
-      shouldDisableThorTaprootReceiveAddress ||
       // don't allow non-existent quotes to be executed
       !activeQuote ||
       !hasUserEnteredAmount ||
@@ -204,7 +190,6 @@ export const ConfirmSummary = ({
     isManualReceiveAddressEditing,
     isManualReceiveAddressValid,
     shouldDisableThorNativeSmartContractReceive,
-    shouldDisableThorTaprootReceiveAddress,
     activeQuote,
     hasUserEnteredAmount,
     activeSwapperName,
@@ -393,11 +378,7 @@ export const ConfirmSummary = ({
         )}
         <RecipientAddress
           shouldForceManualAddressEntry={shouldDisableThorNativeSmartContractReceive}
-          recipientAddressDescription={
-            shouldDisableThorTaprootReceiveAddress
-              ? translate('trade.disableThorTaprootReceive')
-              : undefined
-          }
+          recipientAddressDescription={undefined}
           manualAddressEntryDescription={manualAddressEntryDescription}
         />
       </>

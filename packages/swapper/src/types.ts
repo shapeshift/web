@@ -26,6 +26,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { TransactionRequest } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { QuoteResponse } from './swappers/JupiterSwapper/models/QuoteResponse'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -146,6 +147,7 @@ type CommonTradeInputBase = {
 export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAddress: string
+  isManualReceiveAddress: boolean
   accountNumber: number
   quoteOrRate: 'quote'
 }
@@ -153,6 +155,7 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
   receiveAddress: undefined
+  isManualReceiveAddress: boolean
   accountNumber: undefined
   quoteOrRate: 'rate'
 }
@@ -267,7 +270,7 @@ type TradeQuoteBase = {
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
-  rawQuote?: unknown
+  rawQuote?: QuoteResponse
 }
 
 type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }

@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { PublicKey, type TransactionInstruction } from '@solana/web3.js'
 import type { AxiosError } from 'axios'
@@ -8,6 +8,7 @@ import type { AxiosError } from 'axios'
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
 import { type SwapperApi } from '../../types'
 import { checkSolanaSwapStatus, isExecutableTradeQuote, isExecutableTradeStep } from '../../utils'
+import type { Instruction } from './models/Instruction'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import { getJupiterSwapInstructions } from './utils/helpers'
 
@@ -31,33 +32,35 @@ export const jupiterApi: SwapperApi = {
     if (!tradeQuote.rawQuote) throw Error('Missing raw quote')
 
     const contractAddress =
-      step.sellAsset.assetId === solAssetId
+      step.buyAsset.assetId === solAssetId
         ? undefined
-        : fromAssetId(step.sellAsset.assetId).assetReference
+        : fromAssetId(step.buyAsset.assetId).assetReference
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
+    const isManualReceiveAddress = tradeQuote.receiveAddress !== from
+
+    if (isManualReceiveAddress && step.buyAsset.assetId === solAssetId) {
+      throw Error('Manual receive address is not supported for SOL')
+    }
+
     const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
-      await (async () => {
-        if (contractAddress) {
-          return await adapter.createAssociatedTokenAccountInstruction({
+      contractAddress && isManualReceiveAddress
+        ? await adapter.createAssociatedTokenAccountInstruction({
             from,
             to: tradeQuote.receiveAddress,
             tokenId: contractAddress,
           })
-        }
-
-        return {
-          instruction: undefined,
-          destinationTokenAccount: undefined,
-        }
-      })()
+        : { instruction: undefined, destinationTokenAccount: undefined }
 
     const maybeSwapResponse = await getJupiterSwapInstructions({
       apiUrl: jupiterUrl,
       fromAddress: from,
-      toAddress: destinationTokenAccount?.toString() ?? tradeQuote.receiveAddress,
+      toAddress: isManualReceiveAddress ? destinationTokenAccount?.toString() : undefined,
       rawQuote: tradeQuote.rawQuote,
+      // Shared account is not supported for simple AMMs
+      useSharedAccounts:
+        tradeQuote.rawQuote.routePlan.length > 1 && isManualReceiveAddress ? true : false,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -68,39 +71,27 @@ export const jupiterApi: SwapperApi = {
 
     const { data: swapResponse } = maybeSwapResponse.unwrap()
 
-    const setupInstructions = swapResponse.setupInstructions.map(instruction => {
-      return {
-        ...instruction,
-        keys: swapResponse.swapInstruction.accounts.map(account => {
-          return {
-            ...account,
-            pubkey: new PublicKey(account.pubkey),
-          }
-        }),
-        data: Buffer.from(instruction.data, 'base64'),
-        programId: new PublicKey(swapResponse.swapInstruction.programId),
-      }
+    const convertJupiterInstruction = (instruction: Instruction): TransactionInstruction => ({
+      ...instruction,
+      keys: instruction.accounts.map(account => ({
+        ...account,
+        pubkey: new PublicKey(account.pubkey),
+      })),
+      data: Buffer.from(instruction.data, 'base64'),
+      programId: new PublicKey(instruction.programId),
     })
 
-    const swapInstruction = {
-      ...swapResponse.swapInstruction,
-      keys: swapResponse.swapInstruction.accounts.map(account => {
-        return {
-          ...account,
-          pubkey: new PublicKey(account.pubkey),
-        }
-      }),
-      data: Buffer.from(swapResponse.swapInstruction.data, 'base64'),
-      programId: new PublicKey(swapResponse.swapInstruction.programId),
-    }
-
-    const instructions = [
-      ...setupInstructions,
-      swapInstruction,
-    ] as unknown as TransactionInstruction[]
+    const instructions: TransactionInstruction[] = [
+      ...swapResponse.setupInstructions.map(convertJupiterInstruction),
+      convertJupiterInstruction(swapResponse.swapInstruction),
+    ]
 
     if (createTokenAccountInstruction) {
       instructions.unshift(createTokenAccountInstruction)
+    }
+
+    if (swapResponse.cleanupInstruction) {
+      instructions.push(convertJupiterInstruction(swapResponse.cleanupInstruction))
     }
 
     const getFeeData = async () => {
@@ -119,8 +110,7 @@ export const jupiterApi: SwapperApi = {
               instructions,
             },
           }
-          const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
-          return fast
+          return await sellAdapter.getFeeData(getFeeDataInput)
         }
 
         default:
@@ -128,21 +118,11 @@ export const jupiterApi: SwapperApi = {
       }
     }
 
-    const {
-      chainSpecific: { computeUnitsInstruction, computeUnitsPriceInstruction },
-    } = await getFeeData()
+    const { fast } = await getFeeData()
 
-    const solanaInstructions: SolanaTxInstruction[] = [
-      ...setupInstructions.map(instruction => adapter.convertInstruction(instruction)),
-      adapter.convertInstruction(swapInstruction),
-    ]
-
-    solanaInstructions.unshift(computeUnitsInstruction)
-    solanaInstructions.unshift(computeUnitsPriceInstruction)
-
-    if (createTokenAccountInstruction) {
-      solanaInstructions.unshift(adapter.convertInstruction(createTokenAccountInstruction))
-    }
+    const solanaInstructions = instructions.map(instruction =>
+      adapter.convertInstruction(instruction),
+    )
 
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       to: '',
@@ -152,6 +132,8 @@ export const jupiterApi: SwapperApi = {
       chainSpecific: {
         addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
         instructions: solanaInstructions,
+        computeUnitLimit: fast.chainSpecific.computeUnits,
+        computeUnitPrice: fast.chainSpecific.priorityFee,
       },
     }
 

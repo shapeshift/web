@@ -41,11 +41,21 @@ const _getTradeQuote = async (
     receiveAddress,
     accountNumber,
     slippageTolerancePercentageDecimal,
+    isManualReceiveAddress,
   } = input
 
   const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
+
+  if (isManualReceiveAddress && buyAsset.assetId === solAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported manual receive address for SOL`,
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
 
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(

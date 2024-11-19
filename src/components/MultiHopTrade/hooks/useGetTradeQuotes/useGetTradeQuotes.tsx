@@ -241,6 +241,7 @@ export const useGetTradeQuotes = () => {
         wallet: wallet ?? undefined,
         quoteOrRate,
         receiveAddress,
+        isManualReceiveAddress: Boolean(manualReceiveAddress),
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
         affiliateBps,
@@ -272,6 +273,7 @@ export const useGetTradeQuotes = () => {
     isVotingPowerLoading,
     isBuyAssetChainSupported,
     quoteOrRate,
+    manualReceiveAddress,
   ])
 
   const getTradeQuoteArgs = useCallback(

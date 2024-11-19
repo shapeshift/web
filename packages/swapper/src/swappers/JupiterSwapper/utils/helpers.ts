@@ -13,6 +13,8 @@ export const isSupportedChainId = (chainId: ChainId): chainId is JupiterSupporte
   return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
 }
 
+const JUPITER_TRANSACTION_MAX_ACCOUNTS = 54
+
 // const SHAPESHIFT_SOLANA_FEE_ACCOUNT = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
 
 type GetJupiterQuoteArgs = {
@@ -28,7 +30,9 @@ type GetJupiterSwapArgs = {
   apiUrl: string
   fromAddress: string
   rawQuote: unknown
-  toAddress: string
+  toAddress?: string
+  useSharedAccounts: boolean
+  wrapAndUnwrapSol?: boolean
 }
 
 export const getJupiterQuote = ({
@@ -45,6 +49,7 @@ export const getJupiterQuote = ({
       `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
       `&amount=${amount}` +
       `&slippageBps=${slippageBps}` +
+      `&maxAccounts=${JUPITER_TRANSACTION_MAX_ACCOUNTS}` +
       `&platformFeeBps=${commissionBps}`,
   )
 
@@ -53,15 +58,17 @@ export const getJupiterSwapInstructions = ({
   fromAddress,
   toAddress,
   rawQuote,
+  useSharedAccounts,
+  wrapAndUnwrapSol = true,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>
   jupiterService.post<SwapInstructionsResponse>(`${apiUrl}/swap-instructions`, {
     userPublicKey: fromAddress,
     destinationTokenAccount: toAddress,
-    // feeAccount: SHAPESHIFT_SOLANA_FEE_ACCOUNT,
-    // feeAccount: '',
+    useSharedAccounts,
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',
+    wrapAndUnwrapSol,
   })

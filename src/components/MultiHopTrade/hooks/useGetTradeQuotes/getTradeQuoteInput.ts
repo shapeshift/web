@@ -28,6 +28,7 @@ export type GetTradeQuoteInputArgs = {
   pubKey?: string | undefined
   quoteOrRate: 'quote' | 'rate'
   receiveAddress: string | undefined
+  isManualReceiveAddress: boolean
   sellAccountNumber: number | undefined
   wallet: HDWallet | undefined
 }
@@ -46,6 +47,7 @@ export const getTradeQuoteInput = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
+  isManualReceiveAddress,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput> => {
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
@@ -55,6 +57,7 @@ export const getTradeQuoteInput = async ({
     sellAsset,
     buyAsset,
     receiveAddress,
+    isManualReceiveAddress,
     accountNumber: sellAccountNumber,
     affiliateBps: affiliateBps ?? '0',
     potentialAffiliateBps: potentialAffiliateBps ?? '0',
@@ -137,6 +140,7 @@ export const getTradeQuoteInput = async ({
       const xpub =
         pubKey ??
         (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
+
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,

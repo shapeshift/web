@@ -9,6 +9,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -170,6 +171,9 @@ export const useGetTradeRates = () => {
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
+  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+
   useEffect(() => {
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
@@ -209,7 +213,7 @@ export const useGetTradeRates = () => {
         buyAsset,
         wallet: wallet ?? undefined,
         quoteOrRate: 'rate',
-        receiveAddress: undefined,
+        receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
         affiliateBps,
@@ -239,6 +243,7 @@ export const useGetTradeRates = () => {
     sellAccountId,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
+    receiveAddress,
   ])
 
   const getTradeQuoteArgs = useCallback(

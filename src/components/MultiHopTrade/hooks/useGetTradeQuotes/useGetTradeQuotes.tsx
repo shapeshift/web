@@ -208,9 +208,12 @@ export const useGetTradeQuotes = () => {
     const swapperName = activeQuoteMetaRef.current?.swapperName
     if (!swapperName) return
     const permit2 = hopExecutionMetadata?.permit2
+    // ZRX is the odd one - we either want to fetch the final quote at pre-permit, or pre-swap input, depending on whether permit2 is required or not
     if (swapperName === SwapperName.Zrx)
       return (
-        permit2?.isRequired && permit2?.state === TransactionExecutionState.AwaitingConfirmation
+        (permit2?.isRequired &&
+          permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
+        (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
 
     return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap

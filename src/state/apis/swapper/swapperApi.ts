@@ -56,7 +56,9 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
-        const isCrossAccountTrade = sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
+        const isCrossAccountTrade =
+          Boolean(sendAddress && receiveAddress) &&
+          sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 
@@ -87,6 +89,9 @@ export const swapperApi = createApi({
             return getTradeRates(
               {
                 ...tradeQuoteInput,
+                // Receive address should always be undefined for trade *rates*, however, we *do* pass it to check for cross-account support
+                // so we have to ensure it is gone by the time we call getTradeRates
+                receiveAddress: undefined,
                 affiliateBps,
               } as GetTradeRateInput,
               swapperName,

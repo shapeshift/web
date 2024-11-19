@@ -21,6 +21,8 @@ import {
   createTransferInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   TokenAccountNotFoundError,
   TokenInvalidAccountOwnerError,
 } from '@solana/spl-token'
@@ -491,10 +493,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     instruction?: TransactionInstruction
     destinationTokenAccount: PublicKey
   }> {
+    const accountInfo = await this.connection.getAccountInfo(new PublicKey(tokenId))
+
+    const TOKEN_PROGRAM =
+      accountInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+        ? TOKEN_2022_PROGRAM_ID
+        : TOKEN_PROGRAM_ID
+
     const destinationTokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(tokenId),
       new PublicKey(to),
       true,
+      TOKEN_PROGRAM,
     )
 
     // check if destination token account exists and add creation instruction if it doesn't
@@ -512,6 +522,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
             destinationTokenAccount,
             new PublicKey(to),
             new PublicKey(tokenId),
+            TOKEN_PROGRAM,
           ),
           destinationTokenAccount,
         }
@@ -625,7 +636,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     addresses: string[],
   ): Promise<SolanaAddressLookupTableAccountInfo[]> {
     const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
-    console.log('test')
 
     return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
       const addressLookupTableAddress = addresses[index]

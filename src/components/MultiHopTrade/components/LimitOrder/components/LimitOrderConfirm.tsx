@@ -20,6 +20,7 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
   selectActiveQuoteBuyAmountCryptoPrecision,
@@ -33,7 +34,7 @@ import {
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -47,14 +48,7 @@ const learnMoreUrl = ''
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
-
-  const handleBack = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Input)
-  }, [history])
-
-  const handleConfirm = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Status)
-  }, [history])
+  const dispatch = useAppDispatch()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -67,6 +61,20 @@ export const LimitOrderConfirm = () => {
   const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
+
+  const handleBack = useCallback(() => {
+    history.push(LimitOrderRoutePaths.Input)
+  }, [history])
+
+  const handleConfirm = useCallback(() => {
+    if (!activeQuote?.response.id) {
+      return
+    }
+
+    dispatch(limitOrderSlice.actions.confirmSubmit(activeQuote?.response.id))
+
+    history.push(LimitOrderRoutePaths.Status)
+  }, [activeQuote?.response.id, dispatch, history])
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')

@@ -1,10 +1,6 @@
+import type { OrderCreation, OrderQuoteResponse, QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { LimitOrderQuoteParams } from 'state/apis/limit-orders/limitOrderApi'
-import type {
-  LimitOrder,
-  LimitOrderQuoteId,
-  LimitOrderQuoteResponse,
-} from 'state/apis/limit-orders/types'
 
 import type { ApprovalExecutionMetadata, TransactionExecutionState } from '../tradeQuoteSlice/types'
 import type { LimitOrderSubmissionState } from './constants'
@@ -24,11 +20,14 @@ export type LimitOrderSubmissionMetadata = {
 
 export type LimitOrderActiveQuote = {
   params: LimitOrderQuoteParams & { validTo: number; buyAmountCryptoBaseUnit: string }
-  response: LimitOrderQuoteResponse
+  response: OrderQuoteResponse
 }
 
 export type LimitOrderState = {
   activeQuote: LimitOrderActiveQuote | undefined
-  confirmedLimitOrder: Record<LimitOrderQuoteId, Omit<LimitOrder, 'signature'>>
-  orderSubmission: Record<LimitOrderQuoteId, LimitOrderSubmissionMetadata>
+  confirmedLimitOrder: Record<
+    QuoteId,
+    Omit<OrderCreation, 'signature'> & Partial<Pick<OrderCreation, 'signature'>>
+  >
+  orderSubmission: Record<QuoteId, LimitOrderSubmissionMetadata>
 }

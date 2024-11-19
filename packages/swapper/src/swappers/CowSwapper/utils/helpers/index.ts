@@ -1,3 +1,3 @@
-import { getCowswapNetwork } from './helpers'
+import { domain, getCowswapNetwork, getSignTypeDataPayload } from './helpers'
 
-export { getCowswapNetwork }
+export { getCowswapNetwork, getSignTypeDataPayload, domain }

@@ -1,17 +1,16 @@
-import { CoWSwapSigningScheme } from '@shapeshiftoss/swapper'
-import type { LimitOrder } from 'state/apis/limit-orders/types'
+import { type OrderCreation, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
 
 import type { LimitOrderActiveQuote } from './types'
 
 export const buildUnsignedLimitOrder = ({
   params,
   response,
-}: LimitOrderActiveQuote): Omit<LimitOrder, 'signature'> => {
+}: LimitOrderActiveQuote): Omit<OrderCreation, 'signature'> => {
   return {
     ...response.quote,
     sellAmount: params.sellAmountCryptoBaseUnit,
     buyAmount: params.buyAmountCryptoBaseUnit,
-    signingScheme: CoWSwapSigningScheme.EIP712,
+    signingScheme: SigningScheme.EIP712,
     validTo: params.validTo,
     quoteId: response.id,
     feeAmount: '0',

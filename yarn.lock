@@ -11110,6 +11110,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/bitcoinjs-lib@patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
+  version: 5.2.0-shapeshift.2
+  resolution: "@shapeshiftoss/bitcoinjs-lib@patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch::version=5.2.0-shapeshift.2&hash=6df42b&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
+  dependencies:
+    bech32: ^1.1.2
+    big-integer: ^1.6.44
+    bip174: ^2.0.1
+    bip32: ^2.0.4
+    bip66: ^1.1.0
+    bitcoin-ops: ^1.4.0
+    bs58check: ^2.0.0
+    create-hash: ^1.1.0
+    create-hmac: ^1.1.3
+    merkle-lib: ^2.0.10
+    pushdata-bitcoin: ^1.0.1
+    randombytes: ^2.0.1
+    tiny-secp256k1: ^1.1.6
+    typeforce: ^1.11.3
+    varuint-bitcoin: ^1.0.4
+    wif: ^2.0.1
+  checksum: 8011bee8ea7970cc43ad62d27b34d210a62963cad8373c72c4310058c0dcdbe3c937a8da1b16762a03b78037bf3cbb4123f42a6fe293dfaa967d88b37492353c
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/blockbook@npm:^9.3.0":
   version: 9.3.0
   resolution: "@shapeshiftoss/blockbook@npm:9.3.0"

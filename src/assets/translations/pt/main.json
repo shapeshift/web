@@ -1,5 +1,7 @@
 {
   "common": {
+    "ascending": "Ascendente",
+    "descending": "Descendente",
     "free": "Gratuito",
     "trade": "Trade",
     "trades": "Trades",
@@ -159,6 +161,10 @@
     "import": "Importar",
     "accountsLoading": "Carregando contas",
     "noAccounts": "Nenhuma conta para os filtros selecionados.",
+    "sortBy": "Classificar por",
+    "orderBy": "Ordenar por",
+    "filterBy": "Filtrar por",
+    "filterAndSort": "Filtrar e classificar",
     "carousel": {
       "next": "Próximo",
       "prev": "Anterior",
@@ -235,6 +241,7 @@
       "balance": "Saldo",
       "price": "Preço",
       "value": "Valor",
+      "apy": "APY",
       "priceChange": "Variação de Preço",
       "allocation": "Alocação",
       "marketCap": "Capitalização de Mercado",
@@ -865,7 +872,10 @@
     "receiveInclFee": "Receba (incluindo taxas)",
     "approvingAsset": "Aprovando %{symbol}",
     "viewTransaction": "Ver transação",
+    "noQuotesAvailable": "Nenhuma cotação disponível",
+    "noQuotesAvailableDescription": "Nenhuma cotação disponível encontrada neste momento. Tente selecionar outro par.",
     "availableSwappers": "Cotações disponíveis",
+    "unavailableSwappers": "Swappers indisponíveis",
     "unlimited": "Ilimitado",
     "streamStatus": "Status do Stream ",
     "swapsFailed": "%{failedSwaps} swaps falharam",
@@ -1003,7 +1013,33 @@
     }
   },
   "limitOrder": {
-    "heading": "Ordem Limite"
+    "heading": "Limite",
+    "confirm": "Confirmar",
+    "placeOrderPending": "Aguardando confirmação",
+    "placeOrderSuccess": "Sucesso!",
+    "placeOrderFailed": "Algo deu errado",
+    "placeOrder": "Colocar ordem",
+    "viewOrder": "Ver Ordem",
+    "viewOnChain": "Ver transação on-chain",
+    "yourOrderHasBeenPlaced": "Sua ordem foi enviada.",
+    "limitPrice": "Preço Limite",
+    "provider": "Provedor",
+    "expiration": "Expiração",
+    "networkFee": "Taxa de rede",
+    "confirmInfo": "A ordem limite pode não ser preenchida exatamente quando os preços on-chain atingem o preço limite.",
+    "learnMore": "Saber mais",
+    "previewOrder": "Pré-visualizar pedido",
+    "youGet": "Você obtém",
+    "whenPriceReaches": "Quando o preço atinge",
+    "expiry": "Expiração",
+    "expiryOption": {
+      "oneHour": "1 hora",
+      "oneDay": "1 dia",
+      "threeDays": "3 dias",
+      "sevenDays": "7 dias",
+      "twentyEightDays": "28 dias",
+      "custom": "Customizar"
+    }
   },
   "modals": {
     "assetSearch": {
@@ -2672,5 +2708,24 @@
       "noActiveProposals": "Nenhuma proposta ativa disponível",
       "noClosedProposals": "Nenhuma proposta fechada disponível"
     }
+  },
+  "limitOrders": {
+    "listTitle": "Ordens Limite",
+    "limitPrice": "Preço Limite",
+    "expiresIn": "Expira em",
+    "filled": "Preenchido",
+    "openOrders": "Ordens abertas",
+    "orderHistory": "Histórico de Ordens",
+    "status": {
+      "open": "Aberto",
+      "filled": "Preenchido",
+      "cancelled": "Cancelado",
+      "expired": "Expirado"
+    },
+    "orders": "Ordens"
+  },
+  "thorFees": {
+    "title": "Veio pela THORSwap?",
+    "description": "Os detentores de THOR negociam gratuitamente até 2024."
   }
 }

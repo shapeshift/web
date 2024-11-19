@@ -1,46 +1,28 @@
 import { ArrowUpDownIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
-import {
-  Box,
-  Center,
-  Collapse,
-  Flex,
-  Skeleton,
-  Stack,
-  Tooltip,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Box, Collapse, Flex, Skeleton, Stack, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { SwapperName, SwapSource } from '@shapeshiftoss/swapper'
-import {
-  THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
-  THORCHAIN_STREAM_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import { AnimatePresence } from 'framer-motion'
 import type { PropsWithChildren } from 'react'
-import { type FC, memo, useMemo } from 'react'
+import { type FC, memo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
-import { StreamIcon } from 'components/Icons/Stream'
 import { Row } from 'components/Row/Row'
-import { SlideTransitionX } from 'components/SlideTransitionX'
 import { Text } from 'components/Text'
-import { bnOrZero } from 'lib/bignumber/bignumber'
-import { firstNonZeroDecimal } from 'lib/math'
 
-import { SwapperIcon } from './TradeInput/components/SwapperIcon/SwapperIcon'
+import { SwapperIcons } from './SwapperIcons'
 
 type RateGasRowProps = {
-  sellSymbol?: string
-  buySymbol?: string
-  rate?: string
-  gasFee: string
+  buyAssetSymbol: string
+  isDisabled?: boolean
   isLoading?: boolean
-  allowSelectQuote: boolean
-  swapperName?: SwapperName
-  swapSource?: SwapSource
-  onRateClick?: () => void
+  rate: string | undefined
+  sellAssetSymbol: string
+  swapperName: SwapperName | undefined
+  swapSource: SwapSource | undefined
+  totalNetworkFeeFiatPrecision: string | undefined
+  onClick?: () => void
 } & PropsWithChildren
 
 const helpersTooltipFlexProps: FlexProps = { flexDirection: 'row-reverse' }
@@ -52,55 +34,19 @@ const rateHover = {
 
 export const RateGasRow: FC<RateGasRowProps> = memo(
   ({
-    sellSymbol,
-    buySymbol,
-    rate,
-    gasFee,
+    buyAssetSymbol,
+    children,
+    isDisabled,
     isLoading,
-    allowSelectQuote,
+    rate,
+    sellAssetSymbol,
     swapperName,
     swapSource,
-    onRateClick,
-    children,
+    totalNetworkFeeFiatPrecision,
+    onClick,
   }) => {
     const translate = useTranslate()
     const { isOpen, onToggle } = useDisclosure()
-
-    const swapperIcons = useMemo(() => {
-      const isStreaming =
-        swapSource === THORCHAIN_STREAM_SWAP_SOURCE ||
-        swapSource === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
-      return (
-        <AnimatePresence>
-          {isStreaming && (
-            <SlideTransitionX key={swapSource ?? swapperName}>
-              <Center
-                className='quote-icon'
-                bg='background.surface.raised.base'
-                borderRadius='md'
-                borderWidth={1}
-                p='2px'
-                borderColor='border.base'
-                boxShadow='0 1px 2px rgba(0,0,0,.2)'
-              >
-                <StreamIcon color='text.success' />
-              </Center>
-            </SlideTransitionX>
-          )}
-          <Center
-            className='quote-icon'
-            bg='background.surface.raised.base'
-            borderRadius='md'
-            borderWidth={1}
-            p='2px'
-            borderColor='border.base'
-            boxShadow='0 1px 2px rgba(0,0,0,.2)'
-          >
-            {swapperName && <SwapperIcon size='2xs' swapperName={swapperName} />}
-          </Center>
-        </AnimatePresence>
-      )
-    }, [swapSource, swapperName])
 
     switch (true) {
       case isLoading:
@@ -140,10 +86,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
             fontSize='sm'
           >
             <Flex alignItems='center' justifyContent='space-between' px={6} py={4} width='full'>
-              <Tooltip
-                isDisabled={!allowSelectQuote}
-                label={translate('trade.tooltip.changeQuote')}
-              >
+              <Tooltip isDisabled={isDisabled} label={translate('trade.tooltip.changeQuote')}>
                 <Box>
                   <Row fontSize='sm' flex={1}>
                     <Row.Value
@@ -151,15 +94,15 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                       display='flex'
                       alignItems='center'
                       gap={2}
-                      _hover={allowSelectQuote ? rateHover : undefined}
-                      onClick={onRateClick}
+                      _hover={!isDisabled ? rateHover : undefined}
+                      onClick={onClick}
                     >
-                      {swapperIcons}
+                      <SwapperIcons swapperName={swapperName} swapSource={swapSource} />
                       <Stack
                         width='full'
                         direction='row'
                         spacing={1}
-                        color={allowSelectQuote ? 'text.link' : 'text.base'}
+                        color={!isDisabled ? 'text.link' : 'text.base'}
                         className='rate'
                         borderBottomWidth={1}
                         borderColor='transparent'
@@ -168,15 +111,11 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                         <Amount.Crypto
                           fontSize='sm'
                           value='1'
-                          symbol={sellSymbol ?? ''}
-                          suffix={sellSymbol ? '=' : ''}
+                          symbol={sellAssetSymbol}
+                          suffix='='
                         />
-                        <Amount.Crypto
-                          fontSize='sm'
-                          value={firstNonZeroDecimal(bnOrZero(rate)) ?? ''}
-                          symbol={buySymbol ?? ''}
-                        />
-                        {allowSelectQuote && <ArrowUpDownIcon />}
+                        <Amount.Crypto fontSize='sm' value={rate} symbol={buyAssetSymbol} />
+                        {!isDisabled && <ArrowUpDownIcon />}
                       </Stack>
                     </Row.Value>
                   </Row>
@@ -188,7 +127,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     <FaGasPump />
                   </Row.Label>
                   <Row.Value>
-                    <Amount.Fiat fontSize='sm' value={gasFee} />
+                    <Amount.Fiat fontSize='sm' value={totalNetworkFeeFiatPrecision ?? 'unknown'} />
                   </Row.Value>
                 </Row>
                 {isOpen ? (

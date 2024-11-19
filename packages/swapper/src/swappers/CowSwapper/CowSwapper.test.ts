@@ -1,4 +1,5 @@
 import { ethChainId } from '@shapeshiftoss/caip'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -17,7 +18,6 @@ import {
 } from '../utils/test-data/assets'
 import { cowSwapper } from './CowSwapper'
 import { cowApi } from './endpoints'
-import type { CowSwapQuoteResponse } from './types'
 import { cowService } from './utils/cowService'
 
 const mockedCowService = vi.mocked(cowService)
@@ -284,7 +284,7 @@ describe('cowApi', () => {
 
       mockedCowService.post.mockReturnValue(
         Promise.resolve(
-          Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+          Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<OrderQuoteResponse>),
         ),
       )
       const actual = await cowApi.getUnsignedEvmMessage!({

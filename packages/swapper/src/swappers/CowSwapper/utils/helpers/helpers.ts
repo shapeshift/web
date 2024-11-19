@@ -5,7 +5,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderCreation, OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import {
   bn,
   bnOrZero,
@@ -24,7 +24,7 @@ import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
-import type { AffiliateAppDataFragment, CowSwapQuoteResponse } from '../../types'
+import type { AffiliateAppDataFragment } from '../../types'
 import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -162,7 +162,7 @@ export const assertValidTrade = ({
 type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
-  response: CowSwapQuoteResponse
+  response: OrderQuoteResponse
   affiliateBps: string
 }
 

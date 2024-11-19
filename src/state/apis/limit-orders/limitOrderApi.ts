@@ -47,7 +47,7 @@ import { zeroAddress } from 'viem'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import type { ReduxState } from 'state/reducer'
 import { selectConfirmedLimitOrder } from 'state/slices/limitOrderSlice/selectors'
-import { selectAssetById, selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 
@@ -152,8 +152,11 @@ export const limitOrderApi = createApi({
     placeLimitOrder: build.mutation<OrderId, { quoteId: QuoteId; wallet: HDWallet | null }>({
       queryFn: async ({ quoteId: _quoteId, wallet }, { getState }) => {
         const state = getState() as ReduxState
-        const { unsignedOrderCreation, params } = selectConfirmedLimitOrder(state, _quoteId)
-        const sellAsset = selectAssetById(state, params.sellAssetId)
+        const {
+          unsignedOrderCreation,
+          params: { sellAssetId, accountId },
+        } = selectConfirmedLimitOrder(state, _quoteId)
+        const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 
         // Removes the types that aren't part of GpV2Order types or structured signing will fail
@@ -161,7 +164,6 @@ export const limitOrderApi = createApi({
           unsignedOrderCreation
 
         if (!wallet) throw Error('missing wallet')
-        if (!sellAsset) throw Error('missing sellAsset')
         if (!appDataHash) throw Error('missing appDataHash')
         if (!receiver) throw Error('missing receiver')
         if (!accountMetadata) throw Error('missing accountMetadata')
@@ -170,7 +172,7 @@ export const limitOrderApi = createApi({
 
         const signMessage = async (message: TypedData) => {
           const { bip44Params } = accountMetadata
-          const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+          const adapter = assertGetEvmChainAdapter(chainId)
           const typedDataToSign: ETHSignTypedData = {
             addressNList: toAddressNList(bip44Params),
             typedData: message,
@@ -186,7 +188,7 @@ export const limitOrderApi = createApi({
           return output
         }
 
-        const { chainReference } = fromChainId(sellAsset.chainId)
+        const { chainReference } = fromChainId(chainId)
         const signingDomain = Number(chainReference)
         const typedData = getSignTypeDataPayload(
           domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS),
@@ -210,7 +212,7 @@ export const limitOrderApi = createApi({
 
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
+        const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
         const result = await axios.post<OrderId>(`${baseUrl}/${network}/api/v1/orders/`, limitOrder)

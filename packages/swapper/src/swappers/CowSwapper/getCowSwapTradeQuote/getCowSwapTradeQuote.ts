@@ -1,8 +1,10 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { OrderKind, type OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
+import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -15,7 +17,7 @@ import type {
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
+import { type CowSwapQuoteError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -78,7 +80,7 @@ async function _getCowSwapTradeQuote(
   )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+  const maybeQuoteResponse = await cowService.post<OrderQuoteResponse>(
     `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
@@ -89,7 +91,7 @@ async function _getCowSwapTradeQuote(
       appDataHash,
       partiallyFillable: false,
       from: receiveAddress ?? zeroAddress,
-      kind: CoWSwapOrderKind.Sell,
+      kind: OrderKind.SELL,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
   )
@@ -124,7 +126,7 @@ async function _getCowSwapTradeQuote(
     })
 
   const quote: TradeQuote = {
-    id: cowswapQuoteResponse.id.toString(),
+    id: cowswapQuoteResponse.id?.toString() ?? uuid(),
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,

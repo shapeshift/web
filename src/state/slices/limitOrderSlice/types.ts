@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import type { OrderCreation, OrderQuoteResponse, QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { LimitOrderQuoteParams } from 'state/apis/limit-orders/limitOrderApi'
@@ -21,6 +22,7 @@ export type LimitOrderSubmissionMetadata = {
 export type LimitOrderCreationParams = LimitOrderQuoteParams & {
   validTo: number
   buyAmountCryptoBaseUnit: string
+  accountId: AccountId
 }
 
 export type LimitOrderActiveQuote = {

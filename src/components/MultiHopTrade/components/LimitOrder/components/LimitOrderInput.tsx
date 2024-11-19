@@ -249,7 +249,7 @@ export const LimitOrderInput = ({
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
     // This should never happen because we're meant to disable the confirmation button when this is
     // true, but just in case.
-    if (!quoteResponse || limitOrderQuoteParams === skipToken) {
+    if (!quoteResponse || limitOrderQuoteParams === skipToken || !sellAccountId) {
       setActiveQuote(undefined)
       return
     }
@@ -264,6 +264,7 @@ export const LimitOrderInput = ({
         ...limitOrderQuoteParams,
         validTo: expiryOptionToUnixTimestamp(expiry),
         buyAmountCryptoBaseUnit,
+        accountId: sellAccountId,
       },
       response: quoteResponse,
     })
@@ -281,6 +282,7 @@ export const LimitOrderInput = ({
     limitOrderQuoteParams,
     quoteResponse,
     setActiveQuote,
+    sellAccountId,
   ])
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])

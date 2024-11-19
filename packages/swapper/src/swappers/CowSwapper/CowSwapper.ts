@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { type OrderCreation, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
 import type { TypedData } from 'eip-712'
 import { ethers } from 'ethers'
 
@@ -13,15 +14,13 @@ import type {
 } from '../../types'
 import { filterAssetIdsBySellable } from './filterAssetIdsBySellable/filterAssetIdsBySellable'
 import { filterBuyAssetsBySellAssetId } from './filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import type { CowSwapOrder } from './types'
-import { CoWSwapSigningScheme } from './types'
 import { COW_SWAP_SETTLEMENT_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import { domain, getCowswapNetwork, getSignTypeDataPayload } from './utils/helpers/helpers'
 
 export const executeCowEvmMessage = async (
   chainId: ChainId,
-  orderToSign: CowSwapOrder,
+  orderToSign: Omit<OrderCreation, 'signature'>,
   signMessage: (messageToSign: TypedData) => Promise<string>,
   config: Pick<SwapperConfig, 'REACT_APP_COWSWAP_BASE_URL'>,
 ): Promise<string> => {
@@ -30,6 +29,8 @@ export const executeCowEvmMessage = async (
 
   // Removes the types that aren't part of GpV2Order types or structured signing will fail
   const { signingScheme, quoteId, appDataHash, appData, ...message } = orderToSign
+
+  if (!appDataHash) throw Error('Missing appDataHash')
 
   const signTypedData = getSignTypeDataPayload(domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS), {
     ...message,
@@ -55,7 +56,7 @@ export const executeCowEvmMessage = async (
     `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/orders/`,
     {
       ...orderToSign,
-      signingScheme: CoWSwapSigningScheme.EIP712,
+      signingScheme: SigningScheme.EIP712,
       signature,
       appData,
       appDataHash,

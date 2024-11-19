@@ -1,5 +1,6 @@
-import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { type AccountId, type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
@@ -15,6 +16,7 @@ import type {
   EvmTransactionRequest,
   ExecutableTradeQuote,
   ExecutableTradeStep,
+  SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
@@ -169,6 +171,13 @@ export const executeEvmTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
+export const executeSolanaTransaction = (
+  txToSign: SolanaSignTx,
+  callbacks: SolanaTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
@@ -293,5 +302,19 @@ export const getRate = ({
 export const isExecutableTradeQuote = (quote: TradeQuote): quote is ExecutableTradeQuote =>
   !!quote.receiveAddress
 
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case 'erc20':
+    case 'erc721':
+    case 'erc1155':
+    case 'bep20':
+    case 'bep721':
+    case 'bep1155':
+    case 'token':
+      return true
+    default:
+      return false
+  }
+}
 export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableTradeStep =>
   step.accountNumber !== undefined

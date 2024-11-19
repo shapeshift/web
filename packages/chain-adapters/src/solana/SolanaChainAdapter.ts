@@ -36,6 +36,7 @@ import { ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
+  BuildSendApiTxInput,
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
@@ -203,14 +204,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
-  async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.SolanaMainnet>): Promise<{
+  async buildSendApiTransaction(input: BuildSendApiTxInput<KnownChainIds.SolanaMainnet>): Promise<{
     txToSign: SignTx<KnownChainIds.SolanaMainnet>
   }> {
     try {
-      const { accountNumber, to, chainSpecific, value } = input
+      const { from, accountNumber, to, chainSpecific, value } = input
       const { instructions = [], tokenId } = chainSpecific
 
-      const from = await this.getAddress(input)
       const { blockhash } = await this.connection.getLatestBlockhash()
 
       const computeUnitLimit = chainSpecific.computeUnitLimit
@@ -245,6 +245,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       }
 
       return { txToSign }
+    } catch (err) {
+      return ErrorHandler(err)
+    }
+  }
+
+  async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.SolanaMainnet>): Promise<{
+    txToSign: SignTx<KnownChainIds.SolanaMainnet>
+  }> {
+    try {
+      const from = await this.getAddress(input)
+      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+
+      return txToSign
     } catch (err) {
       return ErrorHandler(err)
     }
@@ -453,6 +466,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const destinationTokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(tokenId),
       new PublicKey(to),
+      true,
     )
 
     // check if destination token account exists and add creation instruction if it doesn't
@@ -477,7 +491,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     instructions.push(
       createTransferInstruction(
-        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from)),
+        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
         destinationTokenAccount,
         new PublicKey(from),
         Number(value),

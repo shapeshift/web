@@ -174,6 +174,10 @@ const validators = {
   REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE: bool({ default: false }),
   REACT_APP_FEATURE_LIMIT_ORDERS: bool({ default: false }),
   REACT_APP_ZRX_BASE_URL: url(),
+  REACT_APP_FEATURE_CHAINFLIP: bool({ default: false }),
+  REACT_APP_FEATURE_CHAINFLIP_DCA: bool({ default: false }),
+  REACT_APP_CHAINFLIP_API_KEY: str(),
+  REACT_APP_CHAINFLIP_API_URL: url(),
   REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
   REACT_APP_FEATURE_THOR_FREE_FEES: bool({ default: false }),
 }

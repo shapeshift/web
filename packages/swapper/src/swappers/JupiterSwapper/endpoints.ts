@@ -85,6 +85,7 @@ export const jupiterApi: SwapperApi = {
       ...swapResponse.setupInstructions.map(convertJupiterInstruction),
       convertJupiterInstruction(swapResponse.swapInstruction),
     ]
+    console.log({ instructions }, 'before creation')
 
     if (createTokenAccountInstruction) {
       instructions.unshift(createTokenAccountInstruction)

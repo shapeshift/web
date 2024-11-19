@@ -38,8 +38,6 @@ export type GetFeeDataInput = {
 export type FeeData = {
   computeUnits: string
   priorityFee: string
-  computeUnitsInstruction: SolanaTxInstruction
-  computeUnitsPriceInstruction: SolanaTxInstruction
 }
 
 export type PriorityFeeData = {

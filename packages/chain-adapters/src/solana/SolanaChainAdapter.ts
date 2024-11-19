@@ -6,7 +6,11 @@ import {
   solAssetId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
+import type {
+  SolanaAddressLookupTableAccountInfo,
+  SolanaSignTx,
+  SolanaTxInstruction,
+} from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -20,7 +24,7 @@ import {
   TokenAccountNotFoundError,
   TokenInvalidAccountOwnerError,
 } from '@solana/spl-token'
-import type { TransactionInstruction } from '@solana/web3.js'
+import type { AccountInfo, TransactionInstruction } from '@solana/web3.js'
 import {
   AddressLookupTableAccount,
   ComputeBudgetProgram,
@@ -237,7 +241,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         )
       }
 
-      const addressLookupTableAccounts = await this.getAddressLookupTableAccounts(
+      const addressLookupTableAccountInfos = await this.getAddressLookupTableAccounts(
         chainSpecific.addressLookupTableAccounts ?? [],
       )
 
@@ -249,7 +253,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         instructions,
         to: tokenId ? '' : to,
         value: tokenId ? '' : value,
-        addressLookupTableAccounts,
+        addressLookupTableAccountInfos,
       }
 
       return { txToSign }
@@ -348,16 +352,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         chainSpecific: {
           computeUnits,
           priorityFee: fast,
-          computeUnitsInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitLimit({
-              units: Number(computeUnits),
-            }),
-          ),
-          computeUnitsPriceInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitPrice({
-              microLamports: Number(fast),
-            }),
-          ),
         },
       },
       average: {
@@ -368,16 +362,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         chainSpecific: {
           computeUnits,
           priorityFee: average,
-          computeUnitsInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitLimit({
-              units: Number(computeUnits),
-            }),
-          ),
-          computeUnitsPriceInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitPrice({
-              microLamports: Number(average),
-            }),
-          ),
         },
       },
       slow: {
@@ -388,16 +372,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         chainSpecific: {
           computeUnits,
           priorityFee: slow,
-          computeUnitsInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitLimit({
-              units: Number(computeUnits),
-            }),
-          ),
-          computeUnitsPriceInstruction: this.convertInstruction(
-            ComputeBudgetProgram.setComputeUnitPrice({
-              microLamports: Number(slow),
-            }),
-          ),
         },
       },
     }
@@ -452,7 +426,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const { to, chainSpecific } = input
     const { from, tokenId, instructions = [] } = chainSpecific
 
-    const addressLookupTableAccounts = await this.getAddressLookupTableAccounts(
+    const estimationInstructions = [...instructions]
+
+    const addressLookupTableAccounts = await this.getSolanaAddressLookupTableAccountsInfo(
       chainSpecific.addressLookupTableAccounts ?? [],
     )
 
@@ -470,9 +446,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
           value: input.value,
         })
 
-        instructions.push(...tokenTransferInstructions)
+        estimationInstructions.push(...tokenTransferInstructions)
       } else {
-        instructions.push(
+        estimationInstructions.push(
           SystemProgram.transfer({
             fromPubkey: new PublicKey(from),
             toPubkey: new PublicKey(to),
@@ -484,14 +460,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
     // ensuring the transaction does not exceed the maximum compute units alotted for a single transaction.
-    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }))
+    estimationInstructions.push(
+      ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
+    )
 
     // placeholder compute unit price instruction for the purposes of estimating the compute unit cost of a transaction
-    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
+    estimationInstructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
 
     const message = new TransactionMessage({
       payerKey: new PublicKey(input.chainSpecific.from),
-      instructions,
+      instructions: estimationInstructions,
       // static block hash as fee estimation replaces the block hash with latest to save us a client side call
       recentBlockhash: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZAMdL4VZHirAn',
     }).compileToV0Message(addressLookupTableAccounts)
@@ -616,12 +594,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return this.providers.http
   }
 
-  public async getAddressLookupTableAccounts(
+  public async getAddressLookupTableAccountsInfo(
+    addresses: string[],
+  ): Promise<(AccountInfo<Buffer> | null)[]> {
+    return await this.connection.getMultipleAccountsInfo(addresses.map(key => new PublicKey(key)))
+  }
+
+  public async getSolanaAddressLookupTableAccountsInfo(
     addresses: string[],
   ): Promise<AddressLookupTableAccount[]> {
-    const addressLookupTableAccountInfos = await this.connection.getMultipleAccountsInfo(
-      addresses.map(key => new PublicKey(key)),
-    )
+    const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
 
     return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
       const addressLookupTableAddress = addresses[index]
@@ -637,5 +619,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       return acc
     }, new Array<AddressLookupTableAccount>())
+  }
+
+  public async getAddressLookupTableAccounts(
+    addresses: string[],
+  ): Promise<SolanaAddressLookupTableAccountInfo[]> {
+    const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
+    console.log('test')
+
+    return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
+      const addressLookupTableAddress = addresses[index]
+      if (accountInfo) {
+        const addressLookupTableAccount = {
+          key: addressLookupTableAddress,
+          data: Buffer.from(accountInfo.data),
+        }
+        acc.push(addressLookupTableAccount)
+      }
+
+      return acc
+    }, new Array<SolanaAddressLookupTableAccountInfo>())
   }
 }

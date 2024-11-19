@@ -62,7 +62,7 @@ describe('useIsComponentMounted hook', () => {
     expect(result.current.current).toBe(true)
   })
 
-  it('should false on unmount', () => {
+  it('should be false on unmount', () => {
     const { result, unmount } = setup()
     unmount()
     expect(result.current.current).toBe(false)

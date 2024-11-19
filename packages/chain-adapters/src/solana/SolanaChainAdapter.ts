@@ -345,21 +345,60 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
           .times(computeUnits)
           .plus(baseFee)
           .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: { computeUnits, priorityFee: fast },
+        chainSpecific: {
+          computeUnits,
+          priorityFee: fast,
+          computeUnitsInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitLimit({
+              units: Number(computeUnits),
+            }),
+          ),
+          computeUnitsPriceInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitPrice({
+              microLamports: Number(fast),
+            }),
+          ),
+        },
       },
       average: {
         txFee: bn(microLamportsToLamports(average))
           .times(computeUnits)
           .plus(baseFee)
           .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: { computeUnits, priorityFee: average },
+        chainSpecific: {
+          computeUnits,
+          priorityFee: average,
+          computeUnitsInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitLimit({
+              units: Number(computeUnits),
+            }),
+          ),
+          computeUnitsPriceInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitPrice({
+              microLamports: Number(average),
+            }),
+          ),
+        },
       },
       slow: {
         txFee: bn(microLamportsToLamports(slow))
           .times(computeUnits)
           .plus(baseFee)
           .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: { computeUnits, priorityFee: slow },
+        chainSpecific: {
+          computeUnits,
+          priorityFee: slow,
+          computeUnitsInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitLimit({
+              units: Number(computeUnits),
+            }),
+          ),
+          computeUnitsPriceInstruction: this.convertInstruction(
+            ComputeBudgetProgram.setComputeUnitPrice({
+              microLamports: Number(slow),
+            }),
+          ),
+        },
       },
     }
   }
@@ -413,6 +452,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const { to, chainSpecific } = input
     const { from, tokenId, instructions = [] } = chainSpecific
 
+    const addressLookupTableAccounts = await this.getAddressLookupTableAccounts(
+      chainSpecific.addressLookupTableAccounts ?? [],
+    )
+
     if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
     if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
@@ -451,26 +494,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       instructions,
       // static block hash as fee estimation replaces the block hash with latest to save us a client side call
       recentBlockhash: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZAMdL4VZHirAn',
-    }).compileToV0Message()
+    }).compileToV0Message(addressLookupTableAccounts)
 
     const transaction = new VersionedTransaction(message)
 
     return Buffer.from(transaction.serialize()).toString('base64')
   }
 
-  public async buildTokenTransferInstructions({
+  public async createAssociatedTokenAccountInstruction({
     from,
     to,
     tokenId,
-    value,
   }: {
     from: string
     to: string
     tokenId: string
-    value: string
-  }): Promise<TransactionInstruction[]> {
-    const instructions: TransactionInstruction[] = []
-
+  }): Promise<{
+    instruction?: TransactionInstruction
+    destinationTokenAccount: PublicKey
+  }> {
     const destinationTokenAccount = getAssociatedTokenAddressSync(
       new PublicKey(tokenId),
       new PublicKey(to),
@@ -485,16 +527,43 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         err instanceof TokenAccountNotFoundError ||
         err instanceof TokenInvalidAccountOwnerError
       ) {
-        instructions.push(
-          createAssociatedTokenAccountInstruction(
+        return {
+          instruction: createAssociatedTokenAccountInstruction(
             // sender pays for creation of the token account
             new PublicKey(from),
             destinationTokenAccount,
             new PublicKey(to),
             new PublicKey(tokenId),
           ),
-        )
+          destinationTokenAccount,
+        }
       }
+    }
+
+    return {
+      instruction: undefined,
+      destinationTokenAccount,
+    }
+  }
+
+  private async buildTokenTransferInstructions({
+    from,
+    to,
+    tokenId,
+    value,
+  }: {
+    from: string
+    to: string
+    tokenId: string
+    value: string
+  }): Promise<TransactionInstruction[]> {
+    const instructions: TransactionInstruction[] = []
+
+    const { instruction, destinationTokenAccount } =
+      await this.createAssociatedTokenAccountInstruction({ from, to, tokenId })
+
+    if (instruction) {
+      instructions.push(instruction)
     }
 
     instructions.push(
@@ -509,7 +578,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return instructions
   }
 
-  private convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
+  public convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
     return {
       keys: instruction.keys.map(key => ({
         pubkey: key.pubkey.toString(),

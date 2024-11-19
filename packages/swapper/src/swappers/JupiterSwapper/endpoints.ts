@@ -1,7 +1,8 @@
-import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
-import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { PublicKey, type TransactionInstruction } from '@solana/web3.js'
 import type { AxiosError } from 'axios'
 
 import type { GetUnsignedSolanaTransactionArgs } from '../../types'
@@ -29,10 +30,33 @@ export const jupiterApi: SwapperApi = {
 
     if (!tradeQuote.rawQuote) throw Error('Missing raw quote')
 
+    const contractAddress =
+      step.sellAsset.assetId === solAssetId
+        ? undefined
+        : fromAssetId(step.sellAsset.assetId).assetReference
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
+      await (async () => {
+        if (contractAddress) {
+          return await adapter.createAssociatedTokenAccountInstruction({
+            from,
+            to: tradeQuote.receiveAddress,
+            tokenId: contractAddress,
+          })
+        }
+
+        return {
+          instruction: undefined,
+          destinationTokenAccount: undefined,
+        }
+      })()
+
     const maybeSwapResponse = await getJupiterSwapInstructions({
       apiUrl: jupiterUrl,
       fromAddress: from,
-      toAddress: tradeQuote.receiveAddress,
+      toAddress: destinationTokenAccount?.toString() ?? tradeQuote.receiveAddress,
       rawQuote: tradeQuote.rawQuote,
     })
 
@@ -44,43 +68,81 @@ export const jupiterApi: SwapperApi = {
 
     const { data: swapResponse } = maybeSwapResponse.unwrap()
 
-    const computeBudgetInstructions = swapResponse.computeBudgetInstructions.map(instruction => {
-      return {
-        ...instruction,
-        keys: instruction.accounts,
-        data: Buffer.from(instruction.data, 'base64'),
-      }
-    })
-
     const setupInstructions = swapResponse.setupInstructions.map(instruction => {
       return {
         ...instruction,
-        keys: instruction.accounts,
+        keys: swapResponse.swapInstruction.accounts.map(account => {
+          return {
+            ...account,
+            pubkey: new PublicKey(account.pubkey),
+          }
+        }),
         data: Buffer.from(instruction.data, 'base64'),
+        programId: new PublicKey(swapResponse.swapInstruction.programId),
       }
     })
 
     const swapInstruction = {
       ...swapResponse.swapInstruction,
-      keys: swapResponse.swapInstruction.accounts,
+      keys: swapResponse.swapInstruction.accounts.map(account => {
+        return {
+          ...account,
+          pubkey: new PublicKey(account.pubkey),
+        }
+      }),
       data: Buffer.from(swapResponse.swapInstruction.data, 'base64'),
+      programId: new PublicKey(swapResponse.swapInstruction.programId),
     }
 
-    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+    const instructions = [
+      ...setupInstructions,
+      swapInstruction,
+    ] as unknown as TransactionInstruction[]
 
-    const contractAddress =
-      step.sellAsset.assetId === solAssetId
-        ? undefined
-        : fromAssetId(step.sellAsset.assetId).assetReference
+    if (createTokenAccountInstruction) {
+      instructions.unshift(createTokenAccountInstruction)
+    }
 
-    const createTokenAccountInstructions = !contractAddress
-      ? []
-      : await adapter.buildTokenTransferInstructions({
-          from,
-          to: tradeQuote.receiveAddress,
-          tokenId: contractAddress,
-          value: '0',
-        })
+    const getFeeData = async () => {
+      const { chainNamespace } = fromAssetId(step.sellAsset.assetId)
+
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Solana: {
+          const sellAdapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+          const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+            // Simulates a self-send
+            to: from,
+            value: '0',
+            chainSpecific: {
+              from,
+              addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
+              instructions,
+            },
+          }
+          const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
+          return fast
+        }
+
+        default:
+          throw new Error('Unsupported chainNamespace')
+      }
+    }
+
+    const {
+      chainSpecific: { computeUnitsInstruction, computeUnitsPriceInstruction },
+    } = await getFeeData()
+
+    const solanaInstructions: SolanaTxInstruction[] = [
+      ...setupInstructions.map(instruction => adapter.convertInstruction(instruction)),
+      adapter.convertInstruction(swapInstruction),
+    ]
+
+    solanaInstructions.unshift(computeUnitsInstruction)
+    solanaInstructions.unshift(computeUnitsPriceInstruction)
+
+    if (createTokenAccountInstruction) {
+      solanaInstructions.unshift(adapter.convertInstruction(createTokenAccountInstruction))
+    }
 
     const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
       to: '',
@@ -88,14 +150,8 @@ export const jupiterApi: SwapperApi = {
       value: '0',
       accountNumber: step.accountNumber,
       chainSpecific: {
-        tokenId: contractAddress,
         addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
-        instructions: [
-          ...computeBudgetInstructions,
-          ...setupInstructions,
-          swapInstruction,
-          createTokenAccountInstructions[0] as unknown as SolanaTxInstruction,
-        ],
+        instructions: solanaInstructions,
       },
     }
 

@@ -32,11 +32,14 @@ export type GetFeeDataInput = {
   from: string
   tokenId?: string
   instructions?: TransactionInstruction[]
+  addressLookupTableAccounts?: string[]
 }
 
 export type FeeData = {
   computeUnits: string
   priorityFee: string
+  computeUnitsInstruction: SolanaTxInstruction
+  computeUnitsPriceInstruction: SolanaTxInstruction
 }
 
 export type PriorityFeeData = {

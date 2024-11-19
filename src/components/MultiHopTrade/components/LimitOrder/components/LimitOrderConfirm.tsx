@@ -73,7 +73,7 @@ export const LimitOrderConfirm = () => {
 
     dispatch(limitOrderSlice.actions.confirmSubmit(activeQuote?.response.id))
 
-    history.push(LimitOrderRoutePaths.Status)
+    history.push(LimitOrderRoutePaths.PlaceOrder)
   }, [activeQuote?.response.id, dispatch, history])
 
   if (!activeQuote) {

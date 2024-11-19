@@ -14,7 +14,7 @@ const cardBorderRadius = { base: '2xl' }
 
 const asset = ethereum
 
-export const LimitOrderStatus = () => {
+export const PlaceLimitOrder = () => {
   const history = useHistory()
   const translate = useTranslate()
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)

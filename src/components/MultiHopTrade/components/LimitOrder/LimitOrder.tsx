@@ -6,14 +6,16 @@ import { type TradeInputTab } from 'components/MultiHopTrade/types'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
 import { LimitOrderInput } from './components/LimitOrderInput'
-import { LimitOrderStatus } from './components/LimitOrderStatus'
+import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderList } from './LimitOrderList'
 import { LimitOrderRoutePaths } from './types'
 
 const LimitOrderRouteEntries = [
   LimitOrderRoutePaths.Input,
   LimitOrderRoutePaths.Confirm,
-  LimitOrderRoutePaths.Status,
+  LimitOrderRoutePaths.AllowanceApproval,
+  LimitOrderRoutePaths.PlaceOrder,
+  LimitOrderRoutePaths.Orders,
 ]
 
 type LimitOrderProps = {
@@ -39,8 +41,13 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
     return <LimitOrderConfirm />
   }, [])
 
-  const renderLimitOrderStatus = useCallback(() => {
-    return <LimitOrderStatus />
+  const renderAllowanceApproval = useCallback(() => {
+    // TODO: Implement me!
+    return null
+  }, [])
+
+  const renderPlaceOrder = useCallback(() => {
+    return <PlaceLimitOrder />
   }, [])
 
   return (
@@ -58,11 +65,16 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
             render={renderLimitOrderConfirm}
           />
           <Route
-            key={LimitOrderRoutePaths.Status}
-            path={LimitOrderRoutePaths.Status}
-            render={renderLimitOrderStatus}
+            key={LimitOrderRoutePaths.AllowanceApproval}
+            path={LimitOrderRoutePaths.AllowanceApproval}
+            render={renderAllowanceApproval}
           />
-          <Route key={LimitOrderRoutePaths.QuoteList} path={LimitOrderRoutePaths.QuoteList}>
+          <Route
+            key={LimitOrderRoutePaths.PlaceOrder}
+            path={LimitOrderRoutePaths.PlaceOrder}
+            render={renderPlaceOrder}
+          />
+          <Route key={LimitOrderRoutePaths.Orders} path={LimitOrderRoutePaths.Orders}>
             <SlideTransitionRoute
               height={tradeInputRef.current?.offsetHeight ?? '500px'}
               width={tradeInputRef.current?.offsetWidth ?? 'full'}

@@ -13,8 +13,8 @@ import type {
   GetOrdersRequest,
   Order,
   OrderCancellation,
+  OrderId,
   OrderStatus,
-  QuoteId,
   Trade,
 } from '@shapeshiftoss/types/dist/cowSwap'
 import {
@@ -132,14 +132,14 @@ export const limitOrderApi = createApi({
         }
       },
     }),
-    placeLimitOrder: build.mutation<QuoteId, { limitOrder: OrderCreation; chainId: ChainId }>({
+    placeLimitOrder: build.mutation<OrderId, { limitOrder: OrderCreation; chainId: ChainId }>({
       queryFn: async ({ limitOrder, chainId }) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const result = await axios.post<QuoteId>(`${baseUrl}/${network}/api/v1/orders/`, limitOrder)
+        const result = await axios.post<OrderId>(`${baseUrl}/${network}/api/v1/orders/`, limitOrder)
         const order = result.data
         return { data: order }
       },
@@ -158,7 +158,7 @@ export const limitOrderApi = createApi({
         return { data: result.status === 200 }
       },
     }),
-    getOrderStatus: build.query<OrderStatus, { orderId: QuoteId; chainId: ChainId }>({
+    getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({
       queryFn: async ({ orderId, chainId }) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL

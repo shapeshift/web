@@ -94,7 +94,7 @@ export const ReceiveSummary: FC<ReceiveSummaryProps> = memo(
               _hover={!isThorFreeTrade ? shapeShiftFeeModalRowHover : undefined}
             >
               <Flex alignItems='center' gap={2}>
-                {!bnOrZero(affiliateFeeAfterDiscountUserCurrency).isZero() ? (
+                {bnOrZero(affiliateFeeAfterDiscountUserCurrency).gt(0) ? (
                   <>
                     <Amount.Fiat value={affiliateFeeAfterDiscountUserCurrency} />
                     <QuestionIcon />

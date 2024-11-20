@@ -255,12 +255,6 @@ const _getTradeQuote = async (
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
     const feeData = await getFeeData()
 
-    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) {
-      // DCA currently disabled - Streaming swap logic is very much tied to THOR currently and will deserve its own PR to generalize
-      // Even if we manage to get DCA swaps to execute, we wouldn't manage to properly poll with current web THOR-centric arch
-      continue
-    }
-
     if (singleQuoteResponse.boostQuote) {
       const boostRate = getQuoteRate(
         singleQuoteResponse.boostQuote.ingressAmountNative!,
@@ -368,6 +362,5 @@ export const getTradeQuote = async (
     )
   }
 
-  const quotes = await _getTradeQuote(input, deps)
-  return quotes
+  return await _getTradeQuote(input, deps)
 }

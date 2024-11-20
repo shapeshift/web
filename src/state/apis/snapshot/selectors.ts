@@ -1,6 +1,13 @@
 import { QueryStatus } from '@reduxjs/toolkit/dist/query'
 import { ethChainId } from '@shapeshiftoss/caip'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import createCachedSelector from 're-reselect'
+import type { Selector } from 'reselect'
 import { createSelector } from 'reselect'
+import type { CalculateFeeBpsReturn } from 'lib/fees/model'
+import { calculateFees } from 'lib/fees/model'
+import type { ParameterModel } from 'lib/fees/parameters/types'
+import { isSome } from 'lib/utils'
 import type { ReduxState } from 'state/reducer'
 import { selectFeeModelParamFromFilter } from 'state/selectors'
 import { selectAccountIdsByChainId } from 'state/slices/portfolioSlice/selectors'
@@ -18,6 +25,7 @@ export const selectIsSnapshotApiQueriesRejected = createSelector(
 )
 
 export const selectVotingPowerByModel = (state: ReduxState) => state.snapshot.votingPowerByModel
+
 export const selectVotingPower = createSelector(
   selectVotingPowerByModel,
   selectFeeModelParamFromFilter,
@@ -32,7 +40,52 @@ export const selectVotingPower = createSelector(
     return votingPowerByModel[feeModel!]
   },
 )
+
+export const selectThorchainLpVotingPower = (state: ReduxState) =>
+  state.snapshot.votingPowerByModel['THORCHAIN_LP']
+
+export const selectSwapperVotingPower = (state: ReduxState) =>
+  state.snapshot.votingPowerByModel['SWAPPER']
+
 export const selectThorVotingPower = (state: ReduxState) =>
   state.snapshot.votingPowerByModel['THORSWAP']
 
 export const selectProposals = (state: ReduxState) => state.snapshot.proposals
+
+type AffiliateFeesProps = {
+  feeModel: ParameterModel
+  inputAmountUsd: string | undefined
+}
+
+export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
+  createCachedSelector(
+    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
+    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
+    selectVotingPower,
+    selectThorVotingPower,
+    selectIsSnapshotApiQueriesRejected,
+    (feeModel, inputAmountUsd, votingPower, thorVotingPower, isSnapshotApiQueriesRejected) => {
+      const fees: CalculateFeeBpsReturn = calculateFees({
+        tradeAmountUsd: bnOrZero(inputAmountUsd),
+        foxHeld: bnOrZero(votingPower),
+        thorHeld: bnOrZero(thorVotingPower),
+        feeModel,
+        isSnapshotApiQueriesRejected,
+      })
+
+      return fees
+    },
+  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
+
+export const selectIsVotingPowerLoading = createSelector(
+  selectIsSnapshotApiQueriesPending,
+  selectThorVotingPower,
+  selectSwapperVotingPower,
+  selectThorchainLpVotingPower,
+  (isSnapshotApiQueriesPending, thorVotingPower, swapperVotingPower, thorchainLpVotingPower) => {
+    return (
+      isSnapshotApiQueriesPending &&
+      ![thorVotingPower, swapperVotingPower, thorchainLpVotingPower].every(isSome)
+    )
+  },
+)

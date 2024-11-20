@@ -1,11 +1,12 @@
 import type { ChainflipBaasStatusEgress } from './models/ChainflipBaasStatusEgress'
+import type { ChainflipBaasStatusSwap } from './models/ChainflipBaasStatusSwap'
 
 // Non-exhaustive
 export type ChainFlipStatus = {
   status: {
-    // TODO(gomes): Status polling a la THOR
     state: 'waiting' | 'receiving' | 'swapping' | 'sending' | 'sent' | 'completed' | 'failed'
-    swapEgress?: ChainflipBaasStatusEgress
+    swap?: ChainflipBaasStatusSwap,
+    swapEgress?: ChainflipBaasStatusEgress,
   }
 }
 

@@ -224,6 +224,7 @@ export const useGetTradeRates = () => {
         allowMultiHop: true,
         affiliateBps,
         potentialAffiliateBps,
+        isManualReceiveAddress: Boolean(manualReceiveAddress),
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
         pubKey:
@@ -247,6 +248,7 @@ export const useGetTradeRates = () => {
     userSlippageTolerancePercentageDecimal,
     sellAssetUsdRate,
     sellAccountId,
+    manualReceiveAddress,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
     receiveAddress,
@@ -273,6 +275,7 @@ export const useGetTradeRates = () => {
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Thorchain))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Zrx))
   useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Chainflip))
+  useGetSwapperTradeQuoteOrRate(getTradeQuoteArgs(SwapperName.Jupiter))
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)

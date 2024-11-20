@@ -35,12 +35,15 @@ export const limitOrderSlice = createSlice({
       state.activeQuote = action.payload
       state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
     },
+    setLimitOrderInitialized: (state, action: PayloadAction<QuoteId>) => {
+      state.orderSubmission[action.payload].state = LimitOrderSubmissionState.Previewing
+    },
     confirmSubmit: (state, action: PayloadAction<QuoteId>) => {
       const limitOrderQuoteId = action.payload
 
       // If there is no active quote, the state is corrupt.
       if (state.activeQuote === undefined) {
-        console.error('Attempted to confirm an non-existed limit order quote')
+        console.error('Attempted to confirm an non-existent limit order quote')
         return
       }
 

@@ -1,16 +1,11 @@
-import { createApi } from '@reduxjs/toolkit/dist/query/react'
+import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { type ChainId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { CowSwapQuoteError } from '@shapeshiftoss/swapper'
-import {
-  COW_SWAP_SETTLEMENT_ADDRESS,
-  CowSwapQuoteErrorType,
-  getCowswapNetwork,
-  TradeQuoteError,
-} from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/swapper'
+import { COW_SWAP_SETTLEMENT_ADDRESS, getCowswapNetwork } from '@shapeshiftoss/swapper'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
 import {
   domain,
@@ -67,6 +62,7 @@ export const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['LimitOrder'],
+  baseQuery: fakeBaseQuery<CowSwapError | undefined>(),
   endpoints: build => ({
     quoteLimitOrder: build.query<OrderQuoteResponse, LimitOrderQuoteParams>({
       queryFn: async (params: LimitOrderQuoteParams) => {
@@ -128,24 +124,9 @@ export const limitOrderApi = createApi({
           return { data: response }
         } catch (e) {
           const axiosError = e as AxiosError
-
-          const maybeCowSwapError = axiosError.response?.data as CowSwapQuoteError | undefined
-
-          const errorData = (() => {
-            switch (maybeCowSwapError?.errorType) {
-              // NOTE we are using our own CowSwapQuoteError because
-              case CowSwapQuoteErrorType.ZeroAmount:
-                return TradeQuoteError.SellAmountBelowMinimum
-              case CowSwapQuoteErrorType.SellAmountDoesNotCoverFee:
-                return TradeQuoteError.SellAmountBelowTradeFee
-              case CowSwapQuoteErrorType.UnsupportedToken:
-                return TradeQuoteError.UnsupportedTradePair
-              default:
-                return TradeQuoteError.UnknownError
-            }
-          })()
-
-          return { error: { data: errorData } }
+          return {
+            error: axiosError.response?.data as CowSwapError | undefined,
+          }
         }
       },
     }),
@@ -215,9 +196,20 @@ export const limitOrderApi = createApi({
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
-        const result = await axios.post<OrderId>(`${baseUrl}/${network}/api/v1/orders/`, limitOrder)
-        const order = result.data
-        return { data: order }
+
+        try {
+          const result = await axios.post<OrderId>(
+            `${baseUrl}/${network}/api/v1/orders/`,
+            limitOrder,
+          )
+          const orderId = result.data
+          return { data: orderId }
+        } catch (e) {
+          const axiosError = e as AxiosError
+          return {
+            error: axiosError.response?.data as CowSwapError | undefined,
+          }
+        }
       },
     }),
     cancelLimitOrders: build.mutation<boolean, { payload: OrderCancellation; chainId: ChainId }>({

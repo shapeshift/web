@@ -17,7 +17,7 @@ import type {
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { type CowSwapQuoteError } from '../types'
+import type { CowSwapError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -98,7 +98,7 @@ async function _getCowSwapTradeQuote(
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError<CowSwapQuoteError>)?.response?.data
+    const errData = (err.cause as AxiosError<CowSwapError>)?.response?.data
     if (
       (err.cause as AxiosError)?.isAxiosError &&
       errData?.errorType === 'SellAmountDoesNotCoverFee'

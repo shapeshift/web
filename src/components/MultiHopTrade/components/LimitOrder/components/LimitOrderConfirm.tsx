@@ -10,8 +10,9 @@ import {
   Link,
   Stack,
 } from '@chakra-ui/react'
+import type { CowSwapError } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
@@ -20,6 +21,10 @@ import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { useActions } from 'hooks/useActions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuote,
@@ -34,7 +39,7 @@ import {
   selectActiveQuoteSellAmountUserCurrency,
   selectActiveQuoteSellAsset,
 } from 'state/slices/limitOrderSlice/selectors'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
@@ -48,7 +53,9 @@ const learnMoreUrl = ''
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
-  const dispatch = useAppDispatch()
+  const wallet = useWallet().state.wallet
+  const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
+  const { showErrorToast } = useErrorHandler()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -62,19 +69,38 @@ export const LimitOrderConfirm = () => {
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
   const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
+  const [placeLimitOrder, { data, error, isLoading }] = usePlaceLimitOrderMutation()
+
+  useEffect(() => {
+    if (!error) return
+
+    const description = (error as CowSwapError).description ?? 'Unknown Error'
+
+    // TODO: Actually render a translated error description.
+    showErrorToast(description)
+  }, [error, showErrorToast])
+
+  useEffect(() => {
+    if (!data || error) return
+
+    history.push(LimitOrderRoutePaths.PlaceOrder)
+  }, [data, error, history])
+
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
 
-  const handleConfirm = useCallback(() => {
-    if (!activeQuote?.response.id) {
+  const handleConfirm = useCallback(async () => {
+    const quoteId = activeQuote?.response.id
+    if (!quoteId) {
       return
     }
 
-    dispatch(limitOrderSlice.actions.confirmSubmit(activeQuote?.response.id))
-
-    history.push(LimitOrderRoutePaths.PlaceOrder)
-  }, [activeQuote?.response.id, dispatch, history])
+    // TEMP: Bypass allowance approvals and jump straight to placing the order
+    setLimitOrderInitialized(quoteId)
+    confirmSubmit(quoteId)
+    await placeLimitOrder({ quoteId, wallet })
+  }, [activeQuote?.response.id, confirmSubmit, placeLimitOrder, setLimitOrderInitialized, wallet])
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')
@@ -190,7 +216,8 @@ export const LimitOrderConfirm = () => {
               size='lg'
               width='full'
               onClick={handleConfirm}
-              isLoading={false}
+              isLoading={isLoading}
+              isDisabled={isLoading}
             >
               <Text translation={'limitOrder.placeOrder'} />
             </Button>

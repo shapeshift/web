@@ -1,18 +1,9 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderCreation, OrderError } from '@shapeshiftoss/types/dist/cowSwap'
 
-// Most likely non-exhaustive, see https://github.com/cowprotocol/contracts/blob/aaffdc55b2a13738b7c32de96f487d3eb5b4f8c6/src/ts/api.ts#L110
-// But we only handle a few of them for now so that's fine. Add other errors here as needed.
-export enum CowSwapQuoteErrorType {
-  SellAmountDoesNotCoverFee = 'SellAmountDoesNotCoverFee',
-  NoLiquidity = 'NoLiquidity',
-  ZeroAmount = 'ZeroAmount',
-  UnsupportedToken = 'UnsupportedToken',
-}
-
-export type CowSwapQuoteError = {
-  errorType: CowSwapQuoteErrorType
+export type CowSwapError = {
+  errorType: OrderError
   description: string
   // This is not documented by CoW API so we shouldn't make assumptions about the shape, nor presence of this guy
   data?: any

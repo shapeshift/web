@@ -1,17 +1,18 @@
-import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  isExecutableTradeQuote,
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
-import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -23,7 +24,6 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import {
   selectIsSnapshotApiQueriesRejected,
-  selectIsVotingPowerLoading,
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
@@ -42,15 +42,19 @@ import {
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
+  selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
+  selectConfirmedTradeExecution,
+  selectHopExecutionMetadata,
   selectIsAnyTradeQuoteLoading,
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
-import type { UseGetSwapperTradeQuoteArgs } from './hooks.tsx/useGetSwapperTradeQuote'
-import { useGetSwapperTradeQuote } from './hooks.tsx/useGetSwapperTradeQuote'
+import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
+import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOrRate'
 
 type MixPanelQuoteMeta = {
   swapperName: SwapperName
@@ -123,12 +127,44 @@ export const useGetTradeQuotes = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const isPublicTradeRouteEnabled = useFeatureFlag('PublicTradeRoute')
-  // TODO(gomes): This is temporary, and we will want to do one better when wiring this up
-  const quoteOrRate = isPublicTradeRouteEnabled ? 'rate' : 'quote'
-  const [tradeQuoteInput, setTradeQuoteInput] = useState<GetTradeQuoteInput | typeof skipToken>(
-    skipToken,
+
+  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
+  const activeTrade = useAppSelector(selectActiveQuote)
+  const activeTradeId = activeTrade?.id
+  const activeRateRef = useRef<TradeQuote | undefined>()
+  const activeTradeIdRef = useRef<string | undefined>()
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
+  const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+
+  useEffect(
+    () => {
+      activeRateRef.current = activeTrade
+      activeTradeIdRef.current = activeTradeId
+      activeQuoteMetaRef.current = activeQuoteMeta
+    },
+    // WARNING: DO NOT SET ANY DEP HERE.
+    // We're using this to keep the ref of the rate and matching tradeId for it on mount.
+    // This should never update afterwards
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   )
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    if (!activeTradeId) return undefined
+
+    return {
+      tradeId: activeTradeId,
+      hopIndex: 0,
+    }
+  }, [activeTradeId])
+
+  const hopExecutionMetadata = useAppSelector(state =>
+    hopExecutionMetadataFilter
+      ? selectHopExecutionMetadata(state, hopExecutionMetadataFilter)
+      : undefined,
+  )
+
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -169,55 +205,51 @@ export const useGetTradeQuotes = () => {
 
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
-  const shouldRefetchTradeQuotes = useMemo(
+  // Is the step we're in a step which requires final quote fetching?
+  const isFetchStep = useMemo(() => {
+    const swapperName = activeQuoteMetaRef.current?.swapperName
+    if (!swapperName) return
+    const permit2 = hopExecutionMetadata?.permit2
+    // ZRX is the odd one - we either want to fetch the final quote at pre-permit, or pre-swap input, depending on whether permit2 is required or not
+    if (swapperName === SwapperName.Zrx)
+      return (
+        (permit2?.isRequired &&
+          permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
+        (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
+      )
+
+    return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
+  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state])
+
+  const shouldFetchTradeQuotes = useMemo(
     () =>
       Boolean(
-        (hasFocus &&
-          wallet &&
+        hasFocus &&
+          // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
+          activeTrade &&
+          !isExecutableTradeQuote(activeTrade) &&
+          // and if we're actually at pre-execution time
+          isFetchStep &&
           sellAccountId &&
           sellAccountMetadata &&
-          receiveAddress &&
-          !isVotingPowerLoading) ||
-          quoteOrRate === 'rate',
+          receiveAddress,
       ),
-    [
-      hasFocus,
-      wallet,
-      sellAccountId,
-      sellAccountMetadata,
-      receiveAddress,
-      isVotingPowerLoading,
-      quoteOrRate,
-    ],
+    [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress],
   )
 
-  useEffect(() => {
-    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-    // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+  const queryFnOrSkip = useMemo(() => {
+    // Only run this query when we're actually ready
+    if (!isFetchStep) return reactQuerySkipToken
+    // And only run it once
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
 
-    // Clear the slice before asynchronously generating the input and running the request.
-    // This is to ensure the initial state change is done synchronously to prevent race conditions
-    // and losing sync on loading state etc.
-    dispatch(tradeQuoteSlice.actions.clear())
+    return async () => {
+      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    // Early exit on any invalid state
-    if (
-      bnOrZero(sellAmountCryptoPrecision).isZero() ||
-      (quoteOrRate === 'quote' &&
-        (!sellAccountId || !sellAccountMetadata || !receiveAddress || isVotingPowerLoading))
-    ) {
-      setTradeQuoteInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-      return
-    }
-    ;(async () => {
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
       const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
@@ -233,9 +265,8 @@ export const useGetTradeQuotes = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      if (quoteOrRate === 'quote' && sellAccountNumber === undefined)
-        throw new Error('sellAccountNumber is required')
-      if (quoteOrRate === 'quote' && !receiveAddress) throw new Error('receiveAddress is required')
+      if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
+      if (!receiveAddress) throw new Error('receiveAddress is required')
 
       const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
         sellAsset,
@@ -243,7 +274,7 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        quoteOrRate,
+        quoteOrRate: 'quote',
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -257,69 +288,95 @@ export const useGetTradeQuotes = () => {
             : undefined,
       })
 
-      setTradeQuoteInput(updatedTradeQuoteInput)
-    })()
+      return updatedTradeQuoteInput
+    }
   }, [
+    activeTrade,
     buyAsset,
     dispatch,
+    isFetchStep,
+    isSnapshotApiQueriesRejected,
     receiveAddress,
-    sellAccountMetadata,
+    sellAccountId,
+    sellAccountMetadata?.accountType,
+    sellAccountMetadata?.bip44Params?.accountNumber,
     sellAmountCryptoPrecision,
     sellAsset,
-    votingPower,
-    thorVotingPower,
-    wallet,
-    receiveAccountMetadata?.bip44Params,
-    userSlippageTolerancePercentageDecimal,
     sellAssetUsdRate,
-    sellAccountId,
-    isVotingPowerLoading,
-    isBuyAssetChainSupported,
-    quoteOrRate,
-    isSnapshotApiQueriesRejected,
+    thorVotingPower,
+    userSlippageTolerancePercentageDecimal,
+    votingPower,
+    wallet,
   ])
 
+  const { data: tradeQuoteInput } = useQuery({
+    queryKey: [
+      'getTradeQuoteInput',
+      {
+        buyAsset,
+        dispatch,
+        receiveAddress,
+        sellAccountMetadata,
+        sellAmountCryptoPrecision,
+        sellAsset,
+        votingPower,
+        thorVotingPower,
+        receiveAccountMetadata,
+        userSlippageTolerancePercentageDecimal,
+        sellAssetUsdRate,
+        sellAccountId,
+        isBuyAssetChainSupported,
+        hopExecutionMetadata,
+        activeTrade,
+      },
+    ],
+    queryFn: queryFnOrSkip,
+  })
+
   const getTradeQuoteArgs = useCallback(
-    (swapperName: SwapperName): UseGetSwapperTradeQuoteArgs => {
+    (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
-        tradeQuoteInput,
-        skip: !shouldRefetchTradeQuotes,
+        tradeQuoteInput: tradeQuoteInput ?? reduxSkipToken,
+        // Skip trade quotes fetching which aren't for the swapper we have a rate for
+        skip: !swapperName || !shouldFetchTradeQuotes,
         pollingInterval:
-          swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+          swappers[swapperName as SwapperName]?.pollingInterval ??
+          DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
       }
     },
-    [shouldRefetchTradeQuotes, tradeQuoteInput],
+    [shouldFetchTradeQuotes, tradeQuoteInput],
   )
 
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.CowSwap))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.ArbitrumBridge))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Portals))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.LIFI))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Thorchain))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Zrx))
-  useGetSwapperTradeQuote(getTradeQuoteArgs(SwapperName.Chainflip))
+  const queryStateMeta = useGetSwapperTradeQuoteOrRate(
+    getTradeQuoteArgs(activeQuoteMetaRef.current?.swapperName),
+  )
 
   // true if any debounce, input or swapper is fetching
   const isAnyTradeQuoteLoading = useAppSelector(selectIsAnyTradeQuoteLoading)
 
-  const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
-  const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
-
   // auto-select the best quote once all quotes have arrived
   useEffect(() => {
-    // don't override user selection, don't rug users by auto-selecting while results are incoming
-    if (activeQuoteMeta || isAnyTradeQuoteLoading) return
+    if (!confirmedTradeExecution) return
+    // We already have an executable active trade, don't rerun this or this will run forever
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return
+    const identifier = activeQuoteMetaRef.current?.identifier
+    if (!identifier) return
+    if (!queryStateMeta?.data) return
+    const quoteData = queryStateMeta.data[identifier]
+    if (!quoteData?.quote) return
 
-    const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
-
-    // don't auto-select nothing, don't auto-select errored quotes
-    if (bestQuote?.quote === undefined || bestQuote.errors.length > 0) {
-      return
-    }
-
-    dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
-  }, [activeQuoteMeta, isAnyTradeQuoteLoading, dispatch])
+    // Set the execution metadata to that of the previous rate so we can take over
+    dispatch(
+      tradeQuoteSlice.actions.setTradeExecutionMetadata({
+        id: quoteData.quote.id,
+        executionMetadata: confirmedTradeExecution,
+      }),
+    )
+    // Set as both confirmed *and* active
+    dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+    dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
+  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 
   // TODO: move to separate hook so we don't need to pull quote data into here
   useEffect(() => {
@@ -329,4 +386,6 @@ export const useGetTradeQuotes = () => {
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])
+
+  return queryStateMeta
 }

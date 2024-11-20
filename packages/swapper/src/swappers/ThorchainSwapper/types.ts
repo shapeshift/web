@@ -1,5 +1,8 @@
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+import type { TradeQuote, TradeRate } from '../../types'
+import type { TradeType } from './utils/longTailHelpers'
+
 export type ThornodePoolStatuses = 'Available' | 'Staged' | 'Suspended'
 
 export type MidgardPoolResponse = {
@@ -252,3 +255,41 @@ export enum ThorchainChain {
   THOR = 'THOR',
   BSC = 'BSC',
 }
+
+export type ThorEvmTradeQuote = TradeQuote &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+    tradeType: TradeType
+  } & {
+    receiveAddress: string
+  }
+
+export type ThorTradeUtxoOrCosmosQuote = TradeQuote & ThorTradeQuoteSpecificMetadata
+export type ThorTradeQuote = ThorEvmTradeQuote | ThorTradeUtxoOrCosmosQuote
+
+type ThorTradeQuoteSpecificMetadata = {
+  isStreaming: boolean
+  memo: string
+  recommendedMinimumCryptoBaseUnit: string
+  tradeType: TradeType
+  expiry: number
+  longtailData?: {
+    longtailToL1ExpectedAmountOut?: bigint
+    L1ToLongtailExpectedAmountOut?: bigint
+  }
+}
+
+export type ThorEvmTradeRate = TradeRate &
+  ThorTradeQuoteSpecificMetadata & {
+    router: string
+    vault: string
+    aggregator?: string
+    data: string
+    tradeType: TradeType
+  }
+
+export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
+export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate

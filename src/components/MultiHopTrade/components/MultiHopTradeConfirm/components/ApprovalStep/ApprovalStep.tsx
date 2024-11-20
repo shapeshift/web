@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion'
 import { useMemo } from 'react'
 import { FaThumbsUp } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { SlideTransitionX } from 'components/SlideTransitionX'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -32,6 +33,9 @@ export const ApprovalStep = ({
   isLoading,
   activeTradeId,
 }: ApprovalStepProps) => {
+  // DO NOT REMOVE ME. Fetches and upserts permit2 quotes at pre-permit2-signing time
+  useGetTradeQuotes()
+
   const translate = useTranslate()
 
   const hopExecutionMetadataFilter = useMemo(() => {

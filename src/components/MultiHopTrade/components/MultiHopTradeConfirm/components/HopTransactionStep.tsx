@@ -17,6 +17,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
@@ -159,12 +160,21 @@ export const HopTransactionStep = ({
     return <StatusIcon txStatus={swapTxState} defaultIcon={defaultIcon} />
   }, [swapTxState, swapperName])
 
+  const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
+
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <Button colorScheme='blue' size='sm' onClick={handleSignTx} width='100%'>
+            <Button
+              colorScheme='blue'
+              size='sm'
+              onClick={handleSignTx}
+              isLoading={isFetching}
+              isDisabled={!tradeQuoteQueryData}
+              width='100%'
+            >
               {translate('common.signTransaction')}
             </Button>
           </CardBody>
@@ -194,14 +204,16 @@ export const HopTransactionStep = ({
       )
     }
   }, [
-    handleSignTx,
-    hopIndex,
     isActive,
-    sellTxHash,
     swapTxState,
-    activeTradeId,
     tradeQuoteStep.source,
+    sellTxHash,
+    handleSignTx,
+    isFetching,
+    tradeQuoteQueryData,
     translate,
+    hopIndex,
+    activeTradeId,
   ])
 
   const description = useMemo(() => {

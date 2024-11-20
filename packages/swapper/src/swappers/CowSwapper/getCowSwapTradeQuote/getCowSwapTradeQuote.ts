@@ -8,11 +8,9 @@ import { zeroAddress } from 'viem'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetEvmTradeQuoteInputBase,
-  GetEvmTradeRateInput,
   SwapErrorRight,
   SwapperConfig,
   TradeQuote,
-  TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
@@ -113,20 +111,20 @@ async function _getCowSwapTradeQuote(
     return Err(maybeQuoteResponse.unwrapErr())
   }
 
-  const { data } = maybeQuoteResponse.unwrap()
+  const { data: cowswapQuoteResponse } = maybeQuoteResponse.unwrap()
 
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = cowswapQuoteResponse.quote
 
   const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
     getValuesFromQuoteResponse({
       buyAsset,
       sellAsset,
-      response: data,
+      response: cowswapQuoteResponse,
       affiliateBps,
     })
 
   const quote: TradeQuote = {
-    id: data.id.toString(),
+    id: cowswapQuoteResponse.id.toString(),
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,
@@ -155,136 +153,7 @@ async function _getCowSwapTradeQuote(
         buyAsset,
         sellAsset,
         accountNumber,
-      },
-    ],
-  }
-
-  return Ok(quote)
-}
-
-async function _getCowSwapTradeRate(
-  input: GetEvmTradeRateInput,
-  config: SwapperConfig,
-): Promise<Result<TradeRate, SwapErrorRight>> {
-  const {
-    sellAsset,
-    buyAsset,
-    accountNumber,
-    chainId,
-    receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    potentialAffiliateBps,
-    affiliateBps,
-  } = input
-
-  const slippageTolerancePercentageDecimal =
-    input.slippageTolerancePercentageDecimal ??
-    getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
-
-  const assertion = assertValidTrade({
-    buyAsset,
-    sellAsset,
-    supportedChainIds: SUPPORTED_CHAIN_IDS,
-  })
-  if (assertion.isErr()) return Err(assertion.unwrapErr())
-
-  const buyToken = !isNativeEvmAsset(buyAsset.assetId)
-    ? fromAssetId(buyAsset.assetId).assetReference
-    : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
-
-  const maybeNetwork = getCowswapNetwork(chainId)
-  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
-
-  const network = maybeNetwork.unwrap()
-
-  const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
-    affiliateBps,
-    chainId: sellAsset.chainId,
-  })
-
-  const { appData, appDataHash } = await getFullAppData(
-    slippageTolerancePercentageDecimal,
-    affiliateAppDataFragment,
-    'market',
-  )
-
-  // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-    `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
-    {
-      sellToken: fromAssetId(sellAsset.assetId).assetReference,
-      buyToken,
-      receiver: receiveAddress,
-      validTo: getNowPlusThirtyMinutesTimestamp(),
-      appData,
-      appDataHash,
-      partiallyFillable: false,
-      from: zeroAddress,
-      kind: CoWSwapOrderKind.Sell,
-      sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    },
-  )
-
-  if (maybeQuoteResponse.isErr()) {
-    const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError<CowSwapQuoteError>)?.response?.data
-    if (
-      (err.cause as AxiosError)?.isAxiosError &&
-      errData?.errorType === 'SellAmountDoesNotCoverFee'
-    ) {
-      return Err(
-        createTradeAmountTooSmallErr({
-          assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
-        }),
-      )
-    }
-    return Err(maybeQuoteResponse.unwrapErr())
-  }
-
-  const { data } = maybeQuoteResponse.unwrap()
-
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
-
-  const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
-    getValuesFromQuoteResponse({
-      buyAsset,
-      sellAsset,
-      response: data,
-      affiliateBps,
-    })
-
-  const quote: TradeRate = {
-    id: data.id.toString(),
-    accountNumber,
-    receiveAddress,
-    affiliateBps,
-    potentialAffiliateBps,
-    rate,
-    slippageTolerancePercentageDecimal,
-    steps: [
-      {
-        estimatedExecutionTimeMs: undefined,
-        allowanceContract: COW_SWAP_VAULT_RELAYER_ADDRESS,
-        rate,
-        feeData: {
-          networkFeeCryptoBaseUnit: '0', // no miner fee for CowSwap
-          protocolFees: {
-            [sellAsset.assetId]: {
-              amountCryptoBaseUnit: feeAmountInSellTokenCryptoBaseUnit,
-              // Technically does, but we deduct it off the sell amount
-              requiresBalance: false,
-              asset: sellAsset,
-            },
-          },
-        },
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        buyAmountBeforeFeesCryptoBaseUnit,
-        buyAmountAfterFeesCryptoBaseUnit,
-        source: SwapperName.CowSwap,
-        buyAsset,
-        sellAsset,
-        accountNumber,
+        cowswapQuoteResponse,
       },
     ],
   }
@@ -296,8 +165,3 @@ export const getCowSwapTradeQuote = (
   input: GetEvmTradeQuoteInputBase,
   config: SwapperConfig,
 ): Promise<Result<TradeQuote, SwapErrorRight>> => _getCowSwapTradeQuote(input, config)
-
-export const getCowSwapTradeRate = (
-  input: GetEvmTradeRateInput,
-  config: SwapperConfig,
-): Promise<Result<TradeRate, SwapErrorRight>> => _getCowSwapTradeRate(input, config)

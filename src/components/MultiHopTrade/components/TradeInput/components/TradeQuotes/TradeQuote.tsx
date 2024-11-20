@@ -106,7 +106,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         quote,
         getFeeAsset,
         getFeeAssetUserCurrencyRate,
-      ).toString()
+      )?.toString()
     }, [quote])
 
     // NOTE: don't pull this from the slice - we're not displaying the active quote here
@@ -300,11 +300,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           buyAsset={buyAsset}
           isBest={isBest}
           numHops={quote?.steps.length}
-          totalReceiveAmountFiatPrecision={totalReceiveAmountFiatPrecision}
+          totalReceiveAmountFiatUserCurrency={totalReceiveAmountFiatPrecision}
           hasAmountWithPositiveReceive={hasAmountWithPositiveReceive}
           totalReceiveAmountCryptoPrecision={totalReceiveAmountCryptoPrecision}
           quoteDifferenceDecimalPercentage={quoteAmountDifferenceDecimalPercentage}
-          networkFeeUserCurrencyPrecision={networkFeeUserCurrencyPrecision}
+          networkFeeFiatUserCurrency={networkFeeUserCurrencyPrecision}
           totalEstimatedExecutionTimeMs={totalEstimatedExecutionTimeMs}
           slippage={slippage}
           tradeQuote={quote}

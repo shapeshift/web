@@ -12,7 +12,7 @@ import { BTC } from '../../utils/test-data/assets'
 import { gasFeeData } from '../../utils/test-data/fees'
 import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { zrxServiceFactory } from '../utils/zrxService'
-import { getZrxPseudoTradeQuote } from './getZrxTradeQuote'
+import { getZrxTradeQuote } from './getZrxTradeQuote'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -77,7 +77,7 @@ describe('getZrxTradeQuote', () => {
         } as AxiosResponse<unknown, any>),
       ),
     )
-    const maybeQuote = await getZrxPseudoTradeQuote(
+    const maybeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
       false,
@@ -104,7 +104,7 @@ describe('getZrxTradeQuote', () => {
         >,
       ),
     )
-    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+    const maybeTradeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
       false,
@@ -126,7 +126,7 @@ describe('getZrxTradeQuote', () => {
       }) as unknown as never,
     )
 
-    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+    const maybeTradeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
       false,
@@ -149,7 +149,7 @@ describe('getZrxTradeQuote', () => {
         } as AxiosResponse<unknown>),
       ),
     )
-    const maybeQuote = await getZrxPseudoTradeQuote(
+    const maybeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
       false,
@@ -169,7 +169,7 @@ describe('getZrxTradeQuote', () => {
     const { quoteInput } = setupQuote()
     vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({} as AxiosResponse<unknown>)))
 
-    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+    const maybeTradeQuote = await getZrxTradeQuote(
       {
         ...quoteInput,
         buyAsset: BTC,
@@ -195,7 +195,7 @@ describe('getZrxTradeQuote', () => {
       Promise.resolve(Ok({} as AxiosResponse<unknown, any>)),
     )
 
-    const maybeTradeQuote = await getZrxPseudoTradeQuote(
+    const maybeTradeQuote = await getZrxTradeQuote(
       {
         ...quoteInput,
         sellAsset: { ...sellAsset, chainId: btcChainId },

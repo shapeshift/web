@@ -17,3 +17,8 @@ export type ThornodeStreamingSwapResponseError = { error: string }
 export type ThornodeStreamingSwapResponse =
   | ThornodeStreamingSwapResponseSuccess
   | ThornodeStreamingSwapResponseError
+
+export type ChainflipStreamingSwapResponseSuccess = {
+  executedChunks: number,
+  remainingChunks: number
+}

@@ -77,7 +77,6 @@ export const useChainflipStreamingProgress = (
   totalSwapCount: number
   failedSwaps: StreamingSwapFailedSwap[]
 } => {
-  // a ref is used to allow updating and reading state without creating a dependency cycle
   const { poll, cancelPolling } = usePoll<ChainflipStreamingSwapResponseSuccess | undefined>()
   const dispatch = useAppDispatch()
   const hopExecutionMetadataFilter = useMemo(() => {

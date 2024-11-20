@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 import { concat, numberToHex, size } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
@@ -19,22 +18,18 @@ import {
   type SwapErrorRight,
   type SwapperApi,
   type SwapperDeps,
-  SwapperName,
   type TradeQuote,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'
-import { getZrxPseudoTradeQuote, getZrxTradeRate } from './getZrxTradeQuote/getZrxTradeQuote'
-import { fetchZrxQuote } from './utils/fetchFromZrx'
+import { getZrxTradeQuote } from './getZrxTradeQuote/getZrxTradeQuote'
+import { getZrxTradeRate } from './getZrxTradeRate/getZrxTradeRate'
 
 export const zrxApi: SwapperApi = {
   getTradeQuote: async (
     input: CommonTradeQuoteInput,
     { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-    // TODO(gomes): when we wire this up, this should consume getZrTradeQuote and we should ditch this guy
-    // getTradeQuote() is currently consumed at input time (for all swappers, not just ZRX) with weird Frankenstein "quote endpoint fetching ZRX rate endpoint
-    // but actually expecting quote input/output" logic. This is a temporary method to get the ZRX swapper working with the new swapper architecture.
-    const tradeQuoteResult = await getZrxPseudoTradeQuote(
+    const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
       config.REACT_APP_FEATURE_ZRX_PERMIT2,
@@ -69,51 +64,15 @@ export const zrxApi: SwapperApi = {
     permit2Signature,
     supportsEIP1559,
     assertGetEvmChainAdapter,
-    config,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
-    const { affiliateBps, receiveAddress, slippageTolerancePercentageDecimal, steps } = tradeQuote
-    const {
-      buyAsset,
-      sellAsset,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      transactionMetadata,
-    } = steps[0]
+    const { steps } = tradeQuote
+    const { zrxTransactionMetadata: transactionMetadata } = steps[0]
 
-    const { value, to, data, estimatedGas } = await (async () => {
-      // If this is a quote from the 0x V2 API, i.e. has `transactionMetadata`, the comment below RE
-      // re-fetching does not apply. We must use the original transaction returned in the quote
-      // because the Permit2 signature is coupled to it.
-      if (transactionMetadata) {
-        return {
-          value: transactionMetadata.value?.toString() ?? '0',
-          to: transactionMetadata.to ?? '0x',
-          data: transactionMetadata.data ?? '0x',
-          estimatedGas: transactionMetadata.gas?.toString() ?? '0',
-        }
-      }
+    if (!transactionMetadata) throw new Error('Transaction metadata is required')
 
-      // We need to re-fetch the quote from 0x here because actual quote fetches include validation of
-      // approvals, which prevent quotes during trade input from succeeding if the user hasn't already
-      // approved the token they are getting a quote for.
-      // TODO: we'll want to let users know if the quoted amounts change much after re-fetching
-      const zrxQuoteResponse = await fetchZrxQuote({
-        buyAsset,
-        sellAsset,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        receiveAddress,
-        affiliateBps: affiliateBps ?? '0',
-        slippageTolerancePercentageDecimal:
-          slippageTolerancePercentageDecimal ??
-          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Zrx),
-        zrxBaseUrl: config.REACT_APP_ZRX_BASE_URL,
-      })
-
-      if (zrxQuoteResponse.isErr()) throw zrxQuoteResponse.unwrapErr()
-
-      return zrxQuoteResponse.unwrap()
-    })()
+    const { value, to, data, gas: estimatedGas } = transactionMetadata
 
     const calldataWithSignature = (() => {
       if (!permit2Signature) return data
@@ -146,7 +105,7 @@ export const zrxApi: SwapperApi = {
       chainId: Number(fromChainId(chainId).chainReference),
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for
       // total gas used.
-      gasLimit: BigNumber.max(gasLimit, estimatedGas).toFixed(),
+      gasLimit: BigNumber.max(gasLimit, estimatedGas ?? '0').toFixed(),
       ...feeData,
     }
   },

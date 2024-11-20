@@ -6,6 +6,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
+import type { TradeExecutionMetadata } from './types'
 import {
   AllowanceKey,
   HopExecutionState,
@@ -49,7 +50,15 @@ export const tradeQuoteSlice = createSlice({
     },
     setConfirmedQuote: (state, action: PayloadAction<TradeQuote>) => {
       state.confirmedQuote = action.payload
-      state.tradeExecution[action.payload.id] = initialTradeExecutionState
+    },
+    clearQuoteExecutionState: (state, action: PayloadAction<TradeQuote['id']>) => {
+      state.tradeExecution[action.payload] = initialTradeExecutionState
+    },
+    setTradeExecutionMetadata: (
+      state,
+      action: PayloadAction<{ id: TradeQuote['id']; executionMetadata: TradeExecutionMetadata }>,
+    ) => {
+      state.tradeExecution[action.payload.id] = action.payload.executionMetadata
     },
     setTradeInitialized: (state, action: PayloadAction<TradeQuote['id']>) => {
       state.tradeExecution[action.payload].state = TradeExecutionState.Previewing

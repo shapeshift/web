@@ -89,7 +89,7 @@ const _getQuote = async (
   } else if (isError && /trading is halted/.test(data.error)) {
     return Err(
       makeSwapErrorRight({
-        message: `[getTradeRate]: Trading is halted, cannot process swap`,
+        message: `[_getQuote]: Trading is halted, cannot process swap`,
         code: TradeQuoteError.TradingHalted,
         details: { sellAssetId: sellAsset.assetId, buyAssetId },
       }),

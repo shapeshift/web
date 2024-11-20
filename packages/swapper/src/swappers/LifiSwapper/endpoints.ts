@@ -25,7 +25,8 @@ import {
   isExecutableTradeQuote,
   makeSwapErrorRight,
 } from '../../utils'
-import { getTradeQuote, getTradeRate } from './getTradeQuote/getTradeQuote'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeRate } from './getTradeRate/getTradeRate'
 import { configureLiFi } from './utils/configureLiFi'
 import { getLifiChainMap } from './utils/getLifiChainMap'
 

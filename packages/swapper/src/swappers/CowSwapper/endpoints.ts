@@ -1,4 +1,3 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
@@ -26,22 +25,16 @@ import {
   getHopByIndex,
   isExecutableTradeQuote,
 } from '../../utils'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
-import {
-  getCowSwapTradeQuote,
-  getCowSwapTradeRate,
-} from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
+import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type { CowSwapOrder } from './types'
 import {
   CoWSwapBuyTokenDestination,
   type CowSwapGetTradesResponse,
   type CowSwapGetTransactionsResponse,
-  CoWSwapOrderKind,
-  type CowSwapQuoteResponse,
   CoWSwapSellTokenSource,
   CoWSwapSigningScheme,
 } from './types'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from './utils/constants'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,
@@ -49,7 +42,6 @@ import {
   getAffiliateAppDataFragmentByChainId,
   getCowswapNetwork,
   getFullAppData,
-  getNowPlusThirtyMinutesTimestamp,
 } from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
@@ -85,19 +77,16 @@ export const cowApi: SwapperApi = {
   },
 
   getUnsignedEvmMessage: async ({
-    from,
     tradeQuote,
     stepIndex,
     chainId,
-    config,
   }: GetUnsignedEvmMessageArgs): Promise<EvmMessageToSign> => {
     const hop = getHopByIndex(tradeQuote, stepIndex)
 
     if (!hop) throw new Error(`No hop found for stepIndex ${stepIndex}`)
 
-    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = hop
+    const { sellAsset } = hop
     const {
-      receiveAddress,
       slippageTolerancePercentageDecimal = getDefaultSlippageDecimalPercentageForSwapper(
         SwapperName.CowSwap,
       ),
@@ -105,46 +94,24 @@ export const cowApi: SwapperApi = {
 
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
-    const buyTokenAddress = !isNativeEvmAsset(buyAsset.assetId)
-      ? fromAssetId(buyAsset.assetId).assetReference
-      : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
-
     const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
     if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-
-    const network = maybeNetwork.unwrap()
 
     const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
       affiliateBps: tradeQuote.affiliateBps,
       chainId: sellAsset.chainId,
     })
-    const { appData, appDataHash } = await getFullAppData(
+    const { appDataHash } = await getFullAppData(
       slippageTolerancePercentageDecimal,
       affiliateAppDataFragment,
       'market',
     )
-    // https://api.cow.fi/docs/#/default/post_api_v1_quote
-    const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
-      `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
-      {
-        sellToken: fromAssetId(sellAsset.assetId).assetReference,
-        buyToken: buyTokenAddress,
-        receiver: receiveAddress,
-        validTo: getNowPlusThirtyMinutesTimestamp(),
-        appData,
-        appDataHash,
-        partiallyFillable: false,
-        from,
-        kind: CoWSwapOrderKind.Sell,
-        sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      },
-    )
 
-    if (maybeQuoteResponse.isErr()) throw maybeQuoteResponse.unwrapErr()
+    const { cowswapQuoteResponse } = hop
 
-    const { data: cowSwapQuoteResponse } = maybeQuoteResponse.unwrap()
+    if (!cowswapQuoteResponse) throw new Error('CowSwap quote data is required')
 
-    const { id, quote } = cowSwapQuoteResponse
+    const { id, quote } = cowswapQuoteResponse
     // Note: While CowSwap returns us a quote, and we have slippageBips in the appData, this isn't enough.
     // For the slippage actually to be enforced, the final message to be signed needs to have slippage deducted.
     // Failure to do so means orders may take forever to be filled, or never be filled at all.

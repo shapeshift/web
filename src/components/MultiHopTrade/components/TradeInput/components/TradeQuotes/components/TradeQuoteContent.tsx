@@ -9,7 +9,7 @@ import { MdOfflineBolt } from 'react-icons/md'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 
 export type TradeQuoteContentProps = {
@@ -17,11 +17,11 @@ export type TradeQuoteContentProps = {
   buyAsset: Asset
   isBest: boolean
   numHops: number
-  totalReceiveAmountFiatPrecision: string | undefined
+  totalReceiveAmountFiatUserCurrency: string | undefined
   hasAmountWithPositiveReceive: boolean
   totalReceiveAmountCryptoPrecision: string
   quoteDifferenceDecimalPercentage: number | undefined
-  networkFeeUserCurrencyPrecision: string | undefined
+  networkFeeFiatUserCurrency: string | undefined
   totalEstimatedExecutionTimeMs: number | undefined
   slippage: JSX.Element | undefined
   tradeQuote: TradeQuote | undefined
@@ -32,11 +32,11 @@ export const TradeQuoteContent = ({
   buyAsset,
   isBest,
   numHops,
-  totalReceiveAmountFiatPrecision,
+  totalReceiveAmountFiatUserCurrency,
   hasAmountWithPositiveReceive,
   totalReceiveAmountCryptoPrecision,
   quoteDifferenceDecimalPercentage: maybeQuoteDifferenceDecimalPercentage,
-  networkFeeUserCurrencyPrecision,
+  networkFeeFiatUserCurrency,
   totalEstimatedExecutionTimeMs,
   slippage,
   tradeQuote,
@@ -128,10 +128,10 @@ export const TradeQuoteContent = ({
             )}
           </Flex>
           <Skeleton isLoaded={!isLoading}>
-            {totalReceiveAmountFiatPrecision ? (
+            {totalReceiveAmountFiatUserCurrency ? (
               <Amount.Fiat
                 color='text.subtle'
-                value={totalReceiveAmountFiatPrecision}
+                value={totalReceiveAmountFiatUserCurrency}
                 prefix='≈'
                 lineHeight={1}
               />
@@ -147,13 +147,14 @@ export const TradeQuoteContent = ({
               <RawText color='text.subtle'>
                 <FaGasPump />
               </RawText>
-
               {
                 // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-                !networkFeeUserCurrencyPrecision ? (
-                  translate('trade.unknownGas')
+                !networkFeeFiatUserCurrency ? (
+                  <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                    <Text translation={'trade.unknownGas'} fontSize='sm' />
+                  </Tooltip>
                 ) : (
-                  <Amount.Fiat value={networkFeeUserCurrencyPrecision} />
+                  <Amount.Fiat value={networkFeeFiatUserCurrency} />
                 )
               }
             </Flex>

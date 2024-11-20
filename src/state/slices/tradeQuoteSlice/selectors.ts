@@ -58,10 +58,8 @@ import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
-const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
-)
+export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
+  createSelector(selectTradeQuoteSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
@@ -197,7 +195,9 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 )
 
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
+    return tradeQuoteState.confirmedQuote
+  })
 
 export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
@@ -455,14 +455,21 @@ export const selectHopNetworkFeeUserCurrencyPrecision = createDeepEqualOutputSel
   },
 )
 
-export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string> =
+export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectFirstHopNetworkFeeUserCurrencyPrecision,
     selectSecondHopNetworkFeeUserCurrencyPrecision,
-    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) =>
-      bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
+    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) => {
+      if (
+        firstHopNetworkFeeUserCurrencyPrecision === undefined &&
+        secondHopNetworkFeeUserCurrencyPrecision === undefined
+      )
+        return
+
+      return bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
         .plus(secondHopNetworkFeeUserCurrencyPrecision ?? 0)
-        .toString(),
+        .toString()
+    },
   )
 
 export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
@@ -568,6 +575,15 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
   },
 )
 
+export const selectConfirmedTradeExecution = createSelector(
+  selectTradeQuoteSlice,
+  selectConfirmedQuoteTradeId,
+  (swappers, confirmedTradeId) => {
+    if (!confirmedTradeId) return
+    return swappers.tradeExecution[confirmedTradeId]
+  },
+)
+
 export const selectConfirmedTradeExecutionState = createSelector(
   selectTradeQuoteSlice,
   selectConfirmedQuoteTradeId,
@@ -593,8 +609,8 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
     return hopIndex === 0
-      ? swappers.tradeExecution[tradeId].firstHop
-      : swappers.tradeExecution[tradeId].secondHop
+      ? swappers.tradeExecution[tradeId]?.firstHop
+      : swappers.tradeExecution[tradeId]?.secondHop
   },
 )
 

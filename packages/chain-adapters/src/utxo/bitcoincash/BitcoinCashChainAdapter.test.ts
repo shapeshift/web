@@ -466,7 +466,7 @@ describe('BitcoinCashChainAdapter', () => {
     it('should throw for undefined accountType', () => {
       expect(() => {
         adapter.getBIP44Params({ accountNumber: 0, accountType: undefined })
-      }).toThrow('not a supported accountType undefined')
+      }).toThrow('unsupported account type: undefined')
     })
     it('should always be coinType 3', () => {
       for (const accountType of adapter.getSupportedAccountTypes()) {

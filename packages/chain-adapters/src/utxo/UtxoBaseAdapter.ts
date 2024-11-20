@@ -179,7 +179,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         case UtxoAccountType.P2pkh:
           return 44
         default:
-          throw new Error(`Unsupported account type: ${accountType}`)
+          throw new Error(`unsupported account type: ${accountType}`)
       }
     })()
 

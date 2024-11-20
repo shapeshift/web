@@ -16,7 +16,10 @@ import type {
   UtxoFeeData,
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
-import { CHAINFLIP_BAAS_COMMISSION } from './constants'
+import {
+  CHAINFLIP_BAAS_COMMISSION,
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+} from './constants'
 import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
 import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
 import type { ChainFlipStatus } from './types'
@@ -81,6 +84,7 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: from,
       commissionBps: serviceCommission,
+      boostFee: 0
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -204,6 +208,7 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: sendAddress,
       commissionBps: serviceCommission,
+      boostFee: step.source == CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -276,6 +281,7 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: from,
       commissionBps: serviceCommission,
+      boostFee: 0
     })
 
     if (maybeSwapResponse.isErr()) {

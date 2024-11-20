@@ -347,7 +347,7 @@ export const LimitOrderInput = ({
         shouldDisablePreviewButton={isRecipientAddressEntryActive}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
-        totalNetworkFeeFiatPrecision='0' // CoW protocol always zero network fee
+        networkFeeFiatUserCurrency='0' // CoW protocol is always zero network fee
         sellAsset={sellAsset}
       >
         {renderedRecipientAddress}

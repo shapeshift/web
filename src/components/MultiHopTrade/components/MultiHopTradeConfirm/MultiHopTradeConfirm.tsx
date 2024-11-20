@@ -47,9 +47,11 @@ export const MultiHopTradeConfirm = memo(() => {
 
   useEffect(() => {
     if (isLoading || !activeQuote) return
+    // Only set the trade to initialized if it was actually initializing previously. Now that we shove quotes in at confirm time, we can't rely on this effect only running once.
+    if (confirmedTradeExecutionState !== TradeExecutionState.Initializing) return
 
     dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
-  }, [dispatch, isLoading, activeQuote])
+  }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
 
   const isTradeComplete = useMemo(
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
@@ -73,7 +75,7 @@ export const MultiHopTradeConfirm = memo(() => {
       previousTradeExecutionState !== confirmedTradeExecutionState &&
       previousTradeExecutionState === TradeExecutionState.FirstHop
     ) {
-      if (isFirstHopOpen) onToggleFirstHop()
+      if (!isFirstHopOpen) onToggleFirstHop()
       if (!isSecondHopOpen) onToggleSecondHop()
     }
   }, [

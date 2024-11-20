@@ -167,6 +167,18 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
       accountNumber: 0,
+      cowswapQuoteResponse: {
+        id: 123,
+        quote: {
+          ...expectedApiInputWethToFox,
+          sellAmountBeforeFee: undefined,
+          sellAmount: '985442057341242012',
+          buyAmount: '14707533959600717283163',
+          feeAmount: '14557942658757988',
+          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+        },
+      } as unknown as CowSwapQuoteResponse,
     },
   ],
 }
@@ -200,6 +212,18 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
       buyAsset: ETH,
       sellAsset: FOX_MAINNET,
       accountNumber: 0,
+      cowswapQuoteResponse: {
+        id: 123,
+        quote: {
+          ...expectedApiInputFoxToEth,
+          sellAmountBeforeFee: undefined,
+          sellAmount: '938195228120306016256',
+          buyAmount: '46868859830863283',
+          feeAmount: '61804771879693983744',
+          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+        },
+      } as unknown as CowSwapQuoteResponse,
     },
   ],
 }
@@ -233,6 +257,18 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
       buyAsset: XDAI,
       sellAsset: USDC_GNOSIS,
       accountNumber: 0,
+      cowswapQuoteResponse: {
+        id: 123,
+        quote: {
+          ...expectedApiInputUsdcGnosisToXdai,
+          sellAmountBeforeFee: undefined,
+          sellAmount: '20998812',
+          buyAmount: '21005367357465608755',
+          feeAmount: '1188',
+          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+        },
+      } as unknown as CowSwapQuoteResponse,
     },
   ],
 }
@@ -266,6 +302,18 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
       buyAsset: ETH_ARBITRUM,
       sellAsset: USDC_ARBITRUM,
       accountNumber: 0,
+      cowswapQuoteResponse: {
+        id: 123,
+        quote: {
+          ...expectedApiInputUsdcToEthArbitrum,
+          sellAmountBeforeFee: undefined,
+          sellAmount: '492056',
+          buyAmount: '141649103137616',
+          feeAmount: '7944',
+          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+        },
+      } as unknown as CowSwapQuoteResponse,
     },
   ],
 }
@@ -299,6 +347,18 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
       buyAsset: FOX_MAINNET,
       sellAsset: WETH,
       accountNumber: 0,
+      cowswapQuoteResponse: {
+        id: 123,
+        quote: {
+          ...expectedApiInputSmallAmountWethToFox,
+          sellAmountBeforeFee: undefined,
+          sellAmount: '9854420573412420',
+          buyAmount: '145018118182475950905',
+          feeAmount: '1455794265875791',
+          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
+          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+        },
+      } as unknown as CowSwapQuoteResponse,
     },
   ],
 }

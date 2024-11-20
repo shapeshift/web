@@ -380,7 +380,7 @@ export const ConfirmSummary = ({
       shouldDisablePreviewButton={shouldDisablePreviewButton}
       swapperName={activeSwapperName}
       swapSource={tradeQuoteStep?.source}
-      totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
+      networkFeeFiatUserCurrency={totalNetworkFeeFiatPrecision}
     >
       <>
         {nativeAssetBridgeWarning ? (

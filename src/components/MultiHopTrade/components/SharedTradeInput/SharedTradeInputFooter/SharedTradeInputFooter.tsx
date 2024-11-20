@@ -30,7 +30,7 @@ type SharedTradeInputFooterProps = {
   shouldDisablePreviewButton: boolean | undefined
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
-  totalNetworkFeeFiatPrecision: string | undefined
+  networkFeeFiatUserCurrency: string | undefined
   onGasRateRowClick?: () => void
 }
 
@@ -52,7 +52,7 @@ export const SharedTradeInputFooter = ({
   shouldDisablePreviewButton: parentShouldDisablePreviewButton,
   swapperName,
   swapSource,
-  totalNetworkFeeFiatPrecision,
+  networkFeeFiatUserCurrency,
   onGasRateRowClick,
 }: SharedTradeInputFooterProps) => {
   const buyAssetFeeAsset = useAppSelector(state =>
@@ -103,7 +103,7 @@ export const SharedTradeInputFooter = ({
             isDisabled={shouldDisableGasRateRowClick}
             rate={rate}
             isLoading={isLoading}
-            totalNetworkFeeFiatPrecision={totalNetworkFeeFiatPrecision}
+            networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
             swapperName={swapperName}
             swapSource={swapSource}
             onClick={onGasRateRowClick}

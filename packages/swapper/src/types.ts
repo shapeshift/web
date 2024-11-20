@@ -23,9 +23,9 @@ import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { TransactionRequest } from 'viem'
+import type { Address } from 'viem'
 
-import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper/types'
 import type { QuoteResponse } from './swappers/JupiterSwapper/models/QuoteResponse'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -255,7 +255,21 @@ export type TradeQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   permit2Eip712?: TypedData
-  transactionMetadata?: Pick<TransactionRequest, 'to' | 'data' | 'gas' | 'gasPrice' | 'value'>
+  zrxTransactionMetadata?: {
+    to: Address
+    data: Address
+    gasPrice: string | undefined
+    gas: string | undefined
+    value: string
+  }
+  portalsTransactionMetadata?: {
+    to: Address
+    from: Address
+    data: string
+    value: string
+    gasLimit: string
+  }
+  cowswapQuoteResponse?: CowSwapQuoteResponse
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

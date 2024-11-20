@@ -5,7 +5,7 @@ import {
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
 import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
@@ -17,6 +17,7 @@ import {
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectWalletConnectedChainIds,
+  selectWalletId,
 } from 'state/slices/common-selectors'
 import {
   selectAssets,
@@ -115,6 +116,9 @@ export const validateTradeQuote = (
 
   // This should really never happen in case the wallet *is* connected but in case it does:
   if (quoteOrRate === 'quote' && !sendAddress) throw new Error('sendAddress is required')
+
+  // If we have a walletId at the time we hit this, we have a wallet. Else, none is connected, meaning we shouldn't surface balance errors
+  const walletId = selectWalletId(state)
 
   // A quote always consists of at least one hop
   const firstHop = getHopByIndex(quote, 0)!
@@ -258,7 +262,8 @@ export const validateTradeQuote = (
           ).getDisplayName(),
         },
       },
-      !walletSupportsIntermediaryAssetChain &&
+      walletId &&
+        !walletSupportsIntermediaryAssetChain &&
         secondHop && {
           error: TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet,
           meta: {
@@ -266,24 +271,26 @@ export const validateTradeQuote = (
             chainSymbol: getChainShortName(secondHop.sellAsset.chainId as KnownChainIds),
           },
         },
-      !firstHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
-        meta: {
-          assetSymbol: firstHopSellFeeAsset?.symbol,
-          chainSymbol: firstHopSellFeeAsset
-            ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      walletId &&
+        !firstHopHasSufficientBalanceForGas && {
+          error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
+          meta: {
+            assetSymbol: firstHopSellFeeAsset?.symbol,
+            chainSymbol: firstHopSellFeeAsset
+              ? getChainShortName(firstHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
-      !secondHopHasSufficientBalanceForGas && {
-        error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
-        meta: {
-          assetSymbol: secondHopSellFeeAsset?.symbol,
-          chainSymbol: secondHopSellFeeAsset
-            ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
-            : '',
+      walletId &&
+        !secondHopHasSufficientBalanceForGas && {
+          error: TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
+          meta: {
+            assetSymbol: secondHopSellFeeAsset?.symbol,
+            chainSymbol: secondHopSellFeeAsset
+              ? getChainShortName(secondHopSellFeeAsset.chainId as KnownChainIds)
+              : '',
+          },
         },
-      },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
       invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
 

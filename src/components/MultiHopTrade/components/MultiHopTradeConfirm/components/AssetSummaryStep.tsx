@@ -1,9 +1,11 @@
+import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from 'hooks/useModal/useModal'
 import { bn } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import {
@@ -27,6 +29,7 @@ export const AssetSummaryStep = ({
   isLastStep,
   button,
 }: AssetSummaryStepProps) => {
+  const rateChanged = useModal('rateChanged')
   const translate = useTranslate()
   const {
     number: { toCrypto, toFiat },
@@ -56,6 +59,24 @@ export const AssetSummaryStep = ({
     const chainName = chainAdapterManager.get(asset.chainId)?.getDisplayName()
     return chainName
   }, [asset.chainId])
+
+  const prevAmountCryptoBaseUnit = usePrevious(amountCryptoBaseUnit)
+
+  useEffect(() => {
+    if (!isLastStep) return
+    if (
+      !(
+        amountCryptoBaseUnit &&
+        prevAmountCryptoBaseUnit &&
+        amountCryptoBaseUnit !== '0' &&
+        prevAmountCryptoBaseUnit !== '0'
+      )
+    )
+      return
+    if (amountCryptoBaseUnit === prevAmountCryptoBaseUnit) return
+
+    rateChanged.open({})
+  }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])
 
   const assetIcon = useMemo(() => {
     return <AssetIcon assetId={asset.assetId} boxSize='32px' />

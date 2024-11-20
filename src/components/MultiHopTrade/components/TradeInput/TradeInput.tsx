@@ -1,7 +1,6 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
@@ -28,7 +27,8 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
-import { selectIsAnyAccountMetadataLoadedForChainId } from 'state/slices/selectors'
+import type { ApiQuote } from 'state/apis/swapper/types'
+import { selectIsAnyAccountMetadataLoadedForChainId, selectWalletId } from 'state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -40,15 +40,17 @@ import {
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
+  selectActiveQuoteMeta,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
   selectShouldShowTradeQuoteOrAwaitInput,
+  selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -97,6 +99,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -117,6 +120,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
+  const walletId = useAppSelector(selectWalletId)
 
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
@@ -134,7 +138,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
+      Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -143,6 +147,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       isVotingPowerLoading ||
       isWalletReceiveAddressLoading,
     [
+      walletId,
       isAnyAccountMetadataLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
@@ -230,9 +235,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
 
-      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Unable to execute trade')
+      const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
+
+      // Set the best quote as activeQuoteMeta, unless user has already a custom quote selected, in which case don't override it
+      if (!activeQuoteMeta && bestQuote?.quote !== undefined && !bestQuote.errors.length) {
+        dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+      }
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
+      dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
@@ -248,6 +259,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     setIsConfirmationLoading(false)
   }, [
     activeQuote,
+    activeQuoteMeta,
     dispatch,
     handleConnect,
     history,

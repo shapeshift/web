@@ -26,6 +26,7 @@ import {
 } from './migrations'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
+import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
@@ -50,6 +51,7 @@ export const slices = {
   opportunities,
   nft,
   tradeInput,
+  limitOrderInput,
   tradeQuoteSlice,
   snapshot,
   localWalletSlice,
@@ -124,6 +126,7 @@ export const sliceReducers = {
   portfolio: persistReducer<Portfolio>(portfolioPersistConfig, portfolio.reducer),
   preferences: persistReducer<Preferences>(preferencesPersistConfig, preferences.reducer),
   tradeInput: tradeInput.reducer,
+  limitOrderInput: limitOrderInput.reducer,
   opportunities: persistReducer<OpportunitiesState>(
     opportunitiesPersistConfig,
     opportunities.reducer,

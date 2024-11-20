@@ -434,7 +434,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       chainSpecific.addressLookupTableAccounts ?? [],
     )
 
-    if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
     if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
     const value = Number(input.value)

@@ -37,7 +37,7 @@ type SharedTradeInputBodyProps = {
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
   sellAccountId: AccountId | undefined
-  handleSwitchAssets: () => void
+  onSwitchAssets: () => void
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   setSellAsset: (asset: Asset) => void
@@ -53,7 +53,7 @@ export const SharedTradeInputBody = ({
   sellAmountUserCurrency,
   sellAsset,
   sellAccountId,
-  handleSwitchAssets,
+  onSwitchAssets,
   onChangeIsInputtingFiatSellAmount,
   onChangeSellAmountCryptoPrecision,
   setSellAsset,
@@ -163,7 +163,7 @@ export const SharedTradeInputBody = ({
             justifyContent='center'
           >
             <IconButton
-              onClick={handleSwitchAssets}
+              onClick={onSwitchAssets}
               isRound
               size='sm'
               position='relative'

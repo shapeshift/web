@@ -147,8 +147,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (!prevWalletId) return
     if (walletId === prevWalletId) return
 
-    dispatch(tradeInput.actions.setSellAssetAccountId(undefined))
-    dispatch(tradeInput.actions.setBuyAssetAccountId(undefined))
+    dispatch(tradeInput.actions.setSellAccountId(undefined))
+    dispatch(tradeInput.actions.setBuyAccountId(undefined))
   }, [dispatch, prevWalletId, walletId])
 
   const marketDataPollingInterval = 60 * 15 * 1000 // refetch data every 15 minutes

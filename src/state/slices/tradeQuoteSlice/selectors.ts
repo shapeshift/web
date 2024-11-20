@@ -608,7 +608,6 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectTradeIdParamFromRequiredFilter,
   selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
-    console.log({ tradeExecution: swappers.tradeExecution })
     return hopIndex === 0
       ? swappers.tradeExecution[tradeId]?.firstHop
       : swappers.tradeExecution[tradeId]?.secondHop

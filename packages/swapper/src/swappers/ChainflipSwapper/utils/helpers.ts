@@ -29,7 +29,9 @@ type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
   minimumPrice: string
   refundAddress: string
   retryDurationInBlocks?: number
-  commissionBps: number
+  commissionBps: number,
+  numberOfChunks?: number,
+  chunkIntervalBlocks?: number,
 }
 
 type ChainflipAsset = {
@@ -97,22 +99,30 @@ export const getChainFlipSwap = ({
   refundAddress,
   retryDurationInBlocks = 10,
   commissionBps,
+  numberOfChunks = undefined, 
+  chunkIntervalBlocks = 2                
 }: GetChainFlipSwapArgs): Promise<
   Result<AxiosResponse<ChainflipBaasSwapDepositAddress, any>, SwapErrorRight>
-> =>
-  // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-  chainflipService.get<ChainflipBaasSwapDepositAddress>(
-    `${brokerUrl}/swap` +
-      `?apiKey=${apiKey}` +
-      `&sourceAsset=${sourceAsset}` +
-      `&destinationAsset=${destinationAsset}` +
-      `&destinationAddress=${destinationAddress}` +
-      `&boostFee=${boostFee}` +
-      `&minimumPrice=${minimumPrice}` +
-      `&refundAddress=${refundAddress}` +
-      `&retryDurationInBlocks=${retryDurationInBlocks}` +
-      `&commissionBps=${commissionBps}`,
-  )
+> => {
+  let swapUrl = `${brokerUrl}/swap` +
+    `?apiKey=${apiKey}` +
+    `&sourceAsset=${sourceAsset}` +
+    `&destinationAsset=${destinationAsset}` +
+    `&destinationAddress=${destinationAddress}` +
+    `&boostFee=${boostFee}` +
+    `&minimumPrice=${minimumPrice}` +
+    `&refundAddress=${refundAddress}` +
+    `&retryDurationInBlocks=${retryDurationInBlocks}` +
+    `&commissionBps=${commissionBps}`
+
+  if (numberOfChunks) {
+    swapUrl += 
+      `&numberOfChunks=${numberOfChunks}` +
+      `&chunkIntervalBlocks=${chunkIntervalBlocks}`
+  }
+
+  return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl)
+}
 
 const fetchChainFlipAssets = async ({
   brokerUrl,

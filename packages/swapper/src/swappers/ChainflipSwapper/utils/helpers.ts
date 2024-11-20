@@ -29,9 +29,9 @@ type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
   minimumPrice: string
   refundAddress: string
   retryDurationInBlocks?: number
-  commissionBps: number,
-  numberOfChunks?: number,
-  chunkIntervalBlocks?: number,
+  commissionBps: number
+  numberOfChunks?: number
+  chunkIntervalBlocks?: number
 }
 
 type ChainflipAsset = {

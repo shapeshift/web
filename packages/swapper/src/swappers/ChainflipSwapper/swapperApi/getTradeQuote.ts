@@ -287,6 +287,12 @@ export const _getTradeQuote = async (
             allowanceContract: '0x0', // Chainflip does not use contracts
             estimatedExecutionTimeMs:
               singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000,
+            chainflipNumberOfChunks: isStreaming 
+              ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined 
+              : undefined,
+            chainflipChunkIntervalBlocks: isStreaming
+              ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
+              : undefined
           },
         ],
       }
@@ -325,6 +331,12 @@ export const _getTradeQuote = async (
           accountNumber,
           allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
           estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000,
+          chainflipNumberOfChunks: isStreaming 
+            ? singleQuoteResponse.numberOfChunks ?? undefined 
+            : undefined,
+          chainflipChunkIntervalBlocks: isStreaming
+            ? singleQuoteResponse.chunkIntervalBlocks ?? undefined
+            : undefined
         },
       ],
     }

@@ -25,7 +25,7 @@ import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
-import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper/types'
+import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -265,7 +265,10 @@ export type TradeQuoteStep = {
     value: string
     gasLimit: string
   }
-  cowswapQuoteResponse?: CowSwapQuoteResponse
+  cowswapQuoteResponse?: CowSwapQuoteResponse,
+  chainflipSwapId?: number | undefined,
+  chainflipNumberOfChunks?: number | undefined,
+  chainflipChunkIntervalBlocks?: number | undefined
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

@@ -17,7 +17,7 @@ import type {
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
 import { CHAINFLIP_BAAS_COMMISSION } from './constants'
-import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
+import type { ChainflipBaasSwapDepositAddress } from './models'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
@@ -82,6 +82,8 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: from,
       commissionBps: serviceCommission,
+      numberOfChunks: step.chainflipNumberOfChunks,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -97,6 +99,8 @@ export const chainflipApi: SwapperApi = {
     tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
 
     const depositAddress = swapResponse.address!
+    step.chainflipSwapId = swapResponse.id!
+    
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
 
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
@@ -205,6 +209,8 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: sendAddress,
       commissionBps: serviceCommission,
+      numberOfChunks: step.chainflipNumberOfChunks,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -218,6 +224,7 @@ export const chainflipApi: SwapperApi = {
     tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
 
     const depositAddress = swapResponse.address!
+    step.chainflipSwapId = swapResponse.id!
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -277,6 +284,8 @@ export const chainflipApi: SwapperApi = {
       minimumPrice,
       refundAddress: from,
       commissionBps: serviceCommission,
+      numberOfChunks: step.chainflipNumberOfChunks,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -297,6 +306,7 @@ export const chainflipApi: SwapperApi = {
         : fromAssetId(step.sellAsset.assetId).assetReference
 
     const depositAddress = swapResponse.address!
+    step.chainflipSwapId = swapResponse.id!
 
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
       to: depositAddress,

@@ -37,8 +37,8 @@ type SharedTradeInputBodyProps = {
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
   sellAccountId: AccountId | undefined
-  assetFilterPredicate: (asset: Asset) => boolean
-  chainIdFilterPredicate: (chainId: ChainId) => boolean
+  assetFilterPredicate?: (asset: Asset) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
   onSwitchAssets: () => void
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void

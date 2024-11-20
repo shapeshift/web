@@ -4,20 +4,28 @@ import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
-
-import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
+import type { StreamingSwapFailedSwap } from 'state/slices/tradeQuoteSlice/types'
 
 export type StreamingSwapProps = {
   hopIndex: number
-  activeTradeId: TradeQuote['id']
+  activeTradeId: TradeQuote['id'],
+  streamingProgress: (
+    hopIndex: number,
+    confirmedTradeId: TradeQuote['id'],
+  ) => {
+    isComplete: boolean
+    attemptedSwapCount: number
+    totalSwapCount: number
+    failedSwaps: StreamingSwapFailedSwap[]
+  }
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {
-  const { hopIndex, activeTradeId } = props
+  const { hopIndex, activeTradeId, streamingProgress } = props
 
   const translate = useTranslate()
 
-  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = useThorStreamingProgress(
+  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = streamingProgress(
     hopIndex,
     activeTradeId,
   )

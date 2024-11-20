@@ -13,7 +13,6 @@ export * from './portfolioSlice/selectors'
 export * from './preferencesSlice/selectors'
 export * from './txHistorySlice/selectors'
 export * from './opportunitiesSlice/selectors'
-export * from './tradeInputSlice/selectors'
 
 /**
  * some selectors span multiple business logic domains, e.g. portfolio and opportunities

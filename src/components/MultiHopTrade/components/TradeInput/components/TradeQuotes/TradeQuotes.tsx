@@ -21,7 +21,7 @@ import { Text } from 'components/Text'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
-import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/selectors'
+import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
   selectBuyAmountAfterFeesCryptoPrecision,

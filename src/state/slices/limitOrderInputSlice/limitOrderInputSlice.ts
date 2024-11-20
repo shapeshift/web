@@ -1,15 +1,16 @@
-import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { TradeInputBaseState } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 
-type TradeInputState = TradeInputBaseState
+export type LimitOrderInputState = { limitPriceBuyAsset: string } & TradeInputBaseState
 
-const initialState: TradeInputState = {
+const initialState: LimitOrderInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
-  sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
+  sellAsset: localAssetData[usdcAssetId] ?? defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
@@ -19,12 +20,15 @@ const initialState: TradeInputState = {
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
+  limitPriceBuyAsset: '0',
 }
 
-export const tradeInput = createTradeInputBaseSlice({
-  name: 'tradeInput',
+export const limitOrderInput = createTradeInputBaseSlice({
+  name: 'limitOrderInput',
   initialState,
   extraReducers: {
-    // Add any reducers specific to tradeInput slice here that aren't shared with other slices
+    setLimitPriceBuyAsset: (state: LimitOrderInputState, action: PayloadAction<string>) => {
+      state.limitPriceBuyAsset = action.payload
+    },
   },
 })

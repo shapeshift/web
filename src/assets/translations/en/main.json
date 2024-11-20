@@ -2736,8 +2736,18 @@
       "getAddress": "Failed to get address from wallet.",
       "getAccount": "Failed to get account for: %{pubkey}.",
       "switchChainUnsupported": "Wallet does not support switching chains.",
-      "switchChainFailed": "Failed to switch wallet to chain %{chain}.",
-      "buildTransaction": "Failed to build transaction."
+      "switchChainFailed": "Failed to switch wallet chain to %{chain}.",
+      "buildTransaction": "Failed to build transaction.",
+      "signTransaction": "Failed to sign transaction.",
+      "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
+      "signMessage": "Failed to sign message.",
+      "broadcastTransaction": "Failed to broadcast transaction.",
+      "broadcastTransactionWithMessage": "Failed to broadcast transaction (%{message}).",
+      "getGasFeeData": "Failed to get network fees.",
+      "getFeeData": "Failed to estimate network fees.",
+      "getPublicKey": "Failed to get public key from wallet.",
+      "getUtxos": "Failed to get utxos.",
+      "getValidator": "Failed to get validator."
     }
   }
 }

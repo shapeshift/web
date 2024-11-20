@@ -26,7 +26,7 @@ import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler, handleError } from '../error/ErrorHandler'
+import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -164,13 +164,14 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
-    if (accountNumber < 0) {
-      throw new Error('accountNumber must be >= 0')
-    }
+    if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
-  assertSupportsChain(wallet: HDWallet, chainReference?: number): asserts wallet is ETHWallet {
+  protected assertSupportsChain(
+    wallet: HDWallet,
+    chainReference?: number,
+  ): asserts wallet is ETHWallet {
     const support = (() => {
       switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
         case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
@@ -204,7 +205,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  async assertSwitchChain(wallet: ETHWallet) {
+  protected async assertSwitchChain(wallet: ETHWallet) {
     if (!wallet.ethGetChainId) return
 
     const walletChainReference = await wallet.ethGetChainId()
@@ -284,7 +285,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       })
     } catch (err) {
       throw new ChainAdapterError(err, {
-        translation: 'switchChainFailed',
+        translation: 'chainAdapters.errors.switchChainFailed',
         options: { chain: this.getDisplayName() },
       })
     }
@@ -296,9 +297,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       const { data, contractAddress, gasPrice, gasLimit, maxFeePerGas, maxPriorityFeePerGas } =
         chainSpecific
 
-      if (!to) throw new Error(`${this.getName()}ChainAdapter: to is required`)
-      if (!value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
-      if (!gasLimit) throw new Error(`${this.getName()}ChainAdapter: gasLimit is required`)
+      if (!to) throw new Error('to is required')
+      if (!value) throw new Error('value is required')
+      if (!gasLimit) throw new Error('gasLimit is required')
 
       const account = await this.getAccount(from)
 
@@ -333,7 +334,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return txToSign
     } catch (err) {
-      throw new ChainAdapterError(handleError(err), {
+      return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',
       })
     }
@@ -350,7 +351,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return { txToSign }
     } catch (err) {
-      throw new ChainAdapterError(handleError(err), {
+      return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',
       })
     }
@@ -399,7 +400,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         pubkey,
       } as Account<T>
     } catch (err) {
-      throw new ChainAdapterError(handleError(err), {
+      return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
         options: { pubkey },
       })
@@ -437,11 +438,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const signedTx = await wallet.ethSignTx(txToSign)
 
-      if (!signedTx?.serialized) throw new Error('Error signing tx')
+      if (!signedTx?.serialized) throw new Error('error signing tx')
 
       return signedTx.serialized
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signTransaction',
+      })
     }
   }
 
@@ -450,24 +453,26 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<T>): Promise<string> {
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-
     try {
       const { txToSign, wallet } = signTxInput
+
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
 
       this.assertSupportsChain(wallet, txToSign.chainId)
       await this.assertSwitchChain(wallet)
 
       const txHash = await wallet.ethSendTx?.(txToSign)
 
-      if (!txHash) throw new Error('Error signing & broadcasting tx')
+      if (!txHash) throw new Error('error signing & broadcasting tx')
 
       return txHash.hash
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
     }
   }
 
@@ -476,11 +481,30 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     receiverAddress,
     hex,
   }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-    return this.providers.http.sendTx({ sendTxBody: { hex } })
+    try {
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
+
+      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+
+      return txHash
+    } catch (err) {
+      if ((err as Error).name === 'ResponseError') {
+        const response = await ((err as any).response as Response).json()
+        const error = JSON.parse(response.message)
+
+        return ErrorHandler(JSON.stringify(response), {
+          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
+          options: { message: error.message },
+        })
+      }
+
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.broadcastTransaction',
+      })
+    }
   }
 
   async signMessage(signMessageInput: SignMessageInput<ETHSignMessage>): Promise<string> {
@@ -493,11 +517,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const signedMessage = await wallet.ethSignMessage(messageToSign)
 
-      if (!signedMessage) throw new Error('EvmBaseAdapter: error signing message')
+      if (!signedMessage) throw new Error('error signing message')
 
       return signedMessage.signature
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signMessage',
+      })
     }
   }
 
@@ -507,52 +533,46 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       this.assertSupportsChain(wallet)
 
-      if (!wallet.ethSignTypedData) {
-        throw new Error('wallet does not support signing typed data')
-      }
+      if (!wallet.ethSignTypedData) throw new Error('wallet does not support signing typed data')
 
       await this.assertSwitchChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const result = await wallet.ethSignTypedData(typedDataToSign)
 
-      if (!result) throw new Error('EvmBaseAdapter: error signing typed data')
+      if (!result) throw new Error('error signing typed data')
 
       return result.signature
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signMessage',
+      })
     }
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { accountNumber, wallet, showOnDevice = false } = input
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    try {
+      const { accountNumber, wallet, showOnDevice = false } = input
 
-    if (input.pubKey) {
-      return input.pubKey
-    }
+      if (input.pubKey) return input.pubKey
 
-    this.assertSupportsChain(wallet)
-    await verifyLedgerAppOpen(this.chainId, wallet)
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
-    const address = await (async () => {
-      try {
-        return await wallet.ethGetAddress({
-          addressNList: toAddressNList(bip44Params),
-          showDisplay: showOnDevice,
-        })
-      } catch (err) {
-        throw new ChainAdapterError(err, { translation: 'chainAdapters.errors.getAddress' })
-      }
-    })()
+      const bip44Params = this.getBIP44Params({ accountNumber })
+      const address = await wallet.ethGetAddress({
+        addressNList: toAddressNList(bip44Params),
+        showDisplay: showOnDevice,
+      })
 
-    if (!address) {
-      throw new ChainAdapterError('EvmBaseAdapter: no address available from wallet', {
+      if (!address) throw new Error('error getting address from wallet')
+
+      return address
+    } catch (err) {
+      return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAddress',
       })
     }
-
-    return address
   }
 
   // eslint-disable-next-line require-await
@@ -624,7 +644,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return txToSign
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -639,40 +661,55 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return { txToSign }
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
+
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    const { fast, average, slow } = await this.providers.http.getGasFees()
-    return { fast, average, slow }
+    try {
+      const { fast, average, slow } = await this.providers.http.getGasFees()
+      return { fast, average, slow }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getGasFeeData',
+      })
+    }
   }
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
-    const req = await this.buildEstimateGasRequest(input)
+    try {
+      const req = await this.buildEstimateGasRequest(input)
 
-    const { gasLimit } = await this.providers.http.estimateGas(req)
-    const { fast, average, slow } = await this.getGasFeeData()
+      const { gasLimit } = await this.providers.http.estimateGas(req)
+      const { fast, average, slow } = await this.getGasFeeData()
 
-    return {
-      fast: {
-        txFee: bnOrZero(
-          BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0).times(gasLimit),
-        ).toFixed(0),
-        chainSpecific: { gasLimit, ...fast },
-      },
-      average: {
-        txFee: bnOrZero(
-          BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0).times(gasLimit),
-        ).toFixed(0),
-        chainSpecific: { gasLimit, ...average },
-      },
-      slow: {
-        txFee: bnOrZero(
-          BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0).times(gasLimit),
-        ).toFixed(0),
-        chainSpecific: { gasLimit, ...slow },
-      },
-    } as FeeDataEstimate<T>
+      return {
+        fast: {
+          txFee: bnOrZero(
+            BigNumber.max(fast.gasPrice, fast.maxFeePerGas ?? 0).times(gasLimit),
+          ).toFixed(0),
+          chainSpecific: { gasLimit, ...fast },
+        },
+        average: {
+          txFee: bnOrZero(
+            BigNumber.max(average.gasPrice, average.maxFeePerGas ?? 0).times(gasLimit),
+          ).toFixed(0),
+          chainSpecific: { gasLimit, ...average },
+        },
+        slow: {
+          txFee: bnOrZero(
+            BigNumber.max(slow.gasPrice, slow.maxFeePerGas ?? 0).times(gasLimit),
+          ).toFixed(0),
+          chainSpecific: { gasLimit, ...slow },
+        },
+      } as FeeDataEstimate<T>
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
+    }
   }
 
   private async parseTx(tx: unchained.evm.types.Tx, pubkey: string): Promise<Transaction> {

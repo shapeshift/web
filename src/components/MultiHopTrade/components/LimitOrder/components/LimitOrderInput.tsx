@@ -182,8 +182,12 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
-  const assetFilterPredicate = useCallback((asset: Asset) => {
+  const sellAssetFilterPredicate = useCallback((asset: Asset) => {
     return isEvmChainId(asset.chainId) && !isNativeEvmAsset(asset.assetId)
+  }, [])
+
+  const buyAssetFilterPredicate = useCallback((asset: Asset) => {
+    return isEvmChainId(asset.chainId)
   }, [])
 
   const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
@@ -302,7 +306,7 @@ export const LimitOrderInput = ({
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}
         setSellAccountId={setSellAccountId}
-        assetFilterPredicate={assetFilterPredicate}
+        assetFilterPredicate={sellAssetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
       >
         <Stack>
@@ -312,7 +316,7 @@ export const LimitOrderInput = ({
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
-            assetFilterPredicate={assetFilterPredicate}
+            assetFilterPredicate={buyAssetFilterPredicate}
             chainIdFilterPredicate={chainIdFilterPredicate}
           />
           <Divider />
@@ -338,8 +342,9 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAmountCryptoPrecision,
     sellAsset,
-    assetFilterPredicate,
+    buyAssetFilterPredicate,
     chainIdFilterPredicate,
+    sellAssetFilterPredicate,
     setBuyAccountId,
     setBuyAsset,
     setIsInputtingFiatSellAmount,

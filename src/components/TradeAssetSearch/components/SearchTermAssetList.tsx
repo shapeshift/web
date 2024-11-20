@@ -57,8 +57,8 @@ export const SearchTermAssetList = ({
   })
 
   const assetsForChain = useMemo(() => {
+    const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
     if (activeChainId === 'All') {
-      const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
       if (allowWalletUnsupportedAssets) return _assets
       return _assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
     }
@@ -66,7 +66,7 @@ export const SearchTermAssetList = ({
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return assets.filter(asset => asset.chainId === activeChainId)
+    return _assets.filter(asset => asset.chainId === activeChainId)
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,

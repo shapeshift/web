@@ -20,9 +20,15 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectIsSnapshotApiQueriesPending,
+  selectIsSnapshotApiQueriesRejected,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
+import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -30,10 +36,8 @@ import {
   selectInputSellAmountUsd,
   selectInputSellAsset,
   selectLastHopBuyAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-  selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteMetaOrDefault,
   selectIsAnyTradeQuoteLoading,
@@ -171,6 +175,7 @@ export const useGetTradeRates = () => {
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
+  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
@@ -201,6 +206,7 @@ export const useGetTradeRates = () => {
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
         feeModel: 'SWAPPER',
+        isSnapshotApiQueriesRejected,
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
@@ -244,6 +250,7 @@ export const useGetTradeRates = () => {
     isVotingPowerLoading,
     isBuyAssetChainSupported,
     receiveAddress,
+    isSnapshotApiQueriesRejected,
   ])
 
   const getTradeQuoteArgs = useCallback(

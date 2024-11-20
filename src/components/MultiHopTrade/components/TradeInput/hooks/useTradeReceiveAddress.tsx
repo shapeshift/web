@@ -4,7 +4,7 @@ import {
   selectInputBuyAsset,
   selectLastHopBuyAccountId,
   selectManualReceiveAddress,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export const useTradeReceiveAddress = () => {

@@ -1,8 +1,7 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { foxAssetId, fromAccountId, usdcAssetId } from '@shapeshiftoss/caip'
-import { SwapperName } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
 import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -12,24 +11,31 @@ import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
+import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { localAssetData } from 'lib/asset-service'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
-import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
+import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
-  selectFirstAccountIdByChainId,
+  selectBuyAccountId,
+  selectHasUserEnteredAmount,
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAmountUsd,
+  selectInputSellAmountUserCurrency,
+  selectInputSellAsset,
+  selectIsInputtingFiatSellAmount,
+  selectLimitPriceBuyAsset,
+  selectSellAccountId,
+  selectUserSlippagePercentage,
+  selectUserSlippagePercentageDecimal,
+} from 'state/slices/limitOrderInputSlice/selectors'
+import {
   selectIsAnyAccountMetadataLoadedForChainId,
-  selectMarketDataByAssetIdUserCurrency,
-  selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import {
-  selectCalculatedFees,
-  selectDefaultSlippagePercentage,
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -44,9 +50,6 @@ import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
 import { LimitOrderConfig } from './LimitOrderConfig'
-
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
-const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
 type LimitOrderInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
@@ -68,20 +71,48 @@ export const LimitOrderInput = ({
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorHandler()
 
-  const [userSlippagePercentage, setUserSlippagePercentage] = useState<string | undefined>()
-  const [sellAsset, setSellAsset] = useState(localAssetData[usdcAssetId] ?? defaultAsset)
-  const [buyAsset, setBuyAsset] = useState(localAssetData[foxAssetId] ?? defaultAsset)
-  const [limitPriceBuyAsset, setLimitPriceBuyAsset] = useState('0')
+  const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
+  const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
+  const sellAsset = useAppSelector(selectInputSellAsset)
+  const buyAsset = useAppSelector(selectInputBuyAsset)
+  const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
+  const sellAccountId = useAppSelector(selectSellAccountId)
+  const buyAccountId = useAppSelector(selectBuyAccountId)
+  const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
+  const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
+  const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
+  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
+  const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
 
-  const defaultAccountId = useAppSelector(state =>
-    selectFirstAccountIdByChainId(state, sellAsset.chainId),
-  )
-  const defaultSlippagePercentage = useAppSelector(state =>
-    selectDefaultSlippagePercentage(state, SwapperName.CowSwap),
+  const {
+    switchAssets,
+    setSellAsset,
+    setBuyAsset,
+    setSellAccountId,
+    setBuyAccountId,
+    setLimitPriceBuyAsset,
+    setSlippagePreferencePercentage,
+    setIsInputtingFiatSellAmount,
+    setSellAmountCryptoPrecision,
+  } = useActions(limitOrderInput.actions)
+
+  const feeParams = useMemo(
+    () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
+    [inputSellAmountUsd],
   )
 
-  const [buyAccountId, setBuyAccountId] = useState(defaultAccountId)
-  const [sellAccountId, setSellAccountId] = useState(defaultAccountId)
+  const { feeUsd, feeBps } = useAppSelector(state => selectCalculatedFees(state, feeParams))
+
+  const defaultSlippagePercentageDecimal = useMemo(() => {
+    return getDefaultSlippageDecimalPercentageForSwapper(SwapperName.CowSwap)
+  }, [])
+  const defaultSlippagePercentage = useMemo(() => {
+    return bn(defaultSlippagePercentageDecimal).times(100).toString()
+  }, [defaultSlippagePercentageDecimal])
 
   const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
     useLimitOrderRecipientAddress({
@@ -90,18 +121,9 @@ export const LimitOrderInput = ({
       sellAccountId,
     })
 
-  const [isInputtingFiatSellAmount, setIsInputtingFiatSellAmount] = useState(false)
   const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
-  const [sellAmountCryptoPrecision, setSellAmountCryptoPrecision] = useState('0')
-  const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
-  const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
-  const hasUserEnteredAmount = true
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
-  const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
-  const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
+
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
     [sellAsset.chainId],
@@ -110,59 +132,10 @@ export const LimitOrderInput = ({
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
 
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
-
-  const sellAssetMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, sellAsset.assetId),
-  )
-
-  const sellAmountUserCurrency = useMemo(() => {
-    return bnOrZero(sellAmountCryptoPrecision)
-      .times(sellAssetMarketDataUserCurrency.price)
-      .toFixed()
-  }, [sellAssetMarketDataUserCurrency.price, sellAmountCryptoPrecision])
-
-  const sellAmountUsd = useMemo(() => {
-    return bnOrZero(sellAmountCryptoPrecision)
-      .times(sellAssetUsdRate ?? '0')
-      .toFixed()
-  }, [sellAmountCryptoPrecision, sellAssetUsdRate])
-
   const warningAcknowledgementMessage = useMemo(() => {
     // TODO: Implement me
     return ''
   }, [])
-
-  const handleSwitchAssets = useCallback(() => {
-    setSellAsset(buyAsset)
-    setBuyAsset(sellAsset)
-    setSellAmountCryptoPrecision('0')
-  }, [buyAsset, sellAsset])
-
-  const handleSetSellAsset = useCallback(
-    (newSellAsset: Asset) => {
-      if (newSellAsset === sellAsset) {
-        handleSwitchAssets()
-        return
-      }
-      setSellAsset(newSellAsset)
-    },
-    [handleSwitchAssets, sellAsset],
-  )
-
-  const handleSetBuyAsset = useCallback(
-    (newBuyAsset: Asset) => {
-      if (newBuyAsset === buyAsset) {
-        handleSwitchAssets()
-        return
-      }
-      setBuyAsset(newBuyAsset)
-    },
-    [buyAsset, handleSwitchAssets],
-  )
 
   const handleConnect = useCallback(() => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
@@ -209,19 +182,6 @@ export const LimitOrderInput = ({
     return fromAccountId(sellAccountId).account as Address
   }, [sellAccountId])
 
-  const affiliateBps = useMemo(() => {
-    const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
-
-    const { feeBps } = calculateFees({
-      tradeAmountUsd,
-      foxHeld: bnOrZero(votingPower),
-      thorHeld: bnOrZero(thorVotingPower),
-      feeModel: 'SWAPPER',
-    })
-
-    return feeBps.toFixed(0)
-  }, [sellAmountCryptoPrecision, sellAssetUsdRate, thorVotingPower, votingPower])
-
   const limitOrderQuoteParams = useMemo(() => {
     // Return skipToken if any required params are missing
     if (bnOrZero(sellAmountCryptoBaseUnit).isZero()) {
@@ -232,10 +192,9 @@ export const LimitOrderInput = ({
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
       chainId: sellAsset.chainId,
-      slippageTolerancePercentageDecimal: bn(userSlippagePercentage ?? defaultSlippagePercentage)
-        .div(100)
-        .toString(),
-      affiliateBps,
+      slippageTolerancePercentageDecimal:
+        userSlippagePercentageDecimal ?? defaultSlippagePercentageDecimal,
+      affiliateBps: feeBps.toFixed(0),
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
       recipientAddress,
@@ -245,9 +204,9 @@ export const LimitOrderInput = ({
     sellAsset.assetId,
     sellAsset.chainId,
     buyAsset.assetId,
-    userSlippagePercentage,
-    defaultSlippagePercentage,
-    affiliateBps,
+    userSlippagePercentageDecimal,
+    defaultSlippagePercentageDecimal,
+    feeBps,
     sellAccountAddress,
     recipientAddress,
   ])
@@ -263,18 +222,20 @@ export const LimitOrderInput = ({
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
-    if (!data) return '0'
+    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
+    if (!data || limitOrderQuoteParams === skipToken) return '0'
+
     return bnOrZero(fromBaseUnit(data.quote.buyAmount, buyAsset.precision))
       .div(fromBaseUnit(data.quote.sellAmount, sellAsset.precision))
       .toFixed()
-  }, [buyAsset.precision, data, sellAsset.precision])
+  }, [buyAsset.precision, data, sellAsset.precision, limitOrderQuoteParams])
 
   // Reset the limit price when the market price changes.
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
     setLimitPriceBuyAsset(marketPriceBuyAsset)
-  }, [marketPriceBuyAsset])
+  }, [setLimitPriceBuyAsset, marketPriceBuyAsset])
 
   const isLoading = useMemo(() => {
     return (
@@ -303,10 +264,10 @@ export const LimitOrderInput = ({
         defaultSlippagePercentage={defaultSlippagePercentage}
         quoteSlippagePercentage={undefined} // No slippage returned by CoW
         userSlippagePercentage={userSlippagePercentage}
-        setUserSlippagePercentage={setUserSlippagePercentage}
+        setUserSlippagePercentage={setSlippagePreferencePercentage}
       />
     )
-  }, [defaultSlippagePercentage, userSlippagePercentage])
+  }, [defaultSlippagePercentage, setSlippagePreferencePercentage, userSlippagePercentage])
 
   const bodyContent = useMemo(() => {
     return (
@@ -315,13 +276,13 @@ export const LimitOrderInput = ({
         isInputtingFiatSellAmount={isInputtingFiatSellAmount}
         isLoading={isLoading}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={sellAmountUserCurrency}
+        sellAmountUserCurrency={inputSellAmountUserCurrency}
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
-        handleSwitchAssets={handleSwitchAssets}
+        onSwitchAssets={switchAssets}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
-        setSellAsset={handleSetSellAsset}
+        setSellAsset={setSellAsset}
         setSellAccountId={setSellAccountId}
       >
         <Stack>
@@ -330,7 +291,7 @@ export const LimitOrderInput = ({
             accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
-            onSetBuyAsset={handleSetBuyAsset}
+            onSetBuyAsset={setBuyAsset}
           />
           <Divider />
           <LimitOrderConfig
@@ -347,22 +308,23 @@ export const LimitOrderInput = ({
   }, [
     buyAccountId,
     buyAsset,
+    inputSellAmountUserCurrency,
     isInputtingFiatSellAmount,
     isLoading,
     limitPriceBuyAsset,
     marketPriceBuyAsset,
     sellAccountId,
     sellAmountCryptoPrecision,
-    sellAmountUserCurrency,
     sellAsset,
-    handleSetBuyAsset,
-    handleSetSellAsset,
-    handleSwitchAssets,
+    setBuyAccountId,
+    setBuyAsset,
+    setIsInputtingFiatSellAmount,
+    setLimitPriceBuyAsset,
+    setSellAccountId,
+    setSellAmountCryptoPrecision,
+    setSellAsset,
+    switchAssets,
   ])
-
-  const { feeUsd } = useAppSelector(state =>
-    selectCalculatedFees(state, { feeModel: 'SWAPPER', inputAmountUsd: sellAmountUsd }),
-  )
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {
     return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)
@@ -371,11 +333,11 @@ export const LimitOrderInput = ({
   const footerContent = useMemo(() => {
     return (
       <SharedTradeInputFooter
-        affiliateBps={affiliateBps}
+        affiliateBps={feeBps.toFixed(0)}
         affiliateFeeAfterDiscountUserCurrency={affiliateFeeAfterDiscountUserCurrency}
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
-        inputAmountUsd={sellAmountUsd}
+        inputAmountUsd={inputSellAmountUsd}
         isError={Boolean(error)}
         isLoading={isLoading}
         quoteStatusTranslation={'limitOrder.previewOrder'}
@@ -392,11 +354,11 @@ export const LimitOrderInput = ({
       </SharedTradeInputFooter>
     )
   }, [
-    affiliateBps,
+    feeBps,
     affiliateFeeAfterDiscountUserCurrency,
     buyAsset,
     hasUserEnteredAmount,
-    sellAmountUsd,
+    inputSellAmountUsd,
     error,
     isLoading,
     limitPriceBuyAsset,

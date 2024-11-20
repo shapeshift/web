@@ -22,9 +22,16 @@ import type { ParameterModel } from 'lib/fees/parameters/types'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
-import { selectVotingPower } from 'state/apis/snapshot/selectors'
+import {
+  selectIsSnapshotApiQueriesRejected,
+  selectVotingPower,
+} from 'state/apis/snapshot/selectors'
 import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
+import {
+  selectPortfolioAccountMetadataByAccountId,
+  selectUsdRateByAssetId,
+} from 'state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -32,10 +39,8 @@ import {
   selectInputSellAmountUsd,
   selectInputSellAsset,
   selectLastHopBuyAccountId,
-  selectPortfolioAccountMetadataByAccountId,
-  selectUsdRateByAssetId,
   selectUserSlippagePercentageDecimal,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteMetaOrDefault,
@@ -163,6 +168,7 @@ export const useGetTradeQuotes = () => {
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+  const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -253,6 +259,7 @@ export const useGetTradeQuotes = () => {
         foxHeld: bnOrZero(votingPower),
         thorHeld: bnOrZero(thorVotingPower),
         feeModel: 'SWAPPER',
+        isSnapshotApiQueriesRejected,
       })
 
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
@@ -288,6 +295,7 @@ export const useGetTradeQuotes = () => {
     buyAsset,
     dispatch,
     isFetchStep,
+    isSnapshotApiQueriesRejected,
     receiveAddress,
     sellAccountId,
     sellAccountMetadata?.accountType,

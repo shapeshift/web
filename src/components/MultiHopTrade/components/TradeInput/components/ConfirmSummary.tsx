@@ -20,16 +20,16 @@ import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIs
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isToken } from 'lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import {
-  selectFeeAssetById,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectManualReceiveAddressIsEditing,
-  selectManualReceiveAddressIsValid,
-  selectManualReceiveAddressIsValidating,
-} from 'state/slices/selectors'
+  selectIsManualReceiveAddressEditing,
+  selectIsManualReceiveAddressValid,
+  selectIsManualReceiveAddressValidating,
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,
@@ -83,9 +83,9 @@ export const ConfirmSummary = ({
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
-  const isManualReceiveAddressValidating = useAppSelector(selectManualReceiveAddressIsValidating)
-  const isManualReceiveAddressEditing = useAppSelector(selectManualReceiveAddressIsEditing)
-  const isManualReceiveAddressValid = useAppSelector(selectManualReceiveAddressIsValid)
+  const isManualReceiveAddressValidating = useAppSelector(selectIsManualReceiveAddressValidating)
+  const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
+  const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)

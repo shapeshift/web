@@ -19,14 +19,16 @@ import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper/typ
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,
-  selectInputBuyAsset,
-  selectInputSellAmountCryptoPrecision,
-  selectInputSellAsset,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-  selectUserSlippagePercentageDecimal,
 } from 'state/slices/selectors'
+import {
+  selectInputBuyAsset,
+  selectInputSellAmountCryptoPrecision,
+  selectInputSellAsset,
+  selectUserSlippagePercentageDecimal,
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   getBuyAmountAfterFeesCryptoPrecision,
   getTotalNetworkFeeUserCurrencyPrecision,

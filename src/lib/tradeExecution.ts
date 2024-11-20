@@ -24,7 +24,7 @@ import { getConfig } from 'config'
 import EventEmitter from 'events'
 import { fetchIsSmartContractAddressQuery } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from 'lib/poll/poll'
-import { selectFirstHopSellAccountId } from 'state/slices/selectors'
+import { selectFirstHopSellAccountId } from 'state/slices/tradeInputSlice/selectors'
 import { store } from 'state/store'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'

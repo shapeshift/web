@@ -22,11 +22,13 @@ import {
 import {
   selectAssets,
   selectFeeAssetById,
+  selectPortfolioAccountIdByNumberByChainId,
+} from 'state/slices/selectors'
+import {
   selectFirstHopSellAccountId,
   selectInputSellAmountCryptoPrecision,
-  selectPortfolioAccountIdByNumberByChainId,
   selectSecondHopSellAccountId,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
 
 import type { ErrorWithMeta } from '../types'

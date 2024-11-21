@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import { ChainAdapterError } from '../error/ErrorHandler'
+
 const ADDRESS_VALIDATION_URL = 'https://api.proxy.shapeshift.com/api/v1/validate'
 
 export const assertAddressNotSanctioned = async (address: string): Promise<void> => {
@@ -14,5 +16,9 @@ export const assertAddressNotSanctioned = async (address: string): Promise<void>
     }
   })()
 
-  if (!valid) throw Error(`Address ${address} not supported`)
+  if (!valid)
+    throw new ChainAdapterError(`Address ${address} not supported`, {
+      translation: 'chainAdapters.errors.unsupportedAddress',
+      options: { address },
+    })
 }

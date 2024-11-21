@@ -40,6 +40,7 @@
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientAllowance": "Insufficient Allowance",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
@@ -1046,6 +1047,12 @@
       "sevenDays": "7 days",
       "twentyEightDays": "28 days",
       "custom": "Custom"
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Native sell asset not supported",
+      "insufficientValidTo": "Order expiry too soon",
+      "excessiveValidTo": "Order expiry too far into the future",
+      "insufficientLiquidity": "Insufficient liquidity"
     }
   },
   "modals": {

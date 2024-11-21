@@ -7,7 +7,7 @@ import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
 import { LimitOrderInput } from './components/LimitOrderInput'
 import { PlaceLimitOrder } from './components/PlaceLimitOrder'
-import { LimitOrderList } from './LimitOrderList'
+import { LimitOrderList } from './components/LimitOrderList'
 import { LimitOrderRoutePaths } from './types'
 
 const LimitOrderRouteEntries = [

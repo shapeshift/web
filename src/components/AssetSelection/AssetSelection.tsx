@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { ButtonProps, FlexProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
 import { Text } from 'components/Text'
@@ -17,6 +17,7 @@ type TradeAssetSelectBaseProps = {
   isLoading?: boolean
   buttonProps?: ButtonProps
   onlyConnectedChains: boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 } & FlexProps
 
 type TradeAssetSelectReadonlyProps = {
@@ -43,6 +44,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     isLoading,
     onlyConnectedChains,
     buttonProps,
+    chainIdFilterPredicate,
     flexProps,
   } = useMemo(() => {
     const {
@@ -54,6 +56,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       isLoading,
       onlyConnectedChains,
       buttonProps,
+      chainIdFilterPredicate,
       ...flexProps
     } = props
     return {
@@ -65,6 +68,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       isLoading,
       onlyConnectedChains,
       buttonProps,
+      chainIdFilterPredicate,
       flexProps,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,6 +108,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         buttonProps={buttonProps}
         rightIcon={rightIcon}
         onlyConnectedChains={onlyConnectedChains}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     </Flex>
   )

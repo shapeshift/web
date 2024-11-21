@@ -145,7 +145,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
       isVotingPowerLoading ||
-      isWalletReceiveAddressLoading,
+      Boolean(walletId && isWalletReceiveAddressLoading),
     [
       walletId,
       isAnyAccountMetadataLoadedForChainId,

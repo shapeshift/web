@@ -139,8 +139,10 @@ export async function getPortalsTradeRate(
           rate,
           buyAsset,
           sellAsset,
+          // Those are the exact same which is expected for rate endpoint, since we're unable to get protocol fees with the estimate endpoint
+          // We want to use the lower number (amount after slippage), not to lie to users WRT amounts they're getting
           buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
-          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.context.outputAmount,
+          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {

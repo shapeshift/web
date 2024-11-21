@@ -221,9 +221,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
         setDustAmountCryptoBaseUnit(
-          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-            asset.precision,
-          ),
+          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), feeAsset.precision)).toFixed(),
         )
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
@@ -241,6 +239,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     asset,
     dustAmountCryptoBaseUnit,
+    feeAsset,
     opportunity?.apy,
     opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,

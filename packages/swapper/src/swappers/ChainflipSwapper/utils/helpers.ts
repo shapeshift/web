@@ -25,7 +25,7 @@ type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
   sourceAsset: string
   destinationAsset: string
   destinationAddress: string
-  boostFee?: number
+  maxBoostFee?: number
   minimumPrice: string
   refundAddress: string
   retryDurationInBlocks?: number
@@ -94,7 +94,7 @@ export const getChainFlipSwap = ({
   sourceAsset,
   destinationAsset,
   destinationAddress,
-  boostFee = 0,
+  maxBoostFee = 0,
   minimumPrice,
   refundAddress,
   retryDurationInBlocks = 10,
@@ -110,7 +110,7 @@ export const getChainFlipSwap = ({
     `&sourceAsset=${sourceAsset}` +
     `&destinationAsset=${destinationAsset}` +
     `&destinationAddress=${destinationAddress}` +
-    `&boostFee=${boostFee}` +
+    `&boostFee=${maxBoostFee}` +
     `&minimumPrice=${minimumPrice}` +
     `&refundAddress=${refundAddress}` +
     `&retryDurationInBlocks=${retryDurationInBlocks}` +

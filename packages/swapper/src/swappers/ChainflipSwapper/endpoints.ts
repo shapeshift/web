@@ -83,8 +83,8 @@ export const chainflipApi: SwapperApi = {
       refundAddress: from,
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
-      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
-      boostFee: 0,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
+      maxBoostFee: 0,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -211,8 +211,8 @@ export const chainflipApi: SwapperApi = {
       refundAddress: sendAddress,
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
-      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
-      boostFee: step.source === CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
+      maxBoostFee: step.source === CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -287,8 +287,8 @@ export const chainflipApi: SwapperApi = {
       refundAddress: from,
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
-      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
-      boostFee: 0,
+      chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
+      maxBoostFee: 0,
     })
 
     if (maybeSwapResponse.isErr()) {

@@ -92,7 +92,7 @@ export const getChainFlipSwap = ({
   sourceAsset,
   destinationAsset,
   destinationAddress,
-  boostFee = 10,
+  boostFee = 0,
   minimumPrice,
   refundAddress,
   retryDurationInBlocks = 10,

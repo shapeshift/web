@@ -147,3 +147,4 @@ export function ChainflipBaasStatusEgressToJSON(value?: ChainflipBaasStatusEgres
         'failure': ChainflipBaasStatusFailureToJSON(value.failure),
     };
 }
+

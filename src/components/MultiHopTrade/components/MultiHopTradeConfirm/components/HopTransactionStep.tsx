@@ -6,13 +6,13 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import {
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+} from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
+import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/constants'
-import {
-  CHAINFLIP_DCA_SWAP_SOURCE,
-  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
-} from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/constants'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -32,14 +32,13 @@ import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { useChainflipStreamingProgress } from '../hooks/useChainflipStreamingProgress'
+import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
 import { useTradeExecution } from '../hooks/useTradeExecution'
 import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
 import { StepperStep } from './StepperStep'
 import { StreamingSwap } from './StreamingSwap'
-
-import { useThorStreamingProgress } from '../hooks/useThorStreamingProgress'
-import { useChainflipStreamingProgress } from '../hooks/useChainflipStreamingProgress'
 
 export type HopTransactionStepProps = {
   swapperName: SwapperName
@@ -186,23 +185,24 @@ export const HopTransactionStep = ({
       THORCHAIN_STREAM_SWAP_SOURCE,
       THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
       CHAINFLIP_DCA_SWAP_SOURCE,
-      CHAINFLIP_DCA_BOOST_SWAP_SOURCE
+      CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
     ].includes(tradeQuoteStep.source)
 
     if (sellTxHash !== undefined && isStreamingSwap) {
-      const isThor = tradeQuoteStep.source == THORCHAIN_STREAM_SWAP_SOURCE || tradeQuoteStep.source == THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
-      const streamingProgress = isThor
-        ? useThorStreamingProgress
-        : useChainflipStreamingProgress
-        
+      const isThor =
+        tradeQuoteStep.source === THORCHAIN_STREAM_SWAP_SOURCE ||
+        tradeQuoteStep.source === THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
+      const streamingProgress = isThor ? useThorStreamingProgress : useChainflipStreamingProgress
+
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap 
-              tradeQuoteStep={tradeQuoteStep} 
-              hopIndex={hopIndex} 
-              activeTradeId={activeTradeId} 
-              streamingProgress={streamingProgress} />
+            <StreamingSwap
+              tradeQuoteStep={tradeQuoteStep}
+              hopIndex={hopIndex}
+              activeTradeId={activeTradeId}
+              streamingProgress={streamingProgress}
+            />
           </CardBody>
         </Card>
       )
@@ -210,12 +210,12 @@ export const HopTransactionStep = ({
   }, [
     isActive,
     swapTxState,
-    tradeQuoteStep.source,
     sellTxHash,
     handleSignTx,
     isFetching,
     tradeQuoteQueryData,
     translate,
+    tradeQuoteStep,
     hopIndex,
     activeTradeId,
   ])

@@ -19,6 +19,6 @@ export type ThornodeStreamingSwapResponse =
   | ThornodeStreamingSwapResponseError
 
 export type ChainflipStreamingSwapResponseSuccess = {
-  executedChunks: number,
+  executedChunks: number
   remainingChunks: number
 }

@@ -265,9 +265,9 @@ export type TradeQuoteStep = {
     value: string
     gasLimit: string
   }
-  cowswapQuoteResponse?: CowSwapQuoteResponse,
-  chainflipSwapId?: number | undefined,
-  chainflipNumberOfChunks?: number | undefined,
+  cowswapQuoteResponse?: CowSwapQuoteResponse
+  chainflipSwapId?: number | undefined
+  chainflipNumberOfChunks?: number | undefined
   chainflipChunkIntervalBlocks?: number | undefined
 }
 

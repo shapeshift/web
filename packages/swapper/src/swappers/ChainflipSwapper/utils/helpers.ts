@@ -99,12 +99,12 @@ export const getChainFlipSwap = ({
   refundAddress,
   retryDurationInBlocks = 10,
   commissionBps,
-  numberOfChunks = undefined, 
-  chunkIntervalBlocks = 2                
+  numberOfChunks = undefined,
+  chunkIntervalBlocks = 2,
 }: GetChainFlipSwapArgs): Promise<
   Result<AxiosResponse<ChainflipBaasSwapDepositAddress, any>, SwapErrorRight>
 > => {
-  let swapUrl = 
+  let swapUrl =
     `${brokerUrl}/swap` +
     `?apiKey=${apiKey}` +
     `&sourceAsset=${sourceAsset}` +
@@ -117,9 +117,8 @@ export const getChainFlipSwap = ({
     `&commissionBps=${commissionBps}`
 
   if (numberOfChunks) {
-    swapUrl += 
-      `&numberOfChunks=${numberOfChunks}` +
-      `&chunkIntervalBlocks=${chunkIntervalBlocks}`
+    swapUrl += `&numberOfChunks=${numberOfChunks}`
+    swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
   }
 
   return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl)

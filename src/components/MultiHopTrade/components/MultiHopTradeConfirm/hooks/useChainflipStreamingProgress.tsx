@@ -1,7 +1,6 @@
-import type {
-  TradeQuote, 
-  TradeQuoteStep
-} from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
+// TODO: Is this import allowed?
+import type { ChainFlipStatus } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo } from 'react'
@@ -14,12 +13,7 @@ import type {
 } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
-import {
-  ChainflipStreamingSwapResponseSuccess
-} from './types'
-
-// TODO: Is this import allowed?
-import type { ChainFlipStatus } from "@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/types";
+import type { ChainflipStreamingSwapResponseSuccess } from './types'
 
 const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
 
@@ -32,21 +26,22 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 const getChainflipStreamingSwap = async (
   swapId: number | undefined,
 ): Promise<ChainflipStreamingSwapResponseSuccess | undefined> => {
-  console.log('getChainflipStreamingSwap.swapId', swapId);
-  
-  if (!swapId) return;
-  
+  console.log('getChainflipStreamingSwap.swapId', swapId)
+
+  if (!swapId) return
+
   const config = getConfig()
   const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
   const { data: statusResponse } = await axios.get<ChainFlipStatus>(
-    `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`)
-  
+    `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
+  )
+
   console.log('getChainflipStreamingSwap.statusResponse', statusResponse)
 
   if (!statusResponse) return
-  
+
   // TODO: Check for real errors
   if ('error' in statusResponse) {
     console.error('failed to fetch streaming swap data', statusResponse.error)
@@ -54,12 +49,12 @@ const getChainflipStreamingSwap = async (
   }
 
   const dcaStatus = statusResponse.status?.swap?.dca
-  
-  if (!dcaStatus) return;
-  
+
+  if (!dcaStatus) return
+
   return {
     executedChunks: dcaStatus!.executedChunks!,
-    remainingChunks: dcaStatus!.remainingChunks!
+    remainingChunks: dcaStatus!.remainingChunks!,
   }
 }
 
@@ -70,7 +65,7 @@ const getStreamingSwapMetadata = (
   const failedSwaps: StreamingSwapFailedSwap[] = []
 
   return {
-    totalSwapCount: (data.executedChunks + data.remainingChunks) ?? 0,
+    totalSwapCount: data.executedChunks + data.remainingChunks ?? 0,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
   }
@@ -94,17 +89,17 @@ export const useChainflipStreamingProgress = (
       hopIndex,
     }
   }, [confirmedTradeId, hopIndex])
-  
+
   const {
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
-  const bla = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter));
-  console.log('useChainflipStreamingProgress.useAppSelector', bla);
-  
+  const bla = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
+  console.log('useChainflipStreamingProgress.useAppSelector', bla)
+
   const swapId = tradeQuoteStep.chainflipSwapId
-  console.log('useChainflipStreamingProgress.chainflipSwapId', swapId);
-  
+  console.log('useChainflipStreamingProgress.chainflipSwapId', swapId)
+
   useEffect(() => {
     // don't start polling until we have a tx
     if (!sellTxHash) return
@@ -136,8 +131,8 @@ export const useChainflipStreamingProgress = (
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId])
-  
+  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId, swapId])
+
   const result = useMemo(() => {
     const numSuccessfulSwaps =
       (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)

@@ -101,7 +101,7 @@ export const chainflipApi: SwapperApi = {
 
     const depositAddress = swapResponse.address!
     step.chainflipSwapId = swapResponse.id!
-    
+
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
 
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)

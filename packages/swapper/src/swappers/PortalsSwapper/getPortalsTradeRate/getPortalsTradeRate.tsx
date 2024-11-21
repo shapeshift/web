@@ -121,6 +121,15 @@ export async function getPortalsTradeRate(
 
     const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
+    const slippageTolerancePercentageDecimal = quoteEstimateResponse.context
+      .slippageTolerancePercentage
+      ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
+      : undefined
+
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
+      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .toFixed(0)
+
     const tradeRate = {
       id: uuid(),
       accountNumber,
@@ -128,9 +137,7 @@ export async function getPortalsTradeRate(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: quoteEstimateResponse.context.slippageTolerancePercentage
-        ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
-        : undefined,
+      slippageTolerancePercentageDecimal,
       steps: [
         {
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
@@ -139,9 +146,11 @@ export async function getPortalsTradeRate(
           rate,
           buyAsset,
           sellAsset,
-          // Those are the exact same which is expected for rate endpoint, since we're unable to get protocol fees with the estimate endpoint
-          // We want to use the lower number (amount after slippage and various fees), not to lie to users WRT amounts they're getting
-          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
+          // Before slippage on the right vs. beforeFees is expected. Portals will yield different `outputAmount` (expected out) on estimate vs. quote and is an upstream bug, so we can't use that
+          // To circumvent that and not mislead users into very optimistic expected out in rate (not taking slippage into account) but pessimistic in rate in the end,
+          // we simply add the slippage back to the min out, which yields values very close to the actual quote amounts (with a small upside on the quote, so users actually get a better quote
+          // than what they've seen as a rate, which is much better than a *huge* downside on the quote)
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeSlippageCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,

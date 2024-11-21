@@ -424,12 +424,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [onNext])
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
-    // Token withdraws aren't dust sends, they're actual contract calls
-    // Hence, the balance required for them is denominated in the native fee asset
     if (isTokenWithdraw) {
       return fromBaseUnit(
         bnOrZero(feeAssetBalanceCryptoBaseUnit)
           .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
+          .minus(bnOrZero(dustAmountCryptoBaseUnit))
           .times(-1),
         feeAsset.precision,
       )
@@ -597,7 +596,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Box>
           </Row.Value>
         </Row>
-        {!isTokenWithdraw && !isRunePool && (
+        {!isRunePool && (
           <Row variant='gutter'>
             <Row.Label>
               <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
@@ -609,14 +608,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 <Skeleton isLoaded={!quoteLoading}>
                   <Amount.Fiat
                     fontWeight='bold'
-                    value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision))
-                      .times(marketData.price)
+                    value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision))
+                      .times(feeMarketData.price)
                       .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision)}
-                    symbol={asset.symbol}
+                    value={fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)}
+                    symbol={feeAsset.symbol}
                   />
                 </Skeleton>
               </Box>

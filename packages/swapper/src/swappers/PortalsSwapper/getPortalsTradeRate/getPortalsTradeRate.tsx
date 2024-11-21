@@ -146,7 +146,8 @@ export async function getPortalsTradeRate(
           rate,
           buyAsset,
           sellAsset,
-          // Before slippage on the right vs. beforeFees is expected. Portals will yield different `outputAmount` (expected out) on estimate vs. quote and is an upstream bug, so we can't use that
+          // Before slippage on the right vs. before fees on the left is not a mistake.
+          // Portals will yield different `outputAmount` (expected out) on estimate vs. quote and is an upstream bug, so we can't use that
           // To circumvent that and not mislead users into very optimistic expected out in rate (not taking slippage into account) but pessimistic in rate in the end,
           // we simply add the slippage back to the min out, which yields values very close to the actual quote amounts (with a small upside on the quote, so users actually get a better quote
           // than what they've seen as a rate, which is much better than a *huge* downside on the quote)

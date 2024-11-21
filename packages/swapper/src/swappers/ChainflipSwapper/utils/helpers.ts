@@ -104,7 +104,8 @@ export const getChainFlipSwap = ({
 }: GetChainFlipSwapArgs): Promise<
   Result<AxiosResponse<ChainflipBaasSwapDepositAddress, any>, SwapErrorRight>
 > => {
-  let swapUrl = `${brokerUrl}/swap` +
+  let swapUrl = 
+    `${brokerUrl}/swap` +
     `?apiKey=${apiKey}` +
     `&sourceAsset=${sourceAsset}` +
     `&destinationAsset=${destinationAsset}` +

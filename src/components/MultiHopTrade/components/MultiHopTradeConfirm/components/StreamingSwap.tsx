@@ -1,17 +1,22 @@
 import { WarningIcon } from '@chakra-ui/icons'
 import { Progress, Stack } from '@chakra-ui/react'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { 
+  TradeQuote,
+  TradeQuoteStep
+} from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Row } from 'components/Row/Row'
 import type { StreamingSwapFailedSwap } from 'state/slices/tradeQuoteSlice/types'
 
 export type StreamingSwapProps = {
+  tradeQuoteStep: TradeQuoteStep,
   hopIndex: number
   activeTradeId: TradeQuote['id'],
   streamingProgress: (
+    tradeQuoteStep: TradeQuoteStep,
     hopIndex: number,
-    confirmedTradeId: TradeQuote['id'],
+    confirmedTradeId: TradeQuote['id']
   ) => {
     isComplete: boolean
     attemptedSwapCount: number
@@ -21,13 +26,14 @@ export type StreamingSwapProps = {
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {
-  const { hopIndex, activeTradeId, streamingProgress } = props
+  const { tradeQuoteStep, hopIndex, activeTradeId, streamingProgress } = props
 
   const translate = useTranslate()
 
   const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = streamingProgress(
+    tradeQuoteStep,
     hopIndex,
-    activeTradeId,
+    activeTradeId
   )
 
   const isInitializing = useMemo(() => {

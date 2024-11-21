@@ -189,7 +189,7 @@ export const HopTransactionStep = ({
       CHAINFLIP_DCA_BOOST_SWAP_SOURCE
     ].includes(tradeQuoteStep.source)
 
-    if (sellTxHash !== undefined && isStreamingSwap) { // TODO: Not sure what sellTxHash is used for here, investigate
+    if (sellTxHash !== undefined && isStreamingSwap) {
       const isThor = tradeQuoteStep.source == THORCHAIN_STREAM_SWAP_SOURCE || tradeQuoteStep.source == THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE
       const streamingProgress = isThor
         ? useThorStreamingProgress
@@ -198,7 +198,11 @@ export const HopTransactionStep = ({
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
-            <StreamingSwap hopIndex={hopIndex} activeTradeId={activeTradeId} streamingProgress={streamingProgress} />
+            <StreamingSwap 
+              tradeQuoteStep={tradeQuoteStep} 
+              hopIndex={hopIndex} 
+              activeTradeId={activeTradeId} 
+              streamingProgress={streamingProgress} />
           </CardBody>
         </Card>
       )

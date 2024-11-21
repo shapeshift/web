@@ -1,4 +1,7 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type {
+  TradeQuote, 
+  TradeQuoteStep
+} from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo } from 'react'
@@ -27,15 +30,20 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 }
 
 const getChainflipStreamingSwap = async (
-  swapId: number,
+  swapId: number | undefined,
 ): Promise<ChainflipStreamingSwapResponseSuccess | undefined> => {
+  console.log('getChainflipStreamingSwap.swapId', swapId);
+  
+  if (!swapId) return;
+  
   const config = getConfig()
   const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
   const { data: statusResponse } = await axios.get<ChainFlipStatus>(
-    `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
-  )
+    `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`)
+  
+  console.log('getChainflipStreamingSwap.statusResponse', statusResponse)
 
   if (!statusResponse) return
   
@@ -62,13 +70,14 @@ const getStreamingSwapMetadata = (
   const failedSwaps: StreamingSwapFailedSwap[] = []
 
   return {
-    totalSwapCount: data.executedChunks + data.remainingChunks ?? 0,
+    totalSwapCount: (data.executedChunks + data.remainingChunks) ?? 0,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
   }
 }
 
 export const useChainflipStreamingProgress = (
+  tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   confirmedTradeId: TradeQuote['id'],
 ): {
@@ -91,12 +100,14 @@ export const useChainflipStreamingProgress = (
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const bla = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter));
-  console.log('useAppSelector', bla);
-  const swapId = 42 // TODO: Get the real id
+  console.log('useChainflipStreamingProgress.useAppSelector', bla);
+  
+  const swapId = tradeQuoteStep.chainflipSwapId
+  console.log('useChainflipStreamingProgress.chainflipSwapId', swapId);
   
   useEffect(() => {
     // don't start polling until we have a tx
-    // if (!sellTxHash) return
+    if (!sellTxHash) return
 
     poll({
       fn: async () => {

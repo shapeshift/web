@@ -26,7 +26,7 @@
   demonstrate new functionality is working.
   
 - For all presentational components we leverage the [Chakra UI](https://chakra-ui.com/) with a custom theme. All of your components should be composed of Chakra UI base components. 
-If a need arises were you need to build something completely custom. Please post in the `#product-public-chat` on [Discord](https://discord.gg/shapeshift).
+If a need arises where you need to build something completely custom. Please post in the `#product-public-chat` on [Discord](https://discord.gg/shapeshift).
 
 #### Getting Your PR Accepted
 

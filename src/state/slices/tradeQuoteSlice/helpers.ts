@@ -39,8 +39,11 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   quote: TradeQuote,
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
-): BigNumber =>
-  quote.steps.reduce((acc, step) => {
+): BigNumber | undefined => {
+  // network fee is unknown, which is different than it being akschual 0
+  if (quote.steps.every(step => !step.feeData.networkFeeCryptoBaseUnit)) return
+
+  return quote.steps.reduce((acc, step) => {
     const feeAsset = getFeeAsset(step.sellAsset.assetId)
     const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrencyPrecision(
       step.feeData.networkFeeCryptoBaseUnit,
@@ -49,6 +52,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
     )
     return acc.plus(networkFeeFiatPrecision ?? '0')
   }, bn(0))
+}
 
 export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],

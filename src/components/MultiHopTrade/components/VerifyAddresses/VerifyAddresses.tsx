@@ -30,11 +30,13 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { walletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import {
   selectAccountIdsByChainIdFilter,
+  selectPortfolioAccountMetadataByAccountId,
+} from 'state/slices/selectors'
+import {
   selectInputBuyAsset,
   selectInputSellAsset,
   selectManualReceiveAddress,
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { WithBackButton } from '../WithBackButton'

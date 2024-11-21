@@ -40,7 +40,7 @@ export type ZrxPriceResponse = {
 }
 
 export type ZrxQuoteResponse = ZrxPriceResponse & {
-  to: string
+  to: Address
   data: string
   value: string
 }

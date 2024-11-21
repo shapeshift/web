@@ -1,8 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { getConfig } from 'config'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { selectIsSnapshotApiQueriesRejected } from 'state/apis/snapshot/selectors'
-import { store } from 'state/store'
 
 import { FEE_CURVE_PARAMETERS } from './parameters'
 import type { ParameterModel } from './parameters/types'
@@ -15,6 +13,7 @@ type CalculateFeeBpsArgs = {
   foxHeld: BigNumber
   thorHeld?: BigNumber
   feeModel: ParameterModel
+  isSnapshotApiQueriesRejected: boolean
 }
 
 /**
@@ -39,7 +38,13 @@ export type CalculateFeeBpsReturn = {
 }
 type CalculateFeeBps = (args: CalculateFeeBpsArgs) => CalculateFeeBpsReturn
 
-export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeModel, thorHeld }) => {
+export const calculateFees: CalculateFeeBps = ({
+  tradeAmountUsd,
+  foxHeld,
+  feeModel,
+  thorHeld,
+  isSnapshotApiQueriesRejected,
+}) => {
   const {
     FEE_CURVE_NO_FEE_THRESHOLD_USD,
     FEE_CURVE_MAX_FEE_BPS,
@@ -64,7 +69,7 @@ export const calculateFees: CalculateFeeBps = ({ tradeAmountUsd, foxHeld, feeMod
     new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD
 
   // failure to fetch fox discount results in free trades.
-  const isFallbackFees = selectIsSnapshotApiQueriesRejected(store.getState())
+  const isFallbackFees = isSnapshotApiQueriesRejected
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {

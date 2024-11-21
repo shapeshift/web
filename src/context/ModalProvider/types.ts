@@ -35,6 +35,7 @@ export type Modals = {
   snaps: FC<SnapsModalProps>
   manageAccounts: FC
   ledgerOpenApp: FC<LedgerOpenAppModalProps>
+  rateChanged: FC
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

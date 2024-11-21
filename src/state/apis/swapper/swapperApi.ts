@@ -9,7 +9,7 @@ import {
   getTradeRates,
   SwapperName,
 } from '@shapeshiftoss/swapper'
-import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
+import type { ThorEvmTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import { TradeType } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/utils/longTailHelpers'
 import { getConfig } from 'config'
 import { reactQueries } from 'react-queries'
@@ -56,7 +56,9 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
-        const isCrossAccountTrade = sendAddress !== receiveAddress
+        const isCrossAccountTrade =
+          Boolean(sendAddress && receiveAddress) &&
+          sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
         const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
 
@@ -87,6 +89,9 @@ export const swapperApi = createApi({
             return getTradeRates(
               {
                 ...tradeQuoteInput,
+                // Receive address should always be undefined for trade *rates*, however, we *do* pass it to check for cross-account support
+                // so we have to ensure it is gone by the time we call getTradeRates
+                receiveAddress: undefined,
                 affiliateBps,
               } as GetTradeRateInput,
               swapperName,

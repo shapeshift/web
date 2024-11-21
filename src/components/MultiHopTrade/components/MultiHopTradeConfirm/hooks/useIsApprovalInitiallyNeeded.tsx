@@ -4,7 +4,10 @@ import { type TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
-import { selectFirstHopSellAccountId, selectSecondHopSellAccountId } from 'state/slices/selectors'
+import {
+  selectFirstHopSellAccountId,
+  selectSecondHopSellAccountId,
+} from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectFirstHop,

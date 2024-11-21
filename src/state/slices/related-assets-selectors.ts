@@ -29,10 +29,13 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
 
-    const relatedAssetIdsInclusive = [relatedAssetKey]
+    const relatedAssetIdsInclusiveWithDuplicates = [relatedAssetKey]
       .concat(relatedAssetIndex[relatedAssetKey] ?? [])
       // Filter out assetIds that are not in the assets store
       .filter(assetId => assets?.[assetId])
+
+    // `asset.assetId` may be the same as `relatedAssetKey`, so dedupe
+    const relatedAssetIdsInclusive = Array.from(new Set(relatedAssetIdsInclusiveWithDuplicates))
 
     if (!onlyConnectedChains) return relatedAssetIdsInclusive
 

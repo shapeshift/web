@@ -27,7 +27,7 @@ type FetchFromZrxInput<T extends 'rate' | 'quote'> = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string | undefined
+  sellAddress: string | undefined
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string
@@ -37,7 +37,7 @@ type FetchZrxQuoteInput = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string
+  sellAddress: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string
@@ -47,7 +47,7 @@ type FetchZrxPriceInput = {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string | undefined
+  sellAddress: string | undefined
   affiliateBps: string
   slippageTolerancePercentageDecimal: string
   zrxBaseUrl: string
@@ -58,7 +58,7 @@ const fetchFromZrx = async <T extends 'rate' | 'quote'>({
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  receiveAddress,
+  sellAddress,
   affiliateBps,
   slippageTolerancePercentageDecimal,
   zrxBaseUrl,
@@ -86,7 +86,7 @@ const fetchFromZrx = async <T extends 'rate' | 'quote'>({
       buyToken: assetIdToZrxToken(buyAsset.assetId),
       sellToken: assetIdToZrxToken(sellAsset.assetId),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      takerAddress: receiveAddress,
+      takerAddress: sellAddress,
       affiliateAddress: AFFILIATE_ADDRESS, // Used for 0x analytics
       // Always skip validation, so that we can get a quote even if no wallet is connected
       skipValidation: true,
@@ -125,7 +125,7 @@ const fetchFromZrxPermit2 = async <T extends 'rate' | 'quote'>({
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  receiveAddress,
+  sellAddress,
   affiliateBps,
   slippageTolerancePercentageDecimal,
   zrxBaseUrl,
@@ -153,7 +153,7 @@ const fetchFromZrxPermit2 = async <T extends 'rate' | 'quote'>({
       buyToken: assetIdToZrxToken(buyAsset.assetId),
       sellToken: assetIdToZrxToken(sellAsset.assetId),
       sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      taker: receiveAddress,
+      taker: sellAddress,
       swapFeeBps: parseInt(affiliateBps),
       swapFeeToken: assetIdToZrxToken(buyAsset.assetId), // must be set to the buy asset to simplify fee calcs
       slippageBps: convertDecimalPercentageToBasisPoints(

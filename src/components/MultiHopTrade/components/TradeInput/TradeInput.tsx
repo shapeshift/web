@@ -1,8 +1,7 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuoteOrRate/getTradeQuoteOrRate'
-import type { Asset } from '@shapeshiftoss/types'
+import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
+import { type Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -23,33 +22,35 @@ import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isKeplrHDWallet } from 'lib/utils'
-import { selectIsSnapshotApiQueriesPending, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import type { ApiQuote } from 'state/apis/swapper/types'
+import { selectIsAnyAccountMetadataLoadedForChainId, selectWalletId } from 'state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
-  selectIsAnyAccountMetadataLoadedForChainId,
   selectIsInputtingFiatSellAmount,
-} from 'state/slices/selectors'
+} from 'state/slices/tradeInputSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
 import {
   selectActiveQuote,
+  selectActiveQuoteMeta,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectBuyAmountAfterFeesUserCurrency,
   selectFirstHop,
   selectIsTradeQuoteRequestAborted,
   selectIsUnsafeActiveQuote,
   selectShouldShowTradeQuoteOrAwaitInput,
+  selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -60,7 +61,6 @@ import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
-const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const emptyPercentOptions: number[] = []
 const formControlProps = {
   borderRadius: 0,
@@ -99,18 +99,17 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const [shouldShowArbitrumBridgeAcknowledgement, setShouldShowArbitrumBridgeAcknowledgement] =
     useState(false)
 
+  const activeQuoteMeta = useAppSelector(selectActiveQuoteMeta)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const buyAmountAfterFeesUserCurrency = useAppSelector(selectBuyAmountAfterFeesUserCurrency)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const isUnsafeQuote = useAppSelector(selectIsUnsafeActiveQuote)
-  const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const activeQuote = useAppSelector(selectActiveQuote)
@@ -121,6 +120,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const isAnyAccountMetadataLoadedForChainId = useAppSelector(state =>
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
+  const walletId = useAppSelector(selectWalletId)
 
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
@@ -133,15 +133,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
 
   const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
 
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
+  const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const isLoading = useMemo(
     () =>
       // No account meta loaded for that chain
-      !isAnyAccountMetadataLoadedForChainId ||
+      Boolean(walletId && !isAnyAccountMetadataLoadedForChainId) ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
       isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
@@ -150,6 +147,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       isVotingPowerLoading ||
       isWalletReceiveAddressLoading,
     [
+      walletId,
       isAnyAccountMetadataLoadedForChainId,
       shouldShowTradeQuoteOrAwaitInput,
       isTradeQuoteRequestAborted,
@@ -237,9 +235,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (!tradeQuoteStep) throw Error('missing tradeQuoteStep')
       if (!activeQuote) throw Error('missing activeQuote')
 
-      if (!isExecutableTradeQuote(activeQuote)) throw new Error('Unable to execute trade')
+      const bestQuote: ApiQuote | undefined = selectSortedTradeQuotes(store.getState())[0]
+
+      // Set the best quote as activeQuoteMeta, unless user has already a custom quote selected, in which case don't override it
+      if (!activeQuoteMeta && bestQuote?.quote !== undefined && !bestQuote.errors.length) {
+        dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
+      }
 
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
+      dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {
         history.push({ pathname: TradeRoutePaths.VerifyAddresses })
@@ -255,6 +259,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     setIsConfirmationLoading(false)
   }, [
     activeQuote,
+    activeQuoteMeta,
     dispatch,
     handleConnect,
     history,
@@ -334,7 +339,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         sellAsset={sellAsset}
         sellAmountCryptoPrecision={sellAmountCryptoPrecision}
         sellAmountUserCurrency={sellAmountUserCurrency}
-        handleSwitchAssets={handleSwitchAssets}
+        onSwitchAssets={handleSwitchAssets}
         setSellAsset={setSellAsset}
         setSellAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
@@ -370,23 +375,23 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     buyAmountAfterFeesUserCurrency,
     buyAsset,
     buyAssetAccountId,
-    sellAssetAccountId,
+    buyTradeAssetSelect,
+    hasUserEnteredAmount,
+    inputOutputDifferenceDecimalPercentage,
     isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
-    sellAsset,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
-    hasUserEnteredAmount,
+    sellAsset,
+    sellAssetAccountId,
     translate,
-    buyTradeAssetSelect,
-    inputOutputDifferenceDecimalPercentage,
+    handleChangeSellAmountCryptoPrecision,
+    handleIsInputtingFiatSellAmountChange,
     handleSwitchAssets,
     setBuyAssetAccountId,
     setSellAsset,
     setSellAssetAccountId,
-    handleIsInputtingFiatSellAmountChange,
-    handleChangeSellAmountCryptoPrecision,
   ])
 
   const footerContent = useMemo(() => {

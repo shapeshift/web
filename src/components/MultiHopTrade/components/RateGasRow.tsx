@@ -21,7 +21,7 @@ type RateGasRowProps = {
   sellAssetSymbol: string
   swapperName: SwapperName | undefined
   swapSource: SwapSource | undefined
-  totalNetworkFeeFiatPrecision: string | undefined
+  networkFeeFiatUserCurrency: string | undefined
   onClick?: () => void
 } & PropsWithChildren
 
@@ -42,7 +42,7 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
     sellAssetSymbol,
     swapperName,
     swapSource,
-    totalNetworkFeeFiatPrecision,
+    networkFeeFiatUserCurrency,
     onClick,
   }) => {
     const translate = useTranslate()
@@ -127,7 +127,13 @@ export const RateGasRow: FC<RateGasRowProps> = memo(
                     <FaGasPump />
                   </Row.Label>
                   <Row.Value>
-                    <Amount.Fiat fontSize='sm' value={totalNetworkFeeFiatPrecision ?? 'unknown'} />
+                    {!networkFeeFiatUserCurrency ? (
+                      <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                        <Text translation={'trade.unknownGas'} fontSize='sm' />
+                      </Tooltip>
+                    ) : (
+                      <Amount.Fiat fontSize='sm' value={networkFeeFiatUserCurrency} />
+                    )}
                   </Row.Value>
                 </Row>
                 {isOpen ? (

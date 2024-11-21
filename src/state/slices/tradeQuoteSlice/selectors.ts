@@ -8,14 +8,10 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { identity } from 'lodash'
-import createCachedSelector from 're-reselect'
 import type { Selector } from 'reselect'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import type { CalculateFeeBpsReturn } from 'lib/fees/model'
-import { calculateFees } from 'lib/fees/model'
-import type { ParameterModel } from 'lib/fees/parameters/types'
 import { fromBaseUnit } from 'lib/math'
-import { selectThorVotingPower, selectVotingPower } from 'state/apis/snapshot/selectors'
+import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
 import { validateQuoteRequest } from 'state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from 'state/apis/swapper/types'
@@ -62,10 +58,8 @@ import { SWAPPER_USER_ERRORS } from './constants'
 import type { ActiveQuoteMeta } from './types'
 
 const selectTradeQuoteSlice = (state: ReduxState) => state.tradeQuoteSlice
-const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> = createSelector(
-  selectTradeQuoteSlice,
-  tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta,
-)
+export const selectActiveQuoteMeta: Selector<ReduxState, ActiveQuoteMeta | undefined> =
+  createSelector(selectTradeQuoteSlice, tradeQuoteSlice => tradeQuoteSlice.activeQuoteMeta)
 
 const selectTradeQuotes = createDeepEqualOutputSelector(
   selectTradeQuoteSlice,
@@ -201,7 +195,9 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
 )
 
 const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
-  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
+  createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
+    return tradeQuoteState.confirmedQuote
+  })
 
 export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
@@ -459,14 +455,21 @@ export const selectHopNetworkFeeUserCurrencyPrecision = createDeepEqualOutputSel
   },
 )
 
-export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string> =
+export const selectTotalNetworkFeeUserCurrencyPrecision: Selector<ReduxState, string | undefined> =
   createSelector(
     selectFirstHopNetworkFeeUserCurrencyPrecision,
     selectSecondHopNetworkFeeUserCurrencyPrecision,
-    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) =>
-      bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
+    (firstHopNetworkFeeUserCurrencyPrecision, secondHopNetworkFeeUserCurrencyPrecision) => {
+      if (
+        firstHopNetworkFeeUserCurrencyPrecision === undefined &&
+        secondHopNetworkFeeUserCurrencyPrecision === undefined
+      )
+        return
+
+      return bnOrZero(firstHopNetworkFeeUserCurrencyPrecision)
         .plus(secondHopNetworkFeeUserCurrencyPrecision ?? 0)
-        .toString(),
+        .toString()
+    },
   )
 
 export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
@@ -550,32 +553,6 @@ export const selectActiveQuoteAffiliateBps: Selector<ReduxState, string | undefi
     return activeQuote.affiliateBps
   })
 
-type AffiliateFeesProps = {
-  feeModel: ParameterModel
-  inputAmountUsd: string | undefined
-}
-
-// TODO: Move out of tradeQuoteSlice as this is used for limit orders also, and is not spot
-// specific
-export const selectCalculatedFees: Selector<ReduxState, CalculateFeeBpsReturn> =
-  createCachedSelector(
-    (_state: ReduxState, { feeModel }: AffiliateFeesProps) => feeModel,
-    (_state: ReduxState, { inputAmountUsd }: AffiliateFeesProps) => inputAmountUsd,
-    selectVotingPower,
-    selectThorVotingPower,
-
-    (feeModel, inputAmountUsd, votingPower, thorVotingPower) => {
-      const fees: CalculateFeeBpsReturn = calculateFees({
-        tradeAmountUsd: bnOrZero(inputAmountUsd),
-        foxHeld: bnOrZero(votingPower),
-        thorHeld: bnOrZero(thorVotingPower),
-        feeModel,
-      })
-
-      return fees
-    },
-  )((_state, { feeModel, inputAmountUsd }) => `${feeModel}-${inputAmountUsd}`)
-
 export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   (state: ReduxState) =>
     selectCalculatedFees(state, {
@@ -595,6 +572,15 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency = createSelec
   (tradeAffiliateFeeAfterDiscountUsd, sellUserCurrencyRate) => {
     if (!tradeAffiliateFeeAfterDiscountUsd || !sellUserCurrencyRate) return
     return bn(tradeAffiliateFeeAfterDiscountUsd).times(sellUserCurrencyRate).toFixed()
+  },
+)
+
+export const selectConfirmedTradeExecution = createSelector(
+  selectTradeQuoteSlice,
+  selectConfirmedQuoteTradeId,
+  (swappers, confirmedTradeId) => {
+    if (!confirmedTradeId) return
+    return swappers.tradeExecution[confirmedTradeId]
   },
 )
 
@@ -623,8 +609,8 @@ export const selectHopExecutionMetadata = createDeepEqualOutputSelector(
   selectHopIndexParamFromRequiredFilter,
   (swappers, tradeId, hopIndex) => {
     return hopIndex === 0
-      ? swappers.tradeExecution[tradeId].firstHop
-      : swappers.tradeExecution[tradeId].secondHop
+      ? swappers.tradeExecution[tradeId]?.firstHop
+      : swappers.tradeExecution[tradeId]?.secondHop
   },
 )
 

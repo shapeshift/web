@@ -40,7 +40,7 @@ import {
   selectIsAnySwapperQuoteAvailable,
   selectIsAnyTradeQuoteLoading,
   selectShouldShowTradeQuoteOrAwaitInput,
-  selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTotalNetworkFeeUserCurrency,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeQuoteRequestErrors,
@@ -82,7 +82,7 @@ export const ConfirmSummary = ({
   } = useWallet()
 
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
-  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
+  const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const isManualReceiveAddressValidating = useAppSelector(selectIsManualReceiveAddressValidating)
   const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
   const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)

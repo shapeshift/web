@@ -21,7 +21,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
-  selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTotalNetworkFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -36,7 +36,7 @@ export const Footer: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
+  const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
   const networkFeeToTradeRatioPercentage = useMemo(

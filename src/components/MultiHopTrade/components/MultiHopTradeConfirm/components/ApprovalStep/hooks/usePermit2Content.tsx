@@ -2,6 +2,7 @@ import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
@@ -40,14 +41,17 @@ export const usePermit2Content = ({
 
   const { signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
 
+  const { isLoading: isTradeQuotesLoading } = useGetTradeQuotes()
+
   const isButtonDisabled = useMemo(() => {
     const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2
     const isError = permit2.state === TransactionExecutionState.Failed
     const isAwaitingConfirmation = permit2.state === TransactionExecutionState.AwaitingConfirmation
-    const isDisabled = !isAwaitingPermit2 || !(isError || isAwaitingConfirmation)
+    const isDisabled =
+      !isAwaitingPermit2 || !(isError || isAwaitingConfirmation) || isTradeQuotesLoading
 
     return isDisabled
-  }, [permit2.state, hopExecutionState])
+  }, [hopExecutionState, permit2.state, isTradeQuotesLoading])
 
   const subHeadingTranslation: [string, InterpolationOptions] = useMemo(() => {
     return ['trade.permit2.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
@@ -61,7 +65,7 @@ export const usePermit2Content = ({
         isDisabled={isButtonDisabled}
         isLoading={
           /* NOTE: No loading state when signature in progress because it's instant */
-          false
+          isTradeQuotesLoading
         }
         subHeadingTranslation={subHeadingTranslation}
         titleTranslation='trade.permit2.title'
@@ -70,7 +74,14 @@ export const usePermit2Content = ({
         onSubmit={signPermit2}
       />
     )
-  }, [hopExecutionState, isButtonDisabled, permit2.state, signPermit2, subHeadingTranslation])
+  }, [
+    hopExecutionState,
+    isButtonDisabled,
+    isTradeQuotesLoading,
+    permit2.state,
+    signPermit2,
+    subHeadingTranslation,
+  ])
 
   const description = useMemo(() => {
     const txLines = [

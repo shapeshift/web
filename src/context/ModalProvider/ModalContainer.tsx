@@ -146,6 +146,14 @@ const NftModal = makeSuspenseful(
   ),
 )
 
+const RateChangedModal = makeSuspenseful(
+  lazy(() =>
+    import('components/Modals/RateChanged/RateChanged').then(({ RateChangedModal }) => ({
+      default: RateChangedModal,
+    })),
+  ),
+)
+
 const FeedbackAndSupport = makeSuspenseful(
   lazy(() =>
     import('components/Modals/FeedbackSupport/FeedbackSupport').then(({ FeedbackAndSupport }) => ({
@@ -203,6 +211,7 @@ export const MODALS: Modals = {
   // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened
   ledgerOpenApp: LedgerOpenAppModal,
   manageAccounts: ManageAccountsModal,
+  rateChanged: RateChangedModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

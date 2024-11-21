@@ -187,6 +187,31 @@ describe('cowApi', () => {
       const stepIndex = 0
       const chainId = ethChainId
       const slippageTolerancePercentageDecimal = '0.005' // 0.5%
+
+      const cowswapQuoteResponse = {
+        quote: {
+          sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
+          buyToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          receiver: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
+          sellAmount: '9755648144619063874259',
+          buyAmount: '289305614806369753',
+          validTo: 1712259433,
+          appData:
+            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
+          appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+          feeAmount: '184116879335769833472',
+          kind: 'sell',
+          partiallyFillable: false,
+          sellTokenBalance: 'erc20',
+          buyTokenBalance: 'erc20',
+          signingScheme: 'eip712',
+        },
+        from: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
+        expiration: '2024-04-04T19:09:12.792412370Z',
+        id: 474006349,
+        verified: false,
+      }
+
       const tradeQuote = {
         id: '474004127',
         receiveAddress: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
@@ -252,36 +277,14 @@ describe('cowApi', () => {
               relatedAssetKey: 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d',
             },
             accountNumber: 0,
+            cowswapQuoteResponse,
           },
         ],
       } as unknown as TradeQuote
 
-      const cowSwapQuoteResponse = {
-        quote: {
-          sellToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
-          buyToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-          receiver: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
-          sellAmount: '9755648144619063874259',
-          buyAmount: '289305614806369753',
-          validTo: 1712259433,
-          appData:
-            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-          appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
-          feeAmount: '184116879335769833472',
-          kind: 'sell',
-          partiallyFillable: false,
-          sellTokenBalance: 'erc20',
-          buyTokenBalance: 'erc20',
-          signingScheme: 'eip712',
-        },
-        from: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
-        expiration: '2024-04-04T19:09:12.792412370Z',
-        id: 474006349,
-        verified: false,
-      }
       mockedCowService.post.mockReturnValue(
         Promise.resolve(
-          Ok({ data: cowSwapQuoteResponse } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+          Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<CowSwapQuoteResponse>),
         ),
       )
       const actual = await cowApi.getUnsignedEvmMessage!({

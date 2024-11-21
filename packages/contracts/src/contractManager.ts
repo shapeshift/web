@@ -49,7 +49,7 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
   type,
   chainId,
 }: {
-  address: string | `0x${string}`
+  address: string | Address
   type: T
   chainId: ChainId
 }) => KnownContractByType<A, T> = <A extends KnownContractAddress, T extends ContractType>({
@@ -57,7 +57,7 @@ export const getOrCreateContractByType: <A extends KnownContractAddress, T exten
   type,
   chainId,
 }: {
-  address: string | `0x${string}`
+  address: string | Address
   type: T
   chainId: ChainId
 }): KnownContractByType<A, T> => {

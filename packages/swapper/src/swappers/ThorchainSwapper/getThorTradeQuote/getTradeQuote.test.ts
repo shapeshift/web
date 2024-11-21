@@ -11,6 +11,7 @@ import { setupQuote } from '../../utils/test-data/setupSwapQuote'
 import { getThorTxInfo } from '../evm/utils/getThorTxData'
 import type {
   InboundAddressResponse,
+  ThorEvmTradeQuote,
   ThornodePoolResponse,
   ThornodeQuoteResponseSuccess,
 } from '../types'
@@ -18,8 +19,7 @@ import { TradeType } from '../utils/longTailHelpers'
 import { mockInboundAddresses, thornodePools } from '../utils/test-data/responses'
 import { mockEvmChainAdapter } from '../utils/test-data/setupThorswapDeps'
 import { thorService } from '../utils/thorService'
-import type { ThorEvmTradeQuote } from './getTradeQuoteOrRate'
-import { getThorTradeQuote } from './getTradeQuoteOrRate'
+import { getThorTradeQuote } from './getTradeQuote'
 
 const mockedGetThorTxInfo = vi.mocked(getThorTxInfo)
 const mockedThorService = vi.mocked(thorService)

@@ -182,7 +182,8 @@
     "yes": "Yes",
     "activeAccount": "Active Account",
     "update": "Update",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "TBD"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Enter custom recipient address",
     "receiveAtLeast": "Receive at least",
     "tooltip": {
+      "continueSwapping": "Continue swapping for final details",
       "changeQuote": "Change quote",
       "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Insufficient sell amount"
+      },
+      "rateExpired": {
+        "title": "Rate expired",
+        "body": "Your previous swap rate has expired. We've fetched a new rate and updated your quote amounts. Please review the latest details before confirming your swap.",
+        "cta": "Ok, got it"
       }
     },
     "permit2": {

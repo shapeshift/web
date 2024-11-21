@@ -21,7 +21,8 @@ import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
 } from './constants'
 import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
-import { getTradeQuote, getTradeRate } from './swapperApi/getTradeQuote'
+import { getTradeQuote } from './swapperApi/getTradeQuote'
+import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'

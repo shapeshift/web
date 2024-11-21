@@ -17,7 +17,7 @@ import { SlideTransitionRoute } from './components/SlideTransitionRoute'
 import { Claim } from './components/TradeInput/components/Claim/Claim'
 import { TradeInput } from './components/TradeInput/TradeInput'
 import { VerifyAddresses } from './components/VerifyAddresses/VerifyAddresses'
-import { useGetTradeQuotes } from './hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import { TradeInputTab, TradeRoutePaths } from './types'
 
 const TradeRouteEntries = [
@@ -39,9 +39,9 @@ type MatchParams = {
   assetSubId?: string
 }
 
-// dummy component to allow us to mount or unmount the `useGetTradeQuotes` hook conditionally
-const GetTradeQuotes = () => {
-  useGetTradeQuotes()
+// dummy component to allow us to mount or unmount the `useGetTradeRates` hook conditionally
+const GetTradeRates = () => {
+  useGetTradeRates()
   return <></>
 }
 
@@ -112,8 +112,8 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
-  const shouldUseTradeQuotes = useMemo(() => {
-    // We only want to fetch quotes when the user is on the trade input or quote list route
+  const shouldUseTradeRates = useMemo(() => {
+    // We only want to fetch rates when the user is on the trade input or quote list route
     return [TradeRoutePaths.Input, TradeRoutePaths.QuoteList].includes(
       location.pathname as TradeRoutePaths,
     )
@@ -178,7 +178,7 @@ const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
       {/* Stop polling for quotes by unmounting the hook. This prevents trade execution getting */}
       {/* corrupted from state being mutated during trade execution. */}
       {/* TODO: move the hook into a react-query or similar and pass a flag  */}
-      {shouldUseTradeQuotes ? <GetTradeQuotes /> : null}
+      {shouldUseTradeRates ? <GetTradeRates /> : null}
     </>
   )
 })

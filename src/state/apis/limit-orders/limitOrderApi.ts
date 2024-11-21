@@ -97,7 +97,7 @@ export const limitOrderApi = createApi({
           sellToken: fromAssetId(sellAssetId).assetReference as Address,
           buyToken: !isNativeEvmAsset(buyAssetId)
             ? (fromAssetId(buyAssetId).assetReference as Address)
-            : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS, // TEMP: This type cast is fixed in downstream PR
+            : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
           receiver: recipientAddress,
           sellTokenBalance: SellTokenSource.ERC20,
           from: sellAccountAddress ?? zeroAddress, // Zero address used to enable quotes without wallet connected

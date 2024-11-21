@@ -182,6 +182,7 @@ const validators = {
   REACT_APP_FEATURE_THOR_FREE_FEES: bool({ default: false }),
   REACT_APP_FEATURE_JUPITER_SWAP: bool({ default: false }),
   REACT_APP_JUPITER_API_URL: url({ default: JUPITER_API_URL }),
+  REACT_APP_FEATURE_NEW_TRADE_FLOW: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

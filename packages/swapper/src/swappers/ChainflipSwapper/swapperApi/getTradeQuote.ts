@@ -286,13 +286,14 @@ export const _getTradeQuote = async (
             accountNumber,
             allowanceContract: '0x0', // Chainflip does not use contracts
             estimatedExecutionTimeMs:
-              singleQuoteResponse.boostQuote.estimatedDurationSeconds! * 1000,
+              (singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.deposit! +
+               singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.swap!) * 1000,
             chainflipNumberOfChunks: isStreaming 
               ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined 
               : undefined,
             chainflipChunkIntervalBlocks: isStreaming
               ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
-              : undefined
+              : undefined,
           },
         ],
       }
@@ -330,7 +331,9 @@ export const _getTradeQuote = async (
           sellAsset,
           accountNumber,
           allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
-          estimatedExecutionTimeMs: singleQuoteResponse.estimatedDurationSeconds! * 1000,
+          estimatedExecutionTimeMs:
+            (singleQuoteResponse.estimatedDurationsSeconds!.deposit! +
+             singleQuoteResponse.estimatedDurationsSeconds!.swap!) * 1000,
           chainflipNumberOfChunks: isStreaming 
             ? singleQuoteResponse.numberOfChunks ?? undefined 
             : undefined,

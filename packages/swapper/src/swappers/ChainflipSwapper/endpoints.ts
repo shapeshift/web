@@ -16,8 +16,8 @@ import type {
   UtxoFeeData,
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
-import { CHAINFLIP_BAAS_COMMISSION } from './constants'
-import type { ChainflipBaasSwapDepositAddress } from './models'
+import { CHAINFLIP_BAAS_COMMISSION, CHAINFLIP_BOOST_SWAP_SOURCE } from './constants'
+import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
@@ -84,6 +84,7 @@ export const chainflipApi: SwapperApi = {
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
       chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
+      boostFee: 0,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -211,6 +212,7 @@ export const chainflipApi: SwapperApi = {
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
       chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
+      boostFee: step.source === CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -286,6 +288,7 @@ export const chainflipApi: SwapperApi = {
       commissionBps: serviceCommission,
       numberOfChunks: step.chainflipNumberOfChunks,
       chunkIntervalBlocks: step.chainflipChunkIntervalBlocks
+      boostFee: 0,
     })
 
     if (maybeSwapResponse.isErr()) {

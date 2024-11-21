@@ -25,25 +25,25 @@ export interface ChainflipBaasQuoteQuoteFee {
      * @type {string}
      * @memberof ChainflipBaasQuoteQuoteFee
      */
-    type?: ChainflipBaasQuoteQuoteFeeTypeEnum;
+    readonly type?: ChainflipBaasQuoteQuoteFeeTypeEnum;
     /**
      * The asset the fee is processed in.
      * @type {string}
      * @memberof ChainflipBaasQuoteQuoteFee
      */
-    asset?: string | null;
+    readonly asset?: string | null;
     /**
      * The fee amount.
      * @type {number}
      * @memberof ChainflipBaasQuoteQuoteFee
      */
-    amount?: number;
+    readonly amount?: number;
     /**
      * The fee amount in native units.
      * @type {string}
      * @memberof ChainflipBaasQuoteQuoteFee
      */
-    amountNative?: string;
+    readonly amountNative?: string;
 }
 
 
@@ -96,10 +96,6 @@ export function ChainflipBaasQuoteQuoteFeeToJSON(value?: ChainflipBaasQuoteQuote
     }
     return {
         
-        'type': value.type,
-        'asset': value.asset,
-        'amount': value.amount,
-        'amountNative': value.amountNative,
     };
 }
 

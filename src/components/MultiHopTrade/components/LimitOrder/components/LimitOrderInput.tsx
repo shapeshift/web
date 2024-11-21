@@ -302,6 +302,7 @@ export const LimitOrderInput = ({
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={switchAssets}
+        isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}

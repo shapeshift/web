@@ -33,6 +33,7 @@ type SharedTradeInputBodyProps = {
   children: JSX.Element
   isInputtingFiatSellAmount: boolean
   isLoading: boolean | undefined
+  isSwitchAssetsDisabled?: boolean
   sellAmountCryptoPrecision: string
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
@@ -51,6 +52,7 @@ export const SharedTradeInputBody = ({
   children,
   isInputtingFiatSellAmount,
   isLoading,
+  isSwitchAssetsDisabled,
   sellAmountCryptoPrecision,
   sellAmountUserCurrency,
   sellAsset,
@@ -132,10 +134,11 @@ export const SharedTradeInputBody = ({
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
+    if (isSwitchAssetsDisabled) return true
     if (!hasWallet) return false
 
     return !walletSupportsBuyAssetChain || isLoading
-  }, [hasWallet, walletSupportsBuyAssetChain, isLoading])
+  }, [hasWallet, isSwitchAssetsDisabled, walletSupportsBuyAssetChain, isLoading])
 
   return (
     <Stack spacing={0}>

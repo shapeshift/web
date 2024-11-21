@@ -37,7 +37,19 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
   return (
     <Flex gap={2} alignItems='center'>
       {children}
-      <TooltipWithTouch label={translate(isCopied ? 'common.copied' : 'common.copy')}>
+      {translate ? (
+        <TooltipWithTouch label={translate(isCopied ? 'common.copied' : 'common.copy')}>
+          <IconButton
+            icon={isCopied ? checkIcon : copyIcon}
+            colorScheme={isCopied ? 'green' : 'gray'}
+            size='sm'
+            variant='ghost'
+            fontSize='xl'
+            aria-label='Copy value'
+            onClick={handleCopyClick}
+          />
+        </TooltipWithTouch>
+      ) : (
         <IconButton
           icon={isCopied ? checkIcon : copyIcon}
           colorScheme={isCopied ? 'green' : 'gray'}
@@ -47,7 +59,7 @@ export const InlineCopyButton: React.FC<InlineCopyButtonProps> = ({
           aria-label='Copy value'
           onClick={handleCopyClick}
         />
-      </TooltipWithTouch>
+      )}
     </Flex>
   )
 }

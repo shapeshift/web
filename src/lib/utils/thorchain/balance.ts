@@ -139,19 +139,13 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
         throw new Error('Invalid type')
     }
   })()
-
   const amountCryptoPrecision =
     type === 'deposit'
       ? _amountCryptoPrecision
       : fromThorBaseUnit(
           (quote as ThorchainSaversWithdrawQuoteResponseSuccess).dust_amount,
         ).toFixed()
-
-  const amountCryptoBaseUnit = toBaseUnit(
-    amountCryptoPrecision,
-    type === 'deposit' ? asset.precision : feeAsset?.precision ?? 0,
-  )
-
+  const amountCryptoBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
   const estimatedFeesQueryArgs = {
     estimateFeesInput: {
       amountCryptoPrecision,

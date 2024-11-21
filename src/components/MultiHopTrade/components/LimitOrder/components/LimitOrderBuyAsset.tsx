@@ -1,5 +1,5 @@
 import { Flex, FormLabel, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import React, { memo, useCallback, useMemo } from 'react'
@@ -35,12 +35,22 @@ export type LimitOrderBuyAssetProps = {
   asset: Asset
   accountId?: AccountId
   isInputtingFiatSellAmount: boolean
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
   onAccountIdChange: AccountDropdownProps['onChange']
   onSetBuyAsset: (asset: Asset) => void
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
-  ({ asset, accountId, isInputtingFiatSellAmount, onAccountIdChange, onSetBuyAsset }) => {
+  ({
+    asset,
+    accountId,
+    isInputtingFiatSellAmount,
+    assetFilterPredicate,
+    chainIdFilterPredicate,
+    onAccountIdChange,
+    onSetBuyAsset,
+  }) => {
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
 
@@ -79,8 +89,10 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
       buyAssetSearch.open({
         onAssetClick: onSetBuyAsset,
         title: 'trade.tradeTo',
+        assetFilterPredicate,
+        chainIdFilterPredicate,
       })
-    }, [buyAssetSearch, onSetBuyAsset])
+    }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, onSetBuyAsset])
 
     return (
       <Stack mt={4}>

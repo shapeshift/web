@@ -346,9 +346,15 @@ const reactAppRewireConfig = {
             },
             experiments: {
               topLevelAwait: true,
+              asyncWebAssembly: true,
             },
           }
-        : {},
+        : {
+            experiments: {
+              topLevelAwait: true,
+              asyncWebAssembly: true,
+            },
+          },
 
       // resolve bundling issue with @cowprotocol/app-data where it produces the compilation error:
       // Module not found: Error: Can't resolve 'ethers/lib/utils' in 'web/node_modules/@cowprotocol/app-data/dist'
@@ -436,6 +442,18 @@ const reactAppRewireConfig = {
         config.optimization.minimize = false
         config.optimization.minimizer = []
       }
+    }
+
+    if (config?.module?.rules) {
+      config.module.rules = config.module.rules.map(rule => {
+        if (rule && rule instanceof Object && 'oneOf' in rule && rule.oneOf instanceof Array) {
+          return {
+            ...rule,
+            oneOf: [{ test: /\.wasm$/, type: 'webassembly/async' }, ...rule.oneOf],
+          }
+        }
+        return rule
+      })
     }
 
     return config

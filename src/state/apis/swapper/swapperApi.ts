@@ -82,9 +82,6 @@ export const swapperApi = createApi({
         }
 
         const getQuoteResult = () => {
-          // Always get a trade rate if quoteOrRate === 'rate', which is passed if the PublicTradeRoute flag is on for the time being
-          // this is the sanest way for the time being, since we want to store rates exactly the same as quotes, and fetch a quote instead of a rate at pre-execution time
-          // when we wire this up fully. Going further, we may or may not want to change heuristics here.
           if (quoteOrRate === 'rate')
             return getTradeRates(
               {

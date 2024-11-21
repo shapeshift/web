@@ -1,7 +1,7 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
-import type { Asset } from '@shapeshiftoss/types'
+import { type Asset } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -375,23 +375,23 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     buyAmountAfterFeesUserCurrency,
     buyAsset,
     buyAssetAccountId,
-    sellAssetAccountId,
+    buyTradeAssetSelect,
+    hasUserEnteredAmount,
+    inputOutputDifferenceDecimalPercentage,
     isInputtingFiatSellAmount,
     isLoading,
     manualReceiveAddress,
-    sellAsset,
     sellAmountCryptoPrecision,
     sellAmountUserCurrency,
-    hasUserEnteredAmount,
+    sellAsset,
+    sellAssetAccountId,
     translate,
-    buyTradeAssetSelect,
-    inputOutputDifferenceDecimalPercentage,
+    handleChangeSellAmountCryptoPrecision,
+    handleIsInputtingFiatSellAmountChange,
     handleSwitchAssets,
     setBuyAssetAccountId,
     setSellAsset,
     setSellAssetAccountId,
-    handleIsInputtingFiatSellAmountChange,
-    handleChangeSellAmountCryptoPrecision,
   ])
 
   const footerContent = useMemo(() => {

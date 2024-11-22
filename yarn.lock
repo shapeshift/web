@@ -3793,7 +3793,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bithighlander/bitcoin-cash-js-lib@npm:5.2.1":
+"@bithighlander/bitcoin-cash-js-lib@npm:^5.2.1":
   version: 5.2.1
   resolution: "@bithighlander/bitcoin-cash-js-lib@npm:5.2.1"
   dependencies:
@@ -3814,30 +3814,6 @@ __metadata:
     varuint-bitcoin: ^1.0.4
     wif: ^2.0.1
   checksum: e5a9ee61812ff316ad1a6fbfb075174ee1daea6729b2b806162704148df3f520081c00014dfe0abc58a6ec694900546812be9c78757711d6e6aa216f409ea176
-  languageName: node
-  linkType: hard
-
-"@bithighlander/bitcoin-cash-js-lib@patch:@bithighlander/bitcoin-cash-js-lib@npm%3A5.2.1#./.yarn/patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
-  version: 5.2.1
-  resolution: "@bithighlander/bitcoin-cash-js-lib@patch:@bithighlander/bitcoin-cash-js-lib@npm%3A5.2.1#./.yarn/patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch::version=5.2.1&hash=5da7dd&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
-  dependencies:
-    bech32: ^1.1.2
-    big-integer: ^1.6.44
-    bip174: ^2.0.1
-    bip32: ^2.0.4
-    bip66: ^1.1.0
-    bitcoin-ops: ^1.4.0
-    bs58check: ^2.0.0
-    create-hash: ^1.1.0
-    create-hmac: ^1.1.3
-    merkle-lib: ^2.0.10
-    pushdata-bitcoin: ^1.0.1
-    randombytes: ^2.0.1
-    tiny-secp256k1: ^1.1.1
-    typeforce: ^1.11.3
-    varuint-bitcoin: ^1.0.4
-    wif: ^2.0.1
-  checksum: 282dfc1d26eb3b0d521eed4ea17d0dd398bf67331b6e6bd75363f56502fe662bbf267ebab0b2d470e136ddd2d1840940657a5fe43571f8790dd8bac9b4d9cbc7
   languageName: node
   linkType: hard
 
@@ -11127,30 +11103,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/bitcoinjs-lib@patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
-  version: 5.2.0-shapeshift.2
-  resolution: "@shapeshiftoss/bitcoinjs-lib@patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch::version=5.2.0-shapeshift.2&hash=6df42b&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
-  dependencies:
-    bech32: ^1.1.2
-    big-integer: ^1.6.44
-    bip174: ^2.0.1
-    bip32: ^2.0.4
-    bip66: ^1.1.0
-    bitcoin-ops: ^1.4.0
-    bs58check: ^2.0.0
-    create-hash: ^1.1.0
-    create-hmac: ^1.1.3
-    merkle-lib: ^2.0.10
-    pushdata-bitcoin: ^1.0.1
-    randombytes: ^2.0.1
-    tiny-secp256k1: ^1.1.6
-    typeforce: ^1.11.3
-    varuint-bitcoin: ^1.0.4
-    wif: ^2.0.1
-  checksum: 8011bee8ea7970cc43ad62d27b34d210a62963cad8373c72c4310058c0dcdbe3c937a8da1b16762a03b78037bf3cbb4123f42a6fe293dfaa967d88b37492353c
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/blockbook@npm:^9.3.0":
   version: 9.3.0
   resolution: "@shapeshiftoss/blockbook@npm:9.3.0"
@@ -18085,6 +18037,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bitcoinjs-lib@npm:7.0.0-rc.0":
+  version: 7.0.0-rc.0
+  resolution: "bitcoinjs-lib@npm:7.0.0-rc.0"
+  dependencies:
+    "@noble/hashes": ^1.2.0
+    bech32: ^2.0.0
+    bip174: ^3.0.0-rc.0
+    bs58check: ^4.0.0
+    uint8array-tools: ^0.0.9
+    valibot: ^0.38.0
+    varuint-bitcoin: ^2.0.0
+  checksum: 927023477ca043080000544a33ca8adb90467d5b4a84ddca5e984980405d16ca1b9df90ca96b4eaa8502a93545938d501e03a2969ed779d4256ed2128778890e
+  languageName: node
+  linkType: hard
+
 "bitcoinjs-lib@npm:^5.0.3, bitcoinjs-lib@npm:^5.2.0":
   version: 5.2.0
   resolution: "bitcoinjs-lib@npm:5.2.0"
@@ -18108,9 +18075,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoinjs-lib@npm:^7.0.0-rc.0":
+"bitcoinjs-lib@patch:bitcoinjs-lib@npm%3A7.0.0-rc.0#./.yarn/patches/bitcoinjs-lib-npm-7.0.0-rc.0-5e24283729.patch::locator=%40shapeshiftoss%2Fweb%40workspace%3A.":
   version: 7.0.0-rc.0
-  resolution: "bitcoinjs-lib@npm:7.0.0-rc.0"
+  resolution: "bitcoinjs-lib@patch:bitcoinjs-lib@npm%3A7.0.0-rc.0#./.yarn/patches/bitcoinjs-lib-npm-7.0.0-rc.0-5e24283729.patch::version=7.0.0-rc.0&hash=1f1f05&locator=%40shapeshiftoss%2Fweb%40workspace%3A."
   dependencies:
     "@noble/hashes": ^1.2.0
     bech32: ^2.0.0
@@ -18119,7 +18086,7 @@ __metadata:
     uint8array-tools: ^0.0.9
     valibot: ^0.38.0
     varuint-bitcoin: ^2.0.0
-  checksum: 927023477ca043080000544a33ca8adb90467d5b4a84ddca5e984980405d16ca1b9df90ca96b4eaa8502a93545938d501e03a2969ed779d4256ed2128778890e
+  checksum: 9a09702040a47e401de7c80aaca38dcdece17ad185d50063bdcd516e34c17650efb8f7dbe7ff6dd52e2b9657c8856eff91b1a64d257bbe50d7d03baa95d7560b
   languageName: node
   linkType: hard
 

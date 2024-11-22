@@ -1,0 +1,13 @@
+diff --git a/src/cjs/script.cjs b/src/cjs/script.cjs
+index 0af216ddfe4120a3444eeab1173c24686816e422..5e020da41825d1ea3650b598b8f6703cf3d27d23 100644
+--- a/src/cjs/script.cjs
++++ b/src/cjs/script.cjs
+@@ -249,6 +249,8 @@ function isCanonicalPubKey(buffer) {
+   return types.isPoint(buffer);
+ }
+ function isDefinedHashType(hashType) {
++  // bitcoinjs-lib doesn't support FORK_ID sighash type (0x41 i.e bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143)
++  if (hashType === 0x41) return true;
+   const hashTypeMod = hashType & ~0x80;
+   return hashTypeMod > 0x00 && hashTypeMod < 0x04;
+ }

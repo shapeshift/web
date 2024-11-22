@@ -163,7 +163,11 @@ export type OrderMetaData = {
   fullAppData?: string | null
 }
 
-export type Order = OrderCreation & OrderMetaData
+export type Order = OrderCreation &
+  OrderMetaData & {
+    // Not documented in API docs, but exists.
+    status: OrderStatus
+  }
 
 export type OrderParameters = {
   sellToken: Address
@@ -285,10 +289,4 @@ export type Trade = {
   buyAmount: string
   txHash: string | null
   executedProtocolFees?: ExecutedProtocolFee[]
-}
-
-export type GetOrdersRequest = {
-  owner: Address
-  offset?: number
-  limit?: number
 }

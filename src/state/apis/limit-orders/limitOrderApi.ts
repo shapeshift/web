@@ -291,4 +291,5 @@ export const limitOrderApi = createApi({
   }),
 })
 
-export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation } = limitOrderApi
+export const { useQuoteLimitOrderQuery, useGetOrdersQuery, usePlaceLimitOrderMutation } =
+  limitOrderApi

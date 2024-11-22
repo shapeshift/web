@@ -3,6 +3,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Center,
   Flex,
   Heading,
   Tab,
@@ -11,24 +12,41 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react'
-import { foxAssetId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
-import { getConfig } from 'config'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAccountId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
+import { OrderClass, OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import { partition } from 'lodash'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import { usdcAssetId } from 'test/mocks/accounts'
+import type { Address } from 'viem'
 import { Text } from 'components/Text'
-import { selectAccountIdsByChainId, selectEvmAccountIds } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { chainIdFeeAssetReferenceMap } from 'state/slices/assetsSlice/utils'
 
 import { WithBackButton } from '../../WithBackButton'
-import { LimitOrderStatus } from '../types'
+import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
 import { LimitOrderCard } from './LimitOrderCard'
 
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
   onBack?: () => void
+}
+
+const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
+  const { chainNamespace, chainReference } = fromChainId(chainId)
+  return cowSwapToken === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
+    ? toAssetId({
+        chainId,
+        assetNamespace: 'slip44',
+        assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
+      })
+    : toAssetId({
+        chainId,
+        assetNamespace: ASSET_NAMESPACE.erc20,
+        assetReference: cowSwapToken,
+      })
 }
 
 export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
@@ -44,34 +62,24 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     }
   }, [onBack])
 
-  const evmAccountIds = useAppSelector(selectEvmAccountIds)
+  const { data: ordersResponse } = useGetLimitOrdersQuery()
 
-  // FIXME: Use real data
-  const MockOpenOrderCard = () => (
-    <LimitOrderCard
-      id='1'
-      sellAmount={7000000}
-      buyAmount={159517.575}
-      buyAssetId={usdcAssetId}
-      sellAssetId={foxAssetId}
-      expiry={7}
-      filledDecimalPercentage={0.0888}
-      status={LimitOrderStatus.Open}
-    />
-  )
-
-  const MockHistoryOrderCard = () => (
-    <LimitOrderCard
-      id='2'
-      sellAmount={5000000}
-      buyAmount={120000.0}
-      buyAssetId={usdcAssetId}
-      sellAssetId={foxAssetId}
-      expiry={0}
-      filledDecimalPercentage={1.0}
-      status={LimitOrderStatus.Filled}
-    />
-  )
+  const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
+    if (!ordersResponse) return []
+    return partition(
+      ordersResponse
+        // TODO: also filter on `order.signingScheme === SigningScheme.EIP712`
+        // Temporarily disabled to allow us to see orders while developing
+        .filter(({ order }) => order.class === OrderClass.LIMIT)
+        .map(({ accountId, order }) => {
+          const { chainId } = fromAccountId(accountId)
+          const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)
+          const buyAssetId = cowSwapTokenToAssetId(chainId, order.buyToken)
+          return { accountId, sellAssetId, buyAssetId, order }
+        }),
+      ({ order }) => [OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status),
+    )
+  }, [ordersResponse])
 
   return (
     <Card {...cardProps}>
@@ -82,7 +90,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
               <WithBackButton onBack={onBack} />
             </Flex>
             <Heading flex='2' textAlign='center' fontSize='md'>
-              <Text translation='limitOrders.orders' />
+              <Text translation='limitOrder.orders' />
             </Heading>
             <Flex flex='1' />
           </Flex>
@@ -98,7 +106,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             color={onBack ? 'text.base' : 'text.subtle'}
             _selected={textColorBaseProps}
           >
-            <Text translation='limitOrders.openOrders' />
+            <Text translation='limitOrder.openOrders' />
           </Tab>
           <Tab
             p={0}
@@ -107,24 +115,60 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             color={onBack ? 'text.base' : 'text.subtle'}
             _selected={textColorBaseProps}
           >
-            <Text translation='limitOrders.orderHistory' />
+            <Text translation='limitOrder.orderHistory' />
           </Tab>
         </TabList>
         <CardBody flex='1' overflowY='auto' minH={0} px={2} py={0}>
           <TabPanels>
             <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <MockOpenOrderCard key={index} />
-                ))}
+                {openLimitOrders !== undefined && openLimitOrders.length > 0 ? (
+                  openLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
+                    <LimitOrderCard
+                      key={order.uid}
+                      id={order.uid}
+                      sellAmountCryptoBaseUnit={order.sellAmount}
+                      buyAmountCryptoBaseUnit={order.buyAmount}
+                      buyAssetId={buyAssetId}
+                      sellAssetId={sellAssetId}
+                      validTo={order.validTo}
+                      filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                        .div(order.sellAmount)
+                        .toNumber()}
+                      status={order.status}
+                    />
+                  ))
+                ) : (
+                  <Center h='full'>
+                    <Text color='text.subtle' translation='limitOrder.noOpenOrders' />
+                  </Center>
+                )}
               </CardBody>
             </TabPanel>
 
             <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <MockHistoryOrderCard key={index} />
-                ))}
+                {historicalLimitOrders !== undefined && historicalLimitOrders.length > 0 ? (
+                  historicalLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
+                    <LimitOrderCard
+                      key={order.uid}
+                      id={order.uid}
+                      sellAmountCryptoBaseUnit={order.sellAmount}
+                      buyAmountCryptoBaseUnit={order.buyAmount}
+                      buyAssetId={buyAssetId}
+                      sellAssetId={sellAssetId}
+                      validTo={order.validTo}
+                      filledDecimalPercentage={bnOrZero(order.executedSellAmount)
+                        .div(order.sellAmount)
+                        .toNumber()}
+                      status={order.status}
+                    />
+                  ))
+                ) : (
+                  <Center h='full'>
+                    <Text color='text.subtle' translation='limitOrder.noHistoricalOrders' />
+                  </Center>
+                )}
               </CardBody>
             </TabPanel>
           </TabPanels>

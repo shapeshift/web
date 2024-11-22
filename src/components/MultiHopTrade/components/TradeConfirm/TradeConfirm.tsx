@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { HStack, Icon, Stack, useColorModeValue } from '@chakra-ui/react'
+import { HStack, Icon, Link, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
@@ -8,7 +8,8 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
-import { selectInputBuyAsset } from 'state/slices/tradeInputSlice/selectors'
+import { middleEllipsis } from 'lib/utils'
+import { selectInputBuyAsset, selectInputSellAsset } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -25,6 +26,7 @@ import { PriceImpact } from '../PriceImpact'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
 import { MaxSlippage } from '../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
+import { useTradeReceiveAddress } from '../TradeInput/hooks/useTradeReceiveAddress'
 
 const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
   return items
@@ -45,6 +47,7 @@ export const TradeConfirm = () => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const tradeQuoteStep = useAppSelector(selectFirstHop)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+  const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
@@ -52,7 +55,9 @@ export const TradeConfirm = () => {
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const redColor = useColorModeValue('red.500', 'red.300')
+  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
 
+  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const swapSource = tradeQuoteStep?.source
   const intermediaryTransactionOutputs = tradeQuoteStep?.intermediaryTransactionOutputs
   const intermediaryTransactionOutputsParsed = intermediaryTransactionOutputs
@@ -131,8 +136,14 @@ export const TradeConfirm = () => {
           </Row.Label>
           <Row.Value>
             <HStack>
-              <RawText>0xe5...971d</RawText>
-              <Icon as={ExternalLinkIcon} />
+              <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
+              <Link
+                href={`${sellAsset.explorerAddressLink}${receiveAddress}`}
+                isExternal
+                aria-label='View on block explorer'
+              >
+                <Icon as={ExternalLinkIcon} />
+              </Link>
             </HStack>
           </Row.Value>
         </Row>
@@ -171,7 +182,9 @@ export const TradeConfirm = () => {
     isLoading,
     priceImpactPercentage,
     protocolFeesParsed,
+    receiveAddress,
     redColor,
+    sellAsset.explorerAddressLink,
     slippagePercentageDecimal,
     swapSource,
     swapperName,

@@ -40,7 +40,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isToken } from 'lib/utils'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -145,20 +144,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const isTokenWithdraw = isToken(assetId)
-
   // user info
   const {
     state: { wallet },
   } = useWallet()
-
-  const assetBalanceFilter = useMemo(
-    () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
-    [accountId, asset?.assetId],
-  )
-  const assetBalanceBaseUnit = useAppSelector(s =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
-  )
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId }),
@@ -425,15 +414,13 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
     return fromBaseUnit(
-      bnOrZero(isTokenWithdraw ? feeAssetBalanceCryptoBaseUnit : assetBalanceBaseUnit)
+      bnOrZero(feeAssetBalanceCryptoBaseUnit)
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
         .minus(bnOrZero(dustAmountCryptoBaseUnit))
         .times(-1),
       feeAsset.precision,
     )
   }, [
-    isTokenWithdraw,
-    assetBalanceBaseUnit,
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
     feeAssetBalanceCryptoBaseUnit,

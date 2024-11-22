@@ -1,8 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { AccountMetadataById } from '@shapeshiftoss/types'
+import type { AccountMetadataById, Asset } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
 import uniq from 'lodash/uniq'
@@ -14,7 +15,10 @@ import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 import { selectNftCollections } from 'state/apis/nft/selectors'
 import type { ReduxState } from 'state/reducer'
 
+import type { UpsertAssetsPayload } from '../assetsSlice/assetsSlice'
 import { assets as assetSlice } from '../assetsSlice/assetsSlice'
+import { marketApi } from '../marketDataSlice/marketDataSlice'
+import { selectMarketDataByAssetIdUserCurrency } from '../selectors'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements, makeAssets } from './utils'
@@ -176,7 +180,36 @@ export const portfolioApi = createApi({
             const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
 
             // upsert placeholder assets
-            if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+            ;(async () => {
+              if (assets) {
+                const assetsToUpsert: UpsertAssetsPayload = {
+                  byId: {} as Record<AssetId, Asset>,
+                  ids: [] as AssetId[],
+                }
+
+                await Promise.all(
+                  Object.values(assets.byId).map(async asset => {
+                    if (!asset) return
+
+                    await dispatch(marketApi.endpoints.findByAssetId.initiate(asset.assetId))
+
+                    const tokenMarketData = selectMarketDataByAssetIdUserCurrency(
+                      state,
+                      asset.assetId,
+                    )
+
+                    if (bnOrZero(tokenMarketData.marketCap).gt(0)) {
+                      assetsToUpsert.byId[asset.assetId] = asset
+                      assetsToUpsert.ids.push(asset.assetId)
+                    }
+
+                    return undefined
+                  }),
+                )
+
+                dispatch(assetSlice.actions.upsertAssets(assetsToUpsert))
+              }
+            })()
 
             return accountToPortfolio({
               portfolioAccounts,

@@ -1,12 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, cosmosAssetId } from '@shapeshiftoss/caip'
-import type { CosmosSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { CosmosSignTx, CosmosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
-import { ErrorHandler } from '../../error/ErrorHandler'
+import { ChainAdapterError, ErrorHandler } from '../../error/ErrorHandler'
 import type {
   BuildClaimRewardsTxInput,
   BuildDelegateTxInput,
@@ -71,6 +71,15 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     this.api = args.providers.http
   }
 
+  private assertSupportsChain(wallet: HDWallet): asserts wallet is CosmosWallet {
+    if (!supportsCosmos(wallet)) {
+      throw new ChainAdapterError(`wallet does not support: ${this.getDisplayName()}`, {
+        translation: 'chainAdapters.errors.unsupportedChain',
+        options: { chain: this.getDisplayName() },
+      })
+    }
+  }
+
   getDisplayName() {
     return ChainAdapterDisplayName.Cosmos
   }
@@ -89,30 +98,27 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
-    const { accountNumber, pubKey, wallet, showOnDevice = false } = input
-
-    if (pubKey) return pubKey
-
     try {
-      if (supportsCosmos(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet)
+      const { accountNumber, pubKey, wallet, showOnDevice = false } = input
 
-        const bip44Params = this.getBIP44Params({ accountNumber })
-        const cosmosAddress = await wallet.cosmosGetAddress({
-          addressNList: toAddressNList(bip44Params),
-          showDisplay: showOnDevice,
-        })
+      if (pubKey) return pubKey
 
-        if (!cosmosAddress) {
-          throw new Error('Unable to generate Cosmos address.')
-        }
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
-        return cosmosAddress
-      } else {
-        throw new Error('Wallet does not support Cosmos.')
-      }
-    } catch (error) {
-      return ErrorHandler(error)
+      const bip44Params = this.getBIP44Params({ accountNumber })
+      const address = await wallet.cosmosGetAddress({
+        addressNList: toAddressNList(bip44Params),
+        showDisplay: showOnDevice,
+      })
+
+      if (!address) throw new Error('error getting address from wallet')
+
+      return address
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
     }
   }
 
@@ -139,16 +145,27 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       return this.buildTransaction({ ...input, account, msg })
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
   async buildSendTransaction(
     input: BuildSendTxInput<KnownChainIds.CosmosMainnet>,
   ): Promise<{ txToSign: CosmosSignTx }> {
-    const { accountNumber, wallet } = input
-    const from = await this.getAddress({ accountNumber, wallet })
-    return this.buildSendApiTransaction({ ...input, from })
+    try {
+      const { accountNumber, wallet } = input
+
+      const from = await this.getAddress({ accountNumber, wallet })
+      const tx = await this.buildSendApiTransaction({ ...input, from })
+
+      return tx
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
   }
 
   async buildDelegateTransaction(
@@ -178,7 +195,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       return this.buildTransaction({ ...tx, account, msg })
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -209,7 +228,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       return this.buildTransaction({ ...tx, account, msg })
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -243,7 +264,9 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       return this.buildTransaction({ ...tx, account, msg })
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -268,40 +291,48 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
 
       return this.buildTransaction({ ...tx, account, msg })
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
   async signTransaction(signTxInput: SignTxInput<CosmosSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
-      if (supportsCosmos(wallet)) {
-        await verifyLedgerAppOpen(this.chainId, wallet)
 
-        const signedTx = await wallet.cosmosSignTx(txToSign)
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
-        if (!signedTx?.serialized) throw new Error('Error signing tx')
+      const signedTx = await wallet.cosmosSignTx(txToSign)
 
-        return signedTx.serialized
-      } else {
-        throw new Error('Wallet does not support Cosmos.')
-      }
+      if (!signedTx?.serialized) throw new Error('error signing tx')
+
+      return signedTx.serialized
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signTransaction',
+      })
     }
   }
 
   async getFeeData(
     _: Partial<GetFeeDataInput<KnownChainIds.CosmosMainnet>>,
   ): Promise<FeeDataEstimate<KnownChainIds.CosmosMainnet>> {
-    const gasLimit = '2000000'
-    const fees = await this.api.fees()
-    const txFee = bnOrZero(fees[Denoms.uatom]).times(gasLimit).toFixed(0)
+    try {
+      const gasLimit = '2000000'
+      const fees = await this.api.fees()
+      const txFee = bnOrZero(fees[Denoms.uatom]).times(gasLimit).toFixed(0)
 
-    return {
-      fast: { txFee, chainSpecific: { gasLimit } },
-      average: { txFee, chainSpecific: { gasLimit } },
-      slow: { txFee, chainSpecific: { gasLimit } },
+      return {
+        fast: { txFee, chainSpecific: { gasLimit } },
+        average: { txFee, chainSpecific: { gasLimit } },
+        slow: { txFee, chainSpecific: { gasLimit } },
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
     }
   }
 
@@ -310,21 +341,24 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.CosmosMainnet>): Promise<string> {
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-
-    const { wallet } = signTxInput
     try {
-      if (supportsCosmos(wallet)) {
-        const signedTx = await this.signTransaction(signTxInput)
-        return this.providers.http.sendTx({ body: { rawTx: signedTx } })
-      } else {
-        throw new Error('Wallet does not support Cosmos.')
-      }
-    } catch (error) {
-      return ErrorHandler(error)
+      const { wallet } = signTxInput
+
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
+
+      this.assertSupportsChain(wallet)
+
+      const hex = await this.signTransaction(signTxInput)
+      const txHash = await this.broadcastTransaction({ senderAddress, receiverAddress, hex })
+
+      return txHash
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
     }
   }
 }

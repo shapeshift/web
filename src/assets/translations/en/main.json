@@ -2734,5 +2734,27 @@
   "thorFees": {
     "title": "Here from THORSwap?",
     "description": "THOR holders trade for free through 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Address %{address} not supported.",
+      "unsupportedChain": "Wallet does not support %{chain}.",
+      "ledgerAppOpenCancelled": "Ledger app open cancelled.",
+      "getAddress": "Failed to get address from wallet.",
+      "getAccount": "Failed to get account for: %{pubkey}.",
+      "switchChainUnsupported": "Wallet does not support switching chains.",
+      "switchChainFailed": "Failed to switch wallet chain to %{chain}.",
+      "buildTransaction": "Failed to build transaction.",
+      "signTransaction": "Failed to sign transaction.",
+      "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
+      "signMessage": "Failed to sign message.",
+      "broadcastTransaction": "Failed to broadcast transaction.",
+      "broadcastTransactionWithMessage": "Failed to broadcast transaction (%{message}).",
+      "getGasFeeData": "Failed to get network fees.",
+      "getFeeData": "Failed to estimate network fees.",
+      "getPublicKey": "Failed to get public key from wallet.",
+      "getUtxos": "Failed to get utxos.",
+      "getValidator": "Failed to get validator."
+    }
   }
 }

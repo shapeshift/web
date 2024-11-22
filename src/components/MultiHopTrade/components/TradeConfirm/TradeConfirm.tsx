@@ -1,8 +1,9 @@
 import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
-import { Flex, HStack, Icon, Link, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Flex, HStack, Icon, Link, Stack, Tooltip, useColorModeValue } from '@chakra-ui/react'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { FeeModal } from 'components/FeeModal/FeeModal'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
@@ -22,6 +23,7 @@ import {
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectFirstHop,
+  selectTotalNetworkFeeUserCurrencyPrecision,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeSlippagePercentageDecimal,
@@ -65,7 +67,9 @@ export const TradeConfirm = () => {
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
+  const networkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
 
+  const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const redColor = useColorModeValue('red.500', 'red.300')
@@ -76,6 +80,9 @@ export const TradeConfirm = () => {
 
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const swapSource = tradeQuoteStep?.source
+  const rate = tradeQuoteStep?.rate
+  const sellAssetSymbol = sellAsset.symbol
+  const buyAssetSymbol = buyAsset.symbol
   const intermediaryTransactionOutputs = tradeQuoteStep?.intermediaryTransactionOutputs
   const intermediaryTransactionOutputsParsed = intermediaryTransactionOutputs
     ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
@@ -127,7 +134,16 @@ export const TradeConfirm = () => {
               <Text translation='trade.transactionFee' />
             </Row.Label>
             <Row.Value>
-              <RawText>$0.00258</RawText>
+              {
+                // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
+                !networkFeeFiatUserCurrency ? (
+                  <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                    <Text translation={'trade.unknownGas'} fontSize='sm' />
+                  </Tooltip>
+                ) : (
+                  <Amount.Fiat value={networkFeeFiatUserCurrency} />
+                )
+              }
             </Row.Value>
           </Row>
 
@@ -198,7 +214,10 @@ export const TradeConfirm = () => {
               <Text translation='trade.rate' />
             </Row.Label>
             <Row.Value>
-              <RawText>1 METH = 0.0 ETH</RawText>
+              <HStack spacing={1}>
+                <Amount.Crypto value='1' symbol={sellAssetSymbol} suffix='=' />
+                <Amount.Crypto value={rate} symbol={buyAssetSymbol} />
+              </HStack>
             </Row.Value>
           </Row>
 
@@ -227,24 +246,29 @@ export const TradeConfirm = () => {
     affiliateFeeAfterDiscountUserCurrency,
     buyAmountAfterFeesCryptoPrecision,
     buyAsset.symbol,
+    buyAssetSymbol,
     greenColor,
     hasIntermediaryTransactionOutputs,
     hasProtocolFees,
     intermediaryTransactionOutputs,
     isLoading,
     isThorFreeTrade,
+    networkFeeFiatUserCurrency,
     priceImpactPercentage,
     protocolFeesParsed,
+    rate,
     receiveAddress,
     redColor,
     sellAmountUsd,
     sellAsset.explorerAddressLink,
+    sellAssetSymbol,
     showFeeModal,
     slippagePercentageDecimal,
     swapSource,
     swapperName,
     toggleFeeModal,
     tradeQuoteStep?.source,
+    translate,
   ])
 
   const FooterButton = useMemo(() => {

@@ -92,7 +92,7 @@ export const swapperApi = createApi({
                   // Ok, we may have lied just before. Li.Fi is the odd one, and we don't want to fetch a final quote for it.
                   // The reason is Li.Fi routes are very fragile and from one request to the other, it's more likely than not a tool may not be returned anymore, resulting in early null returns
                   // in swapper, i.e a totally broken state.
-                  // By keeping the receiveAddress in all the way through, and returning it in LIFI's `getTradeRate()`, the rate becomes an effective, quote, and the
+                  // By keeping the receiveAddress in all the way through, and returning it in LIFI's `getTradeRate()`, the rate becomes an effective quote, and the
                   // `shouldFetchTradeQuote = isExecutableTradeQuote(activeTrade)` never becomes true, meaning we keep the rate as a quote.
                   swapperName === SwapperName.LIFI ? tradeQuoteInput.receiveAddress : undefined,
                 affiliateBps,

@@ -200,6 +200,24 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
     },
   )
 
+export const selectAssetsSortedByMarketCapAndName = createDeepEqualOutputSelector(
+  selectAssets,
+  selectMarketDataUsd,
+  (assets, marketDataUsd) => {
+    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+    // but we actually can't - this would rug the triple-sorting
+    const getAssetMarketCap = (asset: Asset) =>
+      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+    const getAssetName = (asset: Asset) => asset.name
+
+    return orderBy(
+      Object.values(assets).filter(isSome),
+      [getAssetMarketCap, getAssetName],
+      ['desc', 'asc'],
+    )
+  },
+)
+
 export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
   const getAssetName = (asset: Asset) => asset.name
   return orderBy(Object.values(assets).filter(isSome), [getAssetName], ['asc'])

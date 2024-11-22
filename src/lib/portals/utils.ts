@@ -259,8 +259,11 @@ export const getPortalTokens = async (
 
   const portalsTokens = await fetchPortalsTokens({ chainIds: [chainId], limit })
   return portalsTokens
-    .filter(token => token.liquidity > 0)
-    .map(token => portalTokenToAsset({ token, portalsPlatforms, chainId, nativeAsset }))
+    .map(token =>
+      token.liquidity > 0
+        ? portalTokenToAsset({ token, portalsPlatforms, chainId, nativeAsset })
+        : undefined,
+    )
     .filter(isSome)
 }
 

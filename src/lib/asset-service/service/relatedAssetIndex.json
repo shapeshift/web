@@ -10580,7 +10580,7 @@
   "eip155:1/erc20:0xfd957f21bd95e723645c07c48a2d8acb8ffb3794": [
     "eip155:56/bep20:0x0b33542240d6fa323c796749f6d6869fdb7f13ca",
     "eip155:137/erc20:0x55b1a124c04a54eefdefe5fa2ef5f852fb5f2f26",
-    "eip155:1/erc20:0xfd957f21bd95e723645c07c48a2d8acb8ffb3794"
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EsUEnK3Z26CTCGvFFZb2wLVgUSkYWdKyhZZeBq9P6rz9"
   ],
   "eip155:1/erc20:0xfb559ce67ff522ec0b9ba7f5dc9dc7ef6c139803": [],
   "eip155:1/erc20:0xfa4baa6951b6ee382e9ff9af2d523278b99ca6d0": [],
@@ -27591,8 +27591,9 @@
     "eip155:56/bep20:0x640bb7b0716a3c58b29f83a10e0b4b51580693d3"
   ],
   "eip155:1/erc20:0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568": [
+    "eip155:56/bep20:0x6b2a01a5f79deb4c2f3c0eda7b01df456fbd726a",
     "eip155:10/erc20:0x93919784c523f39cacaa98ee0a9d96c3f32b593e",
-    "eip155:1/erc20:0x004e9c3ef86bc1ca1f0bb5c7662861ee93350568"
+    "eip155:42161/erc20:0x6b2a01a5f79deb4c2f3c0eda7b01df456fbd726a"
   ],
   "eip155:1/erc20:0x01aac2b594f7bdbec740f0f1aa22910ebb4b74ab": [
     "eip155:8453/erc20:0x01aac2b594f7bdbec740f0f1aa22910ebb4b74ab",
@@ -27784,7 +27785,7 @@
   ],
   "eip155:1/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": [
     "eip155:8453/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
-    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij"
+    "eip155:42161/erc20:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
   ],
   "eip155:1/erc20:0xd3c68968137317a57a9babeacc7707ec433548b4": [
     "eip155:8453/erc20:0xd3c68968137317a57a9babeacc7707ec433548b4",
@@ -28079,5 +28080,14 @@
     "eip155:42161/slip44:60",
     "eip155:42170/slip44:60",
     "eip155:8453/slip44:60"
+  ],
+  "eip155:1/erc20:0x2103e845c5e135493bb6c2a4f0b8651956ea8682": [
+    "eip155:56/bep20:0x23ae4fd8e7844cdbc97775496ebd0e8248656028",
+    "eip155:1/erc20:0x2103e845c5e135493bb6c2a4f0b8651956ea8682"
+  ],
+  "eip155:1/erc20:0x2b66aade1e9c062ff411bd47c44e0ad696d43bd9": [
+    "eip155:56/bep20:0x73a325103935b0b5e7aa3aca6dba74ad22f82b03",
+    "eip155:8453/erc20:0xd329f9a8589723357c36727a2d5e15974c835ccf",
+    "eip155:1/erc20:0x2b66aade1e9c062ff411bd47c44e0ad696d43bd9"
   ]
 }

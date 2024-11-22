@@ -5,17 +5,14 @@ import type { AxiosResponse } from 'axios'
 import type { SwapErrorRight } from '../../../types'
 import type { QuoteResponse } from '../models/QuoteResponse'
 import type { SwapInstructionsResponse } from '../models/SwapInstructionsResponse'
-import type { JupiterSupportedChainId } from '../types'
 import { jupiterSupportedChainIds } from './constants'
 import { jupiterService } from './jupiterService'
 
-export const isSupportedChainId = (chainId: ChainId): chainId is JupiterSupportedChainId => {
-  return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
+export const isSupportedChainId = (chainId: ChainId): chainId is ChainId => {
+  return jupiterSupportedChainIds.includes(chainId)
 }
 
 const JUPITER_TRANSACTION_MAX_ACCOUNTS = 54
-
-// const SHAPESHIFT_SOLANA_FEE_ACCOUNT = 'C7RTJbss7R1r7j8NUNYbasUXfbPJR99PMhqznvCiU43N'
 
 type GetJupiterQuoteArgs = {
   apiUrl: string
@@ -53,6 +50,7 @@ export const getJupiterQuote = ({
       `&platformFeeBps=${commissionBps}`,
   )
 
+// @TODO: Add DAO's fee account
 export const getJupiterSwapInstructions = ({
   apiUrl,
   fromAddress,

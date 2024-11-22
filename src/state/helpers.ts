@@ -24,14 +24,14 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
 
 export const getEnabledSwappers = (
   {
-    Chainflip,
-    Portals,
+    ChainflipSwap,
+    PortalsSwap,
     LifiSwap,
     ThorSwap,
     ZrxSwap,
     ArbitrumBridge,
     Cowswap,
-    Jupiter,
+    JupiterSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
 ): Record<SwapperName, boolean> => {
@@ -48,11 +48,12 @@ export const getEnabledSwappers = (
       ArbitrumBridge &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
     [SwapperName.Portals]:
-      Portals && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
+      PortalsSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
     [SwapperName.Chainflip]:
-      Chainflip && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
+      ChainflipSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
     [SwapperName.Jupiter]:
-      Jupiter && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Jupiter)),
+      JupiterSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Jupiter)),
     [SwapperName.Test]: false,
   }
 }

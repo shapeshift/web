@@ -4,7 +4,6 @@ import type { Asset } from '@shapeshiftoss/types'
 import { executeSolanaTransaction } from '../..'
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
 import { filterSameChainSolanaBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
-import type { JupiterSupportedChainId } from './types'
 import { jupiterSupportedChainIds } from './utils/constants'
 
 export const jupiterSwapper: Swapper = {
@@ -15,7 +14,7 @@ export const jupiterSwapper: Swapper = {
       assets
         .filter(asset => {
           const { chainId } = asset
-          return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
+          return jupiterSupportedChainIds.includes(chainId)
         })
         .map(asset => asset.assetId),
     )
@@ -26,7 +25,7 @@ export const jupiterSwapper: Swapper = {
       filterSameChainSolanaBuyAssetsBySellAssetId(input)
         .filter(asset => {
           const { chainId } = asset
-          return jupiterSupportedChainIds.includes(chainId as JupiterSupportedChainId)
+          return jupiterSupportedChainIds.includes(chainId)
         })
         .map(asset => asset.assetId),
     )

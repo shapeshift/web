@@ -5,7 +5,7 @@ export * from './bignumber'
 export * from './bip44'
 export * from './fees'
 export * from './utxoUtils'
-export * from './solanaUtils'
+export * from './svmUtils'
 export * from './ledgerAppGate'
 
 export const getAssetNamespace = (type: string): AssetNamespace => {

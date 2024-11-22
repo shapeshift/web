@@ -1,8 +1,18 @@
 import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
-import { BigNumber, bn, bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+import { type Asset } from '@shapeshiftoss/types'
+import {
+  BigNumber,
+  bn,
+  bnOrZero,
+  fromBaseUnit,
+  isEvmChainId,
+  toBaseUnit,
+} from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -172,6 +182,18 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const sellAssetFilterPredicate = useCallback((asset: Asset) => {
+    return isEvmChainId(asset.chainId) && !isNativeEvmAsset(asset.assetId)
+  }, [])
+
+  const buyAssetFilterPredicate = useCallback((asset: Asset) => {
+    return isEvmChainId(asset.chainId)
+  }, [])
+
+  const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
+    return isEvmChainId(chainId)
+  }, [])
+
   const sellAmountCryptoBaseUnit = useMemo(() => {
     return toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision)
   }, [sellAmountCryptoPrecision, sellAsset.precision])
@@ -280,10 +302,13 @@ export const LimitOrderInput = ({
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={switchAssets}
+        isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}
         setSellAccountId={setSellAccountId}
+        assetFilterPredicate={sellAssetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       >
         <Stack>
           <LimitOrderBuyAsset
@@ -292,6 +317,8 @@ export const LimitOrderInput = ({
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}
             onAccountIdChange={setBuyAccountId}
             onSetBuyAsset={setBuyAsset}
+            assetFilterPredicate={buyAssetFilterPredicate}
+            chainIdFilterPredicate={chainIdFilterPredicate}
           />
           <Divider />
           <LimitOrderConfig
@@ -316,6 +343,9 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAmountCryptoPrecision,
     sellAsset,
+    buyAssetFilterPredicate,
+    chainIdFilterPredicate,
+    sellAssetFilterPredicate,
     setBuyAccountId,
     setBuyAsset,
     setIsInputtingFiatSellAmount,

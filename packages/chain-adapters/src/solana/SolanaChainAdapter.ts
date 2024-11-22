@@ -7,9 +7,11 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type {
+  HDWallet,
   SolanaAddressLookupTableAccountInfo,
   SolanaSignTx,
   SolanaTxInstruction,
+  SolanaWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
@@ -39,7 +41,7 @@ import {
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ErrorHandler } from '../error/ErrorHandler'
+import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -107,6 +109,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     })
   }
 
+  private assertSupportsChain(wallet: HDWallet): asserts wallet is SolanaWallet {
+    if (!supportsSolana(wallet)) {
+      throw new ChainAdapterError(`wallet does not support: ${this.getDisplayName()}`, {
+        translation: 'chainAdapters.errors.unsupportedChain',
+        options: { chain: this.getDisplayName() },
+      })
+    }
+  }
+
   getName() {
     const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(ChainAdapterDisplayName.Solana)
     return Object.keys(ChainAdapterDisplayName)[enumIndex]
@@ -129,9 +140,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   }
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
-    if (accountNumber < 0) {
-      throw new Error('accountNumber must be >= 0')
-    }
+    if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
     return { ...ChainAdapter.defaultBIP44Params, accountNumber }
   }
 
@@ -141,18 +150,20 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       if (pubKey) return pubKey
 
-      if (!supportsSolana(wallet)) throw new Error('Wallet does not support Solana.')
+      this.assertSupportsChain(wallet)
 
       const address = await wallet.solanaGetAddress({
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
         showDisplay: showOnDevice,
       })
 
-      if (!address) throw new Error('Unable to generate Solana address.')
+      if (!address) throw new Error('error getting address from wallet')
 
       return address
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
     }
   }
 
@@ -183,14 +194,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         pubkey,
       }
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
     }
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
-    const requestQueue = input.requestQueue ?? new PQueue()
-
     try {
+      const requestQueue = input.requestQueue ?? new PQueue()
+
       const data = await requestQueue.add(() =>
         this.providers.http.getTxHistory({
           pubkey: input.pubkey,
@@ -260,7 +274,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       return { txToSign }
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -269,11 +285,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   }> {
     try {
       const from = await this.getAddress(input)
-      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+      const tx = await this.buildSendApiTransaction({ ...input, from })
 
-      return txToSign
+      return tx
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
     }
   }
 
@@ -281,15 +299,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     try {
       const { txToSign, wallet } = signTxInput
 
-      if (!supportsSolana(wallet)) throw new Error('Wallet does not support Solana.')
+      this.assertSupportsChain(wallet)
 
       const signedTx = await wallet.solanaSignTx(txToSign)
 
-      if (!signedTx?.serialized) throw new Error('Error signing tx')
+      if (!signedTx?.serialized) throw new Error('error signing tx')
 
       return signedTx.serialized
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signTransaction',
+      })
     }
   }
 
@@ -306,15 +326,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      if (!supportsSolana(wallet)) throw new Error('Wallet does not support Solana.')
+      this.assertSupportsChain(wallet)
 
       const tx = await wallet.solanaSendTx?.(txToSign)
 
-      if (!tx) throw new Error('Error signing & broadcasting tx')
+      if (!tx) throw new Error('error signing & broadcasting tx')
 
       return tx.signature
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
     }
   }
 
@@ -329,53 +351,63 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      return this.providers.http.sendTx({ sendTxBody: { hex } })
+      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+
+      return txHash
     } catch (err) {
-      return ErrorHandler(err)
+      if ((err as Error).name === 'ResponseError') {
+        const response = await ((err as any).response as Response).json()
+
+        return ErrorHandler(JSON.stringify(response), {
+          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
+          options: { message: response.message },
+        })
+      }
+
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.broadcastTransaction',
+      })
     }
   }
 
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.SolanaMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {
-    const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
+    try {
+      const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
 
-    const serializedTx = await this.buildEstimationSerializedTx(input)
-    const computeUnits = await this.providers.http.estimateFees({
-      estimateFeesBody: { serializedTx },
-    })
+      const serializedTx = await this.buildEstimationSerializedTx(input)
+      const computeUnits = await this.providers.http.estimateFees({
+        estimateFeesBody: { serializedTx },
+      })
 
-    return {
-      fast: {
-        txFee: bn(microLamportsToLamports(fast))
-          .times(computeUnits)
-          .plus(baseFee)
-          .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: {
-          computeUnits,
-          priorityFee: fast,
+      return {
+        fast: {
+          txFee: bn(microLamportsToLamports(fast))
+            .times(computeUnits)
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
+          chainSpecific: { computeUnits, priorityFee: fast },
         },
-      },
-      average: {
-        txFee: bn(microLamportsToLamports(average))
-          .times(computeUnits)
-          .plus(baseFee)
-          .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: {
-          computeUnits,
-          priorityFee: average,
+        average: {
+          txFee: bn(microLamportsToLamports(average))
+            .times(computeUnits)
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
+          chainSpecific: { computeUnits, priorityFee: average },
         },
-      },
-      slow: {
-        txFee: bn(microLamportsToLamports(slow))
-          .times(computeUnits)
-          .plus(baseFee)
-          .toFixed(0, BigNumber.ROUND_HALF_UP),
-        chainSpecific: {
-          computeUnits,
-          priorityFee: slow,
+        slow: {
+          txFee: bn(microLamportsToLamports(slow))
+            .times(computeUnits)
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
+          chainSpecific: { computeUnits, priorityFee: slow },
         },
-      },
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
     }
   }
 

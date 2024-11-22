@@ -8,7 +8,7 @@ import {
   MenuOptionGroup,
   Tooltip,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getStyledMenuButtonProps } from 'components/AssetSelection/helpers'
@@ -30,6 +30,7 @@ type AssetChainDropdownProps = {
   isError?: boolean
   onlyConnectedChains: boolean
   isDisabled?: boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
 const flexProps = {
@@ -46,6 +47,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     isLoading,
     onChangeAsset,
     onlyConnectedChains,
+    chainIdFilterPredicate,
   }) => {
     const {
       state: { wallet },
@@ -63,14 +65,19 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     )
 
     const filteredRelatedAssetIds = useMemo(() => {
-      if (!assetIds?.length) return relatedAssetIds
-      return relatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
-    }, [assetIds, relatedAssetIds])
+      const filteredRelatedAssetIds = relatedAssetIds.filter(assetId => {
+        const { chainId } = fromAssetId(assetId)
+        return chainIdFilterPredicate?.(chainId) ?? true
+      })
+      if (!assetIds?.length) return filteredRelatedAssetIds
+      return filteredRelatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
+    }, [assetIds, chainIdFilterPredicate, relatedAssetIds])
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null
       return filteredRelatedAssetIds.map(relatedAssetId => {
-        const isSupported = wallet && isAssetSupportedByWallet(relatedAssetId, wallet)
+        const isSupported =
+          !onlyConnectedChains || (wallet && isAssetSupportedByWallet(relatedAssetId, wallet))
 
         return (
           <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={!isSupported}>
@@ -78,7 +85,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           </MenuItemOption>
         )
       })
-    }, [assetId, filteredRelatedAssetIds, wallet])
+    }, [assetId, filteredRelatedAssetIds, onlyConnectedChains, wallet])
 
     const handleChangeAsset = useCallback(
       (value: string | string[]) => {

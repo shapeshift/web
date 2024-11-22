@@ -58,7 +58,7 @@ const CHAIN_ID_TO_BECH32_VAL_PREFIX = {
 
 export const assertIsValidatorAddress = (validator: string, chainId: CosmosSdkChainId) => {
   if (CHAIN_ID_TO_BECH32_VAL_PREFIX[chainId] !== bech32.decode(validator).prefix) {
-    throw new Error(`CosmosSdkBaseAdapter: invalid validator address ${validator}`)
+    throw new Error(`invalid validator address: ${validator}`)
   }
 }
 
@@ -147,9 +147,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
   }
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
-    if (accountNumber < 0) {
-      throw new Error('accountNumber must be >= 0')
-    }
+    if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
     return { ...this.defaultBIP44Params, accountNumber }
   }
 
@@ -224,13 +222,17 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
         pubkey: account.pubkey,
       } as Account<T>
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
     }
   }
 
   async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
-    const requestQueue = input.requestQueue ?? new PQueue()
     try {
+      const requestQueue = input.requestQueue ?? new PQueue()
+
       const data = await requestQueue.add(() =>
         this.providers.http.getTxHistory({
           pubkey: input.pubkey,
@@ -283,9 +285,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     })().minus(fee)
 
     if (!availableBalance.isFinite() || availableBalance.lte(0)) {
-      throw new Error(
-        `CosmosSdkBaseAdapter: not enough balance to send: ${availableBalance.toString()}`,
-      )
+      throw new Error(`not enough balance to send: ${availableBalance.toString()}`)
     }
 
     return availableBalance.toString()
@@ -322,26 +322,41 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     receiverAddress,
     hex,
   }: BroadcastTransactionInput): Promise<string> {
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-
     try {
-      return this.providers.http.sendTx({ body: { rawTx: hex } })
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
+
+      const txHash = await this.providers.http.sendTx({ body: { rawTx: hex } })
+
+      return txHash
     } catch (err) {
-      return ErrorHandler(err)
+      if ((err as Error).name === 'ResponseError') {
+        const response = await ((err as any).response as Response).json()
+
+        const match = response.message.match(/description:\s*([^,]+)$/)
+
+        return ErrorHandler(JSON.stringify(response), {
+          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
+          options: { message: match && match[1] ? match[1].trim() : response.message },
+        })
+      }
+
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.broadcastTransaction',
+      })
     }
   }
 
   // eslint-disable-next-line require-await
   async validateAddress(address: string): Promise<ValidAddressResult> {
-    const chain = this.getType()
     try {
+      const chain = this.getType()
       const { prefix } = bech32.decode(address)
 
       if (CHAIN_ID_TO_BECH32_ADDR_PREFIX[chain] !== prefix) {
-        throw new Error(`Invalid address ${address} for ChainId: ${chain}`)
+        throw new Error(`invalid address ${address} for ${this.getDisplayName()}`)
       }
 
       return {
@@ -386,25 +401,16 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
     this.providers.ws.close('txs')
   }
 
-  async getValidators(): Promise<Validator[]> {
-    if (this.providers.http instanceof unchained.thorchain.V1Api) return []
-
-    try {
-      const data = await this.providers.http.getValidators()
-      return data.validators.map<Validator>(validator => transformValidator(validator))
-    } catch (err) {
-      return ErrorHandler(err)
-    }
-  }
-
   async getValidator(address: string): Promise<Validator | undefined> {
-    if (this.providers.http instanceof unchained.thorchain.V1Api) return
-
     try {
+      if (this.providers.http instanceof unchained.thorchain.V1Api) return
+
       const validator = await this.providers.http.getValidator({ pubkey: address })
       return transformValidator(validator)
     } catch (err) {
-      return ErrorHandler(err)
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getValidator',
+      })
     }
   }
 

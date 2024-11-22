@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetReference } from '@shapeshiftoss/caip'
 import { type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { CowSwapQuoteError } from '@shapeshiftoss/swapper'
 import {
@@ -10,10 +10,12 @@ import {
   getCowswapNetwork,
   TradeQuoteError,
 } from '@shapeshiftoss/swapper'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
 import {
   getAffiliateAppDataFragmentByChainId,
   getFullAppData,
 } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
+import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -81,7 +83,9 @@ export const limitOrderApi = createApi({
 
         const limitOrderQuoteRequest: LimitOrderQuoteRequest = {
           sellToken: fromAssetId(sellAssetId).assetReference,
-          buyToken: fromAssetId(buyAssetId).assetReference,
+          buyToken: !isNativeEvmAsset(buyAssetId)
+            ? fromAssetId(buyAssetId).assetReference
+            : (COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS as AssetReference), // TEMP: This type cast is fixed in downstream PR
           receiver: recipientAddress,
           sellTokenBalance: CoWSwapSellTokenSource.ERC20,
           from: sellAccountAddress ?? zeroAddress, // Zero address used to enable quotes without wallet connected

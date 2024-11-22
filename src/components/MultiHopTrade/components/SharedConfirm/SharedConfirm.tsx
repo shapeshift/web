@@ -87,6 +87,5 @@ export const SharedConfirm = ({
         <SharedConfirmFooter ConfirmDetailTable={ConfirmDetailTable} FooterButton={FooterButton} />
       </Card>
     </TradeSlideTransition>
-    // TODO: Add FeeModal
   )
 }

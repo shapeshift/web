@@ -1,5 +1,17 @@
-import { ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
-import { Flex, HStack, Icon, Link, Stack, Tooltip, useColorModeValue } from '@chakra-ui/react'
+import { ChevronDownIcon, ChevronUpIcon, ExternalLinkIcon, QuestionIcon } from '@chakra-ui/icons'
+import type { ButtonProps } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Collapse,
+  Flex,
+  HStack,
+  Icon,
+  Link,
+  Stack,
+  Tooltip,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -10,6 +22,7 @@ import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/u
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { middleEllipsis } from 'lib/utils'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
@@ -53,6 +66,21 @@ const ProtocolFeeToolTip = () => {
 }
 
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+
+const ShowMoreButton = (props: ButtonProps) => (
+  <Box position='relative' width='full' height='0' top='-20px'>
+    <Button
+      position='absolute'
+      left='50%'
+      transform='translateX(-50%)'
+      borderRadius='full'
+      backgroundColor='background.surface.raised.base'
+      size='sm'
+      px={4}
+      {...props}
+    />
+  </Box>
+)
 
 export const TradeConfirm = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
@@ -111,11 +139,19 @@ export const TradeConfirm = () => {
     setShowFeeModal(!showFeeModal)
   }, [showFeeModal, isThorFreeTrade])
 
+  const [showMore, toggleShowMore] = useToggle(false)
+
   const TradeDetailTable = useMemo(() => {
     if (!activeQuote) return null
 
     return (
       <>
+        <ShowMoreButton
+          onClick={toggleShowMore}
+          rightIcon={showMore ? <ChevronUpIcon /> : <ChevronDownIcon />}
+        >
+          {translate(showMore ? 'common.showLess' : 'common.showMore')}
+        </ShowMoreButton>
         <Stack spacing={4} width='full'>
           <Row>
             <Row.Label>
@@ -138,7 +174,7 @@ export const TradeConfirm = () => {
                 // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
                 !networkFeeFiatUserCurrency ? (
                   <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                    <Text translation={'trade.unknownGas'} fontSize='sm' />
+                    <Text translation={'trade.unknownGas'} />
                   </Tooltip>
                 ) : (
                   <Amount.Fiat value={networkFeeFiatUserCurrency} />
@@ -209,29 +245,35 @@ export const TradeConfirm = () => {
 
           {/* TODO: Hide the below unless expanded */}
 
-          <Row>
-            <Row.Label>
-              <Text translation='trade.rate' />
-            </Row.Label>
-            <Row.Value>
-              <HStack spacing={1}>
-                <Amount.Crypto value='1' symbol={sellAssetSymbol} suffix='=' />
-                <Amount.Crypto value={rate} symbol={buyAssetSymbol} />
-              </HStack>
-            </Row.Value>
-          </Row>
+          <Collapse in={showMore}>
+            <Stack spacing={4}>
+              <Row>
+                <Row.Label>
+                  <Text translation='trade.rate' />
+                </Row.Label>
+                <Row.Value>
+                  <HStack spacing={1}>
+                    <Amount.Crypto value='1' symbol={sellAssetSymbol} suffix='=' />
+                    <Amount.Crypto value={rate} symbol={buyAssetSymbol} />
+                  </HStack>
+                </Row.Value>
+              </Row>
 
-          <MaxSlippage
-            swapSource={tradeQuoteStep?.source}
-            isLoading={isLoading}
-            symbol={buyAsset.symbol}
-            amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
-            slippagePercentageDecimal={slippagePercentageDecimal}
-            hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
-            intermediaryTransactionOutputs={intermediaryTransactionOutputs}
-          />
+              <MaxSlippage
+                swapSource={tradeQuoteStep?.source}
+                isLoading={isLoading}
+                symbol={buyAsset.symbol}
+                amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
+                slippagePercentageDecimal={slippagePercentageDecimal}
+                hasIntermediaryTransactionOutputs={hasIntermediaryTransactionOutputs}
+                intermediaryTransactionOutputs={intermediaryTransactionOutputs}
+              />
 
-          {priceImpactPercentage && <PriceImpact priceImpactPercentage={priceImpactPercentage} />}
+              {priceImpactPercentage && (
+                <PriceImpact priceImpactPercentage={priceImpactPercentage} />
+              )}
+            </Stack>
+          </Collapse>
         </Stack>
         <FeeModal
           isOpen={showFeeModal}
@@ -263,10 +305,12 @@ export const TradeConfirm = () => {
     sellAsset.explorerAddressLink,
     sellAssetSymbol,
     showFeeModal,
+    showMore,
     slippagePercentageDecimal,
     swapSource,
     swapperName,
     toggleFeeModal,
+    toggleShowMore,
     tradeQuoteStep?.source,
     translate,
   ])

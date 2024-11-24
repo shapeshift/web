@@ -19,6 +19,8 @@ vi.mock('react-hook-form')
 vi.mock('hooks/useWallet/useWallet')
 vi.mock('state/slices/selectors', () => ({
   ...vi.importActual('state/slices/selectors'),
+  selectUserCurrencyToUsdRate: () => '1',
+  selectMarketDataUsd: vi.fn(() => ({})),
   selectAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectFeeAssetById: (_state: ReduxState, _id: AssetId) => mockEthereum,
   selectMarketDataByAssetIdUserCurrency: () => ({ price: '3500' }),

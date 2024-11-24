@@ -69,27 +69,30 @@ const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'point
 const hoverProps = {
   backgroundColor: 'background.surface.overlay.hover',
 }
-
-const ShowMoreButton = (props: ButtonProps) => {
-  return (
-    <Box position='relative' width='full' height='0' top='-18px'>
-      <Button
-        position='absolute'
-        left='50%'
-        transform='translate(-50%, -50%)'
-        borderRadius='full'
-        backgroundColor='background.surface.overlay.base'
-        border='1px solid'
-        borderColor='border.base'
-        size='sm'
-        px={4}
-        zIndex={1}
-        _hover={hoverProps}
-        {...props}
-      />
-    </Box>
-  )
+const activeProps = {
+  backgroundColor: 'background.surface.raised',
 }
+
+const ShowMoreButton = (props: ButtonProps) => (
+  <Box position='relative' width='full' height='0' top='-18px'>
+    <Button
+      position='absolute'
+      left='50%'
+      transform='translate(-50%, -50%)'
+      borderRadius='full'
+      backgroundColor='background.surface.overlay.base'
+      border='1px solid'
+      borderColor='border.base'
+      size='sm'
+      px={4}
+      zIndex={1}
+      _hover={hoverProps}
+      _active={activeProps}
+      color='text.subtle'
+      {...props}
+    />
+  </Box>
+)
 
 export const TradeConfirm = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)

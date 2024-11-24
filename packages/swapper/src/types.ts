@@ -267,6 +267,7 @@ export type TradeQuoteStep = {
   }
   cowswapQuoteResponse?: CowSwapQuoteResponse
   chainflipSwapId?: number | undefined
+  chainflipDepositAddress?: string | undefined
   chainflipNumberOfChunks?: number | undefined
   chainflipChunkIntervalBlocks?: number | undefined
 }

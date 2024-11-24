@@ -66,21 +66,30 @@ const ProtocolFeeToolTip = () => {
 }
 
 const shapeShiftFeeModalRowHover = { textDecoration: 'underline', cursor: 'pointer' }
+const hoverProps = {
+  backgroundColor: 'background.surface.overlay.hover',
+}
 
-const ShowMoreButton = (props: ButtonProps) => (
-  <Box position='relative' width='full' height='0' top='-20px'>
-    <Button
-      position='absolute'
-      left='50%'
-      transform='translateX(-50%)'
-      borderRadius='full'
-      backgroundColor='background.surface.raised.base'
-      size='sm'
-      px={4}
-      {...props}
-    />
-  </Box>
-)
+const ShowMoreButton = (props: ButtonProps) => {
+  return (
+    <Box position='relative' width='full' height='0' top='-18px'>
+      <Button
+        position='absolute'
+        left='50%'
+        transform='translate(-50%, -50%)'
+        borderRadius='full'
+        backgroundColor='background.surface.overlay.base'
+        border='1px solid'
+        borderColor='border.base'
+        size='sm'
+        px={4}
+        zIndex={1}
+        _hover={hoverProps}
+        {...props}
+      />
+    </Box>
+  )
+}
 
 export const TradeConfirm = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
@@ -152,6 +161,7 @@ export const TradeConfirm = () => {
         >
           {translate(showMore ? 'common.showLess' : 'common.showMore')}
         </ShowMoreButton>
+
         <Stack spacing={4} width='full'>
           <Row>
             <Row.Label>

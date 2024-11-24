@@ -81,7 +81,7 @@ const ShowMoreButton = (props: ButtonProps) => (
       transform='translate(-50%, -50%)'
       borderRadius='full'
       backgroundColor='background.surface.overlay.base'
-      border='1px solid'
+      border='2px solid'
       borderColor='border.base'
       size='sm'
       px={4}

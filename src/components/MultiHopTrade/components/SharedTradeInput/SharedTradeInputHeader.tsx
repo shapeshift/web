@@ -2,6 +2,8 @@ import { CardHeader, Flex, Heading } from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
+import { selectWalletId } from 'state/slices/selectors'
+import { useAppSelector } from 'state/store'
 
 import { TradeInputTab } from '../../types'
 
@@ -21,6 +23,7 @@ export const SharedTradeInputHeader = ({
 
   const enableBridgeClaims = useFeatureFlag('ArbitrumBridgeClaims')
   const enableLimitOrders = useFeatureFlag('LimitOrders')
+  const walletId = useAppSelector(selectWalletId)
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
@@ -66,7 +69,7 @@ export const SharedTradeInputHeader = ({
               {translate('limitOrder.heading')}
             </Heading>
           )}
-          {enableBridgeClaims && (
+          {enableBridgeClaims && walletId && (
             <Heading
               as='h5'
               fontSize='md'

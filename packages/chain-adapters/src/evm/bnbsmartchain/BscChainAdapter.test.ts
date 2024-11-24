@@ -306,7 +306,7 @@ describe('BscChainAdapter', () => {
           receiverAddress: '0x1234',
           signTxInput,
         }),
-      ).rejects.toThrow(/Error signing & broadcasting tx/)
+      ).rejects.toThrow(/error signing & broadcasting tx/)
     })
 
     it('should return the hash returned by wallet.ethSendTx', async () => {
@@ -362,9 +362,7 @@ describe('BscChainAdapter', () => {
         },
       }
 
-      await expect(adapter.signMessage(message)).rejects.toThrow(
-        /EvmBaseAdapter: error signing message/,
-      )
+      await expect(adapter.signMessage(message)).rejects.toThrow(/error signing message/)
     })
   })
 
@@ -404,9 +402,7 @@ describe('BscChainAdapter', () => {
         chainSpecific: makeChainSpecific({ contractAddress }),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        `${adapter.getName()}ChainAdapter: to is required`,
-      )
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('to is required')
     })
 
     it('should throw if passed tx has no "value" property', async () => {
@@ -419,9 +415,7 @@ describe('BscChainAdapter', () => {
         chainSpecific: makeChainSpecific(),
       } as unknown as BuildSendTxInput<KnownChainIds.BnbSmartChainMainnet>
 
-      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow(
-        `${adapter.getName()}ChainAdapter: value is required`,
-      )
+      await expect(adapter.buildSendTransaction(tx)).rejects.toThrow('value is required')
     })
 
     it('should return a validly formatted ETHSignTx object for a valid BuildSendTxInput parameter', async () => {

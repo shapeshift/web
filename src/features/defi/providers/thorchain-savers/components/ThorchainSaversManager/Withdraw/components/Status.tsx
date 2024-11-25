@@ -105,7 +105,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         })
       }
     })()
-  }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, state?.txid])
+  }, [accountId, appDispatch, contextDispatch, getOpportunitiesUserData, isRunePool, state?.txid])
 
   const handleViewPosition = useCallback(() => {
     browserHistory.push('/earn')

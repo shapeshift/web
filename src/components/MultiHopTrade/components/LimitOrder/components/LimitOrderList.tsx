@@ -36,7 +36,7 @@ type LimitOrderListProps = {
 
 const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
   const { chainNamespace, chainReference } = fromChainId(chainId)
-  return cowSwapToken === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
+  return cowSwapToken.toLowerCase() === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS.toLowerCase()
     ? toAssetId({
         chainId,
         assetNamespace: 'slip44',

@@ -356,7 +356,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       ) // to actual asset precision base unit
 
       const rewardsAmountsCryptoBaseUnit: [string] = [
-        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(),
+        stakedAmountCryptoBaseUnitIncludeRewards.minus(stakedAmountCryptoBaseUnit).toFixed(0),
       ]
 
       const dateUnlocked = await (async () => {
@@ -388,7 +388,7 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
         isLoaded: true,
         userStakingId,
-        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(),
+        stakedAmountCryptoBaseUnit: stakedAmountCryptoBaseUnit.toFixed(0),
         rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: false },
         dateUnlocked,
       }

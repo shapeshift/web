@@ -256,16 +256,16 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
-                    .times(marketData.price)
+                    .div(bn(10).pow(feeAsset.precision))
+                    .times(feeMarketData.price)
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
                   value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(asset.precision))
+                    .div(bn(10).pow(feeAsset.precision))
                     .toFixed()}
-                  symbol={asset.symbol}
+                  symbol={feeAsset.symbol}
                 />
               </Box>
             </Row.Value>

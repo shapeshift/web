@@ -109,7 +109,8 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!(quoteOrRate === 'quote' && wallet))
+      // This is a quote without a wallet, we monkey-patch things to the best of our ability
+      if (quoteOrRate === 'rate' && !receiveAddress)
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
@@ -125,6 +126,7 @@ export const getTradeQuoteInput = async ({
       if (!sellAccountType) throw Error('missing account type')
       if (sellAccountNumber === undefined) throw Error('missing account number')
       if (receiveAddress === undefined) throw Error('missing receive address')
+      if (!wallet) throw Error('Wallet is required')
 
       const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({

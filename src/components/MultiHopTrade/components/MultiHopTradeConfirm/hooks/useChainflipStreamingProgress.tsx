@@ -149,7 +149,8 @@ export const useChainflipStreamingProgress = (
   ])
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps = (streamingSwapMeta?.attemptedSwapCount ?? 0)
+    const numSuccessfulSwaps =
+      (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)
 
     const isComplete =
       streamingSwapMeta !== undefined && numSuccessfulSwaps >= streamingSwapMeta.totalSwapCount

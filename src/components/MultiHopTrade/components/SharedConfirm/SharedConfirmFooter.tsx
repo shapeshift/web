@@ -1,20 +1,15 @@
-import { CardFooter, Stack } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 
 type SharedConfirmFooterProps = {
-  ConfirmDetailTable: React.ReactNode | null
+  ConfirmDetails: React.ReactNode | null
   FooterButton: React.ReactNode
 }
 
-export const SharedConfirmFooter = ({
-  ConfirmDetailTable,
-  FooterButton,
-}: SharedConfirmFooterProps) => {
+export const SharedConfirmFooter = ({ ConfirmDetails, FooterButton }: SharedConfirmFooterProps) => {
   return (
-    <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
-      <Stack width='full'>
-        {ConfirmDetailTable}
-        {FooterButton}
-      </Stack>
-    </CardFooter>
+    <Stack width='full'>
+      {ConfirmDetails}
+      {FooterButton}
+    </Stack>
   )
 }

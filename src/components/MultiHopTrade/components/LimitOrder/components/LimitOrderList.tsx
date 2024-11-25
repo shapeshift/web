@@ -6,11 +6,13 @@ import {
   Center,
   Flex,
   Heading,
+  Spinner,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
+  VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAccountId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
@@ -62,7 +64,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     }
   }, [onBack])
 
-  const { data: ordersResponse } = useGetLimitOrdersQuery()
+  const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
 
   const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
     if (!ordersResponse) return []
@@ -128,7 +130,18 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           <TabPanels>
             <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
-                {openLimitOrders !== undefined && openLimitOrders.length > 0 ? (
+                {isLoading && (
+                  // subtract height of tab header
+                  <Center width='full' height={`calc(${cardProps?.height}px - 40px)`}>
+                    <VStack>
+                      <Spinner />
+
+                      <Text color='text.subtle' translation='limitOrder.loadingOrderList' />
+                    </VStack>
+                  </Center>
+                )}
+                {openLimitOrders !== undefined &&
+                  openLimitOrders.length > 0 &&
                   openLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
@@ -143,8 +156,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                         .toNumber()}
                       status={order.status}
                     />
-                  ))
-                ) : (
+                  ))}
+                {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
                   <Center h='full'>
                     <Text color='text.subtle' translation='limitOrder.noOpenOrders' />
                   </Center>

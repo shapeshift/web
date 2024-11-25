@@ -1065,7 +1065,8 @@
       "cancelled": "Cancelled",
       "expired": "Expired"
     },
-    "orders": "Orders"
+    "orders": "Orders",
+    "loadingOrderList": "Loading your limit orders..."
   },
   "modals": {
     "assetSearch": {

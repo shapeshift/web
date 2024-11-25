@@ -6,8 +6,8 @@ import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
 import { LimitOrderInput } from './components/LimitOrderInput'
-import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderList } from './components/LimitOrderList'
+import { PlaceLimitOrder } from './components/PlaceLimitOrder'
 import { LimitOrderRoutePaths } from './types'
 
 const LimitOrderRouteEntries = [

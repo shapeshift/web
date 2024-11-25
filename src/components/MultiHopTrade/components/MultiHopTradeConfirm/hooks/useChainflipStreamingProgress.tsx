@@ -54,9 +54,23 @@ const getChainflipStreamingSwap = async (
     return
   }
 
+  const swapState = statusResponse.status?.state
   const dcaStatus = statusResponse.status?.swap?.dca
 
   if (!dcaStatus) return
+
+  if (
+    swapState === 'sending' ||
+    swapState === 'sent' ||
+    swapState === 'completed' ||
+    swapState === 'failed'
+  ) {
+    // It's finished!
+    return {
+      executedChunks: dcaStatus!.executedChunks!,
+      remainingChunks: 0,
+    }
+  }
 
   return {
     executedChunks: dcaStatus!.executedChunks!,
@@ -141,7 +155,16 @@ export const useChainflipStreamingProgress = (
 
     // stop polling on dismount
     return cancelPolling
-  }, [cancelPolling, dispatch, hopIndex, poll, sellTxHash, confirmedTradeId, swapId])
+  }, [
+    cancelPolling,
+    dispatch,
+    hopIndex,
+    poll,
+    sellTxHash,
+    confirmedTradeId,
+    swapId,
+    tradeQuoteStep,
+  ])
 
   const result = useMemo(() => {
     const numSuccessfulSwaps =

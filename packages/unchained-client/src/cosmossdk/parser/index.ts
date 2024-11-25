@@ -102,6 +102,27 @@ export class BaseTransactionParser<T extends Tx> {
           value: amount.toString(10),
         })
       }
+
+      // special case for rune pool withdraw transfer (no message emitted so parsing of events for transfer is required)
+      if (msg.type === 'deposit' && tx.events[msg.index]['rune_pool_withdraw']) {
+        const transfer = tx.events[msg.index]['transfer']
+
+        const regex = /^(?<value>\d+)(?<denom>[a-zA-Z]+)$/
+        const match = transfer?.amount.match(regex)
+
+        if (match?.groups) {
+          const { value } = match.groups
+
+          parsedTx.transfers = aggregateTransfer({
+            assetId,
+            from: transfer.sender,
+            to: transfer.recipient,
+            transfers: parsedTx.transfers,
+            type: TransferType.Receive,
+            value,
+          })
+        }
+      }
     })
 
     return Promise.resolve(parsedTx)

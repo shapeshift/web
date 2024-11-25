@@ -101,11 +101,14 @@ export const chainflipApi: SwapperApi = {
       if (!swapResponse.id) throw Error('missing swap ID')
 
       tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
+    } else {
+      tradeQuoteMetadata.set(tradeQuote.id, {
+        id: step.chainflipSwapId,
+        address: step.chainflipDepositAddress,
+      })
     }
 
-    const depositAddress = step.chainflipDepositAddress
-      ? step.chainflipDepositAddress
-      : tradeQuoteMetadata.get(tradeQuote.id)!.address!
+    const depositAddress = tradeQuoteMetadata.get(tradeQuote.id)!.address!
 
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
 
@@ -232,11 +235,14 @@ export const chainflipApi: SwapperApi = {
       if (!swapResponse.id) throw Error('missing swap ID')
 
       tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
+    } else {
+      tradeQuoteMetadata.set(tradeQuote.id, {
+        id: step.chainflipSwapId,
+        address: step.chainflipDepositAddress,
+      })
     }
 
-    const depositAddress = step.chainflipDepositAddress
-      ? step.chainflipDepositAddress
-      : tradeQuoteMetadata.get(tradeQuote.id)!.address!
+    const depositAddress = tradeQuoteMetadata.get(tradeQuote.id)!.address!
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -314,11 +320,14 @@ export const chainflipApi: SwapperApi = {
       if (!swapResponse.id) throw Error('missing swap ID')
 
       tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
+    } else {
+      tradeQuoteMetadata.set(tradeQuote.id, {
+        id: step.chainflipSwapId,
+        address: step.chainflipDepositAddress,
+      })
     }
 
-    const depositAddress = step.chainflipDepositAddress
-      ? step.chainflipDepositAddress
-      : tradeQuoteMetadata.get(tradeQuote.id)!.address!
+    const depositAddress = tradeQuoteMetadata.get(tradeQuote.id)!.address!
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 

@@ -15,7 +15,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAccountId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
-import { OrderClass, OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
@@ -68,9 +68,15 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     if (!ordersResponse) return []
     return partition(
       ordersResponse
-        // TODO: also filter on `order.signingScheme === SigningScheme.EIP712`
-        // Temporarily disabled to allow us to see orders while developing
-        .filter(({ order }) => order.class === OrderClass.LIMIT)
+        .filter(({ order }) => {
+          // Parse appData json to extract the order class
+          const appDataOrderClass = JSON.parse(order.fullAppData ?? '{}').metadata?.orderClass
+            ?.orderClass as OrderClass
+          // Prefer appData as the source of truth for order class, falling back to `order.class`.
+          // Required because they often differ, and appData has the most correct information.
+          const orderClass = appDataOrderClass ?? order.class
+          return orderClass === OrderClass.LIMIT && order.signingScheme === SigningScheme.EIP712
+        })
         .map(({ accountId, order }) => {
           const { chainId } = fromAccountId(accountId)
           const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)

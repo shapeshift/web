@@ -25,6 +25,7 @@ import type {
   Trade,
 } from '@shapeshiftoss/types/dist/cowSwap'
 import {
+  OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,
   SellTokenSource,
@@ -90,7 +91,7 @@ export const limitOrderApi = createApi({
         const { appData, appDataHash } = await getFullAppData(
           slippageTolerancePercentageDecimal,
           affiliateAppDataFragment,
-          'limit',
+          OrderClass.LIMIT,
         )
 
         const limitOrderQuoteRequest: OrderQuoteRequest = {

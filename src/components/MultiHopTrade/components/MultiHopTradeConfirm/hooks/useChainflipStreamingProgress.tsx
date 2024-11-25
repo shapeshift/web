@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import type { ChainflipStreamingSwapResponseSuccess } from './types'
 
-const POLL_INTERVAL_MILLISECONDS = 30_000 // 30 seconds
+const POLL_INTERVAL_MILLISECONDS = 5_000 // 5 seconds
 
 const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
   attemptedSwapCount: 0,
@@ -65,7 +65,7 @@ const getStreamingSwapMetadata = (
   const failedSwaps: StreamingSwapFailedSwap[] = []
 
   return {
-    totalSwapCount: data.executedChunks + data.remainingChunks ?? 0,
+    totalSwapCount: data.executedChunks + data.remainingChunks,
     attemptedSwapCount: data.executedChunks ?? 0,
     failedSwaps,
   }
@@ -98,7 +98,9 @@ export const useChainflipStreamingProgress = (
   console.log('useChainflipStreamingProgress.useAppSelector', bla)
 
   const swapId = tradeQuoteStep.chainflipSwapId
+  console.log('useChainflipStreamingProgress.tradeQuoteStep', tradeQuoteStep)
   console.log('useChainflipStreamingProgress.chainflipSwapId', swapId)
+  console.log('useChainflipStreamingProgress.sellTxHash', sellTxHash)
 
   useEffect(() => {
     // don't start polling until we have a tx
@@ -106,6 +108,8 @@ export const useChainflipStreamingProgress = (
 
     poll({
       fn: async () => {
+        console.log('useChainflipStreamingProgress.polling.tradeQuoteStep', tradeQuoteStep)
+        console.log('useChainflipStreamingProgress.polling.sellTxHash', sellTxHash)
         const updatedStreamingSwapData = await getChainflipStreamingSwap(swapId)
 
         // no payload at all - must be a failed request - return

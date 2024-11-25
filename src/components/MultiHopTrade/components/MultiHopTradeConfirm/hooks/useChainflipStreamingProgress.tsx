@@ -34,14 +34,15 @@ const getChainflipStreamingSwap = async (
   const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
-  const statusResponse = await axios.get<ChainFlipStatus>(
-    `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
-  ).then(response => {
-    return response.data
-  }).catch(function (error) {
-    console.log('getChainflipStreamingSwap.getStatusById', error)
-    return null
-  })
+  const statusResponse = await axios
+    .get<ChainFlipStatus>(`${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`)
+    .then(response => {
+      return response.data
+    })
+    .catch(function (error) {
+      console.log('getChainflipStreamingSwap.getStatusById', error)
+      return null
+    })
 
   console.log('getChainflipStreamingSwap.statusResponse', statusResponse)
 

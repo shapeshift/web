@@ -1,9 +1,9 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import axios from 'axios'
 
 import { atom } from '../baseAssets'
 import colormap from '../color-map.json'
+import assets from './assets.json'
 
 export const colorMap: Record<string, string> = colormap
 
@@ -29,17 +29,16 @@ type CosmosAsset = {
   coinGeckoId: string
 }
 
-export const getAssets = async (): Promise<Asset[]> => {
-  /* Fetch asset list */
+export const getAssets = (): Asset[] => {
+  /* 
+  This doesn't fetch assets *anymore* but simply build them, as cosmostation/chainlist assets.json have been removed in https://github.com/cosmostation/chainlist/commit/4418f0404ccbebaf753c3e4d56d7906ad14e7d17
+  We hardcoded the latest assets.json from the last commit before the removal of assets.json and use that to build Cosmos assets the same way as we used to 
+  */
 
-  const { data: assetData } = await axios.get<CosmosAsset[]>(
-    'https://rawcdn.githack.com/cosmostation/chainlist/main/chain/cosmos/assets.json',
-  )
+  const assetData = assets as CosmosAsset[]
 
-  if (!assetData) throw new Error('Could not get Cosmos asset data!')
-
-  return assetData.reduce<Promise<Asset[]>>(async (accPrevious, current) => {
-    const acc = await accPrevious
+  return assetData.reduce<Asset[]>((accPrevious, current) => {
+    const acc = accPrevious
     if (!current) return acc
 
     const precision = current.decimals
@@ -74,5 +73,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     acc.push(assetDatum)
 
     return acc
-  }, Promise.resolve([]))
+  }, [])
 }

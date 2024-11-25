@@ -1,100 +1,370 @@
-import type { Result } from '@sniptt/monads'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
+import { v4 as uuid } from 'uuid'
 
-import type {
-  CommonTradeQuoteInput,
-  GetTradeRateInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type { TradeRateResult } from '../../../types'
+import {
+  type GetEvmTradeRateInput,
+  type GetTradeRateInput,
+  type GetUtxoTradeQuoteInput,
+  type ProtocolFee,
+  type SwapperDeps,
+  SwapperName,
+  TradeQuoteError,
+  type TradeRate,
 } from '../../../types'
+import { getRate, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
+  CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_QUOTE,
   CHAINFLIP_DCA_SWAP_SOURCE,
+  CHAINFLIP_REGULAR_QUOTE,
+  CHAINFLIP_SWAP_SOURCE,
+  usdcAsset,
 } from '../constants'
-import {
-  calculateChainflipMinPrice,
-  getChainFlipIdFromAssetId,
-  getChainFlipSwap,
-} from '../utils/helpers'
-import { _getTradeQuote } from './getTradeQuote'
+import type { ChainflipBaasQuoteQuote, ChainflipBaasQuoteQuoteFee } from '../models'
+import { chainflipService } from '../utils/chainflipService'
+import { getEvmTxFees } from '../utils/getEvmTxFees'
+import { getUtxoTxFees } from '../utils/getUtxoTxFees'
+import { getChainFlipIdFromAssetId, isSupportedAssetId, isSupportedChainId } from '../utils/helpers'
 
-// This isn't a mistake. A trade rate *is* a trade quote. Chainflip doesn't really have a notion of a trade quote,
-// they do have a notion of a "swap" (which we effectively only use to get the deposit address), which is irrelevant to the notion of quote vs. rate
-export const getTradeRate = async (
+export const _getTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
-): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const rates = await _getTradeQuote(input as unknown as CommonTradeQuoteInput, deps)
+): Promise<TradeRateResult> => {
+  const {
+    sellAsset,
+    buyAsset,
+    accountNumber,
+    receiveAddress,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+    affiliateBps: commissionBps,
+  } = input
+
+  if (!isSupportedChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(sellAsset.chainId, sellAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: sellAsset.chainId, assetId: sellAsset.assetId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(buyAsset.chainId, buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: buyAsset.chainId, assetId: buyAsset.assetId },
+      }),
+    )
+  }
 
   const brokerUrl = deps.config.REACT_APP_CHAINFLIP_API_URL
   const apiKey = deps.config.REACT_APP_CHAINFLIP_API_KEY
 
-  // For DCA swaps we need to open a deposit channel at this point to attach the swap id to the quote,
-  // in order to properly fetch the streaming status later
-  rates.map(async tradeQuotes => {
-    for (const tradeQuote of tradeQuotes) {
-      for (const step of tradeQuote.steps) {
-        if (
-          step.source === CHAINFLIP_DCA_BOOST_SWAP_SOURCE ||
-          step.source === CHAINFLIP_DCA_SWAP_SOURCE
-        ) {
-          if (!input.receiveAddress) throw Error('missing receive address')
-          if (!input.sendAddress) throw Error('missing send address')
-
-          const sourceAsset = await getChainFlipIdFromAssetId({
-            assetId: step.sellAsset.assetId,
-            brokerUrl,
-          })
-          const destinationAsset = await getChainFlipIdFromAssetId({
-            assetId: step.buyAsset.assetId,
-            brokerUrl,
-          })
-
-          const minimumPrice = calculateChainflipMinPrice({
-            slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
-            sellAsset: step.sellAsset,
-            buyAsset: step.buyAsset,
-            buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
-            sellAmountIncludingProtocolFeesCryptoBaseUnit:
-              step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          })
-
-          let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
-          if (serviceCommission < 0) serviceCommission = 0
-
-          const maybeSwapResponse = await getChainFlipSwap({
-            brokerUrl,
-            apiKey,
-            sourceAsset,
-            destinationAsset,
-            destinationAddress: input.receiveAddress,
-            minimumPrice,
-            refundAddress: input.sendAddress,
-            commissionBps: serviceCommission,
-            numberOfChunks: step.chainflipNumberOfChunks,
-            chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
-            maxBoostFee: 0,
-          })
-
-          if (maybeSwapResponse.isErr()) {
-            const error = maybeSwapResponse.unwrapErr()
-            const cause = error.cause as AxiosError<any, any>
-            throw Error(cause.response!.data.detail)
-          }
-
-          const { data: swapResponse } = maybeSwapResponse.unwrap()
-
-          if (!swapResponse.id) throw Error('missing swap ID')
-
-          step.chainflipSwapId = swapResponse.id
-          step.chainflipDepositAddress = swapResponse.address
-        }
-      }
-    }
-    return tradeQuotes
+  const sourceAsset = await getChainFlipIdFromAssetId({
+    assetId: sellAsset.assetId,
+    brokerUrl,
+  })
+  const destinationAsset = await getChainFlipIdFromAssetId({
+    assetId: buyAsset.assetId,
+    brokerUrl,
   })
 
-  return rates as Result<TradeRate[], SwapErrorRight>
+  // Subtract the BaaS fee to end up at the final displayed commissionBps
+  let serviceCommission = parseInt(commissionBps) - CHAINFLIP_BAAS_COMMISSION
+  if (serviceCommission < 0) serviceCommission = 0
+
+  const maybeQuoteResponse = await chainflipService.get<ChainflipBaasQuoteQuote[]>(
+    `${brokerUrl}/quotes-native` +
+      `?apiKey=${apiKey}` +
+      `&sourceAsset=${sourceAsset}` +
+      `&destinationAsset=${destinationAsset}` +
+      `&amount=${sellAmount}` +
+      `&commissionBps=${serviceCommission}`,
+  )
+
+  if (maybeQuoteResponse.isErr()) {
+    const error = maybeQuoteResponse.unwrapErr()
+    const cause = error.cause as AxiosError<any, any>
+
+    if (
+      cause.message.includes('code 400') &&
+      cause.response!.data.detail.includes('Amount outside asset bounds')
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          message: cause.response!.data.detail,
+          code: TradeQuoteError.SellAmountBelowMinimum,
+        }),
+      )
+    }
+
+    return Err(
+      makeSwapErrorRight({
+        message: 'Quote request failed',
+        code: TradeQuoteError.NoRouteFound,
+      }),
+    )
+  }
+
+  const { data: quoteResponse } = maybeQuoteResponse.unwrap()
+
+  const getFeeData = async () => {
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm: {
+        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+        const networkFeeCryptoBaseUnit = await getEvmTxFees({
+          adapter: sellAdapter,
+          supportsEIP1559: (input as GetEvmTradeRateInput).supportsEIP1559,
+          sendAsset: sourceAsset,
+        })
+        return { networkFeeCryptoBaseUnit }
+      }
+
+      case CHAIN_NAMESPACE.Utxo: {
+        const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
+        const feeData = await getUtxoTxFees({
+          sellAmountCryptoBaseUnit: sellAmount,
+          sellAdapter,
+          publicKey,
+        })
+
+        return feeData
+      }
+
+      case CHAIN_NAMESPACE.Solana: {
+        const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+        const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+          // Simulates a self-send, since we don't know the to just yet at this stage
+          to: input.sendAddress!,
+          value: sellAmount,
+          chainSpecific: {
+            from: input.sendAddress!,
+            tokenId:
+              sellAsset.assetId === solAssetId
+                ? undefined
+                : fromAssetId(sellAsset.assetId).assetReference,
+          },
+        }
+        const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
+        return { networkFeeCryptoBaseUnit: fast.txFee }
+      }
+
+      default:
+        throw new Error('Unsupported chainNamespace')
+    }
+  }
+
+  const getFeeAsset = (fee: ChainflipBaasQuoteQuoteFee) => {
+    if (fee.type === 'ingress' || fee.type === 'boost') return sellAsset
+
+    if (fee.type === 'egress') return buyAsset
+
+    if (fee.type === 'liquidity' && fee.asset === sourceAsset) return sellAsset
+
+    if (fee.type === 'liquidity' && fee.asset === destinationAsset) return buyAsset
+
+    if (fee.type === 'liquidity' && fee.asset === 'usdc.eth') return usdcAsset
+
+    if (fee.type === 'network') return usdcAsset
+  }
+
+  const getProtocolFees = (singleQuoteResponse: ChainflipBaasQuoteQuote) => {
+    const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+    for (const fee of singleQuoteResponse.includedFees!) {
+      if (fee.type === 'broker') continue
+
+      const asset = getFeeAsset(fee)!
+      if (!(asset.assetId in protocolFees)) {
+        protocolFees[asset.assetId] = {
+          amountCryptoBaseUnit: '0',
+          requiresBalance: false,
+          asset,
+        }
+      }
+
+      protocolFees[asset.assetId].amountCryptoBaseUnit = (
+        BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative!)
+      ).toString()
+    }
+
+    return protocolFees
+  }
+
+  const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
+    return getRate({
+      sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
+  }
+
+  const getSwapSource = (swapType: string | undefined, isBoosted: boolean) => {
+    return swapType === CHAINFLIP_REGULAR_QUOTE
+      ? isBoosted
+        ? CHAINFLIP_BOOST_SWAP_SOURCE
+        : CHAINFLIP_SWAP_SOURCE
+      : isBoosted
+      ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE
+      : CHAINFLIP_DCA_SWAP_SOURCE
+  }
+
+  const quotes: TradeRate[] = []
+
+  for (const singleQuoteResponse of quoteResponse) {
+    const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
+    const feeData = await getFeeData()
+
+    if (singleQuoteResponse.boostQuote) {
+      const boostRate = getQuoteRate(
+        singleQuoteResponse.boostQuote.ingressAmountNative!,
+        singleQuoteResponse.boostQuote.egressAmountNative!,
+      )
+
+      const boostTradeQuote: TradeRate = {
+        id: uuid(),
+        accountNumber,
+        rate: boostRate,
+        receiveAddress,
+        potentialAffiliateBps: commissionBps,
+        affiliateBps: commissionBps,
+        isStreaming,
+        slippageTolerancePercentageDecimal:
+          input.slippageTolerancePercentageDecimal ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
+        steps: [
+          {
+            buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative!,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit:
+              singleQuoteResponse.boostQuote.ingressAmountNative!,
+            feeData: {
+              protocolFees: getProtocolFees(singleQuoteResponse.boostQuote),
+              ...feeData,
+            },
+            rate: boostRate,
+            source: getSwapSource(singleQuoteResponse.type, true),
+            buyAsset,
+            sellAsset,
+            accountNumber,
+            allowanceContract: '0x0', // Chainflip does not use contracts
+            estimatedExecutionTimeMs:
+              (singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.deposit! +
+                singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.swap!) *
+              1000,
+            chainflipNumberOfChunks: isStreaming
+              ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined
+              : undefined,
+            chainflipChunkIntervalBlocks: isStreaming
+              ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
+              : undefined,
+          },
+        ],
+      }
+
+      quotes.push(boostTradeQuote)
+    }
+
+    const rate = getQuoteRate(
+      singleQuoteResponse.ingressAmountNative!,
+      singleQuoteResponse.egressAmountNative!,
+    )
+
+    const tradeQuote: TradeRate = {
+      id: uuid(),
+      accountNumber,
+      rate,
+      receiveAddress,
+      potentialAffiliateBps: commissionBps,
+      affiliateBps: commissionBps,
+      isStreaming,
+      slippageTolerancePercentageDecimal:
+        input.slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Chainflip),
+      steps: [
+        {
+          buyAmountBeforeFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
+          buyAmountAfterFeesCryptoBaseUnit: singleQuoteResponse.egressAmountNative!,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: singleQuoteResponse.ingressAmountNative!,
+          feeData: {
+            protocolFees: getProtocolFees(singleQuoteResponse),
+            ...feeData,
+          },
+          rate,
+          source: getSwapSource(singleQuoteResponse.type, false),
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          allowanceContract: '0x0', // Chainflip does not use contracts - all Txs are sends
+          estimatedExecutionTimeMs:
+            (singleQuoteResponse.estimatedDurationsSeconds!.deposit! +
+              singleQuoteResponse.estimatedDurationsSeconds!.swap!) *
+            1000,
+          chainflipNumberOfChunks: isStreaming
+            ? singleQuoteResponse.numberOfChunks ?? undefined
+            : undefined,
+          chainflipChunkIntervalBlocks: isStreaming
+            ? singleQuoteResponse.chunkIntervalBlocks ?? undefined
+            : undefined,
+        },
+      ],
+    }
+
+    quotes.push(tradeQuote)
+  }
+
+  return Ok(quotes)
+}
+
+export const getTradeRate = async (
+  input: GetTradeRateInput,
+  deps: SwapperDeps,
+): Promise<TradeRateResult> => {
+  const { accountNumber } = input
+
+  if (accountNumber === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `accountNumber is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  return await _getTradeRate(input, deps)
 }

@@ -77,7 +77,8 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
       // Note, the transaction we wait for here is a Thorchain transaction, *not* the inbound Tx
       const thorchainTxStatus = await waitForThorchainUpdate({
         txId: state.txid!,
-        skipOutbound: false,
+        // RUNEPool has no outbound Tx so we skipOutbound, else this will spin to infinity
+        skipOutbound: isRunePool,
       }).promise
 
       if ([TxStatusType.Confirmed, TxStatusType.Failed].includes(thorchainTxStatus)) {

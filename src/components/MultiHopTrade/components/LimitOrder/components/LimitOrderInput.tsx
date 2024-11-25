@@ -138,7 +138,6 @@ export const LimitOrderInput = ({
       sellAccountId,
     })
 
-  const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
@@ -254,8 +253,6 @@ export const LimitOrderInput = ({
       return
     }
 
-    setIsConfirmationLoading(true)
-
     // Everything gets bundled up into a canonical set of data for execution. This is to avoid
     // dramas with race conditions, polling, etc. across the input and execution stages of the limit
     // orders feature.
@@ -270,8 +267,6 @@ export const LimitOrderInput = ({
     })
 
     history.push(LimitOrderRoutePaths.Confirm)
-
-    setIsConfirmationLoading(false)
   }, [
     buyAmountCryptoBaseUnit,
     expiry,
@@ -305,7 +300,6 @@ export const LimitOrderInput = ({
       // No account meta loaded for that chain
       !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
-      isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -313,7 +307,6 @@ export const LimitOrderInput = ({
     )
   }, [
     isAnyAccountMetadataLoadedForChainId,
-    isConfirmationLoading,
     isLimitOrderQuoteFetching,
     isTradeQuoteRequestAborted,
     isVotingPowerLoading,

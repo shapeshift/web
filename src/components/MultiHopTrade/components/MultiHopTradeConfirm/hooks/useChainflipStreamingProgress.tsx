@@ -26,8 +26,6 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 const getChainflipStreamingSwap = async (
   swapId: number | undefined,
 ): Promise<ChainflipStreamingSwapResponseSuccess | undefined> => {
-  console.log('getChainflipStreamingSwap.swapId', swapId)
-
   if (!swapId) return
 
   const config = getConfig()
@@ -44,15 +42,7 @@ const getChainflipStreamingSwap = async (
       return null
     })
 
-  console.log('getChainflipStreamingSwap.statusResponse', statusResponse)
-
   if (!statusResponse) return
-
-  // TODO: Check for real errors
-  if ('error' in statusResponse) {
-    console.error('failed to fetch streaming swap data', statusResponse.error)
-    return
-  }
 
   const swapState = statusResponse.status?.state
   const dcaStatus = statusResponse.status?.swap?.dca
@@ -114,13 +104,7 @@ export const useChainflipStreamingProgress = (
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
-  const bla = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
-  console.log('useChainflipStreamingProgress.useAppSelector', bla)
-
   const swapId = tradeQuoteStep.chainflipSwapId
-  console.log('useChainflipStreamingProgress.tradeQuoteStep', tradeQuoteStep)
-  console.log('useChainflipStreamingProgress.chainflipSwapId', swapId)
-  console.log('useChainflipStreamingProgress.sellTxHash', sellTxHash)
 
   useEffect(() => {
     // don't start polling until we have a tx
@@ -128,8 +112,6 @@ export const useChainflipStreamingProgress = (
 
     poll({
       fn: async () => {
-        console.log('useChainflipStreamingProgress.polling.tradeQuoteStep', tradeQuoteStep)
-        console.log('useChainflipStreamingProgress.polling.sellTxHash', sellTxHash)
         const updatedStreamingSwapData = await getChainflipStreamingSwap(swapId)
 
         // no payload at all - must be a failed request - return
@@ -167,8 +149,7 @@ export const useChainflipStreamingProgress = (
   ])
 
   const result = useMemo(() => {
-    const numSuccessfulSwaps =
-      (streamingSwapMeta?.attemptedSwapCount ?? 0) - (streamingSwapMeta?.failedSwaps?.length ?? 0)
+    const numSuccessfulSwaps = (streamingSwapMeta?.attemptedSwapCount ?? 0)
 
     const isComplete =
       streamingSwapMeta !== undefined && numSuccessfulSwaps >= streamingSwapMeta.totalSwapCount

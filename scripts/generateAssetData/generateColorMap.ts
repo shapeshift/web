@@ -31,7 +31,7 @@ const generateColorMap = async () => {
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
-  const cosmosAssets = cosmos.getAssets()
+  const cosmosAssets = await cosmos.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [

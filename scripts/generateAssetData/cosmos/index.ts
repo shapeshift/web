@@ -1,41 +1,43 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import axios from 'axios'
 
 import { atom } from '../baseAssets'
 import colormap from '../color-map.json'
-import assets from './assets.json'
 
 export const colorMap: Record<string, string> = colormap
 
 type CosmosAsset = {
-  denom: string
   type: string
-  origin_chain: string
-  origin_denom: string
-  origin_type: string
+  denom: string
+  name: string
   symbol: string
+  description: string
   decimals: number
-  enable?: boolean
-  path?: string
-  channel?: string
-  port?: string
-  counter_party?: {
-    channel: string
-    port: string
-    denom: string
-  }
-  description?: string
-  image?: string
+  image: string
   coinGeckoId: string
+  ibc_info: {
+    path: string
+    client: {
+      channel: string
+      port: string
+    }
+    counterparty: {
+      channel: string
+      port: string
+      chain: string
+      denom: string
+    }
+  }
 }
 
-export const getAssets = (): Asset[] => {
-  /* 
-  This doesn't fetch assets *anymore* but simply build them, as cosmostation/chainlist assets.json have been removed in https://github.com/cosmostation/chainlist/commit/4418f0404ccbebaf753c3e4d56d7906ad14e7d17
-  We hardcoded the latest assets.json from the last commit before the removal of assets.json and use that to build Cosmos assets the same way as we used to 
-  */
+export const getAssets = async (): Promise<Asset[]> => {
+  /* Fetch asset list */
+  const { data: assetData } = await axios.get<CosmosAsset[]>(
+    'https://rawcdn.githack.com/cosmostation/chainlist/main/chain/cosmos/assets_2.json',
+  )
 
-  const assetData = assets as CosmosAsset[]
+  if (!assetData) throw new Error('Could not get Cosmos asset data!')
 
   return assetData.reduce<Asset[]>((accPrevious, current) => {
     const acc = accPrevious
@@ -61,9 +63,7 @@ export const getAssets = (): Asset[] => {
       name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: current.image
-        ? `https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/${current.image}`
-        : '',
+      icon: current.image,
       explorer: atom.explorer,
       explorerAddressLink: atom.explorerAddressLink,
       explorerTxLink: atom.explorerTxLink,

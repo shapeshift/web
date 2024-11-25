@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Heading } from '@chakra-ui/react'
+import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
@@ -13,23 +13,17 @@ import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { WithBackButton } from '../WithBackButton'
-import { SharedConfirmFooter } from './SharedConfirmFooter'
 
 const cardBorderRadius = { base: 'xl' }
 
 type SharedConfirmProps = {
-  ConfirmDetailTable: React.ReactNode | null
-  FooterButton: React.ReactNode
+  Body: JSX.Element
+  Footer: JSX.Element
   isLoading: boolean
 }
 
-export const SharedConfirm = ({
-  ConfirmDetailTable,
-  FooterButton,
-  isLoading,
-}: SharedConfirmProps) => {
+export const SharedConfirm = ({ Body, Footer, isLoading }: SharedConfirmProps) => {
   const dispatch = useAppDispatch()
-  //   const translate = useTranslate()
   const history = useHistory()
 
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
@@ -82,9 +76,11 @@ export const SharedConfirm = ({
           </WithBackButton>
         </CardHeader>
         <CardBody py={0} px={0}>
-          gm
+          {Body}
         </CardBody>
-        <SharedConfirmFooter ConfirmDetailTable={ConfirmDetailTable} FooterButton={FooterButton} />
+        <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
+          {Footer}
+        </CardFooter>
       </Card>
     </TradeSlideTransition>
   )

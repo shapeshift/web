@@ -20,6 +20,12 @@ import {
     ChainflipBaasQuoteBoostQuoteFromJSONTyped,
     ChainflipBaasQuoteBoostQuoteToJSON,
 } from './ChainflipBaasQuoteBoostQuote';
+import type { ChainflipBaasQuoteEstimatedDurationsSeconds } from './ChainflipBaasQuoteEstimatedDurationsSeconds';
+import {
+    ChainflipBaasQuoteEstimatedDurationsSecondsFromJSON,
+    ChainflipBaasQuoteEstimatedDurationsSecondsFromJSONTyped,
+    ChainflipBaasQuoteEstimatedDurationsSecondsToJSON,
+} from './ChainflipBaasQuoteEstimatedDurationsSeconds';
 import type { ChainflipBaasQuotePoolInfo } from './ChainflipBaasQuotePoolInfo';
 import {
     ChainflipBaasQuotePoolInfoFromJSON,
@@ -64,6 +70,24 @@ export interface ChainflipBaasQuoteQuote {
      */
     readonly ingressAmountNative?: string;
     /**
+     * The asset used as intermediary.
+     * @type {string}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    intermediateAsset?: string | null;
+    /**
+     * The amount used as intermediary.
+     * @type {number}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    readonly intermediateAmount?: number | null;
+    /**
+     * The amount used as intermediary in native units.
+     * @type {string}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    readonly intermediateAmountNative?: string | null;
+    /**
      * The asset to receive.
      * @type {string}
      * @memberof ChainflipBaasQuoteQuote
@@ -88,6 +112,12 @@ export interface ChainflipBaasQuoteQuote {
      */
     readonly includedFees?: Array<ChainflipBaasQuoteQuoteFee>;
     /**
+     * Recommended slippage percentage to use when calculating minimum price.
+     * @type {number}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    readonly recommendedSlippageTolerancePercent?: number;
+    /**
      * A warning in case liquidity is low and there is a risk of high slippage.
      * @type {boolean}
      * @memberof ChainflipBaasQuoteQuote
@@ -98,7 +128,7 @@ export interface ChainflipBaasQuoteQuote {
      * @type {Array<ChainflipBaasQuotePoolInfo>}
      * @memberof ChainflipBaasQuoteQuote
      */
-    poolInfo?: Array<ChainflipBaasQuotePoolInfo>;
+    readonly poolInfo?: Array<ChainflipBaasQuotePoolInfo>;
     /**
      * The estimated time the swap will take.
      * @type {number}
@@ -106,17 +136,29 @@ export interface ChainflipBaasQuoteQuote {
      */
     readonly estimatedDurationSeconds?: number;
     /**
+     * 
+     * @type {ChainflipBaasQuoteEstimatedDurationsSeconds}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    estimatedDurationsSeconds?: ChainflipBaasQuoteEstimatedDurationsSeconds;
+    /**
+     * The estimated price in the destination asset for 1 unit of the source asset. Used for slippage calculations.
+     * @type {number}
+     * @memberof ChainflipBaasQuoteQuote
+     */
+    readonly estimatedPrice?: number;
+    /**
      * The number of "sub-swaps" to perform for a DCA swap.
      * @type {number}
      * @memberof ChainflipBaasQuoteQuote
      */
-    chunkIntervalBlocks?: number | null;
+    readonly chunkIntervalBlocks?: number | null;
     /**
      * The delay between the "sub-swaps" of a DCA swap in number of blocks.
      * @type {number}
      * @memberof ChainflipBaasQuoteQuote
      */
-    numberOfChunks?: number | null;
+    readonly numberOfChunks?: number | null;
     /**
      * 
      * @type {ChainflipBaasQuoteBoostQuote}
@@ -159,13 +201,19 @@ export function ChainflipBaasQuoteQuoteFromJSONTyped(json: any, ignoreDiscrimina
         'ingressAsset': !exists(json, 'ingressAsset') ? undefined : json['ingressAsset'],
         'ingressAmount': !exists(json, 'ingressAmount') ? undefined : json['ingressAmount'],
         'ingressAmountNative': !exists(json, 'ingressAmountNative') ? undefined : json['ingressAmountNative'],
+        'intermediateAsset': !exists(json, 'intermediateAsset') ? undefined : json['intermediateAsset'],
+        'intermediateAmount': !exists(json, 'intermediateAmount') ? undefined : json['intermediateAmount'],
+        'intermediateAmountNative': !exists(json, 'intermediateAmountNative') ? undefined : json['intermediateAmountNative'],
         'egressAsset': !exists(json, 'egressAsset') ? undefined : json['egressAsset'],
         'egressAmount': !exists(json, 'egressAmount') ? undefined : json['egressAmount'],
         'egressAmountNative': !exists(json, 'egressAmountNative') ? undefined : json['egressAmountNative'],
         'includedFees': !exists(json, 'includedFees') ? undefined : ((json['includedFees'] as Array<any>).map(ChainflipBaasQuoteQuoteFeeFromJSON)),
+        'recommendedSlippageTolerancePercent': !exists(json, 'recommendedSlippageTolerancePercent') ? undefined : json['recommendedSlippageTolerancePercent'],
         'lowLiquidityWarning': !exists(json, 'lowLiquidityWarning') ? undefined : json['lowLiquidityWarning'],
         'poolInfo': !exists(json, 'poolInfo') ? undefined : ((json['poolInfo'] as Array<any>).map(ChainflipBaasQuotePoolInfoFromJSON)),
         'estimatedDurationSeconds': !exists(json, 'estimatedDurationSeconds') ? undefined : json['estimatedDurationSeconds'],
+        'estimatedDurationsSeconds': !exists(json, 'estimatedDurationsSeconds') ? undefined : ChainflipBaasQuoteEstimatedDurationsSecondsFromJSON(json['estimatedDurationsSeconds']),
+        'estimatedPrice': !exists(json, 'estimatedPrice') ? undefined : json['estimatedPrice'],
         'chunkIntervalBlocks': !exists(json, 'chunkIntervalBlocks') ? undefined : json['chunkIntervalBlocks'],
         'numberOfChunks': !exists(json, 'numberOfChunks') ? undefined : json['numberOfChunks'],
         'boostQuote': !exists(json, 'boostQuote') ? undefined : ChainflipBaasQuoteBoostQuoteFromJSON(json['boostQuote']),
@@ -183,10 +231,9 @@ export function ChainflipBaasQuoteQuoteToJSON(value?: ChainflipBaasQuoteQuote | 
         
         'ingressAsset': value.ingressAsset,
         'ingressAmount': value.ingressAmount,
+        'intermediateAsset': value.intermediateAsset,
         'egressAsset': value.egressAsset,
-        'poolInfo': value.poolInfo === undefined ? undefined : ((value.poolInfo as Array<any>).map(ChainflipBaasQuotePoolInfoToJSON)),
-        'chunkIntervalBlocks': value.chunkIntervalBlocks,
-        'numberOfChunks': value.numberOfChunks,
+        'estimatedDurationsSeconds': ChainflipBaasQuoteEstimatedDurationsSecondsToJSON(value.estimatedDurationsSeconds),
         'boostQuote': ChainflipBaasQuoteBoostQuoteToJSON(value.boostQuote),
     };
 }

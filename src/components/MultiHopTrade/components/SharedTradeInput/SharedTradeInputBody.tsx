@@ -7,7 +7,7 @@ import {
   IconButton,
   Stack,
 } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -33,10 +33,13 @@ type SharedTradeInputBodyProps = {
   children: JSX.Element
   isInputtingFiatSellAmount: boolean
   isLoading: boolean | undefined
+  isSwitchAssetsDisabled?: boolean
   sellAmountCryptoPrecision: string
   sellAmountUserCurrency: string | undefined
   sellAsset: Asset
   sellAccountId: AccountId | undefined
+  assetFilterPredicate?: (asset: Asset) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
   onSwitchAssets: () => void
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
@@ -49,10 +52,13 @@ export const SharedTradeInputBody = ({
   children,
   isInputtingFiatSellAmount,
   isLoading,
+  isSwitchAssetsDisabled,
   sellAmountCryptoPrecision,
   sellAmountUserCurrency,
   sellAsset,
   sellAccountId,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
   onSwitchAssets,
   onChangeIsInputtingFiatSellAmount,
   onChangeSellAmountCryptoPrecision,
@@ -108,8 +114,10 @@ export const SharedTradeInputBody = ({
     sellAssetSearch.open({
       onAssetClick: setSellAsset,
       title: 'trade.tradeFrom',
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     })
-  }, [sellAssetSearch, setSellAsset])
+  }, [assetFilterPredicate, chainIdFilterPredicate, sellAssetSearch, setSellAsset])
 
   const sellTradeAssetSelect = useMemo(
     () => (
@@ -118,17 +126,19 @@ export const SharedTradeInputBody = ({
         onAssetClick={handleSellAssetClick}
         onAssetChange={setSellAsset}
         onlyConnectedChains={true}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [handleSellAssetClick, sellAsset.assetId, setSellAsset],
+    [handleSellAssetClick, sellAsset.assetId, setSellAsset, chainIdFilterPredicate],
   )
 
   // disable switching assets if the buy asset isn't supported
   const shouldDisableSwitchAssets = useMemo(() => {
+    if (isSwitchAssetsDisabled) return true
     if (!hasWallet) return false
 
     return !walletSupportsBuyAssetChain || isLoading
-  }, [hasWallet, walletSupportsBuyAssetChain, isLoading])
+  }, [hasWallet, isSwitchAssetsDisabled, walletSupportsBuyAssetChain, isLoading])
 
   return (
     <Stack spacing={0}>

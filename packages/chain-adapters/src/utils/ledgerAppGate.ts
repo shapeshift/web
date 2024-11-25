@@ -4,6 +4,8 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import EventEmitter from 'events'
 
+import { ChainAdapterError } from '../error/ErrorHandler'
+
 export const emitter = new EventEmitter()
 
 export type LedgerOpenAppEventArgs = {
@@ -116,6 +118,8 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
     })
   } catch {
     clearInterval(intervalId)
-    throw new Error('Ledger app open cancelled')
+    throw new ChainAdapterError('Ledger app open cancelled', {
+      translation: 'chainAdapters.errors.ledgerAppOpenCancelled',
+    })
   }
 }

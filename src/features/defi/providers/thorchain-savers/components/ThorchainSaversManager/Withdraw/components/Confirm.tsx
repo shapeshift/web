@@ -40,7 +40,6 @@ import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isToken } from 'lib/utils'
 import { fromThorBaseUnit, toThorBaseUnit } from 'lib/utils/thorchain'
 import { BASE_BPS_POINTS } from 'lib/utils/thorchain/constants'
 import { useSendThorTx } from 'lib/utils/thorchain/hooks/useSendThorTx'
@@ -145,20 +144,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   if (!asset) throw new Error(`Asset not found for AssetId ${opportunityData?.assetId}`)
   if (!feeAsset) throw new Error(`Fee asset not found for AssetId ${assetId}`)
 
-  const isTokenWithdraw = isToken(assetId)
-
   // user info
   const {
     state: { wallet },
   } = useWallet()
-
-  const assetBalanceFilter = useMemo(
-    () => ({ assetId: asset?.assetId, accountId: accountId ?? '' }),
-    [accountId, asset?.assetId],
-  )
-  const assetBalanceBaseUnit = useAppSelector(s =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(s, assetBalanceFilter),
-  )
 
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId, accountId }),
@@ -221,9 +210,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
         setDustAmountCryptoBaseUnit(
-          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), asset.precision)).toFixed(
-            asset.precision,
-          ),
+          bnOrZero(toBaseUnit(fromThorBaseUnit(dust_amount), feeAsset.precision)).toFixed(),
         )
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
         // total downside (slippage going into position) - 0.007 ETH for 5 ETH deposit
@@ -241,6 +228,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     accountId,
     asset,
     dustAmountCryptoBaseUnit,
+    feeAsset,
     opportunity?.apy,
     opportunityData?.rewardsCryptoBaseUnit,
     opportunityData?.stakedAmountCryptoBaseUnit,
@@ -425,26 +413,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [onNext])
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
-    // Token withdraws aren't dust sends, they're actual contract calls
-    // Hence, the balance required for them is denominated in the native fee asset
-    if (isTokenWithdraw) {
-      return fromBaseUnit(
-        bnOrZero(feeAssetBalanceCryptoBaseUnit)
-          .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
-          .times(-1),
-        feeAsset.precision,
-      )
-    }
     return fromBaseUnit(
-      bnOrZero(assetBalanceBaseUnit)
+      bnOrZero(feeAssetBalanceCryptoBaseUnit)
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
         .minus(bnOrZero(dustAmountCryptoBaseUnit))
         .times(-1),
       feeAsset.precision,
     )
   }, [
-    isTokenWithdraw,
-    assetBalanceBaseUnit,
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
     feeAssetBalanceCryptoBaseUnit,
@@ -598,7 +574,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
             </Box>
           </Row.Value>
         </Row>
-        {!isTokenWithdraw && !isRunePool && (
+        {!isRunePool && (
           <Row variant='gutter'>
             <Row.Label>
               <HelperTooltip label={translate('defi.modals.saversVaults.dustAmountTooltip')}>
@@ -610,14 +586,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 <Skeleton isLoaded={!quoteLoading}>
                   <Amount.Fiat
                     fontWeight='bold'
-                    value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision))
-                      .times(marketData.price)
+                    value={bn(fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision))
+                      .times(feeMarketData.price)
                       .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={fromBaseUnit(dustAmountCryptoBaseUnit, asset.precision)}
-                    symbol={asset.symbol}
+                    value={fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)}
+                    symbol={feeAsset.symbol}
                   />
                 </Skeleton>
               </Box>

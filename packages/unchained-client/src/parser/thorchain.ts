@@ -157,7 +157,9 @@ export class Parser {
       }
       case 'pool-': {
         const type = 'RUNEPool'
-        return { data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type } } }
+        return {
+          data: { parser: 'thorchain', method: 'withdrawNative', memo, liquidity: { type } },
+        }
       }
       case '$+':
       case 'loan+':

@@ -7,7 +7,6 @@ import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { TradeRateResult } from '../../../types'
 import {
   type GetEvmTradeRateInput,
   type GetTradeRateInput,
@@ -17,6 +16,7 @@ import {
   SwapperName,
   TradeQuoteError,
   type TradeRate,
+  type TradeRateResult,
 } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import {

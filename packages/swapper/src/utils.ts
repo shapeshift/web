@@ -4,6 +4,7 @@ import {
   type ChainId,
   fromAccountId,
   fromAssetId,
+  solanaChainId,
 } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
@@ -328,13 +329,11 @@ export const isExecutableTradeStep = (step: TradeQuoteStep): step is ExecutableT
 
 export const checkSolanaSwapStatus = async ({
   txHash,
-  chainId,
   accountId,
   assertGetSolanaChainAdapter,
 }: {
   txHash: string
   accountId: AccountId | undefined
-  chainId: ChainId
   assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
 }): Promise<{
   status: TxStatus
@@ -345,7 +344,7 @@ export const checkSolanaSwapStatus = async ({
     if (!accountId) throw new Error('Missing accountId')
 
     const account = fromAccountId(accountId).account
-    const adapter = assertGetSolanaChainAdapter(chainId)
+    const adapter = assertGetSolanaChainAdapter(solanaChainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = await adapter.getTxStatus(tx, account)
 

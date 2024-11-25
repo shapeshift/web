@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId, wrappedSolAssetId } from '@shapeshiftoss/caip'
 import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -38,14 +38,14 @@ export const jupiterApi: SwapperApi = {
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
-    const isManualReceiveAddress = tradeQuote.receiveAddress !== from
+    const isCrossAccountTrade = tradeQuote.receiveAddress !== from
 
-    if (isManualReceiveAddress && step.buyAsset.assetId === solAssetId) {
+    if (isCrossAccountTrade && step.buyAsset.assetId === solAssetId) {
       throw Error('Manual receive address is not supported for SOL')
     }
 
     const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
-      contractAddress && isManualReceiveAddress
+      contractAddress && isCrossAccountTrade
         ? await adapter.createAssociatedTokenAccountInstruction({
             from,
             to: tradeQuote.receiveAddress,
@@ -56,11 +56,12 @@ export const jupiterApi: SwapperApi = {
     const maybeSwapResponse = await getJupiterSwapInstructions({
       apiUrl: jupiterUrl,
       fromAddress: from,
-      toAddress: isManualReceiveAddress ? destinationTokenAccount?.toString() : undefined,
+      toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
       rawQuote: tradeQuote.rawQuote,
+      wrapAndUnwrapSol: step.buyAsset.assetId === wrappedSolAssetId ? false : true,
       // Shared account is not supported for simple AMMs
       useSharedAccounts:
-        tradeQuote.rawQuote.routePlan.length > 1 && isManualReceiveAddress ? true : false,
+        tradeQuote.rawQuote.routePlan.length > 1 && isCrossAccountTrade ? true : false,
     })
 
     if (maybeSwapResponse.isErr()) {
@@ -101,8 +102,7 @@ export const jupiterApi: SwapperApi = {
         case CHAIN_NAMESPACE.Solana: {
           const sellAdapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
           const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-            // Simulates a self-send
-            to: from,
+            to: '',
             value: '0',
             chainSpecific: {
               from,

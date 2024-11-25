@@ -38,6 +38,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js'
+import { isUndefined } from 'lodash'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -466,6 +467,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       chainSpecific.addressLookupTableAccounts ?? [],
     )
 
+    if (isUndefined(input.to)) throw new Error(`${this.getName()}ChainAdapter: value is required`)
     if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
     const value = Number(input.value)
@@ -510,6 +512,38 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const transaction = new VersionedTransaction(message)
 
     return Buffer.from(transaction.serialize()).toString('base64')
+  }
+
+  private async buildTokenTransferInstructions({
+    from,
+    to,
+    tokenId,
+    value,
+  }: {
+    from: string
+    to: string
+    tokenId: string
+    value: string
+  }): Promise<TransactionInstruction[]> {
+    const instructions: TransactionInstruction[] = []
+
+    const { instruction, destinationTokenAccount } =
+      await this.createAssociatedTokenAccountInstruction({ from, to, tokenId })
+
+    if (instruction) {
+      instructions.push(instruction)
+    }
+
+    instructions.push(
+      createTransferInstruction(
+        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
+        destinationTokenAccount,
+        new PublicKey(from),
+        Number(value),
+      ),
+    )
+
+    return instructions
   }
 
   public async createAssociatedTokenAccountInstruction({
@@ -566,38 +600,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
-  private async buildTokenTransferInstructions({
-    from,
-    to,
-    tokenId,
-    value,
-  }: {
-    from: string
-    to: string
-    tokenId: string
-    value: string
-  }): Promise<TransactionInstruction[]> {
-    const instructions: TransactionInstruction[] = []
-
-    const { instruction, destinationTokenAccount } =
-      await this.createAssociatedTokenAccountInstruction({ from, to, tokenId })
-
-    if (instruction) {
-      instructions.push(instruction)
-    }
-
-    instructions.push(
-      createTransferInstruction(
-        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
-        destinationTokenAccount,
-        new PublicKey(from),
-        Number(value),
-      ),
-    )
-
-    return instructions
-  }
-
   public convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
     return {
       keys: instruction.keys.map(key => ({
@@ -636,13 +638,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return this.providers.http
   }
 
-  public async getAddressLookupTableAccountsInfo(
+  private async getAddressLookupTableAccountsInfo(
     addresses: string[],
   ): Promise<(AccountInfo<Buffer> | null)[]> {
     return await this.connection.getMultipleAccountsInfo(addresses.map(key => new PublicKey(key)))
   }
 
-  public async getSolanaAddressLookupTableAccountsInfo(
+  private async getSolanaAddressLookupTableAccountsInfo(
     addresses: string[],
   ): Promise<AddressLookupTableAccount[]> {
     const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
@@ -663,7 +665,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }, new Array<AddressLookupTableAccount>())
   }
 
-  public async getAddressLookupTableAccounts(
+  private async getAddressLookupTableAccounts(
     addresses: string[],
   ): Promise<SolanaAddressLookupTableAccountInfo[]> {
     const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)

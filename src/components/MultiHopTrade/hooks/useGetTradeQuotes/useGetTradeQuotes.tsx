@@ -276,7 +276,7 @@ export const useGetTradeQuotes = () => {
         wallet: wallet ?? undefined,
         quoteOrRate: 'quote',
         receiveAddress,
-        isManualReceiveAddress: Boolean(manualReceiveAddress),
+        isCrossAccountTrade: Boolean(manualReceiveAddress),
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
         affiliateBps,

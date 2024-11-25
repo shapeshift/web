@@ -3,7 +3,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { SupportedChainIds } from '../../../types'
 
-export const jupiterSupportedChainIds = [KnownChainIds.SolanaMainnet] as ChainId[]
+export const jupiterSupportedChainIds: ChainId[] = [KnownChainIds.SolanaMainnet]
 
 export const JUPITER_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   sell: jupiterSupportedChainIds,

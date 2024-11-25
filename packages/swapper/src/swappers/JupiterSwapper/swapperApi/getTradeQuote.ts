@@ -41,14 +41,14 @@ const _getTradeQuote = async (
     receiveAddress,
     accountNumber,
     slippageTolerancePercentageDecimal,
-    isManualReceiveAddress,
+    isCrossAccountTrade,
   } = input
 
   const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
 
-  if (isManualReceiveAddress && buyAsset.assetId === solAssetId) {
+  if (isCrossAccountTrade && buyAsset.assetId === solAssetId) {
     return Err(
       makeSwapErrorRight({
         message: `unsupported manual receive address for SOL`,
@@ -107,8 +107,7 @@ const _getTradeQuote = async (
       case CHAIN_NAMESPACE.Solana: {
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-          // Simulates a self-send, since we don't know the to just yet at this stage
-          to: input.sendAddress!,
+          to: receiveAddress ?? input.sendAddress,
           value: sellAmount,
           chainSpecific: {
             from: input.sendAddress!,
@@ -143,7 +142,7 @@ const _getTradeQuote = async (
 
       acc[feeAssetId] = {
         requiresBalance: false,
-        amountCryptoBaseUnit: bnOrZero(route.swapInfo.feeAmount).toString(),
+        amountCryptoBaseUnit: bnOrZero(route.swapInfo.feeAmount).toFixed(0),
         asset: feeAsset,
       }
 
@@ -173,7 +172,6 @@ const _getTradeQuote = async (
     receiveAddress,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
-    isStreaming: false,
     rawQuote: quoteResponse,
     slippageTolerancePercentageDecimal:
       slippageTolerancePercentageDecimal ??

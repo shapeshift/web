@@ -26,7 +26,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'sellAsset'
   | 'buyAsset'
   | 'receiveAddress'
-  | 'isManualReceiveAddress'
+  | 'isCrossAccountTrade'
   | 'accountNumber'
   | 'affiliateBps'
   | 'potentialAffiliateBps'

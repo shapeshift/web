@@ -147,7 +147,7 @@ type CommonTradeInputBase = {
 export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAddress: string
-  isManualReceiveAddress: boolean
+  isCrossAccountTrade?: boolean
   accountNumber: number
   quoteOrRate: 'quote'
 }
@@ -155,7 +155,7 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
   receiveAddress: undefined
-  isManualReceiveAddress: boolean
+  isCrossAccountTrade?: boolean
   accountNumber: undefined
   quoteOrRate: 'rate'
 }
@@ -434,14 +434,6 @@ export type CheckTradeStatusInput = {
 // no routes could be generated
 type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
-
-export type SolanaTransactionRequest = {
-  gasLimit: string
-  to: string
-  from: string
-  value: string
-  data: string
-}
 
 export type EvmTransactionRequest = {
   gasLimit: string

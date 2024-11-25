@@ -141,7 +141,6 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       potentialAffiliateBps: '0',
       allowMultiHop: true,
       receiveAddress: fromAccountId(confirmedQuote.buyAssetAccountId).account,
-      isManualReceiveAddress: false,
       sendAddress: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
       hasWallet: Boolean(walletInfo?.deviceId),

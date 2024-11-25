@@ -3,7 +3,6 @@ import type { Asset } from '@shapeshiftoss/types'
 
 import { executeSolanaTransaction } from '../..'
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
-import { filterSameChainSolanaBuyAssetsBySellAssetId } from '../utils/filterBuyAssetsBySellAssetId/filterBuyAssetsBySellAssetId'
 import { jupiterSupportedChainIds } from './utils/constants'
 
 export const jupiterSwapper: Swapper = {
@@ -22,7 +21,7 @@ export const jupiterSwapper: Swapper = {
 
   filterBuyAssetsBySellAssetId: (input: BuyAssetBySellIdInput): Promise<AssetId[]> => {
     return Promise.resolve(
-      filterSameChainSolanaBuyAssetsBySellAssetId(input)
+      input.assets
         .filter(asset => {
           const { chainId } = asset
           return jupiterSupportedChainIds.includes(chainId)

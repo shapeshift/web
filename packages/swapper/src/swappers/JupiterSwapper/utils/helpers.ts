@@ -1,4 +1,5 @@
 import { type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
@@ -8,7 +9,7 @@ import type { SwapInstructionsResponse } from '../models/SwapInstructionsRespons
 import { jupiterSupportedChainIds } from './constants'
 import { jupiterService } from './jupiterService'
 
-export const isSupportedChainId = (chainId: ChainId): chainId is ChainId => {
+export const isSupportedChainId = (chainId: ChainId): chainId is KnownChainIds.SolanaMainnet => {
   return jupiterSupportedChainIds.includes(chainId)
 }
 
@@ -20,7 +21,7 @@ type GetJupiterQuoteArgs = {
   destinationAsset: string
   commissionBps: string
   amount: string
-  slippageBps?: string
+  slippageBps: string
 }
 
 type GetJupiterSwapArgs = {
@@ -29,7 +30,7 @@ type GetJupiterSwapArgs = {
   rawQuote: unknown
   toAddress?: string
   useSharedAccounts: boolean
-  wrapAndUnwrapSol?: boolean
+  wrapAndUnwrapSol: boolean
 }
 
 export const getJupiterQuote = ({
@@ -57,7 +58,7 @@ export const getJupiterSwapInstructions = ({
   toAddress,
   rawQuote,
   useSharedAccounts,
-  wrapAndUnwrapSol = true,
+  wrapAndUnwrapSol,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>

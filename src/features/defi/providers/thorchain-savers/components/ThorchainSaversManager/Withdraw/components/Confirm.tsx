@@ -505,7 +505,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const canWithdraw = useMemo(() => {
     const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
 
-    // RUNEPool withdraws occur no explicit protocol fees, see https://viewblock.io/thorchain/tx/8C8DA9D44AAE7C042F38393B8E42AEF6DB9BAFF09D3A702991C35CBA215AD576 /
+    // RUNEPool withdraws occur no explicit protocol fees, see https://viewblock.io/thorchain/tx/8C8DA9D44AAE7C042F38393B8E42AEF6DB9BAFF09D3A702991C35CBA215AD576
     return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)
   }, [state?.withdraw.cryptoAmount, asset.precision, protocolFeeCryptoBaseUnit, isRunePool])
 

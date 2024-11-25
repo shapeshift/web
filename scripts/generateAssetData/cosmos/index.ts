@@ -8,38 +8,39 @@ import colormap from '../color-map.json'
 export const colorMap: Record<string, string> = colormap
 
 type CosmosAsset = {
-  denom: string
   type: string
-  origin_chain: string
-  origin_denom: string
-  origin_type: string
+  denom: string
+  name: string
   symbol: string
+  description: string
   decimals: number
-  enable?: boolean
-  path?: string
-  channel?: string
-  port?: string
-  counter_party?: {
-    channel: string
-    port: string
-    denom: string
-  }
-  description?: string
-  image?: string
+  image: string
   coinGeckoId: string
+  ibc_info: {
+    path: string
+    client: {
+      channel: string
+      port: string
+    }
+    counterparty: {
+      channel: string
+      port: string
+      chain: string
+      denom: string
+    }
+  }
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
   /* Fetch asset list */
-
   const { data: assetData } = await axios.get<CosmosAsset[]>(
-    'https://rawcdn.githack.com/cosmostation/chainlist/main/chain/cosmos/assets.json',
+    'https://rawcdn.githack.com/cosmostation/chainlist/main/chain/cosmos/assets_2.json',
   )
 
   if (!assetData) throw new Error('Could not get Cosmos asset data!')
 
-  return assetData.reduce<Promise<Asset[]>>(async (accPrevious, current) => {
-    const acc = await accPrevious
+  return assetData.reduce<Asset[]>((accPrevious, current) => {
+    const acc = accPrevious
     if (!current) return acc
 
     const precision = current.decimals
@@ -62,9 +63,7 @@ export const getAssets = async (): Promise<Asset[]> => {
       name: getAssetName(current),
       precision,
       color: colorMap[assetId] ?? '#FFFFFF',
-      icon: current.image
-        ? `https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/${current.image}`
-        : '',
+      icon: current.image,
       explorer: atom.explorer,
       explorerAddressLink: atom.explorerAddressLink,
       explorerTxLink: atom.explorerTxLink,
@@ -74,5 +73,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     acc.push(assetDatum)
 
     return acc
-  }, Promise.resolve([]))
+  }, [])
 }

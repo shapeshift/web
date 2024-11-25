@@ -335,10 +335,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
+  // https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L467
   const safeOutboundFeeInAssetCryptoBaseUnit = useMemo(() => {
     if (!outboundFeeInAssetCryptoBaseUnit) return
-    // Add 5% as as a safety factor since the dust threshold fee is not necessarily going to cut it
-    return bnOrZero(outboundFeeInAssetCryptoBaseUnit).times(1.05).toFixed(0)
+    return bnOrZero(outboundFeeInAssetCryptoBaseUnit).times(4).toFixed(0)
   }, [outboundFeeInAssetCryptoBaseUnit])
 
   const _validateCryptoAmount = useCallback(

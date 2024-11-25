@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ChevronDownIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ArrowForwardIcon, ChevronDownIcon } from '@chakra-ui/icons'
 import type { FlexProps } from '@chakra-ui/react'
 import {
   Box,
@@ -30,6 +30,7 @@ import { type MarketsCategories, sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
 const chevronDownIcon = <ChevronDownIcon />
+const arrowForwardIcon = <ArrowForwardIcon />
 
 const flexAlign = { base: 'flex-start', md: 'flex-end' }
 const flexDirection: FlexProps['flexDir'] = { base: 'column', md: 'row' }
@@ -98,7 +99,19 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
 
     return (
       <Heading size={'md'} mb={2}>
-        {category ? <Link to={`/markets/category/${category}`}>{title}</Link> : title}
+        {category ? (
+          <Button
+            as={Link}
+            to={`/markets/category/${category}`}
+            rightIcon={arrowForwardIcon}
+            fontSize='inherit'
+            variant='link'
+          >
+            {title}
+          </Button>
+        ) : (
+          title
+        )}
       </Heading>
     )
   }, [category, isCategoryRoute, title])

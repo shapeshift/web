@@ -27,14 +27,14 @@ import { Amount } from 'components/Amount/Amount'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { ProtocolIcon } from 'components/Icons/Protocol'
 import { SlippageIcon } from 'components/Icons/Slippage'
-import { RawText } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { fromBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
   selectHopExecutionMetadata,
-  selectHopNetworkFeeUserCurrencyPrecision,
+  selectHopNetworkFeeUserCurrency,
   selectHopTotalProtocolFeesFiatPrecision,
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -75,13 +75,13 @@ export const Hop = ({
     number: { toCrypto },
   } = useLocaleFormatter()
   const translate = useTranslate()
-  const hopTotalProtocolFeesFiatPrecisionFilter = useMemo(() => {
+  const hopTotalProtocolFeesFiatUserCurrencyFilter = useMemo(() => {
     return {
       hopIndex,
     }
   }, [hopIndex])
-  const networkFeeFiatPrecision = useAppSelector(state =>
-    selectHopNetworkFeeUserCurrencyPrecision(state, hopTotalProtocolFeesFiatPrecisionFilter),
+  const networkFeeFiatUserCurrency = useAppSelector(state =>
+    selectHopNetworkFeeUserCurrency(state, hopTotalProtocolFeesFiatUserCurrencyFilter),
   )
   const protocolFeeFiatPrecision = useAppSelector(state =>
     selectHopTotalProtocolFeesFiatPrecision(state, hopIndex),
@@ -298,7 +298,13 @@ export const Hop = ({
               <Flex color='text.subtle'>
                 <FaGasPump />
               </Flex>
-              <Amount.Fiat value={networkFeeFiatPrecision ?? '0'} display='inline' />
+              {!networkFeeFiatUserCurrency ? (
+                <Tooltip label={translate('trade.tooltip.continueSwapping')}>
+                  <Text translation={'trade.unknownGas'} fontSize='sm' />
+                </Tooltip>
+              ) : (
+                <Amount.Fiat value={networkFeeFiatUserCurrency} display='inline' />
+              )}
             </Flex>
           </Tooltip>
 

@@ -14,6 +14,8 @@ import thorchainLpRefund from './mockData/thorchainLpRefund'
 import thorchainLpWithdraw from './mockData/thorchainLpWithdraw'
 import thorchainRefund from './mockData/thorchainRefund'
 import thorchainRfoxReward from './mockData/thorchainRfoxReward'
+import thorchainRunePoolDeposit from './mockData/thorchainRunePoolDeposit'
+import thorchainRunePoolWithdraw from './mockData/thorchainRunePoolWithdraw'
 import thorchainStreamingSwap from './mockData/thorchainStreamingSwap'
 import thorchainStreamingSwapOutbound from './mockData/thorchainStreamingSwapOutbound'
 import thorchainStreamingSwapRefund from './mockData/thorchainStreamingSwapRefund'
@@ -637,6 +639,98 @@ describe('parseTx', () => {
         epoch: 0,
         ipfsHash: 'QmYUiUq9UWK5NPF1h2BGdatw95psNtW8seGQpXZYoQYK1s',
         stakingAddress: '0x32DBc9Cf9E8FbCebE1e0a2ecF05Ed86Ca3096Cb6',
+      },
+    }
+
+    const actual = await txParser.parse(tx, address)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should be able to parse a runepool deposit', async () => {
+    const { tx } = thorchainRunePoolDeposit
+    const address = 'thor125dwsa39yeylqc7pn59l079dur502nsleyrgup'
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: thorchainChainId,
+      fee: {
+        assetId: thorchainAssetId,
+        value: '2000000',
+      },
+      transfers: [
+        {
+          type: TransferType.Send,
+          from: address,
+          to: 'thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt',
+          assetId: thorchainAssetId,
+          totalValue: '10000000',
+          components: [{ value: '10000000' }],
+        },
+      ],
+      data: {
+        parser: 'thorchain',
+        method: 'deposit',
+        memo: 'POOL+',
+        liquidity: {
+          type: 'RUNEPool',
+        },
+      },
+    }
+
+    const actual = await txParser.parse(tx, address)
+
+    expect(actual).toEqual(expected)
+  })
+
+  it('should be able to parse a runepool withdraw', async () => {
+    const { tx } = thorchainRunePoolWithdraw
+    const address = 'thor1cwxrd57zs697k68njqvklsash74revw82mslx4'
+
+    const expected: ParsedTx = {
+      txid: tx.txid,
+      blockHash: tx.blockHash,
+      blockHeight: tx.blockHeight,
+      blockTime: tx.timestamp,
+      confirmations: tx.confirmations,
+      status: TxStatus.Confirmed,
+      address,
+      chainId: thorchainChainId,
+      fee: {
+        assetId: thorchainAssetId,
+        value: '2000000',
+      },
+      transfers: [
+        {
+          type: TransferType.Send,
+          from: address,
+          to: address,
+          assetId: thorchainAssetId,
+          totalValue: '0',
+          components: [{ value: '0' }],
+        },
+        {
+          type: TransferType.Receive,
+          from: 'thor1rzqfv62dzu585607s5awqtgnvvwz5rzhdtv772',
+          to: address,
+          assetId: thorchainAssetId,
+          totalValue: '2669457604',
+          components: [{ value: '2669457604' }],
+        },
+      ],
+      data: {
+        parser: 'thorchain',
+        method: 'withdrawNative',
+        memo: 'POOL-:10000:t:200',
+        liquidity: {
+          type: 'RUNEPool',
+        },
       },
     }
 

@@ -27,20 +27,21 @@ import {
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectFirstHop,
-  selectTotalNetworkFeeUserCurrencyPrecision,
+  selectTotalNetworkFeeUserCurrency,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { useAppDispatch, useAppSelector } from 'state/store'
 
-import { Footer as TradeFooterButton } from '../MultiHopTradeConfirm/components/Footer'
 import { useIsApprovalInitiallyNeeded } from '../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { PriceImpact } from '../PriceImpact'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { MaxSlippage } from '../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../TradeInput/hooks/useTradeReceiveAddress'
+import { TradeFooterButton } from './TradeFooterButton'
 
 const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
   return items
@@ -98,7 +99,7 @@ export const TradeConfirmFooter: FC = () => {
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
-  const networkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrencyPrecision)
+  const networkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
 
   const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
@@ -108,6 +109,7 @@ export const TradeConfirmFooter: FC = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
+  const dispatch = useAppDispatch()
 
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const swapSource = tradeQuoteStep?.source
@@ -125,9 +127,19 @@ export const TradeConfirmFooter: FC = () => {
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
 
+  const handleTradeConfirm = useCallback(() => {
+    if (!activeQuote) return
+    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
+  }, [dispatch, activeQuote])
+
   const handleSubmit = useCallback(() => {
-    console.log('submit')
-  }, [])
+    // if (isModeratePriceImpact) {
+    //   setShouldShowWarningAcknowledgement(true)
+    // } else {
+    //   handleTradeConfirm()
+    // }
+    handleTradeConfirm()
+  }, [handleTradeConfirm])
 
   const isThorFreeTrade = useMemo(
     () =>
@@ -144,7 +156,7 @@ export const TradeConfirmFooter: FC = () => {
 
   const [showMore, toggleShowMore] = useToggle(false)
 
-  const TradeDetails = useMemo(() => {
+  const TradeDetail = useMemo(() => {
     if (!activeQuote) return null
 
     return (
@@ -317,9 +329,10 @@ export const TradeConfirmFooter: FC = () => {
     translate,
   ])
 
-  const FooterButton = useMemo(() => {
-    return <TradeFooterButton isLoading={isLoading} handleSubmit={handleSubmit} />
-  }, [isLoading, handleSubmit])
+  const FooterButton = useMemo(
+    () => <TradeFooterButton isLoading={isLoading} handleSubmit={handleSubmit} />,
+    [isLoading, handleSubmit],
+  )
 
-  return <SharedConfirmFooter ConfirmDetails={TradeDetails} FooterButton={FooterButton} />
+  return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

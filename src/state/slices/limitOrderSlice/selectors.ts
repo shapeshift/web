@@ -76,7 +76,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
   },
 )
 
-export const selectActiveQuoteSellAssetUserCurrencyRate = createSelector(
+export const selectActiveQuoteSellAssetRateUserCurrency = createSelector(
   selectActiveQuoteSellAsset,
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
@@ -86,7 +86,7 @@ export const selectActiveQuoteSellAssetUserCurrencyRate = createSelector(
   },
 )
 
-export const selectActiveQuoteBuyAssetUserCurrencyRate = createSelector(
+export const selectActiveQuoteBuyAssetRateUserCurrency = createSelector(
   selectActiveQuoteBuyAsset,
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
@@ -98,7 +98,7 @@ export const selectActiveQuoteBuyAssetUserCurrencyRate = createSelector(
 
 export const selectActiveQuoteSellAmountUserCurrency = createSelector(
   selectActiveQuoteSellAmountCryptoPrecision,
-  selectActiveQuoteSellAssetUserCurrencyRate,
+  selectActiveQuoteSellAssetRateUserCurrency,
   (amountCryptoPrecision, userCurrencyRate) => {
     return bn(amountCryptoPrecision).times(userCurrencyRate).toFixed()
   },
@@ -106,7 +106,7 @@ export const selectActiveQuoteSellAmountUserCurrency = createSelector(
 
 export const selectActiveQuoteBuyAmountUserCurrency = createSelector(
   selectActiveQuoteBuyAmountCryptoPrecision,
-  selectActiveQuoteBuyAssetUserCurrencyRate,
+  selectActiveQuoteBuyAssetRateUserCurrency,
   (amountCryptoPrecision, userCurrencyRate) => {
     return bn(amountCryptoPrecision).times(userCurrencyRate).toFixed()
   },
@@ -114,7 +114,7 @@ export const selectActiveQuoteBuyAmountUserCurrency = createSelector(
 
 export const selectActiveQuoteNetworkFeeUserCurrency = createSelector(
   selectActiveQuoteNetworkFeeCryptoPrecision,
-  selectActiveQuoteBuyAssetUserCurrencyRate,
+  selectActiveQuoteBuyAssetRateUserCurrency,
   (amountCryptoPrecision, userCurrencyRate) => {
     return bn(amountCryptoPrecision).times(userCurrencyRate).toFixed()
   },

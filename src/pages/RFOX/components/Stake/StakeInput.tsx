@@ -49,12 +49,8 @@ import type { RfoxBridgeQuote } from './Bridge/types'
 import { BridgeRoutePaths } from './Bridge/types'
 import { StakeSummary } from './components/StakeSummary'
 import { useRfoxStake } from './hooks/useRfoxStake'
-import type {
-  RfoxStakingQuote,
-  StakeInputValues,
-  StakeRoutePaths,
-  type StakeRouteProps,
-} from './types'
+import type { RfoxStakingQuote, StakeInputValues, StakeRouteProps } from './types'
+import { StakeRoutePaths } from './types'
 
 const formControlProps = {
   borderRadius: 0,

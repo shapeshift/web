@@ -45,10 +45,10 @@ import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import type {
   ChangeAddressInputValues,
-  ChangeAddressRoutePaths,
-  type ChangeAddressRouteProps,
+  ChangeAddressRouteProps,
   RfoxChangeAddressQuote,
 } from './types'
+import { ChangeAddressRoutePaths } from './types'
 
 type ChangeAddressInputProps = {
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void

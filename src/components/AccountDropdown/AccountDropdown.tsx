@@ -1,13 +1,11 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type {
+import type { BoxProps, ButtonProps, MenuItemOptionProps } from '@chakra-ui/react'
+import {
   Box,
-  BoxProps,
   Button,
-  type ButtonProps,
   Flex,
   Menu,
   MenuButton,
-  type MenuItemOptionProps,
   MenuList,
   MenuOptionGroup,
   Text,

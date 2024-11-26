@@ -1,7 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId, type AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'

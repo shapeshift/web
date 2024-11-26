@@ -18,7 +18,7 @@ import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type {
   Controller,
   ControllerRenderProps,
-  type FieldError,
+   FieldError,
   RegisterOptions,
   useForm,
   useFormContext,

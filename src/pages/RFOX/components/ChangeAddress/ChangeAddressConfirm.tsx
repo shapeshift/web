@@ -40,11 +40,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import type {
-  ChangeAddressRoutePaths,
-  type ChangeAddressRouteProps,
-  RfoxChangeAddressQuote,
-} from './types'
+import type { ChangeAddressRouteProps, RfoxChangeAddressQuote } from './types'
+import { ChangeAddressRoutePaths } from './types'
 
 const CustomRow: React.FC<RowProps> = props => <Row fontSize='sm' fontWeight='medium' {...props} />
 const backIcon = <ArrowBackIcon />

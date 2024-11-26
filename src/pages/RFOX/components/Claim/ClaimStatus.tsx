@@ -15,7 +15,8 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { ClaimRoutePaths, type ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 type BodyContent = {
   key: TxStatus

@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { type AssetId, ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,

@@ -7,7 +7,8 @@ import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 
-import type { ClaimRoutePaths, type ClaimRouteProps, RfoxClaimQuote } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 const suspenseFallback = <div>Loading...</div>
 

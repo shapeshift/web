@@ -29,7 +29,8 @@ import { useAppSelector } from 'state/store'
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
 import { useRfoxBridgeApproval } from './hooks/useRfoxBridgeApproval'
-import type { BridgeRoutePaths, type BridgeRouteProps, RfoxBridgeQuote } from './types'
+import type { BridgeRouteProps, RfoxBridgeQuote } from './types'
+import { BridgeRoutePaths } from './types'
 
 type BridgeConfirmProps = {
   confirmedQuote: RfoxBridgeQuote

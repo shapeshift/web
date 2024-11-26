@@ -1,4 +1,4 @@
-import type { AccountId, type AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import type { QueryObserverOptions } from '@tanstack/react-query'

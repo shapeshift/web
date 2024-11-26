@@ -8,7 +8,8 @@ import type { MultiStepStatusStep } from '../../Shared/SharedMultiStepStatus'
 import { SharedMultiStepStatus } from '../../Shared/SharedMultiStepStatus'
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
-import type { BridgeRoutePaths, type BridgeRouteProps, RfoxBridgeQuote } from './types'
+import type { BridgeRouteProps, RfoxBridgeQuote } from './types'
+import { BridgeRoutePaths } from './types'
 
 type BridgeStatusProps = {
   confirmedQuote: RfoxBridgeQuote

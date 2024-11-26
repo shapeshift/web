@@ -29,10 +29,10 @@ import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingl
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import type {
-  AsymSide,
-  type LpConfirmedDepositQuote,
+  LpConfirmedDepositQuote,
   LpConfirmedWithdrawalQuote,
 } from 'lib/utils/thorchain/lp/types'
+import { AsymSide } from 'lib/utils/thorchain/lp/types'
 import {
   isLpConfirmedDepositQuote,
   isLpConfirmedWithdrawalQuote,

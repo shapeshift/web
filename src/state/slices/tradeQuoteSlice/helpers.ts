@@ -1,6 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type {
+  getHopByIndex,
+  ProtocolFee,
+  type SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'

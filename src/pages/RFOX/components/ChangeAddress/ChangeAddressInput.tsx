@@ -11,7 +11,8 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
-import { type FC, useCallback, useEffect, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -42,8 +43,12 @@ import { useAppSelector } from 'state/store'
 import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
-import type { ChangeAddressInputValues, RfoxChangeAddressQuote } from './types'
-import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
+import type {
+  ChangeAddressInputValues,
+  ChangeAddressRoutePaths,
+  type ChangeAddressRouteProps,
+  RfoxChangeAddressQuote,
+} from './types'
 
 type ChangeAddressInputProps = {
   setConfirmedQuote: (quote: RfoxChangeAddressQuote | undefined) => void

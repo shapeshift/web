@@ -10,15 +10,13 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
+  type GetEvmTradeQuoteInput,
   GetUtxoTradeQuoteInput,
+  type ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
-  TradeQuote,
-} from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
-  type ProtocolFee,
   SwapperName,
+  TradeQuote,
   TradeQuoteError,
 } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'

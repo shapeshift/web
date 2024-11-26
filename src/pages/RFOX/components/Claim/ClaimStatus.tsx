@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { type AccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 import React, { useCallback, useMemo } from 'react'
@@ -15,8 +15,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { RfoxClaimQuote } from './types'
-import { ClaimRoutePaths, type ClaimRouteProps } from './types'
+import type { ClaimRoutePaths, type ClaimRouteProps, RfoxClaimQuote } from './types'
 
 type BodyContent = {
   key: TxStatus

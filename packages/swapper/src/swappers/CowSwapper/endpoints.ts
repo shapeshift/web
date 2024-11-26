@@ -27,11 +27,11 @@ import {
 } from '../../utils'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import type { CowSwapOrder } from './types'
-import {
+import type {
   CoWSwapBuyTokenDestination,
   type CowSwapGetTradesResponse,
   type CowSwapGetTransactionsResponse,
+  CowSwapOrder,
   CoWSwapSellTokenSource,
   CoWSwapSigningScheme,
 } from './types'

@@ -4,7 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import { type Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import {
   BigNumber,
   bn,

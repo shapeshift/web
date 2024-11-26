@@ -1,5 +1,11 @@
-import type { OhlcData, SeriesType } from 'lightweight-charts'
-import { ColorType, createChart, type SingleValueData, type Time } from 'lightweight-charts'
+import type {
+  ColorType,
+  createChart,
+  OhlcData,
+  SeriesType,
+  type SingleValueData,
+  type Time,
+} from 'lightweight-charts'
 import { useEffect, useRef } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'

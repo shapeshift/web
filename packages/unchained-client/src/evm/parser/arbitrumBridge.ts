@@ -1,7 +1,7 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
+import type {
   arbitrumChainId,
   type AssetId,
+  ChainId,
   ethAssetId,
   ethChainId,
   toAssetId,

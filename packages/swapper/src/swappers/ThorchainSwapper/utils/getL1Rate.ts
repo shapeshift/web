@@ -16,10 +16,12 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
-import type { GetEvmTradeQuoteInput, ProtocolFee, SwapperDeps } from '../../../types'
-import {
+import type {
+  GetEvmTradeQuoteInput,
   type GetTradeRateInput,
+  ProtocolFee,
   type SwapErrorRight,
+  SwapperDeps,
   SwapperName,
   TradeQuoteError,
 } from '../../../types'

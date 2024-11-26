@@ -1,5 +1,10 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, type AssetId, fromAccountId, isNft } from '@shapeshiftoss/caip'
+import type {
+  type AccountId,
+  type AssetId,
+  ChainId,
+  fromAccountId,
+  isNft,
+} from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'

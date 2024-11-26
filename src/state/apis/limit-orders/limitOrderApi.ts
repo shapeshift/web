@@ -1,6 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId, AssetReference } from '@shapeshiftoss/caip'
-import { type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, AssetReference, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
 import type { CowSwapQuoteError } from '@shapeshiftoss/swapper'
 import {
   CoWSwapOrderKind,
@@ -23,14 +22,14 @@ import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
-import type { LimitOrderQuoteResponse } from './types'
-import {
+import type {
   type CancelLimitOrdersRequest,
   type CompetitionOrderStatus,
   type GetOrdersRequest,
   type LimitOrder,
   type LimitOrderId,
   type LimitOrderQuoteRequest,
+  LimitOrderQuoteResponse,
   type Order,
   PriceQuality,
   type Trade,

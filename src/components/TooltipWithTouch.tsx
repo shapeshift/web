@@ -1,5 +1,7 @@
-import { Box, Tooltip, type TooltipProps } from '@chakra-ui/react'
-import { type PropsWithChildren, useCallback, useState } from 'react'
+import type { TooltipProps } from '@chakra-ui/react'
+import { Box, Tooltip } from '@chakra-ui/react'
+import type { PropsWithChildren } from 'react'
+import { useCallback, useState } from 'react'
 
 type TooltipWithTouchProps = Pick<TooltipProps, 'label'> & PropsWithChildren
 

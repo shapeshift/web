@@ -1,6 +1,7 @@
 import type { ChainKey, ExtendedTransactionInfo, GetStatusRequest, Route } from '@lifi/sdk'
 import { getStepTransaction } from '@lifi/sdk'
-import { type ChainId, fromChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
@@ -15,10 +16,13 @@ import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
+  type SwapErrorRight,
+  type SwapperApi,
   SwapperDeps,
+  type TradeQuote,
+  TradeQuoteError,
   TradeRate,
 } from '../../types'
-import { type SwapErrorRight, type SwapperApi, type TradeQuote, TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,

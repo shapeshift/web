@@ -15,16 +15,14 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  type GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
-  SwapperDeps,
-  SwapSource,
-} from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
   type SwapErrorRight,
+  SwapperDeps,
   SwapperName,
+  SwapSource,
   TradeQuoteError,
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'

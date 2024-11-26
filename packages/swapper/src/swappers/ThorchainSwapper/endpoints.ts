@@ -5,7 +5,7 @@ import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-ad
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
-import { type Result } from '@sniptt/monads/build'
+import type { Result } from '@sniptt/monads/build'
 import assert from 'assert'
 import axios from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'

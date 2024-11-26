@@ -26,13 +26,11 @@ import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type {
+  CosmosSdkMessageType,
   CosmosSdkMsgBeginRedelegate,
   CosmosSdkMsgDelegate,
   CosmosSdkMsgSend,
   CosmosSdkMsgUndelegate,
-} from '../types'
-import {
-  CosmosSdkMessageType,
   type CosmosSdkMsgWithdrawDelegationReward,
   type ValidatorAction,
 } from '../types'

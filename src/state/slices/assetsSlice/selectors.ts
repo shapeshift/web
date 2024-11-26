@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import difference from 'lodash/difference'
 import { matchSorter } from 'match-sorter'

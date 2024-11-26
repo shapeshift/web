@@ -10,13 +10,15 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
-import { Row, type RowProps } from 'components/Row/Row'
+import type { RowProps } from 'components/Row/Row'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -27,8 +29,7 @@ import { useAppSelector } from 'state/store'
 import { StakeRoutePaths } from '../types'
 import { useRfoxBridge } from './hooks/useRfoxBridge'
 import { useRfoxBridgeApproval } from './hooks/useRfoxBridgeApproval'
-import type { RfoxBridgeQuote } from './types'
-import { BridgeRoutePaths, type BridgeRouteProps } from './types'
+import type { BridgeRoutePaths, type BridgeRouteProps, RfoxBridgeQuote } from './types'
 
 type BridgeConfirmProps = {
   confirmedQuote: RfoxBridgeQuote

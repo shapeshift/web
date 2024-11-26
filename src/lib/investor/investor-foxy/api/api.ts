@@ -1,11 +1,11 @@
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import {
-  CONTRACT_INTERACTION,
-  type EvmBaseAdapter,
-  type FeeDataEstimate,
-  type GetFeeDataInput,
+import type {
+  EvmBaseAdapter,
+  FeeDataEstimate,
+  GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import {
   FOXY_ABI,
   FOXY_STAKING_ABI,

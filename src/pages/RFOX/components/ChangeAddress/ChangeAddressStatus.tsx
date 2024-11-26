@@ -12,8 +12,11 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { RfoxChangeAddressQuote } from './types'
-import { ChangeAddressRoutePaths, type ChangeAddressRouteProps } from './types'
+import type {
+  ChangeAddressRoutePaths,
+  type ChangeAddressRouteProps,
+  RfoxChangeAddressQuote,
+} from './types'
 
 type BodyContent = {
   key: TxStatus

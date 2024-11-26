@@ -10,8 +10,7 @@ import {
   Tooltip,
   Tr,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import type { type AccountId, ChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'

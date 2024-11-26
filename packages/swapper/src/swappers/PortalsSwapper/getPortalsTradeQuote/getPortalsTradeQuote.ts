@@ -8,10 +8,11 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import type { GetEvmTradeQuoteInputBase, SwapperConfig } from '../../../types'
-import {
+import type {
+  GetEvmTradeQuoteInputBase,
   type SingleHopTradeQuoteSteps,
   type SwapErrorRight,
+  SwapperConfig,
   SwapperName,
   type TradeQuote,
   TradeQuoteError,

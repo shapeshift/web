@@ -1,11 +1,13 @@
-import { type AssetId, ethChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET } from '@shapeshiftoss/contracts'
 import { isFulfilled, isRejected, isResolvedErr } from '@shapeshiftoss/utils'
-import { Err, Ok, type Result } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 
-import type { MultiHopTradeRateSteps } from '../../../types'
-import {
+import type {
   type GetTradeRateInput,
+  MultiHopTradeRateSteps,
   type SwapErrorRight,
   type SwapperDeps,
   TradeQuoteError,

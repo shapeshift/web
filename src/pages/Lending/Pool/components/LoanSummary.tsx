@@ -1,8 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import type { StackProps } from '@chakra-ui/react'
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, type AssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
@@ -12,12 +11,8 @@ import { Amount } from 'components/Amount/Amount'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Row } from 'components/Row/Row'
 import { RawText } from 'components/Text'
-import {
-  isLendingQuoteClose,
-  isLendingQuoteOpen,
-  type LendingQuoteClose,
-  type LendingQuoteOpen,
-} from 'lib/utils/thorchain/lending/types'
+import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import { isLendingQuoteClose, isLendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { useLendingPositionData } from 'pages/Lending/hooks/useLendingPositionData'
 import { useRepaymentLockData } from 'pages/Lending/hooks/useRepaymentLockData'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'

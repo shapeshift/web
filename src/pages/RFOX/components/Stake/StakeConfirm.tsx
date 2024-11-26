@@ -43,8 +43,7 @@ import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
 import { useRfoxStake } from './hooks/useRfoxStake'
-import type { RfoxStakingQuote } from './types'
-import { StakeRoutePaths, type StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeRoutePaths, type StakeRouteProps } from './types'
 
 const backIcon = <ArrowBackIcon />
 

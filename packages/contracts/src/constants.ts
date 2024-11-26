@@ -1,4 +1,5 @@
-import { type Address, erc20Abi } from 'viem'
+import type { Address } from 'viem'
+import { erc20Abi } from 'viem'
 
 import { EVERGREEN_FARMING_ABI } from './abis/evergreenFarming'
 import { FARMING_ABI } from './abis/farming'

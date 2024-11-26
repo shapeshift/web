@@ -14,8 +14,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { SharedStatus } from '../Shared/SharedStatus'
-import type { RfoxStakingQuote } from './types'
-import { StakeRoutePaths, type StakeRouteProps } from './types'
+import type { RfoxStakingQuote, StakeRoutePaths, type StakeRouteProps } from './types'
 
 type BodyContent = {
   key: TxStatus

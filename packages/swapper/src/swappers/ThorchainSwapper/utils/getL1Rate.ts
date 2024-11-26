@@ -18,8 +18,8 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeQuoteInput,
-  GetUtxoTradeQuoteInput
   GetTradeRateInput,
+  GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
   SwapperDeps,

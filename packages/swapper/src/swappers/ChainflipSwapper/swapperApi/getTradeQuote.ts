@@ -78,7 +78,8 @@ export const getTradeQuote = async (
 
       const { data: swapResponse } = maybeSwapResponse.unwrap()
 
-      if (!swapResponse.id) throw Error('missing swap ID')
+      if (!swapResponse.id) throw Error('Missing Swap Id')
+      if (!swapResponse.address) throw Error('Missing Deposit Channel')
 
       step.chainflipSwapId = swapResponse.id
       step.chainflipDepositAddress = swapResponse.address

@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -15,6 +15,7 @@ import {
 } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type {
+  Order,
   OrderCancellation,
   OrderCreation,
   OrderId,
@@ -211,15 +212,27 @@ export const limitOrderApi = createApi({
         }
       },
     }),
-    cancelLimitOrders: build.mutation<boolean, { payload: OrderCancellation; chainId: ChainId }>({
-      queryFn: async ({ payload, chainId }) => {
+    cancelLimitOrders: build.mutation<
+      boolean,
+      {
+        accountId: AccountId
+        sellAssetId: AssetId
+        buyAssetId: AssetId
+        order: Order
+        wallet: HDWallet | null
+      }
+    >({
+      queryFn: async ({ accountId, sellAssetId, buyAssetId, order, wallet }) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
+        const { chainId } = fromAccountId(accountId)
         const maybeNetwork = getCowswapNetwork(chainId)
         if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
         const network = maybeNetwork.unwrap()
+        // TODO: Implement me!
+        const orderCancellationPayload: OrderCancellation = null as unknown as OrderCancellation
         const result = await axios.delete<void>(`${baseUrl}/${network}/api/v1/orders`, {
-          data: payload,
+          data: orderCancellationPayload,
         })
         // If the result is a 200 then the order was successfully canceled
         return { data: result.status === 200 }
@@ -254,4 +267,5 @@ export const limitOrderApi = createApi({
   }),
 })
 
-export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation } = limitOrderApi
+export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation, useCancelLimitOrdersMutation } =
+  limitOrderApi

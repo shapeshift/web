@@ -14,7 +14,7 @@ import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 export interface LimitOrderCardProps {
-  id: string
+  uid: string
   buyAmountCryptoBaseUnit: string
   sellAmountCryptoBaseUnit: string
   buyAssetId: AssetId
@@ -22,6 +22,7 @@ export interface LimitOrderCardProps {
   validTo?: number
   filledDecimalPercentage: number
   status: OrderStatus
+  onCancel?: (uid: string) => void
 }
 
 const buttonBgHover = {
@@ -29,7 +30,7 @@ const buttonBgHover = {
 }
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
-  id,
+  uid,
   buyAmountCryptoBaseUnit,
   sellAmountCryptoBaseUnit,
   buyAssetId,
@@ -37,6 +38,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   validTo,
   filledDecimalPercentage,
   status,
+  onCancel,
 }) => {
   const translate = useTranslate()
 
@@ -44,8 +46,8 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
   const handleCancel = useCallback(() => {
-    console.log(`Cancel limit order ${id}`)
-  }, [id])
+    onCancel?.(uid)
+  }, [onCancel, uid])
 
   const formattedPercentage = (filledDecimalPercentage * 100).toFixed(2)
 
@@ -106,7 +108,6 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   return (
     <Box
-      key={id}
       borderRadius='2xl'
       p={4}
       width='100%'

@@ -269,6 +269,7 @@ export const mockStore: ReduxState = {
   },
   limitOrderSlice: {
     activeQuote: undefined,
+    orderToCancel: undefined,
     confirmedLimitOrder: {},
     orderSubmission: {},
   },

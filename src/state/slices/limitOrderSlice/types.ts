@@ -1,5 +1,10 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { OrderCreation, OrderQuoteResponse, QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type {
+  Order,
+  OrderCreation,
+  OrderQuoteResponse,
+  QuoteId,
+} from '@shapeshiftoss/types/dist/cowSwap'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { LimitOrderQuoteParams } from 'state/apis/limit-orders/limitOrderApi'
 
@@ -35,6 +40,9 @@ export type UnsignedOrderCreation = Omit<OrderCreation, 'signature'> &
 
 export type LimitOrderState = {
   activeQuote: LimitOrderActiveQuote | undefined
+  orderToCancel:
+    | { accountId: AccountId; sellAssetId: AssetId; buyAssetId: AssetId; order: Order }
+    | undefined
   confirmedLimitOrder: Record<
     QuoteId,
     { params: LimitOrderCreationParams; unsignedOrderCreation: UnsignedOrderCreation }

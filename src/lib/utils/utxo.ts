@@ -1,10 +1,5 @@
-import {
-  type AccountId,
-  CHAIN_NAMESPACE,
-  type ChainId,
-  fromAccountId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'

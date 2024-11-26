@@ -1,6 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Flex, Stack } from '@chakra-ui/react'
-import { type AccountId, type AssetId, ethAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Route } from 'Routes/helpers'

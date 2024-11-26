@@ -27,14 +27,12 @@ import {
 } from '../../utils'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import type { CowSwapOrder } from './types'
-import {
-  CoWSwapBuyTokenDestination,
-  type CowSwapGetTradesResponse,
-  type CowSwapGetTransactionsResponse,
-  CoWSwapSellTokenSource,
-  CoWSwapSigningScheme,
+import type {
+  CowSwapGetTradesResponse,
+  CowSwapGetTransactionsResponse,
+  CowSwapOrder,
 } from './types'
+import { CoWSwapBuyTokenDestination, CoWSwapSellTokenSource, CoWSwapSigningScheme } from './types'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,

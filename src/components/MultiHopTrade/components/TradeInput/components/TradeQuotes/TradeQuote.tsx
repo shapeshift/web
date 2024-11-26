@@ -15,7 +15,8 @@ import { getQuoteErrorTranslation } from 'components/MultiHopTrade/components/Tr
 import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { type ApiQuote, TradeQuoteValidationError } from 'state/apis/swapper/types'
+import type { ApiQuote } from 'state/apis/swapper/types'
+import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import {
   selectFeeAssetByChainId,
   selectFeeAssetById,

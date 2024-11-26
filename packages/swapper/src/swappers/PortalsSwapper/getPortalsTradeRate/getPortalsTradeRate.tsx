@@ -12,10 +12,11 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
+  SwapErrorRight,
   SwapperConfig,
   TradeRate,
 } from '../../../types'
-import { type SwapErrorRight, SwapperName, TradeQuoteError } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'

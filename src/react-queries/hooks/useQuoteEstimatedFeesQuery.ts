@@ -1,4 +1,5 @@
-import { type AccountId, type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'

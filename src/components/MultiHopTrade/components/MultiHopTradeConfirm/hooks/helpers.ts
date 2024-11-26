@@ -1,4 +1,5 @@
-import { SwapperName, type TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { SwapperName } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import { getConfig } from 'config'
 

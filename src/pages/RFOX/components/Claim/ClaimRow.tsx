@@ -1,7 +1,9 @@
 import { useMediaQuery } from '@chakra-ui/react'
-import { type AssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
-import { type FC, useMemo } from 'react'
+import type { FC } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { ClaimRow as ReusableClaimRow } from 'components/ClaimRow/ClaimRow'
 import { ClaimStatus } from 'components/ClaimRow/types'
@@ -10,7 +12,7 @@ import { selectAssetById, selectFirstAccountIdByChainId } from 'state/slices/sel
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { type RfoxClaimQuote } from './types'
+import type { RfoxClaimQuote } from './types'
 
 type ClaimRowProps = {
   stakingAssetId: AssetId

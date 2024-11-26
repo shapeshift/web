@@ -1,5 +1,5 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   InboundAddressResponse,
   ThornodePoolResponse,

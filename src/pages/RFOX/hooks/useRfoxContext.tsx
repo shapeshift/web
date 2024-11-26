@@ -1,9 +1,5 @@
-import {
-  type AccountId,
-  type AssetId,
-  foxOnArbitrumOneAssetId,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import {
   selectAccountIdByAccountNumberAndChainId,

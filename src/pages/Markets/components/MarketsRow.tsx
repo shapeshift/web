@@ -26,7 +26,8 @@ import { selectFeatureFlag } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
-import { type MarketsCategories, sortOptionsByCategory } from '../constants'
+import type { MarketsCategories } from '../constants'
+import { sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
 const chevronDownIcon = <ChevronDownIcon />

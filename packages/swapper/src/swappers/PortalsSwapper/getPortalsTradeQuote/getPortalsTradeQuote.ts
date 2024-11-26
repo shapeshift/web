@@ -8,14 +8,14 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
-import type { GetEvmTradeQuoteInputBase, SwapperConfig } from '../../../types'
-import {
-  type SingleHopTradeQuoteSteps,
-  type SwapErrorRight,
-  SwapperName,
-  type TradeQuote,
-  TradeQuoteError,
+import type {
+  GetEvmTradeQuoteInputBase,
+  SingleHopTradeQuoteSteps,
+  SwapErrorRight,
+  SwapperConfig,
+  TradeQuote,
 } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'

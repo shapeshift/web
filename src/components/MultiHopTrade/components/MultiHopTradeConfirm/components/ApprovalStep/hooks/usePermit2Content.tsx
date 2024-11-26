@@ -9,10 +9,8 @@ import { useAppSelector } from 'state/store'
 
 import { useSignPermit2 } from '../../../hooks/useSignPermit2'
 import { ApprovalContent } from '../components/ApprovalContent'
-import {
-  SharedApprovalDescription,
-  type TxLineProps,
-} from '../components/SharedApprovalDescription'
+import type { TxLineProps } from '../components/SharedApprovalDescription'
+import { SharedApprovalDescription } from '../components/SharedApprovalDescription'
 
 export type UsePermit2ContentProps = {
   tradeQuoteStep: TradeQuoteStep

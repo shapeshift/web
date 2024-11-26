@@ -9,7 +9,8 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'

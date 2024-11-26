@@ -217,7 +217,7 @@ export const LimitOrderConfirm = () => {
               width='full'
               onClick={handleConfirm}
               isLoading={isLoading}
-              isDisabled={isLoading}
+              isDisabled={isLoading || !activeQuote}
             >
               <Text translation={'limitOrder.placeOrder'} />
             </Button>

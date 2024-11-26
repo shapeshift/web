@@ -18,13 +18,12 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeQuoteInput,
-  type GetTradeRateInput,
+  GetTradeRateInput,
   ProtocolFee,
-  type SwapErrorRight,
+  SwapErrorRight,
   SwapperDeps,
-  SwapperName,
-  TradeQuoteError,
 } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import {
   THOR_PRECISION,

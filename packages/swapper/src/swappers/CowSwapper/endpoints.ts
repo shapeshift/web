@@ -28,13 +28,11 @@ import {
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type {
-  CoWSwapBuyTokenDestination,
-  type CowSwapGetTradesResponse,
-  type CowSwapGetTransactionsResponse,
+  CowSwapGetTradesResponse,
+  CowSwapGetTransactionsResponse,
   CowSwapOrder,
-  CoWSwapSellTokenSource,
-  CoWSwapSigningScheme,
 } from './types'
+import { CoWSwapBuyTokenDestination, CoWSwapSellTokenSource, CoWSwapSigningScheme } from './types'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,

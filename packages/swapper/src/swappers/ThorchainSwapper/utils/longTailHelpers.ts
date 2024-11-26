@@ -4,13 +4,8 @@ import { I_UNISWAP_V3_POOL_ABI } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { Token } from '@uniswap/sdk-core'
 import { computePoolAddress, FeeAmount } from '@uniswap/v3-sdk'
-import type {
-  type Address,
-  getAddress,
-  getContract,
-  GetContractReturnType,
-  type PublicClient,
-} from 'viem'
+import type { Address, GetContractReturnType, PublicClient } from 'viem'
+import { getAddress, getContract } from 'viem'
 
 import type { ThornodePoolResponse } from '../types'
 import { WAVAX_TOKEN, WBNB_TOKEN, WETH_TOKEN } from './constants'

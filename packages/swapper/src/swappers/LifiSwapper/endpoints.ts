@@ -16,13 +16,13 @@ import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
-  type SwapErrorRight,
-  type SwapperApi,
+  SwapErrorRight,
+  SwapperApi,
   SwapperDeps,
-  type TradeQuote,
-  TradeQuoteError,
+  TradeQuote,
   TradeRate,
 } from '../../types'
+import { TradeQuoteError } from '../../types'
 import {
   checkSafeTransactionStatus,
   createDefaultStatusResponse,

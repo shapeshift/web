@@ -10,13 +10,12 @@ import { zeroAddress } from 'viem'
 
 import type {
   GetEvmTradeQuoteInputBase,
-  type SingleHopTradeQuoteSteps,
-  type SwapErrorRight,
+  SingleHopTradeQuoteSteps,
+  SwapErrorRight,
   SwapperConfig,
-  SwapperName,
-  type TradeQuote,
-  TradeQuoteError,
+  TradeQuote,
 } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'

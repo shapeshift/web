@@ -7,15 +7,15 @@ import { concat, numberToHex, size } from 'viem'
 
 import type {
   CommonTradeQuoteInput,
-  type EvmTransactionRequest,
+  EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  type GetTradeQuoteInput,
-  type GetUnsignedEvmTransactionArgs,
-  type SwapErrorRight,
-  type SwapperApi,
-  type SwapperDeps,
-  type TradeQuote,
+  GetTradeQuoteInput,
+  GetUnsignedEvmTransactionArgs,
+  SwapErrorRight,
+  SwapperApi,
+  SwapperDeps,
+  TradeQuote,
   TradeRate,
 } from '../../types'
 import { checkEvmSwapStatus, isExecutableTradeQuote } from '../../utils'

@@ -6,12 +6,12 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
 import type {
-  type GetTradeRateInput,
+  GetTradeRateInput,
   MultiHopTradeRateSteps,
-  type SwapErrorRight,
-  type SwapperDeps,
-  TradeQuoteError,
+  SwapErrorRight,
+  SwapperDeps,
 } from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { getHopByIndex, makeSwapErrorRight } from '../../../utils'
 import type { ThorTradeRate } from '../types'
 import { getBestAggregator } from './getBestAggregator'

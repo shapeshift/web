@@ -156,13 +156,11 @@ export const _getTradeRate = async (
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
         const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
-        const feeData = await getUtxoTxFees({
+        return await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
           publicKey,
         })
-
-        return feeData
       }
 
       case CHAIN_NAMESPACE.Solana: {
@@ -244,6 +242,24 @@ export const _getTradeRate = async (
       : CHAINFLIP_DCA_SWAP_SOURCE
   }
 
+  const getMaxBoostFee = () => {
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm:
+        return 0
+
+      case CHAIN_NAMESPACE.Utxo:
+        return 10
+
+      case CHAIN_NAMESPACE.Solana:
+        return 0
+
+      default:
+        throw new Error('Unsupported chainNamespace')
+    }
+  }
+
   const quotes: TradeRate[] = []
 
   for (const singleQuoteResponse of quoteResponse) {
@@ -293,6 +309,7 @@ export const _getTradeRate = async (
             chainflipChunkIntervalBlocks: isStreaming
               ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
               : undefined,
+            chainflipMaxBoostFee: getMaxBoostFee(),
           },
         ],
       }

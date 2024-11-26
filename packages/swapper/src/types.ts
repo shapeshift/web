@@ -270,6 +270,7 @@ export type TradeQuoteStep = {
   chainflipDepositAddress?: string | undefined
   chainflipNumberOfChunks?: number | undefined
   chainflipChunkIntervalBlocks?: number | undefined
+  chainflipMaxBoostFee?: number | undefined
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

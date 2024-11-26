@@ -15,14 +15,8 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import noop from 'lodash/noop'
 import type { ElementType, FocusEvent, PropsWithChildren } from 'react'
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
-import type {
-  Controller,
-  ControllerRenderProps,
-   FieldError,
-  RegisterOptions,
-  useForm,
-  useFormContext,
-} from 'react-hook-form'
+import type { ControllerRenderProps, FieldError, RegisterOptions } from 'react-hook-form'
+import { Controller, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'

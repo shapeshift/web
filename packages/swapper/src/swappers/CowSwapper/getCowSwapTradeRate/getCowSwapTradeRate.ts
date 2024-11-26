@@ -4,13 +4,12 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
-import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { type CowSwapError } from '../types'
 import {
@@ -120,8 +119,19 @@ async function _getCowSwapTradeRate(
       affiliateBps,
     })
 
+  const id = cowswapQuoteResponse.id?.toString()
+
+  if (!id) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: _getCowSwapTradeRate] - missing quote ID`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
   const quote: TradeRate = {
-    id: cowswapQuoteResponse.id?.toString() ?? uuid(),
+    id,
     accountNumber,
     receiveAddress: undefined,
     affiliateBps,

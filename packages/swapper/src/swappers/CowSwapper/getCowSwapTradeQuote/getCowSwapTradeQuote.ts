@@ -4,7 +4,6 @@ import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
-import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -14,8 +13,8 @@ import type {
   SwapperConfig,
   TradeQuote,
 } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { CowSwapError } from '../types'
 import {
@@ -125,8 +124,19 @@ async function _getCowSwapTradeQuote(
       affiliateBps,
     })
 
+  const id = cowswapQuoteResponse.id?.toString()
+
+  if (!id) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: _getCowSwapTradeQuote] - missing quote ID`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
   const quote: TradeQuote = {
-    id: cowswapQuoteResponse.id?.toString() ?? uuid(),
+    id,
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,

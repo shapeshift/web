@@ -1,5 +1,5 @@
 import { ethChainId } from '@shapeshiftoss/caip'
-import { type HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'

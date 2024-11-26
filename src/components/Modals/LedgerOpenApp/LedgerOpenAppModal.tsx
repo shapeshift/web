@@ -10,7 +10,8 @@ import {
   Spinner,
   VStack,
 } from '@chakra-ui/react'
-import { type ChainId, ethAssetId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

@@ -1,6 +1,7 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'

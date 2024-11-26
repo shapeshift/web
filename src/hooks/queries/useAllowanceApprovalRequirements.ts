@@ -1,7 +1,5 @@
-import {
-  useIsAllowanceApprovalRequired,
-  type UseIsApprovalRequiredProps,
-} from './useIsAllowanceApprovalRequired'
+import type { UseIsApprovalRequiredProps } from './useIsAllowanceApprovalRequired'
+import { useIsAllowanceApprovalRequired } from './useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from './useIsAllowanceResetRequired'
 
 // Convenience wrapper to avoid necessity to call both hooks in common case

@@ -1,5 +1,6 @@
 import { QuestionIcon } from '@chakra-ui/icons'
-import { type BoxProps, Circle, Flex } from '@chakra-ui/layout'
+import type { BoxProps } from '@chakra-ui/layout'
+import { Circle, Flex } from '@chakra-ui/layout'
 import { useCallback, useMemo, useState } from 'react'
 import { RiMoneyDollarCircleFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'

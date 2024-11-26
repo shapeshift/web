@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { isExecutableTradeStep, type SwapperName, type TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'

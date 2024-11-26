@@ -6,7 +6,8 @@ import React from 'react'
 import { useTranslate } from 'react-polyglot'
 import { SlideTransition } from 'components/SlideTransition'
 import { SlideTransitionY } from 'components/SlideTransitionY'
-import { Text, type TextPropTypes } from 'components/Text/Text'
+import type { TextPropTypes } from 'components/Text/Text'
+import { Text } from 'components/Text/Text'
 
 export type SharedBodyContent = {
   key: TxStatus

@@ -14,11 +14,8 @@ import {
   WETH,
   XDAI,
 } from '../../utils/test-data/assets'
-import {
-  CoWSwapBuyTokenDestination,
-  type CowSwapQuoteResponse,
-  CoWSwapSellTokenSource,
-} from '../types'
+import type { CowSwapQuoteResponse } from '../types'
+import { CoWSwapBuyTokenDestination, CoWSwapSellTokenSource } from '../types'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS, DEFAULT_ADDRESS } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'

@@ -260,7 +260,7 @@
     "dotenv": "^16.0.1",
     "eslint": "^8.47.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react-memo": "^0.0.3",
     "eslint-plugin-simple-import-sort": "^10.0.0",
@@ -312,6 +312,9 @@
     "p-queue": "^6.6.2",
     "web3": "4.2.1-dev.a0d6730.0",
     "react-scripts@^5.0.1": "patch:react-scripts@npm%3A5.0.1#./.yarn/patches/react-scripts-npm-5.0.1-d06bd2d5ad.patch",
-    "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2": "patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch"
+    "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2": "patch:@shapeshiftoss/bitcoinjs-lib@npm%3A5.2.0-shapeshift.2#./.yarn/patches/@shapeshiftoss-bitcoinjs-lib-npm-5.2.0-shapeshift.2-e59ff81828.patch",
+    "@typescript-eslint/parser": "^8.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "eslint-plugin-import": "^2.31.0"
   }
 }

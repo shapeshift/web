@@ -1,6 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { type Address, getAddress } from 'viem'
+import type { Address } from 'viem'
+import { getAddress } from 'viem'
 
 import { depositWithExpiry, getInboundAddressDataForChain } from '../../../../thorchain-utils'
 import type { SwapperConfig } from '../../../../types'

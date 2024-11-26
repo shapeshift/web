@@ -1,38 +1,31 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
-import type { BoxProps } from '@chakra-ui/react'
+import type { BoxProps, ButtonProps, MenuItemOptionProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
-  type ButtonProps,
   Flex,
   Menu,
   MenuButton,
-  type MenuItemOptionProps,
   MenuList,
   MenuOptionGroup,
   Text,
   usePrevious,
 } from '@chakra-ui/react'
-import {
-  type AccountId,
-  type AssetId,
-  CHAIN_NAMESPACE,
-  fromAccountId,
-  fromAssetId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { chain } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
 import sortBy from 'lodash/sortBy'
-import React, { type FC, memo, useCallback, useEffect, useMemo, useState } from 'react'
+import type { FC } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { isValidAccountNumber } from 'lib/utils/accounts'
-import { type ReduxState } from 'state/reducer'
+import type { ReduxState } from 'state/reducer'
 import { accountIdToLabel } from 'state/slices/portfolioSlice/utils'
 import {
   selectAssetById,

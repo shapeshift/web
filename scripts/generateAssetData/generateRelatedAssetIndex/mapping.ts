@@ -6,7 +6,8 @@ import {
   solanaChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { type ZerionChainId, zerionChainIdToChainId } from '@shapeshiftoss/types'
+import type { ZerionChainId } from '@shapeshiftoss/types'
+import { zerionChainIdToChainId } from '@shapeshiftoss/types'
 
 import type { ZerionImplementation } from './validators/fungible'
 

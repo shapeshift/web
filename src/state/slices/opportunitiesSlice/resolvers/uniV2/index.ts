@@ -6,7 +6,8 @@ import {
   getOrCreateContractByType,
   WETH_TOKEN_CONTRACT,
 } from '@shapeshiftoss/contracts'
-import { KnownChainIds, type MarketData } from '@shapeshiftoss/types'
+import type { MarketData } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TokenAmount } from '@uniswap/sdk'
 import { getAddress } from 'viem'
 import type { BN } from 'lib/bignumber/bignumber'

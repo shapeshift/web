@@ -15,7 +15,8 @@ import type {
 import { SwapperName } from '../../../types'
 import { createTradeAmountTooSmallErr } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
+import type { CowSwapQuoteError, CowSwapQuoteResponse } from '../types'
+import { CoWSwapOrderKind } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,

@@ -1,6 +1,7 @@
 import type { StackDirection } from '@chakra-ui/react'
 import { Collapse, Stack, StackDivider, useColorModeValue } from '@chakra-ui/react'
-import { type ReactNode, useMemo } from 'react'
+import type { ReactNode } from 'react'
+import { useMemo } from 'react'
 
 const stackDivider = <StackDivider />
 

@@ -1,5 +1,6 @@
-import { type ChainId } from '@shapeshiftoss/caip'
-import { useQueries, type UseQueryResult } from '@tanstack/react-query'
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { useQueries } from '@tanstack/react-query'
 import type { TokenMetadataResponse } from 'alchemy-sdk'
 import { useCallback, useMemo } from 'react'
 import { mergeQueryOutputs } from 'react-queries/helpers'

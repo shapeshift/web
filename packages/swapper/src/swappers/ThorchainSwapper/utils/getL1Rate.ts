@@ -336,7 +336,7 @@ export const getL1Rate = async (
                   protocolFees: getProtocolFees(quote),
                 }
 
-              // This works by leveraging the receiveAddress if it exists. Even though this is a rate, we absolutely can (and will if possible) pass a receive address
+              // This works by leveraging the xpub if it exists. Even though this is a rate, we absolutely can (and will if possible) pass a xpub
               // However, we run the risk that https://github.com/shapeshift/web/issues/7979 breaks this, since connecting a wallet won't refetch a quote
               // If that becomes an issue we should be able to get a very rough estimation (not taking users' UTXOs into account) without an address
               // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.

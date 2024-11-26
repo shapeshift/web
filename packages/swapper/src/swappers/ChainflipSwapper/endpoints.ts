@@ -49,7 +49,7 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    // For DCA swaps we already opened a deposit address in getTradeRate, we only need to open for regular swaps
+    // For DCA swaps we already opened a deposit address in getTradeQuote, we only need to open for regular swaps
     if (!step.chainflipDepositAddress) {
       const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
       const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
@@ -174,7 +174,7 @@ export const chainflipApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
 
-    // For DCA swaps we already opened a deposit address in getTradeRate, we only need to open for regular swaps
+    // For DCA swaps we already opened a deposit address in getTradeQuote, we only need to open for regular swaps
     if (!step.chainflipDepositAddress) {
       const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
       const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
@@ -268,7 +268,7 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
 
-    // For DCA swaps we already opened a deposit address in getTradeRate, we only need to open for regular swaps
+    // For DCA swaps we already opened a deposit address in getTradeQuote, we only need to open for regular swaps
     if (!step.chainflipDepositAddress) {
       const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
       const apiKey = config.REACT_APP_CHAINFLIP_API_KEY

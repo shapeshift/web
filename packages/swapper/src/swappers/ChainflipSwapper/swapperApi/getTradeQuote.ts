@@ -19,8 +19,6 @@ import {
 } from '../utils/helpers'
 import { _getTradeRate } from './getTradeRate'
 
-// This isn't a mistake. A trade quote *is* a trade rate. Chainflip doesn't really have a notion of a trade rate,
-// they do have a notion of a "swap" (which we effectively only use to get the deposit address), which is irrelevant to the notion of quote vs. rate
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,

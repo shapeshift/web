@@ -25,7 +25,7 @@ import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
-import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper'
+import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific

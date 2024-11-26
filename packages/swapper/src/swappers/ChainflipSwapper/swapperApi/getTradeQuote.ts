@@ -34,9 +34,6 @@ const _getTradeQuote = async (
   // in order to properly fetch the streaming status later
   for (const tradeRate of tradeRates) {
     for (const step of tradeRate.steps) {
-      if (!input.receiveAddress) throw Error('missing receive address')
-      if (!input.sendAddress) throw Error('missing send address')
-
       const sourceAsset = await getChainFlipIdFromAssetId({
         assetId: step.sellAsset.assetId,
         brokerUrl,
@@ -65,7 +62,7 @@ const _getTradeQuote = async (
         destinationAsset,
         destinationAddress: input.receiveAddress,
         minimumPrice,
-        refundAddress: input.sendAddress,
+        refundAddress: input.sendAddress!, // We verified existence of sendAddress in calling method
         commissionBps: serviceCommission,
         numberOfChunks: step.chainflipNumberOfChunks,
         chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
@@ -95,12 +92,34 @@ export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<TradeQuoteResult> => {
-  const { accountNumber } = input
+  const { 
+    accountNumber,
+    sendAddress,
+    receiveAddress
+  } = input
 
   if (accountNumber === undefined) {
     return Err(
       makeSwapErrorRight({
         message: `accountNumber is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  if (sendAddress === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `sendAddress is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  if (receiveAddress === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `receiveAddress is required`,
         code: TradeQuoteError.UnknownError,
       }),
     )

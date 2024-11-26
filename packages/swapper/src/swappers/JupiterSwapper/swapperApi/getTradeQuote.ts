@@ -13,6 +13,8 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { PublicKey, type TransactionInstruction } from '@solana/web3.js'
+import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -27,7 +29,8 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
-import { getJupiterQuote, isSupportedChainId } from '../utils/helpers'
+import type { Instruction } from '../models/Instruction'
+import { getJupiterQuote, getJupiterSwapInstructions, isSupportedChainId } from '../utils/helpers'
 
 const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -40,6 +43,7 @@ const _getTradeQuote = async (
     affiliateBps,
     receiveAddress,
     accountNumber,
+    sendAddress,
     slippageTolerancePercentageDecimal,
   } = input
 
@@ -62,6 +66,16 @@ const _getTradeQuote = async (
       makeSwapErrorRight({
         message: `unsupported chainId`,
         code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!sendAddress) {
+    return Err(
+      makeSwapErrorRight({
+        message: `sendAddress is required`,
+        code: TradeQuoteError.UnknownError,
         details: { chainId: sellAsset.chainId },
       }),
     )
@@ -90,6 +104,63 @@ const _getTradeQuote = async (
 
   const { data: quoteResponse } = maybeQuoteResponse.unwrap()
 
+  const contractAddress =
+    buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
+
+  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+  const isCrossAccountTrade = receiveAddress ? receiveAddress !== sendAddress : false
+
+  const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
+    contractAddress && isCrossAccountTrade
+      ? await adapter.createAssociatedTokenAccountInstruction({
+          from: sendAddress,
+          to: receiveAddress,
+          tokenId: contractAddress,
+        })
+      : { instruction: undefined, destinationTokenAccount: undefined }
+
+  const maybeSwapResponse = await getJupiterSwapInstructions({
+    apiUrl: jupiterUrl,
+    fromAddress: sendAddress,
+    toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
+    rawQuote: quoteResponse,
+    wrapAndUnwrapSol: buyAsset.assetId === wrappedSolAssetId ? false : true,
+    // Shared account is not supported for simple AMMs
+    useSharedAccounts: quoteResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
+  })
+
+  if (maybeSwapResponse.isErr()) {
+    const error = maybeSwapResponse.unwrapErr()
+    const cause = error.cause as AxiosError<any, any>
+    throw Error(cause.response!.data.detail)
+  }
+
+  const { data: swapResponse } = maybeSwapResponse.unwrap()
+
+  const convertJupiterInstruction = (instruction: Instruction): TransactionInstruction => ({
+    ...instruction,
+    keys: instruction.accounts.map(account => ({
+      ...account,
+      pubkey: new PublicKey(account.pubkey),
+    })),
+    data: Buffer.from(instruction.data, 'base64'),
+    programId: new PublicKey(instruction.programId),
+  })
+
+  const instructions: TransactionInstruction[] = [
+    ...swapResponse.setupInstructions.map(convertJupiterInstruction),
+    convertJupiterInstruction(swapResponse.swapInstruction),
+  ]
+
+  if (createTokenAccountInstruction) {
+    instructions.unshift(createTokenAccountInstruction)
+  }
+
+  if (swapResponse.cleanupInstruction) {
+    instructions.push(convertJupiterInstruction(swapResponse.cleanupInstruction))
+  }
+
   const getFeeData = async () => {
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
@@ -97,18 +168,15 @@ const _getTradeQuote = async (
       case CHAIN_NAMESPACE.Solana: {
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-          to: receiveAddress ?? input.sendAddress,
-          value: sellAmount,
+          to: '',
+          value: '0',
           chainSpecific: {
-            from: input.sendAddress!,
-            tokenId:
-              sellAsset.assetId === solAssetId
-                ? undefined
-                : fromAssetId(sellAsset.assetId).assetReference,
+            from: sendAddress,
+            addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
+            instructions,
           },
         }
-        const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
-        return { networkFeeCryptoBaseUnit: fast.txFee }
+        return await sellAdapter.getFeeData(getFeeDataInput)
       }
 
       default:
@@ -162,7 +230,6 @@ const _getTradeQuote = async (
     receiveAddress,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
-    rawQuote: quoteResponse,
     slippageTolerancePercentageDecimal:
       slippageTolerancePercentageDecimal ??
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
@@ -171,9 +238,15 @@ const _getTradeQuote = async (
         buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.outAmount,
         buyAmountAfterFeesCryptoBaseUnit: quoteResponse.outAmount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: quoteResponse.inAmount,
+        jupiterQuoteResponse: quoteResponse,
+        jupiterTransactionMetadata: {
+          addressLookupTableAddresses: swapResponse.addressLookupTableAddresses,
+          instructions,
+        },
         feeData: {
           protocolFees,
-          ...feeData,
+          networkFeeCryptoBaseUnit: feeData.fast.txFee,
+          chainSpecific: feeData.fast.chainSpecific,
         },
         rate,
         source: SwapperName.Jupiter,

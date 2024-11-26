@@ -21,6 +21,7 @@ import type {
 } from '@shapeshiftoss/types'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
@@ -115,6 +116,11 @@ export type CosmosSdkFeeData = {
   estimatedGasCryptoBaseUnit: string
 }
 
+export type SolanaFeeData = {
+  computeUnits: string
+  priorityFee: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -125,7 +131,13 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
+}
+
+export const isSolanaFeeData = (
+  chainSpecific: QuoteFeeData['chainSpecific'],
+): chainSpecific is SolanaFeeData => {
+  return Boolean(chainSpecific && 'priorityFee' in chainSpecific)
 }
 
 export type BuyAssetBySellIdInput = {
@@ -268,6 +280,11 @@ export type TradeQuoteStep = {
     gasLimit: string
   }
   cowswapQuoteResponse?: CowSwapQuoteResponse
+  jupiterQuoteResponse?: QuoteResponse
+  jupiterTransactionMetadata?: {
+    addressLookupTableAddresses: string[]
+    instructions?: TransactionInstruction[]
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -282,7 +299,6 @@ type TradeQuoteBase = {
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
-  rawQuote?: QuoteResponse
 }
 
 type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }

@@ -28,7 +28,8 @@ import { bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { CosmosSdkBaseAdapter } from '../CosmosSdkBaseAdapter'
-import type { ThorchainMessageType, type ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import type { ThorchainMsgDeposit, ThorchainMsgSend } from '../types'
+import { ThorchainMessageType } from '../types'
 
 // https://dev.thorchain.org/thorchain-dev/interface-guide/fees#thorchain-native-rune
 // static automatic outbound fee as defined by: https://daemon.thorchain.shapeshift.com/lcd/thorchain/constants

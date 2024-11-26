@@ -26,14 +26,14 @@ import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../CosmosSdkBaseAdapter'
 import { assertIsValidatorAddress, CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type {
-  CosmosSdkMessageType,
   CosmosSdkMsgBeginRedelegate,
   CosmosSdkMsgDelegate,
   CosmosSdkMsgSend,
   CosmosSdkMsgUndelegate,
-  type CosmosSdkMsgWithdrawDelegationReward,
-  type ValidatorAction,
+  CosmosSdkMsgWithdrawDelegationReward,
+  ValidatorAction,
 } from '../types'
+import { CosmosSdkMessageType } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet

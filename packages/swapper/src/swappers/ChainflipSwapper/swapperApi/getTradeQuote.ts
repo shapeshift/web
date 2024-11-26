@@ -92,11 +92,7 @@ export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<TradeQuoteResult> => {
-  const { 
-    accountNumber,
-    sendAddress,
-    receiveAddress
-  } = input
+  const { accountNumber, sendAddress, receiveAddress } = input
 
   if (accountNumber === undefined) {
     return Err(

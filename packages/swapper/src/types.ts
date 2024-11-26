@@ -147,7 +147,6 @@ type CommonTradeInputBase = {
 export type CommonTradeQuoteInput = CommonTradeInputBase & {
   sendAddress?: string
   receiveAddress: string
-  isCrossAccountTrade?: boolean
   accountNumber: number
   quoteOrRate: 'quote'
 }
@@ -155,7 +154,6 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
 type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
   receiveAddress: undefined
-  isCrossAccountTrade?: boolean
   accountNumber: undefined
   quoteOrRate: 'rate'
 }

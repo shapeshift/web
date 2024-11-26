@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { type AssetId, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
@@ -56,11 +56,16 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
+        const isSolSellAssetId = sellAsset.assetId === solAssetId
         const isCrossAccountTrade =
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
         const featureFlags: FeatureFlags = selectFeatureFlags(state)
-        const isSwapperEnabled = getEnabledSwappers(featureFlags, isCrossAccountTrade)[swapperName]
+        const isSwapperEnabled = getEnabledSwappers(
+          featureFlags,
+          isCrossAccountTrade,
+          isSolSellAssetId,
+        )[swapperName]
 
         if (!isSwapperEnabled) return { data: {} }
 
@@ -261,7 +266,7 @@ export const swapperApi = createApi({
         const state = getState() as ReduxState
 
         const featureFlags = selectFeatureFlags(state)
-        const enabledSwappers = getEnabledSwappers(featureFlags, false)
+        const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
         const assets = selectAssets(state)
         const sellAsset = selectInputSellAsset(state)
         const swapperConfig: SwapperConfig = getConfig()

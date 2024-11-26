@@ -276,7 +276,6 @@ export const useGetTradeQuotes = () => {
         wallet: wallet ?? undefined,
         quoteOrRate: 'quote',
         receiveAddress,
-        isCrossAccountTrade: Boolean(manualReceiveAddress),
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
         affiliateBps,
@@ -307,7 +306,6 @@ export const useGetTradeQuotes = () => {
     thorVotingPower,
     userSlippageTolerancePercentageDecimal,
     votingPower,
-    manualReceiveAddress,
     wallet,
   ])
 

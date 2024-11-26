@@ -224,7 +224,6 @@ export const useGetTradeRates = () => {
         allowMultiHop: true,
         affiliateBps,
         potentialAffiliateBps,
-        isCrossAccountTrade: Boolean(manualReceiveAddress),
         // Pass in the user's slippage preference if it's set, else let the swapper use its default
         slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
         pubKey:
@@ -248,7 +247,6 @@ export const useGetTradeRates = () => {
     userSlippageTolerancePercentageDecimal,
     sellAssetUsdRate,
     sellAccountId,
-    manualReceiveAddress,
     isVotingPowerLoading,
     isBuyAssetChainSupported,
     receiveAddress,

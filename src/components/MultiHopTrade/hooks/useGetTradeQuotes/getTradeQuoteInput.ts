@@ -28,7 +28,6 @@ export type GetTradeQuoteInputArgs = {
   pubKey?: string | undefined
   quoteOrRate: 'quote' | 'rate'
   receiveAddress: string | undefined
-  isCrossAccountTrade?: boolean
   sellAccountNumber: number | undefined
   wallet: HDWallet | undefined
 }
@@ -47,7 +46,6 @@ export const getTradeQuoteInput = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
-  isCrossAccountTrade,
 }: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput> => {
   const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
     sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
@@ -57,7 +55,6 @@ export const getTradeQuoteInput = async ({
     sellAsset,
     buyAsset,
     receiveAddress,
-    isCrossAccountTrade,
     accountNumber: sellAccountNumber,
     affiliateBps: affiliateBps ?? '0',
     potentialAffiliateBps: potentialAffiliateBps ?? '0',

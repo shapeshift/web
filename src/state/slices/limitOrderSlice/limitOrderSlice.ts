@@ -28,6 +28,8 @@ export const limitOrderSlice = createSlice({
       }
       const quoteId = action.payload.response.id
 
+      // The CoW api deems the ID as optional, but realistically is never undefined. This is here to
+      // prevent bad things happening if this assumption EVER turns out to be false.
       if (!quoteId) {
         console.error('Missing quoteId')
         return
@@ -42,6 +44,8 @@ export const limitOrderSlice = createSlice({
       const limitOrderQuoteId = action.payload
 
       // If there is no active quote, the state is corrupt.
+      // This should never actually happen because the view layer should prevent calling this when
+      // the state isn't valid, but it's here to protect us from ourselves.
       if (state.activeQuote === undefined) {
         console.error('Attempted to confirm an non-existent limit order quote')
         return
@@ -56,6 +60,8 @@ export const limitOrderSlice = createSlice({
         unsignedOrderCreation,
       }
 
+      // This should never actually happen because the view layer should prevent calling this when
+      // the state isn't valid, but it's here to protect us from ourselves.
       if (state.orderSubmission[limitOrderQuoteId].state !== LimitOrderSubmissionState.Previewing) {
         if (
           state.orderSubmission[limitOrderQuoteId].state === LimitOrderSubmissionState.Initializing

@@ -109,10 +109,10 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      // This is a UTXO quote without a sell pubKey handy - in effect, this means no wallet connected but could also happen if users do happen to
+      // This is a UTXO quote without a sell account number handy - in effect, this means no wallet connected but could also happen if users do happen to
       // end up in a state where they still have a sell asset selected that their wallet doesn't support anymore
-      // Either way, when there is no pubKey, we always return dummy BIP44 params
-      if (quoteOrRate === 'rate' && !pubKey)
+      // Either way, when there is no sellAccountNumber, meaning we can't get a pubKey out of it so we always return dummy BIP44 params
+      if (quoteOrRate === 'rate' && sellAccountNumber === undefined)
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,

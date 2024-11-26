@@ -33,7 +33,7 @@ type GetJupiterSwapArgs = {
   wrapAndUnwrapSol: boolean
 }
 
-export const getJupiterQuote = ({
+export const getJupiterPrice = ({
   apiUrl,
   sourceAsset,
   destinationAsset,

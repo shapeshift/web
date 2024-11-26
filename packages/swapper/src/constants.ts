@@ -105,7 +105,7 @@ const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
-const DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // .5%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName?: SwapperName,

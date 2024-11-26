@@ -148,7 +148,7 @@ export const getTradeQuoteInput = async ({
         xpub,
         sendAddress,
         quoteOrRate,
-      }
+      } as GetTradeQuoteInput
     }
     case CHAIN_NAMESPACE.Solana: {
       const sellAssetChainAdapter = assertGetSolanaChainAdapter(sellAsset.chainId)

@@ -358,6 +358,7 @@ export const _getTradeRate = async (
           chainflipChunkIntervalBlocks: isStreaming
             ? singleQuoteResponse.chunkIntervalBlocks ?? undefined
             : undefined,
+          chainflipMaxBoostFee: 0,
         },
       ],
     }

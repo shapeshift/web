@@ -56,7 +56,7 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
-        const isSolSellAssetId = sellAsset.assetId === solAssetId
+        const isSolBuyAssetId = buyAsset.assetId === solAssetId
         const isCrossAccountTrade =
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
@@ -64,7 +64,7 @@ export const swapperApi = createApi({
         const isSwapperEnabled = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
-          isSolSellAssetId,
+          isSolBuyAssetId,
         )[swapperName]
 
         if (!isSwapperEnabled) return { data: {} }

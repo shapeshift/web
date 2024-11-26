@@ -34,7 +34,7 @@ export const getEnabledSwappers = (
     JupiterSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
-  isSolSellAssetId: boolean,
+  isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
   return {
     [SwapperName.LIFI]:
@@ -56,7 +56,7 @@ export const getEnabledSwappers = (
     [SwapperName.Jupiter]:
       JupiterSwap &&
       (!isCrossAccountTrade ||
-        (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolSellAssetId)),
+        (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Test]: false,
   }
 }

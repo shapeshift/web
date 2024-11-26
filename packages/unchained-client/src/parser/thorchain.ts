@@ -4,7 +4,7 @@ import axios from 'axios'
 import type { BaseTxMetadata, StandardTx } from '../types'
 import { Dex, TradeType } from '../types'
 
-export type LiquidityType = 'Savers' | 'LP'
+export type LiquidityType = 'Savers' | 'LP' | 'RUNEPool'
 export type SwapType = 'Standard' | 'Streaming'
 
 interface Liquidity {
@@ -144,12 +144,22 @@ export class Parser {
         const type = getLiquidityType(pool)
         return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }
       }
+      case 'pool+': {
+        const type = 'RUNEPool'
+        return { data: { parser: 'thorchain', method: 'deposit', memo, liquidity: { type } } }
+      }
       case 'withdraw':
       case '-':
       case 'wd': {
         const [, pool] = memo.split(':')
         const type = getLiquidityType(pool)
         return { data: { parser: 'thorchain', method: 'withdraw', memo, liquidity: { type } } }
+      }
+      case 'pool-': {
+        const type = 'RUNEPool'
+        return {
+          data: { parser: 'thorchain', method: 'withdrawNative', memo, liquidity: { type } },
+        }
       }
       case '$+':
       case 'loan+':

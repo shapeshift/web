@@ -12,7 +12,7 @@ import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
 
-export const getHopTotalNetworkFeeUserCurrencyPrecision = (
+export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
@@ -45,7 +45,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
 
   return quote.steps.reduce((acc, step) => {
     const feeAsset = getFeeAsset(step.sellAsset.assetId)
-    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrencyPrecision(
+    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrency(
       step.feeData.networkFeeCryptoBaseUnit,
       feeAsset,
       getFeeAssetRate,

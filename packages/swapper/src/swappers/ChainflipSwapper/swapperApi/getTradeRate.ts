@@ -166,7 +166,7 @@ export const _getTradeRate = async (
       case CHAIN_NAMESPACE.Solana: {
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-          // Simulates a self-send, since we don't know the to just yet at this stage
+          // Simulates a self-send, since we don't know the 'to' just yet at this stage
           to: input.sendAddress!,
           value: sellAmount,
           chainSpecific: {

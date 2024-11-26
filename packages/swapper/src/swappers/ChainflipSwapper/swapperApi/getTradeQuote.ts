@@ -7,6 +7,8 @@ import type {
   SwapperDeps,
   TradeQuoteResult,
 } from '../../../types'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
 import {
   calculateChainflipMinPrice,
@@ -15,7 +17,7 @@ import {
 } from '../utils/helpers'
 import { _getTradeRate } from './getTradeRate'
 
-export const getTradeQuote = async (
+const _getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<TradeQuoteResult> => {
@@ -87,4 +89,22 @@ export const getTradeQuote = async (
   }
 
   return Ok(tradeRates) as TradeQuoteResult
+}
+
+export const getTradeQuote = async (
+  input: CommonTradeQuoteInput,
+  deps: SwapperDeps,
+): Promise<TradeQuoteResult> => {
+  const { accountNumber } = input
+
+  if (accountNumber === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `accountNumber is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  return await _getTradeQuote(input, deps)
 }

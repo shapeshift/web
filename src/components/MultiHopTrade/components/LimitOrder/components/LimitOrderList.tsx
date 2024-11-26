@@ -14,41 +14,26 @@ import {
   Tabs,
   VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAccountId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
 import { useMemo } from 'react'
-import type { Address } from 'viem'
 import { Text } from 'components/Text'
-import { chainIdFeeAssetReferenceMap } from 'state/slices/assetsSlice/utils'
+import { useActions } from 'hooks/useActions'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 
 import { WithBackButton } from '../../WithBackButton'
+import { cowSwapTokenToAssetId } from '../helpers'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
+import { CancelLimitOrder } from './CancelLimtOrder'
 import { LimitOrderCard } from './LimitOrderCard'
 
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
   onBack?: () => void
-}
-
-const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
-  const { chainNamespace, chainReference } = fromChainId(chainId)
-  return cowSwapToken.toLowerCase() === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS.toLowerCase()
-    ? toAssetId({
-        chainId,
-        assetNamespace: 'slip44',
-        assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
-      })
-    : toAssetId({
-        chainId,
-        assetNamespace: ASSET_NAMESPACE.erc20,
-        assetReference: cowSwapToken,
-      })
 }
 
 export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
@@ -64,6 +49,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     }
   }, [onBack])
 
+  const { setOrderToCancel } = useActions(limitOrderSlice.actions)
   const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
 
   const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
@@ -88,6 +74,11 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
       ({ order }) => [OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status),
     )
   }, [ordersResponse])
+
+  const handleCancelOrder = (uid: string) => {
+    const order = openLimitOrders?.find(order => order.order.uid === uid)
+    setOrderToCancel(order)
+  }
 
   return (
     <Card {...cardProps}>
@@ -145,7 +136,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   openLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
-                      id={order.uid}
+                      uid={order.uid}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}
@@ -155,6 +146,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                         .div(order.sellAmount)
                         .toNumber()}
                       status={order.status}
+                      onCancel={handleCancelOrder}
                     />
                   ))}
                 {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
@@ -171,7 +163,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   historicalLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
-                      id={order.uid}
+                      uid={order.uid}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}
@@ -193,6 +185,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           </TabPanels>
         </CardBody>
       </Tabs>
+      <CancelLimitOrder />
     </Card>
   )
 }

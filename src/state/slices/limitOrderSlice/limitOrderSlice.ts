@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { Order, QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -36,6 +37,15 @@ export const limitOrderSlice = createSlice({
       }
       state.activeQuote = action.payload
       state.orderSubmission[quoteId] = limitOrderSubmissionInitialState
+    },
+    setOrderToCancel: (
+      state,
+      action: PayloadAction<
+        | { accountId: AccountId; sellAssetId: AssetId; buyAssetId: AssetId; order: Order }
+        | undefined
+      >,
+    ) => {
+      state.orderToCancel = action.payload
     },
     setLimitOrderInitialized: (state, action: PayloadAction<QuoteId>) => {
       state.orderSubmission[action.payload].state = LimitOrderSubmissionState.Previewing

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'

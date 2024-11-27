@@ -10,17 +10,14 @@ import { v4 as uuid } from 'uuid'
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
+  GetEvmTradeQuoteInput,
   GetUtxoTradeQuoteInput,
+  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
 } from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
-  type ProtocolFee,
-  SwapperName,
-  TradeQuoteError,
-} from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,

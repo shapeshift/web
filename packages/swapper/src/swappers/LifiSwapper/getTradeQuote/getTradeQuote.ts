@@ -15,18 +15,15 @@ import { Err, Ok } from '@sniptt/monads'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
+  SwapErrorRight,
   SwapperDeps,
   SwapSource,
 } from '../../../types'
-import {
-  type GetEvmTradeQuoteInput,
-  type SwapErrorRight,
-  SwapperName,
-  TradeQuoteError,
-} from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { configureLiFi } from '../utils/configureLiFi'
 import { LIFI_INTEGRATOR_ID } from '../utils/constants'

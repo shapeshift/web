@@ -1,11 +1,5 @@
-import {
-  type AccountId,
-  type AssetId,
-  type ChainId,
-  fromAccountId,
-  fromAssetId,
-  solanaChainId,
-} from '@shapeshiftoss/caip'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { ChainAdapter as SolanaChainAdapter } from '@shapeshiftoss/chain-adapters/dist/solana/SolanaChainAdapter'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -14,7 +8,8 @@ import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import Axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
 import type { InterpolationOptions } from 'node-polyglot'
 

@@ -1,5 +1,5 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'

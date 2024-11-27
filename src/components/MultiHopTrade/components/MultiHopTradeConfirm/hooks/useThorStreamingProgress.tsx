@@ -56,7 +56,7 @@ const getStreamingSwapMetadata = (
 }
 
 export const useThorStreamingProgress = (
-  tradeQuoteStep: TradeQuoteStep,
+  _tradeQuoteStep: TradeQuoteStep,
   hopIndex: number,
   confirmedTradeId: TradeQuote['id'],
 ): {

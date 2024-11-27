@@ -280,6 +280,9 @@ export const getRateOrQuote = async (
 
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
+
+    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) continue
+
     const feeData = await getFeeData()
 
     if (!singleQuoteResponse.type) throw new Error('Missing quote type')

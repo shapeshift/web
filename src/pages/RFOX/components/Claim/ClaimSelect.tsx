@@ -1,7 +1,8 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { AssetIcon } from 'components/AssetIcon'
@@ -19,8 +20,8 @@ import { useAppSelector } from 'state/store'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import { ClaimRow } from './ClaimRow'
-import type { RfoxClaimQuote } from './types'
-import { ClaimRoutePaths, type ClaimRouteProps } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 type ClaimSelectProps = {
   setConfirmedQuote: (quote: RfoxClaimQuote) => void

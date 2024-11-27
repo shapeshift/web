@@ -14,13 +14,15 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
-import { Row, type RowProps } from 'components/Row/Row'
+import type { RowProps } from 'components/Row/Row'
+import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
@@ -42,7 +44,8 @@ import {
 import { serializeTxIndex } from 'state/slices/txHistorySlice/utils'
 import { useAppSelector } from 'state/store'
 
-import { ClaimRoutePaths, type ClaimRouteProps, type RfoxClaimQuote } from './types'
+import type { ClaimRouteProps, RfoxClaimQuote } from './types'
+import { ClaimRoutePaths } from './types'
 
 type ClaimConfirmProps = {
   claimQuote: RfoxClaimQuote

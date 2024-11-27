@@ -1,7 +1,7 @@
 import type { EvmChainId } from '@shapeshiftoss/types'
+import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
 import {
   BuyTokenDestination,
-  type OrderCreation,
   SellTokenSource,
   SigningScheme,
 } from '@shapeshiftoss/types/dist/cowSwap'
@@ -33,7 +33,7 @@ import {
 } from '../../utils'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import { type CowSwapGetTradesResponse, type CowSwapGetTransactionsResponse } from './types'
+import type { CowSwapGetTradesResponse, CowSwapGetTransactionsResponse } from './types'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,

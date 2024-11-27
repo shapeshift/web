@@ -1,6 +1,6 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import { type ChainId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -18,15 +18,15 @@ import type {
   GetOrdersRequest,
   Order,
   OrderCancellation,
+  OrderCreation,
   OrderId,
+  OrderQuoteRequest,
+  OrderQuoteResponse,
   OrderStatus,
   QuoteId,
   Trade,
 } from '@shapeshiftoss/types/dist/cowSwap'
 import {
-  type OrderCreation,
-  type OrderQuoteRequest,
-  type OrderQuoteResponse,
   OrderQuoteSideKindSell,
   PriceQuality,
   SellTokenSource,

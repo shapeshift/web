@@ -1,5 +1,5 @@
 import { Center, Flex, Stack } from '@chakra-ui/react'
-import { type PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 
 export const Timeline: React.FC<PropsWithChildren> = ({ children }) => {
   return <Stack spacing={0}>{children}</Stack>

@@ -209,9 +209,11 @@ export const useGetTradeQuotes = () => {
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
+  // Don't memo me, this is a ref and needs to re-evaluate every-render
+  const swapperName = activeQuoteMetaRef.current?.swapperName
+
   // Is the step we're in a step which requires final quote fetching?
   const isFetchStep = useMemo(() => {
-    const swapperName = activeQuoteMetaRef.current?.swapperName
     if (!swapperName) return
     const permit2 = hopExecutionMetadata?.permit2
     // ZRX is the odd one - we either want to fetch the final quote at pre-permit, or pre-swap input, depending on whether permit2 is required or not
@@ -223,32 +225,45 @@ export const useGetTradeQuotes = () => {
       )
 
     return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
-  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state])
+  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state, swapperName])
 
-  const shouldFetchTradeQuotes = useMemo(
-    () =>
-      Boolean(
-        hasFocus &&
-          // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
-          activeTrade &&
-          !isExecutableTradeQuote(activeTrade) &&
-          // and if we're actually at pre-execution time
-          isFetchStep &&
-          sellAccountId &&
-          sellAccountMetadata &&
-          receiveAddress,
-      ),
-    [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress],
-  )
+  const shouldFetchTradeQuotes = useMemo(() => {
+    // This isn't a mistake, we're not fetching anything.
+    // Li.Fi rate is an actual quote and we want to leverage cache we got from "rate" time, see swapperApi's `getTradeQuote` for more details
+    if (swapperName === SwapperName.LIFI) return true
+
+    return Boolean(
+      hasFocus &&
+        // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
+        activeTrade &&
+        !isExecutableTradeQuote(activeTrade) &&
+        // and if we're actually at pre-execution time
+        isFetchStep &&
+        sellAccountId &&
+        sellAccountMetadata &&
+        receiveAddress,
+    )
+  }, [
+    swapperName,
+    hasFocus,
+    activeTrade,
+    isFetchStep,
+    sellAccountId,
+    sellAccountMetadata,
+    receiveAddress,
+  ])
 
   const queryFnOrSkip = useMemo(() => {
     // Only run this query when we're actually ready
     if (!isFetchStep) return reactQuerySkipToken
     // And only run it once
-    if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
+    if (activeTrade && swapperName !== SwapperName.LIFI && isExecutableTradeQuote(activeTrade))
+      return reactQuerySkipToken
 
     return async () => {
-      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+      if (swapperName !== SwapperName.LIFI) {
+        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+      }
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
@@ -274,7 +289,9 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        quoteOrRate: 'quote',
+        // This isn't a mistake, we're not fetching anything.
+        // Li.Fi rate is an actual quote and we want to leverage cache, see swapperApi's `getTradeQuote` for more details
+        quoteOrRate: swapperName === SwapperName.LIFI ? 'rate' : 'quote',
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -303,6 +320,7 @@ export const useGetTradeQuotes = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     sellAssetUsdRate,
+    swapperName,
     thorVotingPower,
     userSlippageTolerancePercentageDecimal,
     votingPower,

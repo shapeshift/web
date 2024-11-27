@@ -1,4 +1,4 @@
-import { type AccountId, type AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { bn } from 'lib/bignumber/bignumber'

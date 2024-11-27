@@ -1,5 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { OrderKind, type OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderKind } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -11,7 +12,7 @@ import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } f
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { type CowSwapError } from '../types'
+import type { CowSwapError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,

@@ -1,4 +1,5 @@
-import { type AssetId, fromChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
 import { ethers } from 'ethers'

@@ -10,7 +10,8 @@ import { selectAccountIdsByChainId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
-import { type Filter, FoxTokenFilterButton } from './FoxTokenFilterButton'
+import type { Filter } from './FoxTokenFilterButton'
+import { FoxTokenFilterButton } from './FoxTokenFilterButton'
 
 const hstackProps: StackProps = {
   flexWrap: {

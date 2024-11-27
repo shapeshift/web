@@ -1,5 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { OrderKind, type OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderKind } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'

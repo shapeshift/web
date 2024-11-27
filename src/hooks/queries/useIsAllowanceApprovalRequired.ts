@@ -1,4 +1,4 @@
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useAllowance } from 'react-queries/hooks/useAllowance'

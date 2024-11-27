@@ -8,7 +8,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import { type Asset } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'

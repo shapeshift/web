@@ -31,12 +31,8 @@ import { Main } from 'components/Layout/Main'
 import { RawText, Text } from 'components/Text'
 import { useRouteAssetId } from 'hooks/useRouteAssetId/useRouteAssetId'
 import { BigNumber, bnOrZero } from 'lib/bignumber/bignumber'
-import {
-  isLendingQuoteClose,
-  isLendingQuoteOpen,
-  type LendingQuoteClose,
-  type LendingQuoteOpen,
-} from 'lib/utils/thorchain/lending/types'
+import type { LendingQuoteClose, LendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
+import { isLendingQuoteClose, isLendingQuoteOpen } from 'lib/utils/thorchain/lending/types'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 

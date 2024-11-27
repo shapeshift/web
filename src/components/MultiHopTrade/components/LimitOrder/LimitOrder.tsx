@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
-import { type TradeInputTab } from 'components/MultiHopTrade/types'
+import type { TradeInputTab } from 'components/MultiHopTrade/types'
 
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'

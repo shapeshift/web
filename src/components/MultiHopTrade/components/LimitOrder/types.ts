@@ -1,8 +1,9 @@
 export enum LimitOrderRoutePaths {
   Input = '/trade/limit-order/input',
   Confirm = '/trade/limit-order/confirm',
-  Status = '/trade/limit-order/status',
-  QuoteList = '/trade/limit-order-quote-list',
+  AllowanceApproval = '/trade/limit-order/allowance-approval',
+  PlaceOrder = '/trade/limit-order/place-order',
+  Orders = '/trade/limit-order/orders',
 }
 
 export enum LimitOrderStatus {

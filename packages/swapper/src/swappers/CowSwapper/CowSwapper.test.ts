@@ -1,4 +1,5 @@
 import { ethChainId } from '@shapeshiftoss/caip'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -17,7 +18,6 @@ import {
 } from '../utils/test-data/assets'
 import { cowSwapper } from './CowSwapper'
 import { cowApi } from './endpoints'
-import type { CowSwapQuoteResponse } from './types'
 import { cowService } from './utils/cowService'
 
 const mockedCowService = vi.mocked(cowService)
@@ -197,8 +197,8 @@ describe('cowApi', () => {
           buyAmount: '289305614806369753',
           validTo: 1712259433,
           appData:
-            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-          appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+          appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
           feeAmount: '184116879335769833472',
           kind: 'sell',
           partiallyFillable: false,
@@ -284,7 +284,7 @@ describe('cowApi', () => {
 
       mockedCowService.post.mockReturnValue(
         Promise.resolve(
-          Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+          Ok({ data: cowswapQuoteResponse } as unknown as AxiosResponse<OrderQuoteResponse>),
         ),
       )
       const actual = await cowApi.getUnsignedEvmMessage!({
@@ -306,8 +306,8 @@ describe('cowApi', () => {
           buyAmount: '287859086732337904',
           validTo: 1712259433,
           appData:
-            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-          appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+            '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+          appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
           feeAmount: '0',
           kind: 'sell',
           partiallyFillable: false,

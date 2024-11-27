@@ -5,6 +5,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { OrderCreation, OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import {
   bn,
   bnOrZero,
@@ -23,7 +24,7 @@ import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
-import type { AffiliateAppDataFragment, CowSwapOrder, CowSwapQuoteResponse } from '../../types'
+import type { AffiliateAppDataFragment } from '../../types'
 import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -88,7 +89,7 @@ export const getNowPlusThirtyMinutesTimestamp = (): number => {
 
 export const getSignTypeDataPayload = (
   domain: TypedDataDomain,
-  order: Omit<CowSwapOrder, 'signingScheme' | 'quoteId' | 'appDataHash'>,
+  order: Omit<OrderCreation, 'signingScheme' | 'quoteId' | 'appDataHash' | 'signature'>,
 ): TypedData => {
   return {
     // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
@@ -161,7 +162,7 @@ export const assertValidTrade = ({
 type GetValuesFromQuoteResponseArgs = {
   buyAsset: Asset
   sellAsset: Asset
-  response: CowSwapQuoteResponse
+  response: OrderQuoteResponse
   affiliateBps: string
 }
 
@@ -267,7 +268,7 @@ export const getFullAppData = async (
   const APP_CODE = 'shapeshift'
   const orderClass: OrderClass = { orderClass: orderClass1 }
   const quote = {
-    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toString(),
+    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toNumber(),
   }
 
   const appDataDoc = await metadataApi.generateAppDataDoc({

@@ -10,7 +10,8 @@ import {
   isRejected,
   toBaseUnit,
 } from '@shapeshiftoss/utils'
-import { Err, Ok, type Result } from '@sniptt/monads'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'

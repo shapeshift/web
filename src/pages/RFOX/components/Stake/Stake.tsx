@@ -7,7 +7,8 @@ import { makeSuspenseful } from 'utils/makeSuspenseful'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 
-import { BridgeRoutePaths, type RfoxBridgeQuote } from './Bridge/types'
+import type { RfoxBridgeQuote } from './Bridge/types'
+import { BridgeRoutePaths } from './Bridge/types'
 import type { RfoxStakingQuote, StakeRouteProps } from './types'
 import { StakeRoutePaths } from './types'
 

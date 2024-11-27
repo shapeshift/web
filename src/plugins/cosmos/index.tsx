@@ -2,7 +2,7 @@ import { cosmos } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { getConfig } from 'config'
-import { type Plugins } from 'plugins/types'
+import type { Plugins } from 'plugins/types'
 import { AssetIcon } from 'components/AssetIcon'
 
 // eslint-disable-next-line import/no-default-export

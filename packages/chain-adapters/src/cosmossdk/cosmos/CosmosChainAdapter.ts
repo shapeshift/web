@@ -30,12 +30,10 @@ import type {
   CosmosSdkMsgDelegate,
   CosmosSdkMsgSend,
   CosmosSdkMsgUndelegate,
+  CosmosSdkMsgWithdrawDelegationReward,
+  ValidatorAction,
 } from '../types'
-import {
-  CosmosSdkMessageType,
-  type CosmosSdkMsgWithdrawDelegationReward,
-  type ValidatorAction,
-} from '../types'
+import { CosmosSdkMessageType } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.CosmosMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.CosmosMainnet

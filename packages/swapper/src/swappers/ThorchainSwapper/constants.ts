@@ -1,4 +1,5 @@
-import { bchChainId, type ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { bchChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 

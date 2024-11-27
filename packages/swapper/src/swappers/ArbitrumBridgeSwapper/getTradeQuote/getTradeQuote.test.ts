@@ -1,6 +1,6 @@
 import { Erc20Bridger, EthBridger } from '@arbitrum/sdk'
 import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
-import { type EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetEvmTradeQuoteInput, SwapperDeps } from '../../../types'

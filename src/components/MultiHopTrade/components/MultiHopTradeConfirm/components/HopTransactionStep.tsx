@@ -201,7 +201,7 @@ export const HopTransactionStep = ({
               tradeQuoteStep={tradeQuoteStep}
               hopIndex={hopIndex}
               activeTradeId={activeTradeId}
-              streamingProgress={streamingProgress}
+              useStreamingProgress={streamingProgress}
             />
           </CardBody>
         </Card>

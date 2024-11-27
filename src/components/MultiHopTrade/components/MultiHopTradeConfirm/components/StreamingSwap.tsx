@@ -10,7 +10,7 @@ export type StreamingSwapProps = {
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   activeTradeId: TradeQuote['id']
-  streamingProgress: (input: {
+  useStreamingProgress: (input: {
     tradeQuoteStep?: TradeQuoteStep
     hopIndex: number
     confirmedTradeId: TradeQuote['id']
@@ -23,11 +23,11 @@ export type StreamingSwapProps = {
 }
 
 export const StreamingSwap = (props: StreamingSwapProps) => {
-  const { tradeQuoteStep, hopIndex, activeTradeId, streamingProgress } = props
+  const { tradeQuoteStep, hopIndex, activeTradeId, useStreamingProgress } = props
 
   const translate = useTranslate()
 
-  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = streamingProgress({
+  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = useStreamingProgress({
     tradeQuoteStep,
     hopIndex,
     confirmedTradeId: activeTradeId,

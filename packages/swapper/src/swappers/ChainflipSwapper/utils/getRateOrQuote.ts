@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { assertUnreachable } from '@shapeshiftoss/utils'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
@@ -14,6 +15,7 @@ import type {
   GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapperDeps,
+  SwapSource,
   TradeQuote,
   TradeQuoteResult,
 } from '../../../types'
@@ -238,14 +240,19 @@ export const getRateOrQuote = async (
     })
   }
 
-  const getSwapSource = (swapType: string | undefined, isBoosted: boolean) => {
-    return swapType === CHAINFLIP_REGULAR_QUOTE
-      ? isBoosted
-        ? CHAINFLIP_BOOST_SWAP_SOURCE
-        : CHAINFLIP_SWAP_SOURCE
-      : isBoosted
-      ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE
-      : CHAINFLIP_DCA_SWAP_SOURCE
+  const getSwapSource = (
+    swapType: typeof CHAINFLIP_REGULAR_QUOTE | typeof CHAINFLIP_DCA_QUOTE,
+    isBoosted: boolean,
+  ): SwapSource => {
+    if (swapType === CHAINFLIP_REGULAR_QUOTE) {
+      return isBoosted ? CHAINFLIP_BOOST_SWAP_SOURCE : CHAINFLIP_SWAP_SOURCE
+    }
+
+    if (swapType === CHAINFLIP_DCA_QUOTE) {
+      return isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE
+    }
+
+    return assertUnreachable(swapType)
   }
 
   const getMaxBoostFee = () => {
@@ -274,6 +281,8 @@ export const getRateOrQuote = async (
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
     const feeData = await getFeeData()
+
+    if (!singleQuoteResponse.type) throw new Error('Missing quote type')
 
     if (singleQuoteResponse.boostQuote) {
       const boostRate = getChainflipQuoteRate(

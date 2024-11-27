@@ -1,4 +1,5 @@
-import { type InboundAddressResponse, ThorchainChain, type ThornodePoolResponse } from '../../types'
+import type { InboundAddressResponse, ThornodePoolResponse } from '../../types'
+import { ThorchainChain } from '../../types'
 
 export const btcThornodePool: ThornodePoolResponse = {
   LP_units: '536055974608843',

@@ -57,6 +57,7 @@ export interface SupportedFiatRampConfig {
   minimumSellThreshold?: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fiatRamps = ['Banxa', 'MtPelerin', 'OnRamper', 'Coinbase'] as const
 export type FiatRamp = (typeof fiatRamps)[number]
 export type SupportedFiatRamp = Record<FiatRamp, SupportedFiatRampConfig>

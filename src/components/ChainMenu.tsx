@@ -12,7 +12,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { type ChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from 'components/AssetIcon'

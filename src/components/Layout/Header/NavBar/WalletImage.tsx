@@ -1,4 +1,5 @@
-import { type ComponentWithAs, type IconProps, Image } from '@chakra-ui/react'
+import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
+import { Image } from '@chakra-ui/react'
 
 type WalletImageProps = {
   walletInfo: {

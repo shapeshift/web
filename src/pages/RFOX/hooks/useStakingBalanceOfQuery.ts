@@ -1,4 +1,5 @@
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { ReadContractQueryKey } from '@wagmi/core/query'

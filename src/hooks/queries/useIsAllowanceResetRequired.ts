@@ -3,10 +3,8 @@ import { useMemo } from 'react'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 
-import {
-  useIsAllowanceApprovalRequired,
-  type UseIsApprovalRequiredProps,
-} from './useIsAllowanceApprovalRequired'
+import type { UseIsApprovalRequiredProps } from './useIsAllowanceApprovalRequired'
+import { useIsAllowanceApprovalRequired } from './useIsAllowanceApprovalRequired'
 
 export const useIsAllowanceResetRequired = ({
   assetId,

@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeRateInput, SwapperConfig, SwapperDeps } from '@shapeshiftoss/swapper'
 import {
   getSupportedBuyAssetIds,
@@ -82,16 +82,19 @@ export const swapperApi = createApi({
         }
 
         const getQuoteResult = () => {
-          // Always get a trade rate if quoteOrRate === 'rate', which is passed if the PublicTradeRoute flag is on for the time being
-          // this is the sanest way for the time being, since we want to store rates exactly the same as quotes, and fetch a quote instead of a rate at pre-execution time
-          // when we wire this up fully. Going further, we may or may not want to change heuristics here.
           if (quoteOrRate === 'rate')
             return getTradeRates(
               {
                 ...tradeQuoteInput,
                 // Receive address should always be undefined for trade *rates*, however, we *do* pass it to check for cross-account support
                 // so we have to ensure it is gone by the time we call getTradeRates
-                receiveAddress: undefined,
+                receiveAddress:
+                  // Ok, we may have lied just before. Li.Fi is the odd one, and we don't want to fetch a final quote for it.
+                  // The reason is Li.Fi routes are very fragile and from one request to the other, it's more likely than not a tool may not be returned anymore, resulting in early null returns
+                  // in swapper, i.e a totally broken state.
+                  // By keeping the receiveAddress in all the way through, and returning it in LIFI's `getTradeRate()`, the rate becomes an effective quote, and the
+                  // `shouldFetchTradeQuote = isExecutableTradeQuote(activeTrade)` never becomes true, meaning we keep the rate as a quote.
+                  swapperName === SwapperName.LIFI ? tradeQuoteInput.receiveAddress : undefined,
                 affiliateBps,
               } as GetTradeRateInput,
               swapperName,

@@ -9,10 +9,8 @@ import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import {
-  AccountDropdown,
-  type AccountDropdownProps,
-} from 'components/AccountDropdown/AccountDropdown'
+import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
+import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'

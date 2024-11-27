@@ -118,8 +118,10 @@ export const getChainFlipSwap = ({
     `&commissionBps=${commissionBps}`
 
   if (numberOfChunks && chunkIntervalBlocks) {
-    swapUrl += `&numberOfChunks=${numberOfChunks}`
-    swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
+    // swapUrl += `&numberOfChunks=${numberOfChunks}`
+    // swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
+    swapUrl += `&numberOfChunks=4`
+    swapUrl += `&chunkIntervalBlocks=100`
   }
 
   return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl)

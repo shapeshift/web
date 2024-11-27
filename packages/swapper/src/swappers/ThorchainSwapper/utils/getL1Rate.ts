@@ -19,6 +19,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeQuoteInput,
   GetTradeRateInput,
+  GetUtxoTradeQuoteInput,
   ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
@@ -38,10 +39,12 @@ import type {
   ThorTradeRate,
   ThorTradeUtxoOrCosmosRate,
 } from '../types'
+import { getThorTxInfo as getUtxoThorTxInfo } from '../utxo/utils/getThorTxData'
 import { THORCHAIN_FIXED_PRECISION } from './constants'
 import { getQuote } from './getQuote/getQuote'
 import { TradeType } from './longTailHelpers'
 import { getEvmTxFees } from './txFeeHelpers/evmTxFees/getEvmTxFees'
+import { getUtxoTxFees } from './txFeeHelpers/utxoTxFees/getUtxoTxFees'
 
 export const getL1Rate = async (
   input: GetTradeRateInput,
@@ -307,14 +310,14 @@ export const getL1Rate = async (
     case CHAIN_NAMESPACE.Utxo: {
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(
-          ({
+          async ({
             source,
             quote,
             expectedAmountOutThorBaseUnit,
             isStreaming,
             estimatedExecutionTimeMs,
             affiliateBps,
-          }): ThorTradeUtxoOrCosmosRate => {
+          }): Promise<ThorTradeUtxoOrCosmosRate> => {
             const rate = getRouteRate(expectedAmountOutThorBaseUnit)
             const buyAmountBeforeFeesCryptoBaseUnit =
               getRouteBuyAmountBeforeFeesCryptoBaseUnit(quote)
@@ -322,12 +325,36 @@ export const getL1Rate = async (
             // No memo for trade rates
             const memo = ''
 
-            // TODO(gomes): for UTXOs, we should be able to get a very rough estimation (not taking users' UTXOs into account)
-            // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
-            const feeData = {
-              networkFeeCryptoBaseUnit: undefined,
-              protocolFees: getProtocolFees(quote),
-            }
+            const feeData = await (async () => {
+              // This is a rate without a wallet connected, so we can't get fees
+              if (!(input as GetUtxoTradeQuoteInput).xpub)
+                return {
+                  networkFeeCryptoBaseUnit: undefined,
+                  protocolFees: getProtocolFees(quote),
+                }
+
+              // This works by leveraging the xpub if it exists. Even though this is a rate, we absolutely can (and will if possible) pass a xpub
+              // However, we run the risk that https://github.com/shapeshift/web/issues/7979 breaks this, since connecting a wallet won't refetch a quote
+              // If that becomes an issue we should be able to get a very rough estimation (not taking users' UTXOs into account) without an address
+              // using sats per byte and byte size from memo. Yes, we don't have a memo returned, but can build it in-house for this purpose easily.
+
+              const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
+                sellAsset,
+                xpub: (input as GetUtxoTradeQuoteInput).xpub!,
+                memo,
+                config: deps.config,
+              })
+
+              const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+              return getUtxoTxFees({
+                sellAmountCryptoBaseUnit,
+                vault,
+                opReturnData,
+                pubkey,
+                sellAdapter,
+                protocolFees: getProtocolFees(quote),
+              })
+            })()
 
             const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
               value: expectedAmountOutThorBaseUnit,

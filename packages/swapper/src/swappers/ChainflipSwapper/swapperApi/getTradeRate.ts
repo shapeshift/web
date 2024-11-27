@@ -1,5 +1,5 @@
 import { type GetTradeRateInput, type SwapperDeps, type TradeRateResult } from '../../../types'
-import { getRateOrQuote } from '../utils/rate-quotes'
+import { getRateOrQuote } from '../utils/getRateOrQuote'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,

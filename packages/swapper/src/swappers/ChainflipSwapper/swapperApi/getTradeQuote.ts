@@ -13,12 +13,12 @@ import {
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
+import { getRateOrQuote } from '../utils/getRateOrQuote'
 import {
   calculateChainflipMinPrice,
   getChainFlipIdFromAssetId,
   getChainFlipSwap,
 } from '../utils/helpers'
-import { getRateOrQuote } from '../utils/rate-quotes'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,

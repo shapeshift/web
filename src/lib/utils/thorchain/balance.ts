@@ -14,14 +14,10 @@ import { store } from 'state/store'
 
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
-import {
-  fetchThorchainDepositQuote,
-  type GetThorchainSaversDepositQuoteQueryKey,
-} from './hooks/useGetThorchainSaversDepositQuoteQuery'
-import {
-  fetchThorchainWithdrawQuote,
-  type GetThorchainSaversWithdrawQuoteQueryKey,
-} from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import type { GetThorchainSaversDepositQuoteQueryKey } from './hooks/useGetThorchainSaversDepositQuoteQuery'
+import { fetchThorchainDepositQuote } from './hooks/useGetThorchainSaversDepositQuoteQuery'
+import type { GetThorchainSaversWithdrawQuoteQueryKey } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
+import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 // TODO(gomes): this will work for UTXO but is invalid for tokens since they use diff. denoms
 // the current workaround is to not do fee deduction for non-UTXO chains,

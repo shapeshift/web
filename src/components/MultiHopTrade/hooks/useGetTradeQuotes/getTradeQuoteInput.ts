@@ -109,7 +109,10 @@ export const getTradeQuoteInput = async ({
     }
 
     case CHAIN_NAMESPACE.Utxo: {
-      if (!(quoteOrRate === 'quote' && wallet))
+      // This is a UTXO quote without a sell account number handy - in effect, this means no wallet connected but could also happen if users do happen to
+      // end up in a state where they still have a sell asset selected that their wallet doesn't support anymore
+      // Either way, when there is no sellAccountNumber, meaning we can't get a pubKey out of it so we always return dummy BIP44 params
+      if (quoteOrRate === 'rate' && sellAccountNumber === undefined)
         return {
           ...tradeQuoteInputCommonArgs,
           chainId: sellAsset.chainId as UtxoChainId,
@@ -125,6 +128,7 @@ export const getTradeQuoteInput = async ({
       if (!sellAccountType) throw Error('missing account type')
       if (sellAccountNumber === undefined) throw Error('missing account number')
       if (receiveAddress === undefined) throw Error('missing receive address')
+      if (!wallet) throw Error('Wallet is required')
 
       const sellAssetChainAdapter = assertGetUtxoChainAdapter(sellAsset.chainId)
       const sendAddress = await sellAssetChainAdapter.getAddress({
@@ -137,6 +141,8 @@ export const getTradeQuoteInput = async ({
       const xpub =
         pubKey ??
         (await sellAssetChainAdapter.getPublicKey(wallet, sellAccountNumber, sellAccountType)).xpub
+
+      // This is closer to a quote input than a rate input with those BIP44 params, but we do need the xpub here for fees estimation
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as UtxoChainId,
@@ -146,7 +152,7 @@ export const getTradeQuoteInput = async ({
         xpub,
         sendAddress,
         quoteOrRate,
-      }
+      } as GetTradeQuoteInput
     }
     case CHAIN_NAMESPACE.Solana: {
       const sellAssetChainAdapter = assertGetSolanaChainAdapter(sellAsset.chainId)

@@ -8,7 +8,8 @@ import {
   MenuOptionGroup,
   Tooltip,
 } from '@chakra-ui/react'
-import { type AssetId, type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getStyledMenuButtonProps } from 'components/AssetSelection/helpers'

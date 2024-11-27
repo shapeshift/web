@@ -6,12 +6,11 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
 
 import { initialState, initialTradeExecutionState } from './constants'
-import type { TradeExecutionMetadata } from './types'
+import type { StreamingSwapMetadata, TradeExecutionMetadata } from './types'
 import {
   AllowanceKey,
   HopExecutionState,
   HopKey,
-  type StreamingSwapMetadata,
   TradeExecutionState,
   TransactionExecutionState,
 } from './types'

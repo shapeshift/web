@@ -1,4 +1,5 @@
-import { Button, Flex, type GridProps, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
+import type { GridProps } from '@chakra-ui/react'
+import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'

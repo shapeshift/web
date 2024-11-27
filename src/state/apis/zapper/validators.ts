@@ -380,12 +380,14 @@ const categorySchema = z
 export type V2NftUserItem = Infer<typeof userNftItemSchema>
 
 export type V2BalancesAppsResponseType = Infer<typeof V2BalancesAppsResponse>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const V2BalancesAppsResponse = z.array(ZapperV2AppBalance)
 
 export type ZapperAssetBase = Infer<typeof ZapperAssetBaseSchema>
 export const V2AppTokensResponse = z.array(ZapperAssetBaseSchema)
 export type V2AppTokensResponseType = Infer<typeof V2AppTokensResponse>
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const V2NftUserTokensResponse = userNftTokenSchema
 export type V2NftUserTokensResponseType = Infer<typeof V2NftUserTokensResponse>
 

@@ -7,7 +7,7 @@ import type { PropsWithChildren } from 'react'
 import { useMemo } from 'react'
 import { LuGlobe } from 'react-icons/lu'
 import FlipShadow from 'assets/flip-shadow.svg'
-import { type Transfer } from 'hooks/useTxDetails/useTxDetails'
+import type { Transfer } from 'hooks/useTxDetails/useTxDetails'
 
 import {
   AssetIcon,

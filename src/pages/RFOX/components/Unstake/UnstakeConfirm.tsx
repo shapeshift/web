@@ -25,8 +25,8 @@ import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from 'state/sl
 import { useAppSelector } from 'state/store'
 
 import { useRfoxUnstake } from './hooks/useRfoxUnstake'
-import type { RfoxUnstakingQuote } from './types'
-import { UnstakeRoutePaths, type UnstakeRouteProps } from './types'
+import type { RfoxUnstakingQuote, UnstakeRouteProps } from './types'
+import { UnstakeRoutePaths } from './types'
 
 type UnstakeConfirmProps = {
   confirmedQuote: RfoxUnstakingQuote

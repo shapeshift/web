@@ -14,7 +14,8 @@ import {
   Stack,
   Tooltip,
 } from '@chakra-ui/react'
-import { type AccountId, type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'

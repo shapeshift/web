@@ -178,6 +178,7 @@ const CovalentNftItemSchema = z.object({
   is_spam: z.boolean().nullable(),
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const CovalentNftUserTokensResponseSchema = z.object({
   data: z.object({
     address: z.string(),

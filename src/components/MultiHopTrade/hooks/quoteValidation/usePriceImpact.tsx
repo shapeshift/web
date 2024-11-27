@@ -1,8 +1,5 @@
-import {
-  getHopByIndex,
-  type SupportedTradeQuoteStepIndex,
-  type TradeQuote,
-} from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'

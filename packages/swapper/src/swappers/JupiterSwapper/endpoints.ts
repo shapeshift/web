@@ -1,4 +1,4 @@
-import type { Instruction, QuoteResponse } from '@jup-ag/api'
+import type { Instruction } from '@jup-ag/api'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -42,8 +42,6 @@ import {
 } from '../../utils'
 import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER, SOLANA_RANDOM_ADDRESS } from './utils/constants'
 import { getJupiterPrice, getJupiterSwapInstructions, isSupportedChainId } from './utils/helpers'
-
-const tradeQuoteMetadata: Map<string, QuoteResponse> = new Map()
 
 export const jupiterApi: SwapperApi = {
   getTradeRate: async (
@@ -115,8 +113,6 @@ export const jupiterApi: SwapperApi = {
     }
 
     const { data: quoteResponse } = maybePriceResponse.unwrap()
-
-    tradeQuoteMetadata.set('rate', quoteResponse)
 
     const getFeeData = async () => {
       const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)

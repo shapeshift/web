@@ -1,4 +1,5 @@
-import { type AssetId, CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
@@ -6,18 +7,17 @@ import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import {
-  type CommonTradeQuoteInput,
-  type GetEvmTradeRateInput,
-  type GetTradeRateInput,
-  type GetUtxoTradeQuoteInput,
-  type ProtocolFee,
-  type SwapperDeps,
-  SwapperName,
-  type TradeQuote,
-  TradeQuoteError,
-  type TradeQuoteResult,
+import type {
+  CommonTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  ProtocolFee,
+  SwapperDeps,
+  TradeQuote,
+  TradeQuoteResult,
 } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
@@ -311,13 +311,15 @@ export const getRateOrQuote = async (
               (singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.deposit! +
                 singleQuoteResponse.boostQuote.estimatedDurationsSeconds!.swap!) *
               1000,
-            chainflipNumberOfChunks: isStreaming
-              ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined
-              : undefined,
-            chainflipChunkIntervalBlocks: isStreaming
-              ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
-              : undefined,
-            chainflipMaxBoostFee: getMaxBoostFee(),
+            chainflipSpecific: {
+              chainflipNumberOfChunks: isStreaming
+                ? singleQuoteResponse.boostQuote.numberOfChunks ?? undefined
+                : undefined,
+              chainflipChunkIntervalBlocks: isStreaming
+                ? singleQuoteResponse.boostQuote.chunkIntervalBlocks ?? undefined
+                : undefined,
+              chainflipMaxBoostFee: getMaxBoostFee(),
+            },
           },
         ],
       }
@@ -359,13 +361,15 @@ export const getRateOrQuote = async (
             (singleQuoteResponse.estimatedDurationsSeconds!.deposit! +
               singleQuoteResponse.estimatedDurationsSeconds!.swap!) *
             1000,
-          chainflipNumberOfChunks: isStreaming
-            ? singleQuoteResponse.numberOfChunks ?? undefined
-            : undefined,
-          chainflipChunkIntervalBlocks: isStreaming
-            ? singleQuoteResponse.chunkIntervalBlocks ?? undefined
-            : undefined,
-          chainflipMaxBoostFee: 0,
+          chainflipSpecific: {
+            chainflipNumberOfChunks: isStreaming
+              ? singleQuoteResponse.numberOfChunks ?? undefined
+              : undefined,
+            chainflipChunkIntervalBlocks: isStreaming
+              ? singleQuoteResponse.chunkIntervalBlocks ?? undefined
+              : undefined,
+            chainflipMaxBoostFee: 0,
+          },
         },
       ],
     }

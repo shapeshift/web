@@ -4,15 +4,16 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 
-import type { QuoteFeeData, TradeQuoteResult } from '../../../types'
-import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
-import { getRateOrQuote } from '../utils/getRateOrQuote'
 import type {
   CommonTradeQuoteInput,
+  QuoteFeeData,
   SwapperDeps,
+  TradeQuoteResult,
 } from '../../../types'
-import {  TradeQuoteError } from '../../../types'
-import {  makeSwapErrorRight } from '../../../utils'
+import { TradeQuoteError } from '../../../types'
+import { makeSwapErrorRight } from '../../../utils'
+import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
+import { getRateOrQuote } from '../utils/getRateOrQuote'
 import {
   calculateChainflipMinPrice,
   getChainFlipIdFromAssetId,
@@ -101,9 +102,9 @@ export const getTradeQuote = async (
         destinationAsset,
         destinationAddress: input.receiveAddress,
         refundAddress: input.sendAddress!,
-        maxBoostFee: step.chainflipMaxBoostFee,
-        numberOfChunks: step.chainflipNumberOfChunks,
-        chunkIntervalBlocks: step.chainflipChunkIntervalBlocks,
+        maxBoostFee: step.chainflipSpecific?.chainflipMaxBoostFee,
+        numberOfChunks: step.chainflipSpecific?.chainflipNumberOfChunks,
+        chunkIntervalBlocks: step.chainflipSpecific?.chainflipChunkIntervalBlocks,
         commissionBps: serviceCommission,
       })
 
@@ -145,8 +146,14 @@ export const getTradeQuote = async (
         }
       }
 
-      step.chainflipSwapId = swapResponse.id
-      step.chainflipDepositAddress = swapResponse.address
+      if (!step.chainflipSpecific)
+        step.chainflipSpecific = {
+          chainflipSwapId: swapResponse.id,
+          chainflipDepositAddress: swapResponse.address,
+        }
+
+      step.chainflipSpecific.chainflipSwapId = swapResponse.id
+      step.chainflipSpecific.chainflipDepositAddress = swapResponse.address
       step.feeData = await getFeeData()
     }
   }

@@ -268,11 +268,11 @@ export type TradeQuoteStep = {
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
-    chainflipSwapId?: number | undefined
-    chainflipDepositAddress?: string | undefined
-    chainflipNumberOfChunks?: number | undefined
-    chainflipChunkIntervalBlocks?: number | undefined
-    chainflipMaxBoostFee?: number | undefined
+    chainflipSwapId?: number
+    chainflipDepositAddress?: string
+    chainflipNumberOfChunks?: number
+    chainflipChunkIntervalBlocks?: number
+    chainflipMaxBoostFee?: number
   }
 }
 

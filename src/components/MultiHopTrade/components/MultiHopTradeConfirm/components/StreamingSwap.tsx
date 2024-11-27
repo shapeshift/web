@@ -11,7 +11,7 @@ export type StreamingSwapProps = {
   hopIndex: number
   activeTradeId: TradeQuote['id']
   useStreamingProgress: (input: {
-    tradeQuoteStep?: TradeQuoteStep
+    tradeQuoteStep: TradeQuoteStep
     hopIndex: number
     confirmedTradeId: TradeQuote['id']
   }) => {

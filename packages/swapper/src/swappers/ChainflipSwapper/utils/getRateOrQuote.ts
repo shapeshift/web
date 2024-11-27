@@ -164,13 +164,16 @@ export const getRateOrQuote = async (
       }
 
       case CHAIN_NAMESPACE.Solana: {
+        if (!input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
+
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
           // Simulates a self-send, since we don't know the 'to' just yet at this stage
-          to: input.sendAddress!,
+          to: input.sendAddress,
           value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           chainSpecific: {
-            from: input.sendAddress!,
+            from: input.sendAddress,
             tokenId:
               sellAsset.assetId === solAssetId
                 ? undefined

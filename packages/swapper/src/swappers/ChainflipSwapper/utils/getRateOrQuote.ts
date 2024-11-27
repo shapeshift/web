@@ -111,7 +111,7 @@ export const getRateOrQuote = async (
       `?apiKey=${apiKey}` +
       `&sourceAsset=${sourceAsset}` +
       `&destinationAsset=${destinationAsset}` +
-      `&amount=${30000000000}` +
+      `&amount=${sellAmountIncludingProtocolFeesCryptoBaseUnit}` +
       `&commissionBps=${serviceCommission}`,
   )
 

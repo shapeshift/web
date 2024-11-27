@@ -43,6 +43,7 @@ export const validateTradeQuote = (
     isTradingActiveOnSellPool,
     isTradingActiveOnBuyPool,
     sendAddress,
+    inputSellAmountCryptoBaseUnit,
     quoteOrRate,
   }: {
     swapperName: SwapperName
@@ -237,6 +238,12 @@ export const validateTradeQuote = (
       bnOrZero(sellAmountCryptoBaseUnit).gte(recommendedMinimumCryptoBaseUnit)
     )
 
+  // Ensure the trade is not selling an amount higher than the user input, within a very safe threshold.
+  // Threshold is required because cowswap sometimes quotes a sell amount a teeny-tiny bit more than you input.
+  const invalidQuoteSellAmount = bn(inputSellAmountCryptoBaseUnit).lt(
+    firstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  )
+
   return {
     errors: [
       !isTradingActiveOnSellPool && {
@@ -285,6 +292,7 @@ export const validateTradeQuote = (
           },
         },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
+      invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),

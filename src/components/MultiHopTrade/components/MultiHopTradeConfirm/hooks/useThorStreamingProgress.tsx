@@ -55,11 +55,13 @@ const getStreamingSwapMetadata = (
   }
 }
 
-export const useThorStreamingProgress = (
-  _tradeQuoteStep: TradeQuoteStep,
-  hopIndex: number,
-  confirmedTradeId: TradeQuote['id'],
-): {
+export const useThorStreamingProgress = ({
+  hopIndex,
+  confirmedTradeId,
+}: {
+  hopIndex: number
+  confirmedTradeId: TradeQuote['id']
+}): {
   isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number

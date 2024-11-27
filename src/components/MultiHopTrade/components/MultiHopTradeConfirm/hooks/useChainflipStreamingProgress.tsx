@@ -81,11 +81,15 @@ const getStreamingSwapMetadata = (
   }
 }
 
-export const useChainflipStreamingProgress = (
-  tradeQuoteStep: TradeQuoteStep,
-  hopIndex: number,
-  confirmedTradeId: TradeQuote['id'],
-): {
+export const useChainflipStreamingProgress = ({
+  tradeQuoteStep,
+  hopIndex,
+  confirmedTradeId,
+}: {
+  tradeQuoteStep: TradeQuoteStep
+  hopIndex: number
+  confirmedTradeId: TradeQuote['id']
+}): {
   isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number

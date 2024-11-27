@@ -10,11 +10,11 @@ export type StreamingSwapProps = {
   tradeQuoteStep: TradeQuoteStep
   hopIndex: number
   activeTradeId: TradeQuote['id']
-  streamingProgress: (
-    tradeQuoteStep: TradeQuoteStep,
-    hopIndex: number,
-    confirmedTradeId: TradeQuote['id'],
-  ) => {
+  streamingProgress: (input: {
+    tradeQuoteStep?: TradeQuoteStep
+    hopIndex: number
+    confirmedTradeId: TradeQuote['id']
+  }) => {
     isComplete: boolean
     attemptedSwapCount: number
     totalSwapCount: number
@@ -27,11 +27,11 @@ export const StreamingSwap = (props: StreamingSwapProps) => {
 
   const translate = useTranslate()
 
-  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = streamingProgress(
+  const { totalSwapCount, attemptedSwapCount, isComplete, failedSwaps } = streamingProgress({
     tradeQuoteStep,
     hopIndex,
-    activeTradeId,
-  )
+    confirmedTradeId: activeTradeId,
+  })
 
   const isInitializing = useMemo(() => {
     return !isComplete && totalSwapCount === 0

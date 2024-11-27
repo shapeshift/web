@@ -138,7 +138,10 @@ export const getTradeQuote = async (
               },
             }
             const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
-            return { networkFeeCryptoBaseUnit: fast.txFee } as QuoteFeeData
+            return {
+              protocolFees: step.feeData.protocolFees,
+              networkFeeCryptoBaseUnit: fast.txFee,
+            } as QuoteFeeData
           }
 
           default:

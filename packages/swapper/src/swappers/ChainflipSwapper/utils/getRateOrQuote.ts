@@ -44,7 +44,7 @@ export const getRateOrQuote = async (
     receiveAddress,
     sellAsset,
     buyAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps: commissionBps,
   } = input
 
@@ -109,7 +109,7 @@ export const getRateOrQuote = async (
       `?apiKey=${apiKey}` +
       `&sourceAsset=${sourceAsset}` +
       `&destinationAsset=${destinationAsset}` +
-      `&amount=${sellAmount}` +
+      `&amount=${sellAmountIncludingProtocolFeesCryptoBaseUnit}` +
       `&commissionBps=${serviceCommission}`,
   )
 
@@ -157,7 +157,7 @@ export const getRateOrQuote = async (
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
         const pubKey = (input as GetUtxoTradeQuoteInput).xpub!
         return await getUtxoTxFees({
-          sellAmountCryptoBaseUnit: sellAmount,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           sellAdapter,
           pubKey,
         })
@@ -168,7 +168,7 @@ export const getRateOrQuote = async (
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
           // Simulates a self-send, since we don't know the 'to' just yet at this stage
           to: input.sendAddress!,
-          value: sellAmount,
+          value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           chainSpecific: {
             from: input.sendAddress!,
             tokenId:

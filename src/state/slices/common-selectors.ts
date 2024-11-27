@@ -200,23 +200,36 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceAndName =
     },
   )
 
-export const selectAssetsSortedByMarketCapAndName = createDeepEqualOutputSelector(
-  selectAssets,
-  selectMarketDataUsd,
-  (assets, marketDataUsd) => {
-    // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
-    // but we actually can't - this would rug the triple-sorting
-    const getAssetMarketCap = (asset: Asset) =>
-      bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
-    const getAssetName = (asset: Asset) => asset.name
+export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoBalanceAndName =
+  createDeepEqualOutputSelector(
+    selectAssets,
+    selectPortfolioAssetBalancesBaseUnit,
+    selectPortfolioUserCurrencyBalances,
+    selectMarketDataUsd,
+    (assets, portfolioCryptoBaseUnitBalances, portfolioUserCurrencyBalances, marketDataUsd) => {
+      const getAssetCryptoBaseUnitBalance = (asset: Asset) =>
+        bnOrZero(portfolioCryptoBaseUnitBalances[asset.assetId]).toNumber()
+      const getAssetUserCurrencyBalance = (asset: Asset) =>
+        bnOrZero(portfolioUserCurrencyBalances[asset.assetId]).toNumber()
 
-    return orderBy(
-      Object.values(assets).filter(isSome),
-      [getAssetMarketCap, getAssetName],
-      ['desc', 'asc'],
-    )
-  },
-)
+      // This looks weird but isn't - looks like we could use the sorted selectAssetsByMarketCap instead of selectAssets
+      // but we actually can't - this would rug the quadruple-sorting
+      const getAssetMarketCap = (asset: Asset) =>
+        bnOrZero(marketDataUsd[asset.assetId]?.marketCap).toNumber()
+      const getAssetName = (asset: Asset) => asset.name
+
+      return orderBy(
+        Object.values(assets).filter(isSome),
+        [
+          getAssetUserCurrencyBalance,
+          getAssetMarketCap,
+          getAssetCryptoBaseUnitBalance,
+          getAssetName,
+        ],
+        ['desc', 'desc', 'desc', 'asc'],
+      )
+    },
+  )
 
 export const selectAssetsSortedByName = createDeepEqualOutputSelector(selectAssets, assets => {
   const getAssetName = (asset: Asset) => asset.name

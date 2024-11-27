@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
-  selectAssetsSortedByMarketCapAndName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoBalanceAndName,
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
@@ -39,7 +39,9 @@ export const SearchTermAssetList = ({
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByMarketCapAndName)
+  const assets = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoBalanceAndName,
+  )
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)

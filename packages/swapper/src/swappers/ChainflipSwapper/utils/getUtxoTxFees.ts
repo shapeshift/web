@@ -7,19 +7,19 @@ import type { QuoteFeeData } from '../../../types'
 type GetUtxoTxFeesInput = {
   sellAmountCryptoBaseUnit: string
   sellAdapter: UtxoChainAdapter
-  publicKey: string
+  pubKey: string
 }
 
 export const getUtxoTxFees = async ({
   sellAmountCryptoBaseUnit,
   sellAdapter,
-  publicKey,
+  pubKey,
 }: GetUtxoTxFeesInput): Promise<Omit<QuoteFeeData, 'protocolFees'>> => {
   const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
     // One of many vault addresses - just used as a placeholder for the sake of loosely estimating fees - we *need* a *to* address for simulation or this will throw
     to: 'bc1pfh5x55a3v92klcrdy5yv6yrt7fzr0g929klkdtapp3njfyu4qsyq8qacyf',
     value: sellAmountCryptoBaseUnit,
-    chainSpecific: { pubkey: publicKey },
+    chainSpecific: { pubkey: pubKey },
   }
 
   const feeDataOptions = await sellAdapter.getFeeData(getFeeDataInput)

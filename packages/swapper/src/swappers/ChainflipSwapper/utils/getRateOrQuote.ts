@@ -155,11 +155,11 @@ export const getRateOrQuote = async (
 
       case CHAIN_NAMESPACE.Utxo: {
         const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        const publicKey = (input as GetUtxoTradeQuoteInput).xpub!
+        const pubKey = (input as GetUtxoTradeQuoteInput).xpub!
         return await getUtxoTxFees({
           sellAmountCryptoBaseUnit: sellAmount,
           sellAdapter,
-          publicKey,
+          pubKey,
         })
       }
 

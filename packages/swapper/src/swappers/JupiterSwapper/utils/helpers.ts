@@ -4,10 +4,9 @@ import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight } from '../../../types'
-import type { QuoteResponse } from '../models/QuoteResponse'
-import type { SwapInstructionsResponse } from '../models/SwapInstructionsResponse'
 import { jupiterSupportedChainIds } from './constants'
 import { jupiterService } from './jupiterService'
+import { QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
 
 export const isSupportedChainId = (chainId: ChainId): chainId is KnownChainIds.SolanaMainnet => {
   return jupiterSupportedChainIds.includes(chainId)

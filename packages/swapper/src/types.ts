@@ -27,8 +27,8 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper/types'
-import type { QuoteResponse } from './swappers/JupiterSwapper/models/QuoteResponse'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
+import { QuoteResponse } from '@jup-ag/api'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {

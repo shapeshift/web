@@ -38,10 +38,9 @@ import {
   isExecutableTradeStep,
   makeSwapErrorRight,
 } from '../../utils'
-import type { Instruction } from './models/Instruction'
-import type { QuoteResponse } from './models/QuoteResponse'
-import { JUPITER_COMPUTE_UNIT_MARGIN_PERCENT, SOLANA_RANDOM_ADDRESS } from './utils/constants'
+import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER, SOLANA_RANDOM_ADDRESS } from './utils/constants'
 import { getJupiterPrice, getJupiterSwapInstructions, isSupportedChainId } from './utils/helpers'
+import { Instruction, QuoteResponse } from '@jup-ag/api'
 
 const tradeQuoteMetadata: Map<string, QuoteResponse> = new Map()
 
@@ -80,6 +79,15 @@ export const jupiterApi: SwapperApi = {
           message: `unsupported chainId`,
           code: TradeQuoteError.UnsupportedChain,
           details: { chainId: sellAsset.chainId },
+        }),
+      )
+    }
+    
+    if (buyAsset.assetId === wrappedSolAssetId || sellAsset.assetId === wrappedSolAssetId) {
+      return Err(
+        makeSwapErrorRight({
+          message: `Unsupported trade pair`,
+          code: TradeQuoteError.UnsupportedTradePair,
         }),
       )
     }
@@ -342,7 +350,7 @@ export const jupiterApi: SwapperApi = {
         txFee: feeData.fast.txFee,
         chainSpecific: {
           computeUnits: bnOrZero(feeData.fast.chainSpecific.computeUnits)
-            .times(JUPITER_COMPUTE_UNIT_MARGIN_PERCENT)
+            .times(JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER)
             .toFixed(0),
           priorityFee: feeData.fast.chainSpecific.priorityFee,
         },

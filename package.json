@@ -81,6 +81,7 @@
     "@formatjs/intl-numberformat": "^8.10.3",
     "@formatjs/intl-pluralrules": "^5.2.14",
     "@json-rpc-tools/utils": "^1.7.6",
+    "@jup-ag/api": "^6.0.30",
     "@keepkey/hdwallet-keepkey-rest": "1.40.42",
     "@keepkey/keepkey-sdk": "0.2.57",
     "@ledgerhq/hw-transport-webusb": "^6.29.2",

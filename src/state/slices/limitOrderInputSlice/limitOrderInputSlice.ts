@@ -5,8 +5,13 @@ import { localAssetData } from 'lib/asset-service'
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type { TradeInputBaseState } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
+import { ExpiryOption, PriceDirection } from './constants'
 
-export type LimitOrderInputState = { limitPriceBuyAsset: string } & TradeInputBaseState
+export type LimitOrderInputState = {
+  limitPriceDirection: PriceDirection
+  limitPrice: Record<PriceDirection, string>
+  expiry: ExpiryOption
+} & TradeInputBaseState
 
 const initialState: LimitOrderInputState = {
   buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
@@ -20,15 +25,32 @@ const initialState: LimitOrderInputState = {
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
   slippagePreferencePercentage: undefined,
-  limitPriceBuyAsset: '0',
+  limitPriceDirection: PriceDirection.BuyAssetDenomination,
+  limitPrice: {
+    [PriceDirection.BuyAssetDenomination]: '0',
+    [PriceDirection.SellAssetDenomination]: '0',
+  },
+  expiry: ExpiryOption.SevenDays,
 }
 
 export const limitOrderInput = createTradeInputBaseSlice({
   name: 'limitOrderInput',
   initialState,
   extraReducers: {
-    setLimitPriceBuyAsset: (state: LimitOrderInputState, action: PayloadAction<string>) => {
-      state.limitPriceBuyAsset = action.payload
+    setLimitPrice: (
+      state: LimitOrderInputState,
+      action: PayloadAction<Record<PriceDirection, string>>,
+    ) => {
+      state.limitPrice = action.payload
+    },
+    setLimitPriceDirection: (
+      state: LimitOrderInputState,
+      action: PayloadAction<PriceDirection>,
+    ) => {
+      state.limitPriceDirection = action.payload
+    },
+    setExpiry: (state: LimitOrderInputState, action: PayloadAction<ExpiryOption>) => {
+      state.expiry = action.payload
     },
   },
 })

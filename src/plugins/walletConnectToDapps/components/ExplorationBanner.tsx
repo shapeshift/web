@@ -1,5 +1,6 @@
 import { Avatar, Box, Button, Flex, Link, Stack, useColorModeValue } from '@chakra-ui/react'
-import { type FC, useCallback, useMemo } from 'react'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
 import bannerImg from 'assets/dapps-banner.png'
 import { WalletConnectCurrentColorIcon } from 'components/Icons/WalletConnectIcon'
 import { Text } from 'components/Text'

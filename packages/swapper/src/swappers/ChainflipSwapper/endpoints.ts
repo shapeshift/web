@@ -40,18 +40,18 @@ export const chainflipApi: SwapperApi = {
     const step = tradeQuote.steps[0]
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
-    if (!step.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSwapId,
-      address: step.chainflipDepositAddress,
+      id: step.chainflipSpecific?.chainflipSwapId,
+      address: step.chainflipSpecific?.chainflipDepositAddress,
     })
 
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
     const isTokenSend = isToken(step.sellAsset.assetId)
     const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-      to: step.chainflipDepositAddress,
+      to: step.chainflipSpecific?.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,
@@ -64,7 +64,7 @@ export const chainflipApi: SwapperApi = {
     const fees = feeData[FeeDataKey.Average]
 
     const unsignedTxInput = await adapter.buildSendApiTransaction({
-      to: step.chainflipDepositAddress,
+      to: step.chainflipSpecific?.chainflipDepositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber: step.accountNumber,
@@ -105,11 +105,11 @@ export const chainflipApi: SwapperApi = {
     const step = tradeQuote.steps[0]
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
-    if (!step.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSwapId,
-      address: step.chainflipDepositAddress,
+      id: step.chainflipSpecific?.chainflipSwapId,
+      address: step.chainflipSpecific?.chainflipDepositAddress,
     })
 
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
@@ -117,7 +117,7 @@ export const chainflipApi: SwapperApi = {
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub: xpub!,
-      to: step.chainflipDepositAddress,
+      to: step.chainflipSpecific?.chainflipDepositAddress,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {
@@ -136,11 +136,11 @@ export const chainflipApi: SwapperApi = {
     const step = tradeQuote.steps[0]
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
-    if (!step.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSwapId,
-      address: step.chainflipDepositAddress,
+      id: step.chainflipSpecific?.chainflipSwapId,
+      address: step.chainflipSpecific?.chainflipDepositAddress,
     })
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
@@ -151,7 +151,7 @@ export const chainflipApi: SwapperApi = {
         : fromAssetId(step.sellAsset.assetId).assetReference
 
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: step.chainflipDepositAddress,
+      to: step.chainflipSpecific?.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,
@@ -161,7 +161,7 @@ export const chainflipApi: SwapperApi = {
     const { fast } = await adapter.getFeeData(getFeeDataInput)
 
     const buildSendTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-      to: step.chainflipDepositAddress,
+      to: step.chainflipSpecific?.chainflipDepositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber: step.accountNumber,

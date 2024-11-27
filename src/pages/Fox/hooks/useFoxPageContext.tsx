@@ -1,4 +1,5 @@
-import { type AccountId, type AssetId, foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   selectAccountNumberByAccountId,

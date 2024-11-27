@@ -104,7 +104,7 @@ export const useChainflipStreamingProgress = (
     swap: { sellTxHash, streamingSwap: streamingSwapMeta },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
-  const swapId = tradeQuoteStep.chainflipSwapId
+  const swapId = tradeQuoteStep.chainflipSpecific?.chainflipSwapId
 
   useEffect(() => {
     // don't start polling until we have a tx

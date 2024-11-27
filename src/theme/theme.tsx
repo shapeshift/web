@@ -1,4 +1,5 @@
-import { extendTheme, type ThemeConfig } from '@chakra-ui/react'
+import type { ThemeConfig } from '@chakra-ui/react'
+import { extendTheme } from '@chakra-ui/react'
 import type { StyleFunctionProps } from '@chakra-ui/theme-tools'
 import { mode } from '@chakra-ui/theme-tools'
 import { AccordionStyle as Accordion } from 'components/Accordion/Accordion.theme'

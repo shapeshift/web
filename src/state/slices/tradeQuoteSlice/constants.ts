@@ -4,12 +4,12 @@ import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import type { TradeQuoteSliceState } from './types'
 import { HopExecutionState, TradeExecutionState, TransactionExecutionState } from './types'
 
-const initialApprovalExecutionState = {
+export const initialApprovalExecutionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
   isInitiallyRequired: false,
 }
 
-const initialTransactionState = {
+export const initialTransactionState = {
   state: TransactionExecutionState.AwaitingConfirmation,
 }
 

@@ -2,17 +2,14 @@ import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { getDefaultSlippageDecimalPercentageForSwapper, SwapperName } from '@shapeshiftoss/swapper'
-import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import { type Asset } from '@shapeshiftoss/types'
 import {
-  BigNumber,
-  bn,
-  bnOrZero,
-  fromBaseUnit,
-  isEvmChainId,
-  toBaseUnit,
-} from '@shapeshiftoss/utils'
+  getCowswapNetwork,
+  getDefaultSlippageDecimalPercentageForSwapper,
+  SwapperName,
+} from '@shapeshiftoss/swapper'
+import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
+import type { Asset } from '@shapeshiftoss/types'
+import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -22,25 +19,31 @@ import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgeme
 import { TradeInputTab } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
+import { PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
+import { expiryOptionToUnixTimestamp } from 'state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectBuyAccountId,
+  selectBuyAmountCryptoBaseUnit,
+  selectExpiry,
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
+  selectInputSellAmountCryptoBaseUnit,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAmountUserCurrency,
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
-  selectLimitPriceBuyAsset,
+  selectLimitPrice,
   selectSellAccountId,
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
+import { selectActiveQuoteNetworkFeeUserCurrency } from 'state/slices/limitOrderSlice/selectors'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
   selectUserCurrencyToUsdRate,
@@ -79,24 +82,27 @@ export const LimitOrderInput = ({
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
-  const { showErrorToast } = useErrorHandler()
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const limitPriceBuyAsset = useAppSelector(selectLimitPriceBuyAsset)
+  const limitPrice = useAppSelector(selectLimitPrice)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
   const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountCryptoBaseUnit = useAppSelector(selectInputSellAmountCryptoBaseUnit)
+  const buyAmountCryptoBaseUnit = useAppSelector(selectBuyAmountCryptoBaseUnit)
   const shouldShowTradeQuoteOrAwaitInput = useAppSelector(selectShouldShowTradeQuoteOrAwaitInput)
   const isTradeQuoteRequestAborted = useAppSelector(selectIsTradeQuoteRequestAborted)
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
+  const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
+  const expiry = useAppSelector(selectExpiry)
 
   const {
     switchAssets,
@@ -104,11 +110,12 @@ export const LimitOrderInput = ({
     setBuyAsset,
     setSellAccountId,
     setBuyAccountId,
-    setLimitPriceBuyAsset,
+    setLimitPrice,
     setSlippagePreferencePercentage,
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
   } = useActions(limitOrderInput.actions)
+  const { setActiveQuote } = useActions(limitOrderSlice.actions)
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -131,7 +138,6 @@ export const LimitOrderInput = ({
       sellAccountId,
     })
 
-  const [isConfirmationLoading, setIsConfirmationLoading] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
 
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
@@ -151,52 +157,23 @@ export const LimitOrderInput = ({
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [walletDispatch])
 
-  const onSubmit = useCallback(() => {
-    // No preview happening if wallet isn't connected i.e is using the demo wallet
-    if (!isConnected || isDemoWallet) {
-      return handleConnect()
-    }
+  const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
+    return getCowswapNetwork(chainId).isOk()
+  }, [])
 
-    setIsConfirmationLoading(true)
-    try {
-      // TODO: Implement any async logic here
-      history.push(LimitOrderRoutePaths.Confirm)
-    } catch (e) {
-      showErrorToast(e)
-    }
-
-    setIsConfirmationLoading(false)
-  }, [handleConnect, history, isConnected, isDemoWallet, showErrorToast])
-
-  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
-
-  const handleWarningAcknowledgementSubmit = useCallback(() => {
-    handleFormSubmit()
-  }, [handleFormSubmit])
-
-  const handleTradeQuoteConfirm = useCallback(
-    (e: FormEvent<unknown>) => {
-      e.preventDefault()
-      handleFormSubmit()
+  const sellAssetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      return chainIdFilterPredicate(asset.chainId) && !isNativeEvmAsset(asset.assetId)
     },
-    [handleFormSubmit],
+    [chainIdFilterPredicate],
   )
 
-  const sellAssetFilterPredicate = useCallback((asset: Asset) => {
-    return isEvmChainId(asset.chainId) && !isNativeEvmAsset(asset.assetId)
-  }, [])
-
-  const buyAssetFilterPredicate = useCallback((asset: Asset) => {
-    return isEvmChainId(asset.chainId)
-  }, [])
-
-  const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
-    return isEvmChainId(chainId)
-  }, [])
-
-  const sellAmountCryptoBaseUnit = useMemo(() => {
-    return toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision)
-  }, [sellAmountCryptoPrecision, sellAsset.precision])
+  const buyAssetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      return chainIdFilterPredicate(asset.chainId)
+    },
+    [chainIdFilterPredicate],
+  )
 
   const sellAccountAddress = useMemo(() => {
     if (!sellAccountId) return
@@ -238,26 +215,84 @@ export const LimitOrderInput = ({
   // input, and then re-attached to the `LimitOrder` before signing and submitting via our
   // `placeLimitOrder` endpoint in limitOrderApi
   const {
-    data,
+    data: quoteResponse,
     error,
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
-    if (!data || limitOrderQuoteParams === skipToken) return '0'
+    if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
 
-    return bnOrZero(fromBaseUnit(data.quote.buyAmount, buyAsset.precision))
-      .div(fromBaseUnit(data.quote.sellAmount, sellAsset.precision))
+    return bnOrZero(fromBaseUnit(quoteResponse.quote.buyAmount, buyAsset.precision))
+      .div(fromBaseUnit(quoteResponse.quote.sellAmount, sellAsset.precision))
       .toFixed()
-  }, [buyAsset.precision, data, sellAsset.precision, limitOrderQuoteParams])
+  }, [buyAsset.precision, quoteResponse, sellAsset.precision, limitOrderQuoteParams])
 
   // Reset the limit price when the market price changes.
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
-    setLimitPriceBuyAsset(marketPriceBuyAsset)
-  }, [setLimitPriceBuyAsset, marketPriceBuyAsset])
+    setLimitPrice({
+      [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
+      [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
+    } as Record<PriceDirection, string>)
+  }, [marketPriceBuyAsset, setLimitPrice])
+
+  const onSubmit = useCallback(() => {
+    // No preview happening if wallet isn't connected i.e is using the demo wallet
+    if (!isConnected || isDemoWallet) {
+      return handleConnect()
+    }
+
+    // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
+    // This should never happen because we're meant to disable the confirmation button when this is
+    // true, but just in case.
+    if (!quoteResponse || limitOrderQuoteParams === skipToken || !sellAccountId) {
+      setActiveQuote(undefined)
+      return
+    }
+
+    // Everything gets bundled up into a canonical set of data for execution. This is to avoid
+    // dramas with race conditions, polling, etc. across the input and execution stages of the limit
+    // orders feature.
+    setActiveQuote({
+      params: {
+        ...limitOrderQuoteParams,
+        validTo: expiryOptionToUnixTimestamp(expiry),
+        buyAmountCryptoBaseUnit,
+        accountId: sellAccountId,
+      },
+      response: quoteResponse,
+    })
+
+    history.push(LimitOrderRoutePaths.Confirm)
+  }, [
+    buyAmountCryptoBaseUnit,
+    expiry,
+    handleConnect,
+    history,
+    isConnected,
+    isDemoWallet,
+    limitOrderQuoteParams,
+    quoteResponse,
+    setActiveQuote,
+    sellAccountId,
+  ])
+
+  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+
+  const handleWarningAcknowledgementSubmit = useCallback(() => {
+    handleFormSubmit()
+  }, [handleFormSubmit])
+
+  const handleTradeQuoteConfirm = useCallback(
+    (e: FormEvent<unknown>) => {
+      e.preventDefault()
+      handleFormSubmit()
+    },
+    [handleFormSubmit],
+  )
 
   const isLoading = useMemo(() => {
     return (
@@ -265,7 +300,6 @@ export const LimitOrderInput = ({
       // No account meta loaded for that chain
       !isAnyAccountMetadataLoadedForChainId ||
       (!shouldShowTradeQuoteOrAwaitInput && !isTradeQuoteRequestAborted) ||
-      isConfirmationLoading ||
       // Only consider snapshot API queries as pending if we don't have voting power yet
       // if we do, it means we have persisted or cached (both stale) data, which is enough to let the user continue
       // as we are optimistic and don't want to be waiting for a potentially very long time for the snapshot API to respond
@@ -273,7 +307,6 @@ export const LimitOrderInput = ({
     )
   }, [
     isAnyAccountMetadataLoadedForChainId,
-    isConfirmationLoading,
     isLimitOrderQuoteFetching,
     isTradeQuoteRequestAborted,
     isVotingPowerLoading,
@@ -326,8 +359,6 @@ export const LimitOrderInput = ({
             buyAsset={buyAsset}
             isLoading={isLoading}
             marketPriceBuyAsset={marketPriceBuyAsset}
-            limitPriceBuyAsset={limitPriceBuyAsset}
-            setLimitPriceBuyAsset={setLimitPriceBuyAsset}
           />
         </Stack>
       </SharedTradeInputBody>
@@ -338,7 +369,6 @@ export const LimitOrderInput = ({
     inputSellAmountUserCurrency,
     isInputtingFiatSellAmount,
     isLoading,
-    limitPriceBuyAsset,
     marketPriceBuyAsset,
     sellAccountId,
     sellAmountCryptoPrecision,
@@ -349,7 +379,6 @@ export const LimitOrderInput = ({
     setBuyAccountId,
     setBuyAsset,
     setIsInputtingFiatSellAmount,
-    setLimitPriceBuyAsset,
     setSellAccountId,
     setSellAmountCryptoPrecision,
     setSellAsset,
@@ -371,13 +400,17 @@ export const LimitOrderInput = ({
         isError={Boolean(error)}
         isLoading={isLoading}
         quoteStatusTranslation={'limitOrder.previewOrder'}
-        rate={bnOrZero(limitPriceBuyAsset).isZero() ? undefined : limitPriceBuyAsset}
+        rate={
+          bnOrZero(limitPrice.buyAssetDenomination).isZero()
+            ? undefined
+            : limitPrice.buyAssetDenomination
+        }
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={isRecipientAddressEntryActive}
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
-        networkFeeFiatUserCurrency='0' // CoW protocol is always zero network fee
+        networkFeeFiatUserCurrency={networkFeeUserCurrency}
         sellAsset={sellAsset}
       >
         {renderedRecipientAddress}
@@ -391,11 +424,12 @@ export const LimitOrderInput = ({
     inputSellAmountUsd,
     error,
     isLoading,
-    limitPriceBuyAsset,
+    limitPrice,
     sellAccountId,
     isRecipientAddressEntryActive,
     sellAsset,
     renderedRecipientAddress,
+    networkFeeUserCurrency,
   ])
 
   return (

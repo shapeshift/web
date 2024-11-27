@@ -1,5 +1,6 @@
 import { Box, SimpleGrid } from '@chakra-ui/react'
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { Text } from 'components/Text'
 import { formatSecondsToDuration } from 'lib/utils/time'
 import { useCurrentEpochMetadataQuery } from 'pages/RFOX/hooks/useCurrentEpochMetadataQuery'

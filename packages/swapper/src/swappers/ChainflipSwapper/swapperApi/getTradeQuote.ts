@@ -4,16 +4,15 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 
-import type { QuoteFeeData } from '../../../types'
-import {
-  type CommonTradeQuoteInput,
-  type SwapperDeps,
-  TradeQuoteError,
-  type TradeQuoteResult,
-} from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import type { QuoteFeeData, TradeQuoteResult } from '../../../types'
 import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
 import { getRateOrQuote } from '../utils/getRateOrQuote'
+import type {
+  CommonTradeQuoteInput,
+  SwapperDeps,
+} from '../../../types'
+import {  TradeQuoteError } from '../../../types'
+import {  makeSwapErrorRight } from '../../../utils'
 import {
   calculateChainflipMinPrice,
   getChainFlipIdFromAssetId,

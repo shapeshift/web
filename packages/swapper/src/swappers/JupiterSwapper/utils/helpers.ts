@@ -1,4 +1,6 @@
-import { type ChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -6,7 +8,6 @@ import type { AxiosResponse } from 'axios'
 import type { SwapErrorRight } from '../../../types'
 import { jupiterSupportedChainIds } from './constants'
 import { jupiterService } from './jupiterService'
-import { QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
 
 export const isSupportedChainId = (chainId: ChainId): chainId is KnownChainIds.SolanaMainnet => {
   return jupiterSupportedChainIds.includes(chainId)

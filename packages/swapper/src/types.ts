@@ -1,3 +1,4 @@
+import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
@@ -29,7 +30,6 @@ import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
-import { QuoteResponse } from '@jup-ag/api'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
 export type SwapperConfig = {

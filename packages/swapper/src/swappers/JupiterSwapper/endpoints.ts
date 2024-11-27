@@ -1,3 +1,4 @@
+import type { Instruction, QuoteResponse } from '@jup-ag/api'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -14,7 +15,8 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { PublicKey, type TransactionInstruction } from '@solana/web3.js'
+import type { TransactionInstruction } from '@solana/web3.js'
+import { PublicKey } from '@solana/web3.js'
 import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
@@ -40,7 +42,6 @@ import {
 } from '../../utils'
 import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER, SOLANA_RANDOM_ADDRESS } from './utils/constants'
 import { getJupiterPrice, getJupiterSwapInstructions, isSupportedChainId } from './utils/helpers'
-import { Instruction, QuoteResponse } from '@jup-ag/api'
 
 const tradeQuoteMetadata: Map<string, QuoteResponse> = new Map()
 
@@ -82,7 +83,7 @@ export const jupiterApi: SwapperApi = {
         }),
       )
     }
-    
+
     if (buyAsset.assetId === wrappedSolAssetId || sellAsset.assetId === wrappedSolAssetId) {
       return Err(
         makeSwapErrorRight({
@@ -221,6 +222,7 @@ export const jupiterApi: SwapperApi = {
       receiveAddress,
       accountNumber,
       sendAddress,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
       slippageTolerancePercentageDecimal,
     } = input
 
@@ -266,16 +268,28 @@ export const jupiterApi: SwapperApi = {
       )
     }
 
-    const quoteResponse = tradeQuoteMetadata.get('rate')
+    const maybePriceResponse = await getJupiterPrice({
+      apiUrl: jupiterUrl,
+      sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
+      destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
+      commissionBps: affiliateBps,
+      amount: sellAmount,
+      slippageBps: convertDecimalPercentageToBasisPoints(
+        slippageTolerancePercentageDecimal ??
+          getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
+      ).toFixed(),
+    })
 
-    if (!quoteResponse) {
+    if (maybePriceResponse.isErr()) {
       return Err(
         makeSwapErrorRight({
-          message: `quote not found`,
-          code: TradeQuoteError.UnknownError,
+          message: 'Quote request failed',
+          code: TradeQuoteError.NoRouteFound,
         }),
       )
     }
+
+    const { data: quoteResponse } = maybePriceResponse.unwrap()
 
     const contractAddress =
       buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference

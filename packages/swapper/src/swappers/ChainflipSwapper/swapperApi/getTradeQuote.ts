@@ -25,6 +25,8 @@ export const getTradeQuote = async (
   deps: SwapperDeps,
 ): Promise<TradeQuoteResult> => {
   const {
+    sellAsset,
+    buyAsset,
     accountNumber,
     sendAddress,
     receiveAddress,
@@ -72,18 +74,18 @@ export const getTradeQuote = async (
   for (const tradeQuote of tradeQuotes) {
     for (const step of tradeQuote.steps) {
       const sourceAsset = await getChainFlipIdFromAssetId({
-        assetId: step.sellAsset.assetId,
+        assetId: sellAsset.assetId,
         brokerUrl,
       })
       const destinationAsset = await getChainFlipIdFromAssetId({
-        assetId: step.buyAsset.assetId,
+        assetId: buyAsset.assetId,
         brokerUrl,
       })
 
       const minimumPrice = calculateChainflipMinPrice({
         slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
-        sellAsset: step.sellAsset,
-        buyAsset: step.buyAsset,
+        sellAsset,
+        buyAsset,
         buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit:
           step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -118,21 +120,21 @@ export const getTradeQuote = async (
       if (!swapResponse.address) throw Error('Missing Deposit Channel')
 
       const getFeeData = async () => {
-        const { chainNamespace } = fromAssetId(step.sellAsset.assetId)
+        const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
         // We faked feeData for Solana with a self-send during rates, we can now properly do it on quote time
         switch (chainNamespace) {
           case CHAIN_NAMESPACE.Solana: {
-            const sellAdapter = deps.assertGetSolanaChainAdapter(step.sellAsset.chainId)
+            const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
             const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
               to: input.receiveAddress,
               value: sellAmount,
               chainSpecific: {
                 from: input.sendAddress!,
                 tokenId:
-                  step.sellAsset.assetId === solAssetId
+                  sellAsset.assetId === solAssetId
                     ? undefined
-                    : fromAssetId(step.sellAsset.assetId).assetReference,
+                    : fromAssetId(sellAsset.assetId).assetReference,
               },
             }
             const { fast } = await sellAdapter.getFeeData(getFeeDataInput)

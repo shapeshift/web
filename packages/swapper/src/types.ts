@@ -275,7 +275,6 @@ export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { acco
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  senderAddress?: string | undefined // only used for Chainflip for now, since we need to know
   receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked

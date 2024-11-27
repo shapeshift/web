@@ -6032,9 +6032,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cowprotocol/app-data@npm:^1.1.0-RC.0":
-  version: 1.1.0-RC.0
-  resolution: "@cowprotocol/app-data@npm:1.1.0-RC.0"
+"@cowprotocol/app-data@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@cowprotocol/app-data@npm:2.3.0"
   dependencies:
     ajv: ^8.11.0
     cross-fetch: ^3.1.5
@@ -6046,7 +6046,7 @@ __metadata:
     ethers: ^5.0.0
     ipfs-only-hash: ^4.x
     multiformats: ^9.x
-  checksum: 7a24b2cebd8d7ff7219668ffd6570978d76104fa22e6519ce47dacbf321ddb0b431dbb692cd674bd1fc1df1cc06f00fb3b434c467adde7d149d1fe4d9c5ae071
+  checksum: e0c54b9077999299ee2fa6fab036152d1d2ed4282b85bba3343b41a4773c1f1e0c3658c48d395e4af9f82e4d38f9bbf8f36ccdaffd581a0dc137bf3ce3e0b57b
   languageName: node
   linkType: hard
 
@@ -11740,7 +11740,7 @@ __metadata:
     "@chakra-ui/tag": ^3.1.1
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
-    "@cowprotocol/app-data": ^1.1.0-RC.0
+    "@cowprotocol/app-data": ^2.3.0
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0
     "@formatjs/intl-getcanonicallocales": ^2.3.0

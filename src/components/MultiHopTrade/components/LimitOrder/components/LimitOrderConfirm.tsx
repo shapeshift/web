@@ -10,36 +10,103 @@ import {
   Link,
   Stack,
 } from '@chakra-ui/react'
+import type { CowSwapError } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import { ethereum, fox } from 'test/mocks/assets'
 import { Amount } from 'components/Amount/Amount'
 import { AssetToAssetCard } from 'components/AssetToAssetCard/AssetToAssetCard'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
+import { useActions } from 'hooks/useActions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useWallet } from 'hooks/useWallet/useWallet'
+import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
+import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
+import {
+  selectActiveQuote,
+  selectActiveQuoteBuyAmountCryptoPrecision,
+  selectActiveQuoteBuyAmountUserCurrency,
+  selectActiveQuoteBuyAsset,
+  selectActiveQuoteExpirationTimestamp,
+  selectActiveQuoteFeeAsset,
+  selectActiveQuoteLimitPrice,
+  selectActiveQuoteNetworkFeeCryptoPrecision,
+  selectActiveQuoteSellAmountCryptoPrecision,
+  selectActiveQuoteSellAmountUserCurrency,
+  selectActiveQuoteSellAsset,
+} from 'state/slices/limitOrderSlice/selectors'
+import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
 import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
+
+// TODO: Populate this!
 const learnMoreUrl = ''
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+  const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
+  const { showErrorToast } = useErrorHandler()
+
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
+  const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
+  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
+  const sellAmountCryptoPrecision = useAppSelector(selectActiveQuoteSellAmountCryptoPrecision)
+  const buyAmountCryptoPrecision = useAppSelector(selectActiveQuoteBuyAmountCryptoPrecision)
+  const sellAmountUserCurrency = useAppSelector(selectActiveQuoteSellAmountUserCurrency)
+  const buyAmountUserCurrency = useAppSelector(selectActiveQuoteBuyAmountUserCurrency)
+  const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
+  const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
+  const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
+
+  const [placeLimitOrder, { data, error, isLoading }] = usePlaceLimitOrderMutation()
+
+  useEffect(() => {
+    if (!error) return
+
+    const description = (error as CowSwapError).description ?? 'Unknown Error'
+
+    // TODO: Actually render a translated error description.
+    showErrorToast(description)
+  }, [error, showErrorToast])
+
+  useEffect(() => {
+    if (!data || error) return
+
+    history.push(LimitOrderRoutePaths.PlaceOrder)
+  }, [data, error, history])
 
   const handleBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
   }, [history])
 
-  const handleConfirm = useCallback(() => {
-    history.push(LimitOrderRoutePaths.Status)
-  }, [history])
+  const handleConfirm = useCallback(async () => {
+    const quoteId = activeQuote?.response.id
+    if (!quoteId) {
+      return
+    }
+
+    // TEMP: Bypass allowance approvals and jump straight to placing the order
+    setLimitOrderInitialized(quoteId)
+    confirmSubmit(quoteId)
+    await placeLimitOrder({ quoteId, wallet })
+  }, [activeQuote?.response.id, confirmSubmit, placeLimitOrder, setLimitOrderInitialized, wallet])
+
+  if (!activeQuote) {
+    console.error('Attempted to submit an undefined limit order')
+    history.push(LimitOrderRoutePaths.Input)
+    return null
+  }
 
   return (
     <SlideTransition>
@@ -62,12 +129,12 @@ export const LimitOrderConfirm = () => {
 
         <CardBody px={6} pt={0} pb={6}>
           <AssetToAssetCard
-            sellAsset={ethereum}
-            buyAsset={fox}
-            sellAmountCryptoPrecision={'0.103123213'}
-            sellAmountUserCurrency={'123.42234'}
-            buyAmountCryptoPrecision={'123.412323452345412543'}
-            buyAmountUserCurrency={'123.234'}
+            sellAsset={sellAsset}
+            buyAsset={buyAsset}
+            sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+            sellAmountUserCurrency={sellAmountUserCurrency}
+            buyAmountCryptoPrecision={buyAmountCryptoPrecision}
+            buyAmountUserCurrency={buyAmountUserCurrency}
           />
         </CardBody>
         <CardFooter
@@ -86,9 +153,17 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
-                  <Amount.Crypto value={'0.002134'} symbol={'WETH'} />
+                  {/*
+                    TODO: the rate differs from the input page because we're using the quoted values
+                    here instead of the user input. We need to decide how to handle this because the
+                    quote is likely what gets executed.
+                  */}
+                  <Amount.Crypto value={'1.0'} symbol={sellAsset?.symbol ?? ''} />
                   <RawText>=</RawText>
-                  <Amount.Fiat fiatType='USD' value={'1'} />
+                  <Amount.Crypto
+                    value={limitPrice.buyAssetDenomination}
+                    symbol={buyAsset?.symbol ?? ''}
+                  />
                 </HStack>
               </Row.Value>
             </Row>
@@ -98,8 +173,8 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
-                  <SwapperIcon swapperName={SwapperName.Zrx} />
-                  <RawText>0x</RawText>
+                  <SwapperIcon swapperName={SwapperName.CowSwap} />
+                  <RawText>{SwapperName.CowSwap}</RawText>
                 </HStack>
               </Row.Value>
             </Row>
@@ -107,13 +182,13 @@ export const LimitOrderConfirm = () => {
               <Row.Label>
                 <Text translation='limitOrder.expiration' />
               </Row.Label>
-              <TransactionDate blockTime={Date.now() / 1000} />
+              <TransactionDate blockTime={quoteExpirationTimestamp ?? 0} />
             </Row>
             <Row px={2}>
               <Row.Label>
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
-              <Amount.Crypto value={'0.0002134'} symbol={'ETH'} />
+              <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
             </Row>
             <Card bg='background.surface.raised.pressed' borderRadius={6} p={4}>
               <HStack>
@@ -141,7 +216,8 @@ export const LimitOrderConfirm = () => {
               size='lg'
               width='full'
               onClick={handleConfirm}
-              isLoading={false}
+              isLoading={isLoading}
+              isDisabled={isLoading || !activeQuote}
             >
               <Text translation={'limitOrder.placeOrder'} />
             </Button>

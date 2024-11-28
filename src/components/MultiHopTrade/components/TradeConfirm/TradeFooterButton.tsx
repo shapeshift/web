@@ -39,6 +39,17 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit }) 
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
+  const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
+    if (!confirmedTradeExecutionState) return undefined
+    switch (confirmedTradeExecutionState) {
+      case TradeExecutionState.Initializing:
+      case TradeExecutionState.Previewing:
+        return 'trade.confirmAndTrade'
+      default:
+        return null
+    }
+  }, [confirmedTradeExecutionState])
+
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>
       bnOrZero(networkFeeUserCurrency)
@@ -123,7 +134,7 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit }) 
     gasFeeExceedsTradeAmountThresholdTranslation,
   ])
 
-  if (!confirmedTradeExecutionState) return null
+  if (!confirmedTradeExecutionState || !translation) return null
 
   return (
     <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
@@ -137,7 +148,7 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit }) 
         onClick={handleSubmit}
         isLoading={isLoading || confirmedTradeExecutionState === TradeExecutionState.Initializing}
       >
-        <Text translation={'trade.confirmAndTrade'} />
+        <Text translation={translation} />
       </Button>
     </CardFooter>
   )

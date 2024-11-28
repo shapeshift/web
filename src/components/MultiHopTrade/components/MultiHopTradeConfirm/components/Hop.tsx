@@ -19,7 +19,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import prettyMilliseconds from 'pretty-ms'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import { FaGasPump } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -71,6 +71,8 @@ export const Hop = ({
   onToggleIsOpen?: () => void
   activeTradeId: TradeQuote['id']
 }) => {
+  // Keep track of the original activeTradeId. Else, when we switch from rate to quote, we will miss the allowance info.
+  const initialTradeIdRef = useRef(activeTradeId)
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
@@ -101,13 +103,24 @@ export const Hop = ({
       hopIndex,
     }
   }, [activeTradeId, hopIndex])
+  const rateHopExecutionMetadataFilter = useMemo(
+    () => ({
+      tradeId: initialTradeIdRef.current,
+      hopIndex,
+    }),
+    [hopIndex],
+  )
 
   const {
     state: hopExecutionState,
-    allowanceApproval,
     permit2,
     swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
+
+  // Get allowance approval data from initial (rate) tradeId
+  const { allowanceApproval } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, rateHopExecutionMetadataFilter),
+  )
 
   const isError = useMemo(
     () => [allowanceApproval.state, swap.state].includes(TransactionExecutionState.Failed),

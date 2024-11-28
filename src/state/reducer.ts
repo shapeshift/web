@@ -27,6 +27,7 @@ import {
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
+import { limitOrderSlice } from './slices/limitOrderSlice/limitOrderSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
 import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
@@ -53,6 +54,7 @@ export const slices = {
   tradeInput,
   limitOrderInput,
   tradeQuoteSlice,
+  limitOrderSlice,
   snapshot,
   localWalletSlice,
 }
@@ -133,6 +135,7 @@ export const sliceReducers = {
   ),
   nft: persistReducer<NftState>(nftPersistConfig, nft.reducer),
   tradeQuoteSlice: tradeQuoteSlice.reducer,
+  limitOrderSlice: limitOrderSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
   localWalletSlice: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,

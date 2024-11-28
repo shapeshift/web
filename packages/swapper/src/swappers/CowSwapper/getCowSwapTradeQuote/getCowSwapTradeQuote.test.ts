@@ -1,4 +1,6 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import { BuyTokenDestination, SellTokenSource } from '@shapeshiftoss/types/dist/cowSwap'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
@@ -14,8 +16,6 @@ import {
   WETH,
   XDAI,
 } from '../../utils/test-data/assets'
-import type { CowSwapQuoteResponse } from '../types'
-import { CoWSwapBuyTokenDestination, CoWSwapSellTokenSource } from '../types'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS, DEFAULT_ADDRESS } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
@@ -67,8 +67,8 @@ vi.mock('../../utils/helpers/helpers', async () => {
 
 const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
   appData:
-    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+  appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -81,8 +81,8 @@ const expectedApiInputWethToFox: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
   appData:
-    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+  appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
   buyToken: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -95,8 +95,8 @@ const expectedApiInputSmallAmountWethToFox: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
   appData:
-    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+  appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -109,8 +109,8 @@ const expectedApiInputFoxToEth: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
   appData:
-    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+  appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
   buyToken: COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -123,8 +123,8 @@ const expectedApiInputUsdcGnosisToXdai: CowSwapSellQuoteApiInput = {
 
 const expectedApiInputUsdcToEthArbitrum: CowSwapSellQuoteApiInput = {
   appData:
-    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":"50"}},"version":"0.9.0"}',
-  appDataHash: '0x9b3c15b566e3b432f1ba3533bb0b071553fd03cec359caf3e6559b29fec1e62e',
+    '{"appCode":"shapeshift","metadata":{"orderClass":{"orderClass":"market"},"quote":{"slippageBips":50}},"version":"1.3.0"}',
+  appDataHash: '0x41fffc0127f56060cc551652721d84c336f87649a20c51fcff5b8841dfeabe5b',
   buyToken: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
   from: '0x0000000000000000000000000000000000000000',
   kind: 'sell',
@@ -172,10 +172,10 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
           sellAmount: '985442057341242012',
           buyAmount: '14707533959600717283163',
           feeAmount: '14557942658757988',
-          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+          sellTokenBalance: SellTokenSource.ERC20,
+          buyTokenBalance: BuyTokenDestination.ERC20,
         },
-      } as unknown as CowSwapQuoteResponse,
+      } as unknown as OrderQuoteResponse,
     },
   ],
 }
@@ -217,10 +217,10 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
           sellAmount: '938195228120306016256',
           buyAmount: '46868859830863283',
           feeAmount: '61804771879693983744',
-          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+          sellTokenBalance: SellTokenSource.ERC20,
+          buyTokenBalance: BuyTokenDestination.ERC20,
         },
-      } as unknown as CowSwapQuoteResponse,
+      } as unknown as OrderQuoteResponse,
     },
   ],
 }
@@ -262,10 +262,10 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
           sellAmount: '20998812',
           buyAmount: '21005367357465608755',
           feeAmount: '1188',
-          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+          sellTokenBalance: SellTokenSource.ERC20,
+          buyTokenBalance: BuyTokenDestination.ERC20,
         },
-      } as unknown as CowSwapQuoteResponse,
+      } as unknown as OrderQuoteResponse,
     },
   ],
 }
@@ -307,10 +307,10 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
           sellAmount: '492056',
           buyAmount: '141649103137616',
           feeAmount: '7944',
-          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+          sellTokenBalance: SellTokenSource.ERC20,
+          buyTokenBalance: BuyTokenDestination.ERC20,
         },
-      } as unknown as CowSwapQuoteResponse,
+      } as unknown as OrderQuoteResponse,
     },
   ],
 }
@@ -352,10 +352,10 @@ const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
           sellAmount: '9854420573412420',
           buyAmount: '145018118182475950905',
           feeAmount: '1455794265875791',
-          sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-          buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+          sellTokenBalance: SellTokenSource.ERC20,
+          buyTokenBalance: BuyTokenDestination.ERC20,
         },
-      } as unknown as CowSwapQuoteResponse,
+      } as unknown as OrderQuoteResponse,
     },
   ],
 }
@@ -415,11 +415,11 @@ describe('getCowSwapTradeQuote', () => {
               sellAmount: '985442057341242012',
               buyAmount: '14707533959600717283163',
               feeAmount: '14557942658757988',
-              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+              sellTokenBalance: SellTokenSource.ERC20,
+              buyTokenBalance: BuyTokenDestination.ERC20,
             },
           },
-        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+        } as unknown as AxiosResponse<OrderQuoteResponse>),
       ),
     )
 
@@ -460,11 +460,11 @@ describe('getCowSwapTradeQuote', () => {
               sellAmount: '938195228120306016256',
               buyAmount: '46868859830863283',
               feeAmount: '61804771879693983744',
-              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+              sellTokenBalance: SellTokenSource.ERC20,
+              buyTokenBalance: BuyTokenDestination.ERC20,
             },
           },
-        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+        } as unknown as AxiosResponse<OrderQuoteResponse>),
       ),
     )
 
@@ -505,11 +505,11 @@ describe('getCowSwapTradeQuote', () => {
               sellAmount: '20998812',
               buyAmount: '21005367357465608755',
               feeAmount: '1188',
-              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+              sellTokenBalance: SellTokenSource.ERC20,
+              buyTokenBalance: BuyTokenDestination.ERC20,
             },
           },
-        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+        } as unknown as AxiosResponse<OrderQuoteResponse>),
       ),
     )
 
@@ -550,11 +550,11 @@ describe('getCowSwapTradeQuote', () => {
               sellAmount: '492056',
               buyAmount: '141649103137616',
               feeAmount: '7944',
-              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+              sellTokenBalance: SellTokenSource.ERC20,
+              buyTokenBalance: BuyTokenDestination.ERC20,
             },
           },
-        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+        } as unknown as AxiosResponse<OrderQuoteResponse>),
       ),
     )
 
@@ -595,11 +595,11 @@ describe('getCowSwapTradeQuote', () => {
               sellAmount: '9854420573412420',
               buyAmount: '145018118182475950905',
               feeAmount: '1455794265875791',
-              sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-              buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+              sellTokenBalance: SellTokenSource.ERC20,
+              buyTokenBalance: BuyTokenDestination.ERC20,
             },
           },
-        } as unknown as AxiosResponse<CowSwapQuoteResponse>),
+        } as unknown as AxiosResponse<OrderQuoteResponse>),
       ),
     )
 

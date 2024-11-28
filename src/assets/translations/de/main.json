@@ -182,7 +182,8 @@
     "yes": "Ja",
     "activeAccount": "Aktives Konto",
     "update": "Aktualisiere",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "TBD"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Geben Sie eine benutzerdefinierte Empfängeradresse ein",
     "receiveAtLeast": "Erhalten Sie zumindest",
     "tooltip": {
+      "continueSwapping": "Weiter tauschen, um die letzten Details zu erfahren",
       "changeQuote": "Angebot ändern",
       "rate": "Dies ist die erwartete Rate für dieses Handelspaar.",
       "noRateAvailable": "Dies ist häufig auf eine sehr begrenzte oder keine Liquidität des Handelspaars zurückzuführen.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Unzureichender Verkaufsbetrag"
+      },
+      "rateExpired": {
+        "title": "Kursbewertung abgelaufen",
+        "body": "Ihr bisheriger Swap-Kurs ist abgelaufen. Wir haben einen neuen Kurs abgerufen und Ihre Angebotsbeträge aktualisiert. Bitte überprüfen Sie die neuesten Details, bevor Sie Ihren Swap bestätigen.",
+        "cta": "Okay, verstanden"
       }
     },
     "permit2": {
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "Hier von THORSwap?",
     "description": "THOR-Inhaber können bis 2024 kostenlos handeln."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Adresse %{address} wird nicht unterstützt.",
+      "unsupportedChain": "Wallet unterstützt %{chain} nicht.",
+      "ledgerAppOpenCancelled": "Öffnen der Ledger-App abgebrochen.",
+      "getAddress": "Adresse konnte nicht aus der Wallet abgerufen werden.",
+      "getAccount": "Konto konnte nicht abgerufen werden für: %{pubkey}.",
+      "switchChainUnsupported": "Wallet unterstützt kein Wechseln von Ketten.",
+      "switchChainFailed": "Das Umschalten der Wallet-Kette auf %{chain} ist fehlgeschlagen.",
+      "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
+      "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
+      "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
+      "signMessage": "Signieren der Nachricht fehlgeschlagen.",
+      "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
+      "broadcastTransactionWithMessage": "Senden der Transaktion (%{message}) fehlgeschlagen.",
+      "getGasFeeData": "Netzwerkgebühren konnten nicht abgerufen werden.",
+      "getFeeData": "Die Netzwerkgebühren konnten nicht geschätzt werden.",
+      "getPublicKey": "Der öffentliche Schlüssel konnte nicht aus der Wallet abgerufen werden.",
+      "getUtxos": "Utxos konnten nicht abgerufen werden.",
+      "getValidator": "Der Validierer konnte nicht abgerufen werden."
+    }
   }
 }

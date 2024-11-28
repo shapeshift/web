@@ -10,8 +10,8 @@ import {
   Link,
   Stack,
 } from '@chakra-ui/react'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/types'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'

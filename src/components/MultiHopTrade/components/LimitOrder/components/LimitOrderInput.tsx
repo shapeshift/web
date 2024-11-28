@@ -2,14 +2,13 @@ import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
 import {
-  getCowswapNetwork,
+  getCowNetwork,
   getDefaultSlippageDecimalPercentageForSwapper,
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, CowSwapError } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -164,7 +163,7 @@ export const LimitOrderInput = ({
   }, [walletDispatch])
 
   const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
-    return getCowswapNetwork(chainId).isOk()
+    return getCowNetwork(chainId) !== undefined
   }, [])
 
   const sellAssetFilterPredicate = useCallback(

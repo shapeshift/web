@@ -1,12 +1,9 @@
-import { InfoIcon } from '@chakra-ui/icons'
 import {
   Button,
   Card,
-  Center,
   Flex,
   Heading,
   HStack,
-  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -17,21 +14,18 @@ import {
   Progress,
   Stack,
 } from '@chakra-ui/react'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
-import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
-import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -39,7 +33,6 @@ import { useCancelLimitOrdersMutation } from 'state/apis/limit-orders/limitOrder
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
   selectActiveQuoteBuyAsset,
-  selectActiveQuoteExpirationTimestamp,
   selectActiveQuoteFeeAsset,
   selectActiveQuoteLimitPrice,
   selectActiveQuoteNetworkFeeCryptoPrecision,
@@ -53,12 +46,8 @@ import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
 
-// TODO: Populate this!
-const learnMoreUrl = ''
-
 export const CancelLimitOrder = () => {
   const history = useHistory()
-  const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { setOrderToCancel } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorHandler()
@@ -69,7 +58,6 @@ export const CancelLimitOrder = () => {
   const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
   const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
-  const quoteExpirationTimestamp = useAppSelector(selectActiveQuoteExpirationTimestamp)
 
   const [cancelLimitOrders, { data, error, isLoading }] = useCancelLimitOrdersMutation()
 

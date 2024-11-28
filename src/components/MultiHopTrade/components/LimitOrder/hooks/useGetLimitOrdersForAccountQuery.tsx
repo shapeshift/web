@@ -1,7 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { getCowswapNetwork } from '@shapeshiftoss/swapper'
-import type { Order } from '@shapeshiftoss/types/dist/cowSwap'
+import { assertGetCowNetwork, getCowNetwork } from '@shapeshiftoss/swapper'
+import type { Order } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import axios from 'axios'
 import { getConfig } from 'config'
@@ -23,9 +23,7 @@ export const useGetLimitOrdersQuery = () => {
   const getQueryFn = useCallback(
     (accountId: AccountId) => async () => {
       const { account, chainId } = fromAccountId(accountId)
-      const maybeNetwork = getCowswapNetwork(chainId)
-      if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-      const network = maybeNetwork.unwrap()
+      const network = assertGetCowNetwork(chainId)
       const config = getConfig()
       const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
       const result = await axios.get<Order[]>(
@@ -44,7 +42,7 @@ export const useGetLimitOrdersQuery = () => {
     queries: evmAccountIds
       .filter(accountId => {
         const { chainId } = fromAccountId(accountId)
-        return getCowswapNetwork(chainId).isOk()
+        return Boolean(getCowNetwork(chainId))
       })
       .map(accountId => ({
         queryKey: getLimitOrdersForAccountQueryKey(accountId),

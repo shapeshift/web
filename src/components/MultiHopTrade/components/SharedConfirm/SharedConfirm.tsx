@@ -1,16 +1,7 @@
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
-import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
-import {
-  selectActiveQuote,
-  selectConfirmedTradeExecutionState,
-} from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import type { TextPropTypes } from 'components/Text/Text'
 
 import { WithBackButton } from '../WithBackButton'
 
@@ -20,39 +11,18 @@ type SharedConfirmProps = {
   Body: JSX.Element
   Footer: JSX.Element
   isLoading: boolean
+  onBack: () => void
+  headerTranslation: TextPropTypes['translation']
 }
 
-export const SharedConfirm = ({ Body, Footer, isLoading }: SharedConfirmProps) => {
-  const dispatch = useAppDispatch()
-  const history = useHistory()
-
-  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const activeQuote = useAppSelector(selectActiveQuote)
-
-  const isTradeComplete = useMemo(
-    () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
-    [confirmedTradeExecutionState],
-  )
-
-  useEffect(() => {
-    if (isLoading || !activeQuote) return
-
-    dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
-  }, [dispatch, isLoading, activeQuote])
-
-  const handleBack = useCallback(() => {
-    if (isTradeComplete) {
-      dispatch(tradeQuoteSlice.actions.clear())
-    }
-
-    history.push(TradeRoutePaths.Input)
-  }, [dispatch, history, isTradeComplete])
-
-  if (!confirmedTradeExecutionState) return null
-
+export const SharedConfirm = ({
+  Body,
+  Footer,
+  onBack: handleBack,
+  headerTranslation,
+}: SharedConfirmProps) => {
   return (
     <TradeSlideTransition>
-      {/* TODO: Add WarningAcknowledgement */}
       <Card
         flex={1}
         borderRadius={cardBorderRadius}
@@ -63,15 +33,7 @@ export const SharedConfirm = ({ Body, Footer, isLoading }: SharedConfirmProps) =
         <CardHeader px={6} pt={4}>
           <WithBackButton onBack={handleBack}>
             <Heading textAlign='center' fontSize='md'>
-              <Text
-                translation={
-                  [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-                    confirmedTradeExecutionState,
-                  )
-                    ? 'trade.confirmDetails'
-                    : 'trade.trade'
-                }
-              />
+              <Text translation={headerTranslation} />
             </Heading>
           </WithBackButton>
         </CardHeader>

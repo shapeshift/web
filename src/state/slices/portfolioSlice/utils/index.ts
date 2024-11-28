@@ -442,6 +442,8 @@ export const makeAssets = async ({
 
         const maybePortalsAsset = maybePortalsAccounts[token.assetId]
         if (maybePortalsAsset) {
+          if (!maybePortalsAsset.liquidity) return prev
+
           const isPool = Boolean(maybePortalsAsset.platform && maybePortalsAsset.tokens?.length)
           const platform = maybePortalsPlatforms[maybePortalsAsset.platform]
 

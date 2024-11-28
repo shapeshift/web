@@ -363,7 +363,7 @@ export type SolanaTransactionExecutionProps = {
 
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
-type UtxoAccountMetadata = { xpub: string; accountType: UtxoAccountType }
+type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
 export type CommonGetUnsignedTransactionArgs = {

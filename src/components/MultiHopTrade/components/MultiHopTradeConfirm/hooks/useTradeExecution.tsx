@@ -351,6 +351,7 @@ export const useTradeExecution = (
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             xpub,
+            senderAddress: _senderAddress,
             accountType,
             signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
               const signedTx = await adapter.signTransaction({

@@ -62,6 +62,7 @@ export const Hop = ({
   slippageTolerancePercentageDecimal,
   onToggleIsOpen,
   activeTradeId,
+  initialActiveTradeId,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
@@ -70,9 +71,8 @@ export const Hop = ({
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
   activeTradeId: TradeQuote['id']
+  initialActiveTradeId: TradeQuote['id']
 }) => {
-  // Keep track of the original activeTradeId. Else, when we switch from rate to quote, we will miss the allowance info.
-  const initialTradeIdRef = useRef(activeTradeId)
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
@@ -105,10 +105,10 @@ export const Hop = ({
   }, [activeTradeId, hopIndex])
   const rateHopExecutionMetadataFilter = useMemo(
     () => ({
-      tradeId: initialTradeIdRef.current,
+      tradeId: initialActiveTradeId,
       hopIndex,
     }),
-    [hopIndex],
+    [hopIndex, initialActiveTradeId],
   )
 
   const {

@@ -15,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'

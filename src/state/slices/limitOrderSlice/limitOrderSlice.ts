@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import type { Order, QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
+import type { Order, QuoteId } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { InterpolationOptions } from 'node-polyglot'
 

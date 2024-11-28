@@ -16,11 +16,11 @@ import type {
   CosmosSdkChainId,
   EvmChainId,
   KnownChainIds,
+  OrderQuoteResponse,
   PartialRecord,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
-import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'

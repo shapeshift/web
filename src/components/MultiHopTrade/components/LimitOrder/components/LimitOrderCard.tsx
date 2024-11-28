@@ -1,6 +1,6 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderStatus } from '@shapeshiftoss/types'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'

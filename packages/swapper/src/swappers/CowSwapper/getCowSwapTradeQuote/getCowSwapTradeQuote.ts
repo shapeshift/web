@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
-import { OrderKind } from '@shapeshiftoss/types/dist/cowSwap'
+import type { CowSwapError, OrderQuoteResponse } from '@shapeshiftoss/types'
+import { OrderKind } from '@shapeshiftoss/types'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -8,6 +8,7 @@ import type { AxiosError } from 'axios'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { getCowNetwork } from '../../../cowswap-utils'
 import type {
   GetEvmTradeQuoteInputBase,
   SwapErrorRight,
@@ -17,7 +18,6 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { CowSwapError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -27,7 +27,6 @@ import { cowService } from '../utils/cowService'
 import {
   assertValidTrade,
   getAffiliateAppDataFragmentByChainId,
-  getCowswapNetwork,
   getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
   getValuesFromQuoteResponse,
@@ -63,10 +62,17 @@ async function _getCowSwapTradeQuote(
     ? fromAssetId(buyAsset.assetId).assetReference
     : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS
 
-  const maybeNetwork = getCowswapNetwork(chainId)
-  if (maybeNetwork.isErr()) return Err(maybeNetwork.unwrapErr())
+  const maybeNetwork = getCowNetwork(chainId)
+  if (!maybeNetwork)
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: _getCowSwapTradeQuote] - Unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId },
+      }),
+    )
 
-  const network = maybeNetwork.unwrap()
+  const network = maybeNetwork
 
   const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
     affiliateBps,

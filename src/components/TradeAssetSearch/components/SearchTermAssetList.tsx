@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -64,13 +64,15 @@ export const SearchTermAssetList = ({
     const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
     if (activeChainId === 'All') {
       if (allowWalletUnsupportedAssets) return _assets
-      return _assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      return _assets.filter(
+        asset => walletConnectedChainIds.includes(asset.chainId) && !isNft(asset.assetId),
+      )
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return _assets.filter(asset => asset.chainId === activeChainId)
+    return _assets.filter(asset => asset.chainId === activeChainId && !isNft(asset.assetId))
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,

@@ -3,7 +3,7 @@ import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertPrecision } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -242,9 +242,14 @@ async function _getZrxPermit2TradeRate(
     totalNetworkFee,
   } = zrxPriceResponse
 
-  const rate = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-    .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-    .toString()
+  // for the rate to be valid, both amounts must be converted to the same precision
+  const rate = convertPrecision({
+    value: buyAmountAfterFeesCryptoBaseUnit,
+    inputExponent: buyAsset.precision,
+    outputExponent: sellAsset.precision,
+  })
+    .dividedBy(bn(sellAmountIncludingProtocolFeesCryptoBaseUnit))
+    .toFixed()
 
   // 0x approvals are cheaper than trades, but we don't have dynamic quote data for them.
   // Instead, we use a hardcoded gasLimit estimate in place of the estimatedGas in the 0x quote response.

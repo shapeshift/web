@@ -1,4 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderKind } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -7,11 +9,10 @@ import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { CowSwapQuoteError, CowSwapQuoteResponse } from '../types'
-import { CoWSwapOrderKind } from '../types'
+import type { CowSwapError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -74,7 +75,7 @@ async function _getCowSwapTradeRate(
   )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+  const maybeQuoteResponse = await cowService.post<OrderQuoteResponse>(
     `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
@@ -85,14 +86,14 @@ async function _getCowSwapTradeRate(
       appDataHash,
       partiallyFillable: false,
       from: zeroAddress,
-      kind: CoWSwapOrderKind.Sell,
+      kind: OrderKind.SELL,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
   )
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError<CowSwapQuoteError>)?.response?.data
+    const errData = (err.cause as AxiosError<CowSwapError>)?.response?.data
     if (
       (err.cause as AxiosError)?.isAxiosError &&
       errData?.errorType === 'SellAmountDoesNotCoverFee'
@@ -107,20 +108,31 @@ async function _getCowSwapTradeRate(
     return Err(maybeQuoteResponse.unwrapErr())
   }
 
-  const { data } = maybeQuoteResponse.unwrap()
+  const { data: cowswapQuoteResponse } = maybeQuoteResponse.unwrap()
 
-  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = data.quote
+  const { feeAmount: feeAmountInSellTokenCryptoBaseUnit } = cowswapQuoteResponse.quote
 
   const { rate, buyAmountAfterFeesCryptoBaseUnit, buyAmountBeforeFeesCryptoBaseUnit } =
     getValuesFromQuoteResponse({
       buyAsset,
       sellAsset,
-      response: data,
+      response: cowswapQuoteResponse,
       affiliateBps,
     })
 
+  const id = cowswapQuoteResponse.id?.toString()
+
+  if (!id) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: _getCowSwapTradeRate] - missing quote ID`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
   const quote: TradeRate = {
-    id: data.id.toString(),
+    id,
     accountNumber,
     receiveAddress: undefined,
     affiliateBps,

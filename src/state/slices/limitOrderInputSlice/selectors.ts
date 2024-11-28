@@ -1,6 +1,8 @@
+import { bn, toBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
+import { PriceDirection } from './constants'
 import type { LimitOrderInputState } from './limitOrderInputSlice'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
@@ -32,7 +34,40 @@ export const {
 
 const { selectBaseSlice } = privateSelectors
 
-export const selectLimitPriceBuyAsset = createSelector(
+export const selectLimitPriceDirection = createSelector(
   selectBaseSlice,
-  tradeInput => tradeInput.limitPriceBuyAsset,
+  baseSlice => baseSlice.limitPriceDirection,
+)
+
+export const selectLimitPriceOppositeDirection = createSelector(
+  selectLimitPriceDirection,
+  priceDirection => {
+    return priceDirection === PriceDirection.BuyAssetDenomination
+      ? PriceDirection.SellAssetDenomination
+      : PriceDirection.BuyAssetDenomination
+  },
+)
+
+export const selectLimitPrice = createSelector(selectBaseSlice, baseSlice => baseSlice.limitPrice)
+
+export const selectLimitPriceForSelectedPriceDirection = createSelector(
+  selectBaseSlice,
+  selectLimitPriceDirection,
+  (baseSlice, limitPriceDirection) => baseSlice.limitPrice[limitPriceDirection],
+)
+
+export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSlice.expiry)
+
+// This is the buy amount based on the quote + user input.
+export const selectBuyAmountCryptoBaseUnit = createSelector(
+  selectInputSellAmountCryptoPrecision,
+  selectInputBuyAsset,
+  selectLimitPrice,
+  (inputSellAmountCryptoPrecision, buyAsset, limitPrice) => {
+    // Arithmetic MUST be in CryptoPrecision due to differing decimals on various tokens.
+    return toBaseUnit(
+      bn(inputSellAmountCryptoPrecision).times(limitPrice.buyAssetDenomination),
+      buyAsset.precision,
+    )
+  },
 )

@@ -1,4 +1,10 @@
 import type { EvmChainId } from '@shapeshiftoss/types'
+import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
+import {
+  BuyTokenDestination,
+  SellTokenSource,
+  SigningScheme,
+} from '@shapeshiftoss/types/dist/cowSwap'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -27,12 +33,7 @@ import {
 } from '../../utils'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuote'
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
-import type {
-  CowSwapGetTradesResponse,
-  CowSwapGetTransactionsResponse,
-  CowSwapOrder,
-} from './types'
-import { CoWSwapBuyTokenDestination, CoWSwapSellTokenSource, CoWSwapSigningScheme } from './types'
+import type { CowSwapGetTradesResponse, CowSwapGetTransactionsResponse } from './types'
 import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,
@@ -132,7 +133,7 @@ export const cowApi: SwapperApi = {
     //
     // This also makes CoW the first and currently *only* swapper where max token swaps aren't full balance
     const sellAmountPlusProtocolFees = bn(quote.sellAmount).plus(quote.feeAmount)
-    const orderToSign: CowSwapOrder = {
+    const orderToSign: Omit<OrderCreation, 'signature'> = {
       ...quote,
       // Another mutation from the original quote to go around the fact that CoW API flow is weird
       // they return us a quote with fees, but we have to zero them out when sending the order
@@ -140,11 +141,11 @@ export const cowApi: SwapperApi = {
       buyAmount: buyAmountAfterAffiliateFeesAndSlippageCryptoBaseUnit,
       sellAmount: sellAmountPlusProtocolFees.toFixed(0),
       // from,
-      sellTokenBalance: CoWSwapSellTokenSource.ERC20,
-      buyTokenBalance: CoWSwapBuyTokenDestination.ERC20,
+      sellTokenBalance: SellTokenSource.ERC20,
+      buyTokenBalance: BuyTokenDestination.ERC20,
       quoteId: id,
       appDataHash,
-      signingScheme: CoWSwapSigningScheme.EIP712,
+      signingScheme: SigningScheme.EIP712,
     }
 
     return { chainId, orderToSign }

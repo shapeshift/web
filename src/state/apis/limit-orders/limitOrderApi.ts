@@ -41,9 +41,7 @@ import { zeroAddress } from 'viem'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import type { ReduxState } from 'state/reducer'
 import { selectConfirmedLimitOrder } from 'state/slices/limitOrderSlice/selectors'
-import {
-  selectPortfolioAccountMetadataByAccountId,
-} from 'state/slices/selectors'
+import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
 
 import { BASE_RTK_CREATE_API_CONFIG } from '../const'
 

@@ -1,5 +1,8 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -9,9 +12,6 @@ import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
-import { OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
-import {formatDistanceToNow} from 'date-fns'
 
 export interface LimitOrderCardProps {
   id: string

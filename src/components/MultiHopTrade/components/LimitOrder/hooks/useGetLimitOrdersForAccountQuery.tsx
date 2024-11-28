@@ -1,4 +1,5 @@
-import { type AccountId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { getCowswapNetwork } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types/dist/cowSwap'
 import { useQueries } from '@tanstack/react-query'

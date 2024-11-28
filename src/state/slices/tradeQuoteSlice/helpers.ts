@@ -1,6 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { getHopByIndex, type SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SupportedTradeQuoteStepIndex,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
 import { orderBy } from 'lodash'
 import type { BigNumber } from 'lib/bignumber/bignumber'
@@ -12,7 +18,7 @@ import { sumProtocolFeesToDenom } from 'state/slices/tradeQuoteSlice/utils'
 
 import type { ActiveQuoteMeta } from './types'
 
-export const getHopTotalNetworkFeeUserCurrencyPrecision = (
+export const getHopTotalNetworkFeeUserCurrency = (
   networkFeeCryptoBaseUnit: string | undefined,
   feeAsset: Asset,
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string,
@@ -45,7 +51,7 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
 
   return quote.steps.reduce((acc, step) => {
     const feeAsset = getFeeAsset(step.sellAsset.assetId)
-    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrencyPrecision(
+    const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrency(
       step.feeData.networkFeeCryptoBaseUnit,
       feeAsset,
       getFeeAssetRate,

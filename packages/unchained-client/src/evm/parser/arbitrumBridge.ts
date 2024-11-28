@@ -1,11 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  type AssetId,
-  ethAssetId,
-  ethChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, ethAssetId, ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import {
   ARB_OUTBOX_ABI,
   ARB_OUTBOX_CONTRACT,

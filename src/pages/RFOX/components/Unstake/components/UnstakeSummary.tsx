@@ -1,6 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { type AssetId, fromAccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

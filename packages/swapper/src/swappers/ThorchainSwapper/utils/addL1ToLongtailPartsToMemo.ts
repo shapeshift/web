@@ -1,4 +1,4 @@
-import { type AssetId, type ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/chain-adapters'
 import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import assert from 'assert'

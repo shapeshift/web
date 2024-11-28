@@ -19,13 +19,14 @@ import type {
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
-import type { CowMessageToSign, CowSwapQuoteResponse } from './swappers/CowSwapper/types'
+import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -265,7 +266,7 @@ export type TradeQuoteStep = {
     value: string
     gasLimit: string
   }
-  cowswapQuoteResponse?: CowSwapQuoteResponse
+  cowswapQuoteResponse?: OrderQuoteResponse
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }

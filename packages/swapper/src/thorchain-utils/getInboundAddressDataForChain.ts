@@ -5,7 +5,8 @@ import { Err, Ok } from '@sniptt/monads'
 import type { InboundAddressResponse } from '../swappers/ThorchainSwapper/types'
 import { assetIdToPoolAssetId } from '../swappers/ThorchainSwapper/utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../swappers/ThorchainSwapper/utils/thorService'
-import { type SwapErrorRight, TradeQuoteError } from '../types'
+import type { SwapErrorRight } from '../types'
+import { TradeQuoteError } from '../types'
 import { makeSwapErrorRight } from '../utils'
 
 export const getInboundAddressDataForChain = async (

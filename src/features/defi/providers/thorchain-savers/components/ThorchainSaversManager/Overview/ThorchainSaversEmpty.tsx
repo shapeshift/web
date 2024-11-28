@@ -9,7 +9,8 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { type AssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { DefiModalContent } from 'features/defi/components/DefiModal/DefiModalContent'
 import { EmptyOverview } from 'features/defi/components/EmptyOverview/EmptyOverview'
 import type { ChangeEvent } from 'react'

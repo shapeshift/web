@@ -1,11 +1,11 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
 import {
   Box,
   Center,
   Checkbox,
   Flex,
   Link,
-  type ResponsiveValue,
   Text,
   useBreakpointValue,
   useColorModeValue,

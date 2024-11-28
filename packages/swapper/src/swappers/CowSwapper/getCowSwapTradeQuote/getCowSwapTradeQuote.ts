@@ -1,4 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import { OrderKind } from '@shapeshiftoss/types/dist/cowSwap'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -12,10 +14,10 @@ import type {
   SwapperConfig,
   TradeQuote,
 } from '../../../types'
-import { SwapperName } from '../../../types'
-import { createTradeAmountTooSmallErr } from '../../../utils'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { CoWSwapOrderKind, type CowSwapQuoteError, type CowSwapQuoteResponse } from '../types'
+import type { CowSwapError } from '../types'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
@@ -78,7 +80,7 @@ async function _getCowSwapTradeQuote(
   )
 
   // https://api.cow.fi/docs/#/default/post_api_v1_quote
-  const maybeQuoteResponse = await cowService.post<CowSwapQuoteResponse>(
+  const maybeQuoteResponse = await cowService.post<OrderQuoteResponse>(
     `${config.REACT_APP_COWSWAP_BASE_URL}/${network}/api/v1/quote/`,
     {
       sellToken: fromAssetId(sellAsset.assetId).assetReference,
@@ -89,14 +91,14 @@ async function _getCowSwapTradeQuote(
       appDataHash,
       partiallyFillable: false,
       from: receiveAddress ?? zeroAddress,
-      kind: CoWSwapOrderKind.Sell,
+      kind: OrderKind.SELL,
       sellAmountBeforeFee: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     },
   )
 
   if (maybeQuoteResponse.isErr()) {
     const err = maybeQuoteResponse.unwrapErr()
-    const errData = (err.cause as AxiosError<CowSwapQuoteError>)?.response?.data
+    const errData = (err.cause as AxiosError<CowSwapError>)?.response?.data
     if (
       (err.cause as AxiosError)?.isAxiosError &&
       errData?.errorType === 'SellAmountDoesNotCoverFee'
@@ -123,8 +125,19 @@ async function _getCowSwapTradeQuote(
       affiliateBps,
     })
 
+  const id = cowswapQuoteResponse.id?.toString()
+
+  if (!id) {
+    return Err(
+      makeSwapErrorRight({
+        message: `[CowSwap: _getCowSwapTradeQuote] - missing quote ID`,
+        code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
   const quote: TradeQuote = {
-    id: cowswapQuoteResponse.id.toString(),
+    id,
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,

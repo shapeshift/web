@@ -1,4 +1,5 @@
-import { type ChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { matchSorter } from 'match-sorter'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'

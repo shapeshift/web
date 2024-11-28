@@ -31,8 +31,8 @@ import {
 } from 'state/slices/tradeInputSlice/selectors'
 import { getTotalProtocolFeeByAssetForStep } from 'state/slices/tradeQuoteSlice/helpers'
 
-import type { ErrorWithMeta } from '../types'
-import { type TradeQuoteError, TradeQuoteValidationError, TradeQuoteWarning } from '../types'
+import type { ErrorWithMeta, TradeQuoteError } from '../types'
+import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 export const validateTradeQuote = (
   state: ReduxState,

@@ -12,10 +12,11 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeRateInput,
   SingleHopTradeRateSteps,
+  SwapErrorRight,
   SwapperConfig,
   TradeRate,
 } from '../../../types'
-import { type SwapErrorRight, SwapperName, TradeQuoteError } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
 import { getRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
@@ -121,6 +122,15 @@ export async function getPortalsTradeRate(
 
     const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
+    const slippageTolerancePercentageDecimal = quoteEstimateResponse.context
+      .slippageTolerancePercentage
+      ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
+      : undefined
+
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
+      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .toFixed(0)
+
     const tradeRate = {
       id: uuid(),
       accountNumber,
@@ -128,9 +138,7 @@ export async function getPortalsTradeRate(
       affiliateBps,
       potentialAffiliateBps,
       rate,
-      slippageTolerancePercentageDecimal: quoteEstimateResponse.context.slippageTolerancePercentage
-        ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
-        : undefined,
+      slippageTolerancePercentageDecimal,
       steps: [
         {
           estimatedExecutionTimeMs: undefined, // Portals doesn't provide this info
@@ -139,8 +147,13 @@ export async function getPortalsTradeRate(
           rate,
           buyAsset,
           sellAsset,
-          buyAmountBeforeFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
-          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.context.outputAmount,
+          // Before slippage on the right vs. before fees on the left is not a mistake.
+          // Portals will yield different `outputAmount` (expected out) on estimate vs. quote and is an upstream bug, so we can't use that
+          // To circumvent that and not mislead users into very optimistic expected out in rate (not taking slippage into account) but pessimistic in rate in the end,
+          // we simply add the slippage back to the min out, which yields values very close to the actual quote amounts (with a small upside on the quote, so users actually get a better quote
+          // than what they've seen as a rate, which is much better than a *huge* downside on the quote)
+          buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeSlippageCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit: quoteEstimateResponse.minOutputAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit:
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {

@@ -1,16 +1,15 @@
 import { useColorModeValue, useToken } from '@chakra-ui/react'
 import styled from '@emotion/styled'
-import type { OhlcData, SeriesType, UTCTimestamp } from 'lightweight-charts'
-import {
-  createChart,
-  CrosshairMode,
-  type HistogramData,
-  LineStyle,
-  LineType,
-  type MouseEventParams,
-  type SingleValueData,
-  type Time,
+import type {
+  HistogramData,
+  MouseEventParams,
+  OhlcData,
+  SeriesType,
+  SingleValueData,
+  Time,
+  UTCTimestamp,
 } from 'lightweight-charts'
+import { createChart, CrosshairMode, LineStyle, LineType } from 'lightweight-charts'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { selectSelectedCurrency } from 'state/slices/selectors'
 import { store } from 'state/store'

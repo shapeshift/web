@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { type AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import { getConfig } from 'config'
 import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
@@ -70,7 +70,6 @@ export type FeatureFlags = {
   LimitOrders: boolean
   Chainflip: boolean
   ChainflipDca: boolean
-  PublicTradeRoute: boolean
   ThorFreeFees: boolean
 }
 
@@ -165,7 +164,6 @@ const initialState: Preferences = {
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
     Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
     ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA,
-    PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
   },
   selectedLocale: simpleLocale(),

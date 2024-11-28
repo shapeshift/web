@@ -1,6 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { type TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo, useState } from 'react'
 import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'

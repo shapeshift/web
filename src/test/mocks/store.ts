@@ -132,7 +132,6 @@ export const mockStore: ReduxState = {
       LimitOrders: false,
       ChainflipSwap: false,
       ChainflipDca: false,
-      PublicTradeRoute: false,
       ThorFreeFees: false,
       JupiterSwap: false,
     },

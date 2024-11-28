@@ -179,7 +179,6 @@ const validators = {
   REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA: bool({ default: false }),
   REACT_APP_CHAINFLIP_API_KEY: str(),
   REACT_APP_CHAINFLIP_API_URL: url(),
-  REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE: bool({ default: false }),
   REACT_APP_FEATURE_THOR_FREE_FEES: bool({ default: false }),
   REACT_APP_FEATURE_JUPITER_SWAP: bool({ default: false }),
   REACT_APP_JUPITER_API_URL: url({ default: JUPITER_API_URL }),

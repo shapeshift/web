@@ -70,7 +70,6 @@ export type FeatureFlags = {
   LimitOrders: boolean
   ChainflipSwap: boolean
   ChainflipDca: boolean
-  PublicTradeRoute: boolean
   ThorFreeFees: boolean
   JupiterSwap: boolean
 }
@@ -166,7 +165,6 @@ const initialState: Preferences = {
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
     ChainflipSwap: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP,
     ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA,
-    PublicTradeRoute: getConfig().REACT_APP_FEATURE_PUBLIC_TRADE_ROUTE,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
   },

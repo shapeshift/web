@@ -109,6 +109,7 @@ export const Routes = memo(() => {
             search: `returnUrl=${location?.pathname ?? '/trade'}`,
           }
 
+          // This is already within a useMemo call, lint rule drunk
           // eslint-disable-next-line react-memo/require-usememo
           return <Redirect to={to} />
         }

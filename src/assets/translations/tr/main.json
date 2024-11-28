@@ -182,7 +182,8 @@
     "yes": "Evet",
     "activeAccount": "Aktif Hesap",
     "update": "Güncelleme",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "Belirlenecek"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "receiveAtLeast": "En azdan al",
     "tooltip": {
+      "continueSwapping": "Son detaylar için takasa devam edin",
       "changeQuote": "Teklifi değiştir",
       "rate": "Bu, bu işlem çifti için beklenen orandır.",
       "noRateAvailable": "Bunun nedeni genellikle ticaret çiftinde çok sınırlı veya hiç likidite olmamasıdır.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Yetersiz satış tutarı"
+      },
+      "rateExpired": {
+        "title": "Oran süresi doldu",
+        "body": "Önceki takas oranınız sona erdi. Yeni bir oran aldık ve teklif tutarlarınızı güncelledik. Lütfen takasınızı onaylamadan önce en son ayrıntıları inceleyin.",
+        "cta": "Tamam, anladım"
       }
     },
     "permit2": {
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "THORSwap'tan mı buradasın?",
     "description": "THOR sahipleri 2024 yılına kadar ücretsiz işlem yapabilecek."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "%{address} adresi desteklenmiyor.",
+      "unsupportedChain": "Cüzdan %{chain}'i desteklemiyor.",
+      "ledgerAppOpenCancelled": "Ledger uygulaması açılışı iptal edildi.",
+      "getAddress": "Cüzdandan adres alınamadı.",
+      "getAccount": "%{pubkey} hesabı alınamadı.",
+      "switchChainUnsupported": "Cüzdan zincir değiştirmeyi desteklemiyor.",
+      "switchChainFailed": "Cüzdan zinciri %{chain} olarak değiştirilemedi.",
+      "buildTransaction": "İşlem oluşturulamadı.",
+      "signTransaction": "İşlem imzalanamadı.",
+      "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
+      "signMessage": "Mesaj imzalanamadı.",
+      "broadcastTransaction": "İşlem yayınlanamadı.",
+      "broadcastTransactionWithMessage": "İşlem yayınlanamadı (%{message}).",
+      "getGasFeeData": "Ağ ücretleri alınamadı.",
+      "getFeeData": "Ağ ücretlerinin tahmin edilmesi başarısız oldu.",
+      "getPublicKey": "Cüzdandan genel anahtar alınamadı.",
+      "getUtxos": "Utxos alınamadı.",
+      "getValidator": "Doğrulayıcı alınamadı."
+    }
   }
 }

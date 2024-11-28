@@ -182,7 +182,8 @@ export const getTradeRate = async (
         sellAsset,
         accountNumber,
         allowanceContract: '0x0',
-        estimatedExecutionTimeMs: quoteResponse.timeTaken! * 1000,
+        // Swap are so fasts on solana that times are under 100ms displaying 0 or very small amount of time is not user friendly
+        estimatedExecutionTimeMs: undefined,
       },
     ],
   }

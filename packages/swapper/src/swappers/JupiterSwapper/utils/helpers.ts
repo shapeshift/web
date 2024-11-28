@@ -30,7 +30,6 @@ type GetJupiterSwapArgs = {
   rawQuote: unknown
   toAddress?: string
   useSharedAccounts: boolean
-  wrapAndUnwrapSol: boolean
 }
 
 export const getJupiterPrice = ({
@@ -58,7 +57,6 @@ export const getJupiterSwapInstructions = ({
   toAddress,
   rawQuote,
   useSharedAccounts,
-  wrapAndUnwrapSol,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>
@@ -69,5 +67,4 @@ export const getJupiterSwapInstructions = ({
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',
-    wrapAndUnwrapSol,
   })

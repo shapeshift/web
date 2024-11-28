@@ -133,7 +133,6 @@ export const getTradeQuote = async (
     fromAddress: sendAddress,
     toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
     rawQuote: quoteResponse,
-    wrapAndUnwrapSol: buyAsset.assetId === wrappedSolAssetId ? false : true,
     // Shared account is not supported for simple AMMs
     useSharedAccounts: quoteResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
   })
@@ -262,7 +261,8 @@ export const getTradeQuote = async (
         buyAsset,
         sellAsset,
         allowanceContract: '0x0',
-        estimatedExecutionTimeMs: quoteResponse.timeTaken! * 1000,
+        // Swap are so fasts on solana that times are under 100ms displaying 0 or very small amount of time is not user friendly
+        estimatedExecutionTimeMs: undefined,
       },
     ],
   }

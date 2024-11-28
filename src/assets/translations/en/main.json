@@ -1040,6 +1040,8 @@
     "youGet": "You Get",
     "whenPriceReaches": "When price reaches",
     "expiry": "Expiry",
+    "noOpenOrders": "No open orders yet.",
+    "noHistoricalOrders": "No historical orders yet.",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1053,7 +1055,18 @@
       "insufficientValidTo": "Order expiry too soon",
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity"
-    }
+    },
+    "expiresIn": "Expires In",
+    "openOrders": "Open Orders",
+    "orderHistory": "Order History",
+    "status": {
+      "open": "Open",
+      "fulfilled": "Fulfilled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "orders": "Orders",
+    "loadingOrderList": "Loading your limit orders..."
   },
   "modals": {
     "assetSearch": {
@@ -2722,21 +2735,6 @@
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Limit Orders",
-    "limitPrice": "Limit Price",
-    "expiresIn": "Expires In",
-    "filled": "Filled",
-    "openOrders": "Open Orders",
-    "orderHistory": "Order History",
-    "status": {
-      "open": "Open",
-      "filled": "Filled",
-      "cancelled": "Cancelled",
-      "expired": "Expired"
-    },
-    "orders": "Orders"
   },
   "thorFees": {
     "title": "Here from THORSwap?",

@@ -1,6 +1,6 @@
 import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
 import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
-import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v0.9.0'
+import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'

@@ -4,7 +4,9 @@ import { OrderError } from '@shapeshiftoss/types/dist/cowSwap'
 import type { InterpolationOptions } from 'node-polyglot'
 import { assertUnreachable } from 'lib/utils'
 
-export const isCowSwapError = (maybeCowSwapError: any): maybeCowSwapError is CowSwapError => {
+export const isCowSwapError = (
+  maybeCowSwapError: CowSwapError | SerializedError | undefined,
+): maybeCowSwapError is CowSwapError => {
   return (
     typeof maybeCowSwapError === 'object' &&
     Object.values(OrderError).includes((maybeCowSwapError as CowSwapError).errorType)

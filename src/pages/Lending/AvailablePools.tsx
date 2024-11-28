@@ -3,16 +3,21 @@ import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { BiErrorCircle } from 'react-icons/bi'
+import { FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useHistory, useRouteMatch } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
+import { ResultsEmpty } from 'components/ResultsEmpty'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 
 import { LendingHeader } from './components/LendingHeader'
 import { useAllLendingPositionsData } from './hooks/useAllLendingPositionsData'
@@ -134,6 +139,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
 }
 
 export const AvailablePools = () => {
+  const { isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const { path } = useRouteMatch()
@@ -150,6 +156,15 @@ export const AvailablePools = () => {
       statusFilter: 'All',
     })
 
+  const connectWalletBody: [string, InterpolationOptions] = useMemo(
+    () => ['common.connectWalletToGetStartedWith', { feature: 'Lending' }],
+    [],
+  )
+
+  const connectWalletTitleButton = useMemo(() => <ButtonWalletPredicate isValidWallet />, [])
+
+  const connectIcon = useMemo(() => <FaWallet />, [])
+
   const lendingRows = useMemo(() => {
     if (isLendingSupportedAssetsLoading)
       return new Array(2).fill(null).map((_, i) => <Skeleton key={i} height={16} />)
@@ -162,43 +177,51 @@ export const AvailablePools = () => {
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={translate('navBar.lending')} />
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={lendingRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='lending.pool' />
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.poolDepthDescription')}>
-              <Text translation='lending.poolDepth' />
+      {isConnected ? (
+        <Stack>
+          <SimpleGrid
+            gridTemplateColumns={lendingRowGrid}
+            columnGap={4}
+            color='text.subtle'
+            fontWeight='bold'
+            fontSize='sm'
+            px={mobilePadding}
+          >
+            <Text translation='lending.pool' />
+            <Flex display={mobileDisplay}>
+              <HelperTooltip label={translate('lending.poolDepthDescription')}>
+                <Text translation='lending.poolDepth' />
+              </HelperTooltip>
+            </Flex>
+            <Flex display={mobileDisplay}>
+              <HelperTooltip label={translate('lending.totalDebtBalanceDescription')}>
+                <Text translation='lending.totalDebtBalance' />
+              </HelperTooltip>
+            </Flex>
+            <HelperTooltip label={translate('lending.totalCollateralDescription')}>
+              <Text translation='lending.totalCollateral' />
             </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('lending.totalDebtBalanceDescription')}>
-              <Text translation='lending.totalDebtBalance' />
-            </HelperTooltip>
-          </Flex>
-          <HelperTooltip label={translate('lending.totalCollateralDescription')}>
-            <Text translation='lending.totalCollateral' />
-          </HelperTooltip>
 
-          <Flex display={largeDisplay}>
-            <HelperTooltip label={translate('lending.estCollateralizationRatioDescription')}>
-              <Text translation='lending.estCollateralizationRatio' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={largeDisplay}>
-            <HelperTooltip label={translate('lending.totalBorrowersDescription')}>
-              <Text translation='lending.totalBorrowers' />
-            </HelperTooltip>
-          </Flex>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{lendingRows}</Stack>
-      </Stack>
+            <Flex display={largeDisplay}>
+              <HelperTooltip label={translate('lending.estCollateralizationRatioDescription')}>
+                <Text translation='lending.estCollateralizationRatio' />
+              </HelperTooltip>
+            </Flex>
+            <Flex display={largeDisplay}>
+              <HelperTooltip label={translate('lending.totalBorrowersDescription')}>
+                <Text translation='lending.totalBorrowers' />
+              </HelperTooltip>
+            </Flex>
+          </SimpleGrid>
+          <Stack mx={listMargin}>{lendingRows}</Stack>
+        </Stack>
+      ) : (
+        <ResultsEmpty
+          title={connectWalletTitleButton}
+          body={connectWalletBody}
+          icon={connectIcon}
+        />
+      )}
     </Main>
   )
 }

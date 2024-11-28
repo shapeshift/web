@@ -182,7 +182,8 @@
     "yes": "Oui",
     "activeAccount": "Compte actif",
     "update": "Mettre à jour",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "À définir"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Saisissez l'adresse de destinataire personnalisée",
     "receiveAtLeast": "Recevez au moins",
     "tooltip": {
+      "continueSwapping": "Continuer l'échange pour les détails finaux",
       "changeQuote": "Changer de devis",
       "rate": "C'est le taux estimé pour cette paire d'échange.",
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Montant de vente insuffisant"
+      },
+      "rateExpired": {
+        "title": "Taux expiré",
+        "body": "Votre taux d'échange précédent a expiré. Nous avons récupéré un nouveau taux et mis à jour les montants de vos devis. Veuillez consulter les derniers détails avant de confirmer votre échange.",
+        "cta": "Ok, j'ai compris"
       }
     },
     "permit2": {
@@ -1226,7 +1233,7 @@
       "onlySend": "Seul %{asset} (%{symbol}) peut être envoyé à cette adresse. L'envoi de toute autre monnaie peut entraîner une perte définitive.",
       "copy": "Copier",
       "copied": "Adresse de réception pour %{symbol} copiée vers le presse-papier",
-      "copyFailed": "Échec lors de la copie de l'adresse de réception %{symbol} dans le presse-papiers",
+      "copyFailed": "Échec de la copie de l'adresse de réception %{symbol} dans le presse-papiers",
       "copyFailedDescription": "Veuillez copier l'adresse manuellement",
       "setAmount": "Définir le montant",
       "verify": "Vérifier",
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "Vous venez de THORSwap ?",
     "description": "Les détenteurs de THOR échangent gratuitement durant 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "L'adresse %{address} n'est pas prise en charge.",
+      "unsupportedChain": "Le porte-monnaie ne prend pas en charge %{chain}.",
+      "ledgerAppOpenCancelled": "Ouverture de l'app Ledger annulée.",
+      "getAddress": "Échec de l'obtention de l'adresse du porte-monnaie.",
+      "getAccount": "Échec de l'obtention du compte pour : %{pubkey}.",
+      "switchChainUnsupported": "Le porte-monnaie ne permet pas de changer de chaîne.",
+      "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie vers %{chain}.",
+      "buildTransaction": "Échec de la création de la transaction.",
+      "signTransaction": "Échec de la signature de la transaction.",
+      "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
+      "signMessage": "Échec de la signature du message.",
+      "broadcastTransaction": "Échec de la diffusion de la transaction.",
+      "broadcastTransactionWithMessage": "Échec de la diffusion de la transaction (%{message}).",
+      "getGasFeeData": "Échec de l'obtention des frais de réseau.",
+      "getFeeData": "Échec de l'estimation des frais de réseau.",
+      "getPublicKey": "Échec de l'obtention de la clé publique du porte-monnaie.",
+      "getUtxos": "Échec de l'obtention des UTXO.",
+      "getValidator": "Échec de l'obtention du validateur."
+    }
   }
 }

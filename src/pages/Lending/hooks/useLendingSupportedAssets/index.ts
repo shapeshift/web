@@ -34,7 +34,9 @@ export const useLendingSupportedAssets = ({
   type: 'collateral' | 'borrow'
   statusFilter?: ThornodePoolStatuses | 'All'
 }) => {
-  const wallet = useWallet().state.wallet
+  const {
+    state: { wallet, isConnected },
+  } = useWallet()
   const { isSnapInstalled } = useIsSnapInstalled()
 
   const { data: availablePools } = useQuery({
@@ -101,11 +103,14 @@ export const useLendingSupportedAssets = ({
           const assetId = poolAssetIdToAssetId(pool.asset)
           const chainId = assetId ? (fromAssetId(assetId).chainId as KnownChainIds) : undefined
 
-          if (!chainId || !walletSupportChains.includes(chainId)) return undefined
-          // Chain supported by the wallet, but no actual account for it.
-          // This can happen with Ledger, when the chain's accounts haven't been connected
-          if (type === 'borrow' && !walletChainIds.includes(chainId)) {
-            return undefined
+          // Wallet feature-capability checks below do not apply if no wallet is connected
+          if (isConnected) {
+            if (!chainId || !walletSupportChains.includes(chainId)) return undefined
+            // Chain supported by the wallet, but no actual account for it.
+            // This can happen with Ledger, when the chain's accounts haven't been connected
+            if (type === 'borrow' && !walletChainIds.includes(chainId)) {
+              return undefined
+            }
           }
 
           const asset = selectAssetById(store.getState(), assetId ?? '')
@@ -115,9 +120,8 @@ export const useLendingSupportedAssets = ({
 
       if (
         type === 'borrow' &&
-        wallet &&
-        supportsThorchain(wallet) &&
-        walletChainIds.includes(thorchainChainId)
+        (!isConnected ||
+          (wallet && supportsThorchain(wallet) && walletChainIds.includes(thorchainChainId)))
       ) {
         const runeAsset = selectAssetById(store.getState(), thorchainAssetId)
         if (!runeAsset) return
@@ -125,7 +129,7 @@ export const useLendingSupportedAssets = ({
       }
       return supportedAssets
     },
-    [availablePools, mimir, type, wallet, walletChainIds, walletSupportChains],
+    [availablePools, isConnected, mimir, type, wallet, walletChainIds, walletSupportChains],
   )
 
   const lendingSupportedAssetsQuery = useQuery({

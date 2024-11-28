@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -38,6 +38,8 @@ export const MultiHopTradeConfirm = memo(() => {
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+
+  const initialActiveTradeIdRef = useRef(activeQuote?.id ?? '')
 
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
@@ -144,12 +146,17 @@ export const MultiHopTradeConfirm = memo(() => {
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.withdrawComplete' : undefined
             }
           >
-            <Hops isFirstHopOpen isSecondHopOpen />
+            <Hops
+              initialActiveTradeId={initialActiveTradeIdRef.current}
+              isFirstHopOpen
+              isSecondHopOpen
+            />
           </TradeSuccess>
         ) : (
           <>
             <CardBody py={0} px={0}>
               <Hops
+                initialActiveTradeId={initialActiveTradeIdRef.current}
                 isFirstHopOpen={isFirstHopOpen}
                 isSecondHopOpen={isSecondHopOpen}
                 onToggleFirstHop={onToggleFirstHop}

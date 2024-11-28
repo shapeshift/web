@@ -2,6 +2,7 @@ import { Divider, Stack } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { CowSwapError } from '@shapeshiftoss/swapper'
 import {
   getCowswapNetwork,
   getDefaultSlippageDecimalPercentageForSwapper,
@@ -17,6 +18,7 @@ import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
+import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -39,6 +41,7 @@ import {
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
   selectSellAccountId,
+  selectSellAssetBalanceCryptoBaseUnit,
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
@@ -58,6 +61,7 @@ import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopo
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
+import { getCowSwapErrorTranslation, isCowSwapError } from '../helpers'
 import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
 import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
@@ -103,6 +107,7 @@ export const LimitOrderInput = ({
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
+  const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
 
   const {
     switchAssets,
@@ -116,6 +121,7 @@ export const LimitOrderInput = ({
     setSellAmountCryptoPrecision,
   } = useActions(limitOrderInput.actions)
   const { setActiveQuote } = useActions(limitOrderSlice.actions)
+  const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const feeParams = useMemo(
     () => ({ feeModel: 'SWAPPER' as const, inputAmountUsd: inputSellAmountUsd }),
@@ -216,7 +222,7 @@ export const LimitOrderInput = ({
   // `placeLimitOrder` endpoint in limitOrderApi
   const {
     data: quoteResponse,
-    error,
+    error: quoteResponseError,
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
@@ -389,6 +395,55 @@ export const LimitOrderInput = ({
     return bn(feeUsd).times(userCurrencyRate).toFixed(2, BigNumber.ROUND_HALF_UP)
   }, [feeUsd, userCurrencyRate])
 
+  const { quoteStatusTranslation, isError } = useMemo(() => {
+    switch (true) {
+      case isAccountsMetadataLoading && !(sellAccountId || buyAccountId):
+        return { quoteStatusTranslation: 'common.accountsLoading', isError: false }
+      case !shouldShowTradeQuoteOrAwaitInput:
+      case !hasUserEnteredAmount:
+        return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
+      case bnOrZero(sellAssetBalanceCryptoBaseUnit).lt(sellAmountCryptoBaseUnit):
+        return { quoteStatusTranslation: 'common.insufficientFunds', isError: true }
+      case sellAsset.chainId !== buyAsset.chainId:
+        return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
+      case isNativeEvmAsset(sellAsset.assetId):
+        return {
+          quoteStatusTranslation: 'limitOrder.errors.nativeSellAssetNotSupported',
+          isError: true,
+        }
+      case !recipientAddress:
+        return { quoteStatusTranslation: 'trade.errors.noReceiveAddress', isError: true }
+      case isCowSwapError(quoteResponseError):
+        return {
+          quoteStatusTranslation: getCowSwapErrorTranslation(quoteResponseError as CowSwapError),
+          isError: true,
+        }
+      case quoteResponseError !== undefined:
+        // Catch-all of non-cowswap quote errors
+        return { quoteStatusTranslation: 'trade.errors.quoteError', isError: true }
+      case !isConnected || isDemoWallet:
+        // We got a happy path quote, but we may still be in the context of the demo wallet
+        return { quoteStatusTranslation: 'common.connectWallet', isError: false }
+      default:
+        return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
+    }
+  }, [
+    buyAccountId,
+    buyAsset.chainId,
+    hasUserEnteredAmount,
+    isAccountsMetadataLoading,
+    isConnected,
+    isDemoWallet,
+    quoteResponseError,
+    recipientAddress,
+    sellAccountId,
+    sellAmountCryptoBaseUnit,
+    sellAsset.assetId,
+    sellAsset.chainId,
+    sellAssetBalanceCryptoBaseUnit,
+    shouldShowTradeQuoteOrAwaitInput,
+  ])
+
   const footerContent = useMemo(() => {
     return (
       <SharedTradeInputFooter
@@ -397,9 +452,9 @@ export const LimitOrderInput = ({
         buyAsset={buyAsset}
         hasUserEnteredAmount={hasUserEnteredAmount}
         inputAmountUsd={inputSellAmountUsd}
-        isError={Boolean(error)}
+        isError={isError}
         isLoading={isLoading}
-        quoteStatusTranslation={'limitOrder.previewOrder'}
+        quoteStatusTranslation={quoteStatusTranslation}
         rate={
           bnOrZero(limitPrice.buyAssetDenomination).isZero()
             ? undefined
@@ -407,7 +462,9 @@ export const LimitOrderInput = ({
         }
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
-        shouldDisablePreviewButton={isRecipientAddressEntryActive}
+        shouldDisablePreviewButton={
+          !hasUserEnteredAmount || isError || isRecipientAddressEntryActive
+        }
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
         networkFeeFiatUserCurrency={networkFeeUserCurrency}
@@ -422,7 +479,7 @@ export const LimitOrderInput = ({
     buyAsset,
     hasUserEnteredAmount,
     inputSellAmountUsd,
-    error,
+    isError,
     isLoading,
     limitPrice,
     sellAccountId,
@@ -430,6 +487,7 @@ export const LimitOrderInput = ({
     sellAsset,
     renderedRecipientAddress,
     networkFeeUserCurrency,
+    quoteStatusTranslation,
   ])
 
   return (

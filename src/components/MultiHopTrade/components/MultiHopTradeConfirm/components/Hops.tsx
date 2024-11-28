@@ -12,6 +12,7 @@ import { useAppSelector } from 'state/store'
 import { Hop } from './Hop'
 
 export type HopsProps = {
+  initialActiveTradeId: string
   isFirstHopOpen: boolean
   isSecondHopOpen: boolean
   onToggleFirstHop?: () => void
@@ -19,7 +20,13 @@ export type HopsProps = {
 }
 
 export const Hops = memo((props: HopsProps) => {
-  const { isFirstHopOpen, isSecondHopOpen, onToggleFirstHop, onToggleSecondHop } = props
+  const {
+    initialActiveTradeId,
+    isFirstHopOpen,
+    isSecondHopOpen,
+    onToggleFirstHop,
+    onToggleSecondHop,
+  } = props
   const swapperName = useAppSelector(selectActiveSwapperName)
   const firstHop = useAppSelector(selectFirstHop)
   const lastHop = useAppSelector(selectLastHop)
@@ -45,6 +52,7 @@ export const Hops = memo((props: HopsProps) => {
         onToggleIsOpen={onToggleFirstHop}
         slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
         activeTradeId={activeTradeId}
+        initialActiveTradeId={initialActiveTradeId}
       />
       {isMultiHopTrade && lastHop && (
         <Hop
@@ -55,6 +63,7 @@ export const Hops = memo((props: HopsProps) => {
           onToggleIsOpen={onToggleSecondHop}
           slippageTolerancePercentageDecimal={activeQuote.slippageTolerancePercentageDecimal}
           activeTradeId={activeTradeId}
+          initialActiveTradeId={initialActiveTradeId}
         />
       )}
     </Stack>

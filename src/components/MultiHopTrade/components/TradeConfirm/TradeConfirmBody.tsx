@@ -1,3 +1,4 @@
+import { ArrowDownIcon } from '@chakra-ui/icons'
 import { Box, Card, HStack, Stepper } from '@chakra-ui/react'
 import type {
   SupportedTradeQuoteStepIndex,
@@ -5,21 +6,24 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
+import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedTradeExecutionState,
   selectFirstHop,
   selectHopExecutionMetadata,
   selectIsActiveQuoteMultiHop,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { ApprovalStep } from '../MultiHopTradeConfirm/components/ApprovalStep/ApprovalStep'
 import { AssetSummaryStep } from '../MultiHopTradeConfirm/components/AssetSummaryStep'
 import { HopTransactionStep } from '../MultiHopTradeConfirm/components/HopTransactionStep'
+import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 
 // TODO: this will be in TradeConfirm
 const Hop = ({
@@ -99,6 +103,46 @@ const Hops = () => {
   )
 }
 
+const EtaStep = () => {
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
+  const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const totalEstimatedExecutionTimeMs = useMemo(() => {
+    if (!tradeQuoteFirstHop || !tradeQuoteLastHop) return undefined
+    if (!tradeQuoteFirstHop.estimatedExecutionTimeMs || !tradeQuoteLastHop.estimatedExecutionTimeMs)
+      return undefined
+    return isMultiHopTrade
+      ? tradeQuoteFirstHop.estimatedExecutionTimeMs + tradeQuoteLastHop.estimatedExecutionTimeMs
+      : tradeQuoteFirstHop.estimatedExecutionTimeMs
+  }, [isMultiHopTrade, tradeQuoteFirstHop, tradeQuoteLastHop])
+
+  const stepIndicator = useMemo(() => {
+    return <ArrowDownIcon />
+  }, [])
+  const title = useMemo(() => {
+    return totalEstimatedExecutionTimeMs
+      ? `Estimated completion ${prettyMilliseconds(totalEstimatedExecutionTimeMs)}`
+      : 'Estimated completion time unknown'
+  }, [totalEstimatedExecutionTimeMs])
+  return <StepperStep title={title} stepIndicator={stepIndicator} />
+}
+
+// TODO: This will be either: the ETA, current step (condensed), or all steps (expanded)
+const InnerSteps = () => {
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const isInitializingOrPreviewing =
+    confirmedTradeExecutionState &&
+    [TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+      confirmedTradeExecutionState,
+    )
+
+  if (isInitializingOrPreviewing) {
+    return <EtaStep />
+  }
+
+  return <Hops />
+}
+
 // TODO: this will be a Shared component (merged into SharedConfirm), taking Hops
 export const TradeConfirmBody = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
@@ -109,15 +153,25 @@ export const TradeConfirmBody = () => {
   return (
     <Card flex={1} bg='transparent' borderWidth={0} borderRadius={0} width='full' boxShadow='none'>
       <HStack width='full' justifyContent='space-between' px={6} marginTop={4}>
-        <Stepper index={-1} orientation='vertical' gap='0' margin={6}>
+        <Stepper index={-1} orientation='vertical' gap='0' my={6} width='full'>
           <AssetSummaryStep
             asset={tradeQuoteFirstHop.sellAsset}
             amountCryptoBaseUnit={tradeQuoteFirstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit}
           />
 
-          <Box>
-            <Stepper index={0} orientation='vertical' gap='0' margin={6}>
-              <Hops />
+          <Box bg='background.surface.overlay.base' borderRadius='xl' width='full'>
+            <Stepper
+              index={-1}
+              orientation='vertical'
+              gap='0'
+              width='full'
+              px={0}
+              py={1}
+              borderWidth='1px'
+              borderColor='border.base'
+              borderRadius='xl'
+            >
+              <InnerSteps />
             </Stepper>
           </Box>
 

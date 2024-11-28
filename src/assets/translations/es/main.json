@@ -182,7 +182,8 @@
     "yes": "Sí",
     "activeAccount": "Cuenta Activa",
     "update": "Actualizar",
-    "apy": "RAE"
+    "apy": "RAE",
+    "tbd": "por definir"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Ingrese la dirección del destinatario personalizado",
     "receiveAtLeast": "Recibe al menos",
     "tooltip": {
+      "continueSwapping": "Continúe intercambiando para obtener detalles finales.",
       "changeQuote": "Cambiar cotización",
       "rate": "Esta es la tasa esperada para este intercambio.",
       "noRateAvailable": "Esto a menudo se debe a una liquidez muy limitada o nula en el par comercial.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Monto de venta insuficiente"
+      },
+      "rateExpired": {
+        "title": "Tarifa vencida",
+        "body": "Su tasa de intercambio ha expirado. Hemos obtenido nueva tasa y actualizado montos de cotización. Revise los detalles más recientes antes de confirmar su intercambio.",
+        "cta": "Ok, lo entiendo"
       }
     },
     "permit2": {
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "¿Eres de THORSwap?",
     "description": "Los titulares de THOR intercambian gratis en 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Dirección %{address} no compatible.",
+      "unsupportedChain": "Billetera no compatible con %{chain}.",
+      "ledgerAppOpenCancelled": "Apertura de app Ledger cancelada.",
+      "getAddress": "No se pudo obtener dirección de billetera.",
+      "getAccount": "No se pudo obtener la cuenta para: %{pubkey}.",
+      "switchChainUnsupported": "Billetera no admite cambio de cadenas.",
+      "switchChainFailed": "No se pudo cambiar la cadena de billetera a %{chain}.",
+      "buildTransaction": "Error al crear la transacción.",
+      "signTransaction": "No se pudo firmar la transacción.",
+      "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
+      "signMessage": "No se pudo firmar el mensaje.",
+      "broadcastTransaction": "No se pudo transmitir la transacción.",
+      "broadcastTransactionWithMessage": "Error al transmitir la transacción (%{message}).",
+      "getGasFeeData": "No se pudieron obtener las tarifas de red.",
+      "getFeeData": "No se pudieron estimar las tarifas de red.",
+      "getPublicKey": "No se pudo obtener la clave pública de billetera.",
+      "getUtxos": "No se pudieron obtener utxos.",
+      "getValidator": "No se pudo obtener validador."
+    }
   }
 }

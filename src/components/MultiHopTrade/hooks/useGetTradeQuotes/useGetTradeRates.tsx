@@ -9,6 +9,7 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { useWhatChanged } from '@simbathesailor/use-what-changed'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
@@ -122,6 +123,7 @@ export const useGetTradeRates = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const prevWallet = usePrevious(wallet)
 
   const walletId = useAppSelector(selectWalletId)
   const prevWalletId = usePrevious(walletId)
@@ -138,6 +140,7 @@ export const useGetTradeRates = () => {
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const prevSellAccountId = usePrevious(sellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
@@ -159,9 +162,11 @@ export const useGetTradeRates = () => {
   const sellAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, sellAccountMetadataFilter),
   )
+  const prevSellAccountMetadata = usePrevious(sellAccountMetadata)
   const receiveAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
+  const prevReceiveAccountMetadata = usePrevious(receiveAccountMetadata)
 
   const mixpanel = getMixPanel()
 
@@ -174,27 +179,82 @@ export const useGetTradeRates = () => {
     () => isSnapshotApiQueriesPending && votingPower === undefined,
     [isSnapshotApiQueriesPending, votingPower],
   )
+  const prevIsVotingPowerLoading = usePrevious(isVotingPowerLoading)
 
   const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
   const isBuyAssetChainSupported = walletSupportsBuyAssetChain
+  const prevIsBuyAssetChainSupported = usePrevious(isBuyAssetChainSupported)
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
   const isSnapshotApiQueriesRejected = useAppSelector(selectIsSnapshotApiQueriesRejected)
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+  const prevReceiveAddress = usePrevious(receiveAddress)
+
+  // TODO(gomes): improve me. This is the base we lay on to *not* invalidate quotes on wallet connected, but is only the first step to get things to work here i.e:
+  // - we should invalidate quotes for wallets that do not support cross-account, if the rate becomes cross-account after user connects their wallet. This can be the case if either of:
+  // - auto-select of highest balance account kicks in or
+  // - user has entered a manual receive addy when they didn't have a wallet connected
+  // - if the selected quote is a cross-wallet one, it *will* be invalidated on wallet connection
+  // - we will also want to ensure custom receive addy is taken into account, by either not displaying at all when a wallet is connected, or by letting users select it, but ensuring
+  // 1. custom receive addy *keeps* selected, else danger
+  // 2. custom receive addy does trigger an invalidation of cross-account quotes
+  // For safety reasons, the first option of not letting users enter custom receive addies without a wallet is preferred
+  // Also, the regression risk is huged here as we're effectively voiding the entire referential invalidation, and may have to find another way otherwise this is a recipe for bugs
+  const hasJustConnectedWallet = useMemo(() => {
+    return (
+      (!prevWalletId && walletId) ||
+      (!prevSellAccountMetadata && sellAccountMetadata) ||
+      (!prevWallet && wallet) ||
+      (!prevReceiveAccountMetadata && receiveAccountMetadata) ||
+      (!prevSellAccountId && sellAccountId) ||
+      (!prevIsVotingPowerLoading && isVotingPowerLoading) ||
+      (!prevIsBuyAssetChainSupported && isBuyAssetChainSupported) ||
+      (!prevReceiveAddress && receiveAddress)
+    )
+  }, [
+    isBuyAssetChainSupported,
+    isVotingPowerLoading,
+    prevIsBuyAssetChainSupported,
+    prevIsVotingPowerLoading,
+    prevReceiveAccountMetadata,
+    prevReceiveAddress,
+    prevSellAccountId,
+    prevSellAccountMetadata,
+    prevWallet,
+    prevWalletId,
+    receiveAccountMetadata,
+    receiveAddress,
+    sellAccountId,
+    sellAccountMetadata,
+    wallet,
+    walletId,
+  ])
+
+  useWhatChanged([
+    buyAsset,
+    dispatch,
+    sellAccountMetadata,
+    sellAmountCryptoPrecision,
+    sellAsset,
+    votingPower,
+    thorVotingPower,
+    wallet,
+    receiveAccountMetadata?.bip44Params,
+    userSlippageTolerancePercentageDecimal,
+    sellAssetUsdRate,
+    sellAccountId,
+    isVotingPowerLoading,
+    isBuyAssetChainSupported,
+    receiveAddress,
+    isSnapshotApiQueriesRejected,
+    prevWalletId,
+    walletId,
+  ])
 
   useEffect(() => {
-    // TODO(gomes): improve me. This is the base we lay on to *not* invalidate quotes on wallet connected, but is only the first step to get things to work here i.e:
-    // - we should invalidate quotes for wallets that do not support cross-account, if the rate becomes cross-account after user connects their wallet. This can be the case if either of:
-    // - auto-select of highest balance account kicks in or
-    // - user has entered a manual receive addy when they didn't have a wallet connected
-    // - if the selected quote is a cross-wallet one, it *will* be invalidated on wallet connection
-    // - we will also want to ensure custom receive addy is taken into account, by either not displaying at all when a wallet is connected, or by letting users select it, but ensuring
-    // 1. custom receive addy *keeps* selected, else danger
-    // 2. custom receive addy does trigger an invalidation of cross-account quotes
-    // For safety reasons, the first option of not letting users enter custom receive addies without a wallet is preferred
-    if (!prevWalletId && walletId) return
+    if (hasJustConnectedWallet) return
     // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
     // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
     // That effectively means we'll unsubscribe to queries, considering them stale
@@ -268,6 +328,7 @@ export const useGetTradeRates = () => {
     isSnapshotApiQueriesRejected,
     prevWalletId,
     walletId,
+    hasJustConnectedWallet,
   ])
 
   const getTradeQuoteArgs = useCallback(

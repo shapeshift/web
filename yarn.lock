@@ -11771,6 +11771,7 @@ __metadata:
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@simbathesailor/use-what-changed": ^2.0.0
     "@sniptt/monads": ^0.5.10
     "@tanstack/react-query": ^5.52.0
     "@testing-library/react": ^13.3.0
@@ -11957,6 +11958,15 @@ __metadata:
     lit-html: ^2.6.1
   languageName: unknown
   linkType: soft
+
+"@simbathesailor/use-what-changed@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@simbathesailor/use-what-changed@npm:2.0.0"
+  peerDependencies:
+    react: ">=16"
+  checksum: a90e5b7388584749d19b138e0ab50fc69d9af69bee7beaa7616fa287122577f027877e0bd622ec1149057adb2f5bd3f27691dae5723c6a7c93d044bfb96e77ec
+  languageName: node
+  linkType: hard
 
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8

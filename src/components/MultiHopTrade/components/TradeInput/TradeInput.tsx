@@ -404,12 +404,12 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     <>
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowArbitrumBridgeAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
       />
       <StreamingAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowStreamingAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
         estimatedTimeMs={
           tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
@@ -418,7 +418,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <WarningAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleWarningAcknowledgementSubmit}
-        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowWarningAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <SharedTradeInput

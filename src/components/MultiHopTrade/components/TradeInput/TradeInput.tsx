@@ -14,7 +14,6 @@ import {
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
@@ -25,7 +24,6 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import { selectIsAnyAccountMetadataLoadedForChainId, selectWalletId } from 'state/slices/selectors'
@@ -131,8 +129,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
-  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const isLoading = useMemo(
@@ -155,11 +151,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       isVotingPowerLoading,
       isWalletReceiveAddressLoading,
     ],
-  )
-
-  const overlayTitle = useMemo(
-    () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
-    [translate],
   )
 
   useEffect(() => {
@@ -410,15 +401,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   // accident and we should implement better control flow to handle this in a more robust way so if
   // we make any changes to these we aren't left in a broken state.
   return (
-    <MessageOverlay show={isKeplr} title={overlayTitle}>
+    <>
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowArbitrumBridgeAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
       />
       <StreamingAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowStreamingAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
         estimatedTimeMs={
           tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
@@ -427,7 +418,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <WarningAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleWarningAcknowledgementSubmit}
-        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowWarningAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <SharedTradeInput
@@ -443,6 +434,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
       />
-    </MessageOverlay>
+    </>
   )
 }

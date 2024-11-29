@@ -26,8 +26,12 @@ export const useAccountsFetchQuery = () => {
   const { deviceId, wallet } = useWallet().state
 
   const hasManagedAccounts = useMemo(() => {
-    // MM without snap doesn't allow account management - if the user just installed the snap, we know they don't have managed accounts
-    if (!previousIsSnapInstalled && isSnapInstalled) return false
+    // MM without snap doesn't allow account management - if the user just installed the snap, we
+    // know they don't have managed accounts. NOTE - the values we're comparing here are
+    // `boolean | null`, so explicit comparison is needed!
+    if (previousIsSnapInstalled === false && isSnapInstalled === true) {
+      return false
+    }
     // We know snap wasn't just installed in this render - so if there are any requestedAccountIds, we assume the user has managed accounts
     return enabledWalletAccountIds.length > 0
   }, [isSnapInstalled, previousIsSnapInstalled, enabledWalletAccountIds.length])
@@ -37,12 +41,12 @@ export const useAccountsFetchQuery = () => {
   useEffect(() => {
     const { getAllTxHistory } = txHistoryApi.endpoints
 
-    // Note no force refetch here - only fetch Tx history once per acccount
+    // Note no force refetch here - only fetch Tx history once per account
     enabledWalletAccountIds.forEach(accountId => {
       dispatch(portfolioApi.endpoints.getAccount.initiate({ accountId, upsertOnFetch: true }))
     })
 
-    // Note no force refetch here - only fetch Tx history once per acccount
+    // Note no force refetch here - only fetch Tx history once per account
     enabledWalletAccountIds.map(requestedAccountId =>
       dispatch(getAllTxHistory.initiate(requestedAccountId)),
     )

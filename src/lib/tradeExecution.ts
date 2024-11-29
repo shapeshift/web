@@ -242,6 +242,7 @@ export class TradeExecution {
     stepIndex,
     slippageTolerancePercentageDecimal,
     xpub,
+    senderAddress,
     accountType,
     signAndBroadcastTransaction,
   }: UtxoTransactionExecutionInput) {
@@ -268,6 +269,7 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         xpub,
+        senderAddress,
         accountType,
         config,
         assertGetUtxoChainAdapter,

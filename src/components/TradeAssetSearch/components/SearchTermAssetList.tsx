@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 import { ALCHEMY_SUPPORTED_CHAIN_IDS } from 'lib/alchemySdkInstance'
 import { isSome } from 'lib/utils'
 import {
-  selectAssetsSortedByName,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPortfolioUserCurrencyBalances,
   selectWalletConnectedChainIds,
 } from 'state/slices/common-selectors'
@@ -39,7 +39,9 @@ export const SearchTermAssetList = ({
   onAssetClick: handleAssetClick,
   onImportClick,
 }: SearchTermAssetListProps) => {
-  const assets = useAppSelector(selectAssetsSortedByName)
+  const assets = useAppSelector(
+    selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
+  )
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetsById = useAppSelector(selectAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
@@ -62,13 +64,15 @@ export const SearchTermAssetList = ({
     const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
     if (activeChainId === 'All') {
       if (allowWalletUnsupportedAssets) return _assets
-      return _assets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
+      return _assets.filter(
+        asset => walletConnectedChainIds.includes(asset.chainId) && !isNft(asset.assetId),
+      )
     }
 
     // Should never happen, but paranoia.
     if (!allowWalletUnsupportedAssets && !walletConnectedChainIds.includes(activeChainId)) return []
 
-    return _assets.filter(asset => asset.chainId === activeChainId)
+    return _assets.filter(asset => asset.chainId === activeChainId && !isNft(asset.assetId))
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,

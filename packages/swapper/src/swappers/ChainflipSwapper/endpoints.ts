@@ -150,6 +150,7 @@ export const chainflipApi: SwapperApi = {
   },
   getUnsignedUtxoTransaction: async ({
     tradeQuote,
+    senderAddress,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
@@ -188,15 +189,6 @@ export const chainflipApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
 
-    const sendAddress = await adapter.getAddress({
-      accountNumber: step.accountNumber,
-      // @ts-ignore this is a rare occurence of wallet not being passed but this being fine as we pass a pubKey instead
-      // types are stricter than they should for the sake of paranoia
-      wallet,
-      accountType,
-      pubKey: xpub,
-    })
-
     const maybeSwapResponse = await getChainFlipSwap({
       brokerUrl,
       apiKey,
@@ -204,7 +196,7 @@ export const chainflipApi: SwapperApi = {
       destinationAsset,
       destinationAddress: tradeQuote.receiveAddress,
       minimumPrice,
-      refundAddress: sendAddress,
+      refundAddress: senderAddress,
       commissionBps: serviceCommission,
       boostFee: step.source === CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0,
     })

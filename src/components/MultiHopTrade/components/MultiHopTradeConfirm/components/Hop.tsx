@@ -62,6 +62,7 @@ export const Hop = ({
   slippageTolerancePercentageDecimal,
   onToggleIsOpen,
   activeTradeId,
+  initialActiveTradeId,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
@@ -70,6 +71,7 @@ export const Hop = ({
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
   activeTradeId: TradeQuote['id']
+  initialActiveTradeId: TradeQuote['id']
 }) => {
   const {
     number: { toCrypto },
@@ -101,13 +103,24 @@ export const Hop = ({
       hopIndex,
     }
   }, [activeTradeId, hopIndex])
+  const rateHopExecutionMetadataFilter = useMemo(
+    () => ({
+      tradeId: initialActiveTradeId,
+      hopIndex,
+    }),
+    [hopIndex, initialActiveTradeId],
+  )
 
   const {
     state: hopExecutionState,
-    allowanceApproval,
     permit2,
     swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
+
+  // Get allowance approval data from initial (rate) tradeId
+  const { allowanceApproval } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, rateHopExecutionMetadataFilter),
+  )
 
   const isError = useMemo(
     () => [allowanceApproval.state, swap.state].includes(TransactionExecutionState.Failed),

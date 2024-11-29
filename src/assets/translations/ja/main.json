@@ -182,7 +182,8 @@
     "yes": "はい",
     "activeAccount": "アクティブアカウント",
     "update": "アップデート",
-    "apy": "年利"
+    "apy": "年利",
+    "tbd": "未定"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "receiveAtLeast": "少なくとも受け取る",
     "tooltip": {
+      "continueSwapping": "最終的な詳細について交換を続ける",
       "changeQuote": "見積もりの​​変更",
       "rate": "この取引ペアの予想レートです。",
       "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "売却額が足りません"
+      },
+      "rateExpired": {
+        "title": "レートの有効期限が切れました",
+        "body": "以前のスワップ レートは期限切れです。新しいレートを取得し、見積額を更新しました。スワップを確認する前に、最新の詳細を確認してください。",
+        "cta": "分かりました"
       }
     },
     "permit2": {
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "THORSwapから来ましたか?",
     "description": "THOR保有者は2024年まで無料で取引できます。"
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "アドレス %{address} はサポートされていません。",
+      "unsupportedChain": "ウォレットは%{chain}をサポートしていません。",
+      "ledgerAppOpenCancelled": "Ledger アプリのオープンがキャンセルされました。",
+      "getAddress": "ウォレットからアドレスを取得できませんでした。",
+      "getAccount": "%{pubkey} のアカウントを取得できませんでした。",
+      "switchChainUnsupported": "ウォレットはチェーンの切り替えをサポートしていません。",
+      "switchChainFailed": "ウォレット チェーンを %{chain} に切り替えることができませんでした。",
+      "buildTransaction": "トランザクションの構築に失敗しました。",
+      "signTransaction": "トランザクションの署名に失敗しました。",
+      "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
+      "signMessage": "メッセージの署名に失敗しました。",
+      "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
+      "broadcastTransactionWithMessage": "トランザクション (%{message}) のブロードキャストに失敗しました。",
+      "getGasFeeData": "ネットワーク料金を取得できませんでした。",
+      "getFeeData": "ネットワーク料金の見積りに失敗しました。",
+      "getPublicKey": "ウォレットから公開鍵を取得できませんでした。",
+      "getUtxos": "utxos を取得できませんでした。",
+      "getValidator": "バリデータを取得できませんでした。"
+    }
   }
 }

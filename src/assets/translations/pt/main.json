@@ -182,7 +182,8 @@
     "yes": "Sim",
     "activeAccount": "Conta ativa",
     "update": "Atualização",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "TBD"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +898,7 @@
     "enterCustomRecipientAddress": "Insira o endereço do destinatário personalizado",
     "receiveAtLeast": "Receba pelo menos",
     "tooltip": {
+      "continueSwapping": "Continue negociando para mais detalhes",
       "changeQuote": "Alterar cotação",
       "rate": "Esta é a taxa esperada para a negociação do par.",
       "noRateAvailable": "Isso geralmente ocorre devido à liquidez limitada ou inexistente no par negociado.",
@@ -920,6 +922,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "Quantia indisponível para vender"
+      },
+      "rateExpired": {
+        "title": "Taxa expirada",
+        "body": "Sua taxa de swap anterior expirou. Buscamos uma nova taxa e atualizamos seus valores de cotação. Revise os detalhes mais recentes antes de confirmar seu swap.",
+        "cta": "Ok, entendi"
       }
     },
     "permit2": {
@@ -2727,5 +2734,27 @@
   "thorFees": {
     "title": "Veio pela THORSwap?",
     "description": "Os detentores de THOR negociam gratuitamente até 2024."
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "Endereço %{address} não suportado.",
+      "unsupportedChain": "A carteira não suporta %{chain}.",
+      "ledgerAppOpenCancelled": "Abertura do aplicativo Ledger cancelada.",
+      "getAddress": "Falha ao obter endereço da carteira.",
+      "getAccount": "Falha ao obter conta para: %{pubkey}.",
+      "switchChainUnsupported": "A carteira não suporta troca de redes.",
+      "switchChainFailed": "Falha ao alternar a rede de carteira para %{chain}.",
+      "buildTransaction": "Falha ao construir transação.",
+      "signTransaction": "Falha ao assinar a transação.",
+      "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
+      "signMessage": "Falha ao assinar a mensagem.",
+      "broadcastTransaction": "Falha ao transmitir a transação.",
+      "broadcastTransactionWithMessage": "Falha ao transmitir transação (%{message}).",
+      "getGasFeeData": "Falha ao obter taxas da rede.",
+      "getFeeData": "Falha ao estimar as taxas de rede.",
+      "getPublicKey": "Falha ao obter a chave pública da carteira.",
+      "getUtxos": "Falha ao obter os utxos.",
+      "getValidator": "Falha ao obter o validador."
+    }
   }
 }

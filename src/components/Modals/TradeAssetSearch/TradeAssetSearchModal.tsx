@@ -17,13 +17,15 @@ import { useModal } from 'hooks/useModal/useModal'
 export type TradeAssetSearchModalProps = TradeAssetSearchProps & {
   title?: string
   onAssetClick: Required<TradeAssetSearchProps>['onAssetClick']
-  assetFilterPredicate?: (asset: Asset) => boolean
-  chainIdFilterPredicate?: (chainId: ChainId) => boolean
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
 }
 
 type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   isOpen: boolean
   close: () => void
+  assetFilterPredicate: (asset: Asset) => boolean
+  chainIdFilterPredicate: (chainId: ChainId) => boolean
 }
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({

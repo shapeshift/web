@@ -304,23 +304,23 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
 
-  const isChainflipSolanaEnabled = useFeatureFlag('ChainflipSolana')
+  const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
   const assetFilterPredicate = useCallback(
     (asset: Asset) => {
-      if (asset.chainId === KnownChainIds.SolanaMainnet) return isChainflipSolanaEnabled
+      if (asset.chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
 
       return true
     },
-    [isChainflipSolanaEnabled],
+    [isSolanaSwapperEnabled],
   )
 
   const chainIdFilterPredicate = useCallback(
     (chainId: ChainId) => {
-      if (chainId === KnownChainIds.SolanaMainnet) return isChainflipSolanaEnabled
+      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
 
       return true
     },
-    [isChainflipSolanaEnabled],
+    [isSolanaSwapperEnabled],
   )
 
   const handleBuyAssetClick = useCallback(() => {

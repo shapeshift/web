@@ -131,7 +131,7 @@ export const mockStore: ReduxState = {
       FoxPageGovernance: false,
       LimitOrders: false,
       Chainflip: false,
-      ChainflipSolana: false,
+      SolanaSwapper: false,
       ChainflipDca: false,
       ThorFreeFees: false,
     },

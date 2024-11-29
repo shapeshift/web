@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Circle, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -187,17 +187,23 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !quote || error !== undefined:
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
-            <Tag size='sm' colorScheme='red'>
-              {translate(
+            <Tooltip
+              label={translate(
                 ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
               )}
-            </Tag>
+            >
+              <Circle size={6}>
+                <WarningIcon color='text.error' boxSize={4} />
+              </Circle>
+            </Tooltip>
           )
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
-            <Tag size='sm' colorScheme='red'>
-              {translate('trade.rates.tags.negativeRatio')}
-            </Tag>
+            <Tooltip label={translate('trade.rates.tags.negativeRatio')}>
+              <Circle size={6}>
+                <WarningIcon color='text.error' boxSize={4} />
+              </Circle>
+            </Tooltip>
           )
         case isBest:
           return (

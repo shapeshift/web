@@ -67,9 +67,17 @@ export const TradeQuoteCard = ({
     >
       <CardHeader fontWeight='normal' fontSize='sm' pl={3} pr={4}>
         <Flex justifyContent='space-between' alignItems='center'>
-          <Flex gap={2} alignItems='center'>
+          <Flex
+            gap={2}
+            alignItems='center'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+          >
             <SwapperIcon swapperName={swapperName} />
-            <RawText fontWeight='medium'>{title}</RawText>
+            <RawText fontWeight='medium' isTruncated>
+              {title}
+            </RawText>
           </Flex>
           {headerContent}
         </Flex>

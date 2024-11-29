@@ -48,7 +48,7 @@ const Hop = ({
     state: hopExecutionState,
     allowanceApproval,
     permit2,
-    swap,
+    // swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   return (
@@ -103,6 +103,8 @@ const Hops = () => {
   )
 }
 
+const stepProps = { alignItems: 'center', py: 2 }
+
 const EtaStep = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
@@ -117,14 +119,21 @@ const EtaStep = () => {
   }, [isMultiHopTrade, tradeQuoteFirstHop, tradeQuoteLastHop])
 
   const stepIndicator = useMemo(() => {
-    return <ArrowDownIcon />
+    return <ArrowDownIcon color='gray.500' boxSize={5} />
   }, [])
   const title = useMemo(() => {
     return totalEstimatedExecutionTimeMs
       ? `Estimated completion ${prettyMilliseconds(totalEstimatedExecutionTimeMs)}`
       : 'Estimated completion time unknown'
   }, [totalEstimatedExecutionTimeMs])
-  return <StepperStep title={title} stepIndicator={stepIndicator} />
+  return (
+    <StepperStep
+      title={title}
+      stepIndicator={stepIndicator}
+      stepProps={stepProps}
+      useSpacer={false}
+    />
+  )
 }
 
 // TODO: This will be either: the ETA, current step (condensed), or all steps (expanded)
@@ -143,6 +152,8 @@ const InnerSteps = () => {
   return <Hops />
 }
 
+const buyAssetStepProps = { mt: 6 }
+
 // TODO: this will be a Shared component (merged into SharedConfirm), taking Hops
 export const TradeConfirmBody = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
@@ -159,7 +170,13 @@ export const TradeConfirmBody = () => {
             amountCryptoBaseUnit={tradeQuoteFirstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit}
           />
 
-          <Box bg='background.surface.overlay.base' borderRadius='xl' width='full'>
+          <Box
+            bg='background.surface.overlay.base'
+            borderRadius='xl'
+            width='full'
+            position='relative'
+            zIndex={1}
+          >
             <Stepper
               index={-1}
               orientation='vertical'
@@ -178,6 +195,7 @@ export const TradeConfirmBody = () => {
           <AssetSummaryStep
             asset={tradeQuoteLastHop.buyAsset}
             amountCryptoBaseUnit={tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit}
+            stepProps={buyAssetStepProps}
           />
         </Stepper>
       </HStack>

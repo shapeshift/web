@@ -1,7 +1,9 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -14,18 +16,17 @@ import {
   WarningAcknowledgement,
 } from 'components/Acknowledgement/Acknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { MessageOverlay } from 'components/MessageOverlay/MessageOverlay'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
-import { isKeplrHDWallet } from 'lib/utils'
 import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import { selectIsAnyAccountMetadataLoadedForChainId, selectWalletId } from 'state/slices/selectors'
@@ -131,8 +132,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     isLoading: isWalletReceiveAddressLoading,
   } = useTradeReceiveAddress()
 
-  const isKeplr = useMemo(() => !!wallet && isKeplrHDWallet(wallet), [wallet])
-
   const isVotingPowerLoading = useAppSelector(selectIsVotingPowerLoading)
 
   const isLoading = useMemo(
@@ -155,11 +154,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       isVotingPowerLoading,
       isWalletReceiveAddressLoading,
     ],
-  )
-
-  const overlayTitle = useMemo(
-    () => translate('trade.swappingComingSoonForWallet', { walletName: 'Keplr' }),
-    [translate],
   )
 
   useEffect(() => {
@@ -310,12 +304,33 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
 
+  const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
+  const assetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      if (asset.chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+
+      return true
+    },
+    [isSolanaSwapperEnabled],
+  )
+
+  const chainIdFilterPredicate = useCallback(
+    (chainId: ChainId) => {
+      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+
+      return true
+    },
+    [isSolanaSwapperEnabled],
+  )
+
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     })
-  }, [buyAssetSearch, setBuyAsset])
+  }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, setBuyAsset])
 
   const buyTradeAssetSelect = useMemo(
     () => (
@@ -324,9 +339,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
         onlyConnectedChains={false}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset, chainIdFilterPredicate],
   )
 
   const bodyContent = useMemo(() => {
@@ -344,6 +360,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         setSellAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
+        assetFilterPredicate={assetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       >
         <TradeAssetInput
           // Disable account selection when user set a manual receive address
@@ -386,6 +404,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     sellAsset,
     sellAssetAccountId,
     translate,
+    assetFilterPredicate,
+    chainIdFilterPredicate,
     handleChangeSellAmountCryptoPrecision,
     handleIsInputtingFiatSellAmountChange,
     handleSwitchAssets,
@@ -410,15 +430,15 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   // accident and we should implement better control flow to handle this in a more robust way so if
   // we make any changes to these we aren't left in a broken state.
   return (
-    <MessageOverlay show={isKeplr} title={overlayTitle}>
+    <>
       <ArbitrumBridgeAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowArbitrumBridgeAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowArbitrumBridgeAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowArbitrumBridgeAcknowledgement}
       />
       <StreamingAcknowledgement
         onAcknowledge={handleFormSubmit}
-        shouldShowAcknowledgement={shouldShowStreamingAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowStreamingAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowStreamingAcknowledgement}
         estimatedTimeMs={
           tradeQuoteStep?.estimatedExecutionTimeMs ? tradeQuoteStep.estimatedExecutionTimeMs : 0
@@ -427,7 +447,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <WarningAcknowledgement
         message={warningAcknowledgementMessage}
         onAcknowledge={handleWarningAcknowledgementSubmit}
-        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        shouldShowAcknowledgement={Boolean(walletId && shouldShowWarningAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <SharedTradeInput
@@ -443,6 +463,6 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
       />
-    </MessageOverlay>
+    </>
   )
 }

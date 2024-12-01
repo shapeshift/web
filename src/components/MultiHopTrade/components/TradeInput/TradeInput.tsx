@@ -1,7 +1,9 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -19,6 +21,7 @@ import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTr
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
@@ -301,12 +304,33 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
 
+  const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
+  const assetFilterPredicate = useCallback(
+    (asset: Asset) => {
+      if (asset.chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+
+      return true
+    },
+    [isSolanaSwapperEnabled],
+  )
+
+  const chainIdFilterPredicate = useCallback(
+    (chainId: ChainId) => {
+      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+
+      return true
+    },
+    [isSolanaSwapperEnabled],
+  )
+
   const handleBuyAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     })
-  }, [buyAssetSearch, setBuyAsset])
+  }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, setBuyAsset])
 
   const buyTradeAssetSelect = useMemo(
     () => (
@@ -315,9 +339,10 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         onAssetClick={handleBuyAssetClick}
         onAssetChange={setBuyAsset}
         onlyConnectedChains={false}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     ),
-    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset],
+    [buyAsset.assetId, handleBuyAssetClick, setBuyAsset, chainIdFilterPredicate],
   )
 
   const bodyContent = useMemo(() => {
@@ -335,6 +360,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
         setSellAccountId={setSellAssetAccountId}
         onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
         onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
+        assetFilterPredicate={assetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       >
         <TradeAssetInput
           // Disable account selection when user set a manual receive address
@@ -377,6 +404,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     sellAsset,
     sellAssetAccountId,
     translate,
+    assetFilterPredicate,
+    chainIdFilterPredicate,
     handleChangeSellAmountCryptoPrecision,
     handleIsInputtingFiatSellAmountChange,
     handleSwitchAssets,

@@ -1,6 +1,8 @@
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 
+import { assertUnreachable } from './assertUnreachable'
+
 export const getHistoryTimeframeBounds = (timeframe: HistoryTimeframe) => {
   const end = dayjs().endOf('day')
   let start
@@ -24,7 +26,7 @@ export const getHistoryTimeframeBounds = (timeframe: HistoryTimeframe) => {
       start = end.subtract(5, 'years')
       break
     default:
-      start = end
+      assertUnreachable(timeframe)
   }
 
   return { start, end }

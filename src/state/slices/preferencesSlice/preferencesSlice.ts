@@ -69,6 +69,7 @@ export type FeatureFlags = {
   FoxPageGovernance: boolean
   LimitOrders: boolean
   Chainflip: boolean
+  SolanaSwapper: boolean
   ChainflipDca: boolean
   ThorFreeFees: boolean
 }
@@ -163,6 +164,7 @@ const initialState: Preferences = {
     FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
     Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
+    SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
     ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
   },

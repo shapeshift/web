@@ -6,7 +6,6 @@ export const getHistoryTimeframeBounds = (timeframe: HistoryTimeframe) => {
   let start
   switch (timeframe) {
     case HistoryTimeframe.HOUR:
-      // minimum granularity on upstream API is 1 day
       start = end.subtract(1, 'day')
       break
     case HistoryTimeframe.DAY:

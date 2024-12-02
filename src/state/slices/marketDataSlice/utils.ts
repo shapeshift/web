@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, PartialRecord } from '@shapeshiftoss/types'
 import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
-import { merge } from 'lodash'
+import { merge, orderBy } from 'lodash'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 
 import type { PriceHistoryByTimeframe } from './types'
@@ -25,9 +25,13 @@ export const getTrimmedOutOfBoundsMarketData = <T extends SupportedFiatCurrencie
   for (const id of ids) {
     const idHistory = timeFrameData[id]
     if (!idHistory) continue
-    results[id] = idHistory.filter(
+
+    const filteredResults = idHistory.filter(
       ({ date }) => date >= startTimeStampMillis && date <= endTimeStampMillis,
     )
+
+    // Sort the historical entries.
+    results[id] = orderBy(filteredResults, 'date', 'asc')
   }
 
   return results

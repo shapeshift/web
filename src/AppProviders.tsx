@@ -76,9 +76,9 @@ export function AppProviders({ children }: ProvidersProps) {
                   <BrowserRouterProvider>
                     <I18nProvider>
                       <WalletProvider>
-                        <ModalProvider>
-                          <WalletConnectV2Provider>
-                            <KeepKeyProvider>
+                        <KeepKeyProvider>
+                          <ModalProvider>
+                            <WalletConnectV2Provider>
                               <ErrorBoundary FallbackComponent={ErrorPage} onError={handleError}>
                                 <WagmiProvider config={wagmiConfig}>
                                   <TransactionsProvider>
@@ -94,9 +94,9 @@ export function AppProviders({ children }: ProvidersProps) {
                                   </TransactionsProvider>
                                 </WagmiProvider>
                               </ErrorBoundary>
-                            </KeepKeyProvider>
-                          </WalletConnectV2Provider>
-                        </ModalProvider>
+                            </WalletConnectV2Provider>
+                          </ModalProvider>
+                        </KeepKeyProvider>
                       </WalletProvider>
                     </I18nProvider>
                   </BrowserRouterProvider>

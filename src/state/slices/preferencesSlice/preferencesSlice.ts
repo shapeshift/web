@@ -69,6 +69,7 @@ export type FeatureFlags = {
   FoxPageGovernance: boolean
   LimitOrders: boolean
   ChainflipSwap: boolean
+  SolanaSwapper: boolean
   ChainflipDca: boolean
   ThorFreeFees: boolean
   JupiterSwap: boolean
@@ -165,6 +166,7 @@ const initialState: Preferences = {
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
     ChainflipSwap: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP,
     ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA,
+    SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
   },

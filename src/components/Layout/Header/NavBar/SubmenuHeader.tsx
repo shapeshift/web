@@ -38,7 +38,7 @@ export const SubmenuHeader = ({
         </Center>
       </Flex>
       {description && (
-        <Text fontSize='sm' px={1} color={descriptionTextColor}>
+        <Text fontSize='sm' px={1} color={descriptionTextColor} mb={4}>
           {description}
         </Text>
       )}

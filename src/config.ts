@@ -177,6 +177,7 @@ const validators = {
   REACT_APP_ZRX_BASE_URL: url(),
   REACT_APP_FEATURE_CHAINFLIP_SWAP: bool({ default: false }),
   REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA: bool({ default: false }),
+  REACT_APP_FEATURE_SWAPPER_SOLANA: bool({ default: false }),
   REACT_APP_CHAINFLIP_API_KEY: str(),
   REACT_APP_CHAINFLIP_API_URL: url(),
   REACT_APP_FEATURE_THOR_FREE_FEES: bool({ default: false }),

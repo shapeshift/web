@@ -1,3 +1,4 @@
+import type { QuoteResponse } from '@jup-ag/api'
 import type { StdSignDoc } from '@keplr-wallet/types'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
@@ -22,6 +23,7 @@ import type {
 import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
@@ -51,7 +53,8 @@ export type SwapperConfig = {
   REACT_APP_ZRX_BASE_URL: string
   REACT_APP_CHAINFLIP_API_KEY: string
   REACT_APP_CHAINFLIP_API_URL: string
-  REACT_APP_FEATURE_CHAINFLIP_DCA: boolean
+  REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA: boolean
+  REACT_APP_JUPITER_API_URL: string
 }
 
 export enum SwapperName {
@@ -63,6 +66,7 @@ export enum SwapperName {
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
+  Jupiter = 'Jupiter',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -113,6 +117,11 @@ export type CosmosSdkFeeData = {
   estimatedGasCryptoBaseUnit: string
 }
 
+export type SolanaFeeData = {
+  computeUnits: string
+  priorityFee: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -123,7 +132,13 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
+}
+
+export const isSolanaFeeData = (
+  chainSpecific: QuoteFeeData['chainSpecific'],
+): chainSpecific is SolanaFeeData => {
+  return Boolean(chainSpecific && 'priorityFee' in chainSpecific)
 }
 
 export type BuyAssetBySellIdInput = {
@@ -221,7 +236,6 @@ export type UtxoSwapperDeps = { assertGetUtxoChainAdapter: (chainId: ChainId) =>
 export type CosmosSdkSwapperDeps = {
   assertGetCosmosSdkChainAdapter: (chainId: ChainId) => CosmosSdkChainAdapter
 }
-
 export type SolanaSwapperDeps = {
   assertGetSolanaChainAdapter: (chainId: ChainId) => SolanaChainAdapter
 }
@@ -265,6 +279,11 @@ export type TradeQuoteStep = {
     data: string
     value: string
     gasLimit: string
+  }
+  jupiterQuoteResponse?: QuoteResponse
+  jupiterTransactionMetadata?: {
+    addressLookupTableAddresses: string[]
+    instructions?: TransactionInstruction[]
   }
   cowswapQuoteResponse?: OrderQuoteResponse
 }
@@ -423,7 +442,8 @@ export type CheckTradeStatusInput = {
   config: SwapperConfig
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
-  CosmosSdkSwapperDeps
+  CosmosSdkSwapperDeps &
+  SolanaSwapperDeps
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated

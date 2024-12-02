@@ -37,7 +37,7 @@ export type FeatureFlags = {
   ReadOnlyAssets: boolean
   Jaypegz: boolean
   ArbitrumBridge: boolean
-  Portals: boolean
+  PortalsSwap: boolean
   CovalentJaypegs: boolean
   Chatwoot: boolean
   AdvancedSlippage: boolean
@@ -68,10 +68,11 @@ export type FeatureFlags = {
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
   LimitOrders: boolean
-  Chainflip: boolean
+  ChainflipSwap: boolean
   SolanaSwapper: boolean
   ChainflipDca: boolean
   ThorFreeFees: boolean
+  JupiterSwap: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -133,7 +134,7 @@ const initialState: Preferences = {
     DynamicLpAssets: getConfig().REACT_APP_FEATURE_DYNAMIC_LP_ASSETS,
     ReadOnlyAssets: getConfig().REACT_APP_FEATURE_READ_ONLY_ASSETS,
     ArbitrumBridge: getConfig().REACT_APP_FEATURE_ARBITRUM_BRIDGE,
-    Portals: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
+    PortalsSwap: getConfig().REACT_APP_FEATURE_PORTALS_SWAPPER,
     Chatwoot: getConfig().REACT_APP_FEATURE_CHATWOOT,
     AdvancedSlippage: getConfig().REACT_APP_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().REACT_APP_FEATURE_WALLET_CONNECT_V2,
@@ -163,10 +164,11 @@ const initialState: Preferences = {
     FoxPageFoxFarmingSection: getConfig().REACT_APP_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     FoxPageGovernance: getConfig().REACT_APP_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().REACT_APP_FEATURE_LIMIT_ORDERS,
-    Chainflip: getConfig().REACT_APP_FEATURE_CHAINFLIP,
+    ChainflipSwap: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP,
+    ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA,
     SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
-    ChainflipDca: getConfig().REACT_APP_FEATURE_CHAINFLIP_DCA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
+    JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

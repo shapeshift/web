@@ -173,16 +173,19 @@ export const TradeConfirmBody = () => {
           <Box
             bg='background.surface.overlay.base'
             borderRadius='xl'
+            borderWidth='1px'
+            borderColor='whiteAlpha.100'
             width='full'
             position='relative'
             zIndex={1}
+            mx={-2}
           >
             <Stepper
               index={-1}
               orientation='vertical'
               gap='0'
               width='full'
-              px={0}
+              px={2}
               py={1}
               borderWidth='1px'
               borderColor='border.base'

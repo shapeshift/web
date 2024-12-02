@@ -1,3 +1,4 @@
+import { ArrowForwardIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -5,15 +6,19 @@ import {
   CardFooter,
   Collapse,
   HStack,
+  Icon,
+  Stack,
   useDisclosure,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import { useMemo } from 'react'
+import { useCallback } from 'react'
+import { FaRegCircleCheck } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
+import { Amount } from 'components/Amount/Amount'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
-import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { Text } from 'components/Text'
 import { selectLastHop } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -23,16 +28,29 @@ export type TradeSuccessProps = {
   handleBack: () => void
   children: JSX.Element
   titleTranslation?: string | [string, InterpolationOptions]
-  descriptionTranslation?: string | [string, InterpolationOptions]
-}
-
-const pairProps = { showFirst: true }
+} & (
+  | {
+      sellAsset: never
+      buyAsset: never
+      sellAmountCryptoPrecision: never
+      buyAmountCryptoPrecision: never
+    }
+  | {
+      sellAsset?: Asset
+      buyAsset?: Asset
+      sellAmountCryptoPrecision?: string
+      buyAmountCryptoPrecision?: string
+    }
+)
 
 export const TradeSuccess = ({
   handleBack,
   titleTranslation,
-  descriptionTranslation,
   children,
+  sellAmountCryptoPrecision,
+  sellAsset,
+  buyAsset,
+  buyAmountCryptoPrecision,
 }: TradeSuccessProps) => {
   const translate = useTranslate()
 
@@ -42,29 +60,36 @@ export const TradeSuccess = ({
 
   const lastHop = useAppSelector(selectLastHop)
 
-  const subText = useMemo(() => {
-    if (!lastHop) return ''
+  const AmountsLine = useCallback(() => {
+    if (!(sellAsset && buyAsset)) return null
+    if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
 
-    const manager = getChainAdapterManager()
-    const adapter = manager.get(lastHop.buyAsset.chainId)
-
-    if (!adapter) return ''
-
-    const chainName = adapter.getDisplayName()
-
-    if (descriptionTranslation)
-      return typeof descriptionTranslation === 'string'
-        ? translate(descriptionTranslation, {
-            symbol: lastHop.buyAsset.symbol,
-            chainName,
-          })
-        : translate(...descriptionTranslation)
-
-    return translate('trade.temp.tradeComplete', {
-      symbol: lastHop.buyAsset.symbol,
-      chainName,
-    })
-  }, [lastHop, translate, descriptionTranslation])
+    return (
+      <HStack justifyContent='center'>
+        <Stack
+          flexDirection='row'
+          alignItems='center'
+          justifyContent='flex-end'
+          spacing={2}
+          width='50%'
+        >
+          <AssetIcon size='sm' assetId={sellAsset?.assetId} />
+          <Amount.Crypto value={sellAmountCryptoPrecision} symbol={sellAsset.symbol} />
+        </Stack>
+        <Icon as={ArrowForwardIcon} boxSize={5} mx={2} color='text.subtle' />
+        <Stack
+          flexDirection='row'
+          alignItems='center'
+          justifyContent='flex-start'
+          spacing={2}
+          width='50%'
+        >
+          <AssetIcon size='sm' assetId={buyAsset?.assetId} />
+          <Amount.Crypto value={buyAmountCryptoPrecision} symbol={buyAsset.symbol} />
+        </Stack>
+      </HStack>
+    )
+  }, [sellAsset, buyAsset, sellAmountCryptoPrecision, buyAmountCryptoPrecision])
 
   if (!lastHop) return null
 
@@ -73,11 +98,13 @@ export const TradeSuccess = ({
       <CardBody pb={0} px={0}>
         <SlideTransition>
           <Box textAlign='center' py={4}>
-            <AssetIcon assetId={lastHop.buyAsset.assetId} mb={2} pairProps={pairProps} />
-            <Text translation={titleTranslation ?? 'trade.temp.tradeSuccess'} />
-            <RawText fontSize='md' color='gray.500' mt={2}>
-              {subText}
-            </RawText>
+            <Icon as={FaRegCircleCheck} color='green.500' boxSize={12} />
+            <Text
+              translation={titleTranslation ?? 'trade.temp.tradeSuccess'}
+              fontWeight='bold'
+              mb={4}
+            />
+            <AmountsLine />
           </Box>
         </SlideTransition>
       </CardBody>
@@ -88,7 +115,7 @@ export const TradeSuccess = ({
           </Button>
           <HStack width='full' justifyContent='space-between' mt={4}>
             <Button variant='link' onClick={handleToggle} px={2}>
-              {translate('trade.showDetails')}
+              {translate('trade.summary')}
             </Button>
             <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
           </HStack>

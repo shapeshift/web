@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
     "doAnotherTrade": "Faça outra negociação",
-    "showDetails": "Mostrar detalhes",
+    "summary": "Mostrar detalhes",
     "transactionSuccessful": "Transação bem-sucedida, aguardando confirmações",
     "temp": {
       "tradeSuccess": "Negociação concluída",

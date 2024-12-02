@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Утверждение разрешения tx:",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
     "doAnotherTrade": "Совершите еще одну сделку",
-    "showDetails": "Показать детали",
+    "summary": "Показать детали",
     "transactionSuccessful": "Транзакция прошла успешно, ожидаем подтверждений",
     "temp": {
       "tradeSuccess": "Трейд завершен",

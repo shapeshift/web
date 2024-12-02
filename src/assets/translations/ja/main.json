@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "手当承認トランザクション:",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
     "doAnotherTrade": "別の取引をする",
-    "showDetails": "詳細",
+    "summary": "詳細",
     "transactionSuccessful": "トランザクションが成功しました。確認を待っています",
     "temp": {
       "tradeSuccess": "取引完了",

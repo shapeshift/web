@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Затвердження дозволу tx:",
     "tradeComplete": "Тепер у вас є %{cryptoAmountFormated} у вашому гаманці на %{chainName}.",
     "doAnotherTrade": "Зробіть іншу угоду",
-    "showDetails": "Показати деталі",
+    "summary": "Показати деталі",
     "transactionSuccessful": "Транзакція успішна, чекаємо на підтвердження",
     "temp": {
       "tradeSuccess": "Обмін завершено",

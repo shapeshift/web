@@ -10,6 +10,7 @@ import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransit
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -142,9 +143,16 @@ export const MultiHopTradeConfirm = memo(() => {
             titleTranslation={
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
             }
-            descriptionTranslation={
-              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.withdrawComplete' : undefined
-            }
+            sellAsset={activeQuote?.steps[0].sellAsset}
+            buyAsset={activeQuote?.steps[0].buyAsset}
+            sellAmountCryptoPrecision={fromBaseUnit(
+              activeQuote?.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              activeQuote?.steps[0].sellAsset.precision ?? 0,
+            )}
+            buyAmountCryptoPrecision={fromBaseUnit(
+              activeQuote?.steps[activeQuote.steps.length - 1].buyAmountAfterFeesCryptoBaseUnit,
+              activeQuote?.steps[activeQuote.steps.length - 1].buyAsset.precision ?? 0,
+            )}
           >
             <Hops
               initialActiveTradeId={initialActiveTradeIdRef.current}

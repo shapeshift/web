@@ -986,7 +986,7 @@
     "allowanceApprovalTxName": "津贴批准tx：",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
     "doAnotherTrade": "进行另一笔交易",
-    "showDetails": "显示详细资料",
+    "summary": "显示详细资料",
     "transactionSuccessful": "交易成功，等待确认",
     "temp": {
       "tradeSuccess": "交易完成",

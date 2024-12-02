@@ -3,8 +3,10 @@ import dayjs from 'dayjs'
 
 import { assertUnreachable } from './assertUnreachable'
 
-export const getHistoryTimeframeBounds = (timeframe: HistoryTimeframe) => {
-  const end = dayjs().endOf('day')
+export const getHistoryTimeframeBounds = (
+  timeframe: HistoryTimeframe,
+  end = dayjs().endOf('day'),
+) => {
   let start = end // Shut up typescript.
   switch (timeframe) {
     case HistoryTimeframe.HOUR:

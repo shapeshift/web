@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { HistoryData, HistoryTimeframe, PartialRecord } from '@shapeshiftoss/types'
 import { getHistoryTimeframeBounds } from '@shapeshiftoss/utils'
+import dayjs from 'dayjs'
 import { merge } from 'lodash'
 import type { SupportedFiatCurrencies } from 'lib/market-service'
 
@@ -14,7 +15,7 @@ export const getTrimmedOutOfBoundsMarketData = <T extends SupportedFiatCurrencie
   const timeFrameData = priceHistory[timeframe]
   if (!timeFrameData) return
 
-  const { start, end } = getHistoryTimeframeBounds(timeframe)
+  const { start, end } = getHistoryTimeframeBounds(timeframe, dayjs())
 
   const startTimeStampMillis = start.valueOf()
   const endTimeStampMillis = end.valueOf()

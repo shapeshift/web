@@ -5,7 +5,7 @@ import { assertUnreachable } from './assertUnreachable'
 
 export const getHistoryTimeframeBounds = (timeframe: HistoryTimeframe) => {
   const end = dayjs().endOf('day')
-  let start
+  let start = end // Shut up typescript.
   switch (timeframe) {
     case HistoryTimeframe.HOUR:
       start = end.subtract(1, 'day')

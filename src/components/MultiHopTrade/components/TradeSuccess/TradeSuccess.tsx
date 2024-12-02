@@ -5,6 +5,7 @@ import {
   CardBody,
   CardFooter,
   Collapse,
+  Flex,
   HStack,
   Icon,
   Stack,
@@ -13,9 +14,9 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
-import { FaRegCircleCheck } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
+import { AnimatedCheck } from 'components/AnimatedCheck'
 import { AssetIcon } from 'components/AssetIcon'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
@@ -65,29 +66,25 @@ export const TradeSuccess = ({
     if (!(sellAmountCryptoPrecision && buyAmountCryptoPrecision)) return null
 
     return (
-      <HStack justifyContent='center'>
-        <Stack
-          flexDirection='row'
-          alignItems='center'
-          justifyContent='flex-end'
-          spacing={2}
-          width='50%'
-        >
-          <AssetIcon size='sm' assetId={sellAsset?.assetId} />
-          <Amount.Crypto value={sellAmountCryptoPrecision} symbol={sellAsset.symbol} />
-        </Stack>
-        <Icon as={ArrowForwardIcon} boxSize={5} mx={2} color='text.subtle' />
-        <Stack
-          flexDirection='row'
-          alignItems='center'
-          justifyContent='flex-start'
-          spacing={2}
-          width='50%'
-        >
-          <AssetIcon size='sm' assetId={buyAsset?.assetId} />
-          <Amount.Crypto value={buyAmountCryptoPrecision} symbol={buyAsset.symbol} />
-        </Stack>
-      </HStack>
+      <Flex justifyContent='center' alignItems='center' flexWrap='wrap' gap={2} px={4}>
+        <Flex alignItems='center' gap={2}>
+          <AssetIcon size='xs' assetId={sellAsset?.assetId} />
+          <Amount.Crypto
+            whiteSpace='nowrap'
+            value={sellAmountCryptoPrecision}
+            symbol={sellAsset.symbol}
+          />
+        </Flex>
+        <Icon as={ArrowForwardIcon} boxSize={4} color='text.subtle' />
+        <Flex alignItems='center' gap={2}>
+          <AssetIcon size='xs' assetId={buyAsset?.assetId} />
+          <Amount.Crypto
+            whiteSpace='nowrap'
+            value={buyAmountCryptoPrecision}
+            symbol={buyAsset.symbol}
+          />
+        </Flex>
+      </Flex>
     )
   }, [sellAsset, buyAsset, sellAmountCryptoPrecision, buyAmountCryptoPrecision])
 
@@ -97,15 +94,13 @@ export const TradeSuccess = ({
     <>
       <CardBody pb={0} px={0}>
         <SlideTransition>
-          <Box textAlign='center' py={4}>
-            <Icon as={FaRegCircleCheck} color='green.500' boxSize={12} />
-            <Text
-              translation={titleTranslation ?? 'trade.temp.tradeSuccess'}
-              fontWeight='bold'
-              mb={4}
-            />
+          <Flex flexDir='column' alignItems='center' textAlign='center' py={8} gap={6}>
+            <Stack alignItems='center'>
+              <AnimatedCheck boxSize={12} />
+              <Text translation={titleTranslation ?? 'trade.temp.tradeSuccess'} fontWeight='bold' />
+            </Stack>
             <AmountsLine />
-          </Box>
+          </Flex>
         </SlideTransition>
       </CardBody>
       <CardFooter flexDir='column' gap={2} px={4}>

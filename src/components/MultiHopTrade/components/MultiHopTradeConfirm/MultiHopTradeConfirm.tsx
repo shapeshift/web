@@ -137,7 +137,7 @@ export const MultiHopTradeConfirm = memo(() => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        {isTradeComplete ? (
+        {!isTradeComplete ? (
           <TradeSuccess
             handleBack={handleBack}
             titleTranslation={

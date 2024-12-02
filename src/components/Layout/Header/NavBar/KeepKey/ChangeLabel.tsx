@@ -24,7 +24,7 @@ export const ChangeLabel = () => {
       deviceState: { awaitingDeviceInteraction },
     },
   } = useWallet()
-  const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.name)
+  const [keepKeyLabel, setKeepKeyLabel] = useState(walletInfo?.meta?.label ?? walletInfo?.name)
 
   const handleChangeLabelInitializeEvent = useCallback(async () => {
     await keepKeyWallet?.applySettings({ label: keepKeyLabel }).catch(e => {

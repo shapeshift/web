@@ -149,7 +149,7 @@ export const KeepKeyMenu = () => {
           <ExpandedMenuItem
             onClick={navigateToKeepKeyLabel}
             label='walletProvider.keepKey.settings.menuLabels.label'
-            value={walletInfo?.name}
+            value={walletInfo?.meta?.label ?? walletInfo?.name}
             hasSubmenu={true}
           />
           <ExpandedMenuItem

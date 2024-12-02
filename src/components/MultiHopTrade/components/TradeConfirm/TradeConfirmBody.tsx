@@ -1,5 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Box, Card, HStack, Stepper } from '@chakra-ui/react'
+import { Box, Card, HStack, Step, Stepper, StepSeparator } from '@chakra-ui/react'
 import type {
   SupportedTradeQuoteStepIndex,
   SwapperName,
@@ -152,7 +152,7 @@ const InnerSteps = () => {
   return <Hops />
 }
 
-const buyAssetStepProps = { mt: 6 }
+const stepContainerProps = { width: '100%', pb: 8 }
 
 // TODO: this will be a Shared component (merged into SharedConfirm), taking Hops
 export const TradeConfirmBody = () => {
@@ -170,35 +170,38 @@ export const TradeConfirmBody = () => {
             amountCryptoBaseUnit={tradeQuoteFirstHop.sellAmountIncludingProtocolFeesCryptoBaseUnit}
           />
 
-          <Box
-            bg='background.surface.overlay.base'
-            borderRadius='xl'
-            borderWidth='1px'
-            borderColor='whiteAlpha.100'
-            width='full'
-            position='relative'
-            zIndex={1}
-            mx={-2}
-          >
-            <Stepper
-              index={-1}
-              orientation='vertical'
-              gap='0'
-              width='full'
-              px={2}
-              py={1}
-              borderWidth='1px'
-              borderColor='border.base'
+          <Step {...stepContainerProps}>
+            <Box
+              bg='background.surface.overlay.base'
               borderRadius='xl'
+              borderWidth='1px'
+              borderColor='whiteAlpha.100'
+              width='full'
+              mx={-2}
+              flex={1}
+              zIndex={2}
             >
-              <InnerSteps />
-            </Stepper>
-          </Box>
+              <Stepper
+                index={-1}
+                orientation='vertical'
+                gap='0'
+                width='full'
+                px={2}
+                py={1}
+                borderWidth='1px'
+                borderColor='border.base'
+                borderRadius='xl'
+              >
+                <InnerSteps />
+              </Stepper>
+            </Box>
+
+            <StepSeparator />
+          </Step>
 
           <AssetSummaryStep
             asset={tradeQuoteLastHop.buyAsset}
             amountCryptoBaseUnit={tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit}
-            stepProps={buyAssetStepProps}
           />
         </Stepper>
       </HStack>

@@ -1034,7 +1034,7 @@
       "cancellationFailed": "Failed to cancel order"
     },
     "viewOrder": "View Order",
-    "viewOnChain": "View transaction on chain" ,
+    "viewOnChain": "View transaction on chain",
     "yourOrderHasBeenPlaced": "Your order has been placed.",
     "yourCancellationHasBeenSubmitted": "Your cancellation has been submitted.",
     "limitPrice": "Limit Price",

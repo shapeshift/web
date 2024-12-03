@@ -144,6 +144,23 @@ const styles = {
       alignItems: 'stretch',
     },
     '--shapeshift-header-bg': mode('white', 'blackAlpha.100')(props),
+    '#chakra-toast-manager-bottom-right': {
+      '.chakra-toast': {
+        '.chakra-toast__inner': {
+          width: '100%',
+        },
+        '.chakra-alert': {
+          justifyContent: 'space-between',
+        },
+        '.chakra-alert > div:nth-child(2)': {
+          width: '100%',
+          justifyContent: 'space-between',
+          button: {
+            minWidth: 'inherit',
+          },
+        },
+      },
+    },
   }),
 }
 

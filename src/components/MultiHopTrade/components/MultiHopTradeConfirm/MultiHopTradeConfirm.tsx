@@ -14,6 +14,7 @@ import { fromBaseUnit } from 'lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
+  selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -39,6 +40,7 @@ export const MultiHopTradeConfirm = memo(() => {
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const lastHop = useAppSelector(selectLastHop)
 
   const initialActiveTradeIdRef = useRef(activeQuote?.id ?? '')
 
@@ -137,7 +139,7 @@ export const MultiHopTradeConfirm = memo(() => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        {isTradeComplete ? (
+        {isTradeComplete && activeQuote && lastHop ? (
           <TradeSuccess
             handleBack={handleBack}
             titleTranslation={
@@ -146,12 +148,12 @@ export const MultiHopTradeConfirm = memo(() => {
             sellAsset={activeQuote?.steps[0].sellAsset}
             buyAsset={activeQuote?.steps[0].buyAsset}
             sellAmountCryptoPrecision={fromBaseUnit(
-              activeQuote?.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              activeQuote?.steps[0].sellAsset.precision ?? 0,
+              activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              activeQuote.steps[0].sellAsset.precision,
             )}
             buyAmountCryptoPrecision={fromBaseUnit(
-              activeQuote?.steps[activeQuote.steps.length - 1].buyAmountAfterFeesCryptoBaseUnit,
-              activeQuote?.steps[activeQuote.steps.length - 1].buyAsset.precision ?? 0,
+              lastHop.buyAmountAfterFeesCryptoBaseUnit,
+              lastHop.buyAsset.precision,
             )}
           >
             <Hops

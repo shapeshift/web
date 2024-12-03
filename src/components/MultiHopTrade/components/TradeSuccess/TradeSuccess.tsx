@@ -29,20 +29,11 @@ export type TradeSuccessProps = {
   handleBack: () => void
   children: JSX.Element
   titleTranslation?: string | [string, InterpolationOptions]
-} & (
-  | {
-      sellAsset: never
-      buyAsset: never
-      sellAmountCryptoPrecision: never
-      buyAmountCryptoPrecision: never
-    }
-  | {
-      sellAsset?: Asset
-      buyAsset?: Asset
-      sellAmountCryptoPrecision?: string
-      buyAmountCryptoPrecision?: string
-    }
-)
+  sellAsset?: Asset
+  buyAsset?: Asset
+  sellAmountCryptoPrecision?: string
+  buyAmountCryptoPrecision?: string
+}
 
 export const TradeSuccess = ({
   handleBack,

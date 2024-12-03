@@ -2,11 +2,14 @@ import type { GridProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
+import { FaWallet } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { generatePath, useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { ButtonWalletPredicate } from 'components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from 'components/HelperTooltip/HelperTooltip'
 import { Main } from 'components/Layout/Main'
 import { SEO } from 'components/Layout/Seo'
@@ -14,6 +17,7 @@ import { ResultsEmpty } from 'components/ResultsEmpty'
 import { AssetCell } from 'components/StakingVaults/Cells'
 import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { selectAccountNumberByAccountId } from 'state/slices/selectors'
@@ -205,6 +209,7 @@ const LendingRowAssetAccountsGrids = ({
 }
 
 export const YourLoans = () => {
+  const { isConnected } = useWallet().state
   const translate = useTranslate()
   const lendingHeader = useMemo(() => <LendingHeader />, [])
 
@@ -275,13 +280,28 @@ export const YourLoans = () => {
     ) : null
   }, [isActive, translate])
 
+  const connectWalletBody: [string, InterpolationOptions] = useMemo(
+    () => ['common.connectWalletToGetStartedWith', { feature: 'Lending' }],
+    [],
+  )
+  const connectWalletTitleButton = useMemo(() => <ButtonWalletPredicate isValidWallet />, [])
+  const connectIcon = useMemo(() => <FaWallet />, [])
+
   return (
     <Main headerComponent={lendingHeader} isSubPage>
       <SEO title={translate('lending.yourLoans.yourLoans')} />
-      <Stack>
-        {renderHeader}
-        {lendingRowGrids}
-      </Stack>
+      {isConnected ? (
+        <Stack>
+          {renderHeader}
+          {lendingRowGrids}
+        </Stack>
+      ) : (
+        <ResultsEmpty
+          title={connectWalletTitleButton}
+          body={connectWalletBody}
+          icon={connectIcon}
+        />
+      )}
     </Main>
   )
 }

@@ -8,6 +8,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type {
   HDWallet,
+  SolanaAddressLookupTableAccountInfo,
   SolanaSignTx,
   SolanaTxInstruction,
   SolanaWallet,
@@ -22,11 +23,14 @@ import {
   createTransferInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
+  TOKEN_2022_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   TokenAccountNotFoundError,
   TokenInvalidAccountOwnerError,
 } from '@solana/spl-token'
-import type { TransactionInstruction } from '@solana/web3.js'
+import type { AccountInfo, TransactionInstruction } from '@solana/web3.js'
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   Connection,
   PublicKey,
@@ -34,6 +38,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js'
+import { isUndefined } from 'lodash'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -61,6 +66,8 @@ import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType }
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { microLamportsToLamports } from './utils'
+
+export const svmChainIds = [KnownChainIds.SolanaMainnet] as const
 
 // Maximum compute units allowed for a single solana transaction
 const MAX_COMPUTE_UNITS = 1400000
@@ -251,6 +258,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         )
       }
 
+      const addressLookupTableAccountInfos = await this.getAddressLookupTableAccounts(
+        chainSpecific.addressLookupTableAccounts ?? [],
+      )
+
       const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
         addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
         blockHash: blockhash,
@@ -259,6 +270,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         instructions,
         to: tokenId ? '' : to,
         value: tokenId ? '' : value,
+        addressLookupTableAccountInfos,
       }
 
       return { txToSign }
@@ -449,8 +461,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     const { to, chainSpecific } = input
     const { from, tokenId, instructions = [] } = chainSpecific
 
-    if (!to) throw new Error('to is required')
-    if (!input.value) throw new Error('value is required')
+    const estimationInstructions = [...instructions]
+
+    const addressLookupTableAccounts = await this.getSolanaAddressLookupTableAccountsInfo(
+      chainSpecific.addressLookupTableAccounts ?? [],
+    )
+
+    if (isUndefined(input.to)) throw new Error(`${this.getName()}ChainAdapter: to is required`)
+    if (!input.value) throw new Error(`${this.getName()}ChainAdapter: value is required`)
 
     const value = Number(input.value)
 
@@ -463,9 +481,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
           value: input.value,
         })
 
-        instructions.push(...tokenTransferInstructions)
+        estimationInstructions.push(...tokenTransferInstructions)
       } else {
-        instructions.push(
+        estimationInstructions.push(
           SystemProgram.transfer({
             fromPubkey: new PublicKey(from),
             toPubkey: new PublicKey(to),
@@ -477,17 +495,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
     // ensuring the transaction does not exceed the maximum compute units alotted for a single transaction.
-    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }))
+    estimationInstructions.push(
+      ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
+    )
 
     // placeholder compute unit price instruction for the purposes of estimating the compute unit cost of a transaction
-    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
+    estimationInstructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 0 }))
 
     const message = new TransactionMessage({
       payerKey: new PublicKey(input.chainSpecific.from),
-      instructions,
+      instructions: estimationInstructions,
       // static block hash as fee estimation replaces the block hash with latest to save us a client side call
       recentBlockhash: '4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZAMdL4VZHirAn',
-    }).compileToV0Message()
+    }).compileToV0Message(addressLookupTableAccounts)
 
     const transaction = new VersionedTransaction(message)
 
@@ -507,30 +527,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   }): Promise<TransactionInstruction[]> {
     const instructions: TransactionInstruction[] = []
 
-    const destinationTokenAccount = getAssociatedTokenAddressSync(
-      new PublicKey(tokenId),
-      new PublicKey(to),
-      true,
-    )
+    const { instruction, destinationTokenAccount } =
+      await this.createAssociatedTokenAccountInstruction({ from, to, tokenId })
 
-    // check if destination token account exists and add creation instruction if it doesn't
-    try {
-      await getAccount(this.connection, destinationTokenAccount)
-    } catch (err) {
-      if (
-        err instanceof TokenAccountNotFoundError ||
-        err instanceof TokenInvalidAccountOwnerError
-      ) {
-        instructions.push(
-          createAssociatedTokenAccountInstruction(
-            // sender pays for creation of the token account
-            new PublicKey(from),
-            destinationTokenAccount,
-            new PublicKey(to),
-            new PublicKey(tokenId),
-          ),
-        )
-      }
+    if (instruction) {
+      instructions.push(instruction)
     }
 
     instructions.push(
@@ -545,7 +546,61 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return instructions
   }
 
-  private convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
+  public async createAssociatedTokenAccountInstruction({
+    from,
+    to,
+    tokenId,
+  }: {
+    from: string
+    to: string
+    tokenId: string
+  }): Promise<{
+    instruction?: TransactionInstruction
+    destinationTokenAccount: PublicKey
+  }> {
+    const accountInfo = await this.connection.getAccountInfo(new PublicKey(tokenId))
+
+    const TOKEN_PROGRAM =
+      accountInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+        ? TOKEN_2022_PROGRAM_ID
+        : TOKEN_PROGRAM_ID
+
+    const destinationTokenAccount = getAssociatedTokenAddressSync(
+      new PublicKey(tokenId),
+      new PublicKey(to),
+      true,
+      TOKEN_PROGRAM,
+    )
+
+    // check if destination token account exists and add creation instruction if it doesn't
+    try {
+      await getAccount(this.connection, destinationTokenAccount)
+    } catch (err) {
+      if (
+        err instanceof TokenAccountNotFoundError ||
+        err instanceof TokenInvalidAccountOwnerError
+      ) {
+        return {
+          instruction: createAssociatedTokenAccountInstruction(
+            // sender pays for creation of the token account
+            new PublicKey(from),
+            destinationTokenAccount,
+            new PublicKey(to),
+            new PublicKey(tokenId),
+            TOKEN_PROGRAM,
+          ),
+          destinationTokenAccount,
+        }
+      }
+    }
+
+    return {
+      instruction: undefined,
+      destinationTokenAccount,
+    }
+  }
+
+  public convertInstruction(instruction: TransactionInstruction): SolanaTxInstruction {
     return {
       keys: instruction.keys.map(key => ({
         pubkey: key.pubkey.toString(),
@@ -555,6 +610,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       programId: instruction.programId.toString(),
       data: instruction.data,
     }
+  }
+
+  public async getTxStatus(tx: unchained.solana.Tx, pubkey: string): Promise<unchained.TxStatus> {
+    const parsedTx = await this.parseTx(tx, pubkey)
+
+    return parsedTx.status
   }
 
   private async parseTx(tx: unchained.solana.Tx, pubkey: string): Promise<Transaction> {
@@ -571,5 +632,55 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         value: transfer.totalValue,
       })),
     }
+  }
+
+  get httpProvider(): unchained.solana.Api {
+    return this.providers.http
+  }
+
+  private async getAddressLookupTableAccountsInfo(
+    addresses: string[],
+  ): Promise<(AccountInfo<Buffer> | null)[]> {
+    return await this.connection.getMultipleAccountsInfo(addresses.map(key => new PublicKey(key)))
+  }
+
+  private async getSolanaAddressLookupTableAccountsInfo(
+    addresses: string[],
+  ): Promise<AddressLookupTableAccount[]> {
+    const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
+
+    return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
+      const addressLookupTableAddress = addresses[index]
+      if (accountInfo) {
+        const addressLookupTableAccount = new AddressLookupTableAccount({
+          key: new PublicKey(addressLookupTableAddress),
+          state: AddressLookupTableAccount.deserialize(
+            new Uint8Array(Buffer.from(accountInfo.data)),
+          ),
+        })
+        acc.push(addressLookupTableAccount)
+      }
+
+      return acc
+    }, new Array<AddressLookupTableAccount>())
+  }
+
+  private async getAddressLookupTableAccounts(
+    addresses: string[],
+  ): Promise<SolanaAddressLookupTableAccountInfo[]> {
+    const addressLookupTableAccountInfos = await this.getAddressLookupTableAccountsInfo(addresses)
+
+    return addressLookupTableAccountInfos.reduce((acc, accountInfo, index) => {
+      const addressLookupTableAddress = addresses[index]
+      if (accountInfo) {
+        const addressLookupTableAccount = {
+          key: addressLookupTableAddress,
+          data: Buffer.from(accountInfo.data),
+        }
+        acc.push(addressLookupTableAccount)
+      }
+
+      return acc
+    }, new Array<SolanaAddressLookupTableAccountInfo>())
   }
 }

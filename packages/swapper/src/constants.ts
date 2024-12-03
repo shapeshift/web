@@ -9,6 +9,9 @@ import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
 import { cowApi } from './swappers/CowSwapper/endpoints'
 import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
+import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
+import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
+import { JUPITER_SUPPORTED_CHAIN_IDS } from './swappers/JupiterSwapper/utils/constants'
 import { lifiApi } from './swappers/LifiSwapper/endpoints'
 import {
   LIFI_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -85,6 +88,12 @@ export const swappers: Record<
     supportedChainIds: CHAINFLIP_SUPPORTED_CHAIN_IDS,
     pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   },
+  [SwapperName.Jupiter]: {
+    ...jupiterSwapper,
+    ...jupiterApi,
+    supportedChainIds: JUPITER_SUPPORTED_CHAIN_IDS,
+    pollingInterval: DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -96,6 +105,7 @@ const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
+const DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName?: SwapperName,
@@ -117,6 +127,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Chainflip:
       return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Jupiter:
+      return DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       assertUnreachable(swapperName)
   }

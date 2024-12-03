@@ -19,6 +19,7 @@ import type {
 } from 'state/slices/marketDataSlice/types'
 
 import type { MarketDataById } from './types'
+import { trimOutOfBoundsMarketData } from './utils'
 
 export const initialState: MarketDataState = {
   crypto: {
@@ -94,6 +95,14 @@ export const marketData = createSlice({
     setCryptoPriceHistory: {
       reducer: (state, { payload }: { payload: CryptoPriceHistoryPayload }) => {
         const { timeframe, historyDataByAssetId } = payload
+
+        // Trim market data out of the bounds of the current timeframe
+        trimOutOfBoundsMarketData(
+          state.fiat.priceHistory,
+          timeframe,
+          Object.keys(historyDataByAssetId),
+        )
+
         const incoming = {
           crypto: {
             priceHistory: {
@@ -123,6 +132,10 @@ export const marketData = createSlice({
     ) => {
       const { args, data } = payload
       const { symbol, timeframe } = args
+
+      // Trim market data out of the bounds of the current timeframe
+      trimOutOfBoundsMarketData(state.fiat.priceHistory, timeframe, [symbol])
+
       const incoming = {
         fiat: {
           priceHistory: {

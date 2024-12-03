@@ -8,6 +8,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Thorchain:
     case SwapperName.LIFI:
     case SwapperName.Chainflip:
+    case SwapperName.Jupiter:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -22,8 +23,18 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
 }
 
 export const getEnabledSwappers = (
-  { Chainflip, Portals, LifiSwap, ThorSwap, ZrxSwap, ArbitrumBridge, Cowswap }: FeatureFlags,
+  {
+    ChainflipSwap,
+    PortalsSwap,
+    LifiSwap,
+    ThorSwap,
+    ZrxSwap,
+    ArbitrumBridge,
+    Cowswap,
+    JupiterSwap,
+  }: FeatureFlags,
   isCrossAccountTrade: boolean,
+  isSolBuyAssetId: boolean,
 ): Record<SwapperName, boolean> => {
   return {
     [SwapperName.LIFI]:
@@ -38,9 +49,14 @@ export const getEnabledSwappers = (
       ArbitrumBridge &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ArbitrumBridge)),
     [SwapperName.Portals]:
-      Portals && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
+      PortalsSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Portals)),
     [SwapperName.Chainflip]:
-      Chainflip && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
+      ChainflipSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
+    [SwapperName.Jupiter]:
+      JupiterSwap &&
+      (!isCrossAccountTrade ||
+        (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Test]: false,
   }
 }

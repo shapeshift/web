@@ -78,6 +78,7 @@ export const usePortalsAssetsQuery = ({
           })
 
           if (!asset) return acc
+          if (!token.liquidity) return acc
 
           // upsert fetched asset if doesn't exist in generatedAssetData.json
           if (!assets[assetId]) {

@@ -15,8 +15,6 @@ import {
 } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type {
-  GetOrdersRequest,
-  Order,
   OrderCancellation,
   OrderCreation,
   OrderId,
@@ -27,6 +25,7 @@ import type {
   Trade,
 } from '@shapeshiftoss/types/dist/cowSwap'
 import {
+  OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,
   SellTokenSource,
@@ -90,7 +89,7 @@ export const limitOrderApi = createApi({
         const { appData, appDataHash } = await getFullAppData(
           slippageTolerancePercentageDecimal,
           affiliateAppDataFragment,
-          'limit',
+          OrderClass.LIMIT,
         )
 
         const limitOrderQuoteRequest: OrderQuoteRequest = {
@@ -248,20 +247,6 @@ export const limitOrderApi = createApi({
         const network = maybeNetwork.unwrap()
         const result = await axios.get<Trade[]>(
           `${baseUrl}/${network}/api/v1/trades?owner=${owner}`,
-        )
-        return { data: result.data }
-      },
-    }),
-    getOrders: build.query<Order[], { payload: GetOrdersRequest; chainId: ChainId }>({
-      queryFn: async ({ payload, chainId }) => {
-        const config = getConfig()
-        const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
-        const result = await axios.post<Order[]>(
-          `${baseUrl}/${network}/api/v1/account/${payload.owner}/orders`,
-          { limit: payload.limit, offset: payload.offset },
         )
         return { data: result.data }
       },

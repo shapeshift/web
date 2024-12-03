@@ -6,7 +6,6 @@ import { DEFAULT_HISTORY_TIMEFRAME } from 'constants/Config'
 import { LanguageTypeEnum } from 'constants/LanguageTypeEnum'
 import React, { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNfts } from 'components/Nfts/hooks/useNfts'
 import { usePlugins } from 'context/PluginProvider/PluginProvider'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from 'hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -86,8 +85,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       emitter.off('LedgerAppOpened', handleLedgerAppOpened)
     }
   })
-
-  useNfts()
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()

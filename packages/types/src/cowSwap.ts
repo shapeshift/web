@@ -12,6 +12,11 @@ export type QuoteId = Nominal<number, 'QuoteId'>
 // The following are lifted directly out of the cowprotocol source code because ethers version conflicts prevent us importing the SDK directly.
 // https://github.dev/cowprotocol/cow-sdk/blob/main/src/order-book/generated/models/
 
+export enum TypedDataPrimaryType {
+  Order = 'Order',
+  OrderCancellations = 'OrderCancellations',
+}
+
 export enum OrderKind {
   BUY = 'buy',
   SELL = 'sell',

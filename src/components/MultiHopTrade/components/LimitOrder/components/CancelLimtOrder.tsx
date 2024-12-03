@@ -20,7 +20,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { Row } from 'components/Row/Row'
@@ -36,19 +35,18 @@ import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
 
 export const CancelLimitOrder = () => {
-  const history = useHistory()
   const wallet = useWallet().state.wallet
   const { setOrderToCancel } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorHandler()
 
   const orderToCancel = useAppSelector(selectOrderToCancel)
 
-  const [cancelLimitOrders, { data, error, isLoading, reset }] = useCancelLimitOrdersMutation()
+  const [cancelLimitOrders, { data: wasCancellationSuccessful, error, isLoading, reset }] =
+    useCancelLimitOrdersMutation()
 
   useEffect(() => {
     if (!error) return
@@ -60,10 +58,14 @@ export const CancelLimitOrder = () => {
   }, [error, showErrorToast])
 
   useEffect(() => {
-    if (!data || error) return
+    // Must explicitly check for false, because undefined means a cancellation isn't completed.
+    if (wasCancellationSuccessful !== false) return
 
-    history.push(LimitOrderRoutePaths.PlaceOrder)
-  }, [data, error, history])
+    showErrorToast(
+      `Failed to cancel order uid ${orderToCancel?.order.uid}`,
+      'limitOrder.cancel.cancellationFailed',
+    )
+  }, [error, orderToCancel?.order.uid, showErrorToast, wasCancellationSuccessful])
 
   const handleClose = useCallback(() => {
     reset()
@@ -76,7 +78,8 @@ export const CancelLimitOrder = () => {
     }
 
     await cancelLimitOrders({ wallet, ...orderToCancel })
-  }, [orderToCancel, cancelLimitOrders, wallet])
+    setOrderToCancel(undefined)
+  }, [orderToCancel, wallet, cancelLimitOrders, setOrderToCancel])
 
   const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
   const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')
@@ -115,7 +118,7 @@ export const CancelLimitOrder = () => {
       <ModalContent pointerEvents='all'>
         <ModalHeader px={6} pt={4} borderWidth={0}>
           <Heading textAlign='center' fontSize='md'>
-            <Text translation='limitOrder.cancelOrder' />
+            <Text translation='limitOrder.cancel.cancelOrder' />
           </Heading>
         </ModalHeader>
         <ModalCloseButton />
@@ -129,7 +132,7 @@ export const CancelLimitOrder = () => {
               <TransactionTypeIcon status={TxStatus.Failed} />
             </AssetIconWithBadge>
             <Heading textAlign='center' fontSize='md'>
-              <Text translation='limitOrder.areYouSureYouWantToCancelOrder' />
+              <Text translation='limitOrder.cancel.areYouSureYouWantToCancelOrder' />
             </Heading>
           </Flex>
         </ModalBody>
@@ -214,7 +217,7 @@ export const CancelLimitOrder = () => {
               isLoading={isLoading}
               isDisabled={isLoading}
             >
-              <Text translation={'limitOrder.requestCancellation'} />
+              <Text translation='limitOrder.cancel.requestCancellation' />
             </Button>
           </Stack>
         </ModalFooter>

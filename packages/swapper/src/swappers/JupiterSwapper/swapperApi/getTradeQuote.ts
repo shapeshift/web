@@ -28,7 +28,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../utils/constants'
 import { getJupiterPrice, getJupiterSwapInstructions, isSupportedChainId } from '../utils/helpers'
 
@@ -217,7 +217,7 @@ export const getTradeQuote = async (
   )
 
   const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
-    return getRate({
+    return getInputOutputRate({
       sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sellAsset,

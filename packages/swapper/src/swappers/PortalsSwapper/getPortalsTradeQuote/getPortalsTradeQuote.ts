@@ -16,7 +16,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
@@ -135,7 +135,7 @@ export async function getPortalsTradeQuote(
 
     if (!tx) throw new Error('Portals Tx simulation failed upstream')
 
-    const rate = getRate({
+    const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
       sellAsset,

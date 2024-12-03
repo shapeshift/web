@@ -10,7 +10,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -24,7 +24,7 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { SOLANA_RANDOM_ADDRESS } from '../utils/constants'
 import { getJupiterPrice, isSupportedChainId } from '../utils/helpers'
 
@@ -39,7 +39,7 @@ export const getTradeRate = async (
     affiliateBps,
     receiveAddress,
     accountNumber,
-    slippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
 
   const { assetsById } = deps
@@ -82,7 +82,7 @@ export const getTradeRate = async (
     commissionBps: affiliateBps,
     amount: sellAmount,
     slippageBps: convertDecimalPercentageToBasisPoints(
-      slippageTolerancePercentageDecimal ??
+      _slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
     ).toFixed(),
   })
@@ -96,7 +96,7 @@ export const getTradeRate = async (
     )
   }
 
-  const { data: quoteResponse } = maybePriceResponse.unwrap()
+  const { data: priceResponse } = maybePriceResponse.unwrap()
 
   const getFeeData = async () => {
     const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
@@ -116,7 +116,7 @@ export const getTradeRate = async (
     return { networkFeeCryptoBaseUnit: fast.txFee }
   }
 
-  const protocolFees: Record<AssetId, ProtocolFee> = quoteResponse.routePlan.reduce(
+  const protocolFees: Record<AssetId, ProtocolFee> = priceResponse.routePlan.reduce(
     (acc, route) => {
       const feeAssetId = toAssetId({
         assetReference: route.swapInfo.feeMint,
@@ -141,42 +141,41 @@ export const getTradeRate = async (
     {} as Record<AssetId, ProtocolFee>,
   )
 
-  const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
-    return getRate({
-      sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
-      sellAsset,
-      buyAsset,
-    })
-  }
-
   const rates: TradeRate[] = []
 
   const feeData = await getFeeData()
 
-  const rate = getQuoteRate(quoteResponse.inAmount, quoteResponse.outAmount)
+  const inputOutputRate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: priceResponse.inAmount,
+    buyAmountCryptoBaseUnit: priceResponse.outAmount,
+    sellAsset,
+    buyAsset,
+  })
+
+  const slippageTolerancePercentageDecimal =
+    // Divide by 100 to get actual decimal percentage from bps
+    // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
+    bn(priceResponse.slippageBps).div(100).div(100).toString()
 
   const tradeRate: TradeRate = {
     id: uuid(),
-    rate,
+    rate: inputOutputRate,
     receiveAddress,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
     accountNumber,
-    slippageTolerancePercentageDecimal:
-      slippageTolerancePercentageDecimal ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
+    slippageTolerancePercentageDecimal,
     steps: [
       {
-        buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.outAmount,
-        buyAmountAfterFeesCryptoBaseUnit: quoteResponse.outAmount,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: quoteResponse.inAmount,
-        jupiterQuoteResponse: quoteResponse,
+        buyAmountBeforeFeesCryptoBaseUnit: priceResponse.outAmount,
+        buyAmountAfterFeesCryptoBaseUnit: priceResponse.outAmount,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: priceResponse.inAmount,
+        jupiterQuoteResponse: priceResponse,
         feeData: {
           protocolFees,
           ...feeData,
         },
-        rate,
+        rate: inputOutputRate,
         source: SwapperName.Jupiter,
         buyAsset,
         sellAsset,

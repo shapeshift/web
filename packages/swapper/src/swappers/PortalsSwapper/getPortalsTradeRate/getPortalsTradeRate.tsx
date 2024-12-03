@@ -17,7 +17,7 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeEstimate } from '../utils/fetchPortalsTradeOrder'
@@ -113,7 +113,7 @@ export async function getPortalsTradeRate(
     })
     // Use the quote estimate endpoint to get a quote without a wallet
 
-    const rate = getRate({
+    const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: quoteEstimateResponse?.context.outputAmount,
       sellAsset,

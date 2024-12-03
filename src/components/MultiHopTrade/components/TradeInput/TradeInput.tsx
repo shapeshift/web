@@ -1,3 +1,4 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
@@ -52,6 +53,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
@@ -60,6 +62,7 @@ import { TradeAssetInput } from '../TradeAssetInput'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
+import { useSharedHeight } from './hooks/useSharedHeight'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 
 const emptyPercentOptions: number[] = []
@@ -82,6 +85,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     dispatch: walletDispatch,
     state: { isConnected, isDemoWallet, wallet },
   } = useWallet()
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const totalHeight = useSharedHeight(tradeInputRef)
 
   const { handleSubmit } = useFormContext()
   const dispatch = useAppDispatch()
@@ -424,6 +429,18 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     )
   }, [isCompact, isLoading, manualReceiveAddress, walletReceiveAddress])
 
+  const sideContent = useMemo(() => {
+    return (
+      <CollapsibleQuoteList
+        isOpen={!isCompact && !isSmallerThanXl && hasUserEnteredAmount}
+        isLoading={isLoading}
+        width={tradeInputRef.current?.offsetWidth ?? 'full'}
+        height={totalHeight ?? 'full'}
+        ml={4}
+      />
+    )
+  }, [hasUserEnteredAmount, isCompact, isLoading, isSmallerThanXl, totalHeight, tradeInputRef])
+
   // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
   // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
   // ArbitrumBridgeAcknowledgement, but never both. While the current implementation works, its by
@@ -453,11 +470,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        shouldOpenSideComponent={hasUserEnteredAmount}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
-        isLoading={isLoading}
-        sideComponent={CollapsibleQuoteList}
+        sideContent={sideContent}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.Trade}
         onSubmit={handleTradeQuoteConfirm}

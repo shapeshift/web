@@ -5,17 +5,13 @@ import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanne
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
-import { WithLazyMount } from '../TradeInput/components/WithLazyMount'
-import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
 
 type SharedTradeInputProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element
-  shouldOpenSideComponent: boolean
   headerRightContent: JSX.Element
   isCompact: boolean | undefined
-  isLoading: boolean
-  sideComponent: React.ComponentType<any>
+  sideContent: JSX.Element
   tradeInputRef: React.RefObject<HTMLDivElement>
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
@@ -24,18 +20,15 @@ type SharedTradeInputProps = {
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   bodyContent,
-  shouldOpenSideComponent,
   headerRightContent,
   isCompact,
-  isLoading,
-  sideComponent,
+  sideContent,
   tradeInputTab,
   tradeInputRef,
   footerContent,
   onChangeTab,
   onSubmit,
 }) => {
-  const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   return (
@@ -65,15 +58,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             {footerContent}
           </Card>
         </Box>
-        <WithLazyMount
-          shouldUse={!isCompact && !isSmallerThanXl}
-          component={sideComponent}
-          isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
-          isLoading={isLoading}
-          width={tradeInputRef.current?.offsetWidth ?? 'full'}
-          height={totalHeight ?? 'full'}
-          ml={4}
-        />
+        {sideContent}
       </Center>
     </Flex>
   )

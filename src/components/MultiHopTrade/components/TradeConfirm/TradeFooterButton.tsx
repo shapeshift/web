@@ -29,7 +29,7 @@ import {
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { getHopExecutionStateTranslation } from './helpers'
+import { getHopExecutionStateButtonTranslation } from './helpers'
 
 type FooterProps = {
   isLoading: boolean
@@ -67,7 +67,7 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, ac
       case TradeExecutionState.FirstHop:
       case TradeExecutionState.SecondHop:
       case TradeExecutionState.TradeComplete:
-        return getHopExecutionStateTranslation(hopExecutionState)
+        return getHopExecutionStateButtonTranslation(hopExecutionState)
       default:
         assertUnreachable(confirmedTradeExecutionState)
     }

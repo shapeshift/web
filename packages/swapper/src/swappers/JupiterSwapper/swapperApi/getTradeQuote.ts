@@ -11,7 +11,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
@@ -19,7 +19,6 @@ import { PublicKey } from '@solana/web3.js'
 import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   CommonTradeQuoteInput,
   ProtocolFee,
@@ -44,7 +43,7 @@ export const getTradeQuote = async (
     accountNumber,
     sendAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    slippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
 
   const { assetsById } = deps
@@ -95,10 +94,9 @@ export const getTradeQuote = async (
     destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
     commissionBps: affiliateBps,
     amount: sellAmount,
-    slippageBps: convertDecimalPercentageToBasisPoints(
-      slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
-    ).toFixed(),
+    slippageBps: _slippageTolerancePercentageDecimal
+      ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+      : undefined,
   })
 
   if (maybePriceResponse.isErr()) {
@@ -110,7 +108,12 @@ export const getTradeQuote = async (
     )
   }
 
-  const { data: quoteResponse } = maybePriceResponse.unwrap()
+  const { data: priceResponse } = maybePriceResponse.unwrap()
+
+  const slippageTolerancePercentageDecimal =
+    // Divide by 100 to get actual decimal percentage from bps
+    // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
+    bn(priceResponse.slippageBps).div(100).div(100).toString()
 
   const contractAddress =
     buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
@@ -132,9 +135,9 @@ export const getTradeQuote = async (
     apiUrl: jupiterUrl,
     fromAddress: sendAddress,
     toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
-    rawQuote: quoteResponse,
+    rawQuote: priceResponse,
     // Shared account is not supported for simple AMMs
-    useSharedAccounts: quoteResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
+    useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
   })
 
   if (maybeSwapResponse.isErr()) {
@@ -191,7 +194,7 @@ export const getTradeQuote = async (
     }
   }
 
-  const protocolFees: Record<AssetId, ProtocolFee> = quoteResponse.routePlan.reduce(
+  const protocolFees: Record<AssetId, ProtocolFee> = priceResponse.routePlan.reduce(
     (acc, route) => {
       const feeAssetId = toAssetId({
         assetReference: route.swapInfo.feeMint,
@@ -216,20 +219,16 @@ export const getTradeQuote = async (
     {} as Record<AssetId, ProtocolFee>,
   )
 
-  const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
-    return getInputOutputRate({
-      sellAmountCryptoBaseUnit,
-      buyAmountCryptoBaseUnit,
-      sellAsset,
-      buyAsset,
-    })
-  }
-
   const quotes: TradeQuote[] = []
 
   const feeData = await getFeeData()
 
-  const rate = getQuoteRate(quoteResponse.inAmount, quoteResponse.outAmount)
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: priceResponse.inAmount,
+    buyAmountCryptoBaseUnit: priceResponse.outAmount,
+    sellAsset,
+    buyAsset,
+  })
 
   const tradeQuote: TradeQuote = {
     id: uuid(),
@@ -237,16 +236,14 @@ export const getTradeQuote = async (
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
     receiveAddress,
-    slippageTolerancePercentageDecimal:
-      slippageTolerancePercentageDecimal ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
+    slippageTolerancePercentageDecimal,
     steps: [
       {
         accountNumber,
-        buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.outAmount,
-        buyAmountAfterFeesCryptoBaseUnit: quoteResponse.outAmount,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit: quoteResponse.inAmount,
-        jupiterQuoteResponse: quoteResponse,
+        buyAmountBeforeFeesCryptoBaseUnit: priceResponse.outAmount,
+        buyAmountAfterFeesCryptoBaseUnit: priceResponse.outAmount,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit: priceResponse.inAmount,
+        jupiterQuoteResponse: priceResponse,
         jupiterTransactionMetadata: {
           addressLookupTableAddresses: swapResponse.addressLookupTableAddresses,
           instructions,

@@ -107,8 +107,8 @@ const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage f
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
-  swapperName?: SwapperName,
-): string | undefined => {
+  swapperName: SwapperName | undefined,
+): string => {
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
     case SwapperName.Zrx:
@@ -127,8 +127,17 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Chainflip:
       return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Jupiter:
-      return undefined
+      throw new Error('Default slippage not supported by Jupiter')
     default:
       return assertUnreachable(swapperName)
+  }
+}
+
+export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): boolean => {
+  switch (swapperName) {
+    case SwapperName.Jupiter:
+      return true
+    default:
+      return false
   }
 }

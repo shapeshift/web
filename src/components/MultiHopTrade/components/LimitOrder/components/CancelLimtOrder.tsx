@@ -17,7 +17,7 @@ import {
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router'
@@ -31,15 +31,9 @@ import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCancelLimitOrdersMutation } from 'state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
-import {
-  selectActiveQuoteBuyAsset,
-  selectActiveQuoteFeeAsset,
-  selectActiveQuoteLimitPrice,
-  selectActiveQuoteNetworkFeeCryptoPrecision,
-  selectActiveQuoteSellAsset,
-  selectOrderToCancel,
-} from 'state/slices/limitOrderSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { selectOrderToCancel } from 'state/slices/limitOrderSlice/selectors'
+import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { LimitOrderRoutePaths } from '../types'
@@ -53,11 +47,6 @@ export const CancelLimitOrder = () => {
   const { showErrorToast } = useErrorHandler()
 
   const orderToCancel = useAppSelector(selectOrderToCancel)
-  const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
-  const buyAsset = useAppSelector(selectActiveQuoteBuyAsset)
-  const feeAsset = useAppSelector(selectActiveQuoteFeeAsset)
-  const networkFeeCryptoPrecision = useAppSelector(selectActiveQuoteNetworkFeeCryptoPrecision)
-  const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
 
   const [cancelLimitOrders, { data, error, isLoading }] = useCancelLimitOrdersMutation()
 
@@ -87,6 +76,20 @@ export const CancelLimitOrder = () => {
 
     await cancelLimitOrders({ wallet, ...orderToCancel })
   }, [orderToCancel, cancelLimitOrders, wallet])
+
+  const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
+  const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')
+  const feeAsset = useSelectorWithArgs(selectFeeAssetById, orderToCancel?.sellAssetId ?? '')
+
+  const limitPrice = useMemo(() => {
+    if (!orderToCancel || !sellAsset || !buyAsset) return
+    const buyAmountCryptoPrecision = fromBaseUnit(orderToCancel.order.buyAmount, buyAsset.precision)
+    const sellAmountCryptoPrecision = fromBaseUnit(
+      orderToCancel.order.sellAmount,
+      sellAsset.precision,
+    )
+    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed()
+  }, [buyAsset, orderToCancel, sellAsset])
 
   const expiryText = useMemo(() => {
     const validTo = orderToCancel?.order.validTo
@@ -158,10 +161,7 @@ export const CancelLimitOrder = () => {
                   */}
                       <Amount.Crypto value={'1.0'} symbol={sellAsset?.symbol ?? ''} />
                       <RawText>=</RawText>
-                      <Amount.Crypto
-                        value={limitPrice.buyAssetDenomination}
-                        symbol={buyAsset?.symbol ?? ''}
-                      />
+                      <Amount.Crypto value={limitPrice} symbol={buyAsset?.symbol ?? ''} />
                     </HStack>
                   </Row.Value>
                 </Row>
@@ -208,7 +208,7 @@ export const CancelLimitOrder = () => {
               <Row.Label>
                 <Text translation='limitOrder.networkFee' />
               </Row.Label>
-              <Amount.Crypto value={networkFeeCryptoPrecision} symbol={feeAsset?.symbol ?? ''} />
+              <Amount.Crypto value={'0'} symbol={feeAsset?.symbol ?? ''} />
             </Row>
             <Button
               colorScheme='red'

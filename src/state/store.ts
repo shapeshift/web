@@ -152,6 +152,10 @@ getStateWith(store.getState)
 registerSelectors(selectors)
 
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
+export const useSelectorWithArgs = <Args extends unknown[], TSelected>(
+  selector: (state: ReduxState, ...args: Args) => TSelected,
+  ...args: Args
+) => useAppSelector(state => selector(state, ...args))
 
 // https://redux-toolkit.js.org/usage/usage-with-typescript#getting-the-dispatch-type
 export type AppDispatch = typeof store.dispatch

@@ -62,7 +62,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   )
 
   const limitPrice = useMemo(() => {
-    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed()
   }, [buyAmountCryptoPrecision, sellAmountCryptoPrecision])
 
   const tagColorScheme = useMemo(() => {

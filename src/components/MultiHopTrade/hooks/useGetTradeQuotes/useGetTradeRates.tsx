@@ -8,12 +8,12 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
@@ -21,7 +21,6 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import {
-  selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
@@ -29,13 +28,13 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
+import { selectWalletId } from 'state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAsset,
-  selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
@@ -120,20 +119,17 @@ export const useGetTradeRates = () => {
   const {
     state: { wallet },
   } = useWallet()
+  const walletId = useAppSelector(selectWalletId)
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const [tradeRateInput, setTradeRateInput] = useState<GetTradeRateInput | typeof skipToken>(
-    skipToken,
-  )
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -144,34 +140,16 @@ export const useGetTradeRates = () => {
     [sellAccountId],
   )
 
-  const buyAccountMetadataFilter = useMemo(
-    () => ({
-      accountId: buyAccountId,
-    }),
-    [buyAccountId],
-  )
-
   const sellAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, sellAccountMetadataFilter),
-  )
-  const receiveAccountMetadata = useAppSelector(state =>
-    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
   const mixpanel = getMixPanel()
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
-  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
-  const isVotingPowerLoading = useMemo(
-    () => isSnapshotApiQueriesPending && votingPower === undefined,
-    [isSnapshotApiQueriesPending, votingPower],
-  )
-
-  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
-  const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
@@ -179,24 +157,42 @@ export const useGetTradeRates = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  useEffect(() => {
-    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-    // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+  const { data: tradeRateInput } = useQuery({
+    // TODO(gomes): magic lays here, ensure isConnected does not trigger a refetch
+    // Start from the lowest level of dependencies and work our way up to where things do invalidate
+    queryKey: [
+      'getTradeRateInput',
+      {
+        buyAsset,
+        // sellAccountMetadata,
+        sellAmountCryptoPrecision,
+        sellAsset,
+        // votingPower,
+        // thorVotingPower,
+        // wallet,
+        userSlippageTolerancePercentageDecimal,
+        sellAssetUsdRate,
+        // sellAccountId,
+        // receiveAddress,
+        // isSnapshotApiQueriesRejected,
+      },
+    ],
+    queryFn: async () => {
+      // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
+      // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
+      // That effectively means we'll unsubscribe to queries, considering them stale
+      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    // Clear the slice before asynchronously generating the input and running the request.
-    // This is to ensure the initial state change is done synchronously to prevent race conditions
-    // and losing sync on loading state etc.
-    dispatch(tradeQuoteSlice.actions.clear())
+      // Clear the slice before asynchronously generating the input and running the request.
+      // This is to ensure the initial state change is done synchronously to prevent race conditions
+      // and losing sync on loading state etc.
+      dispatch(tradeQuoteSlice.actions.clear())
 
-    // Early exit on any invalid state
-    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-      setTradeRateInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-      return
-    }
-    ;(async () => {
+      // Early exit on any invalid state
+      if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+        dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+        return skipToken
+      }
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
       const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
@@ -232,32 +228,15 @@ export const useGetTradeRates = () => {
             : undefined,
       })) as GetTradeRateInput
 
-      setTradeRateInput(updatedTradeRateInput)
-    })()
-  }, [
-    buyAsset,
-    dispatch,
-    sellAccountMetadata,
-    sellAmountCryptoPrecision,
-    sellAsset,
-    votingPower,
-    thorVotingPower,
-    wallet,
-    receiveAccountMetadata?.bip44Params,
-    userSlippageTolerancePercentageDecimal,
-    sellAssetUsdRate,
-    sellAccountId,
-    isVotingPowerLoading,
-    isBuyAssetChainSupported,
-    receiveAddress,
-    isSnapshotApiQueriesRejected,
-  ])
+      return updatedTradeRateInput
+    },
+  })
 
   const getTradeQuoteArgs = useCallback(
     (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
-        tradeQuoteInput: tradeRateInput,
+        tradeQuoteInput: tradeRateInput ?? skipToken,
         skip: !shouldRefetchTradeQuotes,
         pollingInterval:
           swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,

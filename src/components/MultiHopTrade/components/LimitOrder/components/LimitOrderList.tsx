@@ -30,6 +30,10 @@ import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuer
 import { CancelLimitOrder } from './CancelLimtOrder'
 import { LimitOrderCard } from './LimitOrderCard'
 
+const textSelectedProps = {
+  color: 'text.base',
+}
+
 type LimitOrderListProps = {
   isLoading: boolean
   cardProps?: CardProps
@@ -37,18 +41,6 @@ type LimitOrderListProps = {
 }
 
 export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
-  const textColorBaseProps = useMemo(() => {
-    return {
-      color: 'text.base',
-      ...(onBack && {
-        bg: 'blue.500',
-        px: 4,
-        py: 2,
-        borderRadius: 'full',
-      }),
-    }
-  }, [onBack])
-
   const { setOrderToCancel } = useActions(limitOrderSlice.actions)
   const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
 
@@ -102,8 +94,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             p={0}
             fontSize='md'
             fontWeight='bold'
-            color={onBack ? 'text.base' : 'text.subtle'}
-            _selected={textColorBaseProps}
+            color='text.subtle'
+            _selected={textSelectedProps}
           >
             <Text translation='limitOrder.openOrders' />
           </Tab>
@@ -111,8 +103,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             p={0}
             fontSize='md'
             fontWeight='bold'
-            color={onBack ? 'text.base' : 'text.subtle'}
-            _selected={textColorBaseProps}
+            color='text.subtle'
+            _selected={textSelectedProps}
           >
             <Text translation='limitOrder.orderHistory' />
           </Tab>

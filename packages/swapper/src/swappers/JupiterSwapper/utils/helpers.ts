@@ -21,7 +21,7 @@ type GetJupiterQuoteArgs = {
   destinationAsset: string
   commissionBps: string
   amount: string
-  slippageBps: string
+  slippageBps: string | undefined
 }
 
 type GetJupiterSwapArgs = {
@@ -45,7 +45,7 @@ export const getJupiterPrice = ({
       `?inputMint=${fromAssetId(sourceAsset).assetReference}` +
       `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
       `&amount=${amount}` +
-      `&slippageBps=${slippageBps}` +
+      (slippageBps ? `&slippageBps=${slippageBps}` : `&autoSlippage=true`) +
       `&maxAccounts=${JUPITER_TRANSACTION_MAX_ACCOUNTS}` +
       `&platformFeeBps=${commissionBps}`,
   )

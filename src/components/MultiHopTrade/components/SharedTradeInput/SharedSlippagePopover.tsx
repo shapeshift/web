@@ -38,7 +38,7 @@ const focusStyle = { '&[aria-invalid=true]': { borderColor: 'red.500' } }
 const faGear = <FaGear />
 
 type SharedSlippagePopoverProps = {
-  defaultSlippagePercentage: string
+  defaultSlippagePercentage: string | undefined
   isDisabled?: boolean
   quoteSlippagePercentage: string | undefined
   tooltipTranslation?: string

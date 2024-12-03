@@ -4,6 +4,7 @@ import type { ProtocolFee, SupportedTradeQuoteStepIndex, TradeQuote } from '@sha
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
   getHopByIndex,
+  isAutoSlippageSupportedBySwapper,
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -466,11 +467,15 @@ export const selectTotalNetworkFeeUserCurrency: Selector<ReduxState, string | un
     },
   )
 
-export const selectDefaultSlippagePercentage: Selector<ReduxState, string> = createSelector(
-  selectActiveSwapperName,
-  activeSwapperName =>
-    bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)).times(100).toString(),
-)
+export const selectDefaultSlippagePercentage: Selector<ReduxState, string | undefined> =
+  createSelector(selectActiveSwapperName, activeSwapperName => {
+    if (!activeSwapperName) return undefined
+    // Auto-slippage means we do not have, nor do we ever want to have a default
+    if (isAutoSlippageSupportedBySwapper(activeSwapperName)) return undefined
+    return bn(getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName))
+      .times(100)
+      .toString()
+  })
 
 // Returns the trade slippage in priority order: user preference, quote derived, default
 export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> = createSelector(

@@ -8,6 +8,7 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
+import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -16,9 +17,11 @@ import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
+  selectHopExecutionMetadata,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrency,
@@ -26,12 +29,15 @@ import {
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
+import { getHopExecutionStateTranslation } from './helpers'
+
 type FooterProps = {
   isLoading: boolean
   handleSubmit: () => void
+  activeTradeId: TradeQuote['id']
 }
 
-export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit }) => {
+export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, activeTradeId }) => {
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
@@ -39,16 +45,33 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit }) 
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
+  const hopIndex = 0 // TODO: make this dynamic to support multi-hop trades
+
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId,
+      hopIndex,
+    }
+  }, [activeTradeId, hopIndex])
+
+  const { state: hopExecutionState } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
+  )
+
   const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined
     switch (confirmedTradeExecutionState) {
       case TradeExecutionState.Initializing:
       case TradeExecutionState.Previewing:
         return 'trade.confirmAndTrade'
+      case TradeExecutionState.FirstHop:
+      case TradeExecutionState.SecondHop:
+      case TradeExecutionState.TradeComplete:
+        return getHopExecutionStateTranslation(hopExecutionState)
       default:
-        return null
+        assertUnreachable(confirmedTradeExecutionState)
     }
-  }, [confirmedTradeExecutionState])
+  }, [confirmedTradeExecutionState, hopExecutionState])
 
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>

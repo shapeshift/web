@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
-    "summary": "Detayları göster",
+    "showDetails": "Detayları göster",
     "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
     "temp": {
       "tradeSuccess": "Takas tamamlandı",

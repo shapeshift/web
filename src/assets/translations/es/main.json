@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Aprobación de asignación tx:",
     "tradeComplete": "Ahora tienes %{cryptoAmountFormatted} en tu billetera en %{chainName}.",
     "doAnotherTrade": "Hacer otro intercambio",
-    "summary": "Mostrar Detalles",
+    "showDetails": "Mostrar Detalles",
     "transactionSuccessful": "Transacción exitosa, esperando confirmaciones",
     "temp": {
       "tradeSuccess": "Intercambio completado",

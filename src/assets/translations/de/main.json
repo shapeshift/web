@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Genehmigung der Zulage tx:",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
-    "summary": "Zeige Details",
+    "showDetails": "Zeige Details",
     "transactionSuccessful": "Transaktion erfolgreich, Warte auf Bestätigungen",
     "temp": {
       "tradeSuccess": "Handel abgeschlossen",

@@ -12,6 +12,7 @@ export type AmountProps = {
   suffix?: string
   omitDecimalTrailingZeros?: boolean
   abbreviated?: boolean
+  truncateLargeNumbers?: boolean
   maximumFractionDigits?: number
 } & TextProps
 
@@ -60,6 +61,7 @@ const Crypto = ({
   suffix,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
+  truncateLargeNumbers = false,
   ...props
 }: CryptoAmountProps) => {
   const {
@@ -70,6 +72,7 @@ const Crypto = ({
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,
+    truncateLargeNumbers,
   })
 
   return (

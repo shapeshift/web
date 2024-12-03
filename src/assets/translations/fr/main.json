@@ -993,7 +993,7 @@
     "allowanceApprovalTxName": "Tx. d'autorisation d'allocation :",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
     "doAnotherTrade": "Faire un autre échange",
-    "showDetails": "Afficher le sommaire",
+    "summary": "Afficher le sommaire",
     "transactionSuccessful": "Transaction réussie, en attente de confirmations",
     "temp": {
       "tradeSuccess": "Échange terminé",

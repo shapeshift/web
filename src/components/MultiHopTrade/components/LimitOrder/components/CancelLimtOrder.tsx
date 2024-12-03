@@ -48,7 +48,7 @@ export const CancelLimitOrder = () => {
 
   const orderToCancel = useAppSelector(selectOrderToCancel)
 
-  const [cancelLimitOrders, { data, error, isLoading }] = useCancelLimitOrdersMutation()
+  const [cancelLimitOrders, { data, error, isLoading, reset }] = useCancelLimitOrdersMutation()
 
   useEffect(() => {
     if (!error) return
@@ -66,8 +66,9 @@ export const CancelLimitOrder = () => {
   }, [data, error, history])
 
   const handleClose = useCallback(() => {
+    reset()
     setOrderToCancel(undefined)
-  }, [setOrderToCancel])
+  }, [setOrderToCancel, reset])
 
   const handleRequestCancellation = useCallback(async () => {
     if (!orderToCancel || !wallet) {
@@ -108,11 +109,6 @@ export const CancelLimitOrder = () => {
     return filledDecimalPercentage.times(100).toFixed(2)
   }, [orderToCancel])
 
-  if (!orderToCancel) {
-    console.error('Attempted to cancel an undefined limit order')
-    return null
-  }
-
   return (
     <Modal isOpen={orderToCancel !== undefined} onClose={handleClose}>
       <ModalOverlay />
@@ -127,8 +123,8 @@ export const CancelLimitOrder = () => {
           <Flex flexDir='column' justify='space-between' align='center' gap={4}>
             <AssetIconWithBadge
               size='lg'
-              assetId={orderToCancel.buyAssetId}
-              secondaryAssetId={orderToCancel.sellAssetId}
+              assetId={buyAsset?.assetId ?? ''}
+              secondaryAssetId={sellAsset?.assetId ?? ''}
             >
               <TransactionTypeIcon status={TxStatus.Failed} />
             </AssetIconWithBadge>

@@ -4,7 +4,7 @@ import type { EvmChainAdapter, SignTypedDataInput } from '@shapeshiftoss/chain-a
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, TypedDataTypes, UnsignedOrderCreation } from '@shapeshiftoss/types'
-import { CowNetwork, KnownChainIds } from '@shapeshiftoss/types'
+import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import type { TypedDataDomain } from 'ethers'
 import { ethers } from 'ethers'
@@ -85,6 +85,7 @@ export const signCowMessage = async (
 
 const getSignTypeDataPayload = (
   chainId: ChainId,
+  primaryType: TypedDataPrimaryType,
   types: TypedDataTypes,
   message: Record<string, unknown>,
 ): TypedData => {
@@ -94,7 +95,7 @@ const getSignTypeDataPayload = (
   return {
     // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
     domain: typedDataDomain as Record<string, unknown>,
-    primaryType: 'Order',
+    primaryType,
     types: {
       ...types,
       EIP712Domain: [
@@ -128,7 +129,12 @@ export const signCowOrder = async (
     appData: appDataHash,
   }
 
-  const typedData = getSignTypeDataPayload(chainId, { Order: ORDER_TYPE_FIELDS }, message)
+  const typedData = getSignTypeDataPayload(
+    chainId,
+    TypedDataPrimaryType.Order,
+    { Order: ORDER_TYPE_FIELDS },
+    message,
+  )
 
   const signature = await signMessage(typedData)
 
@@ -142,6 +148,7 @@ export const signCowOrderCancellation = async (
 ) => {
   const typedData = getSignTypeDataPayload(
     chainId,
+    TypedDataPrimaryType.OrderCancellations,
     { OrderCancellations: CANCELLATIONS_TYPE_FIELDS },
     { orderUids: [orderUid] },
   )

@@ -1,14 +1,21 @@
 import { useToast } from '@chakra-ui/react'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+
+const defaultErrorMsgTranslation = 'common.generalError'
 
 export const useErrorHandler = () => {
   const toast = useToast()
   const translate = useTranslate()
 
   const showErrorToast = useCallback(
-    (error: unknown) => {
-      const description = translate('common.generalError')
+    (
+      error: unknown,
+      errorMsgTranslation = defaultErrorMsgTranslation,
+      errorMsgTranslationOptions?: InterpolationOptions,
+    ) => {
+      const description = translate(errorMsgTranslation, errorMsgTranslationOptions)
 
       console.error(error)
 

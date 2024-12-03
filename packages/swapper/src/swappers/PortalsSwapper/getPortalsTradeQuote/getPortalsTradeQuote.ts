@@ -135,7 +135,7 @@ export async function getPortalsTradeQuote(
 
     if (!tx) throw new Error('Portals Tx simulation failed upstream')
 
-    const rate = getInputOutputRate({
+    const inputOutputRate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
       sellAsset,
@@ -162,13 +162,13 @@ export async function getPortalsTradeQuote(
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,
-      rate,
+      rate: inputOutputRate,
       slippageTolerancePercentageDecimal,
       steps: [
         {
           accountNumber,
           allowanceContract,
-          rate,
+          rate: inputOutputRate,
           buyAsset,
           sellAsset,
           buyAmountBeforeFeesCryptoBaseUnit,

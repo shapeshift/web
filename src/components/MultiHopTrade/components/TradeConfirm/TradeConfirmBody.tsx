@@ -1,5 +1,5 @@
 import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Box, Card, HStack, Step, Stepper, StepSeparator } from '@chakra-ui/react'
+import { Box, Card, HStack, Spinner, Step, Stepper, StepSeparator } from '@chakra-ui/react'
 import type {
   SupportedTradeQuoteStepIndex,
   SwapperName,
@@ -8,6 +8,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -24,6 +25,8 @@ import { ApprovalStep } from '../MultiHopTradeConfirm/components/ApprovalStep/Ap
 import { AssetSummaryStep } from '../MultiHopTradeConfirm/components/AssetSummaryStep'
 import { HopTransactionStep } from '../MultiHopTradeConfirm/components/HopTransactionStep'
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { getHopExecutionStateSummaryStepTranslation } from './helpers'
+import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 
 // TODO: this will be in TradeConfirm
 const Hop = ({
@@ -103,12 +106,11 @@ const Hops = () => {
   )
 }
 
-const stepProps = { alignItems: 'center', py: 2 }
-
 const EtaStep = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const etaStepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
   const totalEstimatedExecutionTimeMs = useMemo(() => {
     if (!tradeQuoteFirstHop || !tradeQuoteLastHop) return undefined
     if (!tradeQuoteFirstHop.estimatedExecutionTimeMs || !tradeQuoteLastHop.estimatedExecutionTimeMs)
@@ -130,9 +132,53 @@ const EtaStep = () => {
     <StepperStep
       title={title}
       stepIndicator={stepIndicator}
-      stepProps={stepProps}
+      stepProps={etaStepProps}
       useSpacer={false}
     />
+  )
+}
+
+const ExpandableTradeSteps = () => {
+  const translate = useTranslate()
+  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
+  const stepIndicator = useMemo(() => {
+    return <Spinner />
+  }, [])
+  const currentHopIndex = useCurrentHopIndex()
+  const activeTradeId = useAppSelector(selectActiveQuote)?.id
+  const hopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId ?? '',
+      hopIndex: currentHopIndex ?? 0,
+    }
+  }, [activeTradeId, currentHopIndex])
+  const swapperName = useAppSelector(selectActiveSwapperName)
+  const { state: hopExecutionState, swap } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
+  )
+
+  if (!hopExecutionState || !swapperName) return null
+
+  const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
+    hopExecutionState,
+    swapperName,
+  )
+
+  if (!stepSummaryTranslation) return null
+
+  const stepSummaryTitle = Array.isArray(stepSummaryTranslation)
+    ? translate(...stepSummaryTranslation)
+    : translate(stepSummaryTranslation)
+
+  return (
+    <>
+      <StepperStep
+        title={stepSummaryTitle}
+        stepIndicator={stepIndicator}
+        stepProps={stepProps}
+        useSpacer={false}
+      />
+    </>
   )
 }
 
@@ -149,7 +195,7 @@ const InnerSteps = () => {
     return <EtaStep />
   }
 
-  return <Hops />
+  return <ExpandableTradeSteps />
 }
 
 const stepContainerProps = { width: '100%', pb: 8 }

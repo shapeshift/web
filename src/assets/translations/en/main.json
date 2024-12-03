@@ -1026,7 +1026,12 @@
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Awaiting token transfer",
+    "awaitingSwap": "Awaiting swap via %{swapperName}",
+    "awaitingBridge": "Awaiting bridge via %{bridgeName}",
+    "awaitingApproval": "Awaiting approval",
+    "awaitingAllowanceReset": "Awaiting allowance reset"
   },
   "limitOrder": {
     "heading": "Limit",

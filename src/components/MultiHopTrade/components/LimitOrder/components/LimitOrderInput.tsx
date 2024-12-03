@@ -1,4 +1,4 @@
-import { Divider, Stack } from '@chakra-ui/react'
+import { Button, Divider, HStack, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -17,6 +17,7 @@ import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
@@ -55,6 +56,7 @@ import {
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopover'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -85,6 +87,7 @@ export const LimitOrderInput = ({
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
@@ -299,6 +302,10 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const handleShowLimitOrdersList = useCallback(() => {
+    history.push(LimitOrderRoutePaths.Orders)
+  }, [history])
+
   const isLoading = useMemo(() => {
     return (
       isLimitOrderQuoteFetching ||
@@ -320,14 +327,28 @@ export const LimitOrderInput = ({
 
   const headerRightContent = useMemo(() => {
     return (
-      <SharedSlippagePopover
-        defaultSlippagePercentage={defaultSlippagePercentage}
-        quoteSlippagePercentage={undefined} // No slippage returned by CoW
-        userSlippagePercentage={userSlippagePercentage}
-        setUserSlippagePercentage={setSlippagePreferencePercentage}
-      />
+      <HStack>
+        {Boolean(isCompact || isSmallerThanXl) && (
+          <Button size='xs' borderRadius='full' onClick={handleShowLimitOrdersList}>
+            <Text translation='limitOrder.viewOrders' />
+          </Button>
+        )}
+        <SharedSlippagePopover
+          defaultSlippagePercentage={defaultSlippagePercentage}
+          quoteSlippagePercentage={undefined} // No slippage returned by CoW
+          userSlippagePercentage={userSlippagePercentage}
+          setUserSlippagePercentage={setSlippagePreferencePercentage}
+        />
+      </HStack>
     )
-  }, [defaultSlippagePercentage, setSlippagePreferencePercentage, userSlippagePercentage])
+  }, [
+    isCompact,
+    isSmallerThanXl,
+    defaultSlippagePercentage,
+    setSlippagePreferencePercentage,
+    handleShowLimitOrdersList,
+    userSlippagePercentage,
+  ])
 
   const bodyContent = useMemo(() => {
     return (

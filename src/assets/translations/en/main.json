@@ -1073,6 +1073,7 @@
       "expired": "Expired"
     },
     "orders": "Orders",
+    "viewOrders": "View Orders",
     "loadingOrderList": "Loading your limit orders..."
   },
   "modals": {

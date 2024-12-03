@@ -62,7 +62,6 @@ import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopo
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
-import { useSharedHeight } from '../../TradeInput/hooks/useSharedHeight'
 import { getCowSwapErrorTranslation, isCowSwapError } from '../helpers'
 import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
 import { LimitOrderRoutePaths } from '../types'
@@ -89,7 +88,6 @@ export const LimitOrderInput = ({
   const history = useHistory()
   const { handleSubmit } = useFormContext()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
-  const totalHeight = useSharedHeight(tradeInputRef)
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
@@ -512,18 +510,6 @@ export const LimitOrderInput = ({
     quoteStatusTranslation,
   ])
 
-  const sideContent = useMemo(() => {
-    return (
-      <CollapsibleLimitOrderList
-        isOpen={!isCompact && !isSmallerThanXl}
-        isLoading={isLoading}
-        width={tradeInputRef.current?.offsetWidth ?? 'full'}
-        height={totalHeight ?? 'full'}
-        ml={4}
-      />
-    )
-  }, [isCompact, isLoading, isSmallerThanXl, totalHeight, tradeInputRef])
-
   return (
     <>
       <WarningAcknowledgement
@@ -537,7 +523,9 @@ export const LimitOrderInput = ({
         footerContent={footerContent}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
-        sideContent={sideContent}
+        isLoading={isLoading}
+        SideComponent={CollapsibleLimitOrderList}
+        shouldOpenSideComponent
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}

@@ -76,6 +76,7 @@ export const AccountTable = memo(() => {
               data-test={`account-row-asset-crypto-${row.original.symbol}`}
               value={row.original.cryptoAmount}
               symbol={truncate(row.original.symbol, { length: 6 })}
+              truncateLargeNumbers={true}
             />
           </Stack>
         ),

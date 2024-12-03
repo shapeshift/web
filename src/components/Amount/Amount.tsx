@@ -12,6 +12,7 @@ export type AmountProps = {
   suffix?: string
   omitDecimalTrailingZeros?: boolean
   abbreviated?: boolean
+  truncateLargeNumbers?: boolean
   maximumFractionDigits?: number
 } & TextProps
 
@@ -52,6 +53,24 @@ type PercentAmountProps = AmountProps & {
   autoColor?: boolean
 }
 
+const truncateLargeNumber = (value: string, commaLimit: number = 5) => {
+  const [numberPart, currencyPart] = value.split(' ')
+
+  if (!numberPart) return value
+
+  const commas = numberPart.match(/,/g) || []
+
+  if (commas.length > commaLimit) {
+    const parts = numberPart.split(',')
+
+    const truncatedParts = parts.slice(0, commaLimit + 1)
+
+    return `${truncatedParts.join(',')}... ${currencyPart}`
+  }
+
+  return value
+}
+
 const Crypto = ({
   value,
   symbol,
@@ -60,17 +79,20 @@ const Crypto = ({
   suffix,
   omitDecimalTrailingZeros = false,
   abbreviated = false,
+  truncateLargeNumbers = false,
   ...props
 }: CryptoAmountProps) => {
   const {
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const crypto = toCrypto(bnOrZero(value), symbol, {
+  let crypto = toCrypto(bnOrZero(value), symbol, {
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,
   })
+
+  crypto = truncateLargeNumbers ? truncateLargeNumber(crypto) : crypto
 
   return (
     <RawText {...props}>

@@ -68,7 +68,7 @@ const Crypto = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  let crypto = toCrypto(bnOrZero(value), symbol, {
+  const crypto = toCrypto(bnOrZero(value), symbol, {
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,

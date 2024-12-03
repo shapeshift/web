@@ -126,6 +126,7 @@ export const TradeConfirmFooter: FC = () => {
     ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
+  const activeTradeId = activeQuote?.id
 
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
@@ -329,10 +330,16 @@ export const TradeConfirmFooter: FC = () => {
     translate,
   ])
 
-  const FooterButton = useMemo(
-    () => <TradeFooterButton isLoading={isLoading} handleSubmit={handleSubmit} />,
-    [isLoading, handleSubmit],
-  )
+  const FooterButton = useMemo(() => {
+    if (!activeTradeId) return null
+    return (
+      <TradeFooterButton
+        isLoading={isLoading}
+        handleSubmit={handleSubmit}
+        activeTradeId={activeTradeId}
+      />
+    )
+  }, [activeTradeId, isLoading, handleSubmit])
 
   return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

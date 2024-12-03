@@ -21,7 +21,7 @@ type GetJupiterQuoteArgs = {
   destinationAsset: string
   commissionBps: string
   amount: string
-  slippageBps: string
+  slippageBps: string | undefined
 }
 
 type GetJupiterSwapArgs = {
@@ -38,16 +38,14 @@ export const getJupiterPrice = ({
   destinationAsset,
   commissionBps,
   amount,
-  // TODO(gomes): ensure we still consume this for *manual* slippage setting only
-  slippageBps: _slippageBps,
+  slippageBps,
 }: GetJupiterQuoteArgs): Promise<Result<AxiosResponse<QuoteResponse, any>, SwapErrorRight>> =>
   jupiterService.get<QuoteResponse>(
     `${apiUrl}/quote` +
       `?inputMint=${fromAssetId(sourceAsset).assetReference}` +
       `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
       `&amount=${amount}` +
-      // TODO(gomes): unless user sets slippage manually
-      `&autoSlippage=true` +
+      (slippageBps ? `&slippageBps=${slippageBps}` : `&autoSlippage=true`) +
       `&maxAccounts=${JUPITER_TRANSACTION_MAX_ACCOUNTS}` +
       `&platformFeeBps=${commissionBps}`,
   )

@@ -15,7 +15,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetTradeRateInput,
   ProtocolFee,
@@ -81,10 +80,9 @@ export const getTradeRate = async (
     destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
     commissionBps: affiliateBps,
     amount: sellAmount,
-    slippageBps: convertDecimalPercentageToBasisPoints(
-      _slippageTolerancePercentageDecimal ??
-        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Jupiter),
-    ).toFixed(),
+    slippageBps: _slippageTolerancePercentageDecimal
+      ? convertDecimalPercentageToBasisPoints(_slippageTolerancePercentageDecimal).toFixed()
+      : undefined,
   })
 
   if (maybePriceResponse.isErr()) {

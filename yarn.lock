@@ -11342,15 +11342,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.57.0-ledger.15"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: 427f56230dbc49c50f503b4df2bb3836af3b6765ec2584d64c3a448af900d5794950fac290162c52f683496d4f2a2900d8880687d4ca6add1c9f881a31867cd0
+  checksum: 506fdc480055a5ce25e91f2d0ea0ba2f40b98157b77700ee816a70bbed8e58e990bda5e047f86031a12c9929decd9dcb3c1eeb4d39cf992a050df92cf91a2b52
   languageName: node
   linkType: hard
 
@@ -11380,9 +11380,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.57.0-ledger.4, @shapeshiftoss/hdwallet-core@npm:^1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-core@npm:1.57.0-ledger.15, @shapeshiftoss/hdwallet-core@npm:^1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.57.0-ledger.15"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
@@ -11392,23 +11392,23 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: d40d141a899e360d9808ac2bfa7b7aa97f47dc3caec280546e1d0ca8de9f3d4dd584cb680c6b1cf9163b5e52ea1c7d93bf0a8e41737ecb972923a5804e6dcb5a
+  checksum: 290e775900fe37e74800d2edb7cce5019abcd8e0788958a445cac2478e53f097966d7d463a33c2a9db0b4a89e86d5b0fdae60be0859ceabddbb63ed1608c90fa
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.57.0-ledger.15"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-keepkey": ^1.57.0-ledger.4
-  checksum: 9f5cceb5ab051f0396999aae3754e06fabae626cff1533738f73a3e763b196e3088fa4b3c96299e5361da02d0b48a25b3d7d912ba4b5a904faa7e7cbbde072de
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-keepkey": ^1.57.0-ledger.15
+  checksum: 3a92aad052c6918831d062791e6ca61b41116c8a03ba1821e85bd2b1b12a48d0df3e1599dc15c9785d995822708c99cce0e851bc1cfc77041dafe7eb3f78aa37
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.57.0-ledger.4, @shapeshiftoss/hdwallet-keepkey@npm:^1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.57.0-ledger.15, @shapeshiftoss/hdwallet-keepkey@npm:^1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.57.0-ledger.15"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": ^2.4.0
@@ -11416,7 +11416,7 @@ __metadata:
     "@keepkey/device-protocol": ^7.12.2
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: ^2.16.14
@@ -11427,27 +11427,27 @@ __metadata:
     lodash: ^4.17.21
     p-lazy: ^3.1.0
     semver: ^7.3.8
-  checksum: 012bfc2b416d6539243767588a775d865c6a26092829384e8e69c11596df7646de2d30dcf5abd189ec65fc55cfc5bfa3f4ed18d2b68c93ccba725f0eed4576f9
+  checksum: 5e6723da116382756adac2939522950f378384faebefe4323952ad07a1adf7d6ba6c12a1b32a8fe3fe40c1737a549500025fe6d121e9dd790c4471929578dc14
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-keplr@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.57.0-ledger.15"
   dependencies:
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: 58c74678f1a97a8d0f0dd2d6ebb4f46f519707d65b3e8363de0aed6edf608997f44c772a9e77bcbfea9657771982010c358bd3506d37df8f961dd97082be4420
+  checksum: 9f8a1ee41e5576db00761973deaaf87c0b6df6d8548b14c5febee05fcae5a999e36ce3df62a25aaa4dc74b12dde0d565e299957098076d64b392f244acc46b6b
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.57.0-ledger.15"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.4.1
     "@ledgerhq/hw-app-eth": ^6.38.0
@@ -11456,23 +11456,23 @@ __metadata:
     "@ledgerhq/hw-transport-webusb": ^6.29.2
     "@ledgerhq/live-common": ^21.8.2
     "@ledgerhq/logs": ^6.10.1
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-ledger": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-ledger": ^1.57.0-ledger.15
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: 3c1333f017d594bf78a47545c9801fdc3920aab3d593c11331fe6ed8c2c2f3b31f0e2002e220033f27c142856074a8c8006aabcbe44c5c7e1e9b7679c5f7cea9
+  checksum: f64cd74eec6c4d226f2cf86b0d473f4aa1fa3ff973fd024f69556b65eae563ab5ce6df0f8dba257503d37b1533c547cdf0ae91b72e228c4193eece8affe7e713
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.57.0-ledger.4, @shapeshiftoss/hdwallet-ledger@npm:^1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-ledger@npm:1.57.0-ledger.15, @shapeshiftoss/hdwallet-ledger@npm:^1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.57.0-ledger.15"
   dependencies:
     "@ethereumjs/common": ^2.4.0
     "@ethereumjs/tx": ^3.3.0
     "@ledgerhq/hw-app-cosmos": ^6.29.1
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
     bitcoinjs-message: ^2.0.0
@@ -11480,33 +11480,33 @@ __metadata:
     ethereumjs-tx: 1.3.7
     ethereumjs-util: ^6.1.0
     lodash: ^4.17.21
-  checksum: 6f0c16af77174637096b13a823d15149751f4695c80a4f12de27820bdc25ec60157ec05383d42ed33918ef5438503ed7447c18c44c04c5be2a389fee8213c87d
+  checksum: 1aa4c144abc17de1f9c733858b4c2dfa1748acfa7212d7a330d720c4f62ca8b7d78634c0447a70d9b9697d55f08ab5cb214dfa93f49713983b35b2515dcd291f
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.57.0-ledger.15"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
     mipd: ^0.0.7
-  checksum: 1366df7ae58ab41396ce953bd61c84d0c77b9b121b0bf6bd7e6f2f99e0ef55c09ab7cac76ffff0c048c65ee31fbadc5b4e434c7213112c028a98b5f613b9de7b
+  checksum: 4deee89980b25a34a1f967ebb640a4ef4a55d2b94d2aa979b5a19dafb8fcad53891ac87fb499fb2f0272dd45ec9dd451ab8e8698dac9c389b9e493c1925db8f9
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.57.0-ledger.15"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
-    "@shapeshiftoss/hdwallet-native": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-native": ^1.57.0-ledger.15
     bip39: ^3.0.4
     hash-wasm: ^4.11.0
     idb-keyval: ^6.0.3
@@ -11515,18 +11515,18 @@ __metadata:
     type-assertions: ^1.1.0
     uuid: ^8.3.2
     web-encoding: ^1.1.0
-  checksum: eb1b8da18742a6075babf0e736cf036b5d1ca49a2bb4b2042b6096d0671473223b70061ec328fca999ceb750fe3643e6c04d63814af9564e4274f29256744b5e
+  checksum: 907ed7dc3258b1f0571cf5d2e52af46b3d5daa72df53377fcf9e7cb8826db00a133e52eb6a22ada4bb0e79d76a1fcac3fa44d6912a9843319fb288f242fa2ca4
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.57.0-ledger.4, @shapeshiftoss/hdwallet-native@npm:^1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-native@npm:1.57.0-ledger.15, @shapeshiftoss/hdwallet-native@npm:^1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.57.0-ledger.15"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/fiosdk": 1.2.1-shapeshift.6
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@shapeshiftoss/proto-tx-builder": ^0.8.0
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
@@ -11548,7 +11548,7 @@ __metadata:
     scrypt-js: ^3.0.1
     tendermint-tx-builder: ^1.0.9
     web-encoding: ^1.1.0
-  checksum: e923d38bb39b569e753ebea0af324b59c4c71eaee8a12d58872a9d5fddc705a97fdc3c41a2d9653eeb66b2faf5b99f0aad926bf5d18646dc9eaa608cf5c85000
+  checksum: 27d2d157b54fef85dab8f7db08cccfd6a6a24988c48e6ef50750929510270906233609782804d7fb987a6968577fdf4bfa1e96121f8688ae730bdb89f89bcd34
   languageName: node
   linkType: hard
 
@@ -11584,30 +11584,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-phantom@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.57.0-ledger.15"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@solana/web3.js": ^1.95.3
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 47a9d1a424991c45c657c77f88aaed14516c5a57f5a2fa96e24ae28405dc71b6ba98dbccc6d813f45e4bc853fa59ac26b28acc3049f02346f32be0d618cdaa74
+  checksum: 77e0e7eeecc762273379b878200f9c00b581f9636e117380661583fd400474b8105db88ba425b6870f83a5e45fda8967a61dd3f9d284d905ed4b8a724a2e7a9b
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.57.0-ledger.4":
-  version: 1.57.0-ledger.4
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.57.0-ledger.4"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.57.0-ledger.15":
+  version: 1.57.0-ledger.15
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.57.0-ledger.15"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-core": ^1.57.0-ledger.15
     "@walletconnect/ethereum-provider": ^2.10.1
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: d575971a9c4553378b5bb1d755b20fc822bb69b624d1b977aa26a78c101b767523189065d90c3ab3085254affbbc365d558da181853a74b0295af216d75dcefe
+  checksum: e84f1e165fd83d43aa3f98c32fa1ef82062720a4980db30366b39629c8aca51763c622319032a933924767c24ccdc1b62e42342e7cb1b148b5036fb3061b2d22
   languageName: node
   linkType: hard
 
@@ -11806,18 +11806,18 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-core": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-keepkey": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-keplr": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-ledger": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-metamask-multichain": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-native": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-native-vault": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-phantom": 1.57.0-ledger.4
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.57.0-ledger.4
+    "@shapeshiftoss/hdwallet-coinbase": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-core": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-keepkey": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-keplr": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-ledger": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-native": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-native-vault": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-phantom": 1.57.0-ledger.15
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.57.0-ledger.15
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

@@ -9,7 +9,7 @@ export const withdrawEvent = getAbiItem({ abi: RFOX_ABI, name: 'Withdraw' })
 
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'QmaceJvacFThK8s9VgjUubKoPEz1ne9f8jMQBqKYcZLnrL'
+export const CURRENT_EPOCH_IPFS_HASH = 'QmP3sZFYZzdUMyR7kQUdCm3vypMBGarFYkHG9CvPy1kVst'
 
 const client = viemClientByNetworkId[arbitrum.id]
 

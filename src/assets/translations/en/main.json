@@ -994,7 +994,7 @@
     "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
-    "showDetails": "Show Details",
+    "summary": "Trade Summary",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
     "temp": {
       "tradeSuccess": "Trade complete",

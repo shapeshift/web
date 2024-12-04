@@ -25,6 +25,7 @@ export const availableLedgerAppAssetIds = [
   ethAssetId,
   thorchainAssetId,
   cosmosAssetId,
+  solAssetId,
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

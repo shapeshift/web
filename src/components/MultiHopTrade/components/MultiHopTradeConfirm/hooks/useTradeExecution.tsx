@@ -1,7 +1,7 @@
 import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { evm, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
   BTCSignTx,
   ETHSignTypedData,
@@ -132,7 +132,13 @@ export const useTradeExecution = (
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
 
       const onFail = (e: unknown) => {
-        const { message } = (e ?? { message: undefined }) as { message?: string }
+        const message = (() => {
+          if (e instanceof ChainAdapterError) {
+            return translate(e.metadata.translation, e.metadata.options)
+          }
+          return (e as Error).message ?? undefined
+        })()
+
         dispatch(
           tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
         )

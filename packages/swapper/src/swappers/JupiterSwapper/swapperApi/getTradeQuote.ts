@@ -1,3 +1,4 @@
+import { BorshInstructionCoder } from '@coral-xyz/anchor'
 import type { Instruction } from '@jup-ag/api'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
@@ -28,8 +29,18 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../utils/constants'
-import { getJupiterPrice, getJupiterSwapInstructions, isSupportedChainId } from '../utils/helpers'
+import { referralIdl } from '../idls/referral'
+import {
+  JUPITER_AFFILIATE_CONTRACT_ADDRESS,
+  JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER,
+  SHAPESHIFT_JUPITER_REFERRAL_KEY,
+} from '../utils/constants'
+import {
+  getFeeTokenAccountAndInstruction,
+  getJupiterPrice,
+  getJupiterSwapInstructions,
+  isSupportedChainId,
+} from '../utils/helpers'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -131,6 +142,50 @@ export const getTradeQuote = async (
         })
       : { instruction: undefined, destinationTokenAccount: undefined }
 
+  const buyAssetAddress =
+    buyAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(buyAsset.assetId).assetReference
+
+  const sellAssetAddress =
+    sellAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(sellAsset.assetId).assetReference
+
+  const [buyAssetAccount] = await PublicKey.findProgramAddressSync(
+    [
+      Buffer.from('referral_ata'),
+      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
+      new PublicKey(buyAssetAddress).toBuffer(),
+    ],
+    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+  )
+
+  const [sellAssetAccount] = await PublicKey.findProgramAddressSync(
+    [
+      Buffer.from('referral_ata'),
+      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
+      new PublicKey(sellAssetAddress).toBuffer(),
+    ],
+    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+  )
+
+  const instructionData = new BorshInstructionCoder(referralIdl).encode(
+    'initializeReferralTokenAccount',
+    {},
+  )
+
+  const { instruction: feeAccountInstruction, tokenAccount } =
+    await getFeeTokenAccountAndInstruction({
+      feePayerPubKey: new PublicKey(sendAddress),
+      buyAssetAccount,
+      sellAssetAccount,
+      programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+      instructionData,
+      mint: buyAssetAddress,
+      connection: adapter.getConnection(),
+    })
+
   const maybeSwapResponse = await getJupiterSwapInstructions({
     apiUrl: jupiterUrl,
     fromAddress: sendAddress,
@@ -138,6 +193,7 @@ export const getTradeQuote = async (
     rawQuote: priceResponse,
     // Shared account is not supported for simple AMMs
     useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
+    feeAccount: tokenAccount.toString(),
   })
 
   if (maybeSwapResponse.isErr()) {
@@ -162,6 +218,10 @@ export const getTradeQuote = async (
     ...swapResponse.setupInstructions.map(convertJupiterInstruction),
     convertJupiterInstruction(swapResponse.swapInstruction),
   ]
+
+  if (feeAccountInstruction && affiliateBps !== '0') {
+    instructions.unshift(feeAccountInstruction)
+  }
 
   if (createTokenAccountInstruction) {
     instructions.unshift(createTokenAccountInstruction)

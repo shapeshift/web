@@ -1,12 +1,19 @@
+import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
 import type { QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
+import type { Connection } from '@solana/web3.js'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import type { AxiosResponse } from 'axios'
 
 import type { SwapErrorRight } from '../../../types'
-import { jupiterSupportedChainIds } from './constants'
+import {
+  JUPITER_REFERALL_FEE_PROJECT_ACCOUNT,
+  jupiterSupportedChainIds,
+  SHAPESHIFT_JUPITER_REFERRAL_KEY,
+} from './constants'
 import { jupiterService } from './jupiterService'
 
 export const isSupportedChainId = (chainId: ChainId): chainId is KnownChainIds.SolanaMainnet => {
@@ -30,6 +37,7 @@ type GetJupiterSwapArgs = {
   rawQuote: unknown
   toAddress?: string
   useSharedAccounts: boolean
+  feeAccount: string | undefined
 }
 
 export const getJupiterPrice = ({
@@ -50,13 +58,13 @@ export const getJupiterPrice = ({
       `&platformFeeBps=${commissionBps}`,
   )
 
-// @TODO: Add DAO's fee account
 export const getJupiterSwapInstructions = ({
   apiUrl,
   fromAddress,
   toAddress,
   rawQuote,
   useSharedAccounts,
+  feeAccount,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
 > =>
@@ -67,4 +75,77 @@ export const getJupiterSwapInstructions = ({
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',
+    feeAccount,
   })
+
+export const getFeeTokenAccountAndInstruction = async ({
+  feePayerPubKey,
+  programId,
+  buyAssetAccount,
+  sellAssetAccount,
+  mint,
+  instructionData,
+  connection,
+}: {
+  feePayerPubKey: PublicKey
+  programId: PublicKey
+  buyAssetAccount: PublicKey
+  sellAssetAccount: PublicKey
+  mint: string
+  instructionData: Buffer
+  connection: Connection
+}): Promise<{
+  tokenAccount: PublicKey
+  instruction?: TransactionInstruction | undefined
+}> => {
+  const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetAccount)
+
+  if (buyAssetTokenAccount) return { tokenAccount: buyAssetAccount }
+
+  const sellAssetTokenAccount = await connection.getAccountInfo(sellAssetAccount)
+
+  if (sellAssetTokenAccount) return { tokenAccount: sellAssetAccount }
+
+  const project = new PublicKey(JUPITER_REFERALL_FEE_PROJECT_ACCOUNT)
+
+  return {
+    tokenAccount: buyAssetAccount,
+    instruction: new TransactionInstruction({
+      keys: [
+        {
+          pubkey: feePayerPubKey,
+          isSigner: true,
+          isWritable: true,
+        },
+        {
+          pubkey: project,
+          isWritable: false,
+          isSigner: false,
+        },
+        {
+          pubkey: new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY),
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: buyAssetAccount,
+          isSigner: false,
+          isWritable: true,
+        },
+        {
+          pubkey: new PublicKey(mint),
+          isSigner: false,
+          isWritable: false,
+        },
+        {
+          pubkey: SystemProgram.programId,
+          isSigner: false,
+          isWritable: false,
+        },
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+      ],
+      data: instructionData,
+      programId,
+    }),
+  }
+}

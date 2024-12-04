@@ -14,6 +14,7 @@ import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/Trad
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { calculateFees } from 'lib/fees/model'
 import type { ParameterModel } from 'lib/fees/parameters/types'
@@ -21,6 +22,7 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { isSome } from 'lib/utils'
 import {
+  selectIsSnapshotApiQueriesPending,
   selectIsSnapshotApiQueriesRejected,
   selectVotingPower,
 } from 'state/apis/snapshot/selectors'
@@ -28,13 +30,13 @@ import { swapperApi } from 'state/apis/swapper/swapperApi'
 import type { ApiQuote, TradeQuoteError } from 'state/apis/swapper/types'
 import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/portfolioSlice/selectors'
-import { selectWalletId } from 'state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUsd,
   selectInputSellAsset,
+  selectLastHopBuyAccountId,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
@@ -119,7 +121,6 @@ export const useGetTradeRates = () => {
   const {
     state: { wallet },
   } = useWallet()
-  const walletId = useAppSelector(selectWalletId)
 
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
@@ -130,6 +131,7 @@ export const useGetTradeRates = () => {
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
 
   const userSlippageTolerancePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
 
@@ -140,16 +142,34 @@ export const useGetTradeRates = () => {
     [sellAccountId],
   )
 
+  const buyAccountMetadataFilter = useMemo(
+    () => ({
+      accountId: buyAccountId,
+    }),
+    [buyAccountId],
+  )
+
   const sellAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, sellAccountMetadataFilter),
+  )
+  const receiveAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
   const mixpanel = getMixPanel()
 
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
 
+  const isSnapshotApiQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
   const votingPower = useAppSelector(state => selectVotingPower(state, votingPowerParams))
   const thorVotingPower = useAppSelector(state => selectVotingPower(state, thorVotingPowerParams))
+  const isVotingPowerLoading = useMemo(
+    () => isSnapshotApiQueriesPending && votingPower === undefined,
+    [isSnapshotApiQueriesPending, votingPower],
+  )
+
+  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
+  const isBuyAssetChainSupported = walletSupportsBuyAssetChain
 
   const shouldRefetchTradeQuotes = useMemo(() => hasFocus, [hasFocus])
 
@@ -158,23 +178,27 @@ export const useGetTradeRates = () => {
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
   const { data: tradeRateInput } = useQuery({
-    // TODO(gomes): magic lays here, ensure isConnected does not trigger a refetch
-    // Start from the lowest level of dependencies and work our way up to where things do invalidate
     queryKey: [
       'getTradeRateInput',
       {
         buyAsset,
-        // sellAccountMetadata,
         sellAmountCryptoPrecision,
         sellAsset,
-        // votingPower,
-        // thorVotingPower,
-        // wallet,
         userSlippageTolerancePercentageDecimal,
         sellAssetUsdRate,
-        // sellAccountId,
-        // receiveAddress,
-        // isSnapshotApiQueriesRejected,
+        // TODO(gomes): all the below are what's causing trade input to refentially invalidate on wallet connect
+        // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data (e.g voting power etc) to
+        // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
+        sellAccountMetadata,
+        votingPower,
+        thorVotingPower,
+        wallet,
+        receiveAccountMetadata,
+        sellAccountId,
+        isVotingPowerLoading,
+        isBuyAssetChainSupported,
+        receiveAddress,
+        isSnapshotApiQueriesRejected,
       },
     ],
     queryFn: async () => {

@@ -192,7 +192,6 @@ export const useGetTradeRates = () => {
         sellAccountMetadata,
         votingPower,
         thorVotingPower,
-        wallet,
         receiveAccountMetadata,
         sellAccountId,
         isVotingPowerLoading,

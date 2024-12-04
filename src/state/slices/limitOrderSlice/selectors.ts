@@ -19,11 +19,6 @@ export const selectActiveQuote = createSelector(
   limitOrderSlice => limitOrderSlice.activeQuote,
 )
 
-export const selectOrderToCancel = createSelector(
-  selectLimitOrderSlice,
-  limitOrderSlice => limitOrderSlice.orderToCancel,
-)
-
 export const selectActiveQuoteExpirationTimestamp = createSelector(
   selectActiveQuote,
   activeQuote => {

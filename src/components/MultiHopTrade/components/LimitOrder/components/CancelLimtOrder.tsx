@@ -25,25 +25,25 @@ import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
-import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useCancelLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
-import { selectOrderToCancel } from 'state/slices/limitOrderSlice/selectors'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
-import { useAppSelector, useSelectorWithArgs } from 'state/store'
+import { useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import type { OrderToCancel } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
 
-export const CancelLimitOrder = () => {
-  const wallet = useWallet().state.wallet
-  const { setOrderToCancel } = useActions(limitOrderSlice.actions)
-  const { showErrorToast } = useErrorHandler()
+type CancelLimitOrderProps = {
+  orderToCancel: OrderToCancel | undefined
+  resetOrderToCancel: () => void
+}
 
-  const orderToCancel = useAppSelector(selectOrderToCancel)
+export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLimitOrderProps) => {
+  const wallet = useWallet().state.wallet
+  const { showErrorToast } = useErrorHandler()
 
   const [cancelLimitOrders, { data: wasCancellationSuccessful, error, isLoading, reset }] =
     useCancelLimitOrderMutation()
@@ -68,8 +68,8 @@ export const CancelLimitOrder = () => {
 
   const handleClose = useCallback(() => {
     reset()
-    setOrderToCancel(undefined)
-  }, [setOrderToCancel, reset])
+    resetOrderToCancel()
+  }, [resetOrderToCancel, reset])
 
   const handleRequestCancellation = useCallback(async () => {
     if (!orderToCancel || !wallet) {
@@ -77,8 +77,8 @@ export const CancelLimitOrder = () => {
     }
 
     await cancelLimitOrders({ wallet, ...orderToCancel })
-    setOrderToCancel(undefined)
-  }, [orderToCancel, wallet, cancelLimitOrders, setOrderToCancel])
+    resetOrderToCancel()
+  }, [orderToCancel, wallet, cancelLimitOrders, resetOrderToCancel])
 
   const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
   const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')

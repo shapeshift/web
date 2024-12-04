@@ -19,14 +19,13 @@ import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Text } from 'components/Text'
-import { useActions } from 'hooks/useActions'
-import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 
 import { WithBackButton } from '../../WithBackButton'
 import { cowSwapTokenToAssetId } from '../helpers'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
+import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimtOrder'
 import { LimitOrderCard } from './LimitOrderCard'
 
@@ -41,7 +40,7 @@ type LimitOrderListProps = {
 }
 
 export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
-  const { setOrderToCancel } = useActions(limitOrderSlice.actions)
+  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel>()
   const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
 
   const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
@@ -67,10 +66,17 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     )
   }, [ordersResponse])
 
-  const handleCancelOrderClick = (uid: string) => {
-    const order = openLimitOrders?.find(order => order.order.uid === uid)
-    setOrderToCancel(order)
-  }
+  const handleCancelOrderClick = useCallback(
+    (uid: string) => {
+      const order = openLimitOrders?.find(order => order.order.uid === uid)
+      setOrderToCancel(order)
+    },
+    [openLimitOrders],
+  )
+
+  const handleResetOrderToCancel = useCallback(() => {
+    setOrderToCancel(undefined)
+  }, [])
 
   return (
     <Card {...cardProps}>
@@ -177,7 +183,10 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           </TabPanels>
         </CardBody>
       </Tabs>
-      <CancelLimitOrder />
+      <CancelLimitOrder
+        orderToCancel={orderToCancel}
+        resetOrderToCancel={handleResetOrderToCancel}
+      />
     </Card>
   )
 }

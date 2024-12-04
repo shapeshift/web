@@ -5,11 +5,13 @@ import { useEffect } from 'react'
 import type { ActionTypes } from 'context/WalletProvider/actions'
 import { WalletActions } from 'context/WalletProvider/actions'
 import type { InitialState } from 'context/WalletProvider/WalletProvider'
+import { isMobile } from 'lib/globals'
 
 export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<ActionTypes>) => {
   const { keyring, modal, modalType } = state
 
   useEffect(() => {
+    if (isMobile) return
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
       switch (e[1].message_type) {

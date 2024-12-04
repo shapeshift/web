@@ -96,7 +96,6 @@ export const chainflipApi: SwapperApi = {
   },
   getUnsignedUtxoTransaction: ({
     tradeQuote,
-    senderAddress,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,

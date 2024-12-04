@@ -18,7 +18,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -122,9 +122,9 @@ export const _getTradeQuote = async (
       cause.response!.data.detail.includes('Amount outside asset bounds')
     ) {
       return Err(
-        makeSwapErrorRight({
-          message: cause.response!.data.detail,
-          code: TradeQuoteError.SellAmountBelowMinimum,
+        createTradeAmountTooSmallErr({
+          assetId: sellAsset.assetId,
+          minAmountCryptoBaseUnit: cause.response!.data.errors.minimalAmountNative[0],
         }),
       )
     }

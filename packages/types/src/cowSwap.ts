@@ -307,7 +307,7 @@ export type CowSwapError = {
   errorType: OrderError
   description: string
   // This is not documented by CoW API so we shouldn't make assumptions about the shape, nor presence of this guy
-  data?: any
+  data?: unknown
 }
 
 export enum CowNetwork {

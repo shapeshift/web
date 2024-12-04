@@ -112,7 +112,10 @@ async function _getCowSwapTradeQuote(
       return Err(
         createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: bn(errData?.data.fee_amount ?? '0x0', 16).toFixed(),
+          minAmountCryptoBaseUnit: bn(
+            (errData?.data as { fee_amount?: string }).fee_amount ?? '0x0',
+            16,
+          ).toFixed(),
         }),
       )
     }

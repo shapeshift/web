@@ -6,6 +6,7 @@ import {
   ethAssetId,
   fromAssetId,
   ltcAssetId,
+  solAssetId,
   thorchainAssetId,
 } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'

@@ -30,30 +30,23 @@ export const zrxApi: SwapperApi = {
     const tradeQuoteResult = await getZrxTradeQuote(
       input as GetEvmTradeQuoteInputBase,
       assertGetEvmChainAdapter,
-      config.REACT_APP_FEATURE_ZRX_PERMIT2,
       assetsById,
       config.REACT_APP_ZRX_BASE_URL,
     )
 
-    return tradeQuoteResult.map(tradeQuote => {
-      return [tradeQuote]
-    })
+    return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
   getTradeRate: async (
     input: GetTradeQuoteInput,
-    { assertGetEvmChainAdapter, assetsById, config }: SwapperDeps,
+    { assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
     const tradeRateResult = await getZrxTradeRate(
       input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      config.REACT_APP_FEATURE_ZRX_PERMIT2,
       assetsById,
       config.REACT_APP_ZRX_BASE_URL,
     )
 
-    return tradeRateResult.map(tradeQuote => {
-      return [tradeQuote]
-    })
+    return tradeRateResult.map(tradeQuote => [tradeQuote])
   },
   getUnsignedEvmTransaction: async ({
     chainId,
@@ -76,16 +69,16 @@ export const zrxApi: SwapperApi = {
       if (!permit2Signature) return data
 
       // Append the signature to the calldata
-      // For details, see
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
       const signatureLengthInHex = numberToHex(size(permit2Signature as Hex), {
         signed: false,
         size: 32,
       })
+
       return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
-    // Gas estimation
+    // TODO: pass in fees from most recent quote to ensure what is displayed on screen is what is broadcast
     const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: calldataWithSignature,
@@ -101,8 +94,7 @@ export const zrxApi: SwapperApi = {
       value,
       data: calldataWithSignature,
       chainId: Number(fromChainId(chainId).chainReference),
-      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for
-      // total gas used.
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimit, estimatedGas ?? '0').toFixed(),
       ...feeData,
     }

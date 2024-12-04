@@ -25,7 +25,7 @@ export const cowSwapper: Swapper = {
 
     if (!appDataHash) throw Error('Missing appDataHash')
 
-    const signature = signCowOrder(orderToSign, chainId, signMessage)
+    const signature = await signCowOrder(orderToSign, chainId, signMessage)
 
     const network = assertGetCowNetwork(chainId)
 

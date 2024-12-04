@@ -78,7 +78,6 @@ export const zrxApi: SwapperApi = {
       return concat([data, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
-    // TODO: pass in fees from most recent quote to ensure what is displayed on screen is what is broadcast
     const { gasLimit, ...feeData } = await evm.getFees({
       adapter: assertGetEvmChainAdapter(chainId),
       data: calldataWithSignature,

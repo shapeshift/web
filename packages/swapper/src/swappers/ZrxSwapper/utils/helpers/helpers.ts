@@ -157,7 +157,7 @@ export const calculateRate = ({
   buyAsset: Asset
   sellAsset: Asset
 }) => {
-  // for the rate to be valid, both amounts must be converted to the same precision
+  // For the rate to be valid, both amounts must be converted to the same precision
   return convertPrecision({
     value: buyAmount,
     inputExponent: buyAsset.precision,
@@ -178,7 +178,7 @@ export const calculateBuyAmountBeforeFeesCryptoBaseUnit = ({
   buyAsset: Asset
   sellAsset: Asset
 }) => {
-  // The integrator fee is set to the buy asset in fetchFromZrxPermit2, but paranoia
+  // The integrator fee is set to the buy asset, but paranoia
   if (
     fees.integratorFee !== null &&
     fees.integratorFee.token !== assetIdToZrxToken(buyAsset.assetId)

@@ -11,12 +11,13 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
   const { keyring, modal, modalType } = state
 
   useEffect(() => {
-    if (isMobile) return
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const deviceId = e[0]
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
+          // If we're on mobile, we don't need to handle the MNEMONIC_REQUIRED event as we use the device's native authentication instead
+          if (isMobile) break
           dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
 
           break

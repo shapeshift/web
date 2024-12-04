@@ -105,10 +105,9 @@ const DEFAULT_LIFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
-const DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
-  swapperName?: SwapperName,
+  swapperName: SwapperName | undefined,
 ): string => {
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
@@ -128,8 +127,17 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Chainflip:
       return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Jupiter:
-      return DEFAULT_JUPITER_SLIPPAGE_DECIMAL_PERCENTAGE
+      throw new Error('Default slippage not supported by Jupiter')
     default:
-      assertUnreachable(swapperName)
+      return assertUnreachable(swapperName)
+  }
+}
+
+export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): boolean => {
+  switch (swapperName) {
+    case SwapperName.Jupiter:
+      return true
+    default:
+      return false
   }
 }

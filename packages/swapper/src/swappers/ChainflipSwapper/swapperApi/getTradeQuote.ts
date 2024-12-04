@@ -18,7 +18,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -226,7 +226,7 @@ export const _getTradeQuote = async (
   }
 
   const getQuoteRate = (sellAmountCryptoBaseUnit: string, buyAmountCryptoBaseUnit: string) => {
-    return getRate({
+    return getInputOutputRate({
       sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sellAsset,

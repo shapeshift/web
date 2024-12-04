@@ -286,7 +286,7 @@ export const checkEvmSwapStatus = async ({
   }
 }
 
-export const getRate = ({
+export const getInputOutputRate = ({
   sellAmountCryptoBaseUnit,
   buyAmountCryptoBaseUnit,
   sellAsset,

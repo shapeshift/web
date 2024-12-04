@@ -22,7 +22,7 @@ export interface LimitOrderCardProps {
   validTo?: number
   filledDecimalPercentage: number
   status: OrderStatus
-  onCancel?: (uid: string) => void
+  onCancelClick?: (uid: string) => void
 }
 
 const buttonBgHover = {
@@ -38,7 +38,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   validTo,
   filledDecimalPercentage,
   status,
-  onCancel,
+  onCancelClick,
 }) => {
   const translate = useTranslate()
 
@@ -46,8 +46,8 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
 
   const handleCancel = useCallback(() => {
-    onCancel?.(uid)
-  }, [onCancel, uid])
+    onCancelClick?.(uid)
+  }, [onCancelClick, uid])
 
   const formattedPercentage = (filledDecimalPercentage * 100).toFixed(2)
 

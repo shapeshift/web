@@ -67,7 +67,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     )
   }, [ordersResponse])
 
-  const handleCancelOrder = (uid: string) => {
+  const handleCancelOrderClick = (uid: string) => {
     const order = openLimitOrders?.find(order => order.order.uid === uid)
     setOrderToCancel(order)
   }
@@ -138,7 +138,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                         .div(order.sellAmount)
                         .toNumber()}
                       status={order.status}
-                      onCancel={handleCancelOrder}
+                      onCancelClick={handleCancelOrderClick}
                     />
                   ))}
                 {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (

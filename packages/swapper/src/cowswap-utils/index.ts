@@ -91,7 +91,7 @@ const getSignTypeDataPayload = (
 ): TypedData => {
   const { chainReference } = fromChainId(chainId)
   const signingDomain = Number(chainReference)
-  const typedDataDomain: TypedDataDomain = cowDomain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS)
+  const typedDataDomain = cowDomain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS)
   return {
     // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
     domain: typedDataDomain as Record<string, unknown>,

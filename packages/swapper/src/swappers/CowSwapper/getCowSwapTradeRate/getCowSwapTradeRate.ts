@@ -61,7 +61,7 @@ async function _getCowSwapTradeRate(
   if (!maybeNetwork)
     return Err(
       makeSwapErrorRight({
-        message: `[CowSwap: _getCowSwapTradeQuote] - Unsupported chainId`,
+        message: `[CowSwap: _getCowSwapTradeRate] - Unsupported chainId`,
         code: TradeQuoteError.UnsupportedChain,
         details: { chainId },
       }),

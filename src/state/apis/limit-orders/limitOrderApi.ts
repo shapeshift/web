@@ -174,7 +174,7 @@ export const limitOrderApi = createApi({
         }
       },
     }),
-    cancelLimitOrders: build.mutation<
+    cancelLimitOrder: build.mutation<
       boolean,
       {
         accountId: AccountId
@@ -245,5 +245,5 @@ export const limitOrderApi = createApi({
   }),
 })
 
-export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation, useCancelLimitOrdersMutation } =
+export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation, useCancelLimitOrderMutation } =
   limitOrderApi

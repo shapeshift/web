@@ -28,7 +28,7 @@ import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTy
 import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { useCancelLimitOrdersMutation } from 'state/apis/limit-orders/limitOrderApi'
+import { useCancelLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import { selectOrderToCancel } from 'state/slices/limitOrderSlice/selectors'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
@@ -46,14 +46,13 @@ export const CancelLimitOrder = () => {
   const orderToCancel = useAppSelector(selectOrderToCancel)
 
   const [cancelLimitOrders, { data: wasCancellationSuccessful, error, isLoading, reset }] =
-    useCancelLimitOrdersMutation()
+    useCancelLimitOrderMutation()
 
   useEffect(() => {
     if (!error) return
 
     const description = (error as CowSwapError).description ?? 'Unknown Error'
 
-    // TODO: Actually render a translated error description.
     showErrorToast(description)
   }, [error, showErrorToast])
 
@@ -65,7 +64,7 @@ export const CancelLimitOrder = () => {
       `Failed to cancel order uid ${orderToCancel?.order.uid}`,
       'limitOrder.cancel.cancellationFailed',
     )
-  }, [error, orderToCancel?.order.uid, showErrorToast, wasCancellationSuccessful])
+  }, [orderToCancel?.order.uid, showErrorToast, wasCancellationSuccessful])
 
   const handleClose = useCallback(() => {
     reset()
@@ -96,12 +95,11 @@ export const CancelLimitOrder = () => {
   }, [buyAsset, orderToCancel, sellAsset])
 
   const expiryText = useMemo(() => {
-    const validTo = orderToCancel?.order.validTo
-    return validTo
-      ? formatDistanceToNow(validTo * 1000, {
-          addSuffix: true,
-        })
-      : undefined
+    if (!orderToCancel) return
+    const validTo = orderToCancel.order.validTo
+    return formatDistanceToNow(validTo * 1000, {
+      addSuffix: true,
+    })
   }, [orderToCancel])
 
   const formattedPercentage = useMemo(() => {

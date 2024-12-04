@@ -1,4 +1,4 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { useEffect, useMemo, useRef } from 'react'
@@ -55,10 +55,14 @@ const getStreamingSwapMetadata = (
   }
 }
 
-export const useThorStreamingProgress = (
-  hopIndex: number,
-  confirmedTradeId: TradeQuote['id'],
-): {
+export const useThorStreamingProgress = ({
+  hopIndex,
+  confirmedTradeId,
+}: {
+  tradeQuoteStep: TradeQuoteStep
+  hopIndex: number
+  confirmedTradeId: TradeQuote['id']
+}): {
   isComplete: boolean
   attemptedSwapCount: number
   totalSwapCount: number

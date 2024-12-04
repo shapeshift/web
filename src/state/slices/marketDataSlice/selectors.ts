@@ -12,6 +12,7 @@ import { selectSelectedCurrency } from 'state/slices/preferencesSlice/selectors'
 
 import { defaultMarketData } from './marketDataSlice'
 import type { MarketDataById } from './types'
+import { getTrimmedOutOfBoundsMarketData } from './utils'
 
 export const selectMarketDataIdsSortedByMarketCapUsd = (state: ReduxState) =>
   state.marketData.crypto.ids
@@ -88,19 +89,45 @@ export const selectCryptoPriceHistory = (state: ReduxState) => state.marketData.
 export const selectFiatPriceHistory = (state: ReduxState) => state.marketData.fiat.priceHistory
 export const selectIsMarketDataLoaded = (state: ReduxState) => state.marketData.isMarketDataLoaded
 
-export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
+const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
+
+export const selectCryptoPriceHistoryTimeframe = createSelector(
   selectCryptoPriceHistory,
-  selectSelectedCurrency,
+  selectTimeframeParam,
+  (priceHistory, timeframe): PriceHistoryData<AssetId> => {
+    const ids = Object.keys(priceHistory[timeframe] ?? {})
+    // Used as a last resort if state is already corrupted upstream
+    return getTrimmedOutOfBoundsMarketData(priceHistory, timeframe, ids) ?? {}
+  },
+)
+
+export const selectFiatPriceHistoryTimeframe = createSelector(
   selectFiatPriceHistory,
+  selectSelectedCurrency,
+  selectTimeframeParam,
+  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] => {
+    // Used as a last resort if state is already corrupted upstream
+    const trimmedTimeframeMarketData = getTrimmedOutOfBoundsMarketData(
+      fiatPriceHistory,
+      timeframe,
+      [selectedCurrency],
+    )
+    return trimmedTimeframeMarketData?.[selectedCurrency] ?? []
+  },
+)
+
+export const selectPriceHistoryByAssetTimeframe = createCachedSelector(
+  (state: ReduxState, _assetId: AssetId, timeframe: HistoryTimeframe) =>
+    selectCryptoPriceHistoryTimeframe(state, timeframe),
+  (state: ReduxState, _assetId: AssetId, timeframe: HistoryTimeframe) =>
+    selectFiatPriceHistoryTimeframe(state, timeframe),
   selectAssetId,
-  (_state: ReduxState, _assetId: AssetId, timeframe: HistoryTimeframe) => timeframe,
-  (priceHistory, selectedCurrency, fiatPriceHistoryData, assetId, timeframe): HistoryData[] => {
-    const assetPriceHistoryData = priceHistory?.[timeframe]?.[assetId] ?? []
-    const priceHistoryData = fiatPriceHistoryData?.[timeframe]?.[selectedCurrency]
-    if (!priceHistoryData) return assetPriceHistoryData // dont unnecessarily reduce if we don't have it
+  (cryptoPriceHistoryForTimeframe, fiatPriceHistoryForTimeframe, assetId): HistoryData[] => {
+    const assetPriceHistoryData = cryptoPriceHistoryForTimeframe[assetId] ?? []
+    if (!fiatPriceHistoryForTimeframe.length) return assetPriceHistoryData // Don't unnecessarily reduce if we don't have fiat price data
     return assetPriceHistoryData.reduce<HistoryData[]>((acc, assetHistoryDate) => {
       const { price, date } = assetHistoryDate
-      const fiatToUsdRate = priceAtDate({ priceHistoryData, date })
+      const fiatToUsdRate = priceAtDate({ priceHistoryData: fiatPriceHistoryForTimeframe, date })
       acc.push({ price: bnOrZero(price).times(fiatToUsdRate).toNumber(), date })
       return acc
     }, [])
@@ -114,22 +141,6 @@ export const selectPriceHistoriesLoadingByAssetTimeframe = createSelector(
   // if we don't have the data it's loading
   (priceHistory, assetIds, timeframe): boolean =>
     !assetIds.every(assetId => Boolean(priceHistory?.[timeframe]?.[assetId])),
-)
-
-const selectTimeframeParam = (_state: ReduxState, timeframe: HistoryTimeframe) => timeframe
-
-export const selectCryptoPriceHistoryTimeframe = createSelector(
-  selectCryptoPriceHistory,
-  selectTimeframeParam,
-  (priceHistory, timeframe): PriceHistoryData => priceHistory?.[timeframe] ?? {},
-)
-
-export const selectFiatPriceHistoryTimeframe = createSelector(
-  selectFiatPriceHistory,
-  selectSelectedCurrency,
-  selectTimeframeParam,
-  (fiatPriceHistory, selectedCurrency, timeframe): HistoryData[] =>
-    fiatPriceHistory?.[timeframe]?.[selectedCurrency] ?? [],
 )
 
 export const selectUsdRateByAssetId = createCachedSelector(

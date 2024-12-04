@@ -5,10 +5,3 @@ export enum LimitOrderRoutePaths {
   PlaceOrder = '/trade/limit-order/place-order',
   Orders = '/trade/limit-order/orders',
 }
-
-export enum LimitOrderStatus {
-  Open = 'open',
-  Filled = 'filled',
-  Cancelled = 'cancelled',
-  Expired = 'expired',
-}

@@ -97,7 +97,7 @@ describe('calculateBucketPrices', () => {
 
     const txs = [FOXSend]
 
-    const cryptoPriceHistoryData: PriceHistoryData = {
+    const cryptoPriceHistoryData: PriceHistoryData<AssetId> = {
       [foxAssetId]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]
@@ -130,7 +130,7 @@ describe('calculateBucketPrices', () => {
     }
     const assetIds = [ethAssetId]
     const timeframe = HistoryTimeframe.YEAR
-    const cryptoPriceHistoryData: PriceHistoryData = {
+    const cryptoPriceHistoryData: PriceHistoryData<AssetId> = {
       [ethAssetId]: [{ price: 0, date: Number() }],
     }
     const fiatPriceHistoryData: HistoryData[] = [{ price: 0, date: Number() }]

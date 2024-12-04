@@ -1,3 +1,4 @@
+import truncate from 'lodash/truncate'
 import { useCallback, useMemo } from 'react'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -6,6 +7,7 @@ import { selectCurrencyFormat, selectSelectedCurrency } from 'state/slices/selec
 import { useAppSelector } from 'state/store'
 
 const CRYPTO_PRECISION = 8
+const MAXIMUM_LARGE_NUMBER_CHARS = 18
 
 export type NumberValue = number | string
 export type DateValue = number | string | Date
@@ -29,6 +31,7 @@ export type NumberFormatOptions = {
   fiatType?: string
   abbreviated?: boolean
   omitDecimalTrailingZeros?: boolean
+  truncateLargeNumbers?: boolean
 }
 
 export type NumberFormatter = {
@@ -190,6 +193,13 @@ export const useLocaleFormatter = (args?: useLocaleFormatterArgs): NumberFormatt
     symbol = 'BTC',
     options?: NumberFormatOptions,
   ): string => {
+    if (
+      options?.truncateLargeNumbers &&
+      bnOrZero(num).toFixed(0).length > MAXIMUM_LARGE_NUMBER_CHARS
+    ) {
+      return `${truncate(bnOrZero(num).toFixed(0), { length: 16, omission: '...' })} ${symbol}`
+    }
+
     const maximumFractionDigits =
       options?.maximumFractionDigits !== undefined
         ? options.maximumFractionDigits

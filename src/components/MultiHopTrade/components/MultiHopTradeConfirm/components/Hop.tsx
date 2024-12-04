@@ -62,6 +62,7 @@ export const Hop = ({
   slippageTolerancePercentageDecimal,
   onToggleIsOpen,
   activeTradeId,
+  initialActiveTradeId,
 }: {
   swapperName: SwapperName
   tradeQuoteStep: TradeQuoteStep
@@ -70,6 +71,7 @@ export const Hop = ({
   slippageTolerancePercentageDecimal: string | undefined
   onToggleIsOpen?: () => void
   activeTradeId: TradeQuote['id']
+  initialActiveTradeId: TradeQuote['id']
 }) => {
   const {
     number: { toCrypto },
@@ -101,13 +103,28 @@ export const Hop = ({
       hopIndex,
     }
   }, [activeTradeId, hopIndex])
+  const rateHopExecutionMetadataFilter = useMemo(
+    () => ({
+      tradeId: initialActiveTradeId,
+      hopIndex,
+    }),
+    [hopIndex, initialActiveTradeId],
+  )
 
   const {
     state: hopExecutionState,
-    allowanceApproval,
     permit2,
     swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
+
+  // Get allowance approval data from initial (rate) tradeId
+  // We need to keep track of initialActiveTradeId and use it as a filter as we lose the original tradeId when we go from rate to final quote,
+  // since the two are entirely different IDs
+  // As a result, we would lose all allowance approval data, meaning the allowance step row would disappear right after completing it,
+  // as well as from the "Trade Confirmed" summary
+  const { allowanceApproval } = useAppSelector(state =>
+    selectHopExecutionMetadata(state, rateHopExecutionMetadataFilter),
+  )
 
   const isError = useMemo(
     () => [allowanceApproval.state, swap.state].includes(TransactionExecutionState.Failed),

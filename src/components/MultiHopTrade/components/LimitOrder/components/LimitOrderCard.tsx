@@ -1,5 +1,8 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { OrderStatus } from '@shapeshiftoss/types/dist/cowSwap'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,17 +13,15 @@ import { RawText, Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-import { LimitOrderStatus } from '../types'
-
 export interface LimitOrderCardProps {
   id: string
-  buyAmount: number
-  sellAmount: number
+  buyAmountCryptoBaseUnit: string
+  sellAmountCryptoBaseUnit: string
   buyAssetId: AssetId
   sellAssetId: AssetId
-  expiry: number
+  validTo?: number
   filledDecimalPercentage: number
-  status: LimitOrderStatus
+  status: OrderStatus
 }
 
 const buttonBgHover = {
@@ -29,11 +30,11 @@ const buttonBgHover = {
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   id,
-  buyAmount,
-  sellAmount,
+  buyAmountCryptoBaseUnit,
+  sellAmountCryptoBaseUnit,
   buyAssetId,
   sellAssetId,
-  expiry,
+  validTo,
   filledDecimalPercentage,
   status,
 }) => {
@@ -47,17 +48,30 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   }, [id])
 
   const formattedPercentage = (filledDecimalPercentage * 100).toFixed(2)
-  const limitPrice = (buyAmount / sellAmount).toFixed(6)
+
+  const sellAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
+    [sellAmountCryptoBaseUnit, sellAsset?.precision],
+  )
+
+  const buyAmountCryptoPrecision = useMemo(
+    () => fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0),
+    [buyAmountCryptoBaseUnit, buyAsset?.precision],
+  )
+
+  const limitPrice = useMemo(() => {
+    return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toString()
+  }, [buyAmountCryptoPrecision, sellAmountCryptoPrecision])
 
   const tagColorScheme = useMemo(() => {
     switch (status) {
-      case LimitOrderStatus.Open:
+      case OrderStatus.OPEN:
         return 'blue'
-      case LimitOrderStatus.Filled:
+      case OrderStatus.FULFILLED:
         return 'green'
-      case LimitOrderStatus.Cancelled:
+      case OrderStatus.CANCELLED:
         return 'red'
-      case LimitOrderStatus.Expired:
+      case OrderStatus.EXPIRED:
         return 'yellow'
       default:
         return 'gray'
@@ -66,17 +80,27 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const barColorScheme = useMemo(() => {
     switch (status) {
-      case LimitOrderStatus.Open:
-      case LimitOrderStatus.Filled:
+      case OrderStatus.OPEN:
+      case OrderStatus.FULFILLED:
         return 'green'
-      case LimitOrderStatus.Cancelled:
+      case OrderStatus.CANCELLED:
         return 'red'
-      case LimitOrderStatus.Expired:
+      case OrderStatus.EXPIRED:
         return 'yellow'
       default:
         return 'gray'
     }
   }, [status])
+
+  const expiryText = useMemo(
+    () =>
+      validTo
+        ? formatDistanceToNow(validTo * 1000, {
+            addSuffix: true,
+          })
+        : undefined,
+    [validTo],
+  )
 
   if (!buyAsset || !sellAsset) return null
 
@@ -101,35 +125,41 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             </AssetIconWithBadge>
             <Flex direction='column' align='flex-start' ml={4}>
               <Amount.Crypto
-                value={sellAmount.toString()}
+                value={sellAmountCryptoPrecision}
                 symbol={sellAsset.symbol}
                 color='gray.500'
                 fontSize='xl'
               />
-              <Amount.Crypto value={buyAmount.toString()} symbol={buyAsset.symbol} fontSize='xl' />
+              <Amount.Crypto
+                value={buyAmountCryptoPrecision}
+                symbol={buyAsset.symbol}
+                fontSize='xl'
+              />
             </Flex>
           </Flex>
-          <Tag colorScheme={tagColorScheme}>{translate(`limitOrders.status.${status}`)}</Tag>
+          <Tag colorScheme={tagColorScheme}>{translate(`limitOrder.status.${status}`)}</Tag>
         </Flex>
 
         {/* Price row */}
         <Flex justify='space-between' align='center'>
-          <Text color='gray.500' translation='limitOrders.limitPrice' />
+          <Text color='gray.500' translation='limitOrder.limitPrice' />
           <Flex justify='flex-end'>
             <RawText mr={1}>{`1 ${sellAsset.symbol} =`}</RawText>
             <Amount.Crypto value={limitPrice} symbol={buyAsset.symbol} />
           </Flex>
         </Flex>
 
-        {/* Expiry row */}
-        <Flex justify='space-between' align='center'>
-          <Text color='gray.500' translation='limitOrders.expiresIn' />
-          <RawText>{`${expiry} days`}</RawText>
-        </Flex>
+        {/* Expiry row - excluded for historical orders*/}
+        {Boolean(expiryText) && (
+          <Flex justify='space-between' align='center'>
+            <Text color='gray.500' translation='limitOrder.expiresIn' />
+            <RawText>{expiryText}</RawText>
+          </Flex>
+        )}
 
         {/* Filled row */}
         <Flex justify='space-between' align='center'>
-          <Text color='gray.500' translation='limitOrders.filled' />
+          <Text color='gray.500' translation='limitOrder.status.fulfilled' />
           <Flex align='center' gap={4} width='60%'>
             <Progress
               value={filledDecimalPercentage * 100}
@@ -142,7 +172,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         </Flex>
 
         {/* Cancel button */}
-        {status === LimitOrderStatus.Open && (
+        {status === OrderStatus.OPEN && (
           <Button
             colorScheme='red'
             width='100%'

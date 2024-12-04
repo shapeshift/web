@@ -40,6 +40,7 @@
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientAllowance": "Insufficient Allowance",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
@@ -993,7 +994,7 @@
     "allowanceApprovalTxName": "Allowance approval tx:",
     "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}.",
     "doAnotherTrade": "Do another trade",
-    "showDetails": "Show Details",
+    "summary": "Trade Summary",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
     "temp": {
       "tradeSuccess": "Trade complete",
@@ -1039,6 +1040,8 @@
     "youGet": "You Get",
     "whenPriceReaches": "When price reaches",
     "expiry": "Expiry",
+    "noOpenOrders": "No open orders yet.",
+    "noHistoricalOrders": "No historical orders yet.",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1046,7 +1049,24 @@
       "sevenDays": "7 days",
       "twentyEightDays": "28 days",
       "custom": "Custom"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Native sell asset not supported",
+      "insufficientValidTo": "Order expiry too soon",
+      "excessiveValidTo": "Order expiry too far into the future",
+      "insufficientLiquidity": "Insufficient liquidity"
+    },
+    "expiresIn": "Expires In",
+    "openOrders": "Open Orders",
+    "orderHistory": "Order History",
+    "status": {
+      "open": "Open",
+      "fulfilled": "Fulfilled",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "orders": "Orders",
+    "loadingOrderList": "Loading your limit orders..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2735,6 @@
       "noActiveProposals": "No active proposals available",
       "noClosedProposals": "No closed proposals available"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Limit Orders",
-    "limitPrice": "Limit Price",
-    "expiresIn": "Expires In",
-    "filled": "Filled",
-    "openOrders": "Open Orders",
-    "orderHistory": "Order History",
-    "status": {
-      "open": "Open",
-      "filled": "Filled",
-      "cancelled": "Cancelled",
-      "expired": "Expired"
-    },
-    "orders": "Orders"
   },
   "thorFees": {
     "title": "Here from THORSwap?",

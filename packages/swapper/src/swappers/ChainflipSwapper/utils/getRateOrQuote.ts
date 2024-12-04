@@ -20,7 +20,7 @@ import type {
   TradeQuoteResult,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getRate, makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
   CHAINFLIP_BOOST_SWAP_SOURCE,
@@ -232,7 +232,7 @@ export const getRateOrQuote = async (
     sellAmountCryptoBaseUnit: string,
     buyAmountCryptoBaseUnit: string,
   ) => {
-    return getRate({
+    return getInputOutputRate({
       sellAmountCryptoBaseUnit,
       buyAmountCryptoBaseUnit,
       sellAsset,
@@ -281,7 +281,7 @@ export const getRateOrQuote = async (
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
 
-    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_DCA) continue
+    if (isStreaming && !deps.config.REACT_APP_FEATURE_CHAINFLIP_SWAP_DCA) continue
 
     const feeData = await getFeeData()
 

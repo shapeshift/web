@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
@@ -10,9 +10,11 @@ import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransit
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
+import { fromBaseUnit } from 'lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
+  selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -38,6 +40,9 @@ export const MultiHopTradeConfirm = memo(() => {
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
+  const lastHop = useAppSelector(selectLastHop)
+
+  const initialActiveTradeIdRef = useRef(activeQuote?.id ?? '')
 
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
@@ -134,22 +139,34 @@ export const MultiHopTradeConfirm = memo(() => {
             </Heading>
           </WithBackButton>
         </CardHeader>
-        {isTradeComplete ? (
+        {isTradeComplete && activeQuote && lastHop ? (
           <TradeSuccess
             handleBack={handleBack}
             titleTranslation={
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
             }
-            descriptionTranslation={
-              isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.withdrawComplete' : undefined
-            }
+            sellAsset={activeQuote?.steps[0].sellAsset}
+            buyAsset={activeQuote?.steps[0].buyAsset}
+            sellAmountCryptoPrecision={fromBaseUnit(
+              activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              activeQuote.steps[0].sellAsset.precision,
+            )}
+            buyAmountCryptoPrecision={fromBaseUnit(
+              lastHop.buyAmountAfterFeesCryptoBaseUnit,
+              lastHop.buyAsset.precision,
+            )}
           >
-            <Hops isFirstHopOpen isSecondHopOpen />
+            <Hops
+              initialActiveTradeId={initialActiveTradeIdRef.current}
+              isFirstHopOpen
+              isSecondHopOpen
+            />
           </TradeSuccess>
         ) : (
           <>
             <CardBody py={0} px={0}>
               <Hops
+                initialActiveTradeId={initialActiveTradeIdRef.current}
                 isFirstHopOpen={isFirstHopOpen}
                 isSecondHopOpen={isSecondHopOpen}
                 onToggleFirstHop={onToggleFirstHop}

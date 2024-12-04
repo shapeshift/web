@@ -453,11 +453,11 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        shouldOpenSideComponent={hasUserEnteredAmount}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}
-        sideComponent={CollapsibleQuoteList}
+        SideComponent={CollapsibleQuoteList}
+        shouldOpenSideComponent={hasUserEnteredAmount}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.Trade}
         onSubmit={handleTradeQuoteConfirm}

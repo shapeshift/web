@@ -1,4 +1,4 @@
-import type { QuoteId } from '@shapeshiftoss/types/dist/cowSwap'
+import type { QuoteId } from '@shapeshiftoss/types'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 import type { ReduxState } from 'state/reducer'

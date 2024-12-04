@@ -1,5 +1,5 @@
-import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
-import { SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderCreation } from '@shapeshiftoss/types'
+import { SigningScheme } from '@shapeshiftoss/types'
 
 import type { LimitOrderActiveQuote } from './types'
 

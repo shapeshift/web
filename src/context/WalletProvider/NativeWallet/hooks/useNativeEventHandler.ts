@@ -16,7 +16,8 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
       switch (e[1].message_type) {
         case NativeEvents.MNEMONIC_REQUIRED:
           if (!deviceId) break
-          // If we're on mobile, we don't need to handle the MNEMONIC_REQUIRED event as we use the device's native authentication instead
+          // If we're on the native mobile app we don't need to handle the MNEMONIC_REQUIRED event as we use the device's native authentication instead
+          // Reacting to this event will incorrectly open the native password modal after authentication completes when on the mobile app
           if (isMobile) break
           dispatch({ type: WalletActions.NATIVE_PASSWORD_OPEN, payload: { modal: true, deviceId } })
 

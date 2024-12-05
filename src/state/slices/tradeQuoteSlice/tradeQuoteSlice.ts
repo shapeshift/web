@@ -23,6 +23,11 @@ export const tradeQuoteSlice = createSlice({
       ...initialState,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
     }),
+    clearTradeQuotes: state => ({
+      ...initialState,
+      tradeExecution: state.tradeExecution, // Leave the trade execution state alone
+      activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
+    }),
     setIsTradeQuoteRequestAborted: (state, action: PayloadAction<boolean>) => {
       state.isTradeQuoteRequestAborted = action.payload
     },

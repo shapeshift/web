@@ -40,6 +40,8 @@ const editIcon = <EditIcon />
 const checkIcon = <CheckIcon />
 const closeIcon = <CloseIcon />
 
+const iconButtonHoverSx = { bg: 'gray.600' }
+
 type ManualRecipientAddressLabelsProps = {
   buyAsset: Asset
   manualAddressEntryDescription: string | undefined
@@ -286,6 +288,9 @@ export const SharedRecipientAddress = ({
                 onClick={handleFormSubmit}
                 icon={checkIcon}
                 isLoading={isValidating}
+                borderRadius='full'
+                bg='gray.700'
+                _hover={iconButtonHoverSx}
               />
               <IconButton
                 pointerEvents='auto'
@@ -295,6 +300,9 @@ export const SharedRecipientAddress = ({
                 size='xs'
                 onClick={handleCancelClick}
                 isDisabled={isValidating}
+                borderRadius='full'
+                bg='gray.700'
+                _hover={iconButtonHoverSx}
               />
             </InputRightElement>
           </InputGroup>

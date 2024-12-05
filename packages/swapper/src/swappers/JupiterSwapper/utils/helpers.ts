@@ -100,13 +100,13 @@ export const getFeeTokenAccountAndInstruction = async ({
   tokenAccount?: PublicKey
   instruction?: TransactionInstruction | undefined
 }> => {
-  const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetReferralPubKey)
-
-  if (buyAssetTokenAccount) return { tokenAccount: buyAssetReferralPubKey }
-
   const sellAssetTokenAccount = await connection.getAccountInfo(sellAssetReferralPubKey)
 
   if (sellAssetTokenAccount) return { tokenAccount: sellAssetReferralPubKey }
+
+  const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetReferralPubKey)
+
+  if (buyAssetTokenAccount) return { tokenAccount: buyAssetReferralPubKey }
 
   const buyTokenInfo = await connection.getAccountInfo(new PublicKey(buyTokenId))
   const sellTokenInfo = await connection.getAccountInfo(new PublicKey(sellTokenId))
@@ -121,7 +121,7 @@ export const getFeeTokenAccountAndInstruction = async ({
   const project = new PublicKey(JUPITER_REFERALL_FEE_PROJECT_ACCOUNT)
 
   return {
-    tokenAccount: buyAssetReferralPubKey,
+    tokenAccount: sellAssetReferralPubKey,
     instruction: new TransactionInstruction({
       keys: [
         {
@@ -140,7 +140,7 @@ export const getFeeTokenAccountAndInstruction = async ({
           isWritable: false,
         },
         {
-          pubkey: buyAssetReferralPubKey,
+          pubkey: sellAssetReferralPubKey,
           isSigner: false,
           isWritable: true,
         },

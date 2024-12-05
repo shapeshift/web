@@ -91,6 +91,6 @@ export async function getZrxTradeRate(
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         source: SwapperName.Zrx,
       },
-    ] as unknown as SingleHopTradeRateSteps,
+    ] as SingleHopTradeRateSteps,
   })
 }

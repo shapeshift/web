@@ -95,8 +95,8 @@ export async function getZrxTradeQuote(
   const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
     to: transaction.to,
     data: transaction.data as Address,
-    gasPrice: transaction.gasPrice ? transaction.gasPrice : undefined,
-    gas: transaction.gas ? transaction.gas : undefined,
+    gasPrice: transaction.gasPrice || undefined,
+    gas: transaction.gas || undefined,
     value: transaction.value,
   }
 
@@ -112,6 +112,7 @@ export async function getZrxTradeQuote(
   try {
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
+
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559: Boolean(supportsEIP1559),
@@ -138,7 +139,7 @@ export async function getZrxTradeQuote(
           rate,
           feeData: {
             protocolFees: getProtocolFees({ fees, sellAsset, assetsById }),
-            networkFeeCryptoBaseUnit, // L1 fee added inside of evm.calcNetworkFeeCryptoBaseUnit
+            networkFeeCryptoBaseUnit,
           },
           buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit: buyAmount,

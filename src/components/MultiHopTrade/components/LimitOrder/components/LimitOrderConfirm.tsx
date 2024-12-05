@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -56,6 +57,7 @@ export const LimitOrderConfirm = () => {
   const wallet = useWallet().state.wallet
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorHandler()
+  const queryClient = useQueryClient()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -92,7 +94,9 @@ export const LimitOrderConfirm = () => {
 
   const handleConfirm = useCallback(async () => {
     const quoteId = activeQuote?.response.id
-    if (!quoteId) {
+    const accountId = activeQuote?.params.accountId
+
+    if (!quoteId || !accountId) {
       return
     }
 
@@ -100,7 +104,19 @@ export const LimitOrderConfirm = () => {
     setLimitOrderInitialized(quoteId)
     confirmSubmit(quoteId)
     await placeLimitOrder({ quoteId, wallet })
-  }, [activeQuote?.response.id, confirmSubmit, placeLimitOrder, setLimitOrderInitialized, wallet])
+    // refetch the orders list for this account
+    queryClient.invalidateQueries({
+      queryKey: ['getLimitOrdersForAccount', accountId],
+    })
+  }, [
+    activeQuote?.params.accountId,
+    activeQuote?.response.id,
+    confirmSubmit,
+    placeLimitOrder,
+    queryClient,
+    setLimitOrderInitialized,
+    wallet,
+  ])
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')

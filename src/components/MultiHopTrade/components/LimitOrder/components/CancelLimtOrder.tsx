@@ -18,6 +18,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
@@ -44,6 +45,7 @@ type CancelLimitOrderProps = {
 export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLimitOrderProps) => {
   const wallet = useWallet().state.wallet
   const { showErrorToast } = useErrorHandler()
+  const queryClient = useQueryClient()
 
   const [cancelLimitOrders, { data: wasCancellationSuccessful, error, isLoading, reset }] =
     useCancelLimitOrderMutation()
@@ -77,8 +79,14 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
     }
 
     await cancelLimitOrders({ wallet, ...orderToCancel })
+
+    // refetch the orders list for this account
+    queryClient.invalidateQueries({
+      queryKey: ['getLimitOrdersForAccount', orderToCancel.accountId],
+    })
+
     resetOrderToCancel()
-  }, [orderToCancel, wallet, cancelLimitOrders, resetOrderToCancel])
+  }, [orderToCancel, wallet, cancelLimitOrders, queryClient, resetOrderToCancel])
 
   const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
   const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')

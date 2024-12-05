@@ -15,7 +15,6 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
-import type { CowSwapError } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
@@ -45,26 +44,13 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
   const wallet = useWallet().state.wallet
   const { showErrorToast } = useErrorHandler()
 
-  const [cancelLimitOrders, { data: wasCancellationSuccessful, error, isLoading, reset }] =
-    useCancelLimitOrderMutation()
+  const [cancelLimitOrders, { error, isLoading, reset }] = useCancelLimitOrderMutation()
 
   useEffect(() => {
     if (!error) return
 
-    const description = (error as CowSwapError).description ?? 'Unknown Error'
-
-    showErrorToast(description)
+    showErrorToast(error, 'limitOrder.cancel.cancellationFailed')
   }, [error, showErrorToast])
-
-  useEffect(() => {
-    // Must explicitly check for false, because undefined means a cancellation isn't completed.
-    if (wasCancellationSuccessful !== false) return
-
-    showErrorToast(
-      `Failed to cancel order uid ${orderToCancel?.order.uid}`,
-      'limitOrder.cancel.cancellationFailed',
-    )
-  }, [orderToCancel?.order.uid, showErrorToast, wasCancellationSuccessful])
 
   const handleClose = useCallback(() => {
     reset()

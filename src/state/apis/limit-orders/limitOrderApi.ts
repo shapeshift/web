@@ -175,7 +175,7 @@ export const limitOrderApi = createApi({
       },
     }),
     cancelLimitOrder: build.mutation<
-      boolean,
+      number,
       {
         accountId: AccountId
         sellAssetId: AssetId
@@ -216,8 +216,7 @@ export const limitOrderApi = createApi({
           data: orderCancellationPayload,
         })
 
-        // If the result is a 200 then the order was successfully canceled
-        return { data: result.status === 200 }
+        return { data: result.status }
       },
     }),
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({

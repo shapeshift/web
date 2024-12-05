@@ -309,24 +309,32 @@ export const Hop = ({
       <Divider width='auto' ml={6} borderColor='border.base' opacity={1} />
       <CardFooter fontSize='sm' pl={8}>
         <HStack width='full' justifyContent='space-between'>
-          {/* Hovering over this should render a popover with details */}
-          <Tooltip label={translate('trade.tooltip.gasFee')}>
+          <Tooltip
+            label={
+              networkFeeFiatUserCurrency
+                ? translate('trade.tooltip.gasFee')
+                : translate('trade.tooltip.continueSwapping')
+            }
+          >
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>
                 <FaGasPump />
               </Flex>
               {!networkFeeFiatUserCurrency ? (
-                <Tooltip label={translate('trade.tooltip.continueSwapping')}>
-                  <Text translation={'trade.unknownGas'} fontSize='sm' />
-                </Tooltip>
+                <Text translation={'trade.unknownGas'} fontSize='sm' />
               ) : (
                 <Amount.Fiat value={networkFeeFiatUserCurrency} display='inline' />
               )}
             </Flex>
           </Tooltip>
 
-          {/* Hovering over this should render a popover with details */}
-          <Tooltip label={translate('trade.tooltip.protocolFee')}>
+          <Tooltip
+            label={
+              protocolFeeFiatPrecision
+                ? translate('trade.tooltip.protocolFee')
+                : translate('trade.tooltip.continueSwapping')
+            }
+          >
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>
                 <ProtocolIcon />

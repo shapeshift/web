@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Divider, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
@@ -152,15 +152,22 @@ export const ConfirmSummary = ({
   ])
 
   const quoteHasError = useMemo(() => {
+    const tradeQuoteError = activeQuoteErrors?.[0]
+
+    // Ensures final trade quote max slippage exceeded error is not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
+    // if backing out from an errored final quote back to input
+
+    if (tradeQuoteError && tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded)
+      return false
     if (!shouldShowTradeQuoteOrAwaitInput) return false
     if (hasUserEnteredAmount && !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable) return true
     return !!activeQuoteErrors?.length || !!quoteRequestErrors?.length
   }, [
-    activeQuoteErrors?.length,
-    hasUserEnteredAmount,
-    isAnySwapperQuoteAvailable,
+    activeQuoteErrors,
     shouldShowTradeQuoteOrAwaitInput,
+    hasUserEnteredAmount,
     isAnyTradeQuoteLoading,
+    isAnySwapperQuoteAvailable,
     quoteRequestErrors?.length,
   ])
 
@@ -225,6 +232,11 @@ export const ConfirmSummary = ({
         return getQuoteRequestErrorTranslation(quoteRequestError)
       case !!quoteResponseError:
         return getQuoteRequestErrorTranslation(quoteResponseError)
+      // Ensures final trade quote max slippage exceeded error is not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
+      // if backing out from an errored final quote back to input
+      case tradeQuoteError &&
+        tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded:
+        return 'trade.previewTrade'
       case !!tradeQuoteError:
         return getQuoteErrorTranslation(tradeQuoteError!)
       case !isAnyTradeQuoteLoading && !isAnySwapperQuoteAvailable:

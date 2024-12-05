@@ -202,7 +202,7 @@ export async function getPortalsTradeQuote(
         makeSwapErrorRight({
           message: err.message,
           cause: err,
-          code: TradeQuoteError.MaxSlippageExceeded,
+          code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
         }),
       )
     return Err(

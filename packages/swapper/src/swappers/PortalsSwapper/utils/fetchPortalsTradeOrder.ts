@@ -1,3 +1,4 @@
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { Address } from 'viem'
 
@@ -75,6 +76,13 @@ type PortalsTradeOrderEstimateResponse = {
   }
 }
 
+export class PortalsError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PortalsError'
+  }
+}
+
 export const fetchPortalsTradeOrder = async ({
   sender,
   inputToken,
@@ -110,8 +118,13 @@ export const fetchPortalsTradeOrder = async ({
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      if ((error as AxiosError<{ message: string }>).response?.data?.message) {
+        throw new PortalsError((error as AxiosError<{ message: string }>).response?.data.message!)
+      }
+
       throw new Error(`Failed to fetch Portals trade order: ${error.message}`)
     }
+
     throw error
   }
 }

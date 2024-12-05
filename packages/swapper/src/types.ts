@@ -104,6 +104,8 @@ export enum TradeQuoteError {
   InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
+  // The max. slippage allowed for this trade has been exceeded, as returned by the active quote swapper's API upstream
+  MaxSlippageExceeded = 'MaxSlippageExceeded',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }

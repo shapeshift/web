@@ -966,7 +966,8 @@
       "noQuotesAvailable": "No quotes available for this trade",
       "smartContractWalletNotSupported": "Smart contract wallet not supported",
       "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
-      "rateLimitExceeded": "Rate limit exceeded, try again later"
+      "rateLimitExceeded": "Rate limit exceeded, try again later",
+      "maxSlippageExceeded": "The maximul allowed slippage tolerance for this trade has been exceeded during simulation. Try again with a higher slipppage tolerance."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",

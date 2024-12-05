@@ -19,7 +19,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
@@ -197,6 +197,14 @@ export async function getPortalsTradeQuote(
 
     return Ok(tradeQuote)
   } catch (err) {
+    if (err instanceof PortalsError && err.message.includes('Auto slippage exceeds'))
+      return Err(
+        makeSwapErrorRight({
+          message: err.message,
+          cause: err,
+          code: TradeQuoteError.MaxSlippageExceeded,
+        }),
+      )
     return Err(
       makeSwapErrorRight({
         message: 'failed to get Portals quote',

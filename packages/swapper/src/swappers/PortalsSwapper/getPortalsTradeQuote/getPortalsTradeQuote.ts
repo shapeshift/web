@@ -134,7 +134,7 @@ export async function getPortalsTradeQuote(
       tx,
     } = portalsTradeOrderResponse
 
-    const feeAsset = feeToken === inputToken ? sellAsset : buyAsset
+    const protocolFeeAsset = feeToken === inputToken ? sellAsset : buyAsset
 
     if (!tx) throw new Error('Portals Tx simulation failed upstream')
 
@@ -181,9 +181,9 @@ export async function getPortalsTradeQuote(
           feeData: {
             networkFeeCryptoBaseUnit,
             protocolFees: {
-              [feeAsset.assetId]: {
+              [protocolFeeAsset.assetId]: {
                 amountCryptoBaseUnit: feeAmount,
-                asset: feeAsset,
+                asset: protocolFeeAsset,
                 requiresBalance: false,
               },
             },

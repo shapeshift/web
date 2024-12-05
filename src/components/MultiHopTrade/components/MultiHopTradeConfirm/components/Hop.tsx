@@ -310,11 +310,11 @@ export const Hop = ({
       <CardFooter fontSize='sm' pl={8}>
         <HStack width='full' justifyContent='space-between'>
           <Tooltip
-            label={
+            label={translate(
               networkFeeFiatUserCurrency
-                ? translate('trade.tooltip.gasFee')
-                : translate('trade.tooltip.continueSwapping')
-            }
+                ? 'trade.tooltip.gasFee'
+                : 'trade.tooltip.continueSwapping',
+            )}
           >
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>
@@ -329,11 +329,11 @@ export const Hop = ({
           </Tooltip>
 
           <Tooltip
-            label={
+            label={translate(
               protocolFeeFiatPrecision
-                ? translate('trade.tooltip.protocolFee')
-                : translate('trade.tooltip.continueSwapping')
-            }
+                ? 'trade.tooltip.protocolFee'
+                : 'trade.tooltip.continueSwapping',
+            )}
           >
             <Flex alignItems='center' gap={2}>
               <Flex color='text.subtle'>

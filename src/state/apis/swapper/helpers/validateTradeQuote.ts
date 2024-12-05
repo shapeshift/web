@@ -217,13 +217,20 @@ export const validateTradeQuote = (
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
             const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
 
-            if (firstHopSellFeeAsset?.assetId === assetId) {
+            if (
+              firstHopSellFeeAsset?.assetId === assetId &&
+              firstHop.sellAsset.assetId === assetId
+            ) {
               return bnOrZero(balanceCryptoBaseUnit)
                 .minus(sellAmountCryptoBaseUnit)
                 .minus(protocolFee.amountCryptoBaseUnit)
                 .lt(0)
             }
 
+            console.log(
+              'not sell asset',
+              bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit),
+            )
             return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {

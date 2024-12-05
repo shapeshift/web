@@ -16,11 +16,11 @@ import type {
   CosmosSdkChainId,
   EvmChainId,
   KnownChainIds,
+  OrderQuoteResponse,
   PartialRecord,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
-import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
 import type { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
@@ -130,7 +130,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
+  protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
   chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
 }
 

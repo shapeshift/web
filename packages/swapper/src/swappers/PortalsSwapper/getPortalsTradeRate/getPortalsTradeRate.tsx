@@ -158,12 +158,11 @@ export async function getPortalsTradeRate(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit: undefined,
-            // Protocol fees are always denominated in sell asset here
-            protocolFees: {},
+            protocolFees: undefined, // We don't have protocol fees on Portals during the estimate step
           },
           source: SwapperName.Portals,
         },
-      ] as unknown as SingleHopTradeRateSteps,
+      ] as SingleHopTradeRateSteps,
     }
 
     return Ok(tradeRate)

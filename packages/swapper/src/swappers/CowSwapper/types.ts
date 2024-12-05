@@ -1,24 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import type { OrderCreation, OrderError } from '@shapeshiftoss/types/dist/cowSwap'
-
-export type CowSwapError = {
-  errorType: OrderError
-  description: string
-  // This is not documented by CoW API so we shouldn't make assumptions about the shape, nor presence of this guy
-  data?: any
-}
-
-export enum CowNetwork {
-  Mainnet = 'mainnet',
-  Xdai = 'xdai',
-  ArbitrumOne = 'arbitrum_one',
-}
-
-export type CowChainId =
-  | KnownChainIds.EthereumMainnet
-  | KnownChainIds.GnosisMainnet
-  | KnownChainIds.ArbitrumMainnet
+import type { OrderCreation } from '@shapeshiftoss/types'
 
 export type CowSwapGetTradesResponse = {
   txHash: string

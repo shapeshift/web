@@ -227,10 +227,6 @@ export const validateTradeQuote = (
                 .lt(0)
             }
 
-            console.log(
-              'not sell asset',
-              bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit),
-            )
             return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {

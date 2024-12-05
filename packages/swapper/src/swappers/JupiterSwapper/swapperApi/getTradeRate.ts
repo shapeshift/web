@@ -88,6 +88,15 @@ export const getTradeRate = async (
     )
   }
 
+  if (!solAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `solAsset should be defined`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,
     sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
@@ -138,7 +147,7 @@ export const getTradeRate = async (
       ? fromAssetId(wrappedSolAssetId).assetReference
       : fromAssetId(sellAsset.assetId).assetReference
 
-  const [buyAssetAccount] = await PublicKey.findProgramAddressSync(
+  const [buyAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -147,7 +156,7 @@ export const getTradeRate = async (
     new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
   )
 
-  const [sellAssetAccount] = await PublicKey.findProgramAddressSync(
+  const [sellAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -165,8 +174,8 @@ export const getTradeRate = async (
 
   const { instruction: feeAccountInstruction } = await getFeeTokenAccountAndInstruction({
     feePayerPubKey: new PublicKey(input.sendAddress ?? SOLANA_RANDOM_ADDRESS),
-    buyAssetAccount,
-    sellAssetAccount,
+    buyAssetReferralPubKey,
+    sellAssetReferralPubKey,
     programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
     instructionData,
     buyTokenId: buyAssetAddress,
@@ -200,32 +209,34 @@ export const getTradeRate = async (
   )
 
   if (feeAccountInstruction) {
-    if (solAsset) {
-      protocolFees[solAssetId] = {
-        requiresBalance: true,
-        amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
-          .plus(PDA_ACCOUNT_CREATION_COST)
-          .toFixed(),
-        asset: solAsset,
-      }
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
+        .plus(PDA_ACCOUNT_CREATION_COST)
+        .toFixed(),
+      asset: solAsset,
     }
   }
 
-  if (input.sendAddress && solAsset) {
-    const { instruction: createTokenAccountInstruction } = buyAsset
-      ? await adapter.createAssociatedTokenAccountInstruction({
-          from: input.sendAddress,
-          to: receiveAddress ?? input.sendAddress,
-          tokenId: fromAssetId(
-            buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
-          ).assetReference,
-        })
-      : { instruction: undefined }
+  if (input.sendAddress) {
+    const { instruction: createTokenAccountInstruction } =
+      await adapter.createAssociatedTokenAccountInstruction({
+        from: input.sendAddress,
+        // If we have a receive address, we use that as the receive address to verify the receive addy has an associated token account (ATA) or not,
+        // else we verify if our own addy has an ATA
+        to: receiveAddress ?? input.sendAddress,
+        tokenId: fromAssetId(buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId)
+          .assetReference,
+      })
 
     if (createTokenAccountInstruction) {
+      const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
       protocolFees[solAssetId] = {
         requiresBalance: true,
-        amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+        amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
           .plus(PDA_ACCOUNT_CREATION_COST)
           .toFixed(),
         asset: solAsset,

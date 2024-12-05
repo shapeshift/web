@@ -81,8 +81,8 @@ export const getJupiterSwapInstructions = ({
 export const getFeeTokenAccountAndInstruction = async ({
   feePayerPubKey,
   programId,
-  buyAssetAccount,
-  sellAssetAccount,
+  buyAssetReferralPubKey,
+  sellAssetReferralPubKey,
   buyTokenId,
   sellTokenId,
   instructionData,
@@ -90,8 +90,8 @@ export const getFeeTokenAccountAndInstruction = async ({
 }: {
   feePayerPubKey: PublicKey
   programId: PublicKey
-  buyAssetAccount: PublicKey
-  sellAssetAccount: PublicKey
+  buyAssetReferralPubKey: PublicKey
+  sellAssetReferralPubKey: PublicKey
   buyTokenId: string
   sellTokenId: string
   instructionData: Buffer
@@ -100,13 +100,13 @@ export const getFeeTokenAccountAndInstruction = async ({
   tokenAccount?: PublicKey
   instruction?: TransactionInstruction | undefined
 }> => {
-  const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetAccount)
+  const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetReferralPubKey)
 
-  if (buyAssetTokenAccount) return { tokenAccount: buyAssetAccount }
+  if (buyAssetTokenAccount) return { tokenAccount: buyAssetReferralPubKey }
 
-  const sellAssetTokenAccount = await connection.getAccountInfo(sellAssetAccount)
+  const sellAssetTokenAccount = await connection.getAccountInfo(sellAssetReferralPubKey)
 
-  if (sellAssetTokenAccount) return { tokenAccount: sellAssetAccount }
+  if (sellAssetTokenAccount) return { tokenAccount: sellAssetReferralPubKey }
 
   const buyTokenInfo = await connection.getAccountInfo(new PublicKey(buyTokenId))
   const sellTokenInfo = await connection.getAccountInfo(new PublicKey(sellTokenId))
@@ -121,7 +121,7 @@ export const getFeeTokenAccountAndInstruction = async ({
   const project = new PublicKey(JUPITER_REFERALL_FEE_PROJECT_ACCOUNT)
 
   return {
-    tokenAccount: buyAssetAccount,
+    tokenAccount: buyAssetReferralPubKey,
     instruction: new TransactionInstruction({
       keys: [
         {
@@ -140,7 +140,7 @@ export const getFeeTokenAccountAndInstruction = async ({
           isWritable: false,
         },
         {
-          pubkey: buyAssetAccount,
+          pubkey: buyAssetReferralPubKey,
           isSigner: false,
           isWritable: true,
         },

@@ -164,7 +164,7 @@ export const getTradeQuote = async (
       ? fromAssetId(wrappedSolAssetId).assetReference
       : fromAssetId(sellAsset.assetId).assetReference
 
-  const [buyAssetAccount] = await PublicKey.findProgramAddressSync(
+  const [buyAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -173,7 +173,7 @@ export const getTradeQuote = async (
     new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
   )
 
-  const [sellAssetAccount] = await PublicKey.findProgramAddressSync(
+  const [sellAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -190,8 +190,8 @@ export const getTradeQuote = async (
   const { instruction: feeAccountInstruction, tokenAccount } =
     await getFeeTokenAccountAndInstruction({
       feePayerPubKey: new PublicKey(sendAddress),
-      buyAssetAccount,
-      sellAssetAccount,
+      buyAssetReferralPubKey,
+      sellAssetReferralPubKey,
       programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
       instructionData,
       buyTokenId: buyAssetAddress,
@@ -293,9 +293,11 @@ export const getTradeQuote = async (
   )
 
   if (feeAccountInstruction) {
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
     protocolFees[solAssetId] = {
       requiresBalance: true,
-      amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
         .plus(PDA_ACCOUNT_CREATION_COST)
         .toFixed(),
       asset: solAsset,

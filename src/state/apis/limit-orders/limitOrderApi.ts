@@ -1,20 +1,22 @@
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/dist/query/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
-import { COW_SWAP_SETTLEMENT_ADDRESS, getCowswapNetwork } from '@shapeshiftoss/swapper'
+import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  assertGetCowNetwork,
+  signCowMessage,
+  signCowOrder,
+  signCowOrderCancellation,
+} from '@shapeshiftoss/swapper'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
 import {
-  domain,
   getAffiliateAppDataFragmentByChainId,
   getFullAppData,
-  getSignTypeDataPayload,
 } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type {
+  CowSwapError,
+  Order,
   OrderCancellation,
   OrderCreation,
   OrderId,
@@ -23,19 +25,19 @@ import type {
   OrderStatus,
   QuoteId,
   Trade,
-} from '@shapeshiftoss/types/dist/cowSwap'
+} from '@shapeshiftoss/types'
 import {
+  EcdsaSigningScheme,
   OrderClass,
   OrderQuoteSideKindSell,
   PriceQuality,
   SellTokenSource,
   SigningScheme,
-} from '@shapeshiftoss/types/dist/cowSwap'
+} from '@shapeshiftoss/types'
 import type { AxiosError } from 'axios'
 import axios from 'axios'
 import { getConfig } from 'config'
 import type { TypedData } from 'eip-712'
-import { ethers } from 'ethers'
 import type { Address } from 'viem'
 import { zeroAddress } from 'viem'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -77,9 +79,7 @@ export const limitOrderApi = createApi({
         } = params
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
+        const network = assertGetCowNetwork(chainId)
 
         const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
           affiliateBps,
@@ -139,62 +139,25 @@ export const limitOrderApi = createApi({
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 
-        // Removes the types that aren't part of GpV2Order types or structured signing will fail
-        const { signingScheme, quoteId, appDataHash, appData, receiver, ...rest } =
-          unsignedOrderCreation
-
         if (!wallet) throw Error('missing wallet')
-        if (!appDataHash) throw Error('missing appDataHash')
-        if (!receiver) throw Error('missing receiver')
         if (!accountMetadata) throw Error('missing accountMetadata')
 
-        const message = { receiver, ...rest }
-
-        const signMessage = async (message: TypedData) => {
-          const { bip44Params } = accountMetadata
-          const adapter = assertGetEvmChainAdapter(chainId)
-          const typedDataToSign: ETHSignTypedData = {
-            addressNList: toAddressNList(bip44Params),
-            typedData: message,
-          }
-
-          const signTypedDataInput: SignTypedDataInput<ETHSignTypedData> = {
-            typedDataToSign,
+        const signMessage = async (typedData: TypedData) => {
+          return await signCowMessage(
+            typedData,
+            assertGetEvmChainAdapter(chainId),
+            accountMetadata,
             wallet,
-          }
-
-          const output = await adapter.signTypedData(signTypedDataInput)
-
-          return output
+          )
         }
 
-        const { chainReference } = fromChainId(chainId)
-        const signingDomain = Number(chainReference)
-        const typedData = getSignTypeDataPayload(
-          domain(signingDomain, COW_SWAP_SETTLEMENT_ADDRESS),
-          {
-            ...message,
-            // The order we're signing requires the appData to be a hash, not the stringified doc
-            // However, the request we're making to *send* the order to the API requires both appData and appDataHash in their original form
-            // see https://github.com/cowprotocol/cowswap/blob/a11703f4e93df0247c09d96afa93e13669a3c244/apps/cowswap-frontend/src/legacy/utils/trade.ts#L236
-            appData: appDataHash,
-          },
-        )
-
-        const signedTypeData = await signMessage(typedData)
-
-        // Passing the signature through split/join to normalize the `v` byte.
-        // Some wallets do not pad it with `27`, which causes a signature failure
-        // `splitSignature` pads it if needed, and `joinSignature` simply puts it back together
-        const signature = ethers.Signature.from(ethers.Signature.from(signedTypeData)).serialized
+        const signature = await signCowOrder(unsignedOrderCreation, chainId, signMessage)
 
         const limitOrder: OrderCreation = { ...unsignedOrderCreation, signature }
 
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
+        const network = assertGetCowNetwork(chainId)
 
         try {
           const result = await axios.post<OrderId>(
@@ -211,27 +174,56 @@ export const limitOrderApi = createApi({
         }
       },
     }),
-    cancelLimitOrders: build.mutation<boolean, { payload: OrderCancellation; chainId: ChainId }>({
-      queryFn: async ({ payload, chainId }) => {
+    cancelLimitOrder: build.mutation<
+      number,
+      {
+        accountId: AccountId
+        sellAssetId: AssetId
+        buyAssetId: AssetId
+        order: Order
+        wallet: HDWallet | null
+      }
+    >({
+      queryFn: async ({ accountId, order, wallet }, { getState }) => {
+        const state = getState() as ReduxState
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
+        const { chainId } = fromAccountId(accountId)
+        const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
+
+        if (!wallet) throw Error('missing wallet')
+        if (!accountMetadata) throw Error('missing accountMetadata')
+
+        const signMessage = async (typedData: TypedData) => {
+          return await signCowMessage(
+            typedData,
+            assertGetEvmChainAdapter(chainId),
+            accountMetadata,
+            wallet,
+          )
+        }
+
+        const signature = await signCowOrderCancellation(order.uid, chainId, signMessage)
+
+        const network = assertGetCowNetwork(chainId)
+        const orderCancellationPayload: OrderCancellation = {
+          orderUids: [order.uid],
+          signature,
+          signingScheme: EcdsaSigningScheme.EIP712,
+        }
+
         const result = await axios.delete<void>(`${baseUrl}/${network}/api/v1/orders`, {
-          data: payload,
+          data: orderCancellationPayload,
         })
-        // If the result is a 200 then the order was successfully canceled
-        return { data: result.status === 200 }
+
+        return { data: result.status }
       },
     }),
     getOrderStatus: build.query<OrderStatus, { orderId: OrderId; chainId: ChainId }>({
       queryFn: async ({ orderId, chainId }) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
+        const network = assertGetCowNetwork(chainId)
         const result = await axios.get<OrderStatus>(
           `${baseUrl}/${network}/api/v1/orders/${orderId}/status`,
         )
@@ -242,9 +234,7 @@ export const limitOrderApi = createApi({
       queryFn: async ({ owner, chainId }) => {
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
-        const maybeNetwork = getCowswapNetwork(chainId)
-        if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-        const network = maybeNetwork.unwrap()
+        const network = assertGetCowNetwork(chainId)
         const result = await axios.get<Trade[]>(
           `${baseUrl}/${network}/api/v1/trades?owner=${owner}`,
         )
@@ -254,4 +244,5 @@ export const limitOrderApi = createApi({
   }),
 })
 
-export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation } = limitOrderApi
+export const { useQuoteLimitOrderQuery, usePlaceLimitOrderMutation, useCancelLimitOrderMutation } =
+  limitOrderApi

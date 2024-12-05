@@ -1,5 +1,8 @@
 import type { Nominal } from '@shapeshiftoss/caip'
+import type { TypedDataField } from 'ethers'
 import type { Address } from 'viem'
+
+import type { KnownChainIds } from './base'
 
 export type AppDataHash = Nominal<string, 'AppDataHash'>
 export type AppData = Nominal<string, 'AppData'>
@@ -8,6 +11,11 @@ export type QuoteId = Nominal<number, 'QuoteId'>
 
 // The following are lifted directly out of the cowprotocol source code because ethers version conflicts prevent us importing the SDK directly.
 // https://github.dev/cowprotocol/cow-sdk/blob/main/src/order-book/generated/models/
+
+export enum TypedDataPrimaryType {
+  Order = 'Order',
+  OrderCancellations = 'OrderCancellations',
+}
 
 export enum OrderKind {
   BUY = 'buy',
@@ -136,6 +144,9 @@ export type OrderCreation = {
   appDataHash?: AppDataHash | null
 }
 
+export type UnsignedOrderCreation = Omit<OrderCreation, 'signature'> &
+  Partial<Pick<OrderCreation, 'signature'>>
+
 export type EthflowData = {
   refundTxHash: string | null
   userValidTo: number
@@ -231,6 +242,7 @@ export type OrderQuoteRequest = OrderQuoteSide &
   }
 
 export type OrderCancellation = {
+  orderUids: string[]
   signature: string
   signingScheme: EcdsaSigningScheme
 }
@@ -290,3 +302,23 @@ export type Trade = {
   txHash: string | null
   executedProtocolFees?: ExecutedProtocolFee[]
 }
+
+export type CowSwapError = {
+  errorType: OrderError
+  description: string
+  // This is not documented by CoW API so we shouldn't make assumptions about the shape, nor presence of this guy
+  data?: unknown
+}
+
+export enum CowNetwork {
+  Mainnet = 'mainnet',
+  Xdai = 'xdai',
+  ArbitrumOne = 'arbitrum_one',
+}
+
+export type CowChainId =
+  | KnownChainIds.EthereumMainnet
+  | KnownChainIds.GnosisMainnet
+  | KnownChainIds.ArbitrumMainnet
+
+export type TypedDataTypes = Record<string, TypedDataField[]>

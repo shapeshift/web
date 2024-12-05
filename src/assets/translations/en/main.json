@@ -1027,9 +1027,16 @@
     "placeOrderSuccess": "Success!",
     "placeOrderFailed": "Something Went Wrong",
     "placeOrder": "Place Order",
+    "cancel": {
+      "cancelOrder": "Cancel Limit Order",
+      "requestCancellation": "Yes, request cancellation",
+      "areYouSureYouWantToCancelOrder": "Are you sure you want to cancel this order?",
+      "cancellationFailed": "Failed to cancel order"
+    },
     "viewOrder": "View Order",
     "viewOnChain": "View transaction on chain",
     "yourOrderHasBeenPlaced": "Your order has been placed.",
+    "yourCancellationHasBeenSubmitted": "Your cancellation has been submitted.",
     "limitPrice": "Limit Price",
     "provider": "Provider",
     "expiration": "Expiration",
@@ -1066,6 +1073,7 @@
       "expired": "Expired"
     },
     "orders": "Orders",
+    "viewOrders": "View Orders",
     "loadingOrderList": "Loading your limit orders..."
   },
   "modals": {

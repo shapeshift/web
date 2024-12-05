@@ -11699,6 +11699,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
+    "@coral-xyz/anchor": 0.29.0
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
@@ -11774,7 +11775,6 @@ __metadata:
     "@chakra-ui/tag": ^3.1.1
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
-    "@coral-xyz/anchor": 0.29.0
     "@cowprotocol/app-data": ^2.3.0
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0

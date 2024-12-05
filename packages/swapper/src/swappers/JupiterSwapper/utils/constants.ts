@@ -10,6 +10,8 @@ export const JUPITER_SUPPORTED_CHAIN_IDS: SupportedChainIds = {
   buy: jupiterSupportedChainIds,
 }
 
+export const PDA_ACCOUNT_CREATION_COST = 2040000
+
 export const SOLANA_RANDOM_ADDRESS = '2zHKF6tqam3tnNFPK2E9nBDkV7GMXnvdJautmzqQdn8A'
 
 // Jupiter use 40% as a compute unit margin while calculating them, some TX reverts without this

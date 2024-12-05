@@ -1,3 +1,4 @@
+import { BorshInstructionCoder } from '@coral-xyz/anchor'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -13,6 +14,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { PublicKey } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import type {
@@ -24,8 +26,18 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { SOLANA_RANDOM_ADDRESS } from '../utils/constants'
-import { getJupiterPrice, isSupportedChainId } from '../utils/helpers'
+import { referralIdl } from '../idls/referral'
+import {
+  JUPITER_AFFILIATE_CONTRACT_ADDRESS,
+  PDA_ACCOUNT_CREATION_COST,
+  SHAPESHIFT_JUPITER_REFERRAL_KEY,
+  SOLANA_RANDOM_ADDRESS,
+} from '../utils/constants'
+import {
+  getFeeTokenAccountAndInstruction,
+  getJupiterPrice,
+  isSupportedChainId,
+} from '../utils/helpers'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -44,6 +56,8 @@ export const getTradeRate = async (
   const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
+
+  const solAsset = assetsById[solAssetId]
 
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(
@@ -114,6 +128,52 @@ export const getTradeRate = async (
     return { networkFeeCryptoBaseUnit: fast.txFee }
   }
 
+  const buyAssetAddress =
+    buyAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(buyAsset.assetId).assetReference
+
+  const sellAssetAddress =
+    sellAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(sellAsset.assetId).assetReference
+
+  const [buyAssetAccount] = await PublicKey.findProgramAddressSync(
+    [
+      Buffer.from('referral_ata'),
+      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
+      new PublicKey(buyAssetAddress).toBuffer(),
+    ],
+    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+  )
+
+  const [sellAssetAccount] = await PublicKey.findProgramAddressSync(
+    [
+      Buffer.from('referral_ata'),
+      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
+      new PublicKey(sellAssetAddress).toBuffer(),
+    ],
+    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+  )
+
+  const instructionData = new BorshInstructionCoder(referralIdl).encode(
+    'initializeReferralTokenAccount',
+    {},
+  )
+
+  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+  const { instruction: feeAccountInstruction } = await getFeeTokenAccountAndInstruction({
+    feePayerPubKey: new PublicKey(input.sendAddress ?? SOLANA_RANDOM_ADDRESS),
+    buyAssetAccount,
+    sellAssetAccount,
+    programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+    instructionData,
+    buyTokenId: buyAssetAddress,
+    sellTokenId: sellAssetAddress,
+    connection: adapter.getConnection(),
+  })
+
   const protocolFees: Record<AssetId, ProtocolFee> = priceResponse.routePlan.reduce(
     (acc, route) => {
       const feeAssetId = toAssetId({
@@ -138,6 +198,40 @@ export const getTradeRate = async (
     },
     {} as Record<AssetId, ProtocolFee>,
   )
+
+  if (feeAccountInstruction) {
+    if (solAsset) {
+      protocolFees[solAssetId] = {
+        requiresBalance: true,
+        amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+          .plus(PDA_ACCOUNT_CREATION_COST)
+          .toFixed(),
+        asset: solAsset,
+      }
+    }
+  }
+
+  if (input.sendAddress && solAsset) {
+    const { instruction: createTokenAccountInstruction } = buyAsset
+      ? await adapter.createAssociatedTokenAccountInstruction({
+          from: input.sendAddress,
+          to: receiveAddress ?? input.sendAddress,
+          tokenId: fromAssetId(
+            buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
+          ).assetReference,
+        })
+      : { instruction: undefined }
+
+    if (createTokenAccountInstruction) {
+      protocolFees[solAssetId] = {
+        requiresBalance: true,
+        amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+          .plus(PDA_ACCOUNT_CREATION_COST)
+          .toFixed(),
+        asset: solAsset,
+      }
+    }
+  }
 
   const rates: TradeRate[] = []
 

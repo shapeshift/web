@@ -83,7 +83,8 @@ export const getFeeTokenAccountAndInstruction = async ({
   programId,
   buyAssetAccount,
   sellAssetAccount,
-  mint,
+  buyTokenId,
+  sellTokenId,
   instructionData,
   connection,
 }: {
@@ -91,11 +92,12 @@ export const getFeeTokenAccountAndInstruction = async ({
   programId: PublicKey
   buyAssetAccount: PublicKey
   sellAssetAccount: PublicKey
-  mint: string
+  buyTokenId: string
+  sellTokenId: string
   instructionData: Buffer
   connection: Connection
 }): Promise<{
-  tokenAccount: PublicKey
+  tokenAccount?: PublicKey
   instruction?: TransactionInstruction | undefined
 }> => {
   const buyAssetTokenAccount = await connection.getAccountInfo(buyAssetAccount)
@@ -105,6 +107,16 @@ export const getFeeTokenAccountAndInstruction = async ({
   const sellAssetTokenAccount = await connection.getAccountInfo(sellAssetAccount)
 
   if (sellAssetTokenAccount) return { tokenAccount: sellAssetAccount }
+
+  const buyTokenInfo = await connection.getAccountInfo(new PublicKey(buyTokenId))
+  const sellTokenInfo = await connection.getAccountInfo(new PublicKey(sellTokenId))
+
+  if (
+    buyTokenInfo?.owner.toString() !== TOKEN_PROGRAM_ID.toString() &&
+    sellTokenInfo?.owner.toString() !== TOKEN_PROGRAM_ID.toString()
+  ) {
+    return { tokenAccount: undefined, instruction: undefined }
+  }
 
   const project = new PublicKey(JUPITER_REFERALL_FEE_PROJECT_ACCOUNT)
 
@@ -133,7 +145,7 @@ export const getFeeTokenAccountAndInstruction = async ({
           isWritable: true,
         },
         {
-          pubkey: new PublicKey(mint),
+          pubkey: new PublicKey(buyTokenId),
           isSigner: false,
           isWritable: false,
         },

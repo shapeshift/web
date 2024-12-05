@@ -33,6 +33,7 @@ import { referralIdl } from '../idls/referral'
 import {
   JUPITER_AFFILIATE_CONTRACT_ADDRESS,
   JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER,
+  PDA_ACCOUNT_CREATION_COST,
   SHAPESHIFT_JUPITER_REFERRAL_KEY,
 } from '../utils/constants'
 import {
@@ -60,6 +61,8 @@ export const getTradeQuote = async (
   const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
+
+  const solAsset = assetsById[solAssetId]
 
   if (accountNumber === undefined) {
     return Err(
@@ -94,6 +97,15 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `sendAddress is required`,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  if (!solAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `solAsset is required`,
         code: TradeQuoteError.UnknownError,
       }),
     )
@@ -182,7 +194,8 @@ export const getTradeQuote = async (
       sellAssetAccount,
       programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
       instructionData,
-      mint: buyAssetAddress,
+      buyTokenId: buyAssetAddress,
+      sellTokenId: sellAssetAddress,
       connection: adapter.getConnection(),
     })
 
@@ -193,7 +206,7 @@ export const getTradeQuote = async (
     rawQuote: priceResponse,
     // Shared account is not supported for simple AMMs
     useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
-    feeAccount: tokenAccount.toString(),
+    feeAccount: affiliateBps !== '0' ? tokenAccount?.toString() : undefined,
   })
 
   if (maybeSwapResponse.isErr()) {
@@ -278,6 +291,16 @@ export const getTradeQuote = async (
     },
     {} as Record<AssetId, ProtocolFee>,
   )
+
+  if (feeAccountInstruction) {
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+        .plus(PDA_ACCOUNT_CREATION_COST)
+        .toFixed(),
+      asset: solAsset,
+    }
+  }
 
   const quotes: TradeQuote[] = []
 

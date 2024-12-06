@@ -107,6 +107,7 @@ export const LimitOrderConfirm = () => {
     // refetch the orders list for this account
     queryClient.invalidateQueries({
       queryKey: ['getLimitOrdersForAccount', accountId],
+      refetchType: 'all',
     })
   }, [
     activeQuote?.params.accountId,

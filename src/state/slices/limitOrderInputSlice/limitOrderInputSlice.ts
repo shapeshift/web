@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { pick } from 'lodash'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
@@ -39,6 +40,13 @@ const initialState: LimitOrderInputState = {
   expiry: ExpiryOption.SevenDays,
 }
 
+const resetLimitOrderConfig = (state: LimitOrderInputState) => {
+  Object.assign(
+    state,
+    pick(initialState, ['limitPrice', 'limitPriceDirection', 'presetLimit', 'expiry']),
+  )
+}
+
 export const limitOrderInput = createTradeInputBaseSlice({
   name: 'limitOrderInput',
   initialState,
@@ -66,12 +74,15 @@ export const limitOrderInput = createTradeInputBaseSlice({
     },
     setBuyAsset: (state: LimitOrderInputState, action: PayloadAction<Asset>) => {
       baseReducers.setBuyAsset(state, action)
+      resetLimitOrderConfig(state)
     },
     setSellAsset: (state: LimitOrderInputState, action: PayloadAction<Asset>) => {
       baseReducers.setSellAsset(state, action)
+      resetLimitOrderConfig(state)
     },
     switchAssets: (state: LimitOrderInputState) => {
       baseReducers.switchAssets(state)
+      resetLimitOrderConfig(state)
     },
   }),
 })

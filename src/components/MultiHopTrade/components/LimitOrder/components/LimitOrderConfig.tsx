@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
@@ -98,23 +98,6 @@ export const LimitOrderConfig = ({
 
   const { setLimitPriceDirection, setExpiry, setLimitPrice, setPresetLimit } = useActions(
     limitOrderInput.actions,
-  )
-
-  // Reset the user config when the assets change
-  useEffect(
-    () => {
-      setLimitPriceDirection(PriceDirection.BuyAssetDenomination)
-      setPresetLimit(PresetLimit.Market)
-      setExpiry(ExpiryOption.SevenDays)
-      setLimitPrice({
-        [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
-        [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
-      })
-    },
-    // NOTE: we DO NOT want to react to `marketPriceBuyAsset` here, because polling will reset it
-    // every time!
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sellAsset, buyAsset, setLimitPrice],
   )
 
   const {

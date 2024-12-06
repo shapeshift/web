@@ -140,6 +140,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return this.chainId
   }
 
+  getConnection(): Connection {
+    return this.connection
+  }
+
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
     return { ...ChainAdapter.defaultBIP44Params, accountNumber }

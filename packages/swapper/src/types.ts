@@ -105,6 +105,8 @@ export enum TradeQuoteError {
   InternalError = 'InternalError',
   // The max. slippage allowed for this trade has been exceeded at final quote time, as returned by the active quote swapper's API upstream
   FinalQuoteMaxSlippageExceeded = 'FinalQuoteMaxSlippageExceeded',
+  // Execution reverted at final quote time, as returned by the active quote swapper's API upstream
+  FinalQuoteExecutionReverted = 'FinalQuoteExecutionReverted',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }

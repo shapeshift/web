@@ -46,6 +46,8 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.rateLimitExceeded'
       case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
         return 'trade.errors.maxSlippageExceeded'
+      case SwapperTradeQuoteError.FinalQuoteExecutionReverted:
+        return 'trade.errors.executionReverted'
       case TradeQuoteValidationError.UnknownError:
       case SwapperTradeQuoteError.UnknownError:
       case SwapperTradeQuoteError.InternalError:

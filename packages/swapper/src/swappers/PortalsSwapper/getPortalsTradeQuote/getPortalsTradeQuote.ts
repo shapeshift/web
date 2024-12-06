@@ -206,6 +206,14 @@ export async function getPortalsTradeQuote(
           code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
         }),
       )
+    if (err instanceof PortalsError && err.message.includes('execution reverted'))
+      return Err(
+        makeSwapErrorRight({
+          message: err.message,
+          cause: err,
+          code: TradeQuoteError.FinalQuoteExecutionReverted,
+        }),
+      )
     return Err(
       makeSwapErrorRight({
         message: 'failed to get Portals quote',

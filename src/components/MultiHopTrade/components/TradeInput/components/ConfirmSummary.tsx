@@ -154,9 +154,11 @@ export const ConfirmSummary = ({
   const quoteHasError = useMemo(() => {
     const tradeQuoteError = activeQuoteErrors?.[0]
 
-    // Ensures final trade quote max slippage exceeded error is not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
+    // Ensures final trade quote errors are not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
     // if backing out from an errored final quote back to input
 
+    if (tradeQuoteError && tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded)
+      return false
     if (tradeQuoteError && tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded)
       return false
     if (!shouldShowTradeQuoteOrAwaitInput) return false
@@ -232,10 +234,11 @@ export const ConfirmSummary = ({
         return getQuoteRequestErrorTranslation(quoteRequestError)
       case !!quoteResponseError:
         return getQuoteRequestErrorTranslation(quoteResponseError)
-      // Ensures final trade quote max slippage exceeded error is not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
+      // Ensures final trade quote errors are not displayed at input time for one or two render cycles as tradeQuoteSlice when reset
       // if backing out from an errored final quote back to input
       case tradeQuoteError &&
-        tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded:
+        (tradeQuoteError.error === TradeQuoteError.FinalQuoteMaxSlippageExceeded ||
+          tradeQuoteError.error === TradeQuoteError.FinalQuoteExecutionReverted):
         return 'trade.previewTrade'
       case !!tradeQuoteError:
         return getQuoteErrorTranslation(tradeQuoteError!)

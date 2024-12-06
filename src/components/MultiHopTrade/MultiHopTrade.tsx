@@ -7,7 +7,6 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, Route, Switch, useHistory, useLocation, useParams } from 'react-router-dom'
 import { selectAssetById } from 'state/slices/assetsSlice/selectors'
 import { tradeInput } from 'state/slices/tradeInputSlice/tradeInputSlice'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { LimitOrder } from './components/LimitOrder/LimitOrder'
@@ -98,17 +97,6 @@ type TradeRoutesProps = {
 const TradeRoutes = memo(({ isCompact }: TradeRoutesProps) => {
   const history = useHistory()
   const location = useLocation()
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    return () => {
-      // Reset the trade slices to initial state on unmount
-      // Don't move me to one of the trade route components, this needs to be at router-level
-      // We only want to clear swapper state when trade components are fully unmounted, not when trade routes change
-      dispatch(tradeInput.actions.clear())
-      dispatch(tradeQuoteSlice.actions.clear())
-    }
-  }, [dispatch])
 
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 

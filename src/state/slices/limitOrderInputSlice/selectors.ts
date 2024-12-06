@@ -50,6 +50,11 @@ export const selectLimitPriceOppositeDirection = createSelector(
 
 export const selectLimitPrice = createSelector(selectBaseSlice, baseSlice => baseSlice.limitPrice)
 
+export const selectPresetLimitPrice = createSelector(
+  selectBaseSlice,
+  baseSlice => baseSlice.presetLimit,
+)
+
 export const selectLimitPriceForSelectedPriceDirection = createSelector(
   selectBaseSlice,
   selectLimitPriceDirection,

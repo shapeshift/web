@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
@@ -22,26 +22,23 @@ import { Text } from 'components/Text'
 import { useActions } from 'hooks/useActions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertUnreachable } from 'lib/utils'
-import { ExpiryOption, PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
+import {
+  ExpiryOption,
+  PresetLimit,
+  PriceDirection,
+} from 'state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectExpiry,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
   selectLimitPriceOppositeDirection,
+  selectPresetLimitPrice,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from 'state/store'
 
 import { AmountInput } from '../../TradeAmountInput'
-
-enum PresetLimit {
-  Market = 'market',
-  OnePercent = 'onePercent',
-  TwoPercent = 'twoPercent',
-  FivePercent = 'fivePercent',
-  TenPercent = 'tenPercent',
-}
 
 const EXPIRY_OPTIONS = [
   ExpiryOption.OneHour,
@@ -91,16 +88,17 @@ export const LimitOrderConfig = ({
 }: LimitOrderConfigProps) => {
   const priceAmountRef = useRef<string | null>(null)
 
-  const [presetLimit, setPresetLimit] = useState<PresetLimit | undefined>(PresetLimit.Market)
-
   const limitPriceForSelectedPriceDirection = useAppSelector(
     selectLimitPriceForSelectedPriceDirection,
   )
   const priceDirection = useAppSelector(selectLimitPriceDirection)
   const oppositePriceDirection = useAppSelector(selectLimitPriceOppositeDirection)
   const expiry = useAppSelector(selectExpiry)
+  const presetLimitPrice = useAppSelector(selectPresetLimitPrice)
 
-  const { setLimitPriceDirection, setExpiry, setLimitPrice } = useActions(limitOrderInput.actions)
+  const { setLimitPriceDirection, setExpiry, setLimitPrice, setPresetLimit } = useActions(
+    limitOrderInput.actions,
+  )
 
   // Reset the user config when the assets change
   useEffect(
@@ -177,7 +175,7 @@ export const LimitOrderConfig = ({
         [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
       })
     },
-    [marketPriceBuyAsset, setLimitPrice],
+    [marketPriceBuyAsset, setLimitPrice, setPresetLimit],
   )
 
   const handleSetMarketLimit = useCallback(() => {
@@ -223,7 +221,7 @@ export const LimitOrderConfig = ({
 
     // Unset the preset limit, as this is a custom value
     setPresetLimit(undefined)
-  }, [oppositePriceDirection, priceDirection, setLimitPrice])
+  }, [oppositePriceDirection, priceDirection, setLimitPrice, setPresetLimit])
 
   const handleValueChange = useCallback(
     (values: NumberFormatValues) => {
@@ -296,7 +294,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimit === PresetLimit.Market}
+          isActive={presetLimitPrice === PresetLimit.Market}
           onClick={handleSetMarketLimit}
           isDisabled={isLoading}
         >
@@ -305,7 +303,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimit === PresetLimit.OnePercent}
+          isActive={presetLimitPrice === PresetLimit.OnePercent}
           onClick={handleSetOnePercentLimit}
           isDisabled={isLoading}
         >
@@ -314,7 +312,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimit === PresetLimit.TwoPercent}
+          isActive={presetLimitPrice === PresetLimit.TwoPercent}
           onClick={handleSetTwoPercentLimit}
           isDisabled={isLoading}
         >
@@ -323,7 +321,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimit === PresetLimit.FivePercent}
+          isActive={presetLimitPrice === PresetLimit.FivePercent}
           onClick={handleSetFivePercentLimit}
           isDisabled={isLoading}
         >
@@ -332,7 +330,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimit === PresetLimit.TenPercent}
+          isActive={presetLimitPrice === PresetLimit.TenPercent}
           onClick={handleSetTenPercentLimit}
           isDisabled={isLoading}
         >

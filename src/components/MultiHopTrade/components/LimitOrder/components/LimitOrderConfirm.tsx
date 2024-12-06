@@ -7,7 +7,6 @@ import {
   CardHeader,
   Heading,
   HStack,
-  Link,
   Stack,
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
@@ -47,9 +46,6 @@ import { WithBackButton } from '../../WithBackButton'
 import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
-
-// TODO: Populate this!
-const learnMoreUrl = ''
 
 export const LimitOrderConfirm = () => {
   const history = useHistory()
@@ -210,9 +206,8 @@ export const LimitOrderConfirm = () => {
             <Card bg='background.surface.raised.pressed' borderRadius={6} p={4}>
               <HStack>
                 <InfoIcon boxSize='1.3em' color='text.info' />
-                <RawText>
-                  {translate('limitOrder.confirmInfo')}{' '}
-                  <Button
+                <RawText>{translate('limitOrder.confirmInfo')}</RawText>
+                {/* <Button
                     as={Link}
                     href={learnMoreUrl}
                     variant='link'
@@ -224,8 +219,7 @@ export const LimitOrderConfirm = () => {
                     verticalAlign='baseline'
                   >
                     <Text as='span' translation='limitOrder.learnMore' />
-                  </Button>
-                </RawText>
+                  </Button> */}
               </HStack>
             </Card>
             <Button

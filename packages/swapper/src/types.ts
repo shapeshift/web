@@ -49,7 +49,6 @@ export type SwapperConfig = {
   REACT_APP_UNCHAINED_BNBSMARTCHAIN_HTTP_URL: string
   REACT_APP_COWSWAP_BASE_URL: string
   REACT_APP_PORTALS_BASE_URL: string
-  REACT_APP_FEATURE_ZRX_PERMIT2: boolean
   REACT_APP_ZRX_BASE_URL: string
   REACT_APP_CHAINFLIP_API_KEY: string
   REACT_APP_CHAINFLIP_API_URL: string
@@ -131,7 +130,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
-  protocolFees: PartialRecord<AssetId, ProtocolFee> // fee(s) paid to the protocol(s)
+  protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
   chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
 }
 

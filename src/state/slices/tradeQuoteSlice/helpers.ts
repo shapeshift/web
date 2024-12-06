@@ -64,7 +64,7 @@ export const getHopTotalProtocolFeesFiatPrecision = (
   tradeQuoteStep: TradeQuote['steps'][number],
   userCurrencyToUsdRate: string,
   marketDataByAssetIdUsd: Partial<Record<AssetId, MarketData>>,
-): string => {
+): string | undefined => {
   return sumProtocolFeesToDenom({
     marketDataByAssetIdUsd,
     protocolFees: tradeQuoteStep.feeData.protocolFees,
@@ -97,8 +97,9 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQu
 export const _reduceTotalProtocolFeeByAssetForStep = (
   accumulator: Record<AssetId, ProtocolFee>,
   step: TradeQuoteStep,
-) =>
-  Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
+) => {
+  if (step.feeData.protocolFees === undefined) return accumulator
+  return Object.entries(step.feeData.protocolFees).reduce<Record<AssetId, ProtocolFee>>(
     (innerAccumulator, [assetId, protocolFee]) => {
       if (!protocolFee) return innerAccumulator
       if (innerAccumulator[assetId] === undefined) {
@@ -116,6 +117,7 @@ export const _reduceTotalProtocolFeeByAssetForStep = (
     },
     accumulator,
   )
+}
 
 export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
   _reduceTotalProtocolFeeByAssetForStep({}, step)

@@ -37,11 +37,13 @@ vi.mock('../utils/zrxService', () => {
 
 vi.mock('../utils/helpers/helpers', async () => {
   const actual = await vi.importActual('../utils/helpers/helpers')
+
   return {
     ...actual,
     baseUrlFromChainId: vi.fn(() => 'https://0x.shapeshift.com/ethereum/'),
   }
 })
+
 vi.mock('@shapeshiftoss/chain-adapters', async () => {
   const { KnownChainIds } = require('@shapeshiftoss/types')
 
@@ -59,44 +61,73 @@ vi.mock('@shapeshiftoss/chain-adapters', async () => {
 
 const mockOk = Ok
 const mockErr = Err
+
 describe('getZrxTradeQuote', () => {
   const zrxBaseUrl = 'https://0x.shapeshift.com/ethereum/'
 
-  const assertGetChainAdapter = (_chainId: ChainId) =>
-    ({
+  const assertGetChainAdapter = (_chainId: ChainId) => {
+    return {
       getChainId: () => KnownChainIds.EthereumMainnet,
       getGasFeeData: () => Promise.resolve(gasFeeData),
-    }) as unknown as EvmChainAdapter
+    } as EvmChainAdapter
+  }
+
   const zrxService = zrxServiceFactory({ baseUrl: zrxBaseUrl })
 
   it('returns quote with fee data', async () => {
     const { quoteInput } = setupQuote()
+
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockOk({
-          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
-        } as AxiosResponse<unknown, any>),
+          data: {
+            buyAmount: quoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAmount: quoteInput.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            fees: {
+              integratorFee: null,
+              zeroExFee: {
+                amount: '3978501710063',
+                token: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+              },
+            },
+            transaction: {
+              gas: '237315',
+            },
+            permit2: { eip712: {} },
+          },
+        } as unknown as AxiosResponse<unknown, any>),
       ),
     )
+
     const maybeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
-      false,
-      {},
+      { 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': quoteInput.buyAsset },
       zrxBaseUrl,
     )
+    if (maybeQuote.isErr()) console.log(maybeQuote.unwrapErr())
 
     expect(maybeQuote.isErr()).toBe(false)
+
     const quote = maybeQuote.unwrap()
+
     expect(quote.steps[0].feeData).toStrictEqual({
-      protocolFees: {},
-      networkFeeCryptoBaseUnit: '42',
+      protocolFees: {
+        'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2': {
+          amountCryptoBaseUnit: '3978501710063',
+          asset: quoteInput.buyAsset,
+          requiresBalance: false,
+        },
+      },
+      networkFeeCryptoBaseUnit: '22507856397000000',
     })
-    expect(quote.steps[0].rate).toBe('100')
+
+    expect(quote.steps[0].rate).toBe('1')
   })
 
   it('bubbles up the zrxService Err from a bad zrx response', async () => {
     const { quoteInput } = setupQuote()
+
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(
         mockErr({ some: 'error' }) as unknown as Result<
@@ -108,7 +139,6 @@ describe('getZrxTradeQuote', () => {
     const maybeTradeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
-      false,
       {},
       zrxBaseUrl,
     )
@@ -121,6 +151,7 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on errored zrx response', async () => {
     const { quoteInput } = setupQuote()
+
     vi.mocked(zrxService.get).mockResolvedValue(
       Err({
         response: { data: { code: 502, reason: 'Failed to do some stuff' } },
@@ -130,7 +161,6 @@ describe('getZrxTradeQuote', () => {
     const maybeTradeQuote = await getZrxTradeQuote(
       quoteInput,
       assertGetChainAdapter,
-      false,
       {},
       zrxBaseUrl,
     )
@@ -141,42 +171,14 @@ describe('getZrxTradeQuote', () => {
     })
   })
 
-  it('returns quote without gas limit', async () => {
-    const { quoteInput } = setupQuote()
-    vi.mocked(zrxService.get).mockReturnValue(
-      Promise.resolve(
-        Ok({
-          data: { price: '100', estimatedGas: '4.2', gasPrice: '10', auxiliaryChainData: {} },
-        } as AxiosResponse<unknown>),
-      ),
-    )
-    const maybeQuote = await getZrxTradeQuote(
-      quoteInput,
-      assertGetChainAdapter,
-      false,
-      {},
-      zrxBaseUrl,
-    )
-    expect(maybeQuote.isErr()).toBe(false)
-    const quote = maybeQuote.unwrap()
-
-    expect(quote?.steps[0].feeData).toStrictEqual({
-      protocolFees: {},
-      networkFeeCryptoBaseUnit: '42',
-    })
-  })
-
   it('returns an Err on non ethereum chain for buyAsset', async () => {
     const { quoteInput } = setupQuote()
+
     vi.mocked(zrxService.get).mockReturnValue(Promise.resolve(Ok({} as AxiosResponse<unknown>)))
 
     const maybeTradeQuote = await getZrxTradeQuote(
-      {
-        ...quoteInput,
-        buyAsset: BTC,
-      },
+      { ...quoteInput, buyAsset: BTC },
       assertGetChainAdapter,
-      false,
       {},
       zrxBaseUrl,
     )
@@ -192,17 +194,14 @@ describe('getZrxTradeQuote', () => {
 
   it('returns an Err on non ethereum chain for sellAsset', async () => {
     const { quoteInput, sellAsset } = setupQuote()
+
     vi.mocked(zrxService.get).mockReturnValue(
       Promise.resolve(Ok({} as AxiosResponse<unknown, any>)),
     )
 
     const maybeTradeQuote = await getZrxTradeQuote(
-      {
-        ...quoteInput,
-        sellAsset: { ...sellAsset, chainId: btcChainId },
-      },
+      { ...quoteInput, sellAsset: { ...sellAsset, chainId: btcChainId } },
       assertGetChainAdapter,
-      false,
       {},
       zrxBaseUrl,
     )

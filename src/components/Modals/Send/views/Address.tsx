@@ -108,6 +108,7 @@ export const Address = () => {
             {translate('modals.send.sendForm.sendTo')}
           </FormLabel>
           <AddressInput
+            pe={'9.5'}
             rules={addressInputRules}
             enableQr={true}
             placeholder={translate(

@@ -10,14 +10,22 @@ type PortalsTradeOrderParams = {
   inputToken: string
   inputAmount: string
   outputToken: string
-  slippageTolerancePercentage: number
   // Technically optional, but we always want to use an affiliate addy
   partner: string
   feePercentage?: number
   // Technically optional, but we want to explicitly specify validate
   validate: boolean
   swapperConfig: SwapperConfig
-}
+} & (
+  | {
+      slippageTolerancePercentage: number
+      autoSlippage?: never
+    }
+  | {
+      slippageTolerancePercentage?: never
+      autoSlippage: true
+    }
+)
 
 type PortalsTradeOrderEstimateParams = Omit<
   PortalsTradeOrderParams,
@@ -89,6 +97,7 @@ export const fetchPortalsTradeOrder = async ({
   inputAmount,
   outputToken,
   slippageTolerancePercentage,
+  autoSlippage,
   partner,
   feePercentage,
   validate,
@@ -105,7 +114,9 @@ export const fetchPortalsTradeOrder = async ({
     validate: validate.toString(),
   })
 
-  params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+  if (!autoSlippage) {
+    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+  }
 
   if (feePercentage) {
     params.append('feePercentage', feePercentage.toString())

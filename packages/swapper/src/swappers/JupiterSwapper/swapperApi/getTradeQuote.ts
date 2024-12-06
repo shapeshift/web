@@ -1,11 +1,8 @@
-import { BorshInstructionCoder } from '@coral-xyz/anchor'
-import type { Instruction } from '@jup-ag/api'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
-  fromAssetId,
   solAssetId,
   toAssetId,
   wrappedSolAssetId,
@@ -15,9 +12,6 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { TransactionInstruction } from '@solana/web3.js'
-import { PublicKey } from '@solana/web3.js'
-import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import type {
@@ -29,17 +23,11 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { referralIdl } from '../idls/referral'
-import {
-  JUPITER_AFFILIATE_CONTRACT_ADDRESS,
-  JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER,
-  SHAPESHIFT_JUPITER_REFERRAL_KEY,
-} from '../utils/constants'
+import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
-  getFeeTokenAccountAndInstruction,
+  createSwapInstructions,
   getJupiterPrice,
-  getJupiterSwapInstructions,
   isSupportedChainId,
 } from '../utils/helpers'
 
@@ -138,111 +126,18 @@ export const getTradeQuote = async (
     // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
     bn(priceResponse.slippageBps).div(100).div(100).toString()
 
-  const contractAddress =
-    buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
-
   const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-  const isCrossAccountTrade = receiveAddress ? receiveAddress !== sendAddress : false
-
-  const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
-    contractAddress && isCrossAccountTrade
-      ? await adapter.createAssociatedTokenAccountInstruction({
-          from: sendAddress,
-          to: receiveAddress!,
-          tokenId: contractAddress,
-        })
-      : { instruction: undefined, destinationTokenAccount: undefined }
-
-  const buyAssetAddress =
-    buyAsset.assetId === solAssetId
-      ? fromAssetId(wrappedSolAssetId).assetReference
-      : fromAssetId(buyAsset.assetId).assetReference
-
-  const sellAssetAddress =
-    sellAsset.assetId === solAssetId
-      ? fromAssetId(wrappedSolAssetId).assetReference
-      : fromAssetId(sellAsset.assetId).assetReference
-
-  const [buyAssetReferralPubKey] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from('referral_ata'),
-      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
-      new PublicKey(buyAssetAddress).toBuffer(),
-    ],
-    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
-  )
-
-  const [sellAssetReferralPubKey] = PublicKey.findProgramAddressSync(
-    [
-      Buffer.from('referral_ata'),
-      new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
-      new PublicKey(sellAssetAddress).toBuffer(),
-    ],
-    new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
-  )
-
-  const instructionData = new BorshInstructionCoder(referralIdl).encode(
-    'initializeReferralTokenAccount',
-    {},
-  )
-
-  const { instruction: feeAccountInstruction, tokenAccount } =
-    await getFeeTokenAccountAndInstruction({
-      feePayerPubKey: new PublicKey(sendAddress),
-      buyAssetReferralPubKey,
-      sellAssetReferralPubKey,
-      programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
-      instructionData,
-      buyTokenId: buyAssetAddress,
-      sellTokenId: sellAssetAddress,
-      connection: adapter.getConnection(),
-    })
-
-  const maybeSwapResponse = await getJupiterSwapInstructions({
-    apiUrl: jupiterUrl,
-    fromAddress: sendAddress,
-    toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
-    rawQuote: priceResponse,
-    // Shared account is not supported for simple AMMs
-    useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
-    feeAccount: affiliateBps !== '0' ? tokenAccount?.toString() : undefined,
+  const { instructions, addressLookupTableAddresses } = await createSwapInstructions({
+    priceResponse,
+    sendAddress,
+    receiveAddress,
+    affiliateBps,
+    buyAsset,
+    sellAsset,
+    adapter,
+    jupiterUrl,
   })
-
-  if (maybeSwapResponse.isErr()) {
-    const error = maybeSwapResponse.unwrapErr()
-    const cause = error.cause as AxiosError<any, any>
-    throw Error(cause.response!.data.detail)
-  }
-
-  const { data: swapResponse } = maybeSwapResponse.unwrap()
-
-  const convertJupiterInstruction = (instruction: Instruction): TransactionInstruction => ({
-    ...instruction,
-    keys: instruction.accounts.map(account => ({
-      ...account,
-      pubkey: new PublicKey(account.pubkey),
-    })),
-    data: Buffer.from(instruction.data, 'base64'),
-    programId: new PublicKey(instruction.programId),
-  })
-
-  const instructions: TransactionInstruction[] = [
-    ...swapResponse.setupInstructions.map(convertJupiterInstruction),
-    convertJupiterInstruction(swapResponse.swapInstruction),
-  ]
-
-  if (feeAccountInstruction && affiliateBps !== '0') {
-    instructions.unshift(feeAccountInstruction)
-  }
-
-  if (createTokenAccountInstruction) {
-    instructions.unshift(createTokenAccountInstruction)
-  }
-
-  if (swapResponse.cleanupInstruction) {
-    instructions.push(convertJupiterInstruction(swapResponse.cleanupInstruction))
-  }
 
   const getFeeData = async () => {
     const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
@@ -251,7 +146,7 @@ export const getTradeQuote = async (
       value: '0',
       chainSpecific: {
         from: sendAddress,
-        addressLookupTableAccounts: swapResponse.addressLookupTableAddresses,
+        addressLookupTableAccounts: addressLookupTableAddresses,
         instructions,
       },
     }
@@ -330,7 +225,7 @@ export const getTradeQuote = async (
         sellAmountIncludingProtocolFeesCryptoBaseUnit: priceResponse.inAmount,
         jupiterQuoteResponse: priceResponse,
         jupiterTransactionMetadata: {
-          addressLookupTableAddresses: swapResponse.addressLookupTableAddresses,
+          addressLookupTableAddresses,
           instructions,
         },
         feeData: {

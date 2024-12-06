@@ -47,6 +47,7 @@ export const useGetLimitOrdersQuery = () => {
       .map(accountId => ({
         queryKey: getLimitOrdersForAccountQueryKey(accountId),
         queryFn: getQueryFn(accountId),
+        refetchInterval: 15_000,
       })),
     combine: queries => mergeQueryOutputs(queries, results => results.flat()),
   })

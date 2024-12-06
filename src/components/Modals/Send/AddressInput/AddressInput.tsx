@@ -1,6 +1,7 @@
 import type { SpaceProps } from '@chakra-ui/react'
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react'
 import { useCallback } from 'react'
+import { isMobile } from 'react-device-detect'
 import type { ControllerProps, ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -54,10 +55,17 @@ export const AddressInput = ({
         isInvalid={!isValid}
         // This is already a `useCallback()`
         // eslint-disable-next-line react-memo/require-usememo
-        sx={{
-          fontSize: value && value.length > 42 ? '12px' : '13.5px',
-          transition: 'font-size 0.2s ease-in-out',
-        }}
+        sx={
+          isMobile
+            ? {
+                fontSize: value && value.length > 42 ? '9.8px' : '11px',
+                transition: 'font-size 0.2s ease-in-out',
+              }
+            : {
+                fontSize: value && value.length > 42 ? '12px' : '13.5px',
+                transition: 'font-size 0.2s ease-in-out',
+              }
+        }
       />
     ),
     [isValid, pe, placeholder],

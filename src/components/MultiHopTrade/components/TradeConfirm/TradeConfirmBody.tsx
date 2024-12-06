@@ -1,5 +1,16 @@
-import { ArrowDownIcon } from '@chakra-ui/icons'
-import { Box, Card, HStack, Spinner, Step, Stepper, StepSeparator } from '@chakra-ui/react'
+import { ArrowDownIcon, ArrowUpDownIcon } from '@chakra-ui/icons'
+import {
+  Box,
+  Card,
+  Collapse,
+  Flex,
+  HStack,
+  Progress,
+  Spinner,
+  Step,
+  Stepper,
+  StepSeparator,
+} from '@chakra-ui/react'
 import type {
   SupportedTradeQuoteStepIndex,
   SwapperName,
@@ -7,8 +18,8 @@ import type {
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
-import { useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
+import { useMemo, useState } from 'react'
+import { Text } from 'components/Text'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -139,8 +150,16 @@ const EtaStep = () => {
 }
 
 const ExpandableTradeSteps = () => {
-  const translate = useTranslate()
-  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
+  const [isExpanded, setIsExpanded] = useState(false)
+  const stepProps = useMemo(
+    () => ({
+      alignItems: 'center',
+      py: 2,
+      onClick: () => setIsExpanded(!isExpanded),
+      cursor: 'pointer',
+    }),
+    [isExpanded],
+  )
   const stepIndicator = useMemo(() => {
     return <Spinner />
   }, [])
@@ -157,27 +176,40 @@ const ExpandableTradeSteps = () => {
     selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
-  if (!hopExecutionState || !swapperName) return null
+  const titleElement = useMemo(() => {
+    if (!hopExecutionState || !swapperName) return null
+    const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
+      hopExecutionState,
+      swapperName,
+    )
+    if (!stepSummaryTranslation) return null
+    return (
+      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+        <Text translation={stepSummaryTranslation} />
+        <HStack mr={2}>
+          <Progress value={50} width='100px' size='xs' colorScheme='blue' />
+          <ArrowUpDownIcon boxSize={3} color='gray.500' />
+        </HStack>
+      </Flex>
+    )
+  }, [hopExecutionState, swapperName])
 
-  const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
-    hopExecutionState,
-    swapperName,
-  )
-
-  if (!stepSummaryTranslation) return null
-
-  const stepSummaryTitle = Array.isArray(stepSummaryTranslation)
-    ? translate(...stepSummaryTranslation)
-    : translate(stepSummaryTranslation)
+  if (!titleElement) return null
 
   return (
     <>
       <StepperStep
-        title={stepSummaryTitle}
+        title={titleElement}
         stepIndicator={stepIndicator}
         stepProps={stepProps}
         useSpacer={false}
       />
+      <Collapse in={isExpanded}>
+        <Box p={4}>
+          {/* Add your expanded content here */}
+          <Text translation='trade.expandedContent' />
+        </Box>
+      </Collapse>
     </>
   )
 }

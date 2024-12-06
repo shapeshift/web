@@ -339,7 +339,11 @@ export const Hop = ({
               <Flex color='text.subtle'>
                 <ProtocolIcon />
               </Flex>
-              <Amount.Fiat value={protocolFeeFiatPrecision ?? '0'} display='inline' />
+              {protocolFeeFiatPrecision ? (
+                <Amount.Fiat value={protocolFeeFiatPrecision} display='inline' />
+              ) : (
+                <Text translation={'trade.unknownProtocolFee'} fontSize='sm' />
+              )}
             </Flex>
           </Tooltip>
 

@@ -10,7 +10,7 @@ type PortalsTradeOrderParams = {
   inputToken: string
   inputAmount: string
   outputToken: string
-  slippageTolerancePercentage?: number
+  slippageTolerancePercentage: number
   // Technically optional, but we always want to use an affiliate addy
   partner: string
   feePercentage?: number
@@ -105,9 +105,7 @@ export const fetchPortalsTradeOrder = async ({
     validate: validate.toString(),
   })
 
-  if (slippageTolerancePercentage !== undefined) {
-    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
-  }
+  params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
 
   if (feePercentage) {
     params.append('feePercentage', feePercentage.toString())

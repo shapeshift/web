@@ -13,42 +13,16 @@ export const zrxSupportedChainIds = [
 
 export type ZrxSupportedChainId = (typeof zrxSupportedChainIds)[number]
 
-type ZrxSwapSource = {
-  name: string
-  proportion: string
-}
-
-export type ZrxPriceResponse = {
-  price: string
-  grossPrice: string
-  estimatedGas: string
-  gas: string
-  gasPrice: string
-  buyAmount: string
-  grossBuyAmount: string
-  sellAmount: string
-  grossSellAmount: string
-  allowanceTarget: string
-  sources: ZrxSwapSource[]
-  expectedSlippage?: string
-  minimumProtocolFee: string
-  protocolFee: string
-  estimatedPriceImpact: string
-  auxiliaryChainData: {
-    l1GasEstimate?: number
-  }
-}
-
-export type ZrxQuoteResponse = ZrxPriceResponse & {
-  to: Address
-  data: string
-  value: string
-}
-
 type ZrxFee = {
   amount: string
   token: Address
   type: string
+}
+
+export type ZrxFees = {
+  integratorFee: ZrxFee | null
+  zeroExFee: ZrxFee | null
+  gasFee: ZrxFee | null
 }
 
 type ZrxTokenMetadata = {
@@ -56,15 +30,11 @@ type ZrxTokenMetadata = {
   sellTaxBps: string | null
 }
 
-export type ZrxPermit2PriceResponse = {
+export type ZrxPriceResponse = {
   blockNumber: string
   buyAmount: string
   buyToken: string
-  fees: {
-    integratorFee: ZrxFee | null
-    zeroExFee: ZrxFee | null
-    gasFee: ZrxFee | null
-  }
+  fees: ZrxFees
   gas: string | null
   gasPrice: string
   issues: {
@@ -104,7 +74,7 @@ export type ZrxPermit2PriceResponse = {
   zid: string
 }
 
-export type ZrxPermit2QuoteResponse = Omit<ZrxPermit2PriceResponse, 'gas' | 'gasPrice'> & {
+export type ZrxQuoteResponse = Omit<ZrxPriceResponse, 'gas' | 'gasPrice'> & {
   permit2: {
     type: 'Permit2'
     hash: string

@@ -33,10 +33,10 @@ import { referralIdl } from '../idls/referral'
 import {
   JUPITER_AFFILIATE_CONTRACT_ADDRESS,
   JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER,
-  PDA_ACCOUNT_CREATION_COST,
   SHAPESHIFT_JUPITER_REFERRAL_KEY,
 } from '../utils/constants'
 import {
+  calculateAccountCreationCosts,
   getFeeTokenAccountAndInstruction,
   getJupiterPrice,
   getJupiterSwapInstructions,
@@ -142,15 +142,6 @@ export const getTradeQuote = async (
     buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
 
   const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-  const { instruction: createWSOLTokenAccount } =
-    sellAsset.assetId === solAssetId
-      ? await adapter.createAssociatedTokenAccountInstruction({
-          from: sendAddress,
-          to: receiveAddress!,
-          tokenId: fromAssetId(wrappedSolAssetId).assetReference,
-        })
-      : { instruction: undefined }
 
   const isCrossAccountTrade = receiveAddress ? receiveAddress !== sendAddress : false
 
@@ -301,42 +292,6 @@ export const getTradeQuote = async (
     {} as Record<AssetId, ProtocolFee>,
   )
 
-  if (createWSOLTokenAccount) {
-    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
-
-    protocolFees[solAssetId] = {
-      requiresBalance: true,
-      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
-        .plus(PDA_ACCOUNT_CREATION_COST)
-        .toFixed(),
-      asset: solAsset,
-    }
-  }
-
-  if (createTokenAccountInstruction) {
-    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
-
-    protocolFees[solAssetId] = {
-      requiresBalance: true,
-      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
-        .plus(PDA_ACCOUNT_CREATION_COST)
-        .toFixed(),
-      asset: solAsset,
-    }
-  }
-
-  if (feeAccountInstruction) {
-    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
-
-    protocolFees[solAssetId] = {
-      requiresBalance: true,
-      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
-        .plus(PDA_ACCOUNT_CREATION_COST)
-        .toFixed(),
-      asset: solAsset,
-    }
-  }
-
   const quotes: TradeQuote[] = []
 
   const feeData = await getFeeData()
@@ -347,6 +302,18 @@ export const getTradeQuote = async (
     sellAsset,
     buyAsset,
   })
+
+  const accountCreationFees = calculateAccountCreationCosts(instructions)
+
+  if (accountCreationFees !== '0') {
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount).plus(accountCreationFees).toFixed(),
+      asset: solAsset,
+    }
+  }
 
   const tradeQuote: TradeQuote = {
     id: uuid(),

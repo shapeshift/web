@@ -221,7 +221,7 @@ export const getTradeRate = async (
   }
 
   if (input.sendAddress) {
-    const { instruction: createSellTokenAccountInstruction } =
+    const { instruction: createWSOLTokenAccountInstruction } =
       await adapter.createAssociatedTokenAccountInstruction({
         from: input.sendAddress,
         // If we have a receive address, we use that as the receive address to verify the receive addy has an associated token account (ATA) or not,
@@ -232,7 +232,7 @@ export const getTradeRate = async (
         ).assetReference,
       })
 
-    if (createSellTokenAccountInstruction) {
+    if (createWSOLTokenAccountInstruction) {
       const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
 
       protocolFees[solAssetId] = {

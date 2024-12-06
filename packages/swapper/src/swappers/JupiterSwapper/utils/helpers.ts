@@ -1,8 +1,9 @@
-import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
+import { ASSOCIATED_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
 import type { QuoteResponse, SwapInstructionsResponse } from '@jup-ag/api'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { Connection } from '@solana/web3.js'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
@@ -12,6 +13,7 @@ import type { SwapErrorRight } from '../../../types'
 import {
   JUPITER_REFERALL_FEE_PROJECT_ACCOUNT,
   jupiterSupportedChainIds,
+  PDA_ACCOUNT_CREATION_COST,
   SHAPESHIFT_JUPITER_REFERRAL_KEY,
 } from './constants'
 import { jupiterService } from './jupiterService'
@@ -160,4 +162,18 @@ export const getFeeTokenAccountAndInstruction = async ({
       programId,
     }),
   }
+}
+
+export const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
+  let totalCost = bnOrZero(0)
+
+  for (const ix of instructions) {
+    if (ix.programId.toString() === ASSOCIATED_PROGRAM_ID.toString()) {
+      if (ix.data?.[0] === 1) {
+        totalCost = totalCost.plus(PDA_ACCOUNT_CREATION_COST)
+      }
+    }
+  }
+
+  return totalCost.toString()
 }

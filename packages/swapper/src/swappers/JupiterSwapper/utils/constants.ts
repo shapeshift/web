@@ -14,6 +14,8 @@ export const PDA_ACCOUNT_CREATION_COST = 2040000
 
 export const SOLANA_RANDOM_ADDRESS = '2zHKF6tqam3tnNFPK2E9nBDkV7GMXnvdJautmzqQdn8A'
 
+export const TOKEN_2022_PROGRAM_ID = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
+
 // Jupiter use 40% as a compute unit margin while calculating them, some TX reverts without this
 export const JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.4
 

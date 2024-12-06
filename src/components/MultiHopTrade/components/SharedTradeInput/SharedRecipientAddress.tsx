@@ -268,6 +268,7 @@ export const SharedRecipientAddress = ({
             <AddressInput
               rules={rules}
               placeholder={translate('trade.enterCustomRecipientAddress')}
+              pe={16}
             />
             <InputRightElement
               width='full'

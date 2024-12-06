@@ -147,6 +147,7 @@
     "learnMore": "Learn more",
     "showAll": "Show All",
     "showLess": "Show Less",
+    "showMore": "Show More",
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "active": "Active",
@@ -865,6 +866,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
+    "signAndSwap": "Sign & Swap",
     "tradeAnyway": "Trade Anyway",
     "pending": "Trade Pending",
     "complete": "Trade Complete",
@@ -886,6 +888,8 @@
     "beforeFees": "Before Fees",
     "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
     "free": "Free",
+    "shapeShiftFee": "ShapeShift Fee",
+    "transactionFee": "Transaction Fee",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
@@ -1019,7 +1023,12 @@
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Awaiting token transfer",
+    "awaitingSwap": "Awaiting swap via %{swapperName}",
+    "awaitingBridge": "Awaiting bridge via %{bridgeName}",
+    "awaitingApproval": "Awaiting approval",
+    "awaitingAllowanceReset": "Awaiting allowance reset"
   },
   "limitOrder": {
     "heading": "Limit",

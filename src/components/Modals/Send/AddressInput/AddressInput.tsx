@@ -55,7 +55,7 @@ export const AddressInput = ({
         // This is already a `useCallback()`
         // eslint-disable-next-line react-memo/require-usememo
         sx={{
-          fontSize: value && value.length > 42 ? '12px' : '14px',
+          fontSize: value && value.length > 42 ? '12px' : '13.5px',
           transition: 'font-size 0.2s ease-in-out',
         }}
       />

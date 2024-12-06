@@ -240,7 +240,7 @@ However, many protocols implement additional features.
 
 We support some common additional features through `Extension` interfaces.
 
-If your protocol implements a feature that's also common among other protocols, you may submit an Issue or PR to add an additional `Extension`.
+If your protocol implements a feature that's also common among other protocols, you may submit an Issue or PR to add an `Extension`.
 
 ## `ApprovalRequired<T>`
 

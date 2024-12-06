@@ -8,6 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { zeroAddress } from 'viem'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
   GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
@@ -78,8 +79,10 @@ export async function getPortalsTradeQuote(
     .toNumber()
 
   const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-    ? Number(input.slippageTolerancePercentageDecimal)
-    : undefined // Use auto slippage if no user preference is provided
+    ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toNumber()
+    : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+        .times(100)
+        .toNumber()
 
   if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
@@ -111,9 +114,7 @@ export async function getPortalsTradeQuote(
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
-        ? userSlippageTolerancePercentageDecimalOrDefault * 100
-        : undefined,
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
       partner: getTreasuryAddressFromChainId(sellAsset.chainId),
       feePercentage: affiliateBpsPercentage,
       validate: true,

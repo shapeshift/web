@@ -97,18 +97,16 @@ export async function getPortalsTradeRate(
     const outputToken = `${portalsNetwork}:${buyAssetAddress}`
 
     const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
-      ? Number(input.slippageTolerancePercentageDecimal)
-      : undefined // Use auto slippage if no user preference is provided
+      ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toNumber()
+      : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
+          .times(100)
+          .toNumber()
 
     const quoteEstimateResponse = await fetchPortalsTradeEstimate({
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault
-        ? userSlippageTolerancePercentageDecimalOrDefault * 100
-        : bnOrZero(getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Portals))
-            .times(100)
-            .toNumber(),
+      slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
       swapperConfig,
     })
     // Use the quote estimate endpoint to get a quote without a wallet
@@ -158,12 +156,11 @@ export async function getPortalsTradeRate(
             input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           feeData: {
             networkFeeCryptoBaseUnit: undefined,
-            // Protocol fees are always denominated in sell asset here
-            protocolFees: {},
+            protocolFees: undefined, // We don't have protocol fees on Portals during the estimate step
           },
           source: SwapperName.Portals,
         },
-      ] as unknown as SingleHopTradeRateSteps,
+      ] as SingleHopTradeRateSteps,
     }
 
     return Ok(tradeRate)

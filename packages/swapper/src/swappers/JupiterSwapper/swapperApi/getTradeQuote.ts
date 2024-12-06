@@ -164,7 +164,7 @@ export const getTradeQuote = async (
       ? fromAssetId(wrappedSolAssetId).assetReference
       : fromAssetId(sellAsset.assetId).assetReference
 
-  const [buyAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
+  const [buyAssetReferralPubKey] = PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -173,7 +173,7 @@ export const getTradeQuote = async (
     new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
   )
 
-  const [sellAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
+  const [sellAssetReferralPubKey] = PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),

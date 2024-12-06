@@ -147,7 +147,7 @@ export const getTradeRate = async (
       ? fromAssetId(wrappedSolAssetId).assetReference
       : fromAssetId(sellAsset.assetId).assetReference
 
-  const [buyAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
+  const [buyAssetReferralPubKey] = PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -156,7 +156,7 @@ export const getTradeRate = async (
     new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
   )
 
-  const [sellAssetReferralPubKey] = await PublicKey.findProgramAddressSync(
+  const [sellAssetReferralPubKey] = PublicKey.findProgramAddressSync(
     [
       Buffer.from('referral_ata'),
       new PublicKey(SHAPESHIFT_JUPITER_REFERRAL_KEY).toBuffer(),
@@ -208,7 +208,7 @@ export const getTradeRate = async (
     {} as Record<AssetId, ProtocolFee>,
   )
 
-  if (feeAccountInstruction) {
+  if (feeAccountInstruction && affiliateBps !== '0') {
     const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
 
     protocolFees[solAssetId] = {

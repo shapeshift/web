@@ -217,9 +217,12 @@ export const validateTradeQuote = (
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
             const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
 
+            // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
+            // them kick the swapperName bit out of the condition
             if (
               firstHopSellFeeAsset?.assetId === assetId &&
-              firstHop.sellAsset.assetId === assetId
+              firstHop.sellAsset.assetId === assetId &&
+              swapperName === SwapperName.Jupiter
             ) {
               return bnOrZero(balanceCryptoBaseUnit)
                 .minus(sellAmountCryptoBaseUnit)

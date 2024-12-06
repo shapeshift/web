@@ -81,7 +81,7 @@ export const MetaMaskConnect = ({ history }: MetaMaskSetupProps) => {
 
     const adapter = await getAdapter(KeyManager.MetaMask)
     if (!maybeMipdProvider?.provider) {
-      if (modalType === 'io.xdefi') window.open('https://www.xdefi.io/', '_blank')
+      if (modalType === 'io.xdefi') window.open('https://ctrl.xyz/download/', '_blank')
       if (modalType === 'io.rabby') window.open('https://rabby.io/', '_blank')
     }
     if (adapter) {

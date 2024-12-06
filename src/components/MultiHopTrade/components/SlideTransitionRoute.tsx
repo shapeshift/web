@@ -1,10 +1,11 @@
 import type { CardProps } from '@chakra-ui/react'
-import { Center, Flex, useMediaQuery } from '@chakra-ui/react'
+import { Box, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import type { TradeRoutePaths } from 'components/MultiHopTrade/types'
+import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanner'
 import { breakpoints } from 'theme/theme'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
@@ -46,12 +47,21 @@ export const SlideTransitionRoute = ({
   )
 
   return (
-    <TradeSlideTransition>
-      <Flex width='full' justifyContent='center' maxWidth={isSmallerThanXl ? '500px' : undefined}>
-        <Center width='inherit'>
-          <Component onBack={handleBack} isLoading={false} cardProps={cardProps} />
-        </Center>
-      </Flex>
-    </TradeSlideTransition>
+    <Center width='inherit' alignItems='flex-end'>
+      <Box width='full' maxWidth='500px'>
+        <ThorFreeFeeBanner />
+        <TradeSlideTransition>
+          <Flex
+            width='full'
+            justifyContent='center'
+            maxWidth={isSmallerThanXl ? '500px' : undefined}
+          >
+            <Center width='inherit'>
+              <Component onBack={handleBack} isLoading={false} cardProps={cardProps} />
+            </Center>
+          </Flex>
+        </TradeSlideTransition>
+      </Box>
+    </Center>
   )
 }

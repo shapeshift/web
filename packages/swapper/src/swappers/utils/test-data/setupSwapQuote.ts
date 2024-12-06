@@ -9,6 +9,7 @@ import { FOX_MAINNET, WETH } from './assets'
 export const setupQuote = () => {
   const sellAsset: Asset = { ...FOX_MAINNET }
   const buyAsset: Asset = { ...WETH }
+
   const tradeQuote: TradeQuote = {
     id: 'foobar',
     receiveAddress: '0x1234',
@@ -50,5 +51,6 @@ export const setupQuote = () => {
     slippageTolerancePercentageDecimal: DEFAULT_SLIPPAGE,
     quoteOrRate: 'quote',
   }
+
   return { quoteInput, tradeQuote, buyAsset, sellAsset }
 }

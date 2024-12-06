@@ -757,26 +757,6 @@
         "button": "열기"
       }
     },
-    "xdefi": {
-      "errors": {
-        "unknown": "XDEFI와의 통신 도중에 오류가 발생하였습니다",
-        "connectFailure": "XDEFI 지갑과 연결할 수 없습니다"
-      },
-      "connect": {
-        "header": "XDEFI에 페어",
-        "body": "팝업 창을 통해 XDEFI에 페어 및 로그인 하기",
-        "button": "페어"
-      },
-      "failure": {
-        "header": "오류",
-        "body": "XDEFI 지갑에 연결할 수 없습니다"
-      },
-      "redirect": {
-        "header": "XDEFI 앱에서 열기",
-        "body": "여기를 눌러 XDEFI에서 ShapeShift 대시보드 열기",
-        "button": "열기"
-      }
-    },
     "shapeShift": {
       "load": {
         "error": {

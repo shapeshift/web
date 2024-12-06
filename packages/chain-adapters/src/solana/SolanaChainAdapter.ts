@@ -494,7 +494,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
 
     // Set compute unit limit to the maximum compute units for the purposes of estimating the compute unit cost of a transaction,
-    // ensuring the transaction does not exceed the maximum compute units alotted for a single transaction.
+    // ensuring the transaction does not exceed the maximum compute units allotted for a single transaction.
     estimationInstructions.push(
       ComputeBudgetProgram.setComputeUnitLimit({ units: MAX_COMPUTE_UNITS }),
     )

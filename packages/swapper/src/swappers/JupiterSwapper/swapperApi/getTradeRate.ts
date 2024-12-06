@@ -221,7 +221,30 @@ export const getTradeRate = async (
   }
 
   if (input.sendAddress) {
-    const { instruction: createTokenAccountInstruction } =
+    const { instruction: createSellTokenAccountInstruction } =
+      await adapter.createAssociatedTokenAccountInstruction({
+        from: input.sendAddress,
+        // If we have a receive address, we use that as the receive address to verify the receive addy has an associated token account (ATA) or not,
+        // else we verify if our own addy has an ATA
+        to: receiveAddress ?? input.sendAddress,
+        tokenId: fromAssetId(
+          sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
+        ).assetReference,
+      })
+
+    if (createSellTokenAccountInstruction) {
+      const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+      protocolFees[solAssetId] = {
+        requiresBalance: true,
+        amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
+          .plus(PDA_ACCOUNT_CREATION_COST)
+          .toFixed(),
+        asset: solAsset,
+      }
+    }
+
+    const { instruction: createBuyTokenAccountInstruction } =
       await adapter.createAssociatedTokenAccountInstruction({
         from: input.sendAddress,
         // If we have a receive address, we use that as the receive address to verify the receive addy has an associated token account (ATA) or not,
@@ -231,7 +254,7 @@ export const getTradeRate = async (
           .assetReference,
       })
 
-    if (createTokenAccountInstruction) {
+    if (createBuyTokenAccountInstruction) {
       const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
 
       protocolFees[solAssetId] = {

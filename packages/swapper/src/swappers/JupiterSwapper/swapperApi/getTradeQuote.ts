@@ -143,6 +143,15 @@ export const getTradeQuote = async (
 
   const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
+  const { instruction: createWSOLTokenAccount } =
+    sellAsset.assetId === solAssetId
+      ? await adapter.createAssociatedTokenAccountInstruction({
+          from: sendAddress,
+          to: receiveAddress!,
+          tokenId: fromAssetId(wrappedSolAssetId).assetReference,
+        })
+      : { instruction: undefined }
+
   const isCrossAccountTrade = receiveAddress ? receiveAddress !== sendAddress : false
 
   const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
@@ -291,6 +300,30 @@ export const getTradeQuote = async (
     },
     {} as Record<AssetId, ProtocolFee>,
   )
+
+  if (createWSOLTokenAccount) {
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
+        .plus(PDA_ACCOUNT_CREATION_COST)
+        .toFixed(),
+      asset: solAsset,
+    }
+  }
+
+  if (createTokenAccountInstruction) {
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount)
+        .plus(PDA_ACCOUNT_CREATION_COST)
+        .toFixed(),
+      asset: solAsset,
+    }
+  }
 
   if (feeAccountInstruction) {
     const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)

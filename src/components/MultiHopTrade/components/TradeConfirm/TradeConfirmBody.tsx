@@ -11,15 +11,11 @@ import {
   Stepper,
   StepSeparator,
 } from '@chakra-ui/react'
-import type {
-  SupportedTradeQuoteStepIndex,
-  SwapperName,
-  TradeQuote,
-  TradeQuoteStep,
-} from '@shapeshiftoss/swapper'
 import prettyMilliseconds from 'pretty-ms'
 import { useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { Text } from 'components/Text'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
@@ -29,93 +25,15 @@ import {
   selectIsActiveQuoteMultiHop,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState, TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { ApprovalStep } from '../MultiHopTradeConfirm/components/ApprovalStep/ApprovalStep'
 import { AssetSummaryStep } from '../MultiHopTradeConfirm/components/AssetSummaryStep'
-import { HopTransactionStep } from '../MultiHopTradeConfirm/components/HopTransactionStep'
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 
-// TODO: this will be in TradeConfirm
-const Hop = ({
-  tradeQuoteStep,
-  hopIndex,
-  activeTradeId,
-  swapperName,
-}: {
-  tradeQuoteStep: TradeQuoteStep
-  hopIndex: SupportedTradeQuoteStepIndex
-  activeTradeId: TradeQuote['id']
-  swapperName: SwapperName
-}) => {
-  const hopExecutionMetadataFilter = useMemo(() => {
-    return {
-      tradeId: activeTradeId,
-      hopIndex,
-    }
-  }, [activeTradeId, hopIndex])
-
-  const {
-    state: hopExecutionState,
-    allowanceApproval,
-    permit2,
-    // swap,
-  } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
-
-  return (
-    <>
-      {allowanceApproval.isInitiallyRequired === true || permit2.isRequired === true ? (
-        <ApprovalStep
-          tradeQuoteStep={tradeQuoteStep}
-          hopIndex={hopIndex}
-          activeTradeId={activeTradeId}
-        />
-      ) : null}
-      <HopTransactionStep
-        swapperName={swapperName}
-        tradeQuoteStep={tradeQuoteStep}
-        isActive={hopExecutionState === HopExecutionState.AwaitingSwap}
-        hopIndex={hopIndex}
-        isLastStep={false}
-        activeTradeId={activeTradeId}
-      />
-    </>
-  )
-}
-
-// TODO: this will be in TradeConfirm
-const Hops = () => {
-  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
-  const tradeQuoteLastHop = useAppSelector(selectLastHop)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const swapperName = useAppSelector(selectActiveSwapperName)
-  const activeTradeId = activeQuote?.id
-  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-
-  if (!tradeQuoteFirstHop || !tradeQuoteLastHop || !activeTradeId || !swapperName) return null
-
-  return (
-    <>
-      <Hop
-        tradeQuoteStep={tradeQuoteFirstHop}
-        hopIndex={0}
-        activeTradeId={activeTradeId}
-        swapperName={swapperName}
-      />
-      {isMultiHopTrade && (
-        <Hop
-          tradeQuoteStep={tradeQuoteLastHop}
-          hopIndex={1}
-          activeTradeId={activeTradeId}
-          swapperName={swapperName}
-        />
-      )}
-    </>
-  )
-}
+const stepIndicator = <Spinner />
 
 const EtaStep = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
@@ -149,9 +67,133 @@ const EtaStep = () => {
   )
 }
 
+const ExpandedTradeSteps = () => {
+  const translate = useTranslate()
+  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
+  const activeTradeId = useAppSelector(selectActiveQuote)?.id
+  const swapperName = useAppSelector(selectActiveSwapperName)
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
+  const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const isFirstHopBridge = useMemo(
+    () => tradeQuoteFirstHop?.buyAsset.chainId !== tradeQuoteFirstHop?.sellAsset.chainId,
+    [tradeQuoteFirstHop?.buyAsset.chainId, tradeQuoteFirstHop?.sellAsset.chainId],
+  )
+  const isLastHopBridge = useMemo(
+    () => tradeQuoteLastHop?.buyAsset.chainId !== tradeQuoteLastHop?.sellAsset.chainId,
+    [tradeQuoteLastHop?.buyAsset.chainId, tradeQuoteLastHop?.sellAsset.chainId],
+  )
+  const chainAdapterManager = getChainAdapterManager()
+  const firstHopActionTitle = useMemo(() => {
+    const sellAssetChainId = tradeQuoteFirstHop?.sellAsset.chainId
+    const buyAssetChainId = tradeQuoteFirstHop?.buyAsset.chainId
+    if (!sellAssetChainId || !buyAssetChainId) return undefined
+    const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
+    const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
+
+    return isFirstHopBridge
+      ? translate('trade.transactionTitle.bridge', { sellChainName, buyChainName, swapperName })
+      : translate('trade.transactionTitle.swap', { sellChainName, swapperName })
+  }, [
+    chainAdapterManager,
+    isFirstHopBridge,
+    swapperName,
+    tradeQuoteFirstHop?.buyAsset.chainId,
+    tradeQuoteFirstHop?.sellAsset.chainId,
+    translate,
+  ])
+  const lastHopActionTitle = useMemo(() => {
+    const sellAssetChainId = tradeQuoteLastHop?.sellAsset.chainId
+    const buyAssetChainId = tradeQuoteLastHop?.buyAsset.chainId
+    if (!sellAssetChainId || !buyAssetChainId) return undefined
+    const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
+    const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
+    return isLastHopBridge
+      ? translate('trade.transactionTitle.bridge', { sellChainName, buyChainName, swapperName })
+      : translate('trade.transactionTitle.swap', { sellChainName, swapperName })
+  }, [
+    chainAdapterManager,
+    isLastHopBridge,
+    swapperName,
+    tradeQuoteLastHop?.buyAsset.chainId,
+    tradeQuoteLastHop?.sellAsset.chainId,
+    translate,
+  ])
+  const firstHopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId ?? '',
+      hopIndex: 0,
+    }
+  }, [activeTradeId])
+
+  const {
+    // state: firstHopExecutionState,
+    allowanceApproval: firstHopAllowanceApproval,
+    permit2: firstHopPermit2,
+    // swap,
+  } = useAppSelector(state => selectHopExecutionMetadata(state, firstHopExecutionMetadataFilter))
+
+  const lastHopExecutionMetadataFilter = useMemo(() => {
+    return {
+      tradeId: activeTradeId ?? '',
+      hopIndex: 1,
+    }
+  }, [activeTradeId])
+
+  const {
+    // state: lastHopExecutionState,
+    allowanceApproval: lastHopAllowanceApproval,
+    permit2: lastHopPermit2,
+    // swap,
+  } = useAppSelector(state => selectHopExecutionMetadata(state, lastHopExecutionMetadataFilter))
+
+  return (
+    <>
+      {firstHopAllowanceApproval.isInitiallyRequired === true ||
+      firstHopPermit2.isRequired === true ? (
+        <StepperStep
+          title={
+            firstHopPermit2.isRequired ? 'Awaiting Token Transfer' : 'Token Allowance Approval'
+          }
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+        />
+      ) : null}
+      <StepperStep
+        title={firstHopActionTitle}
+        stepIndicator={stepIndicator}
+        stepProps={stepProps}
+        useSpacer={false}
+      />
+      {isMultiHopTrade && (
+        <>
+          {lastHopAllowanceApproval.isInitiallyRequired === true ||
+          lastHopPermit2.isRequired === true ? (
+            <StepperStep
+              title={
+                lastHopPermit2.isRequired ? 'Awaiting Token Transfer' : 'Token Allowance Approval'
+              }
+              stepIndicator={stepIndicator}
+              stepProps={stepProps}
+              useSpacer={false}
+            />
+          ) : null}
+          <StepperStep
+            title={lastHopActionTitle}
+            stepIndicator={stepIndicator}
+            stepProps={stepProps}
+            useSpacer={false}
+          />
+        </>
+      )}
+    </>
+  )
+}
+
 const ExpandableTradeSteps = () => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const stepProps = useMemo(
+  const summaryStepProps = useMemo(
     () => ({
       alignItems: 'center',
       py: 2,
@@ -160,9 +202,6 @@ const ExpandableTradeSteps = () => {
     }),
     [isExpanded],
   )
-  const stepIndicator = useMemo(() => {
-    return <Spinner />
-  }, [])
   const currentHopIndex = useCurrentHopIndex()
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -172,7 +211,7 @@ const ExpandableTradeSteps = () => {
     }
   }, [activeTradeId, currentHopIndex])
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const { state: hopExecutionState, swap } = useAppSelector(state =>
+  const { state: hopExecutionState } = useAppSelector(state =>
     selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
@@ -201,13 +240,12 @@ const ExpandableTradeSteps = () => {
       <StepperStep
         title={titleElement}
         stepIndicator={stepIndicator}
-        stepProps={stepProps}
+        stepProps={summaryStepProps}
         useSpacer={false}
       />
       <Collapse in={isExpanded}>
         <Box p={4}>
-          {/* Add your expanded content here */}
-          <Text translation='trade.expandedContent' />
+          <ExpandedTradeSteps />
         </Box>
       </Collapse>
     </>

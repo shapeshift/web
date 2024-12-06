@@ -19,7 +19,7 @@ import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 export type StepperStepProps = {
-  title: string
+  title: string | JSX.Element
   description?: string | JSX.Element
   stepIndicator: JSX.Element
   content?: JSX.Element

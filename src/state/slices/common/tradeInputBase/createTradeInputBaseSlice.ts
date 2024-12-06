@@ -1,4 +1,4 @@
-import type { Draft, PayloadAction, SliceCaseReducers } from '@reduxjs/toolkit'
+import type { Draft, PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -109,9 +109,17 @@ export type BaseReducers<T extends TradeInputBaseState> = ReturnType<typeof getB
  * @returns A configured Redux slice with all the base trade input reducers
  */
 export function createTradeInputBaseSlice<
+  S extends Record<string, any>,
   T extends TradeInputBaseState,
-  S extends (baseReducers: BaseReducers<T>) => SliceCaseReducers<T>,
->({ name, initialState, extraReducers }: { name: string; initialState: T; extraReducers: S }) {
+>({
+  name,
+  initialState,
+  extraReducers,
+}: {
+  name: string
+  initialState: T
+  extraReducers: (baseReducers: BaseReducers<T>) => S
+}) {
   const baseReducers = getBaseReducers(initialState)
   return createSlice({
     name,

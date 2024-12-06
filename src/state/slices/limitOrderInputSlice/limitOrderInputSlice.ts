@@ -64,13 +64,13 @@ export const limitOrderInput = createTradeInputBaseSlice({
     setExpiry: (state: LimitOrderInputState, action: PayloadAction<ExpiryOption>) => {
       state.expiry = action.payload
     },
-    setBuyAsset: (state, action: PayloadAction<Asset>) => {
+    setBuyAsset: (state: LimitOrderInputState, action: PayloadAction<Asset>) => {
       baseReducers.setBuyAsset(state, action)
     },
-    setSellAsset: (state, action: PayloadAction<Asset>) => {
+    setSellAsset: (state: LimitOrderInputState, action: PayloadAction<Asset>) => {
       baseReducers.setSellAsset(state, action)
     },
-    switchAssets: state => {
+    switchAssets: (state: LimitOrderInputState) => {
       baseReducers.switchAssets(state)
     },
   }),

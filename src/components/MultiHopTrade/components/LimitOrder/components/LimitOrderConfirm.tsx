@@ -132,7 +132,7 @@ export const LimitOrderConfirm = () => {
         borderColor='border.base'
         bg='background.surface.raised.base'
       >
-        <CardHeader px={6} pt={4} borderWidth={0}>
+        <CardHeader px={6} pt={4} borderBottomWidth={0}>
           <WithBackButton onBack={handleBack}>
             <Heading textAlign='center' fontSize='lg'>
               <Text translation='limitOrder.confirm' />

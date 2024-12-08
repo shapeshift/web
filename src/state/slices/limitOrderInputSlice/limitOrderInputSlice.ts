@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { pick } from 'lodash'
+import pick from 'lodash/pick'
 import { localAssetData } from 'lib/asset-service'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'

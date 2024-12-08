@@ -10,7 +10,6 @@ import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { EtaStep } from './EtaStep'
 import { ExpandableTradeSteps } from './ExpandableTradeSteps'
 
-// TODO: This will be either: the ETA, current step (condensed), or all steps (expanded)
 const InnerSteps = () => {
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
 
@@ -23,7 +22,6 @@ const InnerSteps = () => {
   }
 }
 
-// TODO: this will be a Shared component (merged into SharedConfirm), taking Hops
 export const TradeConfirmBody = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)

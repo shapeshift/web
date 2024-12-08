@@ -79,6 +79,7 @@ export const ExpandedTradeSteps = () => {
     // state: firstHopExecutionState,
     allowanceApproval: firstHopAllowanceApproval,
     permit2: firstHopPermit2,
+    allowanceReset: firstHopAllowanceReset,
     // swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, firstHopExecutionMetadataFilter))
 
@@ -93,16 +94,27 @@ export const ExpandedTradeSteps = () => {
     // state: lastHopExecutionState,
     allowanceApproval: lastHopAllowanceApproval,
     permit2: lastHopPermit2,
+    allowanceReset: lastHopAllowanceReset,
     // swap,
   } = useAppSelector(state => selectHopExecutionMetadata(state, lastHopExecutionMetadataFilter))
 
   return (
     <>
+      {firstHopAllowanceReset.isRequired === true ? (
+        <StepperStep
+          title={translate('trade.awaitingAllowanceReset')}
+          stepIndicator={expandedStepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+        />
+      ) : null}
       {firstHopAllowanceApproval.isInitiallyRequired === true ||
       firstHopPermit2.isRequired === true ? (
         <StepperStep
           title={
-            firstHopPermit2.isRequired ? 'Awaiting Token Transfer' : 'Token Allowance Approval'
+            firstHopPermit2.isRequired
+              ? translate('trade.awaitingPermit2Approval')
+              : translate('trade.awaitingApproval')
           }
           stepIndicator={expandedStepIndicator}
           stepProps={stepProps}
@@ -117,11 +129,21 @@ export const ExpandedTradeSteps = () => {
       />
       {isMultiHopTrade && (
         <>
+          {lastHopAllowanceReset.isRequired === true ? (
+            <StepperStep
+              title={translate('trade.awaitingAllowanceReset')}
+              stepIndicator={expandedStepIndicator}
+              stepProps={stepProps}
+              useSpacer={false}
+            />
+          ) : null}
           {lastHopAllowanceApproval.isInitiallyRequired === true ||
           lastHopPermit2.isRequired === true ? (
             <StepperStep
               title={
-                lastHopPermit2.isRequired ? 'Awaiting Token Transfer' : 'Token Allowance Approval'
+                lastHopPermit2.isRequired
+                  ? translate('trade.awaitingPermit2Approval')
+                  : translate('trade.awaitingApproval')
               }
               stepIndicator={expandedStepIndicator}
               stepProps={stepProps}

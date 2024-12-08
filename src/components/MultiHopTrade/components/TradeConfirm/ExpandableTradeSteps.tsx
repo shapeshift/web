@@ -13,6 +13,7 @@ import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { ExpandedTradeSteps } from './ExpandedTradeSteps'
 import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
+import { useTradeSteps } from './useTradeSteps'
 
 const summaryStepIndicator = <Spinner thickness='3px' size='md' />
 
@@ -40,6 +41,9 @@ export const ExpandableTradeSteps = () => {
     selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
   )
 
+  const { totalSteps, currentStep } = useTradeSteps()
+  const progressValue = (currentStep / totalSteps) * 100
+
   const titleElement = useMemo(() => {
     if (!hopExecutionState || !swapperName) return null
     const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
@@ -47,16 +51,17 @@ export const ExpandableTradeSteps = () => {
       swapperName,
     )
     if (!stepSummaryTranslation) return null
+
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation={stepSummaryTranslation} />
         <HStack mr={2}>
-          <Progress value={50} width='100px' size='xs' colorScheme='blue' />
+          <Progress value={progressValue} width='100px' size='xs' colorScheme='blue' />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>
       </Flex>
     )
-  }, [hopExecutionState, swapperName])
+  }, [hopExecutionState, progressValue, swapperName])
 
   if (!titleElement) return null
 

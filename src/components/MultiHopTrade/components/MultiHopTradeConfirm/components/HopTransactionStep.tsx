@@ -18,8 +18,13 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
+import {
+  selectFeeAssetByChainId,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
 import {
   selectHopExecutionMetadata,
   selectHopSellAccountId,
@@ -155,20 +160,54 @@ export const HopTransactionStep = ({
 
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
 
+  const feeAsset = useAppSelector(state =>
+    selectFeeAssetByChainId(state, tradeQuoteStep?.sellAsset.chainId ?? ''),
+  )
+  const feeAssetBalanceFilter = useMemo(
+    () => ({ assetId: feeAsset?.assetId ?? '', accountId: sellAssetAccountId ?? '' }),
+    [feeAsset?.assetId, sellAssetAccountId],
+  )
+  const feeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  )
+
+  const hasEnoughBalanceForNetworkFees = useMemo(() => {
+    // No quote, no error
+    if (!tradeQuoteStep) return true
+
+    const {
+      feeData: { networkFeeCryptoBaseUnit },
+    } = tradeQuoteStep
+
+    // This should not happen at final quote time but we need to content TS
+    if (!networkFeeCryptoBaseUnit) return true
+
+    return bn(feeAssetBalance).gte(networkFeeCryptoBaseUnit)
+  }, [feeAssetBalance, tradeQuoteStep])
+
+  const signButtonCopy = useMemo(() => {
+    if (!hasEnoughBalanceForNetworkFees)
+      return translate('modals.send.errors.notEnoughNativeToken', {
+        asset: feeAsset!.symbol,
+      })
+
+    return translate('common.signTransaction')
+  }, [feeAsset, hasEnoughBalanceForNetworkFees, translate])
+
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
       return (
         <Card width='full'>
           <CardBody px={2} py={2}>
             <Button
-              colorScheme='blue'
+              colorScheme={hasEnoughBalanceForNetworkFees ? 'blue' : 'red'}
               size='sm'
               onClick={handleSignTx}
               isLoading={isFetching}
-              isDisabled={!tradeQuoteQueryData}
+              isDisabled={!tradeQuoteQueryData || !hasEnoughBalanceForNetworkFees}
               width='100%'
             >
-              {translate('common.signTransaction')}
+              {signButtonCopy}
             </Button>
           </CardBody>
         </Card>
@@ -194,10 +233,11 @@ export const HopTransactionStep = ({
     swapTxState,
     tradeQuoteStep.source,
     sellTxHash,
+    hasEnoughBalanceForNetworkFees,
     handleSignTx,
     isFetching,
     tradeQuoteQueryData,
-    translate,
+    signButtonCopy,
     hopIndex,
     activeTradeId,
   ])

@@ -25,7 +25,12 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { SOLANA_RANDOM_ADDRESS } from '../utils/constants'
-import { getJupiterPrice, isSupportedChainId } from '../utils/helpers'
+import {
+  calculateAccountCreationCosts,
+  createSwapInstructions,
+  getJupiterPrice,
+  isSupportedChainId,
+} from '../utils/helpers'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -44,6 +49,8 @@ export const getTradeRate = async (
   const { assetsById } = deps
 
   const jupiterUrl = deps.config.REACT_APP_JUPITER_API_URL
+
+  const solAsset = assetsById[solAssetId]
 
   if (!isSupportedChainId(sellAsset.chainId)) {
     return Err(
@@ -70,6 +77,15 @@ export const getTradeRate = async (
       makeSwapErrorRight({
         message: `Unsupported trade pair`,
         code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
+  if (!solAsset) {
+    return Err(
+      makeSwapErrorRight({
+        message: `solAsset should be defined`,
+        code: TradeQuoteError.UnknownError,
       }),
     )
   }
@@ -114,6 +130,8 @@ export const getTradeRate = async (
     return { networkFeeCryptoBaseUnit: fast.txFee }
   }
 
+  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
   const protocolFees: Record<AssetId, ProtocolFee> = priceResponse.routePlan.reduce(
     (acc, route) => {
       const feeAssetId = toAssetId({
@@ -154,6 +172,29 @@ export const getTradeRate = async (
     // Divide by 100 to get actual decimal percentage from bps
     // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
     bn(priceResponse.slippageBps).div(100).div(100).toString()
+
+  const { instructions } = await createSwapInstructions({
+    priceResponse,
+    sendAddress: input.sendAddress ?? SOLANA_RANDOM_ADDRESS,
+    receiveAddress,
+    affiliateBps,
+    buyAsset,
+    sellAsset,
+    adapter,
+    jupiterUrl,
+  })
+
+  const accountCreationFees = calculateAccountCreationCosts(instructions)
+
+  if (accountCreationFees !== '0') {
+    const solProtocolFeeAmount = bnOrZero(protocolFees[solAssetId]?.amountCryptoBaseUnit)
+
+    protocolFees[solAssetId] = {
+      requiresBalance: true,
+      amountCryptoBaseUnit: bnOrZero(solProtocolFeeAmount).plus(accountCreationFees).toFixed(),
+      asset: solAsset,
+    }
+  }
 
   const tradeRate: TradeRate = {
     id: uuid(),

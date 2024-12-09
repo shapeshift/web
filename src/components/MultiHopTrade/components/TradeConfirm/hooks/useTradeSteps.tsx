@@ -6,7 +6,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { countTradeSteps, getCurrentStep } from './helpers'
+import { countTradeSteps, getCurrentStep } from '../helpers'
 
 export const useTradeSteps = () => {
   const activeTradeId = useAppSelector(selectActiveQuote)?.id

@@ -1,4 +1,4 @@
-import { CircularProgress } from '@chakra-ui/react'
+import { CircularProgress, Stepper } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -10,7 +10,7 @@ import {
   selectHopExecutionMetadata,
   selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 
@@ -81,7 +81,7 @@ export const ExpandedTradeSteps = () => {
     permit2: firstHopPermit2,
     allowanceReset: firstHopAllowanceReset,
     // swap,
-  } = useAppSelector(state => selectHopExecutionMetadata(state, firstHopExecutionMetadataFilter))
+  } = useSelectorWithArgs(selectHopExecutionMetadata, firstHopExecutionMetadataFilter)
 
   const lastHopExecutionMetadataFilter = useMemo(() => {
     return {
@@ -96,10 +96,10 @@ export const ExpandedTradeSteps = () => {
     permit2: lastHopPermit2,
     allowanceReset: lastHopAllowanceReset,
     // swap,
-  } = useAppSelector(state => selectHopExecutionMetadata(state, lastHopExecutionMetadataFilter))
+  } = useSelectorWithArgs(selectHopExecutionMetadata, lastHopExecutionMetadataFilter)
 
   return (
-    <>
+    <Stepper orientation='vertical' index={-1} gap='0'>
       {firstHopAllowanceReset.isRequired === true ? (
         <StepperStep
           title={translate('trade.awaitingAllowanceReset')}
@@ -158,6 +158,6 @@ export const ExpandedTradeSteps = () => {
           />
         </>
       )}
-    </>
+    </Stepper>
   )
 }

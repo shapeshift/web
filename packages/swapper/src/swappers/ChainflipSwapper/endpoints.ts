@@ -41,9 +41,10 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific?.chainflipSwapId,
+      id: step.chainflipSpecific.chainflipSwapId,
       address: step.chainflipSpecific?.chainflipDepositAddress,
     })
 
@@ -107,9 +108,10 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific?.chainflipSwapId,
+      id: step.chainflipSpecific.chainflipSwapId,
       address: step.chainflipSpecific.chainflipDepositAddress,
     })
 
@@ -139,9 +141,10 @@ export const chainflipApi: SwapperApi = {
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific?.chainflipSwapId,
+      id: step.chainflipSpecific.chainflipSwapId,
       address: step.chainflipSpecific.chainflipDepositAddress,
     })
 

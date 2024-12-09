@@ -1073,9 +1073,7 @@
       "open": "Open",
       "fulfilled": "Fulfilled",
       "cancelled": "Cancelled",
-      "expired": "Expired",
-      "unfillable": "Unfillable",
-      "unknown": "Unknown"
+      "expired": "Expired"
     },
     "orders": "Orders",
     "viewOrders": "View Orders",

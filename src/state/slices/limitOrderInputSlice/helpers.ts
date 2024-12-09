@@ -1,7 +1,7 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 
-import { ExpiryOption } from './constants'
+import { ExpiryOption, PriceDirection } from './constants'
 
 export const expiryOptionToUnixTimestamp = (expiry: ExpiryOption): number => {
   switch (expiry) {
@@ -18,4 +18,10 @@ export const expiryOptionToUnixTimestamp = (expiry: ExpiryOption): number => {
     default:
       assertUnreachable(expiry)
   }
+}
+
+export const getOppositePriceDirection = (priceDirection: PriceDirection) => {
+  return priceDirection === PriceDirection.BuyAssetDenomination
+    ? PriceDirection.SellAssetDenomination
+    : PriceDirection.BuyAssetDenomination
 }

@@ -127,8 +127,10 @@ export const fetchPortalsTradeOrder = async ({
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      if ((error as AxiosError<{ message: string }>).response?.data?.message) {
-        throw new PortalsError((error as AxiosError<{ message: string }>).response?.data.message!)
+      const message = (error as AxiosError<{ message: string }>).response?.data?.message
+
+      if (message) {
+        throw new PortalsError(message)
       }
 
       throw new Error(`Failed to fetch Portals trade order: ${error.message}`)

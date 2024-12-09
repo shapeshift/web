@@ -47,7 +47,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       adapter,
       data,
       to,
-      value: bn(transactionRequest!.value!.toString()).toString(),
+      value: bn(value.toString()).toString(),
       from,
       supportsEIP1559,
     })

@@ -2,7 +2,7 @@ import { bn, toBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
-import { PriceDirection } from './constants'
+import { getOppositePriceDirection } from './helpers'
 import type { LimitOrderInputState } from './limitOrderInputSlice'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
@@ -42,17 +42,15 @@ export const selectLimitPriceDirection = createSelector(
 export const selectLimitPriceOppositeDirection = createSelector(
   selectLimitPriceDirection,
   priceDirection => {
-    return priceDirection === PriceDirection.BuyAssetDenomination
-      ? PriceDirection.SellAssetDenomination
-      : PriceDirection.BuyAssetDenomination
+    return getOppositePriceDirection(priceDirection)
   },
 )
 
 export const selectLimitPrice = createSelector(selectBaseSlice, baseSlice => baseSlice.limitPrice)
 
-export const selectPresetLimitPrice = createSelector(
+export const selectLimitPriceMode = createSelector(
   selectBaseSlice,
-  baseSlice => baseSlice.presetLimit,
+  baseSlice => baseSlice.limitPriceMode,
 )
 
 export const selectLimitPriceForSelectedPriceDirection = createSelector(

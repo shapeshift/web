@@ -19,6 +19,5 @@ export enum LimitPriceMode {
   TwoPercent = 'twoPercent',
   FivePercent = 'fivePercent',
   TenPercent = 'tenPercent',
-  // TODO: Implement me
-  // ManualValue = 'manualValue',
+  CustomValue = 'customValue',
 }

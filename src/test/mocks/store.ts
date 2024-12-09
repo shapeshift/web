@@ -259,7 +259,7 @@ export const mockStore: ReduxState = {
       [PriceDirection.BuyAssetDenomination]: '0',
       [PriceDirection.SellAssetDenomination]: '0',
     },
-    presetLimit: LimitPriceMode.Market,
+    limitPriceMode: LimitPriceMode.Market,
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
   },

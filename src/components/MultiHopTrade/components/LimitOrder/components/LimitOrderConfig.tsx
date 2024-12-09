@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
@@ -32,8 +32,7 @@ import {
   selectExpiry,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
-  selectLimitPriceOppositeDirection,
-  selectPresetLimitPrice,
+  selectLimitPriceMode,
 } from 'state/slices/limitOrderInputSlice/selectors'
 import { allowedDecimalSeparators } from 'state/slices/preferencesSlice/preferencesSlice'
 import { useAppSelector } from 'state/store'
@@ -92,11 +91,10 @@ export const LimitOrderConfig = ({
     selectLimitPriceForSelectedPriceDirection,
   )
   const priceDirection = useAppSelector(selectLimitPriceDirection)
-  const oppositePriceDirection = useAppSelector(selectLimitPriceOppositeDirection)
   const expiry = useAppSelector(selectExpiry)
-  const presetLimitPrice = useAppSelector(selectPresetLimitPrice)
+  const limitPriceMode = useAppSelector(selectLimitPriceMode)
 
-  const { setLimitPriceDirection, setExpiry, setLimitPrice, setPresetLimit } = useActions(
+  const { setLimitPriceDirection, setExpiry, setLimitPrice, setLimitPriceMode } = useActions(
     limitOrderInput.actions,
   )
 
@@ -134,31 +132,13 @@ export const LimitOrderConfig = ({
   }, [priceDirection])
 
   const handleSetPresetLimit = useCallback(
-    (presetLimit: LimitPriceMode) => {
-      setPresetLimit(presetLimit)
-      const multiplier = (() => {
-        switch (presetLimit) {
-          case LimitPriceMode.Market:
-            return '1.00'
-          case LimitPriceMode.OnePercent:
-            return '1.01'
-          case LimitPriceMode.TwoPercent:
-            return '1.02'
-          case LimitPriceMode.FivePercent:
-            return '1.05'
-          case LimitPriceMode.TenPercent:
-            return '1.10'
-          default:
-            assertUnreachable(presetLimit)
-        }
-      })()
-      const adjustedLimitPriceBuyAsset = bn(marketPriceBuyAsset).times(multiplier).toFixed()
-      setLimitPrice({
-        [PriceDirection.BuyAssetDenomination]: adjustedLimitPriceBuyAsset,
-        [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
-      })
+    (limitPriceMode: LimitPriceMode) => {
+      if (limitPriceMode === LimitPriceMode.CustomValue) return
+
+      setLimitPriceMode(limitPriceMode)
+      setLimitPrice({ marketPriceBuyAsset })
     },
-    [marketPriceBuyAsset, setLimitPrice, setPresetLimit],
+    [marketPriceBuyAsset, setLimitPrice, setLimitPriceMode],
   )
 
   const handleSetMarketLimit = useCallback(() => {
@@ -192,34 +172,24 @@ export const LimitOrderConfig = ({
   const handlePriceChange = useCallback(() => {
     // onChange will send us the formatted value
     // To get around this we need to get the value from the onChange using a ref
-    // Now when the max buttons are clicked the onChange will not fire
-    setLimitPrice({
-      [priceDirection]: priceAmountRef.current ?? '0',
-      [oppositePriceDirection]: bnOrZero(priceAmountRef.current).isZero()
-        ? '0'
-        : bn(1)
-            .div(priceAmountRef.current ?? NaN) // Never zero or nullish, stfu typescript
-            .toFixed(),
-    } as Record<PriceDirection, string>)
+    // Now when the preset price mode buttons are clicked the onChange will not fire
+    setLimitPriceMode(LimitPriceMode.CustomValue)
+    setLimitPrice({ marketPriceBuyAsset: priceAmountRef.current ?? '0' })
+  }, [setLimitPrice, setLimitPriceMode])
 
-    // Unset the preset limit, as this is a custom value
-    setPresetLimit(undefined)
-  }, [oppositePriceDirection, priceDirection, setLimitPrice, setPresetLimit])
+  const handleValueChange = useCallback((values: NumberFormatValues) => {
+    // This fires anytime value changes including setting it on preset price mode click
+    // Store the value in a ref to send when we actually want the onChange to fire
+    priceAmountRef.current = values.value
 
-  const handleValueChange = useCallback(
-    (values: NumberFormatValues) => {
-      // This fires anytime value changes including setting it on max click
-      // Store the value in a ref to send when we actually want the onChange to fire
-      priceAmountRef.current = values.value
-      setLimitPrice({
-        [priceDirection]: values.value,
-        [oppositePriceDirection]: bnOrZero(values.value).isZero()
-          ? '0'
-          : bn(1).div(values.value).toFixed(),
-      } as Record<PriceDirection, string>)
-    },
-    [oppositePriceDirection, priceDirection, setLimitPrice],
-  )
+    // TODO: Remove me?
+    // setLimitPrice({
+    //   [priceDirection]: values.value,
+    //   [oppositePriceDirection]: bnOrZero(values.value).isZero()
+    //     ? '0'
+    //     : bn(1).div(values.value).toFixed(),
+    // } as Record<PriceDirection, string>)
+  }, [])
 
   const expiryOptionTranslation = useMemo(() => {
     return getExpiryOptionTranslation(expiry)
@@ -277,7 +247,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === LimitPriceMode.Market}
+          isActive={limitPriceMode === LimitPriceMode.Market}
           onClick={handleSetMarketLimit}
           isDisabled={isLoading}
         >
@@ -286,7 +256,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === LimitPriceMode.OnePercent}
+          isActive={limitPriceMode === LimitPriceMode.OnePercent}
           onClick={handleSetOnePercentLimit}
           isDisabled={isLoading}
         >
@@ -295,7 +265,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === LimitPriceMode.TwoPercent}
+          isActive={limitPriceMode === LimitPriceMode.TwoPercent}
           onClick={handleSetTwoPercentLimit}
           isDisabled={isLoading}
         >
@@ -304,7 +274,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === LimitPriceMode.FivePercent}
+          isActive={limitPriceMode === LimitPriceMode.FivePercent}
           onClick={handleSetFivePercentLimit}
           isDisabled={isLoading}
         >
@@ -313,7 +283,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === LimitPriceMode.TenPercent}
+          isActive={limitPriceMode === LimitPriceMode.TenPercent}
           onClick={handleSetTenPercentLimit}
           isDisabled={isLoading}
         >

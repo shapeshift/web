@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { assertUnreachable, bn, bnOrZero } from '@shapeshiftoss/utils'
 import pick from 'lodash/pick'
 import { localAssetData } from 'lib/asset-service'
 
@@ -11,11 +12,12 @@ import type {
 } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { ExpiryOption, LimitPriceMode, PriceDirection } from './constants'
+import { getOppositePriceDirection } from './helpers'
 
 export type LimitOrderInputState = {
   limitPriceDirection: PriceDirection
   limitPrice: Record<PriceDirection, string>
-  presetLimit: LimitPriceMode | undefined
+  limitPriceMode: LimitPriceMode
   expiry: ExpiryOption
 } & TradeInputBaseState
 
@@ -36,14 +38,14 @@ const initialState: LimitOrderInputState = {
     [PriceDirection.BuyAssetDenomination]: '0',
     [PriceDirection.SellAssetDenomination]: '0',
   },
-  presetLimit: LimitPriceMode.Market,
+  limitPriceMode: LimitPriceMode.Market,
   expiry: ExpiryOption.SevenDays,
 }
 
 const resetLimitOrderConfig = (state: LimitOrderInputState) => {
   Object.assign(
     state,
-    pick(initialState, ['limitPrice', 'limitPriceDirection', 'presetLimit', 'expiry']),
+    pick(initialState, ['limitPrice', 'limitPriceDirection', 'limitPriceMode', 'expiry']),
   )
 }
 
@@ -53,15 +55,49 @@ export const limitOrderInput = createTradeInputBaseSlice({
   extraReducers: (baseReducers: BaseReducers<LimitOrderInputState>) => ({
     setLimitPrice: (
       state: LimitOrderInputState,
-      action: PayloadAction<Record<PriceDirection, string>>,
+      action: PayloadAction<{ marketPriceBuyAsset: string }>,
     ) => {
-      state.limitPrice = action.payload
+      const { marketPriceBuyAsset } = action.payload
+
+      if (state.limitPriceMode === LimitPriceMode.CustomValue) {
+        const oppositePriceDirection = getOppositePriceDirection(state.limitPriceDirection)
+
+        state.limitPrice = {
+          [state.limitPriceDirection]: marketPriceBuyAsset,
+          [oppositePriceDirection]: bnOrZero(marketPriceBuyAsset).isZero()
+            ? '0'
+            : bn(1).div(marketPriceBuyAsset).toFixed(),
+        } as Record<PriceDirection, string>
+
+        return
+      }
+
+      const multiplier = (() => {
+        switch (state.limitPriceMode) {
+          case LimitPriceMode.Market:
+            return '1.00'
+          case LimitPriceMode.OnePercent:
+            return '1.01'
+          case LimitPriceMode.TwoPercent:
+            return '1.02'
+          case LimitPriceMode.FivePercent:
+            return '1.05'
+          case LimitPriceMode.TenPercent:
+            return '1.10'
+          default:
+            assertUnreachable(state.limitPriceMode)
+        }
+      })()
+
+      const adjustedLimitPriceBuyAsset = bn(marketPriceBuyAsset).times(multiplier).toFixed()
+
+      state.limitPrice = {
+        [PriceDirection.BuyAssetDenomination]: adjustedLimitPriceBuyAsset,
+        [PriceDirection.SellAssetDenomination]: bn(1).div(adjustedLimitPriceBuyAsset).toFixed(),
+      }
     },
-    setPresetLimit: (
-      state: LimitOrderInputState,
-      action: PayloadAction<LimitPriceMode | undefined>,
-    ) => {
-      state.presetLimit = action.payload
+    setLimitPriceMode: (state: LimitOrderInputState, action: PayloadAction<LimitPriceMode>) => {
+      state.limitPriceMode = action.payload
     },
     setLimitPriceDirection: (
       state: LimitOrderInputState,

@@ -74,6 +74,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Rune'
     case KnownChainIds.CosmosMainnet:
       return 'Atom'
+    case KnownChainIds.SolanaMainnet:
+      return 'Solana'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }

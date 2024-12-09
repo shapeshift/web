@@ -4,7 +4,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -154,7 +153,7 @@ export const lifiApi: SwapperApi = {
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
-      value: bn(value.toString()).toString(),
+      value,
       from,
       supportsEIP1559,
     })

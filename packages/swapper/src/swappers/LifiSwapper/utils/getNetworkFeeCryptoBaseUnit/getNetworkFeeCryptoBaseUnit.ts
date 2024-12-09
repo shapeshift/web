@@ -4,7 +4,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
 import { getContract } from 'viem'
 
 import type { SwapperDeps } from '../../../../types'
@@ -47,7 +46,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       adapter,
       data,
       to,
-      value: bn(value.toString()).toString(),
+      value,
       from,
       supportsEIP1559,
     })

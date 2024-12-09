@@ -30,7 +30,7 @@ import {
   selectHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeExecution } from '../hooks/useTradeExecution'
@@ -160,15 +160,17 @@ export const HopTransactionStep = ({
 
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
 
-  const feeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, tradeQuoteStep?.sellAsset.chainId ?? ''),
+  const feeAsset = useSelectorWithArgs(
+    selectFeeAssetByChainId,
+    tradeQuoteStep?.sellAsset.chainId ?? '',
   )
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: feeAsset?.assetId ?? '', accountId: sellAssetAccountId ?? '' }),
     [feeAsset?.assetId, sellAssetAccountId],
   )
-  const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+  const feeAssetBalance = useSelectorWithArgs(
+    selectPortfolioCryptoBalanceBaseUnitByFilter,
+    feeAssetBalanceFilter,
   )
 
   const hasEnoughNativeAssetBalance = useMemo(() => {

@@ -241,6 +241,7 @@ export const LimitOrderInput = ({
   // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
   // not reset the user's config unless the asset pair changes.
   useEffect(() => {
+    console.log('resetting')
     setLimitPrice({
       [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
       [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),

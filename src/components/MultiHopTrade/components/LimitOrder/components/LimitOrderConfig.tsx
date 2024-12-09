@@ -24,7 +24,7 @@ import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertUnreachable } from 'lib/utils'
 import {
   ExpiryOption,
-  PresetLimit,
+  LimitPriceMode,
   PriceDirection,
 } from 'state/slices/limitOrderInputSlice/constants'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -134,19 +134,19 @@ export const LimitOrderConfig = ({
   }, [priceDirection])
 
   const handleSetPresetLimit = useCallback(
-    (presetLimit: PresetLimit) => {
+    (presetLimit: LimitPriceMode) => {
       setPresetLimit(presetLimit)
       const multiplier = (() => {
         switch (presetLimit) {
-          case PresetLimit.Market:
+          case LimitPriceMode.Market:
             return '1.00'
-          case PresetLimit.OnePercent:
+          case LimitPriceMode.OnePercent:
             return '1.01'
-          case PresetLimit.TwoPercent:
+          case LimitPriceMode.TwoPercent:
             return '1.02'
-          case PresetLimit.FivePercent:
+          case LimitPriceMode.FivePercent:
             return '1.05'
-          case PresetLimit.TenPercent:
+          case LimitPriceMode.TenPercent:
             return '1.10'
           default:
             assertUnreachable(presetLimit)
@@ -162,23 +162,23 @@ export const LimitOrderConfig = ({
   )
 
   const handleSetMarketLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.Market)
+    handleSetPresetLimit(LimitPriceMode.Market)
   }, [handleSetPresetLimit])
 
   const handleSetOnePercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.OnePercent)
+    handleSetPresetLimit(LimitPriceMode.OnePercent)
   }, [handleSetPresetLimit])
 
   const handleSetTwoPercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.TwoPercent)
+    handleSetPresetLimit(LimitPriceMode.TwoPercent)
   }, [handleSetPresetLimit])
 
   const handleSetFivePercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.FivePercent)
+    handleSetPresetLimit(LimitPriceMode.FivePercent)
   }, [handleSetPresetLimit])
 
   const handleSetTenPercentLimit = useCallback(() => {
-    handleSetPresetLimit(PresetLimit.TenPercent)
+    handleSetPresetLimit(LimitPriceMode.TenPercent)
   }, [handleSetPresetLimit])
 
   const handleTogglePriceDirection = useCallback(() => {
@@ -277,7 +277,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === PresetLimit.Market}
+          isActive={presetLimitPrice === LimitPriceMode.Market}
           onClick={handleSetMarketLimit}
           isDisabled={isLoading}
         >
@@ -286,7 +286,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === PresetLimit.OnePercent}
+          isActive={presetLimitPrice === LimitPriceMode.OnePercent}
           onClick={handleSetOnePercentLimit}
           isDisabled={isLoading}
         >
@@ -295,7 +295,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === PresetLimit.TwoPercent}
+          isActive={presetLimitPrice === LimitPriceMode.TwoPercent}
           onClick={handleSetTwoPercentLimit}
           isDisabled={isLoading}
         >
@@ -304,7 +304,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === PresetLimit.FivePercent}
+          isActive={presetLimitPrice === LimitPriceMode.FivePercent}
           onClick={handleSetFivePercentLimit}
           isDisabled={isLoading}
         >
@@ -313,7 +313,7 @@ export const LimitOrderConfig = ({
         <Button
           variant='ghost'
           size='sm'
-          isActive={presetLimitPrice === PresetLimit.TenPercent}
+          isActive={presetLimitPrice === LimitPriceMode.TenPercent}
           onClick={handleSetTenPercentLimit}
           isDisabled={isLoading}
         >

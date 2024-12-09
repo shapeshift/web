@@ -13,10 +13,12 @@ export enum PriceDirection {
   SellAssetDenomination = 'sellAssetDenomination',
 }
 
-export enum PresetLimit {
+export enum LimitPriceMode {
   Market = 'market',
   OnePercent = 'onePercent',
   TwoPercent = 'twoPercent',
   FivePercent = 'fivePercent',
   TenPercent = 'tenPercent',
+  // TODO: Implement me
+  // ManualValue = 'manualValue',
 }

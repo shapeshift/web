@@ -10,12 +10,12 @@ import type {
   TradeInputBaseState,
 } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
-import { ExpiryOption, PresetLimit, PriceDirection } from './constants'
+import { ExpiryOption, LimitPriceMode, PriceDirection } from './constants'
 
 export type LimitOrderInputState = {
   limitPriceDirection: PriceDirection
   limitPrice: Record<PriceDirection, string>
-  presetLimit: PresetLimit | undefined
+  presetLimit: LimitPriceMode | undefined
   expiry: ExpiryOption
 } & TradeInputBaseState
 
@@ -36,7 +36,7 @@ const initialState: LimitOrderInputState = {
     [PriceDirection.BuyAssetDenomination]: '0',
     [PriceDirection.SellAssetDenomination]: '0',
   },
-  presetLimit: PresetLimit.Market,
+  presetLimit: LimitPriceMode.Market,
   expiry: ExpiryOption.SevenDays,
 }
 
@@ -59,7 +59,7 @@ export const limitOrderInput = createTradeInputBaseSlice({
     },
     setPresetLimit: (
       state: LimitOrderInputState,
-      action: PayloadAction<PresetLimit | undefined>,
+      action: PayloadAction<LimitPriceMode | undefined>,
     ) => {
       state.presetLimit = action.payload
     },

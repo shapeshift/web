@@ -3,7 +3,7 @@ import type { ReduxState } from 'state/reducer'
 import { defaultAsset } from 'state/slices/assetsSlice/assetsSlice'
 import {
   ExpiryOption,
-  PresetLimit,
+  LimitPriceMode,
   PriceDirection,
 } from 'state/slices/limitOrderInputSlice/constants'
 import { CurrencyFormats, HomeMarketView } from 'state/slices/preferencesSlice/preferencesSlice'
@@ -259,7 +259,7 @@ export const mockStore: ReduxState = {
       [PriceDirection.BuyAssetDenomination]: '0',
       [PriceDirection.SellAssetDenomination]: '0',
     },
-    presetLimit: PresetLimit.Market,
+    presetLimit: LimitPriceMode.Market,
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
   },

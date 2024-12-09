@@ -64,7 +64,7 @@ export const chainflipApi: SwapperApi = {
     const fees = feeData[FeeDataKey.Average]
 
     const unsignedTxInput = await adapter.buildSendApiTransaction({
-      to: step.chainflipSpecific?.chainflipDepositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber: step.accountNumber,

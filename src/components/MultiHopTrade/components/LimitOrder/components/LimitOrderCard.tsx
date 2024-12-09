@@ -1,5 +1,5 @@
 import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
@@ -10,10 +10,17 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { assertUnreachable } from 'lib/utils'
+import {
+  selectAssetById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
+import { useSelectorWithArgs } from 'state/store'
+
+import { LimitOrderStatus } from '../types'
 
 export interface LimitOrderCardProps {
+  accountId: AccountId
   uid: string
   buyAmountCryptoBaseUnit: string
   sellAmountCryptoBaseUnit: string
@@ -30,6 +37,7 @@ const buttonBgHover = {
 }
 
 export const LimitOrderCard: FC<LimitOrderCardProps> = ({
+  accountId,
   uid,
   buyAmountCryptoBaseUnit,
   sellAmountCryptoBaseUnit,
@@ -37,13 +45,18 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   sellAssetId,
   validTo,
   filledDecimalPercentage,
-  status,
+  status: _status,
   onCancelClick,
 }) => {
   const translate = useTranslate()
 
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
+  const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
+  const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
+  const filter = useMemo(() => ({ assetId: sellAssetId, accountId }), [sellAssetId, accountId])
+  const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
+    selectPortfolioCryptoBalanceBaseUnitByFilter,
+    filter,
+  )
 
   const handleCancel = useCallback(() => {
     onCancelClick?.(uid)
@@ -65,16 +78,44 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed()
   }, [buyAmountCryptoPrecision, sellAmountCryptoPrecision])
 
+  const hasSufficientSellAssetBalance = useMemo(() => {
+    return bn(sellAssetBalanceCryptoBaseUnit).gte(sellAmountCryptoBaseUnit)
+  }, [sellAssetBalanceCryptoBaseUnit, sellAmountCryptoBaseUnit])
+
+  const status = useMemo(() => {
+    switch (_status) {
+      case OrderStatus.OPEN:
+        if (hasSufficientSellAssetBalance) {
+          return LimitOrderStatus.Open
+        } else {
+          return LimitOrderStatus.Unfillable
+        }
+      case OrderStatus.FULFILLED:
+        return LimitOrderStatus.Fulfilled
+      case OrderStatus.CANCELLED:
+        return LimitOrderStatus.Cancelled
+      case OrderStatus.EXPIRED:
+        return LimitOrderStatus.Expired
+      case OrderStatus.PRESIGNATURE_PENDING:
+        return LimitOrderStatus.Unknown
+      default:
+        assertUnreachable(_status)
+    }
+  }, [_status, hasSufficientSellAssetBalance])
+
   const tagColorScheme = useMemo(() => {
     switch (status) {
-      case OrderStatus.OPEN:
+      case LimitOrderStatus.Open:
         return 'blue'
-      case OrderStatus.FULFILLED:
+      case LimitOrderStatus.Fulfilled:
         return 'green'
-      case OrderStatus.CANCELLED:
+      case LimitOrderStatus.Unfillable:
+        return 'purple'
+      case LimitOrderStatus.Cancelled:
         return 'red'
-      case OrderStatus.EXPIRED:
+      case LimitOrderStatus.Expired:
         return 'yellow'
+      case LimitOrderStatus.Unknown:
       default:
         return 'gray'
     }
@@ -82,12 +123,13 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const barColorScheme = useMemo(() => {
     switch (status) {
-      case OrderStatus.OPEN:
-      case OrderStatus.FULFILLED:
+      case LimitOrderStatus.Open:
+      case LimitOrderStatus.Fulfilled:
         return 'green'
-      case OrderStatus.CANCELLED:
+      case LimitOrderStatus.Unfillable:
+      case LimitOrderStatus.Cancelled:
         return 'red'
-      case OrderStatus.EXPIRED:
+      case LimitOrderStatus.Expired:
         return 'yellow'
       default:
         return 'gray'
@@ -103,6 +145,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         : undefined,
     [validTo],
   )
+
+  const isCancelable = useMemo(() => {
+    return [LimitOrderStatus.Open, LimitOrderStatus.Unfillable].includes(status)
+  }, [status])
 
   if (!buyAsset || !sellAsset) return null
 
@@ -173,7 +219,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         </Flex>
 
         {/* Cancel button */}
-        {status === OrderStatus.OPEN && (
+        {isCancelable && (
           <Button
             colorScheme='red'
             width='100%'

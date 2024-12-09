@@ -15,3 +15,14 @@ export type OrderToCancel = {
   buyAssetId: AssetId
   order: Order
 }
+
+// Different to the CoW API OrderStatus enum. Includes `Unfillable` + `Unknown`, excludes `PRESIGNATURE_PENDING`.
+// NOTE: The values of this enum are used for translation keys. Do Not edit without updating the translations!
+export enum LimitOrderStatus {
+  Open = 'open',
+  Unfillable = 'unfillable',
+  Fulfilled = 'fulfilled',
+  Cancelled = 'cancelled',
+  Expired = 'expired',
+  Unknown = 'unknown',
+}

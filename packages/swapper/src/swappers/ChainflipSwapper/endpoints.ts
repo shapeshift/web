@@ -142,7 +142,7 @@ export const chainflipApi: SwapperApi = {
 
     tradeQuoteMetadata.set(tradeQuote.id, {
       id: step.chainflipSpecific?.chainflipSwapId,
-      address: step.chainflipSpecific?.chainflipDepositAddress,
+      address: step.chainflipSpecific.chainflipDepositAddress,
     })
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)

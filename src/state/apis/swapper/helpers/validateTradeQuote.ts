@@ -81,10 +81,10 @@ export const validateTradeQuote = (
           return { error: errorCode }
         case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
         case SwapperTradeQuoteError.FinalQuoteExecutionReverted: {
-          const { expectedSlippage }: { expectedSlippage?: string } = errorDetails ?? {}
+          const { expectedSlippage }: { expectedSlippage?: string | undefined } = errorDetails ?? {}
           return {
             error: errorCode,
-            meta: { expectedSlippage },
+            meta: { expectedSlippage: expectedSlippage ? expectedSlippage : 'Unknown' },
           }
         }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {

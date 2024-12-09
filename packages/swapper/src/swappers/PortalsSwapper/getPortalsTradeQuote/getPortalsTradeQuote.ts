@@ -142,7 +142,7 @@ export async function getPortalsTradeQuote(
         })
           // This should never happen but could in very rare cases if original call failed on slippage slightly over 2.5% but this one succeeds on slightly under 2.5%
           .then(res => res.context.slippageTolerancePercentage)
-          .catch(err => (err as PortalsError).message.match(/Expected slippage is (.*?)%/)![1])
+          .catch(err => (err as PortalsError).message.match(/Expected slippage is (.*?)%/)?.[1])
 
         // This should never happen as we don't have auto-slippage on for `/portal` as of now (2024-12-06, see https://github.com/shapeshift/web/pull/8293)
         // But as soon as Portals implement auto-slippage for the estimate endpoint, we will most likely re-enable it, assuming it actually works
@@ -151,7 +151,9 @@ export async function getPortalsTradeQuote(
             makeSwapErrorRight({
               message: err.message,
               details: {
-                expectedSlippage: bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP),
+                expectedSlippage: portalsExpectedSlippage
+                  ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
+                  : undefined,
               },
               cause: err,
               code: TradeQuoteError.FinalQuoteMaxSlippageExceeded,
@@ -162,7 +164,9 @@ export async function getPortalsTradeQuote(
             makeSwapErrorRight({
               message: err.message,
               details: {
-                expectedSlippage: bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP),
+                expectedSlippage: portalsExpectedSlippage
+                  ? bn(portalsExpectedSlippage).toFixed(2, BigNumber.ROUND_HALF_UP)
+                  : undefined,
               },
               cause: err,
               code: TradeQuoteError.FinalQuoteExecutionReverted,

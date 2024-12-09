@@ -26,11 +26,13 @@ type GetChainFlipSwapArgs = ChainFlipBrokerBaseArgs & {
   sourceAsset: string
   destinationAsset: string
   destinationAddress: string
-  boostFee?: number
+  maxBoostFee?: number
   minimumPrice: string
   refundAddress: string
   retryDurationInBlocks?: number
   commissionBps: number
+  numberOfChunks?: number
+  chunkIntervalBlocks?: number
 }
 
 type ChainflipAsset = {
@@ -93,27 +95,35 @@ export const getChainFlipSwap = ({
   sourceAsset,
   destinationAsset,
   destinationAddress,
-  boostFee = 0,
+  maxBoostFee = 0,
   minimumPrice,
   refundAddress,
   retryDurationInBlocks = 10,
   commissionBps,
+  numberOfChunks,
+  chunkIntervalBlocks = 2,
 }: GetChainFlipSwapArgs): Promise<
   Result<AxiosResponse<ChainflipBaasSwapDepositAddress, any>, SwapErrorRight>
-> =>
-  // TODO: For DCA swaps we need to add the numberOfChunks/chunkIntervalBlocks parameters
-  chainflipService.get<ChainflipBaasSwapDepositAddress>(
+> => {
+  let swapUrl =
     `${brokerUrl}/swap` +
-      `?apiKey=${apiKey}` +
-      `&sourceAsset=${sourceAsset}` +
-      `&destinationAsset=${destinationAsset}` +
-      `&destinationAddress=${destinationAddress}` +
-      `&boostFee=${boostFee}` +
-      `&minimumPrice=${minimumPrice}` +
-      `&refundAddress=${refundAddress}` +
-      `&retryDurationInBlocks=${retryDurationInBlocks}` +
-      `&commissionBps=${commissionBps}`,
-  )
+    `?apiKey=${apiKey}` +
+    `&sourceAsset=${sourceAsset}` +
+    `&destinationAsset=${destinationAsset}` +
+    `&destinationAddress=${destinationAddress}` +
+    `&boostFee=${maxBoostFee}` +
+    `&minimumPrice=${minimumPrice}` +
+    `&refundAddress=${refundAddress}` +
+    `&retryDurationInBlocks=${retryDurationInBlocks}` +
+    `&commissionBps=${commissionBps}`
+
+  if (numberOfChunks && chunkIntervalBlocks) {
+    swapUrl += `&numberOfChunks=${numberOfChunks}`
+    swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
+  }
+
+  return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl)
+}
 
 const fetchChainFlipAssets = async ({
   brokerUrl,

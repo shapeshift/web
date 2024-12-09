@@ -118,7 +118,7 @@ export const chainflipApi: SwapperApi = {
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub: xpub!,
-      to: step.chainflipSpecific?.chainflipDepositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {

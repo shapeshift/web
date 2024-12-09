@@ -183,7 +183,8 @@ export async function getPortalsTradeQuote(
         )
       })
 
-    if (maybePortalsTradeOrderResponse.isErr()) return Err(maybePortalsTradeOrderResponse.unwrapErr())
+    if (maybePortalsTradeOrderResponse.isErr())
+      return Err(maybePortalsTradeOrderResponse.unwrapErr())
 
     const portalsTradeOrderResponse = maybePortalsTradeOrderResponse.unwrap()
 

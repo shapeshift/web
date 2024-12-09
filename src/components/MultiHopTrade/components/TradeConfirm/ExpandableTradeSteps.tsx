@@ -7,13 +7,13 @@ import {
   selectActiveSwapperName,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { ExpandedTradeSteps } from './ExpandedTradeSteps'
 import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useTradeSteps } from './useTradeSteps'
+import { useTradeSteps } from './hooks/useTradeSteps'
 
 const summaryStepIndicator = <Spinner thickness='3px' size='md' />
 
@@ -37,8 +37,9 @@ export const ExpandableTradeSteps = () => {
     }
   }, [activeTradeId, currentHopIndex])
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const { state: hopExecutionState } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
+  const { state: hopExecutionState } = useSelectorWithArgs(
+    selectHopExecutionMetadata,
+    hopExecutionMetadataFilter,
   )
 
   const { totalSteps, currentStep } = useTradeSteps()

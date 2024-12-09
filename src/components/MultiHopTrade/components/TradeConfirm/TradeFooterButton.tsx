@@ -8,7 +8,6 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
-import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -21,7 +20,6 @@ import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
-  selectHopExecutionMetadata,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrency,
@@ -29,34 +27,16 @@ import {
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { getHopExecutionStateButtonTranslation } from './helpers'
+import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
-type FooterProps = {
-  isLoading: boolean
-  handleSubmit: () => void
-  activeTradeId: TradeQuote['id']
-}
-
-export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, activeTradeId }) => {
+export const TradeFooterButton: FC = () => {
+  const tradeButtonProps = useTradeButtonProps()
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
-
-  const hopIndex = 0 // TODO: make this dynamic to support multi-hop trades
-
-  const hopExecutionMetadataFilter = useMemo(() => {
-    return {
-      tradeId: activeTradeId,
-      hopIndex,
-    }
-  }, [activeTradeId, hopIndex])
-
-  const { state: hopExecutionState } = useAppSelector(state =>
-    selectHopExecutionMetadata(state, hopExecutionMetadataFilter),
-  )
 
   const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined
@@ -67,11 +47,11 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, ac
       case TradeExecutionState.FirstHop:
       case TradeExecutionState.SecondHop:
       case TradeExecutionState.TradeComplete:
-        return getHopExecutionStateButtonTranslation(hopExecutionState)
+        return tradeButtonProps?.buttonText
       default:
         assertUnreachable(confirmedTradeExecutionState)
     }
-  }, [confirmedTradeExecutionState, hopExecutionState])
+  }, [confirmedTradeExecutionState, tradeButtonProps?.buttonText])
 
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>
@@ -157,7 +137,9 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, ac
     gasFeeExceedsTradeAmountThresholdTranslation,
   ])
 
-  if (!confirmedTradeExecutionState || !translation) return null
+  if (!confirmedTradeExecutionState || !translation || !tradeButtonProps) return null
+
+  const { handleSubmit, isLoading, isDisabled } = tradeButtonProps
 
   return (
     <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
@@ -170,6 +152,7 @@ export const TradeFooterButton: FC<FooterProps> = ({ isLoading, handleSubmit, ac
         width='full'
         onClick={handleSubmit}
         isLoading={isLoading || confirmedTradeExecutionState === TradeExecutionState.Initializing}
+        isDisabled={isDisabled}
       >
         <Text translation={translation} />
       </Button>

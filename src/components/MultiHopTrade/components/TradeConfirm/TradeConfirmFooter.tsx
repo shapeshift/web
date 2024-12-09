@@ -32,8 +32,7 @@ import {
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from 'state/store'
+import { useAppSelector } from 'state/store'
 
 import { useIsApprovalInitiallyNeeded } from '../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { PriceImpact } from '../PriceImpact'
@@ -109,8 +108,6 @@ export const TradeConfirmFooter: FC = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
-  const dispatch = useAppDispatch()
-
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const swapSource = tradeQuoteStep?.source
   const rate = tradeQuoteStep?.rate
@@ -126,21 +123,6 @@ export const TradeConfirmFooter: FC = () => {
     ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
-  const activeTradeId = activeQuote?.id
-
-  const handleTradeConfirm = useCallback(() => {
-    if (!activeQuote) return
-    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
-  }, [dispatch, activeQuote])
-
-  const handleSubmit = useCallback(() => {
-    // if (isModeratePriceImpact) {
-    //   setShouldShowWarningAcknowledgement(true)
-    // } else {
-    //   handleTradeConfirm()
-    // }
-    handleTradeConfirm()
-  }, [handleTradeConfirm])
 
   const isThorFreeTrade = useMemo(
     () =>
@@ -331,15 +313,8 @@ export const TradeConfirmFooter: FC = () => {
   ])
 
   const FooterButton = useMemo(() => {
-    if (!activeTradeId) return null
-    return (
-      <TradeFooterButton
-        isLoading={isLoading}
-        handleSubmit={handleSubmit}
-        activeTradeId={activeTradeId}
-      />
-    )
-  }, [activeTradeId, isLoading, handleSubmit])
+    return <TradeFooterButton />
+  }, [])
 
   return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

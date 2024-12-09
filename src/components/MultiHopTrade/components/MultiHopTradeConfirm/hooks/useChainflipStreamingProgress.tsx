@@ -1,5 +1,4 @@
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-// TODO: Is this import allowed?
 import type { ChainFlipStatus } from '@shapeshiftoss/swapper/dist/swappers/ChainflipSwapper/types'
 import axios from 'axios'
 import { getConfig } from 'config'

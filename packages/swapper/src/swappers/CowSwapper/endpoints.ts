@@ -1,10 +1,5 @@
-import type { EvmChainId } from '@shapeshiftoss/types'
-import type { OrderCreation } from '@shapeshiftoss/types/dist/cowSwap'
-import {
-  BuyTokenDestination,
-  SellTokenSource,
-  SigningScheme,
-} from '@shapeshiftoss/types/dist/cowSwap'
+import type { EvmChainId, OrderCreation } from '@shapeshiftoss/types'
+import { BuyTokenDestination, SellTokenSource, SigningScheme } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -12,6 +7,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
+import { assertGetCowNetwork } from '../../cowswap-utils'
 import type {
   CommonTradeQuoteInput,
   EvmMessageToSign,
@@ -39,7 +35,6 @@ import {
   deductAffiliateFeesFromAmount,
   deductSlippageFromAmount,
   getAffiliateAppDataFragmentByChainId,
-  getCowswapNetwork,
   getFullAppData,
 } from './utils/helpers/helpers'
 
@@ -93,8 +88,8 @@ export const cowApi: SwapperApi = {
 
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
-    const maybeNetwork = getCowswapNetwork(sellAsset.chainId)
-    if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
+    // Check the chainId is supported for paranoia
+    assertGetCowNetwork(sellAsset.chainId)
 
     const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
       affiliateBps: tradeQuote.affiliateBps,
@@ -172,9 +167,7 @@ export const cowApi: SwapperApi = {
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 
-    const maybeNetwork = getCowswapNetwork(chainId)
-    if (maybeNetwork.isErr()) throw maybeNetwork.unwrapErr()
-    const network = maybeNetwork.unwrap()
+    const network = assertGetCowNetwork(chainId)
 
     // with cow we aren't able to get the tx hash until it's already completed, so we must use the
     // order uid to fetch the trades and use their existence as indicating "complete"

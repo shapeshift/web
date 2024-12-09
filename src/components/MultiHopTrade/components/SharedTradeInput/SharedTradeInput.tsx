@@ -1,3 +1,4 @@
+import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
@@ -5,17 +6,24 @@ import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanne
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
-import { WithLazyMount } from '../TradeInput/components/WithLazyMount'
 import { useSharedHeight } from '../TradeInput/hooks/useSharedHeight'
+
+export type SideComponentProps = {
+  isOpen: boolean
+  width: string | number
+  height: string | number
+  isLoading: boolean
+  ml: CardProps['ml']
+}
 
 type SharedTradeInputProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element
-  shouldOpenSideComponent: boolean
   headerRightContent: JSX.Element
   isCompact: boolean | undefined
   isLoading: boolean
-  sideComponent: React.ComponentType<any>
+  SideComponent: React.ComponentType<SideComponentProps>
+  shouldOpenSideComponent: boolean
   tradeInputRef: React.RefObject<HTMLDivElement>
   tradeInputTab: TradeInputTab
   onChangeTab: (newTab: TradeInputTab) => void
@@ -24,19 +32,19 @@ type SharedTradeInputProps = {
 
 export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   bodyContent,
-  shouldOpenSideComponent,
   headerRightContent,
   isCompact,
   isLoading,
-  sideComponent,
+  SideComponent,
+  shouldOpenSideComponent,
   tradeInputTab,
   tradeInputRef,
   footerContent,
   onChangeTab,
   onSubmit,
 }) => {
-  const totalHeight = useSharedHeight(tradeInputRef)
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const totalHeight = useSharedHeight(tradeInputRef)
 
   return (
     <Flex
@@ -65,9 +73,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
             {footerContent}
           </Card>
         </Box>
-        <WithLazyMount
-          shouldUse={!isCompact && !isSmallerThanXl}
-          component={sideComponent}
+        <SideComponent
           isOpen={!isCompact && !isSmallerThanXl && shouldOpenSideComponent}
           isLoading={isLoading}
           width={tradeInputRef.current?.offsetWidth ?? 'full'}

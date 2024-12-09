@@ -26,7 +26,7 @@ import {
 } from 'state/selectors'
 
 import { selectAssets } from '../assetsSlice/selectors'
-import { selectEnabledAccountIds, selectEnabledWalletAccountIds } from '../common-selectors'
+import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 
@@ -344,7 +344,7 @@ export const selectIsTxHistoryAvailableByFilter = createCachedSelector(
 
 export const selectErroredTxHistoryAccounts = createDeepEqualOutputSelector(
   (state: ReduxState) => state.txHistory.hydrationMeta,
-  selectEnabledAccountIds,
+  selectEnabledWalletAccountIds,
   (hydrationMeta, walletEnabledAccountIds) => {
     return Object.entries(hydrationMeta)
       .filter(([_accountId, hydrationMetaForAccountId]) => hydrationMetaForAccountId?.isErrored)

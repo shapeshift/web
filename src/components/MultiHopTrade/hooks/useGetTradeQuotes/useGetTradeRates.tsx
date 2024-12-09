@@ -1,13 +1,13 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
+import type { GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import { isThorTradeRate } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
@@ -74,7 +74,7 @@ type GetMixPanelDataFromApiQuotesReturn = {
 const votingPowerParams: { feeModel: ParameterModel } = { feeModel: 'SWAPPER' }
 const thorVotingPowerParams: { feeModel: ParameterModel } = { feeModel: 'THORSWAP' }
 
-const getMixPanelDataFromApiQuotes = (
+const getMixPanelDataFromApiRates = (
   quotes: Pick<ApiQuote, 'quote' | 'errors' | 'swapperName' | 'inputOutputRatio'>[],
 ): GetMixPanelDataFromApiQuotesReturn => {
   const bestInputOutputRatio = quotes[0]?.inputOutputRatio
@@ -83,7 +83,9 @@ const getMixPanelDataFromApiQuotes = (
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote, errors, swapperName, inputOutputRatio }) => {
+    .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
+      const quote = _quote as TradeRate
+
       const differenceFromBestQuoteDecimalPercentage =
         (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
@@ -92,7 +94,7 @@ const getMixPanelDataFromApiQuotes = (
         quoteReceived: !!quote,
         isStreaming: quote?.isStreaming ?? false,
         isLongtail: quote?.isLongtail ?? false,
-        tradeType: isThorTradeQuote(quote) ? quote?.tradeType : null,
+        tradeType: isThorTradeRate(quote) ? quote?.tradeType : null,
         errors: errors.map(({ error }) => error),
         isActionable: !!quote && !errors.length,
       }
@@ -299,7 +301,7 @@ export const useGetTradeRates = () => {
   useEffect(() => {
     if (isAnyTradeQuoteLoading) return
     if (mixpanel) {
-      const quoteData = getMixPanelDataFromApiQuotes(sortedTradeQuotes)
+      const quoteData = getMixPanelDataFromApiRates(sortedTradeQuotes)
       mixpanel.track(MixPanelEvent.QuotesReceived, quoteData)
     }
   }, [sortedTradeQuotes, mixpanel, isAnyTradeQuoteLoading])

@@ -11,6 +11,7 @@ export const setupQuote = () => {
   const buyAsset: Asset = { ...WETH }
 
   const tradeQuote: TradeQuote = {
+    quoteOrRate: 'quote',
     id: 'foobar',
     receiveAddress: '0x1234',
     affiliateBps: '0',

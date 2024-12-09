@@ -212,8 +212,9 @@ describe('cowApi', () => {
         verified: false,
       }
 
-      const tradeQuote = {
+      const tradeQuote: TradeQuote = {
         id: '474004127',
+        quoteOrRate: 'quote',
         receiveAddress: '0x90a48d5cf7343b08da12e067680b4c6dbfe551be',
         affiliateBps: '0',
         potentialAffiliateBps: '48',

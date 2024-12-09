@@ -100,7 +100,7 @@ export const getL1Rate = async (
           sellAsset,
           buyAssetId: buyAsset.assetId,
           sellAmountCryptoBaseUnit,
-          receiveAddress: undefined,
+          receiveAddress,
           streaming: true,
           affiliateBps: requestedAffiliateBps,
           streamingInterval,
@@ -252,9 +252,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -364,9 +364,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -444,9 +444,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,

@@ -17,17 +17,16 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
-  ExecutableTradeQuote,
   ExecutableTradeStep,
   SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
-  SwapperName,
   TradeQuote,
   TradeQuoteOrRate,
   TradeQuoteStep,
+  TradeRate,
 } from './types'
-import { TradeQuoteError } from './types'
+import { SwapperName, TradeQuoteError } from './types'
 
 export const makeSwapErrorRight = ({
   details,
@@ -302,8 +301,11 @@ export const getInputOutputRate = ({
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 
-export const isExecutableTradeQuote = (quote: TradeQuote): quote is ExecutableTradeQuote =>
-  !!quote.receiveAddress
+export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote => {
+  if (quote.steps[0]!.source.includes(SwapperName.LIFI)) return !!quote.receiveAddress
+
+  return quote.quoteOrRate === 'quote'
+}
 
 export const isToken = (assetId: AssetId) => {
   switch (fromAssetId(assetId).assetNamespace) {

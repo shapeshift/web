@@ -11,9 +11,10 @@ export const getTradeRate = async (
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeRate[], SwapErrorRight>> => {
-  const rate = (await getTrade(input, deps, lifiChainMap)) as Result<
-    LifiTradeRate[],
-    SwapErrorRight
-  >
+  const rate = (await getTrade({
+    input,
+    deps,
+    lifiChainMap,
+  })) as unknown as Result<LifiTradeRate[], SwapErrorRight>
   return rate
 }

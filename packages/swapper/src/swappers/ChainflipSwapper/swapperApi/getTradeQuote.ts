@@ -50,6 +50,7 @@ export const _getTradeQuote = async (
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     affiliateBps: commissionBps,
+    quoteOrRate,
   } = input
 
   if (!isSupportedChainId(sellAsset.chainId)) {
@@ -268,6 +269,7 @@ export const _getTradeQuote = async (
 
       const boostTradeQuote: TradeQuote = {
         id: uuid(),
+        quoteOrRate,
         rate: boostRate,
         receiveAddress,
         potentialAffiliateBps: commissionBps,
@@ -310,6 +312,7 @@ export const _getTradeQuote = async (
 
     const tradeQuote: TradeQuote = {
       id: uuid(),
+      quoteOrRate,
       rate,
       receiveAddress,
       potentialAffiliateBps: commissionBps,

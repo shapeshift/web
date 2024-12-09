@@ -56,6 +56,7 @@ vi.mock('config', () => {
 
 const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
   {
+    quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     potentialAffiliateBps: '0',
@@ -95,6 +96,7 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
     ],
   },
   {
+    quoteOrRate: 'quote',
     receiveAddress: '0xc770eefad204b5180df6a14ee197d99d808ee52d',
     affiliateBps: '0',
     potentialAffiliateBps: '0',

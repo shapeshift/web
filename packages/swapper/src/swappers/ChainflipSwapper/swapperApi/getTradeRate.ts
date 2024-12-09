@@ -16,5 +16,5 @@ export const getTradeRate = async (
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
   const rates = await _getTradeQuote(input as unknown as CommonTradeQuoteInput, deps)
-  return rates as Result<TradeRate[], SwapErrorRight>
+  return rates as unknown as Result<TradeRate[], SwapErrorRight>
 }

@@ -3,7 +3,7 @@ import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { GetEvmTradeQuoteInput, SwapperDeps } from '../../../types'
+import type { GetEvmTradeQuoteInputBase, SwapperDeps } from '../../../types'
 import { SwapperName } from '../../../types'
 import { BTC, ETH, ETH_ARBITRUM, FOX_ARBITRUM, FOX_MAINNET } from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote'
@@ -49,7 +49,7 @@ describe('getTradeQuote', () => {
     receiveAddress: '0xfauxmes',
     sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000000000000000000',
     sendAddress: '0xfauxmes',
-  } as GetEvmTradeQuoteInput
+  } as GetEvmTradeQuoteInputBase
 
   it('returns a correct ETH deposit quote', async () => {
     const ethBridgerMock = {

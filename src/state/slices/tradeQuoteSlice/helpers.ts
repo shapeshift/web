@@ -5,6 +5,7 @@ import type {
   SwapperName,
   TradeQuote,
   TradeQuoteStep,
+  TradeRate,
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData, PartialRecord } from '@shapeshiftoss/types'
@@ -42,7 +43,7 @@ export const getHopTotalNetworkFeeUserCurrency = (
  * @returns The total network fee across all hops in fiat precision
  */
 export const getTotalNetworkFeeUserCurrencyPrecision = (
-  quote: TradeQuote,
+  quote: TradeQuote | TradeRate,
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber | undefined => {
@@ -78,7 +79,11 @@ export const getHopTotalProtocolFeesFiatPrecision = (
  * @param quote The trade quote
  * @returns The total receive amount across all hops in crypto precision after protocol fees are deducted
  */
-export const getBuyAmountAfterFeesCryptoPrecision = ({ quote }: { quote: TradeQuote }) => {
+export const getBuyAmountAfterFeesCryptoPrecision = ({
+  quote,
+}: {
+  quote: TradeQuote | TradeRate
+}) => {
   const lastStepIndex = (quote.steps.length - 1) as SupportedTradeQuoteStepIndex
   const lastStep = getHopByIndex(quote, lastStepIndex)
 
@@ -122,7 +127,9 @@ export const _reduceTotalProtocolFeeByAssetForStep = (
 export const getTotalProtocolFeeByAssetForStep = (step: TradeQuoteStep) =>
   _reduceTotalProtocolFeeByAssetForStep({}, step)
 
-export const getTotalProtocolFeeByAsset = (quote: TradeQuote): Record<AssetId, ProtocolFee> =>
+export const getTotalProtocolFeeByAsset = (
+  quote: TradeQuote | TradeRate,
+): Record<AssetId, ProtocolFee> =>
   quote.steps.reduce<Record<AssetId, ProtocolFee>>(
     (acc, step) => _reduceTotalProtocolFeeByAssetForStep(acc, step),
     {},

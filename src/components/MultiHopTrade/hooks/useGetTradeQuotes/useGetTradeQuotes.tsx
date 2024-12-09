@@ -1,7 +1,7 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
@@ -89,7 +89,9 @@ const getMixPanelDataFromApiQuotes = (
   const { assetId: buyAssetId, chainId: buyAssetChainId } = selectInputBuyAsset(state)
   const sellAmountUsd = selectInputSellAmountUsd(state)
   const quoteMeta: MixPanelQuoteMeta[] = quotes
-    .map(({ quote, errors, swapperName, inputOutputRatio }) => {
+    .map(({ quote: _quote, errors, swapperName, inputOutputRatio }) => {
+      const quote = _quote as TradeQuote
+
       const differenceFromBestQuoteDecimalPercentage =
         (inputOutputRatio / bestInputOutputRatio - 1) * -1
       return {
@@ -131,7 +133,7 @@ export const useGetTradeQuotes = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeTrade = useAppSelector(selectActiveQuote)
   const activeTradeId = activeTrade?.id
-  const activeRateRef = useRef<TradeQuote | undefined>()
+  const activeRateRef = useRef<TradeQuote | TradeRate | undefined>()
   const activeTradeIdRef = useRef<string | undefined>()
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
   const activeQuoteMetaRef = useRef<{ swapperName: SwapperName; identifier: string } | undefined>()

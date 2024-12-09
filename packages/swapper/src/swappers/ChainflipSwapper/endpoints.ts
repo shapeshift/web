@@ -153,7 +153,7 @@ export const chainflipApi: SwapperApi = {
         : fromAssetId(step.sellAsset.assetId).assetReference
 
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: step.chainflipSpecific?.chainflipDepositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,

@@ -32,6 +32,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
   const { average } = await adapter.getGasFeeData()
 
   try {
+    if (!from) throw new Error('Cannot estimate fees without from')
     const { transactionRequest } = await getStepTransaction(lifiStep)
     if (!transactionRequest) throw new Error('transactionRequest is undefined')
 
@@ -47,7 +48,7 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       data,
       to,
       value: bn(transactionRequest!.value!.toString()).toString(),
-      from: from!,
+      from,
       supportsEIP1559,
     })
     return feeData.networkFeeCryptoBaseUnit

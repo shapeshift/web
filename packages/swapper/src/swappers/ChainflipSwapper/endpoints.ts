@@ -51,7 +51,7 @@ export const chainflipApi: SwapperApi = {
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
     const isTokenSend = isToken(step.sellAsset.assetId)
     const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-      to: step.chainflipSpecific?.chainflipDepositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,

@@ -7,11 +7,11 @@ import {
   CardHeader,
   Heading,
   HStack,
-  Link,
   Stack,
 } from '@chakra-ui/react'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import type { CowSwapError } from '@shapeshiftoss/types'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
@@ -47,15 +47,13 @@ import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
 
-// TODO: Populate this!
-const learnMoreUrl = ''
-
 export const LimitOrderConfirm = () => {
   const history = useHistory()
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorHandler()
+  const queryClient = useQueryClient()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -92,7 +90,9 @@ export const LimitOrderConfirm = () => {
 
   const handleConfirm = useCallback(async () => {
     const quoteId = activeQuote?.response.id
-    if (!quoteId) {
+    const accountId = activeQuote?.params.accountId
+
+    if (!quoteId || !accountId) {
       return
     }
 
@@ -100,7 +100,20 @@ export const LimitOrderConfirm = () => {
     setLimitOrderInitialized(quoteId)
     confirmSubmit(quoteId)
     await placeLimitOrder({ quoteId, wallet })
-  }, [activeQuote?.response.id, confirmSubmit, placeLimitOrder, setLimitOrderInitialized, wallet])
+    // refetch the orders list for this account
+    queryClient.invalidateQueries({
+      queryKey: ['getLimitOrdersForAccount', accountId],
+      refetchType: 'all',
+    })
+  }, [
+    activeQuote?.params.accountId,
+    activeQuote?.response.id,
+    confirmSubmit,
+    placeLimitOrder,
+    queryClient,
+    setLimitOrderInitialized,
+    wallet,
+  ])
 
   if (!activeQuote) {
     console.error('Attempted to submit an undefined limit order')
@@ -119,7 +132,7 @@ export const LimitOrderConfirm = () => {
         borderColor='border.base'
         bg='background.surface.raised.base'
       >
-        <CardHeader px={6} pt={4} borderWidth={0}>
+        <CardHeader px={6} pt={4} borderBottomWidth={0}>
           <WithBackButton onBack={handleBack}>
             <Heading textAlign='center' fontSize='lg'>
               <Text translation='limitOrder.confirm' />
@@ -193,9 +206,8 @@ export const LimitOrderConfirm = () => {
             <Card bg='background.surface.raised.pressed' borderRadius={6} p={4}>
               <HStack>
                 <InfoIcon boxSize='1.3em' color='text.info' />
-                <RawText>
-                  {translate('limitOrder.confirmInfo')}{' '}
-                  <Button
+                <RawText>{translate('limitOrder.confirmInfo')}</RawText>
+                {/* <Button
                     as={Link}
                     href={learnMoreUrl}
                     variant='link'
@@ -207,8 +219,7 @@ export const LimitOrderConfirm = () => {
                     verticalAlign='baseline'
                   >
                     <Text as='span' translation='limitOrder.learnMore' />
-                  </Button>
-                </RawText>
+                  </Button> */}
               </HStack>
             </Card>
             <Button

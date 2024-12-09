@@ -8,7 +8,8 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
 import { useHasFocus } from 'hooks/useHasFocus'
@@ -124,9 +125,6 @@ export const useGetTradeRates = () => {
   const sortedTradeQuotes = useAppSelector(selectSortedTradeQuotes)
   const activeQuoteMeta = useAppSelector(selectActiveQuoteMetaOrDefault)
 
-  const [tradeRateInput, setTradeRateInput] = useState<GetTradeRateInput | typeof skipToken>(
-    skipToken,
-  )
   const hasFocus = useHasFocus()
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -179,24 +177,45 @@ export const useGetTradeRates = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
 
-  useEffect(() => {
-    // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
-    // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
-    // That effectively means we'll unsubscribe to queries, considering them stale
-    dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
+  const { data: tradeRateInput } = useQuery({
+    queryKey: [
+      'getTradeRateInput',
+      {
+        buyAsset,
+        sellAmountCryptoPrecision,
+        sellAsset,
+        userSlippageTolerancePercentageDecimal,
+        sellAssetUsdRate,
+        // TODO(gomes): all the below are what's causing trade input to refentially invalidate on wallet connect
+        // We will need to find a way to have our cake and eat it, by ensuring we get bip44 and other addy-related data (e.g voting power etc) to
+        // referentially invalidate, while ensuring the *initial* connection of a wallet when quotes were gotten without one, doesn't invalidate anything
+        sellAccountMetadata,
+        votingPower,
+        thorVotingPower,
+        receiveAccountMetadata,
+        sellAccountId,
+        isVotingPowerLoading,
+        isBuyAssetChainSupported,
+        receiveAddress,
+        isSnapshotApiQueriesRejected,
+      },
+    ],
+    queryFn: async () => {
+      // Always invalidate tags when this effect runs - args have changed, and whether we want to fetch an actual quote
+      // or a "skipToken" no-op, we always want to ensure that the tags are invalidated before a new query is ran
+      // That effectively means we'll unsubscribe to queries, considering them stale
+      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
-    // Clear the slice before asynchronously generating the input and running the request.
-    // This is to ensure the initial state change is done synchronously to prevent race conditions
-    // and losing sync on loading state etc.
-    dispatch(tradeQuoteSlice.actions.clear())
+      // Clear the slice before asynchronously generating the input and running the request.
+      // This is to ensure the initial state change is done synchronously to prevent race conditions
+      // and losing sync on loading state etc.
+      dispatch(tradeQuoteSlice.actions.clear())
 
-    // Early exit on any invalid state
-    if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
-      setTradeRateInput(skipToken)
-      dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
-      return
-    }
-    ;(async () => {
+      // Early exit on any invalid state
+      if (bnOrZero(sellAmountCryptoPrecision).isZero()) {
+        dispatch(tradeQuoteSlice.actions.setIsTradeQuoteRequestAborted(true))
+        return
+      }
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
       const tradeAmountUsd = bnOrZero(sellAssetUsdRate).times(sellAmountCryptoPrecision)
@@ -232,32 +251,15 @@ export const useGetTradeRates = () => {
             : undefined,
       })) as GetTradeRateInput
 
-      setTradeRateInput(updatedTradeRateInput)
-    })()
-  }, [
-    buyAsset,
-    dispatch,
-    sellAccountMetadata,
-    sellAmountCryptoPrecision,
-    sellAsset,
-    votingPower,
-    thorVotingPower,
-    wallet,
-    receiveAccountMetadata?.bip44Params,
-    userSlippageTolerancePercentageDecimal,
-    sellAssetUsdRate,
-    sellAccountId,
-    isVotingPowerLoading,
-    isBuyAssetChainSupported,
-    receiveAddress,
-    isSnapshotApiQueriesRejected,
-  ])
+      return updatedTradeRateInput
+    },
+  })
 
   const getTradeQuoteArgs = useCallback(
     (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
-        tradeQuoteInput: tradeRateInput,
+        tradeQuoteInput: tradeRateInput ?? skipToken,
         skip: !shouldRefetchTradeQuotes,
         pollingInterval:
           swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,

@@ -3,9 +3,7 @@ import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
 import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type { OrderCreation, OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
+import type { Asset, OrderQuoteResponse } from '@shapeshiftoss/types'
 import {
   bn,
   bnOrZero,
@@ -16,8 +14,6 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { TypedData } from 'eip-712'
-import type { TypedDataDomain, TypedDataField } from 'ethers'
 import { keccak256, stringToBytes } from 'viem'
 
 import type { SwapErrorRight } from '../../../../types'
@@ -25,7 +21,6 @@ import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
 import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
 import type { AffiliateAppDataFragment } from '../../types'
-import { CowNetwork } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -41,11 +36,6 @@ export const ORDER_TYPE_FIELDS = [
   { name: 'sellTokenBalance', type: 'string' },
   { name: 'buyTokenBalance', type: 'string' },
 ]
-
-/**
- * EIP-712 typed data type definitions.
- */
-export declare type TypedDataTypes = Record<string, TypedDataField[]>
 
 export type CowSwapQuoteApiInputBase = {
   appData: string
@@ -63,58 +53,10 @@ export type CowSwapSellQuoteApiInput = CowSwapQuoteApiInputBase & {
   sellAmountBeforeFee: string
 }
 
-export const getCowswapNetwork = (chainId: ChainId): Result<CowNetwork, SwapErrorRight> => {
-  switch (chainId) {
-    case KnownChainIds.EthereumMainnet:
-      return Ok(CowNetwork.Mainnet)
-    case KnownChainIds.GnosisMainnet:
-      return Ok(CowNetwork.Xdai)
-    case KnownChainIds.ArbitrumMainnet:
-      return Ok(CowNetwork.ArbitrumOne)
-    default:
-      return Err(
-        makeSwapErrorRight({
-          message: '[getCowswapNetwork]',
-          code: TradeQuoteError.UnsupportedChain,
-        }),
-      )
-  }
-}
-
 export const getNowPlusThirtyMinutesTimestamp = (): number => {
   const ts = new Date()
   ts.setMinutes(ts.getMinutes() + 30)
   return Math.round(ts.getTime() / 1000)
-}
-
-export const getSignTypeDataPayload = (
-  domain: TypedDataDomain,
-  order: Omit<OrderCreation, 'signingScheme' | 'quoteId' | 'appDataHash' | 'signature'>,
-): TypedData => {
-  return {
-    // Mismatch of types between ethers' TypedDataDomain and TypedData :shrugs:
-    domain: domain as Record<string, unknown>,
-    primaryType: 'Order',
-    types: {
-      Order: ORDER_TYPE_FIELDS,
-      EIP712Domain: [
-        { name: 'name', type: 'string' },
-        { name: 'version', type: 'string' },
-        { name: 'chainId', type: 'uint256' },
-        { name: 'verifyingContract', type: 'address' },
-      ],
-    },
-    message: order,
-  }
-}
-
-export const domain = (chainId: number, verifyingContract: string): TypedDataDomain => {
-  return {
-    name: 'Gnosis Protocol',
-    version: 'v2',
-    chainId,
-    verifyingContract,
-  }
 }
 
 export const assertValidTrade = ({

@@ -1,15 +1,14 @@
-import { Divider, Stack } from '@chakra-ui/react'
+import { Button, Divider, HStack, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import type { CowSwapError } from '@shapeshiftoss/swapper'
 import {
-  getCowswapNetwork,
+  getCowNetwork,
   getDefaultSlippageDecimalPercentageForSwapper,
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, CowSwapError } from '@shapeshiftoss/types'
 import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -18,13 +17,14 @@ import { useHistory } from 'react-router'
 import type { Address } from 'viem'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { TradeInputTab } from 'components/MultiHopTrade/types'
+import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
-import { PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
+import { LimitPriceMode } from 'state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from 'state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -40,6 +40,7 @@ import {
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
+  selectLimitPriceMode,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
   selectUserSlippagePercentage,
@@ -56,6 +57,7 @@ import {
   selectShouldShowTradeQuoteOrAwaitInput,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
+import { breakpoints } from 'theme/theme'
 
 import { SharedSlippagePopover } from '../../SharedTradeInput/SharedSlippagePopover'
 import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
@@ -86,6 +88,7 @@ export const LimitOrderInput = ({
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
   const userSlippagePercentage = useAppSelector(selectUserSlippagePercentage)
@@ -108,6 +111,7 @@ export const LimitOrderInput = ({
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
+  const limitPriceMode = useAppSelector(selectLimitPriceMode)
 
   const {
     switchAssets,
@@ -164,7 +168,7 @@ export const LimitOrderInput = ({
   }, [walletDispatch])
 
   const chainIdFilterPredicate = useCallback((chainId: ChainId) => {
-    return getCowswapNetwork(chainId).isOk()
+    return getCowNetwork(chainId) !== undefined
   }, [])
 
   const sellAssetFilterPredicate = useCallback(
@@ -235,15 +239,13 @@ export const LimitOrderInput = ({
       .toFixed()
   }, [buyAsset.precision, quoteResponse, sellAsset.precision, limitOrderQuoteParams])
 
-  // Reset the limit price when the market price changes.
-  // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
-  // not reset the user's config unless the asset pair changes.
+  // Update the limit price when the market price changes.
   useEffect(() => {
-    setLimitPrice({
-      [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
-      [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
-    } as Record<PriceDirection, string>)
-  }, [marketPriceBuyAsset, setLimitPrice])
+    // Don't update if the user has a custom value configured.
+    if (limitPriceMode !== LimitPriceMode.CustomValue) {
+      setLimitPrice({ marketPriceBuyAsset })
+    }
+  }, [limitPriceMode, marketPriceBuyAsset, setLimitPrice])
 
   const onSubmit = useCallback(() => {
     // No preview happening if wallet isn't connected i.e is using the demo wallet
@@ -300,6 +302,10 @@ export const LimitOrderInput = ({
     [handleFormSubmit],
   )
 
+  const handleShowLimitOrdersList = useCallback(() => {
+    history.push(LimitOrderRoutePaths.Orders)
+  }, [history])
+
   const isLoading = useMemo(() => {
     return (
       isLimitOrderQuoteFetching ||
@@ -321,14 +327,28 @@ export const LimitOrderInput = ({
 
   const headerRightContent = useMemo(() => {
     return (
-      <SharedSlippagePopover
-        defaultSlippagePercentage={defaultSlippagePercentage}
-        quoteSlippagePercentage={undefined} // No slippage returned by CoW
-        userSlippagePercentage={userSlippagePercentage}
-        setUserSlippagePercentage={setSlippagePreferencePercentage}
-      />
+      <HStack>
+        {Boolean(isCompact || isSmallerThanXl) && (
+          <Button size='xs' borderRadius='full' onClick={handleShowLimitOrdersList}>
+            <Text translation='limitOrder.viewOrders' />
+          </Button>
+        )}
+        <SharedSlippagePopover
+          defaultSlippagePercentage={defaultSlippagePercentage}
+          quoteSlippagePercentage={undefined} // No slippage returned by CoW
+          userSlippagePercentage={userSlippagePercentage}
+          setUserSlippagePercentage={setSlippagePreferencePercentage}
+        />
+      </HStack>
     )
-  }, [defaultSlippagePercentage, setSlippagePreferencePercentage, userSlippagePercentage])
+  }, [
+    isCompact,
+    isSmallerThanXl,
+    defaultSlippagePercentage,
+    setSlippagePreferencePercentage,
+    handleShowLimitOrdersList,
+    userSlippagePercentage,
+  ])
 
   const bodyContent = useMemo(() => {
     return (
@@ -501,11 +521,11 @@ export const LimitOrderInput = ({
       <SharedTradeInput
         bodyContent={bodyContent}
         footerContent={footerContent}
-        shouldOpenSideComponent={true}
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}
-        sideComponent={CollapsibleLimitOrderList}
+        SideComponent={CollapsibleLimitOrderList}
+        shouldOpenSideComponent
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.LimitOrder}
         onSubmit={handleTradeQuoteConfirm}

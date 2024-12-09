@@ -14,21 +14,24 @@ import {
   Tabs,
   VStack,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromAccountId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
-import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types/dist/cowSwap'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import type { FC } from 'react'
-import { useMemo } from 'react'
-import type { Address } from 'viem'
+import { useCallback, useMemo, useState } from 'react'
 import { Text } from 'components/Text'
-import { chainIdFeeAssetReferenceMap } from 'state/slices/assetsSlice/utils'
 
 import { WithBackButton } from '../../WithBackButton'
+import { cowSwapTokenToAssetId } from '../helpers'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
+import type { OrderToCancel } from '../types'
+import { CancelLimitOrder } from './CancelLimtOrder'
 import { LimitOrderCard } from './LimitOrderCard'
+
+const textSelectedProps = {
+  color: 'text.base',
+}
 
 type LimitOrderListProps = {
   isLoading: boolean
@@ -36,34 +39,8 @@ type LimitOrderListProps = {
   onBack?: () => void
 }
 
-const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
-  const { chainNamespace, chainReference } = fromChainId(chainId)
-  return cowSwapToken.toLowerCase() === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS.toLowerCase()
-    ? toAssetId({
-        chainId,
-        assetNamespace: 'slip44',
-        assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
-      })
-    : toAssetId({
-        chainId,
-        assetNamespace: ASSET_NAMESPACE.erc20,
-        assetReference: cowSwapToken,
-      })
-}
-
 export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) => {
-  const textColorBaseProps = useMemo(() => {
-    return {
-      color: 'text.base',
-      ...(onBack && {
-        bg: 'blue.500',
-        px: 4,
-        py: 2,
-        borderRadius: 'full',
-      }),
-    }
-  }, [onBack])
-
+  const [orderToCancel, setOrderToCancel] = useState<OrderToCancel>()
   const { data: ordersResponse, isLoading } = useGetLimitOrdersQuery()
 
   const [openLimitOrders, historicalLimitOrders] = useMemo(() => {
@@ -89,6 +66,18 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
     )
   }, [ordersResponse])
 
+  const handleCancelOrderClick = useCallback(
+    (uid: string) => {
+      const order = openLimitOrders?.find(order => order.order.uid === uid)
+      setOrderToCancel(order)
+    },
+    [openLimitOrders],
+  )
+
+  const handleResetOrderToCancel = useCallback(() => {
+    setOrderToCancel(undefined)
+  }, [])
+
   return (
     <Card {...cardProps}>
       {onBack && (
@@ -111,8 +100,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             p={0}
             fontSize='md'
             fontWeight='bold'
-            color={onBack ? 'text.base' : 'text.subtle'}
-            _selected={textColorBaseProps}
+            color='text.subtle'
+            _selected={textSelectedProps}
           >
             <Text translation='limitOrder.openOrders' />
           </Tab>
@@ -120,8 +109,8 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             p={0}
             fontSize='md'
             fontWeight='bold'
-            color={onBack ? 'text.base' : 'text.subtle'}
-            _selected={textColorBaseProps}
+            color='text.subtle'
+            _selected={textSelectedProps}
           >
             <Text translation='limitOrder.orderHistory' />
           </Tab>
@@ -145,7 +134,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   openLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
-                      id={order.uid}
+                      uid={order.uid}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}
@@ -155,6 +144,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                         .div(order.sellAmount)
                         .toNumber()}
                       status={order.status}
+                      onCancelClick={handleCancelOrderClick}
                     />
                   ))}
                 {!isLoading && (openLimitOrders === undefined || openLimitOrders.length === 0) && (
@@ -171,7 +161,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                   historicalLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
-                      id={order.uid}
+                      uid={order.uid}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}
@@ -193,6 +183,10 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
           </TabPanels>
         </CardBody>
       </Tabs>
+      <CancelLimitOrder
+        orderToCancel={orderToCancel}
+        resetOrderToCancel={handleResetOrderToCancel}
+      />
     </Card>
   )
 }

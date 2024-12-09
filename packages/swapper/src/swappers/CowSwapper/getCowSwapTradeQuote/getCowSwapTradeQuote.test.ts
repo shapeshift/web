@@ -1,6 +1,5 @@
-import { KnownChainIds } from '@shapeshiftoss/types'
-import type { OrderQuoteResponse } from '@shapeshiftoss/types/dist/cowSwap'
-import { BuyTokenDestination, SellTokenSource } from '@shapeshiftoss/types/dist/cowSwap'
+import type { OrderQuoteResponse } from '@shapeshiftoss/types'
+import { BuyTokenDestination, KnownChainIds, SellTokenSource } from '@shapeshiftoss/types'
 import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'

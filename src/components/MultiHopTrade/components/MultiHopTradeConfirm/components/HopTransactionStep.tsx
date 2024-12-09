@@ -4,7 +4,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
-import { SwapperName } from '@shapeshiftoss/swapper'
+import { isToken, SwapperName } from '@shapeshiftoss/swapper'
 import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
@@ -18,7 +18,7 @@ import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getTxLink } from 'lib/getTxLink'
 import { fromBaseUnit } from 'lib/math'
 import {
@@ -171,9 +171,15 @@ export const HopTransactionStep = ({
     selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
   )
 
-  const hasEnoughBalanceForNetworkFees = useMemo(() => {
+  const hasEnoughNativeAssetBalance = useMemo(() => {
     // No quote, no error
     if (!tradeQuoteStep) return true
+
+    const nativeAssetValueCryptoBaseUnit = bnOrZero(
+      isToken(tradeQuoteStep.sellAsset.assetId)
+        ? undefined
+        : tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    )
 
     const {
       feeData: { networkFeeCryptoBaseUnit },
@@ -182,17 +188,17 @@ export const HopTransactionStep = ({
     // This should not happen at final quote time but we need to content TS
     if (!networkFeeCryptoBaseUnit) return true
 
-    return bn(feeAssetBalance).gte(networkFeeCryptoBaseUnit)
+    return bn(feeAssetBalance).gte(nativeAssetValueCryptoBaseUnit.plus(networkFeeCryptoBaseUnit))
   }, [feeAssetBalance, tradeQuoteStep])
 
   const signButtonCopy = useMemo(() => {
-    if (!hasEnoughBalanceForNetworkFees)
+    if (!hasEnoughNativeAssetBalance)
       return translate('modals.send.errors.notEnoughNativeToken', {
         asset: feeAsset!.symbol,
       })
 
     return translate('common.signTransaction')
-  }, [feeAsset, hasEnoughBalanceForNetworkFees, translate])
+  }, [feeAsset, hasEnoughNativeAssetBalance, translate])
 
   const content = useMemo(() => {
     if (isActive && swapTxState === TransactionExecutionState.AwaitingConfirmation) {
@@ -200,11 +206,11 @@ export const HopTransactionStep = ({
         <Card width='full'>
           <CardBody px={2} py={2}>
             <Button
-              colorScheme={hasEnoughBalanceForNetworkFees ? 'blue' : 'red'}
+              colorScheme={hasEnoughNativeAssetBalance ? 'blue' : 'red'}
               size='sm'
               onClick={handleSignTx}
               isLoading={isFetching}
-              isDisabled={!tradeQuoteQueryData || !hasEnoughBalanceForNetworkFees}
+              isDisabled={!tradeQuoteQueryData || !hasEnoughNativeAssetBalance}
               width='100%'
             >
               {signButtonCopy}
@@ -233,7 +239,7 @@ export const HopTransactionStep = ({
     swapTxState,
     tradeQuoteStep.source,
     sellTxHash,
-    hasEnoughBalanceForNetworkFees,
+    hasEnoughNativeAssetBalance,
     handleSignTx,
     isFetching,
     tradeQuoteQueryData,

@@ -20,7 +20,11 @@ import type {
   TradeQuoteResult,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import {
   CHAINFLIP_BAAS_COMMISSION,
   CHAINFLIP_BOOST_SWAP_SOURCE,

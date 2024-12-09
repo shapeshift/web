@@ -81,7 +81,7 @@ const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined>
       ]
     },
   )
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
 const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(

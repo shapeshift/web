@@ -43,7 +43,7 @@ export const getHopTotalNetworkFeeUserCurrency = (
  * @returns The total network fee across all hops in fiat precision
  */
 export const getTotalNetworkFeeUserCurrencyPrecision = (
-  quote: TradeQuote,
+  quote: TradeQuote | TradeRate,
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber | undefined => {

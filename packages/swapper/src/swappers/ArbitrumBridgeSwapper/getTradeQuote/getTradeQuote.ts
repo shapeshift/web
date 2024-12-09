@@ -11,17 +11,22 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ArbitrumBridgeTradeQuote, GetEvmTradeQuoteInputWithWallet } from '../types'
+import type {
+  ArbitrumBridgeTradeQuote,
+  ArbitrumBridgeTradeRate,
+  GetEvmTradeQuoteInputWithWallet,
+} from '../types'
 import type { FetchArbitrumBridgeQuoteInput } from '../utils/fetchArbitrumBridgeSwap'
 import { fetchArbitrumBridgeQuote } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export const isArbitrumBridgeTradeQuote = (
-  quote: TradeQuote | undefined,
-): quote is ArbitrumBridgeTradeQuote => !!quote && 'direction' in quote
+export const isArbitrumBridgeTradeQuoteOrRate = (
+  quote: TradeQuote | TradeRate | undefined,
+): quote is ArbitrumBridgeTradeQuote | ArbitrumBridgeTradeRate => !!quote && 'direction' in quote
 
 export const getTradeQuoteWithWallet = async (
   inputWithWallet: GetEvmTradeQuoteInputWithWallet,

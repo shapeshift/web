@@ -200,7 +200,7 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
   tradeQuote => tradeQuote.activeStep ?? 0,
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
   })

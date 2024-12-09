@@ -142,8 +142,8 @@ async function _getCowSwapTradeRate(
 
   const quote: TradeRate = {
     id,
-    accountNumber,
-    receiveAddress: undefined,
+    quoteOrRate: 'rate',
+    receiveAddress,
     affiliateBps,
     potentialAffiliateBps,
     rate,

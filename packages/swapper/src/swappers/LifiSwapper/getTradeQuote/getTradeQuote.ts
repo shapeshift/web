@@ -18,7 +18,9 @@ import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
   MultiHopTradeQuoteSteps,
+  MultiHopTradeRateSteps,
   SingleHopTradeQuoteSteps,
+  SingleHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
   SwapSource,
@@ -32,13 +34,17 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-export async function getTrade(
-  input: GetEvmTradeQuoteInput,
-  deps: SwapperDeps,
-  lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+export async function getTrade({
+  input,
+  deps,
+  lifiChainMap,
+}: {
+  input: GetEvmTradeQuoteInput
+  deps: SwapperDeps
+  lifiChainMap: Map<ChainId, ChainKey>
+}): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -49,6 +55,7 @@ export async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -229,7 +236,11 @@ export async function getTrade(
             estimatedExecutionTimeMs: 1000 * lifiStep.estimate.executionDuration,
           }
         }),
-      )) as SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
+      )) as
+        | SingleHopTradeQuoteSteps
+        | MultiHopTradeQuoteSteps
+        | SingleHopTradeRateSteps
+        | MultiHopTradeRateSteps
 
       // The rate for the entire multi-hop swap
       const netRate = convertPrecision({
@@ -242,6 +253,7 @@ export async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
+        quoteOrRate,
         // This isn't a mistake - with Li.Fi, we can never go with our full-on intent of rate vs. quotes. As soon as a wallet is connected, we get a *quote*
         // even though we're lying and saying this is a rate. With the "rate" containing a receiveAddress, a quote will *not* be fired at pre-sign time, which
         // ensures users aren't rugged with routes that aren't available anymore when going from input to confirm
@@ -285,13 +297,18 @@ export async function getTrade(
     )
   }
 
-  return Ok(promises.filter(isFulfilled).map(({ value }) => value))
+  return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as unknown as Result<
+    LifiTradeQuote[] | LifiTradeRate[],
+    SwapErrorRight
+  >
 }
-
-// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
 
 export const getTradeQuote = (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
+  return getTrade({ input, deps, lifiChainMap }) as Promise<
+    Result<LifiTradeQuote[], SwapErrorRight>
+  >
+}

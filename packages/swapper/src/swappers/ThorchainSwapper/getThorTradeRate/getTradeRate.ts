@@ -2,7 +2,7 @@ import { assertUnreachable, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps } from '../../../types'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buySupportedChainIds, sellSupportedChainIds } from '../constants'
@@ -13,6 +13,9 @@ import { getLongtailToL1Rate } from '../utils/getLongtailRate'
 import { getTradeType, TradeType } from '../utils/longTailHelpers'
 import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers'
 import { thorService } from '../utils/thorService'
+
+export const isThorTradeRate = (quote: TradeRate | undefined): quote is ThorTradeRate =>
+  !!quote && 'tradeType' in quote
 
 export const getThorTradeRate = async (
   input: GetTradeRateInput,

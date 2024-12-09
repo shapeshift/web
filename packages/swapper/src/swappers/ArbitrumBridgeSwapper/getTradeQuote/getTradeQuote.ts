@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
@@ -40,7 +40,7 @@ export const getTradeQuoteWithWallet = async (
 }
 
 export async function getTradeQuote(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInputBase,
   { assertGetEvmChainAdapter }: SwapperDeps,
 ): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
   const {
@@ -84,6 +84,7 @@ export async function getTradeQuote(
 
     return Ok({
       id: uuid(),
+      quoteOrRate: 'quote' as const,
       receiveAddress,
       affiliateBps: '0',
       potentialAffiliateBps: '0',

@@ -147,6 +147,7 @@ async function _getCowSwapTradeQuote(
 
   const quote: TradeQuote = {
     id,
+    quoteOrRate: 'quote',
     receiveAddress,
     affiliateBps,
     potentialAffiliateBps,

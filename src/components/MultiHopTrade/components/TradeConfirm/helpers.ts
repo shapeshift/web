@@ -58,26 +58,32 @@ type TradeStepParams = {
   isMultiHopTrade?: boolean
 }
 
-const getTradeSteps = (params: TradeStepParams): boolean[] => [
-  // First hop allowance reset (if needed)
-  params.firstHopAllowanceReset.isRequired === true,
-  // First hop approval/permit2
-  params.firstHopAllowanceApproval.isInitiallyRequired === true ||
+export enum TradeStep {
+  FirstHopReset = 'firstHopReset',
+  FirstHopApproval = 'firstHopApproval',
+  FirstHopSwap = 'firstHopSwap',
+  LastHopReset = 'lastHopReset',
+  LastHopApproval = 'lastHopApproval',
+  LastHopSwap = 'lastHopSwap',
+}
+
+const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => ({
+  [TradeStep.FirstHopReset]: params.firstHopAllowanceReset.isRequired === true,
+  [TradeStep.FirstHopApproval]:
+    params.firstHopAllowanceApproval.isInitiallyRequired === true ||
     params.firstHopPermit2.isRequired === true,
-  // First hop action
-  true,
-  // Last hop allowance reset (if needed and multiHop)
-  params.isMultiHopTrade === true && params.lastHopAllowanceApproval.isInitiallyRequired === true,
-  // Last hop approval/permit2 (if multiHop)
-  params.isMultiHopTrade === true &&
+  [TradeStep.FirstHopSwap]: true,
+  [TradeStep.LastHopReset]:
+    params.isMultiHopTrade === true && params.lastHopAllowanceReset.isRequired === true,
+  [TradeStep.LastHopApproval]:
+    params.isMultiHopTrade === true &&
     (params.lastHopAllowanceApproval.isInitiallyRequired === true ||
       params.lastHopPermit2.isRequired === true),
-  // Last hop action (if multiHop)
-  params.isMultiHopTrade === true,
-]
+  [TradeStep.LastHopSwap]: params.isMultiHopTrade === true,
+})
 
 export const countTradeSteps = (params: TradeStepParams): number => {
-  return getTradeSteps(params).filter(Boolean).length
+  return Object.values(getTradeSteps(params)).filter(Boolean).length
 }
 
 const isInApprovalState = (state: HopExecutionState): boolean => {
@@ -92,39 +98,31 @@ export const getCurrentStep = (
     hopExecutionState: HopExecutionState
   },
 ): number => {
-  const activeSteps = getTradeSteps(params).filter(Boolean)
+  const steps = getTradeSteps(params)
+  const activeSteps = Object.entries(steps).filter(([_, isActive]) => isActive)
 
-  // Handle pending state
   if (params.hopExecutionState === HopExecutionState.Pending) return 0
 
-  // First hop reset state
-  if (
-    params.currentHopIndex === 0 &&
-    params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset
-  )
-    return 0
+  let currentStep: TradeStep | undefined
 
-  // First hop approval states
-  if (params.currentHopIndex === 0 && isInApprovalState(params.hopExecutionState)) return 1
-
-  // First hop swap state
-  if (params.currentHopIndex === 0 && params.hopExecutionState === HopExecutionState.AwaitingSwap) {
-    return params.firstHopAllowanceApproval.isInitiallyRequired ? 2 : 0
+  if (params.currentHopIndex === 0) {
+    if (params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset) {
+      currentStep = TradeStep.FirstHopReset
+    } else if (isInApprovalState(params.hopExecutionState)) {
+      currentStep = TradeStep.FirstHopApproval
+    } else if (params.hopExecutionState === HopExecutionState.AwaitingSwap) {
+      currentStep = TradeStep.FirstHopSwap
+    }
+  } else if (params.currentHopIndex === 1) {
+    if (params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset) {
+      currentStep = TradeStep.LastHopReset
+    } else if (isInApprovalState(params.hopExecutionState)) {
+      currentStep = TradeStep.LastHopApproval
+    } else if (params.hopExecutionState === HopExecutionState.AwaitingSwap) {
+      currentStep = TradeStep.LastHopSwap
+    }
   }
 
-  // Second hop reset state
-  if (
-    params.currentHopIndex === 1 &&
-    params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset
-  ) {
-    return activeSteps.length - 3
-  }
-
-  // Second hop approval states
-  if (params.currentHopIndex === 1 && isInApprovalState(params.hopExecutionState)) {
-    return activeSteps.length - 2
-  }
-
-  // Second hop swap state or complete
-  return activeSteps.length - 1
+  if (!currentStep) return activeSteps.length - 1
+  return activeSteps.findIndex(([step]) => step === currentStep)
 }

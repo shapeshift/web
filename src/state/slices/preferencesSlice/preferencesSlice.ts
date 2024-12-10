@@ -73,6 +73,7 @@ export type FeatureFlags = {
   ChainflipDca: boolean
   ThorFreeFees: boolean
   JupiterSwap: boolean
+  NewTradeFlow: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -169,6 +170,7 @@ const initialState: Preferences = {
     SolanaSwapper: getConfig().REACT_APP_FEATURE_SWAPPER_SOLANA,
     ThorFreeFees: getConfig().REACT_APP_FEATURE_THOR_FREE_FEES,
     JupiterSwap: getConfig().REACT_APP_FEATURE_JUPITER_SWAP,
+    NewTradeFlow: getConfig().REACT_APP_FEATURE_NEW_TRADE_FLOW,
   },
   selectedLocale: simpleLocale(),
   balanceThreshold: '0',

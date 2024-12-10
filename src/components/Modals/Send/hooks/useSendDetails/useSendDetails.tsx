@@ -381,6 +381,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     (inputValue: string) => {
+      setValue(SendFormFields.SendMax, false)
+
       const otherField =
         fieldName !== SendFormFields.FiatAmount
           ? SendFormFields.FiatAmount

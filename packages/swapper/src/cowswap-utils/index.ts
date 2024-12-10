@@ -1,15 +1,18 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, TypedDataTypes, UnsignedOrderCreation } from '@shapeshiftoss/types'
 import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftoss/types'
+import { getNativeFeeAssetReference } from '@shapeshiftoss/utils'
 import type { TypedData } from 'eip-712'
 import type { TypedDataDomain } from 'ethers'
 import { ethers } from 'ethers'
+import type { Address } from 'viem'
 
 import { COW_SWAP_SETTLEMENT_ADDRESS } from '../swappers/CowSwapper'
+import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '../swappers/CowSwapper/utils/constants'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -156,4 +159,19 @@ export const signCowOrderCancellation = async (
   const signature = await signMessage(typedData)
 
   return signature
+}
+
+export const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
+  const { chainNamespace, chainReference } = fromChainId(chainId)
+  return cowSwapToken.toLowerCase() === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS.toLowerCase()
+    ? toAssetId({
+        chainId,
+        assetNamespace: 'slip44',
+        assetReference: getNativeFeeAssetReference(chainNamespace, chainReference),
+      })
+    : toAssetId({
+        chainId,
+        assetNamespace: ASSET_NAMESPACE.erc20,
+        assetReference: cowSwapToken,
+      })
 }

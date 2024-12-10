@@ -66,7 +66,7 @@ export const selectBuyAmountCryptoBaseUnit = createSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectLimitPrice,
   (inputSellAmountCryptoBaseUnit, limitPrice) => {
-    // Arithmetic MUST be in CryptoBase unit to avoid precision loss converting back and forth.
+    // Arithmetic MUST be in CryptoBaseUnit to avoid precision loss converting back and forth.
     return bn(inputSellAmountCryptoBaseUnit).times(limitPrice.buyAssetDenomination).toFixed()
   },
 )

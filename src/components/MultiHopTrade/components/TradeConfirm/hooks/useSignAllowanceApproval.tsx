@@ -8,6 +8,8 @@ import { useAppSelector } from 'state/store'
 
 import { isPermit2Hop } from '../../MultiHopTradeConfirm/hooks/helpers'
 import { useAllowanceApproval } from '../../MultiHopTradeConfirm/hooks/useAllowanceApproval'
+import { useAllowanceReset } from '../../MultiHopTradeConfirm/hooks/useAllowanceReset'
+import { useSignPermit2 } from '../../MultiHopTradeConfirm/hooks/useSignPermit2'
 
 type UseSignAllowanceApprovalProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -40,11 +42,13 @@ export const useSignAllowanceApproval = ({
   const {
     state: hopExecutionState,
     allowanceApproval,
-    // allowanceReset,
+    allowanceReset,
     // permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
-  const isEnabled = useMemo(() => {
+  const { signPermit2 } = useSignPermit2(tradeQuoteStep, currentHopIndex, activeTradeId)
+
+  const isAllowanceApprovalEnabled = useMemo(() => {
     return (
       Boolean(allowanceApproval.isRequired) &&
       [
@@ -64,9 +68,31 @@ export const useSignAllowanceApproval = ({
     currentHopIndex,
     // Permit2 should always have unlimited allowance
     isExactAllowance && !isPermit2 ? AllowanceType.Exact : AllowanceType.Unlimited,
-    isEnabled,
+    isAllowanceApprovalEnabled,
     activeTradeId,
     allowanceApproval.isInitiallyRequired,
+  )
+
+  const isAllowanceResetEnabled = useMemo(() => {
+    return (
+      Boolean(allowanceReset.isRequired) &&
+      [HopExecutionState.Pending, HopExecutionState.AwaitingAllowanceReset].includes(
+        hopExecutionState,
+      )
+    )
+  }, [allowanceReset.isRequired, hopExecutionState])
+
+  const {
+    allowanceResetMutation,
+    allowanceResetNetworkFeeCryptoBaseUnit,
+    isLoading: isAllowanceResetLoading,
+  } = useAllowanceReset(
+    tradeQuoteStep,
+    currentHopIndex,
+    AllowanceType.Reset,
+    isAllowanceResetEnabled,
+    activeTradeId,
+    allowanceReset.isInitiallyRequired,
   )
 
   const handleSignAllowanceApproval = useCallback(async () => {
@@ -77,9 +103,21 @@ export const useSignAllowanceApproval = ({
     }
   }, [approveMutation])
 
+  const handleSignAllowanceReset = useCallback(async () => {
+    try {
+      await allowanceResetMutation.mutateAsync()
+    } catch (error) {
+      console.error(error)
+    }
+  }, [allowanceResetMutation])
+
   return {
     handleSignAllowanceApproval,
-    isLoading: isAllowanceApprovalLoading,
+    handleSignAllowanceReset,
+    isAllowanceApprovalLoading,
+    isAllowanceResetLoading,
     approvalNetworkFeeCryptoBaseUnit,
+    allowanceResetNetworkFeeCryptoBaseUnit,
+    handleSignPermit2: signPermit2,
   }
 }

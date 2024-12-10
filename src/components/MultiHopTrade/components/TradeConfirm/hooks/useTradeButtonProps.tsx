@@ -37,8 +37,10 @@ export const useTradeButtonProps = ({
   const {
     handleSignAllowanceApproval,
     isAllowanceApprovalLoading,
+    isAllowanceApprovalPending,
     handleSignAllowanceReset,
     isAllowanceResetLoading,
+    isAllowanceResetPending,
     handleSignPermit2,
   } = useSignAllowanceApproval({
     tradeQuoteStep,
@@ -98,15 +100,15 @@ export const useTradeButtonProps = ({
         return {
           handleSubmit: handleSignAllowanceReset,
           buttonText,
-          isLoading: isAllowanceResetLoading,
-          isDisabled: false,
+          isLoading: isAllowanceResetPending,
+          isDisabled: isAllowanceResetLoading,
         }
       case HopExecutionState.AwaitingAllowanceApproval:
         return {
           handleSubmit: handleSignAllowanceApproval,
           buttonText,
-          isLoading: isAllowanceApprovalLoading,
-          isDisabled: false,
+          isLoading: isAllowanceApprovalPending,
+          isDisabled: isAllowanceApprovalLoading,
         }
       case HopExecutionState.AwaitingPermit2:
         return {
@@ -120,7 +122,7 @@ export const useTradeButtonProps = ({
           handleSubmit: handleSignTx,
           buttonText,
           isLoading: isSignTxLoading,
-          isDisabled: false,
+          isDisabled: false, // FIXME: disable whilst getting quote
         }
       case HopExecutionState.Complete:
         return undefined

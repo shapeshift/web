@@ -8,6 +8,7 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
+import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -29,8 +30,18 @@ import { useAppSelector } from 'state/store'
 
 import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
-export const TradeFooterButton: FC = () => {
-  const tradeButtonProps = useTradeButtonProps()
+type TradeFooterButtonProps = {
+  tradeQuoteStep: TradeQuoteStep
+  currentHopIndex: number
+  activeTradeId: string
+}
+
+export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
+  tradeQuoteStep,
+  currentHopIndex,
+  activeTradeId,
+}) => {
+  const tradeButtonProps = useTradeButtonProps({ tradeQuoteStep, currentHopIndex, activeTradeId })
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)

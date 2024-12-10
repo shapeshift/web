@@ -27,6 +27,7 @@ import {
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectFirstHop,
+  selectLastHop,
   selectTotalNetworkFeeUserCurrency,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
@@ -40,6 +41,7 @@ import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { MaxSlippage } from '../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../TradeInput/hooks/useTradeReceiveAddress'
+import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { TradeFooterButton } from './TradeFooterButton'
 
 const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
@@ -88,7 +90,7 @@ const ShowMoreButton = (props: ButtonProps) => (
 export const TradeConfirmFooter: FC = () => {
   const swapperName = useAppSelector(selectActiveSwapperName)
   const activeQuote = useAppSelector(selectActiveQuote)
-  const tradeQuoteStep = useAppSelector(selectFirstHop)
+  const activeTradeId = useAppSelector(selectActiveQuote)?.id
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
@@ -100,6 +102,13 @@ export const TradeConfirmFooter: FC = () => {
   )
   const networkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
 
+  const currentHopIndex = useCurrentHopIndex()
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop) // FIXME: handle multi-hop
+  const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  const tradeQuoteStep = useMemo(() => {
+    return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
+  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
+
   const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
@@ -109,11 +118,11 @@ export const TradeConfirmFooter: FC = () => {
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
-  const swapSource = tradeQuoteStep?.source
-  const rate = tradeQuoteStep?.rate
+  const swapSource = tradeQuoteFirstHop?.source
+  const rate = tradeQuoteFirstHop?.rate
   const sellAssetSymbol = sellAsset.symbol
   const buyAssetSymbol = buyAsset.symbol
-  const intermediaryTransactionOutputs = tradeQuoteStep?.intermediaryTransactionOutputs
+  const intermediaryTransactionOutputs = tradeQuoteFirstHop?.intermediaryTransactionOutputs
   const intermediaryTransactionOutputsParsed = intermediaryTransactionOutputs
     ? parseAmountDisplayMeta(intermediaryTransactionOutputs)
     : undefined
@@ -257,7 +266,7 @@ export const TradeConfirmFooter: FC = () => {
               </Row>
 
               <MaxSlippage
-                swapSource={tradeQuoteStep?.source}
+                swapSource={tradeQuoteFirstHop?.source}
                 isLoading={isLoading}
                 symbol={buyAsset.symbol}
                 amountCryptoPrecision={buyAmountAfterFeesCryptoPrecision ?? '0'}
@@ -308,13 +317,20 @@ export const TradeConfirmFooter: FC = () => {
     swapperName,
     toggleFeeModal,
     toggleShowMore,
-    tradeQuoteStep?.source,
+    tradeQuoteFirstHop?.source,
     translate,
   ])
 
   const FooterButton = useMemo(() => {
-    return <TradeFooterButton />
-  }, [])
+    if (!tradeQuoteStep || currentHopIndex === undefined || !activeTradeId) return null
+    return (
+      <TradeFooterButton
+        tradeQuoteStep={tradeQuoteStep}
+        currentHopIndex={currentHopIndex}
+        activeTradeId={activeTradeId}
+      />
+    )
+  }, [tradeQuoteStep, currentHopIndex, activeTradeId])
 
   return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

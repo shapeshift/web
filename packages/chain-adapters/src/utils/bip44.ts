@@ -3,29 +3,40 @@ import type { BIP44Params } from '@shapeshiftoss/types'
 
 export const toRootDerivationPath = (bip44Params: BIP44Params): string => {
   const { purpose, coinType, accountNumber } = bip44Params
-  if (typeof purpose === 'undefined') throw new Error('toPath: bip44Params.purpose is required')
-  if (typeof coinType === 'undefined') throw new Error('toPath: bip44Params.coinType is required')
+  if (typeof purpose === 'undefined')
+    throw new Error('toRootDerivationPath: bip44Params.purpose is required')
+  if (typeof coinType === 'undefined')
+    throw new Error('toRootDerivationPath: bip44Params.coinType is required')
   if (typeof accountNumber === 'undefined')
-    throw new Error('toPath: bip44Params.accountNumber is required')
+    throw new Error('toRootDerivationPath: bip44Params.accountNumber is required')
   return `m/${purpose}'/${coinType}'/${accountNumber}'`
 }
 
 export const toPath = (bip44Params: BIP44Params): string => {
-  const { purpose, coinType, accountNumber, isChange = false, index = 0 } = bip44Params
-  if (typeof purpose === 'undefined') throw new Error('toPath: bip44Params.purpose is required')
-  if (typeof coinType === 'undefined') throw new Error('toPath: bip44Params.coinType is required')
-  if (typeof accountNumber === 'undefined')
-    throw new Error('toPath: bip44Params.accountNumber is required')
-  return `m/${purpose}'/${coinType}'/${accountNumber}'/${Number(isChange)}/${index}`
+  const { isChange, index } = bip44Params
+  let path = toRootDerivationPath(bip44Params)
+  if (isChange !== undefined) {
+    path = path.concat(`/${Number(isChange)}`)
+    if (index !== undefined) path = path.concat(`/${index}`)
+  }
+  return path
 }
 
 export const fromPath = (path: string): BIP44Params => {
   const parts = path.split('/')
   const sliced = parts.slice(1) // discard the m/
-  if (sliced.length !== 5) throw new Error(`fromPath: path only has ${sliced.length} parts`)
-  const partsWithoutPrimes = sliced.map(part => part.replace("'", '')) // discard harderning
-  const [purpose, coinType, accountNumber, isChangeNumber, index] = partsWithoutPrimes.map(Number)
-  const isChange = Boolean(isChangeNumber)
+
+  if (sliced.length < 3 || sliced.length > 5) {
+    throw new Error(`fromPath: path has ${sliced.length} parts, expected 3 to 5`)
+  }
+
+  const partsWithoutPrimes = sliced.map(part => part?.replace("'", '')) // discard harderning
+  const [purpose, coinType, accountNumber, isChangeNumber, index] = partsWithoutPrimes.map(
+    Number,
+  ) as [number, number, number, number?, number?]
+
+  const isChange = isChangeNumber !== undefined ? Boolean(isChangeNumber) : undefined
+
   return { purpose, coinType, accountNumber, isChange, index }
 }
 

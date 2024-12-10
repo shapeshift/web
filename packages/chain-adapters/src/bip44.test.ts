@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { fromAddressNList, fromPath, toAddressNList, toPath } from './utils'
 
 describe('fromPath', () => {
-  it('can create BIP44Params from a path', () => {
+  it('can create BIP44Params from a path (5 parts)', () => {
     const result = fromPath("m/84'/0'/0'/0/0")
     const expected: BIP44Params = {
       purpose: 84,
@@ -15,10 +15,39 @@ describe('fromPath', () => {
     }
     expect(result).toEqual(expected)
   })
+
+  it('can create BIP44Params from a path (4 parts)', () => {
+    const result = fromPath("m/84'/0'/0'/0")
+    const expected: BIP44Params = {
+      purpose: 84,
+      coinType: 0,
+      accountNumber: 0,
+      isChange: false,
+      index: undefined,
+    }
+    expect(result).toEqual(expected)
+  })
+
+  it('can create BIP44Params from a path (3 parts)', () => {
+    const result = fromPath("m/84'/0'/0'")
+    const expected: BIP44Params = {
+      purpose: 84,
+      coinType: 0,
+      accountNumber: 0,
+      isChange: undefined,
+      index: undefined,
+    }
+    expect(result).toEqual(expected)
+  })
+
+  it('should throw on invalid number of parts', () => {
+    expect(() => fromPath("m/84'/0'")).toThrow()
+    expect(() => fromPath("m/84'/0'/0'/0/0/0")).toThrow()
+  })
 })
 
 describe('toPath', () => {
-  it('can create a path from BIP44Params', () => {
+  it('can create a path from BIP44Params (5 parts)', () => {
     const bip44Params: BIP44Params = {
       purpose: 84,
       coinType: 0,
@@ -28,6 +57,43 @@ describe('toPath', () => {
     }
     const result = toPath(bip44Params)
     const expected = "m/84'/0'/0'/0/0"
+    expect(result).toEqual(expected)
+  })
+
+  it('can create a path from BIP44Params (4 parts)', () => {
+    const bip44Params: BIP44Params = {
+      purpose: 84,
+      coinType: 0,
+      accountNumber: 0,
+      isChange: false,
+      index: undefined,
+    }
+    const result = toPath(bip44Params)
+    const expected = "m/84'/0'/0'/0"
+    expect(result).toEqual(expected)
+  })
+
+  it('can create a path from BIP44Params (3 parts)', () => {
+    let bip44Params: BIP44Params = {
+      purpose: 84,
+      coinType: 0,
+      accountNumber: 0,
+      isChange: undefined,
+      index: undefined,
+    }
+    let result = toPath(bip44Params)
+    let expected = "m/84'/0'/0'"
+    expect(result).toEqual(expected)
+
+    bip44Params = {
+      purpose: 84,
+      coinType: 0,
+      accountNumber: 0,
+      isChange: undefined,
+      index: 0,
+    }
+    result = toPath(bip44Params)
+    expected = "m/84'/0'/0'"
     expect(result).toEqual(expected)
   })
 })

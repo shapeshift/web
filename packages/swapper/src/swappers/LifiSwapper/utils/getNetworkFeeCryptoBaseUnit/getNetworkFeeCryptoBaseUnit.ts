@@ -4,6 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import { getContract } from 'viem'
 
 import type { SwapperDeps } from '../../../../types'
@@ -46,7 +47,9 @@ export const getNetworkFeeCryptoBaseUnit = async ({
       adapter,
       data,
       to,
-      value,
+      // This looks odd but we need this, else unchained estimate calls will fail with:
+      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
+      value: bn(value.toString()).toString(),
       from,
       supportsEIP1559,
     })

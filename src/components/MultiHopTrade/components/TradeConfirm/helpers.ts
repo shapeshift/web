@@ -67,20 +67,37 @@ export enum TradeStep {
   LastHopSwap = 'lastHopSwap',
 }
 
-const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => ({
-  [TradeStep.FirstHopReset]: params.firstHopAllowanceReset.isRequired === true,
-  [TradeStep.FirstHopApproval]:
-    params.firstHopAllowanceApproval.isInitiallyRequired === true ||
-    params.firstHopPermit2.isRequired === true,
-  [TradeStep.FirstHopSwap]: true,
-  [TradeStep.LastHopReset]:
-    params.isMultiHopTrade === true && params.lastHopAllowanceReset.isRequired === true,
-  [TradeStep.LastHopApproval]:
-    params.isMultiHopTrade === true &&
-    (params.lastHopAllowanceApproval.isInitiallyRequired === true ||
-      params.lastHopPermit2.isRequired === true),
-  [TradeStep.LastHopSwap]: params.isMultiHopTrade === true,
-})
+const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
+  const {
+    firstHopAllowanceReset,
+    firstHopAllowanceApproval,
+    firstHopPermit2,
+    lastHopAllowanceReset,
+    lastHopAllowanceApproval,
+    lastHopPermit2,
+    isMultiHopTrade,
+  } = params
+  return {
+    [TradeStep.FirstHopReset]:
+      firstHopAllowanceReset.isRequired === true || firstHopAllowanceReset.txHash !== undefined,
+    [TradeStep.FirstHopApproval]:
+      firstHopAllowanceApproval.isInitiallyRequired === true ||
+      firstHopPermit2.isRequired === true ||
+      firstHopAllowanceApproval.txHash !== undefined ||
+      firstHopPermit2.permit2Signature !== undefined,
+    [TradeStep.FirstHopSwap]: true,
+    [TradeStep.LastHopReset]:
+      isMultiHopTrade === true &&
+      (lastHopAllowanceReset.isRequired === true || lastHopAllowanceReset.txHash !== undefined),
+    [TradeStep.LastHopApproval]:
+      isMultiHopTrade === true &&
+      (lastHopAllowanceApproval.isInitiallyRequired === true ||
+        lastHopPermit2.isRequired === true ||
+        lastHopAllowanceApproval.txHash !== undefined ||
+        lastHopPermit2.permit2Signature !== undefined),
+    [TradeStep.LastHopSwap]: isMultiHopTrade === true,
+  }
+}
 
 export const countTradeSteps = (params: TradeStepParams): number => {
   return Object.values(getTradeSteps(params)).filter(Boolean).length

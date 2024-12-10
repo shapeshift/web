@@ -8,7 +8,7 @@ import {
   Flex,
   Stack,
 } from '@chakra-ui/react'
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -32,7 +32,7 @@ import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
 type TradeFooterButtonProps = {
   tradeQuoteStep: TradeQuoteStep
-  currentHopIndex: number
+  currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
 }
 

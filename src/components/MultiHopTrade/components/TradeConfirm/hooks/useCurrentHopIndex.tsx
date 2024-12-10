@@ -1,3 +1,4 @@
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import {
   selectActiveQuote,
@@ -11,7 +12,7 @@ import { useAppSelector } from 'state/store'
  * Returns the index of the currently executing hop (0 or 1), or undefined if no hop is currently active
  * A hop is considered "current" if it's in an active state (awaiting user action or executing)
  */
-export const useCurrentHopIndex = () => {
+export const useCurrentHopIndex: () => SupportedTradeQuoteStepIndex | undefined = () => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
 

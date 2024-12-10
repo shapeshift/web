@@ -1,4 +1,5 @@
-import { CircularProgress, Stepper } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CircularProgress, Stepper, StepStatus } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -13,8 +14,10 @@ import {
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { useTradeSteps } from './hooks/useTradeSteps'
 
-const expandedStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
+const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
+const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
 export const ExpandedTradeSteps = () => {
   const translate = useTranslate()
@@ -98,12 +101,25 @@ export const ExpandedTradeSteps = () => {
     // swap,
   } = useSelectorWithArgs(selectHopExecutionMetadata, lastHopExecutionMetadataFilter)
 
+  const { currentStep } = useTradeSteps()
+
+  const stepIndicator = useMemo(
+    () => (
+      <StepStatus
+        complete={completedStepIndicator}
+        incomplete={pendingStepIndicator}
+        active={pendingStepIndicator}
+      />
+    ),
+    [],
+  )
+
   return (
-    <Stepper orientation='vertical' index={-1} gap='0'>
+    <Stepper orientation='vertical' index={currentStep} gap='0'>
       {firstHopAllowanceReset.isRequired === true ? (
         <StepperStep
           title={translate('trade.awaitingAllowanceReset')}
-          stepIndicator={expandedStepIndicator}
+          stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
         />
@@ -116,14 +132,14 @@ export const ExpandedTradeSteps = () => {
               ? translate('trade.awaitingPermit2Approval')
               : translate('trade.awaitingApproval')
           }
-          stepIndicator={expandedStepIndicator}
+          stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
         />
       ) : null}
       <StepperStep
         title={firstHopActionTitle}
-        stepIndicator={expandedStepIndicator}
+        stepIndicator={stepIndicator}
         stepProps={stepProps}
         useSpacer={false}
       />
@@ -132,7 +148,7 @@ export const ExpandedTradeSteps = () => {
           {lastHopAllowanceReset.isRequired === true ? (
             <StepperStep
               title={translate('trade.awaitingAllowanceReset')}
-              stepIndicator={expandedStepIndicator}
+              stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
             />
@@ -145,14 +161,14 @@ export const ExpandedTradeSteps = () => {
                   ? translate('trade.awaitingPermit2Approval')
                   : translate('trade.awaitingApproval')
               }
-              stepIndicator={expandedStepIndicator}
+              stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
             />
           ) : null}
           <StepperStep
             title={lastHopActionTitle}
-            stepIndicator={expandedStepIndicator}
+            stepIndicator={stepIndicator}
             stepProps={stepProps}
             useSpacer={false}
           />

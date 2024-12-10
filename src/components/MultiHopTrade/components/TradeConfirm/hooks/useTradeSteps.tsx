@@ -4,6 +4,7 @@ import {
   selectActiveQuote,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
 import { countTradeSteps, getCurrentStep } from '../helpers'
@@ -68,10 +69,14 @@ export const useTradeSteps = () => {
     () =>
       getCurrentStep({
         ...params,
-        currentHopIndex: lastHopExecutionState ? 1 : 0,
-        hopExecutionState: lastHopExecutionState || firstHopExecutionState,
+        currentHopIndex:
+          isMultiHopTrade && firstHopExecutionState === HopExecutionState.Complete ? 1 : 0,
+        hopExecutionState:
+          isMultiHopTrade && firstHopExecutionState === HopExecutionState.Complete
+            ? lastHopExecutionState
+            : firstHopExecutionState,
       }),
-    [params, firstHopExecutionState, lastHopExecutionState],
+    [params, firstHopExecutionState, lastHopExecutionState, isMultiHopTrade],
   )
 
   return {

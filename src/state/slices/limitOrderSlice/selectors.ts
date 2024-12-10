@@ -10,6 +10,7 @@ import {
   selectMarketDataUsd,
   selectUserCurrencyToUsdRate,
 } from '../selectors'
+import { calcLimitPriceBuyAsset } from './helpers'
 import type { LimitOrderState } from './types'
 
 const selectLimitOrderSlice = (state: ReduxState) => state.limitOrderSlice
@@ -41,25 +42,47 @@ export const selectActiveQuoteFeeAsset = (state: ReduxState) => {
   return sellAssetId ? selectFeeAssetById(state, sellAssetId) : undefined
 }
 
-export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
+export const selectActiveQuoteSellAmountCryptoBaseUnit = createSelector(
   selectActiveQuote,
+  activeQuote => {
+    if (!activeQuote) return '0'
+
+    // DANGER: DO NOT use the values in the quote response - the quote amounts assume spot trade and
+    // will not match the user-inputted limit price. Doing so will discard the user input limit and
+    // do a spot trade.
+    return activeQuote.params.sellAmountCryptoBaseUnit
+  },
+)
+
+export const selectActiveQuoteBuyAmountCryptoBaseUnit = createSelector(
+  selectActiveQuote,
+  activeQuote => {
+    if (!activeQuote) return '0'
+
+    // DANGER: DO NOT use the values in the quote response - the quote amounts assume spot trade and
+    // will not match the user-inputted limit price. Doing so will discard the user input limit and
+    // do a spot trade.
+    return activeQuote.params.buyAmountCryptoBaseUnit
+  },
+)
+
+export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
+  selectActiveQuoteSellAmountCryptoBaseUnit,
   selectActiveQuoteSellAsset,
-  (activeQuote, asset) => {
-    if (!activeQuote || !asset) return '0'
-    const { precision } = asset
-    return fromBaseUnit(activeQuote.response.quote.sellAmount, precision)
+  (sellAmountCryptoBaseUnit, asset) => {
+    if (!asset) return '0'
+
+    return fromBaseUnit(sellAmountCryptoBaseUnit, asset.precision)
   },
 )
 
 export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
-  selectActiveQuote,
+  selectActiveQuoteBuyAmountCryptoBaseUnit,
   selectActiveQuoteBuyAsset,
-  (activeQuote, asset) => {
-    if (!activeQuote || !asset) return '0'
-    const { precision } = asset
-    // DANGER! DO NOT use the quote buy amount `activeQuote.response.quote.buyAmount`
-    // doing so will discard the user input limit and do a spot trade.
-    return fromBaseUnit(activeQuote.params.buyAmountCryptoBaseUnit, precision)
+  (buyAmountCryptoBaseUnit, asset) => {
+    if (!asset) return '0'
+
+    return fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision)
   },
 )
 
@@ -121,16 +144,23 @@ export const selectActiveQuoteNetworkFeeUserCurrency = createSelector(
 )
 
 export const selectActiveQuoteLimitPrice = createSelector(
-  selectActiveQuoteSellAmountCryptoPrecision,
-  selectActiveQuoteBuyAmountCryptoPrecision,
-  (sellAmountCryptoPrecision, buyAmountCryptoPrecision) => {
+  selectActiveQuoteSellAmountCryptoBaseUnit,
+  selectActiveQuoteBuyAmountCryptoBaseUnit,
+  selectActiveQuoteSellAsset,
+  selectActiveQuoteBuyAsset,
+  (sellAmountCryptoBaseUnit, buyAmountCryptoBaseUnit, sellAsset, buyAsset) => {
+    if (!sellAsset || !buyAsset) return
+
+    const marketPriceBuyAsset = calcLimitPriceBuyAsset({
+      sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
+
     return {
-      [PriceDirection.SellAssetDenomination]: bn(sellAmountCryptoPrecision)
-        .div(buyAmountCryptoPrecision)
-        .toFixed(),
-      [PriceDirection.BuyAssetDenomination]: bn(buyAmountCryptoPrecision)
-        .div(sellAmountCryptoPrecision)
-        .toFixed(),
+      [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
+      [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
     }
   },
 )

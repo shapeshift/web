@@ -130,12 +130,12 @@ export const limitOrderApi = createApi({
       },
     }),
     placeLimitOrder: build.mutation<OrderId, { quoteId: QuoteId; wallet: HDWallet | null }>({
-      queryFn: async ({ quoteId: _quoteId, wallet }, { getState }) => {
+      queryFn: async ({ quoteId, wallet }, { getState }) => {
         const state = getState() as ReduxState
         const {
           unsignedOrderCreation,
           params: { sellAssetId, accountId },
-        } = selectConfirmedLimitOrder(state, _quoteId)
+        } = selectConfirmedLimitOrder(state, quoteId)
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 

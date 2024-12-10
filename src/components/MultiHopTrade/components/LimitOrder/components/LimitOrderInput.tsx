@@ -9,7 +9,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type { Asset, CowSwapError } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -46,6 +46,7 @@ import {
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
+import { calcLimitPriceBuyAsset } from 'state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from 'state/slices/limitOrderSlice/selectors'
 import {
@@ -234,10 +235,13 @@ export const LimitOrderInput = ({
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
     if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
 
-    return bnOrZero(fromBaseUnit(quoteResponse.quote.buyAmount, buyAsset.precision))
-      .div(fromBaseUnit(quoteResponse.quote.sellAmount, sellAsset.precision))
-      .toFixed()
-  }, [buyAsset.precision, quoteResponse, sellAsset.precision, limitOrderQuoteParams])
+    return calcLimitPriceBuyAsset({
+      sellAmountCryptoBaseUnit: quoteResponse.quote.sellAmount,
+      buyAmountCryptoBaseUnit: quoteResponse.quote.buyAmount,
+      sellAsset,
+      buyAsset,
+    })
+  }, [quoteResponse, limitOrderQuoteParams, sellAsset, buyAsset])
 
   // Update the limit price when the market price changes.
   useEffect(() => {

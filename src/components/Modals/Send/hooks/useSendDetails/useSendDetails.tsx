@@ -1,7 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
-import { solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -188,7 +187,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               bn(toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision)).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
-            .minus(assetId === solAssetId ? solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS : 0)
             .gt(0)
 
           if (!canCoverFees) {
@@ -282,13 +280,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     const maxCrypto =
       feeAsset.assetId !== assetId
         ? bnOrZero(cryptoHumanBalance)
-        : bnOrZero(cryptoHumanBalance)
-            .minus(networkFee)
-            .minus(
-              assetId === solAssetId
-                ? bn(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS).div(`1e${feeAsset.precision}`)
-                : 0,
-            )
+        : bnOrZero(cryptoHumanBalance).minus(networkFee)
+
     const maxFiat = maxCrypto.times(price)
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)

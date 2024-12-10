@@ -39,3 +39,10 @@ export type FeeData = {
   computeUnits: string
   priorityFee: string
 }
+
+export type PriorityFeeData = {
+  baseFee: string
+  [types.FeeDataKey.Fast]: string
+  [types.FeeDataKey.Average]: string
+  [types.FeeDataKey.Slow]: string
+}

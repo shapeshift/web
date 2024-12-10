@@ -17,7 +17,7 @@ import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { BIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn } from '@shapeshiftoss/utils'
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -65,10 +65,6 @@ import type {
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
-import {
-  SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
-  SOLANA_MINIMUM_INSTRUCTIONS_NUMBER,
-} from './constants'
 import { microLamportsToLamports } from './utils'
 
 export const svmChainIds = [KnownChainIds.SolanaMainnet] as const
@@ -384,40 +380,32 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {
     try {
       const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
-      const { sendMax, chainSpecific } = input
-      const { instructions } = chainSpecific
 
       const serializedTx = await this.buildEstimationSerializedTx(input)
-      const baseComputeUnits = await this.providers.http.estimateFees({
+      const computeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
       })
-
-      const computeUnits = sendMax
-        ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
-        : baseComputeUnits
-
-      const instructionNumber = instructions?.length || SOLANA_MINIMUM_INSTRUCTIONS_NUMBER
 
       return {
         fast: {
           txFee: bn(microLamportsToLamports(fast))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
-            .toFixed(),
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
           chainSpecific: { computeUnits, priorityFee: fast },
         },
         average: {
           txFee: bn(microLamportsToLamports(average))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
-            .toFixed(),
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
           chainSpecific: { computeUnits, priorityFee: average },
         },
         slow: {
           txFee: bn(microLamportsToLamports(slow))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
-            .toFixed(),
+            .plus(baseFee)
+            .toFixed(0, BigNumber.ROUND_HALF_UP),
           chainSpecific: { computeUnits, priorityFee: slow },
         },
       }

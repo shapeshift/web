@@ -94,7 +94,6 @@ export const estimateFees = ({
         to,
         value,
         chainSpecific: { from: account, tokenId: contractAddress },
-        sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
     }

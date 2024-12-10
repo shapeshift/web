@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, optimismAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -21,7 +21,7 @@ export const isOptimismChainAdapter = (adapter: unknown): adapter is ChainAdapte
 }
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.OptimismMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Optimism),
     accountNumber: 0,

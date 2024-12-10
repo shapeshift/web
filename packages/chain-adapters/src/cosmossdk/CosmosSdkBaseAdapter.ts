@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
-import type { BIP44Params, CosmosSdkChainId } from '@shapeshiftoss/types'
+import type { BIP44Params, CosmosSdkChainId, DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -96,7 +96,7 @@ export interface ChainAdapterArgs<T = unchained.cosmossdk.Api> {
 export interface CosmosSdkBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
   chainId: CosmosSdkChainId
-  defaultBIP44Params: BIP44Params
+  defaultBIP44Params: DefaultBIP44Params
   denom: Denom
   parser: unchained.cosmossdk.BaseTransactionParser<unchained.cosmossdk.Tx>
   supportedChainIds: ChainId[]
@@ -105,7 +105,7 @@ export interface CosmosSdkBaseAdapterArgs extends ChainAdapterArgs {
 export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implements IChainAdapter<T> {
   protected readonly chainId: CosmosSdkChainId
   protected readonly coinName: string
-  protected readonly defaultBIP44Params: BIP44Params
+  protected readonly defaultBIP44Params: DefaultBIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
     http: unchained.cosmossdk.Api
@@ -148,7 +148,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...this.defaultBIP44Params, accountNumber }
+    return { ...this.defaultBIP44Params, accountNumber, isChange: false, index: 0 }
   }
 
   async getAccount(pubkey: string): Promise<Account<T>> {

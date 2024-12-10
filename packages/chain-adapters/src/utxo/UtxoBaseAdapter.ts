@@ -11,7 +11,7 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
+import type { BIP44Params, DefaultBIP44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
@@ -86,7 +86,7 @@ export interface ChainAdapterArgs {
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
   chainId: UtxoChainId
-  defaultBIP44Params: BIP44Params
+  defaultBIP44Params: DefaultBIP44Params
   defaultUtxoAccountType: UtxoAccountType
   parser: unchained.utxo.BaseTransactionParser<unchained.utxo.types.Tx>
   supportedAccountTypes: UtxoAccountType[]
@@ -96,7 +96,7 @@ export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
 export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAdapter<T> {
   protected readonly chainId: UtxoChainId
   protected readonly coinName: string
-  protected readonly defaultBIP44Params: BIP44Params
+  protected readonly defaultBIP44Params: DefaultBIP44Params
   protected readonly defaultUtxoAccountType: UtxoAccountType
   protected readonly supportedChainIds: ChainId[]
   protected readonly supportedAccountTypes: UtxoAccountType[]

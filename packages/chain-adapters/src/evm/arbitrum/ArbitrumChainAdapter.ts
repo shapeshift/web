@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { arbitrumAssetId, ASSET_REFERENCE } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -12,7 +12,7 @@ const SUPPORTED_CHAIN_IDS = [KnownChainIds.ArbitrumMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.ArbitrumMainnet
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.ArbitrumMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Arbitrum),
     accountNumber: 0,

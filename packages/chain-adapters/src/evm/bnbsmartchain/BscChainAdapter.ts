@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, bscAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -21,7 +21,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.bnbsmar
 }
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.BnbSmartChain),
     accountNumber: 0,

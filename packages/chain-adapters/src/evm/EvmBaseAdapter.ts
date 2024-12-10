@@ -18,7 +18,7 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { BIP44Params, DefaultBIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -118,14 +118,14 @@ export interface ChainAdapterArgs<T = unchained.evm.Api> {
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
   chainId: EvmChainId
-  defaultBIP44Params: BIP44Params
+  defaultBIP44Params: DefaultBIP44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
 }
 
 export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
   protected readonly chainId: EvmChainId
-  protected readonly defaultBIP44Params: BIP44Params
+  protected readonly defaultBIP44Params: DefaultBIP44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
     http: unchained.evm.Api
@@ -165,7 +165,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...this.defaultBIP44Params, accountNumber }
+    return { ...this.defaultBIP44Params, accountNumber, isChange: false, index: 0 }
   }
 
   protected assertSupportsChain(

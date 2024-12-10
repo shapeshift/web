@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, CHAIN_REFERENCE, ethAssetId, ethChainId } from '@shape
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -682,7 +682,7 @@ describe('EthereumChainAdapter', () => {
     })
 
     it('should respect accountNumber', () => {
-      const testCases: BIP44Params[] = [
+      const testCases: DefaultBIP44Params[] = [
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 0 },
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 1 },
         { purpose: 44, coinType: Number(ASSET_REFERENCE.Ethereum), accountNumber: 2 },

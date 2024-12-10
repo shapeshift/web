@@ -14,7 +14,7 @@ import type {
   SolanaWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { BIP44Params, DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { BigNumber, bn } from '@shapeshiftoss/utils'
@@ -81,7 +81,7 @@ export interface ChainAdapterArgs {
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> {
-  static readonly defaultBIP44Params: BIP44Params = {
+  static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Solana),
     accountNumber: 0,
@@ -146,7 +146,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
   getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...ChainAdapter.defaultBIP44Params, accountNumber }
+    return { ...ChainAdapter.defaultBIP44Params, accountNumber, isChange: false, index: undefined }
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {

@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSignTx, CosmosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -43,7 +43,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.cosmos.
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainnet> {
-  static readonly defaultBIP44Params: BIP44Params = {
+  static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Cosmos),
     accountNumber: 0,

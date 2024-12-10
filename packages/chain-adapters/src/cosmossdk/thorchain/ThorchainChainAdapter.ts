@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { DefaultBIP44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -51,7 +51,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorcha
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly defaultBIP44Params: DefaultBIP44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Thorchain),
     accountNumber: 0,

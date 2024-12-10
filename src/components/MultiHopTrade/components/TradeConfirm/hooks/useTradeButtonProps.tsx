@@ -1,4 +1,4 @@
-import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo } from 'react'
 import { assertUnreachable } from 'lib/utils'
 import {
@@ -6,15 +6,16 @@ import {
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
+import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
 import { getHopExecutionStateButtonTranslation } from '../helpers'
 import { useSignAllowanceApproval } from './useSignAllowanceApproval'
 
 type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep
-  currentHopIndex: number
+  currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
 }
 
@@ -50,10 +51,10 @@ export const useTradeButtonProps = ({
       hopIndex: currentHopIndex ?? 0,
     }
   }, [activeTradeId, currentHopIndex])
-  const { state: hopExecutionState } = useSelectorWithArgs(
-    selectHopExecutionMetadata,
-    hopExecutionMetadataFilter,
-  )
+  const {
+    state: hopExecutionState,
+    swap: { state: swapTxState },
+  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const handleTradeConfirmSubmit = useCallback(() => {
     // if (isModeratePriceImpact) {
@@ -63,6 +64,16 @@ export const useTradeButtonProps = ({
     // }
     handleTradeConfirm()
   }, [handleTradeConfirm])
+
+  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
+  const handleSignTx = useCallback(() => {
+    if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
+      console.error('attempted to execute in-progress swap')
+      return
+    }
+
+    executeTrade()
+  }, [executeTrade, swapTxState])
 
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
 
@@ -98,7 +109,7 @@ export const useTradeButtonProps = ({
         }
       case HopExecutionState.AwaitingSwap:
         return {
-          handleSubmit: () => {},
+          handleSubmit: handleSignTx,
           buttonText,
           isLoading: false,
           isDisabled: false,

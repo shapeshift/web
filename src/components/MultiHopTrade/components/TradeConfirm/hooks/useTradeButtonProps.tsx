@@ -1,5 +1,5 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
@@ -31,15 +31,21 @@ export const useTradeButtonProps = ({
   currentHopIndex,
   activeTradeId,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
+  const [isSignTxLoading, setIsSignTxLoading] = useState(false)
   const dispatch = useAppDispatch()
   const activeQuote = useAppSelector(selectActiveQuote)
-  const { handleSignAllowanceApproval, isLoading: isAllowanceApprovalLoading } =
-    useSignAllowanceApproval({
-      tradeQuoteStep,
-      isExactAllowance: true,
-      currentHopIndex,
-      activeTradeId: activeTradeId ?? '', // FIXME: handle undefined
-    }) // FIXME: handle allowance selection
+  const {
+    handleSignAllowanceApproval,
+    isAllowanceApprovalLoading,
+    handleSignAllowanceReset,
+    isAllowanceResetLoading,
+    handleSignPermit2,
+  } = useSignAllowanceApproval({
+    tradeQuoteStep,
+    isExactAllowance: true,
+    currentHopIndex,
+    activeTradeId: activeTradeId ?? '', // FIXME: handle undefined
+  }) // FIXME: handle allowance selection
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
@@ -72,6 +78,8 @@ export const useTradeButtonProps = ({
       return
     }
 
+    setIsSignTxLoading(true)
+
     executeTrade()
   }, [executeTrade, swapTxState])
 
@@ -83,14 +91,14 @@ export const useTradeButtonProps = ({
         return {
           handleSubmit: handleTradeConfirmSubmit,
           buttonText,
-          isLoading: false,
-          isDisabled: false,
+          isLoading: false, // Instant
+          isDisabled: false, // TODO: validate balance etc
         }
       case HopExecutionState.AwaitingAllowanceReset:
         return {
-          handleSubmit: () => {},
+          handleSubmit: handleSignAllowanceReset,
           buttonText,
-          isLoading: false,
+          isLoading: isAllowanceResetLoading,
           isDisabled: false,
         }
       case HopExecutionState.AwaitingAllowanceApproval:
@@ -102,16 +110,16 @@ export const useTradeButtonProps = ({
         }
       case HopExecutionState.AwaitingPermit2:
         return {
-          handleSubmit: () => {},
+          handleSubmit: handleSignPermit2,
           buttonText,
-          isLoading: false,
+          isLoading: false, // Instant
           isDisabled: false,
         }
       case HopExecutionState.AwaitingSwap:
         return {
           handleSubmit: handleSignTx,
           buttonText,
-          isLoading: false,
+          isLoading: isSignTxLoading,
           isDisabled: false,
         }
       case HopExecutionState.Complete:

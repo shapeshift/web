@@ -154,6 +154,8 @@ export const lifiApi: SwapperApi = {
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
+      // This looks odd but we need this, else unchained estimate calls will fail with:
+      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
       value: bn(value.toString()).toString(),
       from,
       supportsEIP1559,

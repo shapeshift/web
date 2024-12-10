@@ -1,3 +1,4 @@
+import type { AxiosError } from 'axios'
 import axios from 'axios'
 import type { Address } from 'viem'
 
@@ -9,14 +10,22 @@ type PortalsTradeOrderParams = {
   inputToken: string
   inputAmount: string
   outputToken: string
-  slippageTolerancePercentage: number
   // Technically optional, but we always want to use an affiliate addy
   partner: string
   feePercentage?: number
   // Technically optional, but we want to explicitly specify validate
   validate: boolean
   swapperConfig: SwapperConfig
-}
+} & (
+  | {
+      slippageTolerancePercentage: number
+      autoSlippage?: never
+    }
+  | {
+      slippageTolerancePercentage?: never
+      autoSlippage: true
+    }
+)
 
 type PortalsTradeOrderEstimateParams = Omit<
   PortalsTradeOrderParams,
@@ -75,12 +84,20 @@ type PortalsTradeOrderEstimateResponse = {
   }
 }
 
+export class PortalsError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'PortalsError'
+  }
+}
+
 export const fetchPortalsTradeOrder = async ({
   sender,
   inputToken,
   inputAmount,
   outputToken,
   slippageTolerancePercentage,
+  autoSlippage,
   partner,
   feePercentage,
   validate,
@@ -97,7 +114,9 @@ export const fetchPortalsTradeOrder = async ({
     validate: validate.toString(),
   })
 
-  params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+  if (!autoSlippage) {
+    params.append('slippageTolerancePercentage', slippageTolerancePercentage.toFixed(2)) // Portals API expects a string with at most 2 decimal places
+  }
 
   if (feePercentage) {
     params.append('feePercentage', feePercentage.toString())
@@ -108,8 +127,15 @@ export const fetchPortalsTradeOrder = async ({
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      const message = (error as AxiosError<{ message: string }>).response?.data?.message
+
+      if (message) {
+        throw new PortalsError(message)
+      }
+
       throw new Error(`Failed to fetch Portals trade order: ${error.message}`)
     }
+
     throw error
   }
 }

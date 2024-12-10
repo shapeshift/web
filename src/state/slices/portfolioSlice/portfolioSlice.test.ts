@@ -49,6 +49,8 @@ describe('portfolioSlice', () => {
     purpose: 0,
     coinType: 0,
     accountNumber: 0,
+    isChange: false,
+    index: 0,
   }
 
   describe('reducers', () => {

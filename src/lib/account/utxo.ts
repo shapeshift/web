@@ -1,5 +1,5 @@
 import { toAccountId } from '@shapeshiftoss/caip'
-import { utxoAccountParams, utxoChainIds } from '@shapeshiftoss/chain-adapters'
+import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
@@ -33,7 +33,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
 
         if (!pubkey) continue
 
-        const { bip44Params } = utxoAccountParams(chainId, accountType, accountNumber)
+        const bip44Params = adapter.getBIP44Params({ accountNumber, accountType })
         const accountId = toAccountId({ chainId, account: pubkey })
 
         acc[accountId] = { accountType, bip44Params }

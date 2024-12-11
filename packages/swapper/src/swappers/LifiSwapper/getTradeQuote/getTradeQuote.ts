@@ -294,7 +294,7 @@ export async function getTrade({
     )
   }
 
-  return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as unknown as Result<
+  return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as Result<
     LifiTradeQuote[] | LifiTradeRate[],
     SwapErrorRight
   >

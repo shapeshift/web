@@ -15,6 +15,6 @@ export const getTradeRate = async (
     input,
     deps,
     lifiChainMap,
-  })) as unknown as Result<LifiTradeRate[], SwapErrorRight>
+  })) as Result<LifiTradeRate[], SwapErrorRight>
   return rate
 }

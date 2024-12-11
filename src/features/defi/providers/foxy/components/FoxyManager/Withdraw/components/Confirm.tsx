@@ -22,7 +22,7 @@ import { useWallet } from 'hooks/useWallet/useWallet'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import {
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -65,7 +65,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     [accountId],
   )
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const handleConfirm = useCallback(async () => {
     try {

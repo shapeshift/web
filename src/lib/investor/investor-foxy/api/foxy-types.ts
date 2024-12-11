@@ -1,6 +1,6 @@
 import type { ContractInteraction, FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
+import type { Bip44Params, KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
 import type { BigNumber } from 'bignumber.js'
 import type { Contract } from 'ethers'
 
@@ -22,7 +22,7 @@ export type AllowanceInput = {
 
 export type ApproveInput = {
   amount?: string
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
   dryRun?: boolean
   tokenContractAddress: string
   contractAddress: string
@@ -36,7 +36,7 @@ export type EstimateApproveFeesInput = Pick<
 >
 
 export type TxInput = {
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
   dryRun?: boolean
   tokenContractAddress?: string
   userAddress: string
@@ -99,7 +99,7 @@ export type WithdrawInfo = {
 }
 
 export type SignAndBroadcastPayload = {
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
   chainId: number
   data: string
   estimatedFees: FeeDataEstimate<KnownChainIds.EthereumMainnet>

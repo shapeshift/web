@@ -18,7 +18,7 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -34,7 +34,7 @@ import type {
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
-  GetBIP44ParamsInput,
+  GetBip44ParamsInput,
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignMessageInput,
@@ -118,14 +118,14 @@ export interface ChainAdapterArgs<T = unchained.evm.Api> {
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
   chainId: EvmChainId
-  defaultBIP44Params: BIP44Params
+  rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
 }
 
 export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
   protected readonly chainId: EvmChainId
-  protected readonly defaultBIP44Params: BIP44Params
+  protected readonly rootBip44Params: RootBip44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
     http: unchained.evm.Api
@@ -139,7 +139,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   protected constructor(args: EvmBaseAdapterArgs) {
     this.assetId = args.assetId
     this.chainId = args.chainId
-    this.defaultBIP44Params = args.defaultBIP44Params
+    this.rootBip44Params = args.rootBip44Params
     this.parser = args.parser
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
@@ -163,9 +163,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return this.rpcUrl
   }
 
-  getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
+  getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...this.defaultBIP44Params, accountNumber }
+    return { ...this.rootBip44Params, accountNumber, isChange: false, addressIndex: 0 }
   }
 
   protected assertSupportsChain(
@@ -322,7 +322,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           : toHex(BigInt(account.chainSpecific.nonce))
 
       const txToSign = {
-        addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -559,7 +559,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBIP44Params({ accountNumber })
+      const bip44Params = this.getBip44Params({ accountNumber })
       const address = await wallet.ethGetAddress({
         addressNList: toAddressNList(bip44Params),
         showDisplay: showOnDevice,
@@ -590,7 +590,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     const { pubKey, accountNumber, wallet } = input
 
     const address = await this.getAddress({ accountNumber, wallet, pubKey })
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     await this.providers.ws.subscribeTxs(
@@ -605,7 +605,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { accountNumber } = input
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
@@ -630,7 +630,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             }
           : { gasPrice: toHex(gasPrice ? BigInt(gasPrice) : 0n) }
 
-      const bip44Params = this.getBIP44Params({ accountNumber })
+      const bip44Params = this.getBip44Params({ accountNumber })
       const txToSign = {
         addressNList: toAddressNList(bip44Params),
         value: toHex(BigInt(value)),

@@ -1,4 +1,4 @@
-import { bn } from '@shapeshiftoss/utils'
+import { bn, convertPrecision } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
@@ -61,12 +61,26 @@ export const selectLimitPriceForSelectedPriceDirection = createSelector(
 
 export const selectExpiry = createSelector(selectBaseSlice, baseSlice => baseSlice.expiry)
 
-// This is the buy amount based on the quote + user input.
+// This is the buy amount based on the user inputted sell amount and the limit price.
 export const selectBuyAmountCryptoBaseUnit = createSelector(
   selectInputSellAmountCryptoBaseUnit,
   selectLimitPrice,
-  (inputSellAmountCryptoBaseUnit, limitPrice) => {
-    // Arithmetic MUST be in CryptoBaseUnit to avoid precision loss converting back and forth.
-    return bn(inputSellAmountCryptoBaseUnit).times(limitPrice.buyAssetDenomination).toFixed()
+  selectInputSellAsset,
+  selectInputBuyAsset,
+  (inputSellAmountCryptoBaseUnit, limitPrice, sellAsset, buyAsset) => {
+    // NOTE: Arithmetic MUST be in CryptoBaseUnit to avoid precision loss converting back and forth.
+
+    // The naming here is weird, but we're trying to convey the fact the buy amount is denoted in
+    // the base units of the sell asset.
+    const buyAmountSellAssetBaseUnit = bn(inputSellAmountCryptoBaseUnit).times(
+      limitPrice.buyAssetDenomination,
+    )
+
+    // Convert the precision to the buy asset precision.
+    return convertPrecision({
+      value: buyAmountSellAssetBaseUnit,
+      inputExponent: sellAsset.precision,
+      outputExponent: buyAsset.precision,
+    }).toFixed()
   },
 )

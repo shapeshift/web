@@ -1,13 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  bchChainId,
-  btcChainId,
-  dogeChainId,
-  ltcChainId,
-} from '@shapeshiftoss/caip'
 import { BTCInputScriptType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { decode, encode } from 'bs58check'
 
@@ -28,103 +19,6 @@ export const toBtcOutputScriptType = (x: BTCInputScriptType) => {
       return BTCOutputScriptType.PayToAddress
     default:
       throw new TypeError('scriptType')
-  }
-}
-
-/**
- * Utility function to get BIP44Params and scriptType
- */
-export const utxoAccountParams = (
-  chainId: ChainId,
-  accountType: UtxoAccountType,
-  accountNumber: number,
-): { bip44Params: BIP44Params; scriptType: BTCInputScriptType } => {
-  // TODO: dynamic coinType assignment to reduce copy/pasta
-  switch (chainId) {
-    case dogeChainId:
-      return {
-        scriptType: BTCInputScriptType.SpendAddress,
-        bip44Params: {
-          purpose: 44,
-          coinType: Number(ASSET_REFERENCE.Dogecoin),
-          accountNumber,
-        },
-      }
-    case btcChainId:
-      switch (accountType) {
-        case UtxoAccountType.SegwitNative:
-          return {
-            scriptType: BTCInputScriptType.SpendWitness,
-            bip44Params: {
-              purpose: 84,
-              coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber,
-            },
-          }
-        case UtxoAccountType.SegwitP2sh:
-          return {
-            scriptType: BTCInputScriptType.SpendP2SHWitness,
-            bip44Params: {
-              purpose: 49,
-              coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber,
-            },
-          }
-        case UtxoAccountType.P2pkh:
-          return {
-            scriptType: BTCInputScriptType.SpendAddress,
-            bip44Params: {
-              purpose: 44,
-              coinType: Number(ASSET_REFERENCE.Bitcoin),
-              accountNumber,
-            },
-          }
-        default:
-          throw new TypeError('utxoAccountType')
-      }
-    case bchChainId:
-      return {
-        scriptType: BTCInputScriptType.SpendAddress,
-        bip44Params: {
-          purpose: 44,
-          coinType: Number(ASSET_REFERENCE.BitcoinCash),
-          accountNumber,
-        },
-      }
-    case ltcChainId:
-      switch (accountType) {
-        case UtxoAccountType.SegwitNative:
-          return {
-            scriptType: BTCInputScriptType.SpendWitness,
-            bip44Params: {
-              purpose: 84,
-              coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber,
-            },
-          }
-        case UtxoAccountType.SegwitP2sh:
-          return {
-            scriptType: BTCInputScriptType.SpendP2SHWitness,
-            bip44Params: {
-              purpose: 49,
-              coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber,
-            },
-          }
-        case UtxoAccountType.P2pkh:
-          return {
-            scriptType: BTCInputScriptType.SpendAddress,
-            bip44Params: {
-              purpose: 44,
-              coinType: Number(ASSET_REFERENCE.Litecoin),
-              accountNumber,
-            },
-          }
-        default:
-          throw new TypeError('utxoAccountType')
-      }
-    default:
-      throw new TypeError(`not a supported utxo chain ${chainId}`)
   }
 }
 

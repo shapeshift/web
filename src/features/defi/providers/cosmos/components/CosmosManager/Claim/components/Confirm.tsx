@@ -28,7 +28,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 import {
   selectAssetById,
   selectAssets,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
@@ -51,7 +51,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const translate = useTranslate()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
   // Asset Info
   const assets = useAppSelector(selectAssets)
   const asset = useAppSelector(state => selectAssetById(state, opportunity?.assetId ?? ''))

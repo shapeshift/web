@@ -1,7 +1,7 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -351,64 +351,46 @@ describe('DogecoinChainAdapter', () => {
 
   describe('getAddress', () => {
     it("should return a p2pkh address for valid first receive index (m/44'/3'/0'/0/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new dogecoin.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 0
-
-      const addr: string | undefined = await adapter.getAddress({
-        wallet,
-        accountNumber,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 0,
       })
-      console.info(`addr: ${addr}`)
       expect(addr).toStrictEqual('DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp')
     })
 
     it("should return a valid p2pkh address for the 2nd receive index path (m/44'/3'/0'/0/1)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new dogecoin.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 1
-
-      const addr: string | undefined = await adapter.getAddress({
-        wallet,
-        accountNumber,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 1,
       })
       expect(addr).toStrictEqual('DAytULhYbMroCHtPvPzTqVktkpnk9RmXNo')
     })
 
     it("should return a valid p2pkh change address for the first change index path (m/44'/3'/0'/1/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new dogecoin.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 0
-      const isChange = true
-
-      const addr: string | undefined = await adapter.getAddress({
-        wallet,
-        accountNumber,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        isChange,
-        index,
+        isChange: true,
+        addressIndex: 0,
       })
       expect(addr).toStrictEqual('DPCPWrTEMLXhP8o57jH3i6ZbwAQwNHNFdq')
     })
 
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/3'/1'/0/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new dogecoin.ChainAdapter(args)
-      const accountNumber = 1
-      const index = 0
-
-      const addr: string | undefined = await adapter.getAddress({
-        wallet,
-        accountNumber,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 1,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 0,
       })
       expect(addr).toStrictEqual('DSpBqkDV8g7C2MwpT2xmeyvsB89P5qmCbq')
     })
@@ -432,16 +414,16 @@ describe('DogecoinChainAdapter', () => {
     })
   })
 
-  describe('getBIP44Params', () => {
+  describe('getBip44Params', () => {
     const adapter = new dogecoin.ChainAdapter(args)
     it('should throw for undefined accountType', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: 0, accountType: undefined })
+        adapter.getBip44Params({ accountNumber: 0, accountType: undefined })
       }).toThrow('unsupported account type: undefined')
     })
     it('should always be coinType 3', () => {
       for (const accountType of adapter.getSupportedAccountTypes()) {
-        const r = adapter.getBIP44Params({
+        const r = adapter.getBip44Params({
           accountNumber: 0,
           accountType,
         })
@@ -449,28 +431,28 @@ describe('DogecoinChainAdapter', () => {
       }
     })
     it('should properly map account types to purposes', () => {
-      const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 3, accountNumber: 0, isChange: false, index: undefined },
+      const expected: Bip44Params[] = [
+        { purpose: 44, coinType: 3, accountNumber: 0, isChange: false, addressIndex: undefined },
       ]
       const accountTypes = adapter.getSupportedAccountTypes()
       accountTypes.forEach((accountType, i) => {
-        const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
+        const r = adapter.getBip44Params({ accountNumber: 0, accountType })
         expect(r).toStrictEqual(expected[i])
       })
     })
     it('should respect accountNumber', () => {
       const accountTypes = adapter.getSupportedAccountTypes()
-      const expected: BIP44Params[] = [
-        { purpose: 44, coinType: 3, accountNumber: 0, isChange: false, index: undefined },
+      const expected: Bip44Params[] = [
+        { purpose: 44, coinType: 3, accountNumber: 0, isChange: false, addressIndex: undefined },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
-        const r = adapter.getBIP44Params({ accountNumber, accountType })
+        const r = adapter.getBip44Params({ accountNumber, accountType })
         expect(r).toStrictEqual(expected[accountNumber])
       })
     })
     it('should throw for negative accountNumber', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: -1, accountType: UtxoAccountType.P2pkh })
+        adapter.getBip44Params({ accountNumber: -1, accountType: UtxoAccountType.P2pkh })
       }).toThrow('accountNumber must be >= 0')
     })
   })

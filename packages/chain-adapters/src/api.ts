@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { BIP44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
+import type { Bip44Params, KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 
 import type {
   Account,
@@ -7,7 +7,7 @@ import type {
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
-  GetBIP44ParamsInput,
+  GetBip44ParamsInput,
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTx,
@@ -53,9 +53,9 @@ export type ChainAdapter<T extends ChainId> = {
   getAccount(pubkey: string): Promise<Account<T>>
 
   /**
-   * Get BIP44Params for the given accountNumber and optional accountType
+   * Get Bip44Params for the given accountNumber and optional accountType
    */
-  getBIP44Params(params: GetBIP44ParamsInput): BIP44Params
+  getBip44Params(params: GetBip44ParamsInput): Bip44Params
 
   getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse>
 

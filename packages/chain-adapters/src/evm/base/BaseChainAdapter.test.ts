@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, baseAssetId, baseChainId, fromChainId } from '@shapesh
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { DefaultBIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -526,10 +526,28 @@ describe('BaseChainAdapter', () => {
     })
 
     it('should respect accountNumber', () => {
-      const testCases: DefaultBIP44Params[] = [
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Base), accountNumber: 0 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Base), accountNumber: 1 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Base), accountNumber: 2 },
+      const testCases: BIP44Params[] = [
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Base),
+          accountNumber: 0,
+          index: 0,
+          isChange: false,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Base),
+          accountNumber: 1,
+          index: 0,
+          isChange: false,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Base),
+          accountNumber: 2,
+          index: 0,
+          isChange: false,
+        },
       ]
 
       testCases.forEach(expected => {

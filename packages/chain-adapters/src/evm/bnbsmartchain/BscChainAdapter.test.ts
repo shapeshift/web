@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, bscAssetId, bscChainId, fromChainId } from '@shapeshif
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { DefaultBIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -501,10 +501,28 @@ describe('BscChainAdapter', () => {
     })
 
     it('should respect accountNumber', () => {
-      const testCases: DefaultBIP44Params[] = [
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 0 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 1 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.BnbSmartChain), accountNumber: 2 },
+      const testCases: BIP44Params[] = [
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.BnbSmartChain),
+          accountNumber: 0,
+          isChange: false,
+          index: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.BnbSmartChain),
+          accountNumber: 1,
+          isChange: false,
+          index: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.BnbSmartChain),
+          accountNumber: 2,
+          isChange: false,
+          index: 0,
+        },
       ]
 
       testCases.forEach(expected => {

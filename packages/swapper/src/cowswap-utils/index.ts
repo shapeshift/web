@@ -5,14 +5,16 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, TypedDataTypes, UnsignedOrderCreation } from '@shapeshiftoss/types'
 import { CowNetwork, KnownChainIds, TypedDataPrimaryType } from '@shapeshiftoss/types'
-import { getNativeFeeAssetReference } from '@shapeshiftoss/utils'
+import { bnOrZero, getNativeFeeAssetReference } from '@shapeshiftoss/utils'
 import type { TypedData } from 'eip-712'
 import type { TypedDataDomain } from 'ethers'
 import { ethers } from 'ethers'
 import type { Address } from 'viem'
 
+import type { AffiliateAppDataFragment } from '../swappers/CowSwapper'
 import { COW_SWAP_SETTLEMENT_ADDRESS } from '../swappers/CowSwapper'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '../swappers/CowSwapper/utils/constants'
+import { getTreasuryAddressFromChainId } from '../swappers/utils/helpers/helpers'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -174,4 +176,22 @@ export const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) =
         assetNamespace: ASSET_NAMESPACE.erc20,
         assetReference: cowSwapToken,
       })
+}
+
+export const getAffiliateAppDataFragmentByChainId = ({
+  affiliateBps,
+  chainId,
+}: {
+  affiliateBps: string
+  chainId: ChainId
+}): AffiliateAppDataFragment => {
+  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
+  if (!hasAffiliateFee) return {}
+
+  return {
+    partnerFee: {
+      bps: Number(affiliateBps),
+      recipient: getTreasuryAddressFromChainId(chainId),
+    },
+  }
 }

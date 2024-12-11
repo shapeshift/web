@@ -7,7 +7,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
-import { assertGetCowNetwork } from '../../cowswap-utils'
+import { assertGetCowNetwork, getAffiliateAppDataFragmentByChainId } from '../../cowswap-utils'
 import type {
   CommonTradeQuoteInput,
   EvmMessageToSign,
@@ -34,7 +34,6 @@ import { cowService } from './utils/cowService'
 import {
   deductAffiliateFeesFromAmount,
   deductSlippageFromAmount,
-  getAffiliateAppDataFragmentByChainId,
   getFullAppData,
 } from './utils/helpers/helpers'
 

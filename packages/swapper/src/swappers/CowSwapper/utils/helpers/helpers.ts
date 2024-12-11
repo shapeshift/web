@@ -19,7 +19,6 @@ import { keccak256, stringToBytes } from 'viem'
 import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
-import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
 import type { AffiliateAppDataFragment } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
@@ -224,22 +223,4 @@ export const getFullAppData = async (
 
   const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
   return { appDataHash: appDataKeccak256, appData: fullAppData }
-}
-
-export const getAffiliateAppDataFragmentByChainId = ({
-  affiliateBps,
-  chainId,
-}: {
-  affiliateBps: string
-  chainId: ChainId
-}): AffiliateAppDataFragment => {
-  const hasAffiliateFee = bnOrZero(affiliateBps).gt(0)
-  if (!hasAffiliateFee) return {}
-
-  return {
-    partnerFee: {
-      bps: Number(affiliateBps),
-      recipient: getTreasuryAddressFromChainId(chainId),
-    },
-  }
 }

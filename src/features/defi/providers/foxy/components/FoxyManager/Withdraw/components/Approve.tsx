@@ -17,7 +17,7 @@ import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { isSome } from 'lib/utils'
 import { getFoxyApi } from 'state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from 'state/slices/opportunitiesSlice/types'
-import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { selectBip44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import { FoxyWithdrawActionType } from '../WithdrawCommon'
@@ -54,7 +54,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
   const { state: walletState } = useWallet()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const getWithdrawGasEstimate = useCallback(
     async (withdraw: WithdrawValues) => {

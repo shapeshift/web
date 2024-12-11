@@ -17,8 +17,8 @@ import type { SupportedChainIds, SwapSource } from '../../types'
 import { SwapperName } from '../../types'
 import { ChainflipNetwork } from './types'
 
-export const CHAINFLIP_REGULAR_QUOTE = 'regular'
-export const CHAINFLIP_DCA_QUOTE = 'dca'
+export const CHAINFLIP_REGULAR_QUOTE = 'regular' as const
+export const CHAINFLIP_DCA_QUOTE = 'dca' as const
 export const CHAINFLIP_BAAS_COMMISSION = 5
 
 export const ChainflipSupportedChainIds = [

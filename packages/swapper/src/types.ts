@@ -290,6 +290,13 @@ export type TradeQuoteStep = {
     instructions?: TransactionInstruction[]
   }
   cowswapQuoteResponse?: OrderQuoteResponse
+  chainflipSpecific?: {
+    chainflipSwapId?: number
+    chainflipDepositAddress?: string
+    chainflipNumberOfChunks?: number
+    chainflipChunkIntervalBlocks?: number
+    chainflipMaxBoostFee?: number
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -451,7 +458,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {

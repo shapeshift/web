@@ -1041,6 +1041,7 @@
     "yourOrderHasBeenPlaced": "Your order has been placed.",
     "yourCancellationHasBeenSubmitted": "Your cancellation has been submitted.",
     "limitPrice": "Limit Price",
+    "executionPrice": "Execution Price",
     "provider": "Provider",
     "expiration": "Expiration",
     "networkFee": "Network Fee",
@@ -1066,7 +1067,6 @@
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity"
     },
-    "expiresIn": "Expires In",
     "openOrders": "Open Orders",
     "orderHistory": "Order History",
     "status": {

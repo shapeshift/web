@@ -2,7 +2,8 @@ import type { AxiosStatic } from 'axios'
 import type { Awaitable, HookCleanupCallback } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getFullAppData, getNowPlusThirtyMinutesTimestamp } from './helpers'
+import { getFullAppData } from '../../../../cowswap-utils'
+import { getNowPlusThirtyMinutesTimestamp } from './helpers'
 
 vi.mock('../cowService', async () => {
   const axios: AxiosStatic = await vi.importMock('axios')

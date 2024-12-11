@@ -7,7 +7,11 @@ import type { InterpolationOptions } from 'node-polyglot'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
-import { assertGetCowNetwork } from '../../cowswap-utils'
+import {
+  assertGetCowNetwork,
+  getAffiliateAppDataFragmentByChainId,
+  getFullAppData,
+} from '../../cowswap-utils'
 import type {
   CommonTradeQuoteInput,
   EvmMessageToSign,
@@ -31,12 +35,7 @@ import { getCowSwapTradeQuote } from './getCowSwapTradeQuote/getCowSwapTradeQuot
 import { getCowSwapTradeRate } from './getCowSwapTradeRate/getCowSwapTradeRate'
 import type { CowSwapGetTradesResponse, CowSwapGetTransactionsResponse } from './types'
 import { cowService } from './utils/cowService'
-import {
-  deductAffiliateFeesFromAmount,
-  deductSlippageFromAmount,
-  getAffiliateAppDataFragmentByChainId,
-  getFullAppData,
-} from './utils/helpers/helpers'
+import { deductAffiliateFeesFromAmount, deductSlippageFromAmount } from './utils/helpers/helpers'
 
 const tradeQuoteMetadata: Map<string, { chainId: EvmChainId }> = new Map()
 

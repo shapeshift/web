@@ -15,6 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import { OrderClass, OrderStatus, SigningScheme } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
@@ -23,7 +24,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { Text } from 'components/Text'
 
 import { WithBackButton } from '../../WithBackButton'
-import { cowSwapTokenToAssetId } from '../helpers'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
 import type { OrderToCancel } from '../types'
 import { CancelLimitOrder } from './CancelLimtOrder'

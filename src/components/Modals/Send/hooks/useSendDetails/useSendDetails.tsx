@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
+import { solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -10,7 +11,7 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { contractAddressOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
@@ -187,6 +188,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
               bn(toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision)).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
+            .minus(assetId === solAssetId ? solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS : 0)
             .gt(0)
 
           if (!canCoverFees) {
@@ -275,13 +277,18 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+    const networkFee = fromBaseUnit(fastFee, feeAsset.precision)
 
     const maxCrypto =
       feeAsset.assetId !== assetId
         ? bnOrZero(cryptoHumanBalance)
-        : bnOrZero(cryptoHumanBalance).minus(networkFee)
-
+        : bnOrZero(cryptoHumanBalance)
+            .minus(networkFee)
+            .minus(
+              assetId === solAssetId
+                ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
+                : 0,
+            )
     const maxFiat = maxCrypto.times(price)
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)

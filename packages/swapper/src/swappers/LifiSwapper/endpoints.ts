@@ -4,6 +4,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
 import { Err } from '@sniptt/monads/build'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -153,7 +154,9 @@ export const lifiApi: SwapperApi = {
       adapter: assertGetEvmChainAdapter(chainId),
       data: data.toString(),
       to,
-      value,
+      // This looks odd but we need this, else unchained estimate calls will fail with:
+      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
+      value: bn(value.toString()).toString(),
       from,
       supportsEIP1559,
     })

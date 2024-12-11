@@ -15,7 +15,7 @@ import { assetIdToPoolAssetId } from '../utils/poolAssetHelpers/poolAssetHelpers
 import { thorService } from '../utils/thorService'
 
 export const isThorTradeRate = (quote: TradeRate | undefined): quote is ThorTradeRate =>
-  !!quote && 'tradeType' in quote
+  !!quote && 'tradeType' in quote && 'vault' in quote
 
 export const getThorTradeRate = async (
   input: GetTradeRateInput,

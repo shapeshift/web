@@ -9,6 +9,7 @@ import {
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
+import type { LifiTradeRate } from '@shapeshiftoss/swapper/src/swappers/LifiSwapper/utils/types'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
@@ -230,10 +231,6 @@ export const useGetTradeQuotes = () => {
   }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state, swapperName])
 
   const shouldFetchTradeQuotes = useMemo(() => {
-    // This isn't a mistake, we're not fetching anything.
-    // Li.Fi rate is an actual quote and we want to leverage cache we got from "rate" time, see swapperApi's `getTradeQuote` for more details
-    if (swapperName === SwapperName.LIFI) return true
-
     return Boolean(
       hasFocus &&
         // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
@@ -245,27 +242,16 @@ export const useGetTradeQuotes = () => {
         sellAccountMetadata &&
         receiveAddress,
     )
-  }, [
-    swapperName,
-    hasFocus,
-    activeTrade,
-    isFetchStep,
-    sellAccountId,
-    sellAccountMetadata,
-    receiveAddress,
-  ])
+  }, [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress])
 
   const queryFnOrSkip = useMemo(() => {
     // Only run this query when we're actually ready
     if (!isFetchStep) return reactQuerySkipToken
     // And only run it once
-    if (activeTrade && swapperName !== SwapperName.LIFI && isExecutableTradeQuote(activeTrade))
-      return reactQuerySkipToken
+    if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
 
     return async () => {
-      if (swapperName !== SwapperName.LIFI) {
-        dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
-      }
+      dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
@@ -291,9 +277,8 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        // This isn't a mistake, we're not fetching anything.
-        // Li.Fi rate is an actual quote and we want to leverage cache, see swapperApi's `getTradeQuote` for more details
-        quoteOrRate: swapperName === SwapperName.LIFI ? 'rate' : 'quote',
+        lifiAllowedTools: (activeRateRef?.current as LifiTradeRate)?.lifiTools,
+        quoteOrRate: 'quote',
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
         allowMultiHop: true,
@@ -322,7 +307,6 @@ export const useGetTradeQuotes = () => {
     sellAmountCryptoPrecision,
     sellAsset,
     sellAssetUsdRate,
-    swapperName,
     thorVotingPower,
     userSlippageTolerancePercentageDecimal,
     votingPower,

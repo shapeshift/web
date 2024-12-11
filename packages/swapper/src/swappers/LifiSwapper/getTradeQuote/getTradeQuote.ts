@@ -36,6 +36,7 @@ import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
+<<<<<<< HEAD
 export async function getTrade({
   input,
   deps,
@@ -45,6 +46,13 @@ export async function getTrade({
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
 }): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
+=======
+export async function getTrade(
+  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined },
+  deps: SwapperDeps,
+  lifiChainMap: Map<ChainId, ChainKey>,
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+>>>>>>> origin/develop
   const {
     sellAsset,
     buyAsset,
@@ -55,7 +63,11 @@ export async function getTrade({
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+<<<<<<< HEAD
     quoteOrRate,
+=======
+    lifiAllowedTools,
+>>>>>>> origin/develop
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -104,6 +116,9 @@ export async function getTrade({
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
       bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
+      ...(lifiAllowedTools && {
+        exchanges: { allow: lifiAllowedTools },
+      }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -256,6 +271,7 @@ export async function getTrade({
         id: selectedLifiRoute.id,
         quoteOrRate,
         receiveAddress,
+        lifiTools: selectedLifiRoute.steps.map(step => step.tool),
         affiliateBps,
         potentialAffiliateBps,
         steps,
@@ -302,7 +318,7 @@ export async function getTrade({
 }
 
 export const getTradeQuote = (
-  input: GetEvmTradeQuoteInputBase,
+  input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {

@@ -12,12 +12,12 @@ export const toRootDerivationPath = (bip44Params: Bip44Params): string => {
 }
 
 export const toPath = (bip44Params: Bip44Params): string => {
-  const { isChange, addressIndex: index } = bip44Params
+  const { isChange, addressIndex } = bip44Params
 
   let path = toRootDerivationPath(bip44Params)
   if (isChange !== undefined) {
     path = path.concat(`/${Number(isChange)}`)
-    if (index !== undefined) path = path.concat(`/${index}`)
+    if (addressIndex !== undefined) path = path.concat(`/${addressIndex}`)
   }
 
   return path
@@ -30,13 +30,13 @@ export const fromPath = (path: string): Bip44Params => {
     throw new Error(`path has ${parts.length} parts, expected 3 to 5`)
   }
 
-  const [purpose, coinType, accountNumber, change, index] = parts.map(
+  const [purpose, coinType, accountNumber, change, addressIndex] = parts.map(
     part => Number(part.replace("'", '')), // remove hardening and convert to number
   ) as [number, number, number, number?, number?]
 
   const isChange = change !== undefined ? Boolean(change) : undefined
 
-  return { purpose, coinType, accountNumber, isChange, addressIndex: index }
+  return { purpose, coinType, accountNumber, isChange, addressIndex }
 }
 
 export const toAddressNList = (bip44Params: Bip44Params): number[] => {

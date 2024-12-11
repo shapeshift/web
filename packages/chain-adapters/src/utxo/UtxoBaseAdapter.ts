@@ -293,8 +293,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       this.assertIsAccountTypeSupported(accountType)
 
-      const bip44Params = this.getBip44Params({ accountNumber, accountType })
-
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
       const coinSelectResult = utxoSelect({
@@ -335,12 +333,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
+        if (!input.path) throw new Error('invalid input')
+
         const data = await this.providers.http.getTransaction({ txid: input.txid })
 
         signTxInputs.push({
-          addressNList: input.path
-            ? bip32ToAddressNList(input.path)
-            : toAddressNList({ ...bip44Params }),
+          addressNList: bip32ToAddressNList(input.path),
           scriptType: accountTypeToScriptType[accountType],
           amount: String(input.value),
           vout: input.vout,
@@ -349,11 +347,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         })
       }
 
-      const addressNList = toAddressNList({
-        ...bip44Params,
+      const bip44Params = this.getBip44Params({
+        accountNumber,
+        accountType,
         isChange: true,
         addressIndex: account.chainSpecific.nextChangeAddressIndex,
       })
+
+      const addressNList = toAddressNList(bip44Params)
 
       const signTxOutputs = outputs.map<BTCSignTxOutput>(output => {
         if (output.address) {
@@ -556,11 +557,13 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const { wallet, accountNumber, accountType = this.defaultUtxoAccountType } = input
 
     const bip44Params = this.getBip44Params({ accountNumber, accountType })
+    const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
+
     const account = await this.getAccount(
       input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
     )
+
     const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
-    const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
     await this.providers.ws.subscribeTxs(
       subscriptionId,
@@ -574,6 +577,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { accountNumber, accountType = this.defaultUtxoAccountType } = input
+
     const bip44Params = this.getBip44Params({ accountNumber, accountType })
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
@@ -603,6 +607,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const bip44Params = this.getBip44Params({ accountNumber, accountType })
       const path = toRootDerivationPath(bip44Params)
+
       const publicKeys = await wallet.getPublicKeys([
         {
           coin: this.coinName,

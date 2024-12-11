@@ -431,11 +431,10 @@ describe('LitecoinChainAdapter', () => {
         UtxoAccountType.SegwitP2sh,
         UtxoAccountType.SegwitNative,
       ]
-      const index = undefined
       const expected: Bip44Params[] = [
-        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, addressIndex: index },
-        { purpose: 49, coinType: 2, accountNumber: 0, isChange: false, addressIndex: index },
-        { purpose: 84, coinType: 2, accountNumber: 0, isChange: false, addressIndex: index },
+        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, addressIndex: undefined },
+        { purpose: 49, coinType: 2, accountNumber: 0, isChange: false, addressIndex: undefined },
+        { purpose: 84, coinType: 2, accountNumber: 0, isChange: false, addressIndex: undefined },
       ]
       accountTypes.forEach((accountType, i) => {
         const r = adapter.getBip44Params({ accountNumber: 0, accountType })
@@ -448,11 +447,10 @@ describe('LitecoinChainAdapter', () => {
         UtxoAccountType.SegwitP2sh,
         UtxoAccountType.SegwitNative,
       ]
-      const index = undefined
       const expected: Bip44Params[] = [
-        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, addressIndex: index },
-        { purpose: 49, coinType: 2, accountNumber: 1, isChange: false, addressIndex: index },
-        { purpose: 84, coinType: 2, accountNumber: 2, isChange: false, addressIndex: index },
+        { purpose: 44, coinType: 2, accountNumber: 0, isChange: false, addressIndex: undefined },
+        { purpose: 49, coinType: 2, accountNumber: 1, isChange: false, addressIndex: undefined },
+        { purpose: 84, coinType: 2, accountNumber: 2, isChange: false, addressIndex: undefined },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
         const r = adapter.getBip44Params({ accountNumber, accountType })

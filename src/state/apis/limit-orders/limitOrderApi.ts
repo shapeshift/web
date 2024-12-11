@@ -5,12 +5,12 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   assertGetCowNetwork,
   getAffiliateAppDataFragmentByChainId,
+  getFullAppData,
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
 } from '@shapeshiftoss/swapper'
 import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
-import { getFullAppData } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type {
   CowSwapError,

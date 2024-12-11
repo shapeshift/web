@@ -1,6 +1,3 @@
-import type { LatestAppDataDocVersion } from '@cowprotocol/app-data'
-import { MetadataApi, stringifyDeterministic } from '@cowprotocol/app-data'
-import type { OrderClass, OrderClass1 } from '@cowprotocol/app-data/dist/generatedTypes/v1.3.0'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, OrderQuoteResponse } from '@shapeshiftoss/types'
@@ -8,18 +5,15 @@ import {
   bn,
   bnOrZero,
   convertBasisPointsToDecimalPercentage,
-  convertDecimalPercentageToBasisPoints,
   convertPrecision,
   fromBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { keccak256, stringToBytes } from 'viem'
 
 import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
-import type { AffiliateAppDataFragment } from '../../types'
 
 export const ORDER_TYPE_FIELDS = [
   { name: 'sellToken', type: 'address' },
@@ -181,46 +175,4 @@ export const getValuesFromQuoteResponse = ({
     buyAmountBeforeFeesCryptoBaseUnit: buyAmountBeforeAffiliateAndProtocolFeesCryptoBaseUnit,
     buyAmountAfterFeesCryptoBaseUnit: buyAmountAfterAffiliateFeesCryptoBaseUnit,
   }
-}
-
-type AppDataInfo = {
-  doc: LatestAppDataDocVersion
-  fullAppData: string
-  appDataKeccak256: string
-  env?: string
-}
-
-const generateAppDataFromDoc = async (
-  doc: LatestAppDataDocVersion,
-): Promise<Pick<AppDataInfo, 'fullAppData' | 'appDataKeccak256'>> => {
-  const appData = await stringifyDeterministic(doc)
-  const appDataKeccak256 = keccak256(stringToBytes(appData))
-
-  return { fullAppData: appData, appDataKeccak256 }
-}
-
-const metadataApi = new MetadataApi()
-// See https://api.cow.fi/docs/#/default/post_api_v1_quote / https://github.com/cowprotocol/app-data
-export const getFullAppData = async (
-  slippageTolerancePercentage: string,
-  affiliateAppDataFragment: AffiliateAppDataFragment,
-  orderClass1: OrderClass1,
-) => {
-  const APP_CODE = 'shapeshift'
-  const orderClass: OrderClass = { orderClass: orderClass1 }
-  const quote = {
-    slippageBips: convertDecimalPercentageToBasisPoints(slippageTolerancePercentage).toNumber(),
-  }
-
-  const appDataDoc = await metadataApi.generateAppDataDoc({
-    appCode: APP_CODE,
-    metadata: {
-      quote,
-      orderClass,
-      ...affiliateAppDataFragment,
-    },
-  })
-
-  const { fullAppData, appDataKeccak256 } = await generateAppDataFromDoc(appDataDoc)
-  return { appDataHash: appDataKeccak256, appData: fullAppData }
 }

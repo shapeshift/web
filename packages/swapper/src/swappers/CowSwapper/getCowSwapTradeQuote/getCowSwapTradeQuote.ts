@@ -8,7 +8,11 @@ import type { AxiosError } from 'axios'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import { getAffiliateAppDataFragmentByChainId, getCowNetwork } from '../../../cowswap-utils'
+import {
+  getAffiliateAppDataFragmentByChainId,
+  getCowNetwork,
+  getFullAppData,
+} from '../../../cowswap-utils'
 import type {
   GetEvmTradeQuoteInputBase,
   SwapErrorRight,
@@ -26,7 +30,6 @@ import {
 import { cowService } from '../utils/cowService'
 import {
   assertValidTrade,
-  getFullAppData,
   getNowPlusThirtyMinutesTimestamp,
   getValuesFromQuoteResponse,
 } from '../utils/helpers/helpers'

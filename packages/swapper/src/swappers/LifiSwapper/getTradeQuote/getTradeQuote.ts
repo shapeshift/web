@@ -18,9 +18,7 @@ import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
   MultiHopTradeQuoteSteps,
-  MultiHopTradeRateSteps,
   SingleHopTradeQuoteSteps,
-  SingleHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
   SwapSource,
@@ -36,23 +34,15 @@ import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
 import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-<<<<<<< HEAD
 export async function getTrade({
   input,
   deps,
   lifiChainMap,
 }: {
-  input: GetEvmTradeQuoteInput
+  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined }
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
 }): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
-=======
-export async function getTrade(
-  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined },
-  deps: SwapperDeps,
-  lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
->>>>>>> origin/develop
   const {
     sellAsset,
     buyAsset,
@@ -63,11 +53,8 @@ export async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-<<<<<<< HEAD
-    quoteOrRate,
-=======
     lifiAllowedTools,
->>>>>>> origin/develop
+    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -252,11 +239,7 @@ export async function getTrade(
             estimatedExecutionTimeMs: 1000 * lifiStep.estimate.executionDuration,
           }
         }),
-      )) as
-        | SingleHopTradeQuoteSteps
-        | MultiHopTradeQuoteSteps
-        | SingleHopTradeRateSteps
-        | MultiHopTradeRateSteps
+      )) as SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
 
       // The rate for the entire multi-hop swap
       const netRate = convertPrecision({
@@ -269,8 +252,8 @@ export async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
-        quoteOrRate,
         receiveAddress,
+        quoteOrRate,
         lifiTools: selectedLifiRoute.steps.map(step => step.tool),
         affiliateBps,
         potentialAffiliateBps,

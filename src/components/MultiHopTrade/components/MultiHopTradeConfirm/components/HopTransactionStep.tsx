@@ -26,6 +26,7 @@ import {
   selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from 'state/slices/selectors'
 import {
+  selectActiveQuoteErrors,
   selectHopExecutionMetadata,
   selectHopSellAccountId,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -33,6 +34,7 @@ import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { getQuoteErrorTranslation } from '../../TradeInput/getQuoteErrorTranslation'
 import { useTradeExecution } from '../hooks/useTradeExecution'
 import { getChainShortName } from '../utils/getChainShortName'
 import { StatusIcon } from './StatusIcon'
@@ -72,7 +74,12 @@ export const HopTransactionStep = ({
     swap: { state: swapTxState, sellTxHash, buyTxHash, message },
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
+
+  // An error can be either an execution error, or an error returned when attempting to get the final quote
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
+  const isQuoteError = useMemo(() => !!activeQuoteError, [activeQuoteError])
 
   const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
@@ -212,7 +219,7 @@ export const HopTransactionStep = ({
               size='sm'
               onClick={handleSignTx}
               isLoading={isFetching}
-              isDisabled={!tradeQuoteQueryData || !hasEnoughNativeAssetBalance}
+              isDisabled={!tradeQuoteQueryData || isQuoteError || !hasEnoughNativeAssetBalance}
               width='100%'
             >
               {signButtonCopy}
@@ -246,6 +253,7 @@ export const HopTransactionStep = ({
     isFetching,
     tradeQuoteQueryData,
     signButtonCopy,
+    isQuoteError,
     hopIndex,
     activeTradeId,
   ])
@@ -285,6 +293,13 @@ export const HopTransactionStep = ({
             fontWeight='bold'
           />
         )}
+        {isQuoteError && (
+          <Text
+            color='text.error'
+            translation={getQuoteErrorTranslation(activeQuoteError!)}
+            fontWeight='bold'
+          />
+        )}
         {message && <Text translation={message} color='text.subtle' />}
         {txLinks.map(({ txLink, txHash }) => (
           <Link isExternal color='text.link' href={txLink} key={txHash}>
@@ -294,8 +309,10 @@ export const HopTransactionStep = ({
       </VStack>
     )
   }, [
+    activeQuoteError,
     isBridge,
     isError,
+    isQuoteError,
     message,
     toCrypto,
     tradeQuoteStep.buyAmountAfterFeesCryptoBaseUnit,

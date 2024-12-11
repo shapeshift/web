@@ -67,7 +67,7 @@ import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import {
   SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
-  SOLANA_MINIMUM_INSTRUCTIONS_NUMBER,
+  SOLANA_MINIMUM_INSTRUCTION_COUNT,
 } from './constants'
 import { microLamportsToLamports } from './utils'
 
@@ -396,27 +396,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
         : baseComputeUnits
 
-      const instructionNumber = instructions?.length || SOLANA_MINIMUM_INSTRUCTIONS_NUMBER
+      const instructionCount = Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
 
       return {
         fast: {
           txFee: bn(microLamportsToLamports(fast))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
+            .plus(bnOrZero(baseFee).times(instructionCount))
             .toFixed(),
           chainSpecific: { computeUnits, priorityFee: fast },
         },
         average: {
           txFee: bn(microLamportsToLamports(average))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
+            .plus(bnOrZero(baseFee).times(instructionCount))
             .toFixed(),
           chainSpecific: { computeUnits, priorityFee: average },
         },
         slow: {
           txFee: bn(microLamportsToLamports(slow))
             .times(computeUnits)
-            .plus(bnOrZero(baseFee).times(instructionNumber))
+            .plus(bnOrZero(baseFee).times(instructionCount))
             .toFixed(),
           chainSpecific: { computeUnits, priorityFee: slow },
         },

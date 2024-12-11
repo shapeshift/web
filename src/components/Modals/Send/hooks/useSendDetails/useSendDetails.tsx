@@ -11,7 +11,7 @@ import { useDebounce } from 'hooks/useDebounce/useDebounce'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import type { BigNumber } from 'lib/bignumber/bignumber'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
-import { toBaseUnit } from 'lib/math'
+import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { contractAddressOrUndefined } from 'lib/utils'
 import {
   selectAssetById,
@@ -276,13 +276,13 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = bnOrZero(bn(fastFee).div(`1e${feeAsset.precision}`))
+    const networkFee = fromBaseUnit(fastFee, feeAsset.precision)
 
     const maxCrypto = bnOrZero(cryptoHumanBalance)
       .minus(networkFee)
       .minus(
         assetId === solAssetId
-          ? bn(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS).div(`1e${feeAsset.precision}`)
+          ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
           : 0,
       )
     const maxFiat = maxCrypto.times(price)

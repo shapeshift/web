@@ -1,5 +1,6 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 
+import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './cowswap-utils/constants'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { ARBITRUM_BRIDGE_SUPPORTED_CHAIN_IDS } from './swappers/ArbitrumBridgeSwapper/utils/constants'
@@ -8,7 +9,6 @@ import { CHAINFLIP_SUPPORTED_CHAIN_IDS } from './swappers/ChainflipSwapper/const
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
 import { cowApi } from './swappers/CowSwapper/endpoints'
-import { COW_SWAP_SUPPORTED_CHAIN_IDS } from './swappers/CowSwapper/utils/constants'
 import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
 import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { JUPITER_SUPPORTED_CHAIN_IDS } from './swappers/JupiterSwapper/utils/constants'

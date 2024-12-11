@@ -15,6 +15,7 @@ export * from './timeout'
 export * from './createThrottle'
 export * from './evmChainIds'
 export * from './historyTimeframe'
+export * from './getNativeFeeAssetReference'
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)

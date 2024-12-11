@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, CHAIN_REFERENCE, ethAssetId, ethChainId } from '@shape
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -305,7 +305,7 @@ describe('EthereumChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -333,7 +333,7 @@ describe('EthereumChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -396,7 +396,7 @@ describe('EthereumChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
@@ -415,7 +415,7 @@ describe('EthereumChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
@@ -535,7 +535,7 @@ describe('EthereumChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0x',
           gasLimit: toHex(BigInt(gasLimit)),
@@ -572,7 +572,7 @@ describe('EthereumChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
           gasLimit: toHex(BigInt(gasLimit)),
@@ -615,7 +615,7 @@ describe('EthereumChainAdapter', () => {
 
       const expectedOutput = {
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x7b',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -657,7 +657,7 @@ describe('EthereumChainAdapter', () => {
 
       const expectedOutput = {
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x7b',
           to: '0x47CB53752e5dc0A972440dA127DCA9FBA6C2Ab6F',
           chainId: Number(CHAIN_REFERENCE.EthereumMainnet),
@@ -673,48 +673,48 @@ describe('EthereumChainAdapter', () => {
     })
   })
 
-  describe('getBIP44Params', () => {
+  describe('getBip44Params', () => {
     const adapter = new ethereum.ChainAdapter(makeChainAdapterArgs())
 
     it('should return the correct coinType', () => {
-      const result = adapter.getBIP44Params({ accountNumber: 0 })
+      const result = adapter.getBip44Params({ accountNumber: 0 })
       expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Ethereum))
     })
 
     it('should respect accountNumber', () => {
-      const testCases: BIP44Params[] = [
+      const testCases: Bip44Params[] = [
         {
           purpose: 44,
           coinType: Number(ASSET_REFERENCE.Ethereum),
           accountNumber: 0,
-          index: 0,
           isChange: false,
+          addressIndex: 0,
         },
         {
           purpose: 44,
           coinType: Number(ASSET_REFERENCE.Ethereum),
           accountNumber: 1,
-          index: 0,
           isChange: false,
+          addressIndex: 0,
         },
         {
           purpose: 44,
           coinType: Number(ASSET_REFERENCE.Ethereum),
           accountNumber: 2,
-          index: 0,
           isChange: false,
+          addressIndex: 0,
         },
       ]
 
       testCases.forEach(expected => {
-        const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
+        const result = adapter.getBip44Params({ accountNumber: expected.accountNumber })
         expect(result).toStrictEqual(expected)
       })
     })
 
     it('should throw for negative accountNumber', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: -1 })
+        adapter.getBip44Params({ accountNumber: -1 })
       }).toThrow('accountNumber must be >= 0')
     })
   })

@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, baseAssetId } from '@shapeshiftoss/caip'
-import type { DefaultBIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -21,7 +21,7 @@ export const isBaseChainAdapter = (adapter: unknown): adapter is ChainAdapter =>
 }
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BaseMainnet> {
-  public static readonly defaultBIP44Params: DefaultBIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Base),
     accountNumber: 0,
@@ -33,7 +33,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BaseMainnet> {
     super({
       assetId: baseAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       parser: new unchained.base.TransactionParser({
         assetId: baseAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,

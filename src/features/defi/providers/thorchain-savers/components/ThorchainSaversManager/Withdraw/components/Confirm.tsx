@@ -53,7 +53,7 @@ import { serializeUserStakingId, toOpportunityId } from 'state/slices/opportunit
 import {
   selectAssetById,
   selectAssets,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectFeeAssetById,
   selectHighestStakingBalanceAccountIdByStakingId,
@@ -135,7 +135,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   )
 
   const accountFilter = useMemo(() => ({ accountId }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
   const userAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : ''),
     [accountId],

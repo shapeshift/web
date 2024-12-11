@@ -11,7 +11,7 @@ import {
   BTCOutputAddressType,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, DefaultBIP44Params, UtxoChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import WAValidator from 'multicoin-address-validator'
@@ -24,7 +24,7 @@ import type {
   BroadcastTransactionInput,
   BuildSendTxInput,
   FeeDataEstimate,
-  GetBIP44ParamsInput,
+  GetBip44ParamsInput,
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTx,
@@ -86,7 +86,7 @@ export interface ChainAdapterArgs {
 export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
   chainId: UtxoChainId
-  defaultBIP44Params: DefaultBIP44Params
+  rootBip44Params: RootBip44Params
   defaultUtxoAccountType: UtxoAccountType
   parser: unchained.utxo.BaseTransactionParser<unchained.utxo.types.Tx>
   supportedAccountTypes: UtxoAccountType[]
@@ -96,7 +96,7 @@ export interface UtxoBaseAdapterArgs extends ChainAdapterArgs {
 export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAdapter<T> {
   protected readonly chainId: UtxoChainId
   protected readonly coinName: string
-  protected readonly defaultBIP44Params: DefaultBIP44Params
+  protected readonly rootBip44Params: RootBip44Params
   protected readonly defaultUtxoAccountType: UtxoAccountType
   protected readonly supportedChainIds: ChainId[]
   protected readonly supportedAccountTypes: UtxoAccountType[]
@@ -117,7 +117,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     this.assetId = args.assetId
     this.chainId = args.chainId
     this.coinName = args.coinName
-    this.defaultBIP44Params = args.defaultBIP44Params
+    this.rootBip44Params = args.rootBip44Params
     this.defaultUtxoAccountType = args.defaultUtxoAccountType
     this.parser = args.parser
     this.providers = args.providers
@@ -161,14 +161,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     return this.coinName
   }
 
-  getBIP44Params({
+  getBip44Params({
     accountNumber,
     accountType,
-    index,
+    addressIndex,
     isChange = false,
-  }: GetBIP44ParamsInput): BIP44Params {
+  }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    if (index !== undefined && index < 0) throw new Error('index must be >= 0')
+    if (addressIndex !== undefined && addressIndex < 0) throw new Error('addressIndex must be >= 0')
 
     const purpose = (() => {
       switch (accountType) {
@@ -183,7 +183,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
     })()
 
-    return { ...this.defaultBIP44Params, accountNumber, purpose, isChange, index }
+    return { ...this.rootBip44Params, accountNumber, purpose, isChange, addressIndex }
   }
 
   async getAccount(pubkey: string): Promise<Account<T>> {
@@ -221,7 +221,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     wallet,
     accountNumber,
     accountType = this.defaultUtxoAccountType,
-    index,
+    addressIndex,
     isChange = false,
     showOnDevice = false,
     pubKey,
@@ -230,29 +230,34 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       this.assertIsAccountTypeSupported(accountType)
       this.assertSupportsChain(wallet)
 
-      const bip44Params = this.getBIP44Params({ accountNumber, accountType, isChange, index })
+      const bip44Params = this.getBip44Params({
+        accountNumber,
+        accountType,
+        isChange,
+        addressIndex,
+      })
 
       const account = await (async () => {
-        if (pubKey || bip44Params.index === undefined) {
+        if (pubKey || bip44Params.addressIndex === undefined) {
           return this.getAccount(
             pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
           )
         }
       })()
 
-      const nextIndex = bip44Params.isChange
+      const nextAddressIndex = bip44Params.isChange
         ? account?.chainSpecific.nextChangeAddressIndex
         : account?.chainSpecific.nextReceiveAddressIndex
 
-      const targetIndex = bip44Params.index ?? nextIndex ?? 0
+      const targetAddressIndex = bip44Params.addressIndex ?? nextAddressIndex ?? 0
 
       const address = await (async () => {
-        if (pubKey) return account?.chainSpecific.addresses?.[targetIndex]?.pubkey
+        if (pubKey) return account?.chainSpecific.addresses?.[targetAddressIndex]?.pubkey
 
         await verifyLedgerAppOpen(this.chainId, wallet)
 
         return wallet.btcGetAddress({
-          addressNList: toAddressNList({ ...bip44Params, index: targetIndex }),
+          addressNList: toAddressNList({ ...bip44Params, addressIndex: targetAddressIndex }),
           coin: this.coinName,
           scriptType: accountTypeToScriptType[accountType],
           showDisplay: showOnDevice,
@@ -288,7 +293,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       this.assertIsAccountTypeSupported(accountType)
 
-      const bip44Params = this.getBIP44Params({ accountNumber, accountType })
+      const bip44Params = this.getBip44Params({ accountNumber, accountType })
 
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
@@ -344,8 +349,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         })
       }
 
-      const index = account.chainSpecific.nextChangeAddressIndex
-      const addressNList = toAddressNList({ ...bip44Params, isChange: true, index })
+      const addressNList = toAddressNList({
+        ...bip44Params,
+        isChange: true,
+        addressIndex: account.chainSpecific.nextChangeAddressIndex,
+      })
 
       const signTxOutputs = outputs.map<BTCSignTxOutput>(output => {
         if (output.address) {
@@ -547,7 +555,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
   ): Promise<void> {
     const { wallet, accountNumber, accountType = this.defaultUtxoAccountType } = input
 
-    const bip44Params = this.getBIP44Params({ accountNumber, accountType })
+    const bip44Params = this.getBip44Params({ accountNumber, accountType })
     const account = await this.getAccount(
       input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
     )
@@ -566,7 +574,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { accountNumber, accountType = this.defaultUtxoAccountType } = input
-    const bip44Params = this.getBIP44Params({ accountNumber, accountType })
+    const bip44Params = this.getBip44Params({ accountNumber, accountType })
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
@@ -593,7 +601,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       this.assertIsAccountTypeSupported(accountType)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBIP44Params({ accountNumber, accountType })
+      const bip44Params = this.getBip44Params({ accountNumber, accountType })
       const path = toRootDerivationPath(bip44Params)
       const publicKeys = await wallet.getPublicKeys([
         {

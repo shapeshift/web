@@ -7,7 +7,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params, UtxoChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -363,63 +363,46 @@ describe('BitcoinCashChainAdapter', () => {
 
   describe('getAddress', () => {
     it("should return a p2pkh address for valid derivation root path parameters (m/44'/145'/0'/0/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 0
-
-      const addr: string | undefined = await adapter.getAddress({
-        accountNumber,
-        wallet,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 0,
       })
       expect(addr).toStrictEqual('bitcoincash:qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp')
     })
 
     it("should return a valid p2pkh address for the first receive index path (m/44'/145'/0'/0/1)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 1
-
-      const addr: string | undefined = await adapter.getAddress({
-        accountNumber,
-        wallet,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 1,
       })
       expect(addr).toStrictEqual('bitcoincash:qrglksfd2ay0zren2ssj7y6dff8kfsgdmg27fwz79p')
     })
 
     it("should return a valid p2pkh change address for the first receive index path (m/44'/145'/0'/1/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
-      const accountNumber = 0
-      const index = 0
-      const isChange = true
-
-      const addr: string | undefined = await adapter.getAddress({
-        accountNumber,
-        wallet,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 0,
         accountType: UtxoAccountType.P2pkh,
-        isChange,
-        index,
+        isChange: true,
+        addressIndex: 0,
       })
       expect(addr).toStrictEqual('bitcoincash:qzh9hc7v8qa2dgx59pylharhp02ps96rputhg7w79h')
     })
 
     it("should return a valid p2pkh address at the 2nd account root path (m/44'/145'/1'/0/0)", async () => {
-      const wallet: HDWallet = await getWallet()
       const adapter = new bitcoincash.ChainAdapter(args)
-      const accountNumber = 1
-      const index = 0
-
-      const addr: string | undefined = await adapter.getAddress({
-        accountNumber,
-        wallet,
+      const addr = await adapter.getAddress({
+        wallet: await getWallet(),
+        accountNumber: 1,
         accountType: UtxoAccountType.P2pkh,
-        index,
+        addressIndex: 0,
       })
       expect(addr).toStrictEqual('bitcoincash:qz62eyfnv6lec8wwd3zg2ml4cvm4wr4caq4n3kdz56')
     })
@@ -429,10 +412,12 @@ describe('BitcoinCashChainAdapter', () => {
       wallet.btcGetAddress = vi.fn().mockResolvedValue(address)
 
       const adapter = new bitcoincash.ChainAdapter(args)
-      const accountNumber = 1
-      const index = 0
-
-      await adapter.getAddress({ accountNumber, wallet, accountType: UtxoAccountType.P2pkh, index })
+      await adapter.getAddress({
+        accountNumber: 1,
+        wallet,
+        accountType: UtxoAccountType.P2pkh,
+        addressIndex: 0,
+      })
 
       expect(wallet.btcGetAddress).toHaveBeenCalledWith({
         addressNList: [2147483692, 2147483793, 2147483649, 0, 0],
@@ -460,55 +445,55 @@ describe('BitcoinCashChainAdapter', () => {
       expect(res).toMatchObject(expectedReturnValue)
     })
   })
-  describe('getBIP44Params', () => {
+  describe('getBip44Params', () => {
     const expectedCoinType = 145
     const adapter = new bitcoincash.ChainAdapter(args)
     it('should throw for undefined accountType', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: 0, accountType: undefined })
+        adapter.getBip44Params({ accountNumber: 0, accountType: undefined })
       }).toThrow('unsupported account type: undefined')
     })
     it('should always be coinType 3', () => {
       for (const accountType of adapter.getSupportedAccountTypes()) {
-        const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
+        const r = adapter.getBip44Params({ accountNumber: 0, accountType })
         expect(r.coinType).toStrictEqual(expectedCoinType)
       }
     })
     it('should properly map account types to purposes', () => {
-      const expected: BIP44Params[] = [
+      const expected: Bip44Params[] = [
         {
           purpose: 44,
           coinType: expectedCoinType,
           accountNumber: 0,
           isChange: false,
-          index: undefined,
+          addressIndex: undefined,
         },
       ]
       const accountTypes = adapter.getSupportedAccountTypes()
       accountTypes.forEach((accountType, i) => {
-        const r = adapter.getBIP44Params({ accountNumber: 0, accountType })
+        const r = adapter.getBip44Params({ accountNumber: 0, accountType })
         expect(r).toStrictEqual(expected[i])
       })
     })
     it('should respect accountNumber', () => {
       const accountTypes = adapter.getSupportedAccountTypes()
-      const expected: BIP44Params[] = [
+      const expected: Bip44Params[] = [
         {
           purpose: 44,
           coinType: expectedCoinType,
           accountNumber: 0,
           isChange: false,
-          index: undefined,
+          addressIndex: undefined,
         },
       ]
       accountTypes.forEach((accountType, accountNumber) => {
-        const r = adapter.getBIP44Params({ accountNumber, accountType })
+        const r = adapter.getBip44Params({ accountNumber, accountType })
         expect(r).toStrictEqual(expected[accountNumber])
       })
     })
     it('should throw for negative accountNumber', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: -1, accountType: UtxoAccountType.P2pkh })
+        adapter.getBip44Params({ accountNumber: -1, accountType: UtxoAccountType.P2pkh })
       }).toThrow('accountNumber must be >= 0')
     })
   })

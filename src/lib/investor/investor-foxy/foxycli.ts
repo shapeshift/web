@@ -116,7 +116,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('approve', response)
@@ -138,7 +138,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('stake', response)
@@ -161,7 +161,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('unstake', response)
@@ -183,7 +183,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('instantUnstake', response)
@@ -205,7 +205,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('claimWithdraw', response)
@@ -227,7 +227,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('addLiquidity', response)
@@ -249,7 +249,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('removeLiquidity', response)
@@ -281,7 +281,7 @@ const main = async (): Promise<void> => {
           coinType: 60,
           purpose: 44,
           isChange: false,
-          index: 0,
+          addressIndex: 0,
         },
       })
       console.info('getTimeUntilClaim', response)

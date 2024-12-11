@@ -14,7 +14,7 @@ import type {
   SolanaWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params, DefaultBIP44Params } from '@shapeshiftoss/types'
+import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { BigNumber, bn } from '@shapeshiftoss/utils'
@@ -50,7 +50,7 @@ import type {
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
-  GetBIP44ParamsInput,
+  GetBip44ParamsInput,
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTx,
@@ -81,7 +81,7 @@ export interface ChainAdapterArgs {
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> {
-  static readonly defaultBIP44Params: DefaultBIP44Params = {
+  static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Solana),
     accountNumber: 0,
@@ -144,9 +144,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return this.connection
   }
 
-  getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
+  getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...ChainAdapter.defaultBIP44Params, accountNumber, isChange: false, index: undefined }
+    return {
+      ...ChainAdapter.rootBip44Params,
+      accountNumber,
+      isChange: false,
+      addressIndex: undefined,
+    }
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
@@ -158,7 +163,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       this.assertSupportsChain(wallet)
 
       const address = await wallet.solanaGetAddress({
-        addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         showDisplay: showOnDevice,
       })
 
@@ -267,7 +272,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       )
 
       const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
-        addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         blockHash: blockhash,
         computeUnitLimit,
         computeUnitPrice,
@@ -433,7 +438,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<void> {
     const { pubKey, accountNumber, wallet } = input
 
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const address = await this.getAddress({ accountNumber, wallet, pubKey })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
@@ -449,7 +454,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { accountNumber } = input
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })

@@ -33,7 +33,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
 
         if (!pubkey) continue
 
-        const bip44Params = adapter.getBIP44Params({ accountNumber, accountType })
+        const bip44Params = adapter.getBip44Params({ accountNumber, accountType })
         const accountId = toAccountId({ chainId, account: pubkey })
 
         acc[accountId] = { accountType, bip44Params }

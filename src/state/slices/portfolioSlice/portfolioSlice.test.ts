@@ -1,5 +1,5 @@
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Bip44Params } from '@shapeshiftoss/types'
 import {
   assetIds,
   btcAddresses,
@@ -45,12 +45,12 @@ vi.mock('context/PluginProvider/chainAdapterSingleton', () => ({
 describe('portfolioSlice', () => {
   const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)
   afterAll(() => consoleInfoSpy.mockRestore())
-  const bip44Params: BIP44Params = {
+  const bip44Params: Bip44Params = {
     purpose: 0,
     coinType: 0,
     accountNumber: 0,
     isChange: false,
-    index: 0,
+    addressIndex: 0,
   }
 
   describe('reducers', () => {

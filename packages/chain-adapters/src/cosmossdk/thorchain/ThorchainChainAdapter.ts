@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
-import type { DefaultBIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { bech32 } from 'bech32'
@@ -51,7 +51,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorcha
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
-  public static readonly defaultBIP44Params: DefaultBIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Thorchain),
     accountNumber: 0,
@@ -63,7 +63,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     super({
       assetId: thorchainAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       denom: 'rune',
       parser: new unchained.thorchain.TransactionParser({
         assetId: thorchainAssetId,
@@ -114,7 +114,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBIP44Params({ accountNumber })
+      const bip44Params = this.getBip44Params({ accountNumber })
       const address = await wallet.thorchainGetAddress({
         addressNList: toAddressNList(bip44Params),
         showDisplay: showOnDevice,

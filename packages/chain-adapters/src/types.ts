@@ -105,10 +105,10 @@ export type SubscribeTxsInput = {
   pubKey?: string
 }
 
-export type GetBIP44ParamsInput = {
+export type GetBip44ParamsInput = {
   accountNumber: number
   accountType?: UtxoAccountType
-  index?: number
+  addressIndex?: number
   isChange?: boolean
 }
 
@@ -264,7 +264,7 @@ export type GetAddressInputBase = {
   wallet: HDWallet
   accountNumber: number
   isChange?: boolean
-  index?: number
+  addressIndex?: number
   /**
    * Request that the address be shown to the user by the device, if supported
    */

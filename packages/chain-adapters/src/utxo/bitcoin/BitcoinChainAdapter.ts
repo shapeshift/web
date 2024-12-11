@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, btcAssetId } from '@shapeshiftoss/caip'
-import type { DefaultBIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -18,7 +18,7 @@ const SUPPORTED_ACCOUNT_TYPES = [
 
 export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinMainnet> {
   public static readonly defaultUtxoAccountType = UtxoAccountType.SegwitNative
-  public static readonly defaultBIP44Params: DefaultBIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 84,
     coinType: Number(ASSET_REFERENCE.Bitcoin),
     accountNumber: 0,
@@ -28,7 +28,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.BitcoinMainnet> 
     super({
       assetId: btcAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       defaultUtxoAccountType: ChainAdapter.defaultUtxoAccountType,
       parser: new unchained.bitcoin.TransactionParser({
         assetId: btcAssetId,

@@ -46,10 +46,10 @@ export const ExpandableTradeSteps = () => {
   const progressValue = (currentStep / totalSteps) * 100
 
   const titleElement = useMemo(() => {
-    if (!hopExecutionState || !swapperName) return null
+    if (!hopExecutionState) return null
     const stepSummaryTranslation = getHopExecutionStateSummaryStepTranslation(
       hopExecutionState,
-      swapperName,
+      swapperName ?? '',
     )
     if (!stepSummaryTranslation) return null
 

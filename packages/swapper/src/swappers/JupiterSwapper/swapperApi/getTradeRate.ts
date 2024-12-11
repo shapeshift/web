@@ -200,7 +200,7 @@ export const getTradeRate = async (
     id: uuid(),
     quoteOrRate: 'rate',
     rate: inputOutputRate,
-    receiveAddress,
+    receiveAddress: undefined,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,
     slippageTolerancePercentageDecimal,

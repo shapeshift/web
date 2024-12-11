@@ -132,7 +132,7 @@ export const LimitOrderConfirm = () => {
         borderColor='border.base'
         bg='background.surface.raised.base'
       >
-        <CardHeader px={6} pt={4} borderWidth={0}>
+        <CardHeader px={6} pt={4} borderBottomWidth={0}>
           <WithBackButton onBack={handleBack}>
             <Heading textAlign='center' fontSize='lg'>
               <Text translation='limitOrder.confirm' />
@@ -166,15 +166,10 @@ export const LimitOrderConfirm = () => {
               </Row.Label>
               <Row.Value textAlign='right'>
                 <HStack>
-                  {/*
-                    TODO: the rate differs from the input page because we're using the quoted values
-                    here instead of the user input. We need to decide how to handle this because the
-                    quote is likely what gets executed.
-                  */}
-                  <Amount.Crypto value={'1.0'} symbol={sellAsset?.symbol ?? ''} />
+                  <Amount.Crypto value='1.0' symbol={sellAsset?.symbol ?? ''} />
                   <RawText>=</RawText>
                   <Amount.Crypto
-                    value={limitPrice.buyAssetDenomination}
+                    value={limitPrice?.buyAssetDenomination}
                     symbol={buyAsset?.symbol ?? ''}
                   />
                 </HStack>

@@ -9,7 +9,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type { Asset, CowSwapError } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -24,7 +24,7 @@ import { useActions } from 'hooks/useActions'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
-import { PriceDirection } from 'state/slices/limitOrderInputSlice/constants'
+import { LimitPriceMode } from 'state/slices/limitOrderInputSlice/constants'
 import { expiryOptionToUnixTimestamp } from 'state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
@@ -40,11 +40,13 @@ import {
   selectInputSellAsset,
   selectIsInputtingFiatSellAmount,
   selectLimitPrice,
+  selectLimitPriceMode,
   selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
   selectUserSlippagePercentage,
   selectUserSlippagePercentageDecimal,
 } from 'state/slices/limitOrderInputSlice/selectors'
+import { calcLimitPriceBuyAsset } from 'state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from 'state/slices/limitOrderSlice/selectors'
 import {
@@ -110,6 +112,7 @@ export const LimitOrderInput = ({
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
+  const limitPriceMode = useAppSelector(selectLimitPriceMode)
 
   const {
     switchAssets,
@@ -232,20 +235,21 @@ export const LimitOrderInput = ({
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
     if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
 
-    return bnOrZero(fromBaseUnit(quoteResponse.quote.buyAmount, buyAsset.precision))
-      .div(fromBaseUnit(quoteResponse.quote.sellAmount, sellAsset.precision))
-      .toFixed()
-  }, [buyAsset.precision, quoteResponse, sellAsset.precision, limitOrderQuoteParams])
+    return calcLimitPriceBuyAsset({
+      sellAmountCryptoBaseUnit: quoteResponse.quote.sellAmount,
+      buyAmountCryptoBaseUnit: quoteResponse.quote.buyAmount,
+      sellAsset,
+      buyAsset,
+    })
+  }, [quoteResponse, limitOrderQuoteParams, sellAsset, buyAsset])
 
-  // Reset the limit price when the market price changes.
-  // TODO: If we introduce polling of quotes, we will need to add logic inside `LimitOrderConfig` to
-  // not reset the user's config unless the asset pair changes.
+  // Update the limit price when the market price changes.
   useEffect(() => {
-    setLimitPrice({
-      [PriceDirection.BuyAssetDenomination]: marketPriceBuyAsset,
-      [PriceDirection.SellAssetDenomination]: bn(1).div(marketPriceBuyAsset).toFixed(),
-    } as Record<PriceDirection, string>)
-  }, [marketPriceBuyAsset, setLimitPrice])
+    // Don't update if the user has a custom value configured.
+    if (limitPriceMode !== LimitPriceMode.CustomValue) {
+      setLimitPrice({ marketPriceBuyAsset })
+    }
+  }, [limitPriceMode, marketPriceBuyAsset, setLimitPrice])
 
   const onSubmit = useCallback(() => {
     // No preview happening if wallet isn't connected i.e is using the demo wallet

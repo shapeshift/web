@@ -1,3 +1,4 @@
+import type { SliceCaseReducers } from '@reduxjs/toolkit'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import { localAssetData } from 'lib/asset-service'
 
@@ -24,7 +25,7 @@ const initialState: TradeInputState = {
 export const tradeInput = createTradeInputBaseSlice({
   name: 'tradeInput',
   initialState,
-  extraReducers: {
+  extraReducers: (_baseReducers: SliceCaseReducers<TradeInputState>) => ({
     // Add any reducers specific to tradeInput slice here that aren't shared with other slices
-  },
+  }),
 })

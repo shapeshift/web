@@ -35,7 +35,7 @@ import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transfor
 import type { LifiTradeQuote } from '../utils/types'
 
 export async function getTrade(
-  input: GetEvmTradeQuoteInput,
+  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined },
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
@@ -49,6 +49,7 @@ export async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    lifiAllowedTools,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -97,6 +98,9 @@ export async function getTrade(
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
       bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
+      ...(lifiAllowedTools && {
+        exchanges: { allow: lifiAllowedTools },
+      }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -207,6 +211,7 @@ export async function getTrade(
             lifiStep,
             supportsEIP1559: Boolean(supportsEIP1559),
             deps,
+            from: sendAddress,
           })
 
           const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`
@@ -242,10 +247,11 @@ export async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
-        // This isn't a mistake - with Li.Fi, we can never go with our full-on intent of rate vs. quotes. As soon as a wallet is connected, we get a *quote*
-        // even though we're lying and saying this is a rate. With the "rate" containing a receiveAddress, a quote will *not* be fired at pre-sign time, which
-        // ensures users aren't rugged with routes that aren't available anymore when going from input to confirm
-        receiveAddress,
+        // TODO(gomes): when https://github.com/shapeshift/web/pull/8309 goes in, this goes out
+        // We do need receiveAddress in *input* to send it as fromAddress for routes req for more reliable rates, but with receiveAddress currently being the quotes/rates discriminator,
+        // we need to exclude it from method in *output*
+        receiveAddress: input.quoteOrRate === 'quote' ? receiveAddress : undefined,
+        lifiTools: selectedLifiRoute.steps.map(step => step.tool),
         affiliateBps,
         potentialAffiliateBps,
         steps,
@@ -291,7 +297,7 @@ export async function getTrade(
 // This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
 
 export const getTradeQuote = (
-  input: GetEvmTradeQuoteInputBase,
+  input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)

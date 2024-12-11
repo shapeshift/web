@@ -1,8 +1,13 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { CircularProgress, Stepper, StepStatus } from '@chakra-ui/react'
+import { CircularProgress, Flex, Link, Stepper, StepStatus } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
+import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
+import { getTxLink } from 'lib/getTxLink'
 import { selectIsActiveQuoteMultiHop } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
@@ -18,6 +23,35 @@ import { useTradeSteps } from './hooks/useTradeSteps'
 
 const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
+
+// TODO: Extract me to another file
+const TxElement = ({
+  txHash,
+  explorerTxLink,
+  accountId,
+}: {
+  txHash: string
+  explorerTxLink: string
+  accountId: AccountId
+}) => {
+  const { data: maybeSafeTx } = useSafeTxQuery({
+    maybeSafeTxHash: txHash,
+    accountId,
+  })
+
+  const txLink = getTxLink({
+    defaultExplorerBaseUrl: explorerTxLink,
+    maybeSafeTx,
+    tradeId: txHash,
+    accountId,
+  })
+
+  return txLink ? (
+    <Link isExternal href={txLink} color='text.link'>
+      <MiddleEllipsis value={maybeSafeTx?.transaction?.transactionHash ?? txHash} />
+    </Link>
+  ) : null
+}
 
 export const ExpandedTradeSteps = () => {
   const translate = useTranslate()
@@ -114,11 +148,26 @@ export const ExpandedTradeSteps = () => {
     [],
   )
 
+  const firstHopAllowanceResetTitle = useMemo(() => {
+    const txLink = getTxLink({
+      defaultExplorerBaseUrl: tradeQuoteFirstHop?.sellAsset.explorerTxLink,
+      maybeSafeTx: firstHopAllowanceReset.txHash,
+      tradeId: firstHopAllowanceReset.txHash ?? '',
+      accountId: firstHopSellAccountId,
+    })
+    return (
+      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+        <Text translation='trade.awaitingAllowanceReset' />
+        {firstHopAllowanceReset.txHash && <RawText>{firstHopAllowanceReset.txHash}</RawText>}
+      </Flex>
+    )
+  }, [firstHopAllowanceReset.txHash])
+
   return (
     <Stepper orientation='vertical' index={currentStep} gap='0'>
       {firstHopAllowanceReset.isRequired === true ? (
         <StepperStep
-          title={translate('trade.awaitingAllowanceReset')}
+          title={firstHopAllowanceResetTitle}
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}

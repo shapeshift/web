@@ -1,6 +1,6 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import type { Asset, BIP44Params } from '@shapeshiftoss/types'
+import type { Asset, Bip44Params } from '@shapeshiftoss/types'
 import {
   isStakingChainAdapter,
   StakingAction,
@@ -19,7 +19,7 @@ type StakingInput = {
   asset: Asset
   chainSpecific: cosmossdk.BuildTxInput
   validator: string
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
 } & (
   | {
       action: StakingAction.Claim

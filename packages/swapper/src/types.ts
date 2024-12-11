@@ -103,6 +103,10 @@ export enum TradeQuoteError {
   InvalidResponse = 'InvalidResponse',
   // an assertion triggered, indicating a bug
   InternalError = 'InternalError',
+  // The max. slippage allowed for this trade has been exceeded at final quote time, as returned by the active quote swapper's API upstream
+  FinalQuoteMaxSlippageExceeded = 'FinalQuoteMaxSlippageExceeded',
+  // Execution reverted at final quote time, as returned by the active quote swapper's API upstream
+  FinalQuoteExecutionReverted = 'FinalQuoteExecutionReverted',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
 }
@@ -153,6 +157,7 @@ type CommonTradeInputBase = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
+  lifiAllowedTools?: string[] | undefined
   slippageTolerancePercentageDecimal?: string
 }
 
@@ -285,6 +290,13 @@ export type TradeQuoteStep = {
     instructions?: TransactionInstruction[]
   }
   cowswapQuoteResponse?: OrderQuoteResponse
+  chainflipSpecific?: {
+    chainflipSwapId?: number
+    chainflipDepositAddress?: string
+    chainflipNumberOfChunks?: number
+    chainflipChunkIntervalBlocks?: number
+    chainflipMaxBoostFee?: number
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -446,7 +458,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {

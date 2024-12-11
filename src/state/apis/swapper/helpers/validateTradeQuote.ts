@@ -65,6 +65,7 @@ export const validateTradeQuote = (
   if (!quote || error) {
     const tradeQuoteError = (() => {
       const errorCode = error?.code
+      const errorDetails = error?.details
       switch (errorCode) {
         case SwapperTradeQuoteError.UnsupportedChain:
         case SwapperTradeQuoteError.CrossChainNotSupported:
@@ -79,6 +80,14 @@ export const validateTradeQuote = (
         case SwapperTradeQuoteError.InvalidResponse:
           // no metadata associated with this error
           return { error: errorCode }
+        case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:
+        case SwapperTradeQuoteError.FinalQuoteExecutionReverted: {
+          const { expectedSlippage }: { expectedSlippage?: string | undefined } = errorDetails ?? {}
+          return {
+            error: errorCode,
+            meta: { expectedSlippage: expectedSlippage ? expectedSlippage : 'Unknown' },
+          }
+        }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {
           const {
             minAmountCryptoBaseUnit,

@@ -214,6 +214,7 @@ export async function getTrade({
             lifiStep,
             supportsEIP1559: Boolean(supportsEIP1559),
             deps,
+            from: sendAddress,
           })
 
           const source: SwapSource = `${SwapperName.LIFI} • ${lifiStep.toolDetails.name}`

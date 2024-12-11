@@ -96,12 +96,12 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const expiryText = useMemo(
     () =>
-      validTo
+      validTo && status !== OrderStatus.FULFILLED
         ? formatDistanceToNow(validTo * 1000, {
             addSuffix: true,
           })
         : undefined,
-    [validTo],
+    [status, validTo],
   )
 
   if (!buyAsset || !sellAsset) return null
@@ -143,17 +143,24 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
         {/* Price row */}
         <Flex justify='space-between' align='center'>
-          <Text color='gray.500' translation='limitOrder.limitPrice' />
+          <Text
+            color='gray.500'
+            translation={
+              status === OrderStatus.FULFILLED
+                ? 'limitOrder.executionPrice'
+                : 'limitOrder.limitPrice'
+            }
+          />
           <Flex justify='flex-end'>
             <RawText mr={1}>{`1 ${sellAsset.symbol} =`}</RawText>
             <Amount.Crypto value={limitPrice} symbol={buyAsset.symbol} />
           </Flex>
         </Flex>
 
-        {/* Expiry row - excluded for historical orders*/}
+        {/* Expiry row */}
         {Boolean(expiryText) && (
           <Flex justify='space-between' align='center'>
-            <Text color='gray.500' translation='limitOrder.expiresIn' />
+            <Text color='gray.500' translation='limitOrder.expiry' />
             <RawText>{expiryText}</RawText>
           </Flex>
         )}

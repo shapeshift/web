@@ -6,6 +6,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeRate,
+  TradeRateStep,
 } from '../../../types'
 import { _getTradeQuote } from './getTradeQuote'
 
@@ -15,6 +16,14 @@ export const getTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate[], SwapErrorRight>> => {
-  const rates = await _getTradeQuote(input as unknown as CommonTradeQuoteInput, deps)
-  return rates as unknown as Result<TradeRate[], SwapErrorRight>
+  const ratesResult = await _getTradeQuote(input as unknown as CommonTradeQuoteInput, deps)
+  return ratesResult.map(rates =>
+    rates.map(rate => ({
+      ...rate,
+      quoteOrRate: 'rate' as const,
+      steps: rate.steps.map(step => ({ ...step, accountNumber: undefined })) as
+        | [TradeRateStep]
+        | [TradeRateStep, TradeRateStep],
+    })),
+  )
 }

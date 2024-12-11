@@ -16,6 +16,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
+  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
@@ -365,6 +366,14 @@ export const getTradeQuote = async (
     )
   }
 
-  const quotes = await _getTradeQuote(input, deps)
-  return quotes
+  const quotesResult = await _getTradeQuote(input, deps)
+  return quotesResult.map(quotes =>
+    quotes.map(quote => ({
+      ...quote,
+      quoteOrRate: 'quote' as const,
+      steps: quote.steps.map(step => ({ ...step, accountNumber: undefined })) as
+        | [TradeQuoteStep]
+        | [TradeQuoteStep, TradeQuoteStep],
+    })),
+  )
 }

@@ -22,6 +22,7 @@ import type {
   SwapErrorRight,
   SwapperDeps,
   SwapSource,
+  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -300,12 +301,20 @@ export async function getTrade({
   >
 }
 
-export const getTradeQuote = (
+export const getTradeQuote = async (
   input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
-  return getTrade({ input, deps, lifiChainMap }) as Promise<
-    Result<LifiTradeQuote[], SwapErrorRight>
-  >
+  const quotesResult = await getTrade({ input, deps, lifiChainMap })
+  return quotesResult.map(quotes =>
+    quotes.map(quote => ({
+      ...quote,
+      quoteOrRate: 'quote' as const,
+      receiveAddress: quote.receiveAddress!,
+      steps: quote.steps.map(step => ({ ...step, accountNumber: undefined })) as
+        | [TradeQuoteStep]
+        | [TradeQuoteStep, TradeQuoteStep],
+    })),
+  )
 }

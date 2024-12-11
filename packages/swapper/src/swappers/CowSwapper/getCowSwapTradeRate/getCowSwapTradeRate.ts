@@ -13,15 +13,15 @@ import {
   getCowNetwork,
   getFullAppData,
 } from '../../../cowswap-utils'
-import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   COW_SWAP_VAULT_RELAYER_ADDRESS,
   SUPPORTED_CHAIN_IDS,
-} from '../utils/constants'
+} from '../../../cowswap-utils/constants'
+import type { GetEvmTradeRateInput, SwapErrorRight, SwapperConfig, TradeRate } from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { cowService } from '../utils/cowService'
 import {
   assertValidTrade,

@@ -20,26 +20,15 @@ import type { Address } from 'viem'
 import { keccak256, stringToBytes } from 'viem'
 
 import type { AffiliateAppDataFragment } from '../swappers/CowSwapper'
-import { COW_SWAP_SETTLEMENT_ADDRESS } from '../swappers/CowSwapper'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '../swappers/CowSwapper/utils/constants'
 import { getTreasuryAddressFromChainId } from '../swappers/utils/helpers/helpers'
+import {
+  CANCELLATIONS_TYPE_FIELDS,
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  COW_SWAP_SETTLEMENT_ADDRESS,
+  ORDER_TYPE_FIELDS,
+} from './constants'
 
-export const ORDER_TYPE_FIELDS = [
-  { name: 'sellToken', type: 'address' },
-  { name: 'buyToken', type: 'address' },
-  { name: 'receiver', type: 'address' },
-  { name: 'sellAmount', type: 'uint256' },
-  { name: 'buyAmount', type: 'uint256' },
-  { name: 'validTo', type: 'uint32' },
-  { name: 'appData', type: 'bytes32' },
-  { name: 'feeAmount', type: 'uint256' },
-  { name: 'kind', type: 'string' },
-  { name: 'partiallyFillable', type: 'bool' },
-  { name: 'sellTokenBalance', type: 'string' },
-  { name: 'buyTokenBalance', type: 'string' },
-]
-
-export const CANCELLATIONS_TYPE_FIELDS = [{ name: 'orderUids', type: 'bytes[]' }]
+export * from './constants'
 
 export const getCowNetwork = (chainId: ChainId): CowNetwork | undefined => {
   switch (chainId) {

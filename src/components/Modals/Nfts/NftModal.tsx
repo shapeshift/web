@@ -99,7 +99,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
   const translate = useTranslate()
 
   const [isMediaLoaded, setIsMediaLoaded] = useState(false)
+  const [isMediaErrored, setIsMediaErrored] = useState(false)
   const handleMediaLoaded = useCallback(() => setIsMediaLoaded(true), [])
+  const handleMediaErrored = useCallback(() => setIsMediaErrored(true), [])
 
   const modalBg = useColorModeValue('white', 'gray.800')
   const modalHeaderBg = useColorModeValue('gray.50', 'gray.785')
@@ -284,8 +286,9 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
             {!mediaUrl || mediaType === 'image' ? (
               <>
                 <Image
-                  src={mediaUrl ?? placeholderImage}
+                  src={mediaUrl && !isMediaErrored ? mediaUrl : placeholderImage}
                   onLoad={handleMediaLoaded}
+                  onError={handleMediaErrored}
                   {...mediaBoxProps}
                 />
                 <Button colorScheme='whiteAlpha' onClick={handleSetAsAvatarClick}>
@@ -312,10 +315,12 @@ export const NftModal: React.FC<NftModalProps> = ({ nftAssetId }) => {
     assetLink,
     customizeLink,
     handleMediaLoaded,
+    handleMediaErrored,
     handleRefreshClick,
     handleReportSpamClick,
     handleSetAsAvatarClick,
     isMediaLoaded,
+    isMediaErrored,
     mediaBoxProps,
     mediaType,
     mediaUrl,

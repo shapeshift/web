@@ -16,6 +16,7 @@ import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useTradeSteps } from './hooks/useTradeSteps'
 
 const summaryStepIndicator = <Spinner thickness='3px' size='md' />
+const collapseStyle = { width: '100%' }
 
 export const ExpandableTradeSteps = () => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -74,7 +75,7 @@ export const ExpandableTradeSteps = () => {
         stepProps={summaryStepProps}
         useSpacer={false}
       />
-      <Collapse in={isExpanded}>
+      <Collapse in={isExpanded} style={collapseStyle}>
         <Box py={4} pl={0}>
           <ExpandedTradeSteps />
         </Box>

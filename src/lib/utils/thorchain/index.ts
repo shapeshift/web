@@ -190,7 +190,7 @@ export const getThorchainFromAddress = async ({
       wallet,
       accountNumber: bip44Params.accountNumber,
       accountType,
-      index: 0,
+      addressIndex: 0,
       pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
     })
     return firstReceiveAddress

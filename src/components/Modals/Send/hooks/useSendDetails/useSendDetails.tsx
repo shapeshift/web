@@ -3,7 +3,7 @@ import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { solana } from '@shapeshiftoss/chain-adapters'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { estimateFees } from 'components/Modals/Send/utils'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -50,6 +50,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const amountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
     name: SendFormFields.AmountCryptoPrecision,
   })
+  const isManualInputChange = useRef(true)
 
   const fiatAmount = useWatch<SendInput, SendFormFields.FiatAmount>({
     name: SendFormFields.FiatAmount,
@@ -278,13 +279,16 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const networkFee = fromBaseUnit(fastFee, feeAsset.precision)
 
-    const maxCrypto = bnOrZero(cryptoHumanBalance)
-      .minus(networkFee)
-      .minus(
-        assetId === solAssetId
-          ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
-          : 0,
-      )
+    const maxCrypto =
+      feeAsset.assetId !== assetId
+        ? bnOrZero(cryptoHumanBalance)
+        : bnOrZero(cryptoHumanBalance)
+            .minus(networkFee)
+            .minus(
+              assetId === solAssetId
+                ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset.precision)
+                : 0,
+            )
     const maxFiat = maxCrypto.times(price)
 
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
@@ -327,7 +331,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       'The request failed and the interceptors did not return an alternative response'
     )
       return setValue(SendFormFields.AmountFieldError, 'modals.send.getFeesError')
-    setValue(SendFormFields.AmountFieldError, error?.message ? error.message : '')
+    if (error?.message) {
+      setValue(SendFormFields.AmountFieldError, error.message)
+    }
   }, [error, hasEnteredPositiveAmount, setValue])
 
   useEffect(() => {
@@ -339,6 +345,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [estimatedFees, sendMax, setValue])
 
   const handleSendMax = useCallback(async () => {
+    isManualInputChange.current = false
     setValue(SendFormFields.SendMax, true)
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
@@ -381,7 +388,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
    */
   const handleInputChange = useCallback(
     (inputValue: string) => {
-      setValue(SendFormFields.SendMax, false)
+      if (isManualInputChange.current) {
+        setValue(SendFormFields.SendMax, false)
+      }
 
       const otherField =
         fieldName !== SendFormFields.FiatAmount
@@ -403,6 +412,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         fieldName === SendFormFields.FiatAmount ? cryptoAmount.toString() : fiatAmount.toString()
 
       setValue(otherField, otherAmount)
+      isManualInputChange.current = true
     },
     [fieldName, price, setValue],
   )

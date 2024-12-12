@@ -19,10 +19,10 @@ import {
   clearMarketDataMigrations,
   clearNftsMigrations,
   clearOpportunitiesMigrations,
-  clearPortfolioMigrations,
   clearSnapshotMigrations,
   clearTxHistoryMigrations,
   localWalletMigrations,
+  portfolioMigrations,
 } from './migrations'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
@@ -75,8 +75,8 @@ const txHistoryPersistConfig = {
 const portfolioPersistConfig = {
   key: 'portfolio',
   storage: localforage,
-  version: Math.max(...Object.keys(clearPortfolioMigrations).map(Number)),
-  migrate: createMigrate(clearPortfolioMigrations, { debug: false }),
+  version: Math.max(...Object.keys(portfolioMigrations).map(Number)),
+  migrate: createMigrate(portfolioMigrations, { debug: false }),
 }
 
 const opportunitiesPersistConfig = {

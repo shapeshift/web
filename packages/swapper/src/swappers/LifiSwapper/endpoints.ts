@@ -64,7 +64,9 @@ export const lifiApi: SwapperApi = {
     )
 
     return tradeQuoteResult.map(quote =>
-      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+      quote.map(tradeQuote => {
+        const { selectedLifiRoute } = tradeQuote
+
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
         if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')
@@ -98,7 +100,9 @@ export const lifiApi: SwapperApi = {
     const tradeRateResult = await getTradeRate(input as GetEvmTradeRateInput, deps, lifiChainMap)
 
     return tradeRateResult.map(quote =>
-      quote.map(({ selectedLifiRoute, ...tradeQuote }) => {
+      quote.map(tradeQuote => {
+        const { selectedLifiRoute } = tradeQuote
+
         // TODO: quotes below the minimum aren't valid and should not be processed as such
         // selectedLifiRoute will be missing for quotes below the minimum
         if (!selectedLifiRoute) throw Error('missing selectedLifiRoute')

@@ -13,7 +13,7 @@ import { RawText, Text } from 'components/Text'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
-export interface LimitOrderCardProps {
+export type LimitOrderCardProps = {
   uid: string
   buyAmountCryptoBaseUnit: string
   sellAmountCryptoBaseUnit: string
@@ -127,19 +127,29 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             </AssetIconWithBadge>
             <Flex gap={2} alignItems='flex-start' width='100%' minWidth={0}>
               <Flex direction='column' align='flex-start' width='100%' minWidth={0}>
-                <Amount.Crypto
-                  value={sellAmountCryptoPrecision}
-                  symbol={sellAsset.symbol}
-                  color='gray.500'
-                  fontSize='xl'
-                  css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                />
-                <Amount.Crypto
-                  value={buyAmountCryptoPrecision}
-                  symbol={buyAsset.symbol}
-                  fontSize='xl'
-                  css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                />
+                <Box width='100%' overflow='hidden'>
+                  <Amount.Crypto
+                    value={sellAmountCryptoPrecision}
+                    symbol={sellAsset.symbol}
+                    color='gray.500'
+                    fontSize='xl'
+                    whiteSpace='nowrap'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    display='block'
+                  />
+                </Box>
+                <Box width='100%' overflow='hidden'>
+                  <Amount.Crypto
+                    value={buyAmountCryptoPrecision}
+                    symbol={buyAsset.symbol}
+                    fontSize='xl'
+                    whiteSpace='nowrap'
+                    overflow='hidden'
+                    textOverflow='ellipsis'
+                    display='block'
+                  />
+                </Box>
               </Flex>
             </Flex>
           </Flex>

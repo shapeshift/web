@@ -119,36 +119,34 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
         {/* Asset amounts row */}
         <Flex justifyContent='space-between' alignItems='flex-start'>
           {/* Left group - icon and amounts */}
-          <Flex alignItems='flex-start' gap={4}>
+          <Flex alignItems='flex-start' gap={4} flex={1} minWidth={0}>
             <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
               <Center borderRadius='full' boxSize='100%' bg='purple.500'>
                 <SwapBoldIcon boxSize='100%' />
               </Center>
             </AssetIconWithBadge>
-            <Flex
-              gap={2}
-              alignItems='flex-start'
-              overflow='hidden'
-              textOverflow='ellipsis'
-              whiteSpace='nowrap'
-            >
-              <Flex direction='column' align='flex-start'>
+            <Flex gap={2} alignItems='flex-start' width='100%' minWidth={0}>
+              <Flex direction='column' align='flex-start' width='100%' minWidth={0}>
                 <Amount.Crypto
                   value={sellAmountCryptoPrecision}
                   symbol={sellAsset.symbol}
                   color='gray.500'
                   fontSize='xl'
+                  css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
                 />
                 <Amount.Crypto
                   value={buyAmountCryptoPrecision}
                   symbol={buyAsset.symbol}
                   fontSize='xl'
+                  css={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
                 />
               </Flex>
             </Flex>
           </Flex>
           {/* Right group - status tag */}
-          <Tag colorScheme={tagColorScheme}>{translate(`limitOrder.status.${status}`)}</Tag>
+          <Tag flexShrink={0} colorScheme={tagColorScheme}>
+            {translate(`limitOrder.status.${status}`)}
+          </Tag>
         </Flex>
 
         {/* Price row */}

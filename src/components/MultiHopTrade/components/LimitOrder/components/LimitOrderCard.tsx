@@ -1,4 +1,4 @@
-import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
+import { Box, Button, Center, Flex, Progress, Tag, Tooltip } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
@@ -10,6 +10,7 @@ import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { selectAssetById } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
@@ -41,6 +42,9 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   onCancelClick,
 }) => {
   const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
   const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
   const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
@@ -104,6 +108,16 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [status, validTo],
   )
 
+  const sellAmountCryptoFormatted = useMemo(
+    () => toCrypto(sellAmountCryptoPrecision, sellAsset?.symbol ?? ''),
+    [sellAmountCryptoPrecision, toCrypto, sellAsset],
+  )
+
+  const buyAmountCryptoFormatted = useMemo(
+    () => toCrypto(buyAmountCryptoPrecision, buyAsset?.symbol ?? ''),
+    [buyAmountCryptoPrecision, toCrypto, buyAsset],
+  )
+
   if (!buyAsset || !sellAsset) return null
 
   return (
@@ -127,29 +141,33 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             </AssetIconWithBadge>
             <Flex gap={2} alignItems='flex-start' width='100%' minWidth={0}>
               <Flex direction='column' align='flex-start' width='100%' minWidth={0}>
-                <Box width='100%' overflow='hidden'>
-                  <Amount.Crypto
-                    value={sellAmountCryptoPrecision}
-                    symbol={sellAsset.symbol}
-                    color='gray.500'
-                    fontSize='xl'
-                    whiteSpace='nowrap'
-                    overflow='hidden'
-                    textOverflow='ellipsis'
-                    display='block'
-                  />
-                </Box>
-                <Box width='100%' overflow='hidden'>
-                  <Amount.Crypto
-                    value={buyAmountCryptoPrecision}
-                    symbol={buyAsset.symbol}
-                    fontSize='xl'
-                    whiteSpace='nowrap'
-                    overflow='hidden'
-                    textOverflow='ellipsis'
-                    display='block'
-                  />
-                </Box>
+                <Tooltip label={sellAmountCryptoFormatted}>
+                  <Box width='100%' overflow='hidden'>
+                    <Amount.Crypto
+                      value={sellAmountCryptoPrecision}
+                      symbol={sellAsset.symbol}
+                      color='gray.500'
+                      fontSize='xl'
+                      whiteSpace='nowrap'
+                      overflow='hidden'
+                      textOverflow='ellipsis'
+                      display='block'
+                    />
+                  </Box>
+                </Tooltip>
+                <Tooltip label={buyAmountCryptoFormatted}>
+                  <Box width='100%' overflow='hidden'>
+                    <Amount.Crypto
+                      value={buyAmountCryptoPrecision}
+                      symbol={buyAsset.symbol}
+                      fontSize='xl'
+                      whiteSpace='nowrap'
+                      overflow='hidden'
+                      textOverflow='ellipsis'
+                      display='block'
+                    />
+                  </Box>
+                </Tooltip>
               </Flex>
             </Flex>
           </Flex>

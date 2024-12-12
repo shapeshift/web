@@ -26,7 +26,7 @@ import { Text } from 'components/Text'
 import { WithBackButton } from '../../WithBackButton'
 import { useGetLimitOrdersQuery } from '../hooks/useGetLimitOrdersForAccountQuery'
 import type { OrderToCancel } from '../types'
-import { CancelLimitOrder } from './CancelLimtOrder'
+import { CancelLimitOrder } from './CancelLimitOrder'
 import { LimitOrderCard } from './LimitOrderCard'
 
 const textSelectedProps = {

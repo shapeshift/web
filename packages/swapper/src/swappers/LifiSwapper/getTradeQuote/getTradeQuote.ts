@@ -54,7 +54,6 @@ export async function getTrade({
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    originalRate,
     quoteOrRate,
   } = input
 
@@ -104,9 +103,10 @@ export async function getTrade({
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
       bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
-      ...(originalRate && {
-        exchanges: { allow: (originalRate as LifiTradeRate).lifiTools },
-      }),
+      ...(quoteOrRate === 'quote' &&
+        (input.originalRate as LifiTradeRate).lifiTools && {
+          exchanges: { allow: (input.originalRate as LifiTradeRate).lifiTools },
+        }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -151,6 +151,13 @@ export async function getTrade({
   let routes = quoteOrRate === 'quote' ? [] : _routes
 
   if (routes.length === 0) {
+    if (quoteOrRate === 'quote')
+      return Ok([
+        {
+          ...input.originalRate,
+          quoteOrRate: 'quote',
+        } as LifiTradeQuote,
+      ])
     return Err(
       makeSwapErrorRight({
         message: 'no route found',

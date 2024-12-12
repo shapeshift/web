@@ -1,5 +1,6 @@
 import type {
   GetTradeQuoteInput,
+  GetTradeRateInput,
   SwapperName,
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
@@ -53,4 +54,7 @@ export type ApiQuote = {
   isStale: boolean
 }
 
-export type TradeQuoteRequest = { swapperName: SwapperName } & GetTradeQuoteInput
+export type TradeQuoteOrRateRequest = { swapperName: SwapperName } & (
+  | GetTradeQuoteInput
+  | GetTradeRateInput
+)

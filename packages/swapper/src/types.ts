@@ -175,7 +175,7 @@ type CommonTradeRateInput = CommonTradeInputBase & {
   quoteOrRate: 'rate'
 }
 
-type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
+type CommonTradeInput = CommonTradeQuoteInput
 
 export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
@@ -185,7 +185,7 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
   supportsEIP1559: false
 }
-export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
 
 export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: CosmosSdkChainId
@@ -206,16 +206,16 @@ type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   xpub: string
 }
 
-type GetUtxoTradeRateInput = CommonTradeRateInput & {
+export type GetUtxoTradeRateInput = CommonTradeRateInput & {
   chainId: UtxoChainId
-  // We need a dummy script type when getting a quote without a wallet
-  // so we always use SegWit (which works across all UTXO chains)
-  accountType: UtxoAccountType.P2pkh
-  accountNumber: undefined
-  xpub: undefined
+  accountType: UtxoAccountType
+  // accountNumber and accountType may be undefined may be undefined if no wallet is connected
+  // accountType will default to UtxoAccountType.P2pkh without a wallet connected
+  accountNumber: number | undefined
+  xpub: string | undefined
 }
 
-export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet | GetUtxoTradeRateInput
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput

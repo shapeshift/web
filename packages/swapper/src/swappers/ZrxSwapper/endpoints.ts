@@ -10,7 +10,7 @@ import type {
   EvmTransactionRequest,
   GetEvmTradeQuoteInputBase,
   GetEvmTradeRateInput,
-  GetTradeQuoteInput,
+  GetTradeRateInput,
   GetUnsignedEvmTransactionArgs,
   SwapErrorRight,
   SwapperApi,
@@ -37,7 +37,7 @@ export const zrxApi: SwapperApi = {
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
   getTradeRate: async (
-    input: GetTradeQuoteInput,
+    input: GetTradeRateInput,
     { assetsById, config }: SwapperDeps,
   ): Promise<Result<TradeRate[], SwapErrorRight>> => {
     const tradeRateResult = await getZrxTradeRate(

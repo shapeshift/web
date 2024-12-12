@@ -1,10 +1,9 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput, TradeRate } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -12,7 +11,7 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
-export type GetTradeQuoteInputArgs = {
+export type GetTradeQuoteOrRateInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
@@ -33,7 +32,7 @@ export type GetTradeQuoteInputArgs = {
   wallet: HDWallet | undefined
 }
 
-export const getTradeQuoteInput = async ({
+export const getTradeQuoteOrRateInput = async ({
   sellAsset,
   buyAsset,
   sellAccountNumber,
@@ -48,23 +47,40 @@ export const getTradeQuoteInput = async ({
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
-}: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput> => {
-  const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-      sellAmountBeforeFeesCryptoPrecision,
-      sellAsset.precision,
-    ),
-    sellAsset,
-    buyAsset,
-    receiveAddress,
-    accountNumber: sellAccountNumber,
-    affiliateBps: affiliateBps ?? '0',
-    potentialAffiliateBps: potentialAffiliateBps ?? '0',
-    allowMultiHop,
-    originalRate,
-    slippageTolerancePercentageDecimal,
-    quoteOrRate,
-  }
+}: GetTradeQuoteOrRateInputArgs): Promise<GetTradeQuoteInput | GetTradeRateInput> => {
+  const tradeQuoteInputCommonArgs =
+    receiveAddress && sellAccountNumber !== undefined
+      ? {
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
+            sellAmountBeforeFeesCryptoPrecision,
+            sellAsset.precision,
+          ),
+          sellAsset,
+          buyAsset,
+          receiveAddress,
+          accountNumber: sellAccountNumber,
+          affiliateBps: affiliateBps ?? '0',
+          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          allowMultiHop,
+          slippageTolerancePercentageDecimal,
+          quoteOrRate: 'quote',
+        }
+      : {
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
+            sellAmountBeforeFeesCryptoPrecision,
+            sellAsset.precision,
+          ),
+          sellAsset,
+          buyAsset,
+          receiveAddress,
+          originalRate,
+          accountNumber: sellAccountNumber,
+          affiliateBps: affiliateBps ?? '0',
+          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          allowMultiHop,
+          slippageTolerancePercentageDecimal,
+          quoteOrRate: 'rate',
+        }
 
   const { chainNamespace } = fromChainId(sellAsset.chainId)
 

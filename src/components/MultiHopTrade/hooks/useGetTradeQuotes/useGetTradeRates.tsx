@@ -11,7 +11,7 @@ import { isThorTradeRate } from '@shapeshiftoss/swapper/dist/swappers/ThorchainS
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
-import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
+import { getTradeQuoteOrRateInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -233,7 +233,7 @@ export const useGetTradeRates = () => {
       const potentialAffiliateBps = feeBpsBeforeDiscount.toFixed(0)
       const affiliateBps = feeBps.toFixed(0)
 
-      const updatedTradeRateInput = (await getTradeQuoteInput({
+      const updatedTradeRateInput = (await getTradeQuoteOrRateInput({
         sellAsset,
         sellAccountNumber,
         sellAccountType: sellAccountMetadata?.accountType,
@@ -261,7 +261,7 @@ export const useGetTradeRates = () => {
     (swapperName: SwapperName): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
-        tradeQuoteInput: tradeRateInput ?? skipToken,
+        tradeQuoteOrRateInput: tradeRateInput ?? skipToken,
         skip: !shouldRefetchTradeQuotes,
         pollingInterval:
           swappers[swapperName]?.pollingInterval ?? DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,

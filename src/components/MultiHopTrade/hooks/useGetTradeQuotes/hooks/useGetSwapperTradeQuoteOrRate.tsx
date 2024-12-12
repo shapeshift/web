@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import type { GetTradeQuoteInput, SwapperName } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
 import { useEffect, useMemo } from 'react'
 import { swapperApi, useGetTradeQuoteQuery } from 'state/apis/swapper/swapperApi'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -7,14 +7,14 @@ import { useAppDispatch } from 'state/store'
 
 export type UseGetSwapperTradeQuoteOrRateArgs = {
   swapperName: SwapperName | undefined
-  tradeQuoteInput: GetTradeQuoteInput | typeof skipToken
+  tradeQuoteOrRateInput: GetTradeQuoteInput | GetTradeRateInput | typeof skipToken
   skip: boolean
   pollingInterval: number | undefined
 }
 
 export const useGetSwapperTradeQuoteOrRate = ({
   swapperName,
-  tradeQuoteInput,
+  tradeQuoteOrRateInput: tradeQuoteInput,
   pollingInterval,
   skip,
 }: UseGetSwapperTradeQuoteOrRateArgs) => {

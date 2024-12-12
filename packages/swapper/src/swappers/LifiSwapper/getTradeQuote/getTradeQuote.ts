@@ -145,7 +145,11 @@ export async function getTrade({
 
   if (routesResponse.isErr()) return Err(routesResponse.unwrapErr())
 
-  const { routes } = routesResponse.unwrap()
+  const { routes: _routes } = routesResponse.unwrap()
+
+  // Monkey patch to always end up in the "unstable route not found the second time around" scenario, revert me before opening me,
+  // and link this commit to reviewers to revert before testing this PR
+  let routes = quoteOrRate === 'quote' ? [] : _routes
 
   if (routes.length === 0) {
     if (quoteOrRate === 'quote')

@@ -3,6 +3,7 @@ import type {
   SwapperName,
   TradeQuote,
   TradeQuoteError as SwapperTradeQuoteError,
+  TradeRate,
 } from '@shapeshiftoss/swapper'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -44,7 +45,7 @@ export type ErrorWithMeta<T> = { error: T; meta?: InterpolationOptions }
 
 export type ApiQuote = {
   id: string
-  quote: TradeQuote | undefined
+  quote: TradeQuote | TradeRate | undefined
   swapperName: SwapperName
   inputOutputRatio: number
   errors: ErrorWithMeta<TradeQuoteError>[]

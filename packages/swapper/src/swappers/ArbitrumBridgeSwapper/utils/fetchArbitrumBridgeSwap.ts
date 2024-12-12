@@ -20,7 +20,7 @@ type FetchArbitrumBridgeSwapInput<T extends 'rate' | 'quote'> = {
   supportsEIP1559: boolean
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: T extends 'rate' ? undefined : string
+  receiveAddress: T extends 'rate' ? string | undefined : string
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
   sendAddress: T extends 'rate' ? undefined : string
@@ -32,7 +32,7 @@ type FetchArbitrumBridgePriceInput = {
   supportsEIP1559: false
   chainId: ChainId
   buyAsset: Asset
-  receiveAddress: undefined
+  receiveAddress: string | undefined
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   sellAsset: Asset
   sendAddress: undefined

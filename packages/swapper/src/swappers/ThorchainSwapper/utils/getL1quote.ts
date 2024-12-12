@@ -270,6 +270,7 @@ export const getL1Quote = async (
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,
@@ -384,6 +385,7 @@ export const getL1Quote = async (
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,
@@ -478,6 +480,7 @@ export const getL1Quote = async (
 
             return {
               id: uuid(),
+              quoteOrRate: 'quote',
               memo,
               receiveAddress,
               affiliateBps,

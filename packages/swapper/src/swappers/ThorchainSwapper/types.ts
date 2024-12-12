@@ -262,7 +262,6 @@ export type ThorEvmTradeQuote = TradeQuote &
     vault: string
     aggregator?: string
     data: string
-    tradeType: TradeType
   } & {
     receiveAddress: string
   }

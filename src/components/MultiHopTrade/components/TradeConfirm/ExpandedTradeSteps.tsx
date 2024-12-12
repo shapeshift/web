@@ -88,7 +88,6 @@ export const ExpandedTradeSteps = () => {
   }, [activeTradeId])
 
   const {
-    // state: firstHopExecutionState,
     allowanceApproval: firstHopAllowanceApproval,
     permit2: firstHopPermit2,
     allowanceReset: firstHopAllowanceReset,
@@ -103,7 +102,6 @@ export const ExpandedTradeSteps = () => {
   }, [activeTradeId])
 
   const {
-    // state: lastHopExecutionState,
     allowanceApproval: lastHopAllowanceApproval,
     permit2: lastHopPermit2,
     allowanceReset: lastHopAllowanceReset,
@@ -171,17 +169,17 @@ export const ExpandedTradeSteps = () => {
         <RawText>{firstHopActionTitleText}</RawText>
         {tradeQuoteFirstHop && firstHopSellAccountId && (
           <VStack>
-            {firstHopSwap.buyTxHash && (
-              <TxLabel
-                txHash={firstHopSwap.buyTxHash}
-                explorerTxLink={tradeQuoteFirstHop.buyAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-              />
-            )}
             {firstHopSwap.sellTxHash && (
               <TxLabel
                 txHash={firstHopSwap.sellTxHash}
                 explorerTxLink={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                accountId={firstHopSellAccountId}
+              />
+            )}
+            {firstHopSwap.buyTxHash && (
+              <TxLabel
+                txHash={firstHopSwap.buyTxHash}
+                explorerTxLink={tradeQuoteFirstHop.buyAsset.explorerTxLink}
                 accountId={firstHopSellAccountId}
               />
             )}
@@ -245,17 +243,17 @@ export const ExpandedTradeSteps = () => {
         <RawText>{lastHopActionTitleText}</RawText>
         {tradeQuoteLastHop && lastHopSellAccountId && (
           <VStack>
-            {lastHopSwap.buyTxHash && (
-              <TxLabel
-                txHash={lastHopSwap.buyTxHash}
-                explorerTxLink={tradeQuoteLastHop.buyAsset.explorerTxLink}
-                accountId={lastHopSellAccountId}
-              />
-            )}
             {lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.sellTxHash}
                 explorerTxLink={tradeQuoteLastHop.sellAsset.explorerTxLink}
+                accountId={lastHopSellAccountId}
+              />
+            )}
+            {lastHopSwap.buyTxHash && (
+              <TxLabel
+                txHash={lastHopSwap.buyTxHash}
+                explorerTxLink={tradeQuoteLastHop.buyAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
               />
             )}

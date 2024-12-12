@@ -1,12 +1,15 @@
 import { ArrowUpDownIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, HStack, Progress, Spinner } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
+import { AnimatedCheck } from 'components/AnimatedCheck'
 import { Text } from 'components/Text'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -15,11 +18,11 @@ import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { useTradeSteps } from './hooks/useTradeSteps'
 
-const summaryStepIndicator = <Spinner thickness='3px' size='md' />
 const collapseStyle = { width: '100%' }
 
 export const ExpandableTradeSteps = () => {
   const [isExpanded, setIsExpanded] = useState(false)
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
     () => ({
       alignItems: 'center',
@@ -43,6 +46,14 @@ export const ExpandableTradeSteps = () => {
     hopExecutionMetadataFilter,
   )
 
+  const summaryStepIndicator = useMemo(() => {
+    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
+      return <AnimatedCheck />
+    } else {
+      return <Spinner thickness='3px' size='md' />
+    }
+  }, [confirmedTradeExecutionState])
+
   const { totalSteps, currentStep } = useTradeSteps()
   const progressValue = (currentStep / totalSteps) * 100
 
@@ -58,12 +69,19 @@ export const ExpandableTradeSteps = () => {
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation={stepSummaryTranslation} />
         <HStack mr={2}>
-          <Progress value={progressValue} width='100px' size='xs' colorScheme='blue' />
+          <Progress
+            value={progressValue}
+            width='100px'
+            size='xs'
+            colorScheme={
+              confirmedTradeExecutionState === TradeExecutionState.TradeComplete ? 'green' : 'blue'
+            }
+          />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>
       </Flex>
     )
-  }, [hopExecutionState, progressValue, swapperName])
+  }, [hopExecutionState, progressValue, swapperName, confirmedTradeExecutionState])
 
   if (!titleElement) return null
 

@@ -1,13 +1,20 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
+import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
+  selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import {
+  HopExecutionState,
+  TradeExecutionState,
+  TransactionExecutionState,
+} from 'state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
@@ -34,6 +41,8 @@ export const useTradeButtonProps = ({
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
   const [isSignTxLoading, setIsSignTxLoading] = useState(false)
   const dispatch = useAppDispatch()
+  const history = useHistory()
+  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
   const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
   const {
@@ -87,6 +96,14 @@ export const useTradeButtonProps = ({
     executeTrade()
   }, [executeTrade, swapTxState])
 
+  const handleBack = useCallback(() => {
+    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
+      dispatch(tradeQuoteSlice.actions.clear())
+    }
+
+    history.push(TradeRoutePaths.Input)
+  }, [dispatch, history, confirmedTradeExecutionState])
+
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
 
   return ((): TradeButtonProps | undefined => {
@@ -127,7 +144,12 @@ export const useTradeButtonProps = ({
           isDisabled: !tradeQuoteQueryData,
         }
       case HopExecutionState.Complete:
-        return undefined
+        return {
+          handleSubmit: handleBack,
+          buttonText,
+          isLoading: false,
+          isDisabled: false,
+        }
       default:
         assertUnreachable(hopExecutionState)
     }

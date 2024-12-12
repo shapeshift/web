@@ -16,7 +16,7 @@ export const getHopExecutionStateButtonTranslation = (hopExecutionState: HopExec
     case HopExecutionState.AwaitingSwap:
       return 'trade.signAndSwap'
     case HopExecutionState.Complete:
-      return 'trade.complete'
+      return 'trade.doAnotherTrade'
     default:
       assertUnreachable(hopExecutionState)
   }
@@ -38,7 +38,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
     case HopExecutionState.AwaitingSwap:
       return ['trade.awaitingSwap', { swapperName }]
     case HopExecutionState.Complete:
-      return null // No summary step for complete state
+      return 'trade.complete'
     default:
       assertUnreachable(hopExecutionState)
   }
@@ -65,6 +65,7 @@ export enum TradeStep {
   LastHopReset = 'lastHopReset',
   LastHopApproval = 'lastHopApproval',
   LastHopSwap = 'lastHopSwap',
+  TradeComplete = 'tradeComplete',
 }
 
 const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
@@ -96,6 +97,7 @@ const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
         lastHopAllowanceApproval.txHash !== undefined ||
         lastHopPermit2.permit2Signature !== undefined),
     [TradeStep.LastHopSwap]: isMultiHopTrade === true,
+    [TradeStep.TradeComplete]: true,
   }
 }
 
@@ -119,6 +121,9 @@ export const getCurrentStep = (
   const activeSteps = Object.entries(steps).filter(([_, isActive]) => isActive)
 
   if (params.hopExecutionState === HopExecutionState.Pending) return 0
+  if (params.hopExecutionState === HopExecutionState.Complete) {
+    return activeSteps.findIndex(([step]) => step === TradeStep.TradeComplete)
+  }
 
   let currentStep: TradeStep | undefined
 

@@ -19,10 +19,8 @@ const InnerSteps = () => {
       return <EtaStep />
     case TradeExecutionState.FirstHop:
     case TradeExecutionState.SecondHop:
-      return <ExpandableTradeSteps />
     case TradeExecutionState.TradeComplete:
-      // return <TradeCompleteStep />
-      return <>GM</>
+      return <ExpandableTradeSteps />
     default:
       return null
   }

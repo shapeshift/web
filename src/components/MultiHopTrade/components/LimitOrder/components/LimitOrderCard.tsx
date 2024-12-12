@@ -117,13 +117,19 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     >
       <Flex direction='column' gap={4}>
         {/* Asset amounts row */}
-        <Flex justify='space-between' align='flex-start'>
-          <Flex>
-            <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
-              <Center borderRadius='full' boxSize='100%' bg='purple.500'>
-                <SwapBoldIcon boxSize='100%' />
-              </Center>
-            </AssetIconWithBadge>
+        <Flex justifyContent='space-between' alignItems='flex-start'>
+          <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
+            <Center borderRadius='full' boxSize='100%' bg='purple.500'>
+              <SwapBoldIcon boxSize='100%' />
+            </Center>
+          </AssetIconWithBadge>
+          <Flex
+            gap={2}
+            alignItems='flex-start'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            whiteSpace='nowrap'
+          >
             <Flex direction='column' align='flex-start' ml={4}>
               <Amount.Crypto
                 value={sellAmountCryptoPrecision}
@@ -138,6 +144,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               />
             </Flex>
           </Flex>
+          {/* TODO: Warning icon with tooltip */}
           <Tag colorScheme={tagColorScheme}>{translate(`limitOrder.status.${status}`)}</Tag>
         </Flex>
 

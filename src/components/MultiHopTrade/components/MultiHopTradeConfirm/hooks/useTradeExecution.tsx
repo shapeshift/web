@@ -277,7 +277,7 @@ export const useTradeExecution = (
           from,
           signMessage: async (message: TypedData) => {
             const typedDataToSign: ETHSignTypedData = {
-              addressNList: toAddressNList(bip44Params),
+              addressNList: toAddressNList(adapter.getBip44Params(bip44Params)),
               typedData: message,
             }
 
@@ -389,7 +389,7 @@ export const useTradeExecution = (
             from,
             signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
               const txToSign: SignTx<CosmosSdkChainId> = {
-                addressNList: toAddressNList(bip44Params),
+                addressNList: toAddressNList(adapter.getBip44Params(bip44Params)),
                 tx: {
                   fee: {
                     amount: [...transactionRequest.fee.amount],

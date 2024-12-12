@@ -17,6 +17,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
@@ -40,7 +41,7 @@ export async function getTrade({
   deps,
   lifiChainMap,
 }: {
-  input: GetEvmTradeQuoteInput
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
 }): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {

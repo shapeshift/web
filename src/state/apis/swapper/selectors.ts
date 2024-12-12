@@ -4,7 +4,7 @@ import type { PartialRecord } from '@shapeshiftoss/types'
 import type { ReduxState } from 'state/reducer'
 import { createDeepEqualOutputSelector } from 'state/selector-utils'
 
-import type { TradeQuoteRequest } from './types'
+import type { TradeQuoteOrRateRequest } from './types'
 
 const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 
@@ -17,7 +17,8 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
     for (const [queryKey, queryInfo] of Object.entries(queries)) {
       if (!queryKey.startsWith('getTradeQuote')) continue
 
-      const swapperName = (queryInfo?.originalArgs as TradeQuoteRequest | undefined)?.swapperName
+      const swapperName = (queryInfo?.originalArgs as TradeQuoteOrRateRequest | undefined)
+        ?.swapperName
 
       if (!swapperName) continue
 

@@ -1,7 +1,12 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import type { GetTradeQuoteInput, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
+import type {
+  GetTradeQuoteInput,
+  GetTradeRateInput,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
@@ -13,7 +18,7 @@ import type { LifiTradeRate } from '@shapeshiftoss/swapper/src/swappers/LifiSwap
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTradeReceiveAddress } from 'components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
-import { getTradeQuoteInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteInput'
+import { getTradeQuoteOrRateInput } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
 import { useHasFocus } from 'hooks/useHasFocus'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -271,26 +276,27 @@ export const useGetTradeQuotes = () => {
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
-      const updatedTradeQuoteInput: GetTradeQuoteInput | undefined = await getTradeQuoteInput({
-        sellAsset,
-        sellAccountNumber,
-        sellAccountType: sellAccountMetadata?.accountType,
-        buyAsset,
-        wallet: wallet ?? undefined,
-        originalRate: activeRateRef?.current as LifiTradeRate,
-        quoteOrRate: 'quote',
-        receiveAddress,
-        sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
-        allowMultiHop: true,
-        affiliateBps,
-        potentialAffiliateBps,
-        // Pass in the user's slippage preference if it's set, else let the swapper use its default
-        slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-        pubKey:
-          wallet && isLedger(wallet) && sellAccountId
-            ? fromAccountId(sellAccountId).account
-            : undefined,
-      })
+      const updatedTradeQuoteInput: GetTradeQuoteInput | GetTradeRateInput | undefined =
+        await getTradeQuoteOrRateInput({
+          sellAsset,
+          sellAccountNumber,
+          sellAccountType: sellAccountMetadata?.accountType,
+          buyAsset,
+          wallet: wallet ?? undefined,
+          originalRate: activeRateRef?.current as LifiTradeRate,
+          quoteOrRate: 'quote',
+          receiveAddress,
+          sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
+          allowMultiHop: true,
+          affiliateBps,
+          potentialAffiliateBps,
+          // Pass in the user's slippage preference if it's set, else let the swapper use its default
+          slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
+          pubKey:
+            wallet && isLedger(wallet) && sellAccountId
+              ? fromAccountId(sellAccountId).account
+              : undefined,
+        })
 
       return updatedTradeQuoteInput
     }
@@ -341,7 +347,7 @@ export const useGetTradeQuotes = () => {
     (swapperName: SwapperName | undefined): UseGetSwapperTradeQuoteOrRateArgs => {
       return {
         swapperName,
-        tradeQuoteInput: tradeQuoteInput ?? reduxSkipToken,
+        tradeQuoteOrRateInput: tradeQuoteInput ?? reduxSkipToken,
         // Skip trade quotes fetching which aren't for the swapper we have a rate for
         skip: !swapperName || !shouldFetchTradeQuotes,
         pollingInterval:

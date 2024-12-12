@@ -157,7 +157,7 @@ type CommonTradeInputBase = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
-  lifiAllowedTools?: string[] | undefined
+  originalRate?: TradeRate
   slippageTolerancePercentageDecimal?: string
 }
 

@@ -277,7 +277,7 @@ export const useGetTradeQuotes = () => {
         sellAccountType: sellAccountMetadata?.accountType,
         buyAsset,
         wallet: wallet ?? undefined,
-        lifiAllowedTools: (activeRateRef?.current as LifiTradeRate)?.lifiTools,
+        originalRate: activeRateRef?.current as LifiTradeRate,
         quoteOrRate: 'quote',
         receiveAddress,
         sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,

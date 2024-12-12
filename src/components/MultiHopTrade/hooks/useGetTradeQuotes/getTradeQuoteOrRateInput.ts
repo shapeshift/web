@@ -49,7 +49,7 @@ export const getTradeQuoteOrRateInput = async ({
   pubKey,
 }: GetTradeQuoteOrRateInputArgs): Promise<GetTradeQuoteInput | GetTradeRateInput> => {
   const tradeQuoteInputCommonArgs =
-    receiveAddress && sellAccountNumber !== undefined
+    quoteOrRate === 'quote' && receiveAddress && sellAccountNumber !== undefined
       ? {
           sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
             sellAmountBeforeFeesCryptoPrecision,

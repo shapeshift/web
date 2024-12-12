@@ -1072,7 +1072,7 @@
     "status": {
       "open": "Open",
       "fulfilled": "Fulfilled",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "expired": "Expired"
     },
     "orders": "Orders",

@@ -40,7 +40,7 @@ export async function getTrade({
   deps,
   lifiChainMap,
 }: {
-  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined }
+  input: GetEvmTradeQuoteInput
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
 }): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
@@ -54,7 +54,7 @@ export async function getTrade({
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    lifiAllowedTools,
+    originalRate,
     quoteOrRate,
   } = input
 
@@ -104,8 +104,8 @@ export async function getTrade({
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
       bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
-      ...(lifiAllowedTools && {
-        exchanges: { allow: lifiAllowedTools },
+      ...(originalRate && {
+        exchanges: { allow: (originalRate as LifiTradeRate).lifiTools },
       }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
@@ -306,7 +306,7 @@ export async function getTrade({
 }
 
 export const getTradeQuote = async (
-  input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
+  input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {

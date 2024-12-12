@@ -11,7 +11,7 @@ import {
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
@@ -19,14 +19,16 @@ import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import {
+  selectActiveQuote,
   selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
+  selectHopExecutionMetadata,
   selectLastHopBuyAsset,
   selectQuoteSellAmountUserCurrency,
   selectTotalNetworkFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
@@ -41,11 +43,22 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   currentHopIndex,
   activeTradeId,
 }) => {
+  const [hasClickedButton, setHasClickedButton] = useState(false)
   const tradeButtonProps = useTradeButtonProps({ tradeQuoteStep, currentHopIndex, activeTradeId })
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
+  const activeQuote = useAppSelector(selectActiveQuote)
+  const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
+    tradeId: activeQuote?.id ?? '',
+    hopIndex: 0,
+  })
+
+  const secondHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
+    tradeId: activeQuote?.id ?? '',
+    hopIndex: 1,
+  })
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
 
@@ -72,6 +85,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         .toNumber(),
     [networkFeeUserCurrency, sellAmountBeforeFeesUserCurrency],
   )
+
+  // Reset the button state when the trade execution state changes
+  useEffect(() => {
+    setHasClickedButton(false)
+  }, [firstHopMetadata.state, secondHopMetadata.state])
+
+  const handleClick = useCallback(() => {
+    setHasClickedButton(true)
+    tradeButtonProps?.handleSubmit()
+  }, [tradeButtonProps])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {
@@ -150,8 +173,6 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
 
   if (!confirmedTradeExecutionState || !translation || !tradeButtonProps) return null
 
-  const { handleSubmit, isLoading, isDisabled } = tradeButtonProps
-
   return (
     <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
       {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
@@ -161,9 +182,13 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         colorScheme={'blue'}
         size='lg'
         width='full'
-        onClick={handleSubmit}
-        isLoading={isLoading || confirmedTradeExecutionState === TradeExecutionState.Initializing}
-        isDisabled={isDisabled}
+        onClick={handleClick}
+        isLoading={
+          confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+          hasClickedButton ||
+          tradeButtonProps.isLoading
+        }
+        isDisabled={tradeButtonProps.isDisabled}
       >
         <Text translation={translation} />
       </Button>

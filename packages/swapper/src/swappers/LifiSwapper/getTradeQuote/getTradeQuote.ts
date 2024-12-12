@@ -49,6 +49,7 @@ export async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
+    lifiAllowedTools,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -96,7 +97,13 @@ export async function getTrade(
       // are currently incompatible with our fee calculations, leading to incorrect fee display,
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
-      bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
+      bridges: {
+        deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
+        ...(lifiAllowedTools?.bridges ? { allow: lifiAllowedTools.bridges } : {}),
+      },
+      ...(lifiAllowedTools?.exchanges && {
+        exchanges: { allow: lifiAllowedTools.exchanges },
+      }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -241,12 +248,30 @@ export async function getTrade(
         .dividedBy(bn(selectedLifiRoute.fromAmount))
         .toString()
 
+      const lifiBridgeTools = selectedLifiRoute.steps
+        .filter(
+          current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
+        )
+        .map(current => current.tool)
+
+      const lifiExchangeTools = selectedLifiRoute.steps
+        .filter(
+          current =>
+            // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
+            current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
+        )
+        .map(current => current.tool)
+
       return {
         id: selectedLifiRoute.id,
-        // This isn't a mistake - with Li.Fi, we can never go with our full-on intent of rate vs. quotes. As soon as a wallet is connected, we get a *quote*
-        // even though we're lying and saying this is a rate. With the "rate" containing a receiveAddress, a quote will *not* be fired at pre-sign time, which
-        // ensures users aren't rugged with routes that aren't available anymore when going from input to confirm
-        receiveAddress,
+        // TODO(gomes): when https://github.com/shapeshift/web/pull/8309 goes in, this goes out
+        // We do need receiveAddress in *input* to send it as fromAddress for routes req for more reliable rates, but with receiveAddress currently being the quotes/rates discriminator,
+        // we need to exclude it from method in *output*
+        receiveAddress: input.quoteOrRate === 'quote' ? receiveAddress : undefined,
+        lifiTools: {
+          bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
+          exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
+        },
         affiliateBps,
         potentialAffiliateBps,
         steps,

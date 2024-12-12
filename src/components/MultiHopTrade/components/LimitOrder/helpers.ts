@@ -1,13 +1,8 @@
 import type { SerializedError } from '@reduxjs/toolkit'
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, fromChainId, toAssetId } from '@shapeshiftoss/caip'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
 import type { CowSwapError } from '@shapeshiftoss/types'
 import { OrderError } from '@shapeshiftoss/types'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Address } from 'viem'
 import { assertUnreachable } from 'lib/utils'
-import { chainIdFeeAssetReferenceMap } from 'state/slices/assetsSlice/utils'
 
 export const isCowSwapError = (
   maybeCowSwapError: CowSwapError | SerializedError | undefined,
@@ -70,19 +65,4 @@ export const getCowSwapErrorTranslation = (
     default:
       assertUnreachable(errorType)
   }
-}
-
-export const cowSwapTokenToAssetId = (chainId: ChainId, cowSwapToken: Address) => {
-  const { chainNamespace, chainReference } = fromChainId(chainId)
-  return cowSwapToken.toLowerCase() === COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS.toLowerCase()
-    ? toAssetId({
-        chainId,
-        assetNamespace: 'slip44',
-        assetReference: chainIdFeeAssetReferenceMap(chainNamespace, chainReference),
-      })
-    : toAssetId({
-        chainId,
-        assetNamespace: ASSET_NAMESPACE.erc20,
-        assetReference: cowSwapToken,
-      })
 }

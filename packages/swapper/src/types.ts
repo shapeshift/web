@@ -29,6 +29,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { LifiTools } from './swappers/LifiSwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -157,6 +158,7 @@ type CommonTradeInputBase = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
+  lifiAllowedTools?: LifiTools
   slippageTolerancePercentageDecimal?: string
 }
 

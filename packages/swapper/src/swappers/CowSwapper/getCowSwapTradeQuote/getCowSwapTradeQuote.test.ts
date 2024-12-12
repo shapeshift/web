@@ -4,6 +4,10 @@ import { Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 
+import {
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  DEFAULT_ADDRESS,
+} from '../../../cowswap-utils/constants'
 import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
@@ -15,7 +19,6 @@ import {
   WETH,
   XDAI,
 } from '../../utils/test-data/assets'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS, DEFAULT_ADDRESS } from '../utils/constants'
 import { cowService } from '../utils/cowService'
 import type { CowSwapSellQuoteApiInput } from '../utils/helpers/helpers'
 import { getCowSwapTradeQuote } from './getCowSwapTradeQuote'

@@ -181,14 +181,6 @@ export const LimitOrderConfig = ({
     // This fires anytime value changes including setting it on preset price mode click
     // Store the value in a ref to send when we actually want the onChange to fire
     priceAmountRef.current = values.value
-
-    // TODO: Remove me?
-    // setLimitPrice({
-    //   [priceDirection]: values.value,
-    //   [oppositePriceDirection]: bnOrZero(values.value).isZero()
-    //     ? '0'
-    //     : bn(1).div(values.value).toFixed(),
-    // } as Record<PriceDirection, string>)
   }, [])
 
   const expiryOptionTranslation = useMemo(() => {

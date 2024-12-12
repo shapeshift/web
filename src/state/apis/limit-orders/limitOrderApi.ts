@@ -4,15 +4,13 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   assertGetCowNetwork,
+  COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
+  getAffiliateAppDataFragmentByChainId,
+  getFullAppData,
   signCowMessage,
   signCowOrder,
   signCowOrderCancellation,
 } from '@shapeshiftoss/swapper'
-import { COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS } from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/constants'
-import {
-  getAffiliateAppDataFragmentByChainId,
-  getFullAppData,
-} from '@shapeshiftoss/swapper/dist/swappers/CowSwapper/utils/helpers/helpers'
 import { isNativeEvmAsset } from '@shapeshiftoss/swapper/dist/swappers/utils/helpers/helpers'
 import type {
   CowSwapError,
@@ -130,12 +128,12 @@ export const limitOrderApi = createApi({
       },
     }),
     placeLimitOrder: build.mutation<OrderId, { quoteId: QuoteId; wallet: HDWallet | null }>({
-      queryFn: async ({ quoteId: _quoteId, wallet }, { getState }) => {
+      queryFn: async ({ quoteId, wallet }, { getState }) => {
         const state = getState() as ReduxState
         const {
           unsignedOrderCreation,
           params: { sellAssetId, accountId },
-        } = selectConfirmedLimitOrder(state, _quoteId)
+        } = selectConfirmedLimitOrder(state, quoteId)
         const { chainId } = fromAssetId(sellAssetId)
         const accountMetadata = selectPortfolioAccountMetadataByAccountId(state, { accountId })
 

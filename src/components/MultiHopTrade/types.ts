@@ -32,6 +32,7 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'allowMultiHop'
   | 'slippageTolerancePercentageDecimal'
   | 'quoteOrRate'
+  | 'lifiAllowedTools'
 >
 
 export enum TradeInputTab {

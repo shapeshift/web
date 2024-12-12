@@ -40,6 +40,7 @@
     "noResultsFound": "未找到结果。",
     "noResultsBody": "%{searchQuery} 没有结果。尝试新的搜索。",
     "insufficientFunds": "不充足的资金",
+    "insufficientAllowance": "津贴不足",
     "estimatedGas": "预估手续费",
     "relayerGasFee": "中继器手续费",
     "insufficientAmountForGas": "没有足够的 %{assetSymbol}.%{chainSymbol} 来支付手续费",
@@ -182,7 +183,8 @@
     "yes": "是的",
     "activeAccount": "活跃账户",
     "update": "更新",
-    "apy": "APY"
+    "apy": "APY",
+    "tbd": "TBD"
   },
   "consentBanner": {
     "body": {
@@ -897,6 +899,7 @@
     "enterCustomRecipientAddress": "输入自定义收件人地址",
     "receiveAtLeast": "至少收到",
     "tooltip": {
+      "continueSwapping": "继续交换最终细节",
       "changeQuote": "更改报价",
       "rate": "这是该交易对的预期利率。",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
@@ -920,6 +923,11 @@
     "rates": {
       "tags": {
         "negativeRatio": "卖出数量不足"
+      },
+      "rateExpired": {
+        "title": "费率已过期",
+        "body": "你之前的掉期利率已过期。我们已获取新利率并更新了你的报价金额。请在确认掉期前查看最新详细信息。",
+        "cta": "好的，明白了"
       }
     },
     "permit2": {
@@ -966,6 +974,7 @@
     "or": "或者",
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
+    "unknownProtocolFee": "（未知）",
     "numHops": "此交易包括 %{numHops}  hop",
     "receiveAddress": "接收地址",
     "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
@@ -986,7 +995,7 @@
     "allowanceApprovalTxName": "津贴批准tx：",
     "tradeComplete": "你现在在 %{chainName} 上的钱包中有 {cryptoAmountFormatted} 。",
     "doAnotherTrade": "进行另一笔交易",
-    "showDetails": "显示详细资料",
+    "summary": "交易总结",
     "transactionSuccessful": "交易成功，等待确认",
     "temp": {
       "tradeSuccess": "交易完成",
@@ -1019,9 +1028,16 @@
     "placeOrderSuccess": "成功！",
     "placeOrderFailed": "出了点问题",
     "placeOrder": "下订单",
+    "cancel": {
+      "cancelOrder": "取消限价单",
+      "requestCancellation": "是的，请求取消",
+      "areYouSureYouWantToCancelOrder": "你确实要取消此订单吗？",
+      "cancellationFailed": "取消订单失败"
+    },
     "viewOrder": "查看订单",
     "viewOnChain": "查看链上交易",
     "yourOrderHasBeenPlaced": "你的订单已下达。",
+    "yourCancellationHasBeenSubmitted": "你的取消已提交。",
     "limitPrice": "限价",
     "provider": "提供者",
     "expiration": "到期",
@@ -1032,6 +1048,8 @@
     "youGet": "您获得",
     "whenPriceReaches": "当价格达到",
     "expiry": "到期",
+    "noOpenOrders": "尚无未结订单。",
+    "noHistoricalOrders": "尚无历史订单。",
     "expiryOption": {
       "oneHour": "1小时",
       "oneDay": "1天",
@@ -1039,7 +1057,25 @@
       "sevenDays": "7天",
       "twentyEightDays": "28天",
       "custom": "定制"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "不支持本机出售资产",
+      "insufficientValidTo": "订单到期太快",
+      "excessiveValidTo": "订单到期时间太远",
+      "insufficientLiquidity": "流动性不足"
+    },
+    "expiresIn": "有效期至",
+    "openOrders": "未结订单",
+    "orderHistory": "订单历史记录",
+    "status": {
+      "open": "打开",
+      "fulfilled": "已实现",
+      "cancelled": "取消的",
+      "expired": "已到期"
+    },
+    "orders": "订单",
+    "viewOrders": "查看订单",
+    "loadingOrderList": "钱包不支持 %{chain}。"
   },
   "modals": {
     "assetSearch": {
@@ -2709,23 +2745,30 @@
       "noClosedProposals": "没有可用的封闭式提案"
     }
   },
-  "limitOrders": {
-    "listTitle": "限价订单",
-    "limitPrice": "限价",
-    "expiresIn": "有效期至",
-    "filled": "已完成",
-    "openOrders": "未结订单",
-    "orderHistory": "订单历史记录",
-    "status": {
-      "open": "打开",
-      "filled": "已完成",
-      "cancelled": "取消的",
-      "expired": "过期的"
-    },
-    "orders": "订单"
-  },
   "thorFees": {
     "title": "来自 THORSwap 吗？",
     "description": "THOR 持有者可免费交易至 2024 年。"
+  },
+  "chainAdapters": {
+    "errors": {
+      "unsupportedAddress": "不支持地址 %{address}。",
+      "unsupportedChain": "钱包不支持 %{chain}。",
+      "ledgerAppOpenCancelled": "Ledger 应用程序开放已取消。",
+      "getAddress": "无法从钱包获取地址。",
+      "getAccount": "无法获取 %{pubkey} 的帐户。",
+      "switchChainUnsupported": "钱包不支持切换链。",
+      "switchChainFailed": "无法将钱包链切换至 %{chain}。",
+      "buildTransaction": "无法建立交易。",
+      "signTransaction": "签署交易失败。",
+      "signAndBroadcastTransaction": "签署并广播交易失败。",
+      "signMessage": "消息签名失败。",
+      "broadcastTransaction": "广播交易失败。",
+      "broadcastTransactionWithMessage": "无法广播交易 (%{message})。",
+      "getGasFeeData": "获取网络费用失败。",
+      "getFeeData": "无法估算网络费用。",
+      "getPublicKey": "无法从钱包获取公钥。",
+      "getUtxos": "无法获取 utxos。",
+      "getValidator": "无法获取验证器。"
+    }
   }
 }

@@ -40,6 +40,7 @@
     "noResultsFound": "Результатов не найдено.",
     "noResultsBody": "Для %{searchQuery} нет результатов. Попробуйте выполнить новый поиск.",
     "insufficientFunds": "Недостаточно средств",
+    "insufficientAllowance": "Недостаточное разрешение",
     "estimatedGas": "Предполагаемая плата за газ",
     "relayerGasFee": "Плата за газ для релейщиков",
     "insufficientAmountForGas": "Недостаточно  %{assetSymbol}.%{chainSymbol} для покрытия газа",
@@ -973,6 +974,7 @@
     "or": "или",
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
+    "unknownProtocolFee": "(неизвестно)",
     "numHops": "Эта торговля включает  %{numHops} hops",
     "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "Утверждение разрешения tx:",
     "tradeComplete": "Теперь у вас есть %{cryptoAmountFormatted} в кошельке на %{chainName}.",
     "doAnotherTrade": "Совершите еще одну сделку",
-    "showDetails": "Показать детали",
+    "summary": "Торговая сводка",
     "transactionSuccessful": "Транзакция прошла успешно, ожидаем подтверждений",
     "temp": {
       "tradeSuccess": "Трейд завершен",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Успех!",
     "placeOrderFailed": "Что-то пошло не так",
     "placeOrder": "Разместить заказ",
+    "cancel": {
+      "cancelOrder": "Отменить лимитный ордер",
+      "requestCancellation": "Да, запросить отмену",
+      "areYouSureYouWantToCancelOrder": "Вы уверены, что хотите отменить этот ордер?",
+      "cancellationFailed": "Не удалось отменить ордер"
+    },
     "viewOrder": "Посмотреть заказ",
     "viewOnChain": "Просмотр транзакции по цепочке",
     "yourOrderHasBeenPlaced": "Ваш заказ оформлен.",
+    "yourCancellationHasBeenSubmitted": "Ваша отмена была отправлена.",
     "limitPrice": "Предельная цена",
     "provider": "Поставщик",
     "expiration": "Срок действия",
@@ -1039,6 +1048,8 @@
     "youGet": "Вы получаете",
     "whenPriceReaches": "Когда цена достигает",
     "expiry": "Срок действия",
+    "noOpenOrders": "Открытых ордеров пока нет.",
+    "noHistoricalOrders": "Исторических ордеров пока нет.",
     "expiryOption": {
       "oneHour": "1 час",
       "oneDay": "1 день",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 дней",
       "twentyEightDays": "28 дней",
       "custom": "Пользовательское"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Родные активы для продажи не поддерживаются",
+      "insufficientValidTo": "Слишком раннее истечение срока действия ордера",
+      "excessiveValidTo": "Срок действия ордера слишком далеко в будущем",
+      "insufficientLiquidity": "Недостаточная ликвидность"
+    },
+    "expiresIn": "Срок действия истекает",
+    "openOrders": "Открытые ордера",
+    "orderHistory": "История ордеров",
+    "status": {
+      "open": "Открыть",
+      "fulfilled": "Выполнено",
+      "cancelled": "Отменено",
+      "expired": "Просроченный"
+    },
+    "orders": "Ордеры",
+    "viewOrders": "Просмотр ордеров",
+    "loadingOrderList": "Загрузка лимитных ордеров..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Активные предложения отсутствуют",
       "noClosedProposals": "Закрытые предложения отсутствуют"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Лимитные заказы",
-    "limitPrice": "Предельная цена",
-    "expiresIn": "Срок действия истекает",
-    "filled": "Заполненный",
-    "openOrders": "Открытые заказы",
-    "orderHistory": "История заказов",
-    "status": {
-      "open": "Открыть",
-      "filled": "Заполненный",
-      "cancelled": "Отменено",
-      "expired": "Просроченный"
-    },
-    "orders": "Заказы"
   },
   "thorFees": {
     "title": "Здесь из THORSwap?",

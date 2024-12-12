@@ -40,6 +40,7 @@
     "noResultsFound": "Нічого не знайдено.",
     "noResultsBody": "За запитом  %{searchQuery} нічого не знайдено. Спробуйте новий пошук.",
     "insufficientFunds": "Недостатньо коштів",
+    "insufficientAllowance": "Недостатня сума дозволу",
     "estimatedGas": "Розрахункова оплата за Gas ",
     "relayerGasFee": "Комісія за передачу ",
     "insufficientAmountForGas": "Недостатньо %{assetSymbol}.%{chainSymbol} , щоб покрити газ",
@@ -973,6 +974,7 @@
     "or": "або",
     "onChainName": "на %{chainName}",
     "unknownGas": "(невідомо)",
+    "unknownProtocolFee": "(невідомо)",
     "numHops": "Ця торгівля включає %{numHops} hops",
     "receiveAddress": "Адреса отримувача",
     "receiveAddressDescription": "Не знайдено адресу %%{chainName} з підключеного гаманця. Введіть адресу вручну",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "Затвердження дозволу tx:",
     "tradeComplete": "Тепер у вас є %{cryptoAmountFormated} у вашому гаманці на %{chainName}.",
     "doAnotherTrade": "Зробіть іншу угоду",
-    "showDetails": "Показати деталі",
+    "summary": "Короткий огляд торгівлі",
     "transactionSuccessful": "Транзакція успішна, чекаємо на підтвердження",
     "temp": {
       "tradeSuccess": "Обмін завершено",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Вдалося!",
     "placeOrderFailed": "Щось пішло не так",
     "placeOrder": "Розмістити замовлення",
+    "cancel": {
+      "cancelOrder": "Скасування лімітного ордера",
+      "requestCancellation": "Так, запросити скасування",
+      "areYouSureYouWantToCancelOrder": "Ви впевнені, що хочете скасувати це замовлення?",
+      "cancellationFailed": "Не вдалося скасувати замовлення"
+    },
     "viewOrder": "Переглянути замовлення",
     "viewOnChain": "Переглянути транзакцію по мережі",
     "yourOrderHasBeenPlaced": "Ваше замовлення відправлено.",
+    "yourCancellationHasBeenSubmitted": "Ваше скасування було відправлено.",
     "limitPrice": "Лімітна ціна",
     "provider": "Провайдер",
     "expiration": "Закінчення терміну дії",
@@ -1039,6 +1048,8 @@
     "youGet": "Ви отримаєте",
     "whenPriceReaches": "Коли ціна сягне",
     "expiry": "Закінчення терміну дії",
+    "noOpenOrders": "Відкритих ордерів поки що немає.",
+    "noHistoricalOrders": "Історичних замовлень поки що немає.",
     "expiryOption": {
       "oneHour": "1 година",
       "oneDay": "1 день",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 днів",
       "twentyEightDays": "28 днів",
       "custom": "Користувацький"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Власний актив продажу не підтримується",
+      "insufficientValidTo": "Занадто рано закінчився термін дії замовлення",
+      "excessiveValidTo": "Термін дії замовлення занадто віддалений у часі",
+      "insufficientLiquidity": "Недостатня ліквідність"
+    },
+    "expiresIn": "Закінчується в",
+    "openOrders": "Відкриті замовлення",
+    "orderHistory": "Історія замовлень",
+    "status": {
+      "open": "Відкрити",
+      "fulfilled": "Виконано",
+      "cancelled": "Скасовано.",
+      "expired": "Прострочено"
+    },
+    "orders": "Замовлення.",
+    "viewOrders": "Переглянути замовлення",
+    "loadingOrderList": "Завантаження лімітних ордерів..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Активних пропозицій немає",
       "noClosedProposals": "Закриті пропозиції відсутні"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Лімітні замовлення",
-    "limitPrice": "Лімітна ціна",
-    "expiresIn": "Закінчується через",
-    "filled": "Заповнено",
-    "openOrders": "Відкриті замовлення",
-    "orderHistory": "Історія замовлень",
-    "status": {
-      "open": "Відкрити",
-      "filled": "Заповнено",
-      "cancelled": "Скасовано",
-      "expired": "Закінчився"
-    },
-    "orders": "Замовлення"
   },
   "thorFees": {
     "title": "Це з THORSwap?",

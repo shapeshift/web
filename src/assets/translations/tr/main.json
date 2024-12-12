@@ -40,6 +40,7 @@
     "noResultsFound": "Sonuç bulunamadı.",
     "noResultsBody": "%{searchQuery} için sonuç bulunamadı. Yeni bir arama yapmayı deneyin.",
     "insufficientFunds": "Yetersiz bakiye",
+    "insufficientAllowance": "Yetersiz Ödenek",
     "estimatedGas": "Tahmini Gaz Ücreti",
     "relayerGasFee": "Tekrarlanan Gaz Ücreti",
     "insufficientAmountForGas": "Gazı karşılamaya yetecek kadar %{assetSymbol}.%{chainSymbol} yok",
@@ -973,6 +974,7 @@
     "or": "veya",
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
+    "unknownProtocolFee": "(bilinmeyen)",
     "numHops": "Bu takas %{numHops} atlama içerir",
     "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "Tahsisat onayı tx:",
     "tradeComplete": "Artık cüzdanınızda %{chainname} üzerinde %{cryptoamountFormatted} var.",
     "doAnotherTrade": "Başka bir takas yap",
-    "showDetails": "Detayları göster",
+    "summary": "Ticaret Özeti",
     "transactionSuccessful": "İşlem başarılı, onay bekleniyor",
     "temp": {
       "tradeSuccess": "Takas tamamlandı",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Başarılı!",
     "placeOrderFailed": "Bir Şeyler Ters Gitti",
     "placeOrder": "Emir Ver",
+    "cancel": {
+      "cancelOrder": "Limit Emrini İptal Et",
+      "requestCancellation": "Evet, iptal talebinde bulunun",
+      "areYouSureYouWantToCancelOrder": "Bu emri iptal etmek istediğinizden emin misiniz?",
+      "cancellationFailed": "Emir iptal edilemedi"
+    },
     "viewOrder": "Emiri Görüntüle",
     "viewOnChain": "İşlemi zincirde görüntüle",
     "yourOrderHasBeenPlaced": "Emir verildi.",
+    "yourCancellationHasBeenSubmitted": "İptal talebi iletildi.",
     "limitPrice": "Limit Fiyatı",
     "provider": "Sağlayıcı",
     "expiration": "Sona erme",
@@ -1039,6 +1048,8 @@
     "youGet": "Alırsın",
     "whenPriceReaches": "Fiyat ulaştığında",
     "expiry": "Sona erme",
+    "noOpenOrders": "Henüz açık emir yok.",
+    "noHistoricalOrders": "Henüz tarihi bir emir yok.",
     "expiryOption": {
       "oneHour": "1 saat",
       "oneDay": "1 gün",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 gün",
       "twentyEightDays": "28 gün",
       "custom": "Özel"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Yerel satış varlığı desteklenmiyor",
+      "insufficientValidTo": "Emrin son kullanma tarihi çok erken",
+      "excessiveValidTo": "emrin son kullanma tarihi çok ileride",
+      "insufficientLiquidity": "Yetersiz likidite"
+    },
+    "expiresIn": "Sona Eriyor",
+    "openOrders": "Açık Emirler",
+    "orderHistory": "Emir Geçmişi",
+    "status": {
+      "open": "Açık",
+      "fulfilled": "Gerçekleştirildi",
+      "cancelled": "İptal edildi",
+      "expired": "Süresi geçmiş"
+    },
+    "orders": "Emirler",
+    "viewOrders": "Emirleri Görüntüle",
+    "loadingOrderList": "Limit emirleriniz yükleniyor..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Aktif teklif yok",
       "noClosedProposals": "Kapalı teklif yok"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Limit Emirleri",
-    "limitPrice": "Limit Fiyatı",
-    "expiresIn": "Sona Eriyor",
-    "filled": "Yerine getirildi",
-    "openOrders": "Açık Emirler",
-    "orderHistory": "Emir Geçmişi",
-    "status": {
-      "open": "Açık",
-      "filled": "Yerine getirildi",
-      "cancelled": "İptal edildi",
-      "expired": "Süresi geçti"
-    },
-    "orders": "Emirler"
   },
   "thorFees": {
     "title": "THORSwap'tan mı buradasın?",

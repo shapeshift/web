@@ -64,6 +64,7 @@ export const getTradeQuoteOrRateInput = async ({
           allowMultiHop,
           slippageTolerancePercentageDecimal,
           quoteOrRate: 'quote',
+          originalRate,
         }
       : {
           sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(

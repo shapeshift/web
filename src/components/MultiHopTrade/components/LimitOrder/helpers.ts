@@ -110,7 +110,7 @@ export const getMixpanelLimitOrderEventData = ({
 
   const feeParams = { feeModel: 'SWAPPER' as const, inputAmountUsd: sellAmountBeforeFeesUsd }
   const { feeUsd: shapeshiftFeeUsd } = selectCalculatedFees(state, feeParams)
-  const shapeShiftFeeUserCurrency = bn(shapeshiftFeeUsd).times(userCurrencyToUsdRate).toString()
+  const shapeShiftFeeUserCurrency = shapeshiftFeeUsd.times(userCurrencyToUsdRate).toString()
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
@@ -123,7 +123,7 @@ export const getMixpanelLimitOrderEventData = ({
     amountUsd: sellAmountBeforeFeesUsd,
     amountUserCurrency: sellAmountBeforeFeesUserCurrency,
     shapeShiftFeeUserCurrency,
-    shapeshiftFeeUsd,
+    shapeshiftFeeUsd: shapeshiftFeeUsd.toString(),
     [compositeBuyAsset]: buyAmountCryptoPrecision,
     [compositeSellAsset]: sellAmountCryptoPrecision,
   }

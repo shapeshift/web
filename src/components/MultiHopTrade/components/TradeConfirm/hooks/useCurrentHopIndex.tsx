@@ -6,7 +6,7 @@ import {
   selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 /**
  * Returns the index of the currently executing hop (0 or 1), or undefined if no hop is currently active
@@ -16,19 +16,15 @@ export const useCurrentHopIndex: () => SupportedTradeQuoteStepIndex | undefined 
   const activeQuote = useAppSelector(selectActiveQuote)
   const isMultiHop = useAppSelector(selectIsActiveQuoteMultiHop)
 
-  const firstHopMetadata = useAppSelector(state =>
-    selectHopExecutionMetadata(state, {
-      tradeId: activeQuote?.id ?? '',
-      hopIndex: 0,
-    }),
-  )
+  const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
+    tradeId: activeQuote?.id ?? '',
+    hopIndex: 0,
+  })
 
-  const secondHopMetadata = useAppSelector(state =>
-    selectHopExecutionMetadata(state, {
-      tradeId: activeQuote?.id ?? '',
-      hopIndex: 1,
-    }),
-  )
+  const secondHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
+    tradeId: activeQuote?.id ?? '',
+    hopIndex: 1,
+  })
 
   return useMemo(() => {
     if (!activeQuote) return undefined

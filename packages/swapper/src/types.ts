@@ -361,8 +361,6 @@ export type TradeRate = TradeQuoteBase & {
   quoteOrRate: 'rate'
 }
 
-export type TradeQuoteOrRate = TradeQuote | TradeRate
-
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
 export type GetUnsignedTxArgs = {

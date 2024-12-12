@@ -23,7 +23,6 @@ import type {
   SwapErrorRight,
   SwapperName,
   TradeQuote,
-  TradeQuoteOrRate,
   TradeQuoteStep,
   TradeRate,
 } from './types'
@@ -155,7 +154,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export const getHopByIndex = (
-  quote: TradeQuoteOrRate | undefined,
+  quote: TradeQuote | TradeRate | undefined,
   index: SupportedTradeQuoteStepIndex,
 ) => {
   if (quote === undefined) return undefined

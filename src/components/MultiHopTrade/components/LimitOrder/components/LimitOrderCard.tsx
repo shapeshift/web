@@ -118,33 +118,36 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
       <Flex direction='column' gap={4}>
         {/* Asset amounts row */}
         <Flex justifyContent='space-between' alignItems='flex-start'>
-          <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
-            <Center borderRadius='full' boxSize='100%' bg='purple.500'>
-              <SwapBoldIcon boxSize='100%' />
-            </Center>
-          </AssetIconWithBadge>
-          <Flex
-            gap={2}
-            alignItems='flex-start'
-            overflow='hidden'
-            textOverflow='ellipsis'
-            whiteSpace='nowrap'
-          >
-            <Flex direction='column' align='flex-start' ml={4}>
-              <Amount.Crypto
-                value={sellAmountCryptoPrecision}
-                symbol={sellAsset.symbol}
-                color='gray.500'
-                fontSize='xl'
-              />
-              <Amount.Crypto
-                value={buyAmountCryptoPrecision}
-                symbol={buyAsset.symbol}
-                fontSize='xl'
-              />
+          {/* Left group - icon and amounts */}
+          <Flex alignItems='flex-start' gap={4}>
+            <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
+              <Center borderRadius='full' boxSize='100%' bg='purple.500'>
+                <SwapBoldIcon boxSize='100%' />
+              </Center>
+            </AssetIconWithBadge>
+            <Flex
+              gap={2}
+              alignItems='flex-start'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              whiteSpace='nowrap'
+            >
+              <Flex direction='column' align='flex-start'>
+                <Amount.Crypto
+                  value={sellAmountCryptoPrecision}
+                  symbol={sellAsset.symbol}
+                  color='gray.500'
+                  fontSize='xl'
+                />
+                <Amount.Crypto
+                  value={buyAmountCryptoPrecision}
+                  symbol={buyAsset.symbol}
+                  fontSize='xl'
+                />
+              </Flex>
             </Flex>
           </Flex>
-          {/* TODO: Warning icon with tooltip */}
+          {/* Right group - status tag */}
           <Tag colorScheme={tagColorScheme}>{translate(`limitOrder.status.${status}`)}</Tag>
         </Flex>
 

@@ -103,7 +103,10 @@ export const LimitOrderConfirm = () => {
     // TEMP: Bypass allowance approvals and jump straight to placing the order
     setLimitOrderInitialized(quoteId)
     confirmSubmit(quoteId)
-    await placeLimitOrder({ quoteId, wallet })
+    const result = await placeLimitOrder({ quoteId, wallet })
+
+    // Exit if the request failed.
+    if ((result as { error: unknown }).error) return
 
     // refetch the orders list for this account
     queryClient.invalidateQueries({

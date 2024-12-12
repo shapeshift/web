@@ -23,7 +23,7 @@ import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { thorchainBlockTimeMs } from 'lib/utils/thorchain/constants'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 import { getInputOutputRatioFromQuote } from 'state/apis/swapper/helpers/getInputOutputRatioFromQuote'
-import type { ApiQuote, TradeQuoteRequest } from 'state/apis/swapper/types'
+import type { ApiQuote, TradeQuoteOrRateRequest } from 'state/apis/swapper/types'
 import { TradeQuoteValidationError } from 'state/apis/swapper/types'
 import { getEnabledSwappers } from 'state/helpers'
 import type { ReduxState } from 'state/reducer'
@@ -42,8 +42,8 @@ export const swapperApi = createApi({
   keepUnusedDataFor: Number.MAX_SAFE_INTEGER, // never clear, we will manage this
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
-    getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteRequest>({
-      queryFn: async (tradeQuoteInput: TradeQuoteRequest, { dispatch, getState }) => {
+    getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteOrRateRequest>({
+      queryFn: async (tradeQuoteInput: TradeQuoteOrRateRequest, { dispatch, getState }) => {
         const state = getState() as ReduxState
         const {
           swapperName,

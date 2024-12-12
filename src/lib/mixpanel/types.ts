@@ -66,6 +66,8 @@ export enum MixPanelEvent {
   LpIncompleteWithdrawConfirm = 'LP Incomplete Withdraw Confirm',
   CustomAssetAdded = 'Custom Asset Added',
   ToggleWatchAsset = 'Toggle Watch Asset',
+  LimitOrderPlaced = 'Limit Order Placed',
+  LimitOrderCanceled = 'Limit Order Canceled',
 }
 
 export type TrackOpportunityProps = {

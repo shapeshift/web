@@ -82,7 +82,10 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
       return
     }
 
-    await cancelLimitOrder({ wallet, ...orderToCancel })
+    const result = await cancelLimitOrder({ wallet, ...orderToCancel })
+
+    // Exit if the request failed.
+    if ((result as { error: unknown }).error) return
 
     // refetch the orders list for this account
     queryClient.invalidateQueries({

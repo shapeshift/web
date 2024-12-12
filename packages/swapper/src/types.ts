@@ -157,7 +157,6 @@ type CommonTradeInputBase = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
-  originalRate?: TradeRate
   slippageTolerancePercentageDecimal?: string
 }
 
@@ -166,6 +165,7 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
   receiveAddress: string
   accountNumber: number
   quoteOrRate: 'quote'
+  originalRate: TradeRate
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {

@@ -8,6 +8,7 @@ import { clearOpportunities } from './clearOpportunities'
 import { clearPortfolio } from './clearPortfolio'
 import { clearSnapshot } from './clearSnapshot'
 import { clearTxHistory } from './clearTxHistory'
+import { updateCosmosSdkAccountMetadata } from './updateCosmosSdkAccountMetadata'
 
 export const clearTxHistoryMigrations = {
   0: clearTxHistory,
@@ -17,9 +18,10 @@ export const clearOpportunitiesMigrations = {
   0: clearOpportunities,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
-export const clearPortfolioMigrations = {
+export const portfolioMigrations = {
   0: clearPortfolio,
   1: clearPortfolio,
+  2: updateCosmosSdkAccountMetadata,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const localWalletMigrations = {

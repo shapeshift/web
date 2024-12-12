@@ -1,5 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useCallback, useMemo, useState } from 'react'
+import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
@@ -34,6 +35,7 @@ export const useTradeButtonProps = ({
   const [isSignTxLoading, setIsSignTxLoading] = useState(false)
   const dispatch = useAppDispatch()
   const activeQuote = useAppSelector(selectActiveQuote)
+  const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
   const {
     handleSignAllowanceApproval,
     isAllowanceApprovalLoading,
@@ -121,8 +123,8 @@ export const useTradeButtonProps = ({
         return {
           handleSubmit: handleSignTx,
           buttonText,
-          isLoading: isSignTxLoading,
-          isDisabled: false, // FIXME: disable whilst getting quote
+          isLoading: isSignTxLoading || isFetching,
+          isDisabled: !tradeQuoteQueryData,
         }
       case HopExecutionState.Complete:
         return undefined

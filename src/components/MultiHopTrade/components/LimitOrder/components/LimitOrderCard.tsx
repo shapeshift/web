@@ -147,7 +147,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                       value={sellAmountCryptoPrecision}
                       symbol={sellAsset.symbol}
                       color='gray.500'
-                      fontSize='xl'
+                      fontSize='lg'
                       whiteSpace='nowrap'
                       overflow='hidden'
                       textOverflow='ellipsis'
@@ -160,7 +160,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                     <Amount.Crypto
                       value={buyAmountCryptoPrecision}
                       symbol={buyAsset.symbol}
-                      fontSize='xl'
+                      fontSize='lg'
                       whiteSpace='nowrap'
                       overflow='hidden'
                       textOverflow='ellipsis'

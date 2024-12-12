@@ -171,9 +171,7 @@ export const getTradeQuote = async (
       ...quote,
       quoteOrRate: 'quote' as const,
       receiveAddress: receiveAddress!,
-      steps: quote.steps.map(step => ({ ...step, accountNumber: undefined })) as
-        | [TradeQuoteStep]
-        | [TradeQuoteStep, TradeQuoteStep],
+      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
     })),
   )
 }

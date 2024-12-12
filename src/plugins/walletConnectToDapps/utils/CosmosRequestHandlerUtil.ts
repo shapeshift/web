@@ -35,9 +35,9 @@ export const approveCosmosRequest = async ({
   assertIsDefined(customTransactionData)
   assertIsDefined(accountMetadata)
 
-  const bip44Params = accountMetadata.bip44Params
-  const accountNumber = bip44Params.accountNumber
-  const addressNList = toAddressNList(bip44Params)
+  const { bip44Params } = accountMetadata
+  const { accountNumber } = bip44Params
+  const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
 
   switch (request.method) {
     case CosmosSigningMethod.COSMOS_SIGN_AMINO:

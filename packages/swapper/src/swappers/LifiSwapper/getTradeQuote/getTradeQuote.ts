@@ -35,7 +35,7 @@ import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transfor
 import type { LifiTradeQuote } from '../utils/types'
 
 export async function getTrade(
-  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined },
+  input: GetEvmTradeQuoteInput,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
@@ -97,9 +97,12 @@ export async function getTrade(
       // are currently incompatible with our fee calculations, leading to incorrect fee display,
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
-      bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
-      ...(lifiAllowedTools && {
-        exchanges: { allow: lifiAllowedTools },
+      bridges: {
+        deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
+        ...(lifiAllowedTools?.bridges ? { allow: lifiAllowedTools.bridges } : {}),
+      },
+      ...(lifiAllowedTools?.exchanges && {
+        exchanges: { allow: lifiAllowedTools.exchanges },
       }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
@@ -245,13 +248,30 @@ export async function getTrade(
         .dividedBy(bn(selectedLifiRoute.fromAmount))
         .toString()
 
+      const lifiBridgeTools = selectedLifiRoute.steps
+        .filter(
+          current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
+        )
+        .map(current => current.tool)
+
+      const lifiExchangeTools = selectedLifiRoute.steps
+        .filter(
+          current =>
+            // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
+            current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
+        )
+        .map(current => current.tool)
+
       return {
         id: selectedLifiRoute.id,
         // TODO(gomes): when https://github.com/shapeshift/web/pull/8309 goes in, this goes out
         // We do need receiveAddress in *input* to send it as fromAddress for routes req for more reliable rates, but with receiveAddress currently being the quotes/rates discriminator,
         // we need to exclude it from method in *output*
         receiveAddress: input.quoteOrRate === 'quote' ? receiveAddress : undefined,
-        lifiTools: selectedLifiRoute.steps.map(step => step.tool),
+        lifiTools: {
+          bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
+          exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
+        },
         affiliateBps,
         potentialAffiliateBps,
         steps,
@@ -297,7 +317,7 @@ export async function getTrade(
 // This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
 
 export const getTradeQuote = (
-  input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
+  input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)

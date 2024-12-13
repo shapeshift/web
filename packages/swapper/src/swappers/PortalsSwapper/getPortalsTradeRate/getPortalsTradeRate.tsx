@@ -36,6 +36,7 @@ export async function getPortalsTradeRate(
     potentialAffiliateBps,
     chainId,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    receiveAddress,
   } = input
 
   const sellAssetChainId = sellAsset.chainId
@@ -131,8 +132,9 @@ export async function getPortalsTradeRate(
 
     const tradeRate = {
       id: uuid(),
+      quoteOrRate: 'rate' as const,
       accountNumber,
-      receiveAddress: undefined,
+      receiveAddress,
       affiliateBps,
       potentialAffiliateBps,
       rate: inputOutputRate,

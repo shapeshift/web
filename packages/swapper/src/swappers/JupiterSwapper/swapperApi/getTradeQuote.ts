@@ -212,6 +212,7 @@ export const getTradeQuote = async (
 
   const tradeQuote: TradeQuote = {
     id: uuid(),
+    quoteOrRate: 'quote',
     rate,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,

@@ -209,7 +209,7 @@ type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
 export type GetUtxoTradeRateInput = CommonTradeRateInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
-  // accountNumber and accountType may be undefined may be undefined if no wallet is connected
+  // accountNumber and accountType may be undefined if no wallet is connected
   // accountType will default to UtxoAccountType.P2pkh without a wallet connected
   accountNumber: number | undefined
   xpub: string | undefined

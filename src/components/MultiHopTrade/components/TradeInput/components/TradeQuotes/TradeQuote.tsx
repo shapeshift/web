@@ -8,6 +8,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { SlippageIcon } from 'components/Icons/Slippage'
@@ -193,8 +194,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
             <Box
-              onMouseEnter={onTooltipOpen}
-              onMouseLeave={onTooltipClose}
+              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
+              onMouseLeave={!isMobile ? onTooltipClose : undefined}
               onTouchEnd={onTooltipToggle}
             >
               <Tooltip
@@ -212,8 +213,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
             <Box
-              onMouseEnter={onTooltipOpen}
-              onMouseLeave={onTooltipClose}
+              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
+              onMouseLeave={!isMobile ? onTooltipClose : undefined}
               onTouchEnd={onTooltipToggle}
             >
               <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
@@ -232,8 +233,8 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         default:
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
             <Box
-              onMouseEnter={onTooltipOpen}
-              onMouseLeave={onTooltipClose}
+              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
+              onMouseLeave={!isMobile ? onTooltipClose : undefined}
               onTouchEnd={onTooltipToggle}
             >
               <Tooltip

@@ -1,5 +1,5 @@
 import { WarningIcon } from '@chakra-ui/icons'
-import { Circle, Flex, Skeleton, Tag, Tooltip } from '@chakra-ui/react'
+import { Box, Circle, Flex, Skeleton, Tag, Tooltip, useDisclosure } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
@@ -64,7 +64,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     onBack,
   }) => {
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
-
+    const {
+      isOpen: isTooltipOpen,
+      onOpen: onTooltipOpen,
+      onClose: onTooltipClose,
+    } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
 
@@ -187,23 +191,28 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !quote || error !== undefined:
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
-            <Tooltip
-              label={translate(
-                ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
-              )}
-            >
-              <Circle size={6}>
-                <WarningIcon color='text.error' boxSize={4} />
-              </Circle>
-            </Tooltip>
+            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+              <Tooltip
+                label={translate(
+                  ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
+                )}
+                isOpen={isTooltipOpen}
+              >
+                <Circle size={6}>
+                  <WarningIcon color='text.error' boxSize={4} />
+                </Circle>
+              </Tooltip>
+            </Box>
           )
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
-            <Tooltip label={translate('trade.rates.tags.negativeRatio')}>
-              <Circle size={6}>
-                <WarningIcon color='text.error' boxSize={4} />
-              </Circle>
-            </Tooltip>
+            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+              <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
+                <Circle size={6}>
+                  <WarningIcon color='text.error' boxSize={4} />
+                </Circle>
+              </Tooltip>
+            </Box>
           )
         case isBest:
           return (
@@ -213,11 +222,19 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           )
         default:
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
-            <Tooltip label={translate('trade.tooltip.overallPercentageDifference')}>
-              <Tag size='sm'>
-                <Amount.Percent value={quoteOverallDifferenceDecimalPercentage} autoColor={false} />
-              </Tag>
-            </Tooltip>
+            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+              <Tooltip
+                label={translate('trade.tooltip.overallPercentageDifference')}
+                isOpen={isTooltipOpen}
+              >
+                <Tag size='sm'>
+                  <Amount.Percent
+                    value={quoteOverallDifferenceDecimalPercentage}
+                    autoColor={false}
+                  />
+                </Tag>
+              </Tooltip>
+            </Box>
           ) : null
       }
     }, [
@@ -228,6 +245,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isAmountEntered,
       isBest,
       quoteOverallDifferenceDecimalPercentage,
+      onTooltipOpen,
+      onTooltipClose,
+      isTooltipOpen,
     ])
 
     const isDisabled = !quote || isLoading

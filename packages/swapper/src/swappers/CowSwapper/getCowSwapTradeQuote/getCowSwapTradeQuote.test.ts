@@ -138,6 +138,7 @@ const expectedApiInputUsdcToEthArbitrum: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -183,6 +184,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -228,6 +230,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -273,6 +276,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
 }
 
 const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -318,6 +322,7 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',

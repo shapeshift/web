@@ -1,19 +1,22 @@
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 
 import type {
   CommonTradeQuoteInput,
   QuoteFeeData,
+  SwapErrorRight,
   SwapperDeps,
-  TradeQuoteResult,
+  TradeQuote,
+  TradeQuoteStep,
 } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { CHAINFLIP_BAAS_COMMISSION } from '../constants'
-import { getRateOrQuote } from '../utils/getRateOrQuote'
+import { getQuoteOrRate } from '../utils/getQuoteOrRate'
 import {
   calculateChainflipMinPrice,
   getChainFlipIdFromAssetId,
@@ -23,7 +26,7 @@ import {
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<TradeQuoteResult> => {
+): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
     buyAsset,
@@ -60,7 +63,7 @@ export const getTradeQuote = async (
     )
   }
 
-  const maybeTradeQuotes = await getRateOrQuote(input, deps)
+  const maybeTradeQuotes = await getQuoteOrRate(input, deps)
 
   if (maybeTradeQuotes.isErr()) return Err(maybeTradeQuotes.unwrapErr())
 
@@ -161,5 +164,14 @@ export const getTradeQuote = async (
     }
   }
 
-  return Ok(tradeQuotes)
+  const quotesResult = Ok(tradeQuotes)
+
+  return quotesResult.map(quotes =>
+    quotes.map(quote => ({
+      ...quote,
+      quoteOrRate: 'quote' as const,
+      receiveAddress: receiveAddress!,
+      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
+    })),
+  )
 }

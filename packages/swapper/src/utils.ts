@@ -17,15 +17,14 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   EvmTransactionRequest,
-  ExecutableTradeQuote,
   ExecutableTradeStep,
   SolanaTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapperName,
   TradeQuote,
-  TradeQuoteOrRate,
   TradeQuoteStep,
+  TradeRate,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -155,7 +154,7 @@ export const makeSwapperAxiosServiceMonadic = (service: AxiosInstance, _swapperN
   })
 
 export const getHopByIndex = (
-  quote: TradeQuoteOrRate | undefined,
+  quote: TradeQuote | TradeRate | undefined,
   index: SupportedTradeQuoteStepIndex,
 ) => {
   if (quote === undefined) return undefined
@@ -302,8 +301,8 @@ export const getInputOutputRate = ({
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 
-export const isExecutableTradeQuote = (quote: TradeQuote): quote is ExecutableTradeQuote =>
-  !!quote.receiveAddress
+export const isExecutableTradeQuote = (quote: TradeQuote | TradeRate): quote is TradeQuote =>
+  quote.quoteOrRate === 'quote'
 
 export const isToken = (assetId: AssetId) => {
   switch (fromAssetId(assetId).assetNamespace) {

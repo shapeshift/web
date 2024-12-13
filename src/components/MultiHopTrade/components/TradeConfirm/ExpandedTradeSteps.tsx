@@ -27,7 +27,7 @@ const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
 export const ExpandedTradeSteps = () => {
   const translate = useTranslate()
-  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
+  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2, pr: 2 }), [])
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
@@ -176,7 +176,7 @@ export const ExpandedTradeSteps = () => {
                 accountId={firstHopSellAccountId}
               />
             )}
-            {firstHopSwap.buyTxHash && (
+            {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
               <TxLabel
                 txHash={firstHopSwap.buyTxHash}
                 explorerTxLink={tradeQuoteFirstHop.buyAsset.explorerTxLink}

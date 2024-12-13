@@ -1,5 +1,5 @@
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
 import type { AccountMetadata, Asset } from '@shapeshiftoss/types'
 
 export enum TradeRoutePaths {
@@ -33,20 +33,6 @@ export type TradeQuoteInputCommonArgs = Pick<
   | 'slippageTolerancePercentageDecimal'
   | 'quoteOrRate'
   | 'originalRate'
->
-
-export type TradeRateInputCommonArgs = Pick<
-  GetTradeRateInput,
-  | 'sellAmountIncludingProtocolFeesCryptoBaseUnit'
-  | 'sellAsset'
-  | 'buyAsset'
-  | 'receiveAddress'
-  | 'accountNumber'
-  | 'affiliateBps'
-  | 'potentialAffiliateBps'
-  | 'allowMultiHop'
-  | 'slippageTolerancePercentageDecimal'
-  | 'quoteOrRate'
 >
 
 export enum TradeInputTab {

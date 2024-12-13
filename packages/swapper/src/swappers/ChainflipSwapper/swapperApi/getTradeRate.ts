@@ -1,11 +1,19 @@
-import type { GetTradeRateInput, SwapperDeps, TradeRateResult } from '../../../types'
-import { getRateOrQuote } from '../utils/getRateOrQuote'
+import type { GetTradeRateInput, SwapperDeps, TradeRateResult, TradeRateStep } from '../../../types'
+import { getQuoteOrRate } from '../utils/getQuoteOrRate'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<TradeRateResult> => {
-  // A quote is a rate with guaranteed BIP44 params (account number/sender),
-  // so we can return quotes which can be used as rates, but not the other way around
-  return (await getRateOrQuote(input, deps)) as TradeRateResult
+  const ratesResult = await getQuoteOrRate(input, deps)
+
+  return ratesResult.map(rates =>
+    rates.map(rate => ({
+      ...rate,
+      quoteOrRate: 'rate' as const,
+      steps: rate.steps.map(step => ({ ...step, accountNumber: undefined })) as
+        | [TradeRateStep]
+        | [TradeRateStep, TradeRateStep],
+    })),
+  )
 }

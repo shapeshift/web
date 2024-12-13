@@ -3,6 +3,7 @@ import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
 import { v4 as uuid } from 'uuid'
@@ -14,10 +15,11 @@ import type {
   GetTradeRateInput,
   GetUtxoTradeQuoteInput,
   ProtocolFee,
+  SwapErrorRight,
   SwapperDeps,
   SwapSource,
   TradeQuote,
-  TradeQuoteResult,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
@@ -41,10 +43,10 @@ import { getEvmTxFees } from './getEvmTxFees'
 import { getUtxoTxFees } from './getUtxoTxFees'
 import { getChainFlipIdFromAssetId, isSupportedAssetId, isSupportedChainId } from './helpers'
 
-export const getRateOrQuote = async (
+export const getQuoteOrRate = async (
   input: GetTradeRateInput | CommonTradeQuoteInput,
   deps: SwapperDeps,
-): Promise<TradeQuoteResult> => {
+): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> => {
   const {
     accountNumber,
     receiveAddress,
@@ -52,6 +54,7 @@ export const getRateOrQuote = async (
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps: commissionBps,
+    quoteOrRate,
   } = input
 
   if (!isSupportedChainId(sellAsset.chainId)) {
@@ -277,10 +280,7 @@ export const getRateOrQuote = async (
     }
   }
 
-  // A quote is a rate with guaranteed BIP44 params (account number/sender),
-  // so we can return quotes which can be used as rates, but not the other way around
-  // The 'input' determines if this is a rate or a quote based on the accountNumber and receiveAddress fields
-  const ratesOrQuotes: TradeQuote[] = []
+  const ratesOrQuotes = []
 
   for (const singleQuoteResponse of quoteResponse) {
     const isStreaming = singleQuoteResponse.type === CHAINFLIP_DCA_QUOTE
@@ -297,10 +297,11 @@ export const getRateOrQuote = async (
         singleQuoteResponse.boostQuote.egressAmountNative!,
       )
 
-      const boostTradeRateOrQuote: TradeQuote = {
+      const boostTradeRateOrQuote = {
         id: uuid(),
         rate: boostRate,
         receiveAddress,
+        quoteOrRate,
         potentialAffiliateBps: commissionBps,
         affiliateBps: commissionBps,
         isStreaming,
@@ -338,7 +339,7 @@ export const getRateOrQuote = async (
             },
           },
         ],
-      }
+      } as TradeQuote | TradeRate
 
       ratesOrQuotes.push(boostTradeRateOrQuote)
     }
@@ -348,10 +349,11 @@ export const getRateOrQuote = async (
       singleQuoteResponse.egressAmountNative!,
     )
 
-    const tradeRateOrQuote: TradeQuote = {
+    const tradeRateOrQuote = {
       id: uuid(),
       rate,
       receiveAddress,
+      quoteOrRate,
       potentialAffiliateBps: commissionBps,
       affiliateBps: commissionBps,
       isStreaming,
@@ -388,10 +390,10 @@ export const getRateOrQuote = async (
           },
         },
       ],
-    }
+    } as TradeQuote | TradeRate
 
     ratesOrQuotes.push(tradeRateOrQuote)
   }
 
-  return Ok(ratesOrQuotes)
+  return Ok(ratesOrQuotes as TradeQuote[] | TradeRate[])
 }

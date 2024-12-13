@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
 import type { Selector } from 'react-redux'
 import type { ApiQuote } from 'state/apis/swapper/types'
@@ -81,9 +81,9 @@ const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | undefined>
       ]
     },
   )
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuote => tradeQuote.confirmedQuote)
-const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,
     selectConfirmedQuote,

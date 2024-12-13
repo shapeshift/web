@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, Heading, useDisclosure, usePrevious } from '@chakra-ui/react'
-import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
@@ -47,7 +47,7 @@ export const MultiHopTradeConfirm = memo(() => {
   const { isLoading } = useIsApprovalInitiallyNeeded()
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal'
+    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
   }, [activeQuote])
 
   useEffect(() => {

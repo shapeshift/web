@@ -595,7 +595,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     // check if destination token account exists and add creation instruction if it doesn't
     try {
-      await getAccount(this.connection, destinationTokenAccount)
+      await getAccount(this.connection, destinationTokenAccount, 'confirmed', TOKEN_PROGRAM)
     } catch (err) {
       if (
         err instanceof TokenAccountNotFoundError ||

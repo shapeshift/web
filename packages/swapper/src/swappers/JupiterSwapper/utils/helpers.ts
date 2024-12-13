@@ -19,6 +19,7 @@ import {
   jupiterSupportedChainIds,
   PDA_ACCOUNT_CREATION_COST,
   SHAPESHIFT_JUPITER_REFERRAL_KEY,
+  TOKEN_2022_PROGRAM_ID,
 } from './constants'
 import { jupiterService } from './jupiterService'
 
@@ -221,6 +222,12 @@ export const createSwapInstructions = async ({
   const contractAddress =
     buyAsset.assetId === solAssetId ? undefined : fromAssetId(buyAsset.assetId).assetReference
 
+  const buyAccountInfo = await adapter
+    .getConnection()
+    .getAccountInfo(new PublicKey(fromAssetId(buyAsset.assetId).assetReference))
+
+  const isBuyAssetToken2022 = buyAccountInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+
   const { instruction: createTokenAccountInstruction, destinationTokenAccount } =
     contractAddress && isCrossAccountTrade
       ? await adapter.createAssociatedTokenAccountInstruction({
@@ -253,17 +260,21 @@ export const createSwapInstructions = async ({
     {},
   )
 
-  const { instruction: feeAccountInstruction, tokenAccount } =
-    await getFeeTokenAccountAndInstruction({
-      feePayerPubKey: new PublicKey(sendAddress),
-      buyAssetReferralPubKey,
-      sellAssetReferralPubKey,
-      programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
-      instructionData,
-      buyTokenId: buyAssetAddress,
-      sellTokenId: sellAssetAddress,
-      connection: adapter.getConnection(),
-    })
+  const { instruction: feeAccountInstruction, tokenAccount } = !isBuyAssetToken2022
+    ? await getFeeTokenAccountAndInstruction({
+        feePayerPubKey: new PublicKey(sendAddress),
+        buyAssetReferralPubKey,
+        sellAssetReferralPubKey,
+        programId: new PublicKey(JUPITER_AFFILIATE_CONTRACT_ADDRESS),
+        instructionData,
+        buyTokenId: buyAssetAddress,
+        sellTokenId: sellAssetAddress,
+        connection: adapter.getConnection(),
+      })
+    : {
+        instruction: undefined,
+        tokenAccount: undefined,
+      }
 
   const maybeSwapResponse = await getJupiterSwapInstructions({
     apiUrl: jupiterUrl,
@@ -271,7 +282,7 @@ export const createSwapInstructions = async ({
     toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
     rawQuote: priceResponse,
     useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
-    feeAccount: affiliateBps !== '0' ? tokenAccount?.toString() : undefined,
+    feeAccount: affiliateBps !== '0' && tokenAccount ? tokenAccount.toString() : undefined,
   })
 
   if (maybeSwapResponse.isErr()) {

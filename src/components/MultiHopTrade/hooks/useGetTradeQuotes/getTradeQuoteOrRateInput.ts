@@ -2,6 +2,7 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
+import type { LifiTradeQuote } from '@shapeshiftoss/swapper/src/swappers/LifiSwapper/utils/types'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 import { toBaseUnit } from 'lib/math'
@@ -19,6 +20,7 @@ export type GetTradeQuoteOrRateInputArgs = {
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
   originalRate?: TradeRate
+  lifiAllowedTools?: LifiTradeQuote['lifiTools'] | undefined
   // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
   potentialAffiliateBps: string
   // Actual affiliate bps - if the FOX discounts is off, this will be the same as *affiliateBps*

@@ -34,6 +34,7 @@ export async function getTradeRate(
     receiveAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sendAddress,
+    accountNumber,
   } = input
 
   const assertion = await assertValidTrade({ buyAsset, sellAsset })
@@ -82,7 +83,7 @@ export async function getTradeRate(
           rate,
           buyAsset,
           sellAsset,
-          accountNumber: undefined,
+          accountNumber,
           buyAmountBeforeFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,

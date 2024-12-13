@@ -11,9 +11,7 @@ export const getTradeRate = async (
     rates.map(rate => ({
       ...rate,
       quoteOrRate: 'rate' as const,
-      steps: rate.steps.map(step => ({ ...step, accountNumber: undefined })) as
-        | [TradeRateStep]
-        | [TradeRateStep, TradeRateStep],
+      steps: rate.steps.map(step => step) as [TradeRateStep] | [TradeRateStep, TradeRateStep],
     })),
   )
 }

@@ -17,6 +17,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
@@ -40,7 +41,7 @@ export async function getTrade({
   deps,
   lifiChainMap,
 }: {
-  input: GetEvmTradeQuoteInput & { lifiAllowedTools?: string[] | undefined }
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
   deps: SwapperDeps
   lifiChainMap: Map<ChainId, ChainKey>
 }): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
@@ -54,7 +55,6 @@ export async function getTrade({
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    lifiAllowedTools,
     quoteOrRate,
   } = input
 
@@ -104,9 +104,10 @@ export async function getTrade({
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
       bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
-      ...(lifiAllowedTools && {
-        exchanges: { allow: lifiAllowedTools },
-      }),
+      ...(quoteOrRate === 'quote' &&
+        (input.originalRate as LifiTradeRate).lifiTools && {
+          exchanges: { allow: (input.originalRate as LifiTradeRate).lifiTools },
+        }),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -147,6 +148,13 @@ export async function getTrade({
   const { routes } = routesResponse.unwrap()
 
   if (routes.length === 0) {
+    if (quoteOrRate === 'quote')
+      return Ok([
+        {
+          ...input.originalRate,
+          quoteOrRate: 'quote',
+        } as LifiTradeQuote,
+      ])
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
@@ -302,7 +310,7 @@ export async function getTrade({
 }
 
 export const getTradeQuote = async (
-  input: GetEvmTradeQuoteInputBase & { lifiAllowedTools?: string[] | undefined },
+  input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {

@@ -66,6 +66,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     const { quote, errors, inputOutputRatio, swapperName } = quoteData
     const {
       isOpen: isTooltipOpen,
+      onToggle: onTooltipToggle,
       onOpen: onTooltipOpen,
       onClose: onTooltipClose,
     } = useDisclosure()
@@ -191,7 +192,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !quote || error !== undefined:
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
-            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+            <Box
+              onMouseEnter={onTooltipOpen}
+              onMouseLeave={onTooltipClose}
+              onTouchEnd={onTooltipToggle}
+            >
               <Tooltip
                 label={translate(
                   ...(Array.isArray(translationParams) ? translationParams : [translationParams]),
@@ -206,7 +211,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           )
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
-            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+            <Box
+              onMouseEnter={onTooltipOpen}
+              onMouseLeave={onTooltipClose}
+              onTouchEnd={onTooltipToggle}
+            >
               <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
                 <Circle size={6}>
                   <WarningIcon color='text.error' boxSize={4} />
@@ -222,7 +231,11 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           )
         default:
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
-            <Box onMouseEnter={onTooltipOpen} onMouseLeave={onTooltipClose}>
+            <Box
+              onMouseEnter={onTooltipOpen}
+              onMouseLeave={onTooltipClose}
+              onTouchEnd={onTooltipToggle}
+            >
               <Tooltip
                 label={translate('trade.tooltip.overallPercentageDifference')}
                 isOpen={isTooltipOpen}
@@ -247,6 +260,7 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       quoteOverallDifferenceDecimalPercentage,
       onTooltipOpen,
       onTooltipClose,
+      onTooltipToggle,
       isTooltipOpen,
     ])
 

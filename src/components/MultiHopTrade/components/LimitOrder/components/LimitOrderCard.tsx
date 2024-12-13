@@ -71,9 +71,9 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     filter,
   )
 
-  const hasSufficientBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(
-    sellAmountCryptoBaseUnit,
-  )
+  const hasSufficientBalance = useMemo(() => {
+    return bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(sellAmountCryptoBaseUnit)
+  }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
 
   const from = useMemo(() => {
     return fromAccountId(accountId).account
@@ -83,11 +83,15 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     assetId: sellAssetId,
     spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
     from,
+    // Don't fetch allowance if there is insufficient balance, because we wont display the allowance
+    // warning in this case.
     isDisabled: !hasSufficientBalance || status !== OrderStatus.OPEN,
   })
 
   const hasSufficientAllowance = useMemo(() => {
-    if (!allowanceOnChainCryptoBaseUnit) return
+    // If the request failed, default to true since this is just a helper and not safety critical.
+    if (!allowanceOnChainCryptoBaseUnit) return true
+
     return bn(sellAmountCryptoBaseUnit).lte(allowanceOnChainCryptoBaseUnit)
   }, [allowanceOnChainCryptoBaseUnit, sellAmountCryptoBaseUnit])
 

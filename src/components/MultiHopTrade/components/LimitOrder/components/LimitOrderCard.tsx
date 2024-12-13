@@ -1,18 +1,26 @@
-import { Box, Button, Center, Flex, Progress, Tag, Tooltip } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Center, Flex, Progress, Tag, TagLabel, Tooltip } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { assertGetChainAdapter } from 'lib/utils'
+import {
+  selectAssetById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
+import { useSelectorWithArgs } from 'state/store'
 
 export type LimitOrderCardProps = {
   uid: string
@@ -23,6 +31,7 @@ export type LimitOrderCardProps = {
   validTo?: number
   filledDecimalPercentage: number
   status: OrderStatus
+  accountId: AccountId
   onCancelClick?: (uid: string) => void
 }
 
@@ -39,6 +48,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   validTo,
   filledDecimalPercentage,
   status,
+  accountId,
   onCancelClick,
 }) => {
   const translate = useTranslate()
@@ -46,8 +56,40 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
+  const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
+  const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
+
+  const filter = useMemo(() => {
+    return {
+      accountId,
+      assetId: sellAssetId,
+    }
+  }, [accountId, sellAssetId])
+
+  const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
+    selectPortfolioCryptoBalanceBaseUnitByFilter,
+    filter,
+  )
+
+  const hasSufficientBalance = bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(
+    sellAmountCryptoBaseUnit,
+  )
+
+  const from = useMemo(() => {
+    return fromAccountId(accountId).account
+  }, [accountId])
+
+  const { data: allowanceOnChainCryptoBaseUnit } = useAllowance({
+    assetId: sellAssetId,
+    spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+    from,
+    isDisabled: !hasSufficientBalance || status !== OrderStatus.OPEN,
+  })
+
+  const hasSufficientAllowance = useMemo(() => {
+    if (!allowanceOnChainCryptoBaseUnit) return
+    return bn(sellAmountCryptoBaseUnit).lte(allowanceOnChainCryptoBaseUnit)
+  }, [allowanceOnChainCryptoBaseUnit, sellAmountCryptoBaseUnit])
 
   const handleCancel = useCallback(() => {
     onCancelClick?.(uid)
@@ -118,6 +160,30 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [buyAmountCryptoPrecision, toCrypto, buyAsset],
   )
 
+  const warningText = useMemo(() => {
+    if (status !== OrderStatus.OPEN) return
+
+    const translationProps = {
+      symbol: sellAsset?.symbol ?? '',
+      chainName: assertGetChainAdapter(sellAsset?.chainId ?? '')?.getDisplayName() ?? '',
+    }
+
+    if (!hasSufficientBalance) {
+      return translate('limitOrder.orderCard.warning.insufficientBalance', translationProps)
+    }
+
+    if (!hasSufficientAllowance) {
+      return translate('limitOrder.orderCard.warning.insufficientAllowance', translationProps)
+    }
+  }, [
+    hasSufficientAllowance,
+    hasSufficientBalance,
+    sellAsset?.chainId,
+    sellAsset?.symbol,
+    status,
+    translate,
+  ])
+
   if (!buyAsset || !sellAsset) return null
 
   return (
@@ -172,9 +238,16 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
             </Flex>
           </Flex>
           {/* Right group - status tag */}
-          <Tag flexShrink={0} colorScheme={tagColorScheme}>
-            {translate(`limitOrder.status.${status}`)}
-          </Tag>
+          <Flex direction='column' gap={1} align='flex-end' minWidth={0}>
+            <Tag flexShrink={0} colorScheme={tagColorScheme}>
+              <TagLabel>{translate(`limitOrder.status.${status}`)}</TagLabel>
+            </Tag>
+            {Boolean(warningText) && (
+              <Tooltip label={warningText}>
+                <WarningTwoIcon color='text.warning' boxSize={6} />
+              </Tooltip>
+            )}
+          </Flex>
         </Flex>
 
         {/* Price row */}

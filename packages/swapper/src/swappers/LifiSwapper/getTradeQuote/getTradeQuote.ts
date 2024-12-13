@@ -84,6 +84,11 @@ export async function getTrade({
 
   configureLiFi()
 
+  const lifiAllowedBridges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.bridges : undefined
+  const lifiAllowedExchanges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.exchanges : undefined
+
   const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -103,11 +108,15 @@ export async function getTrade({
       // are currently incompatible with our fee calculations, leading to incorrect fee display,
       // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
       // these bridges are disabled.
-      bridges: { deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'] },
-      ...(quoteOrRate === 'quote' &&
-        (input.originalRate as LifiTradeRate).lifiTools && {
-          exchanges: { allow: (input.originalRate as LifiTradeRate).lifiTools },
-        }),
+      bridges: {
+        deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
+        ...(lifiAllowedBridges ? { allow: lifiAllowedBridges } : {}),
+      },
+      ...(lifiAllowedExchanges
+        ? {
+            exchanges: { allow: lifiAllowedExchanges },
+          }
+        : {}),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -259,11 +268,28 @@ export async function getTrade({
         .dividedBy(bn(selectedLifiRoute.fromAmount))
         .toString()
 
+      const lifiBridgeTools = selectedLifiRoute.steps
+        .filter(
+          current => current.includedSteps?.some(includedStep => includedStep.type === 'cross'),
+        )
+        .map(current => current.tool)
+
+      const lifiExchangeTools = selectedLifiRoute.steps
+        .filter(
+          current =>
+            // A step tool is an exchange (swap) tool if all of its steps are non-cross-chain steps
+            current.includedSteps?.every(includedStep => includedStep.type !== 'cross'),
+        )
+        .map(current => current.tool)
+
       return {
         id: selectedLifiRoute.id,
         receiveAddress,
         quoteOrRate,
-        lifiTools: selectedLifiRoute.steps.map(step => step.tool),
+        lifiTools: {
+          bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
+          exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
+        },
         affiliateBps,
         potentialAffiliateBps,
         steps,
@@ -315,6 +341,7 @@ export const getTradeQuote = async (
   lifiChainMap: Map<ChainId, ChainKey>,
 ): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
   const quotesResult = await getTrade({ input, deps, lifiChainMap })
+
   return quotesResult.map(quotes =>
     quotes.map(quote => ({
       ...quote,

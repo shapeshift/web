@@ -251,7 +251,7 @@ export const ExpandedTradeSteps = () => {
                 accountId={lastHopSellAccountId}
               />
             )}
-            {lastHopSwap.buyTxHash && (
+            {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.buyTxHash}
                 explorerTxLink={tradeQuoteLastHop.buyAsset.explorerTxLink}

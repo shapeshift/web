@@ -68,7 +68,7 @@ export enum TradeStep {
   TradeComplete = 'tradeComplete',
 }
 
-const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
+export const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
   const {
     firstHopAllowanceReset,
     firstHopAllowanceApproval,

@@ -7,7 +7,7 @@ import {
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { countTradeSteps, getCurrentStep } from '../helpers'
+import { countTradeSteps, getCurrentStep, getTradeSteps } from '../helpers'
 
 export const useTradeSteps = () => {
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
@@ -64,6 +64,7 @@ export const useTradeSteps = () => {
     ],
   )
 
+  const tradeSteps = useMemo(() => getTradeSteps(params), [params])
   const totalSteps = useMemo(() => countTradeSteps(params), [params])
   const currentStep = useMemo(
     () =>
@@ -82,5 +83,6 @@ export const useTradeSteps = () => {
   return {
     totalSteps,
     currentStep,
+    tradeSteps,
   }
 }

@@ -21,6 +21,7 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TxLabel } from './TxLabel'
+import { TradeStep } from './helpers'
 
 const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
@@ -269,9 +270,11 @@ export const ExpandedTradeSteps = () => {
     tradeQuoteLastHop,
   ])
 
+  const { tradeSteps } = useTradeSteps()
+
   return (
     <Stepper orientation='vertical' index={currentStep} gap='0'>
-      {firstHopAllowanceReset.isRequired === true ? (
+      {tradeSteps[TradeStep.FirstHopReset] ? (
         <StepperStep
           title={firstHopAllowanceResetTitle}
           stepIndicator={stepIndicator}
@@ -279,8 +282,7 @@ export const ExpandedTradeSteps = () => {
           useSpacer={false}
         />
       ) : null}
-      {firstHopAllowanceApproval.isInitiallyRequired === true ||
-      firstHopPermit2.isRequired === true ? (
+      {tradeSteps[TradeStep.FirstHopApproval] ? (
         <StepperStep
           title={firstHopAllowanceApprovalTitle}
           stepIndicator={stepIndicator}
@@ -296,7 +298,7 @@ export const ExpandedTradeSteps = () => {
       />
       {isMultiHopTrade && (
         <>
-          {lastHopAllowanceReset.isRequired === true ? (
+          {tradeSteps[TradeStep.LastHopReset] ? (
             <StepperStep
               title={lastHopAllowanceResetTitle}
               stepIndicator={stepIndicator}
@@ -304,8 +306,7 @@ export const ExpandedTradeSteps = () => {
               useSpacer={false}
             />
           ) : null}
-          {lastHopAllowanceApproval.isInitiallyRequired === true ||
-          lastHopPermit2.isRequired === true ? (
+          {tradeSteps[TradeStep.LastHopApproval] ? (
             <StepperStep
               title={lastHopAllowanceApprovalTitle}
               stepIndicator={stepIndicator}

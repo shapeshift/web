@@ -1065,7 +1065,8 @@
       "nativeSellAssetNotSupported": "Native sell asset not supported",
       "insufficientValidTo": "Order expiry too soon",
       "excessiveValidTo": "Order expiry too far into the future",
-      "insufficientLiquidity": "Insufficient liquidity"
+      "insufficientLiquidity": "Insufficient liquidity",
+      "zeroFunds": "Non-zero sell asset balance needed"
     },
     "openOrders": "Open Orders",
     "orderHistory": "Order History",

@@ -104,8 +104,8 @@ export const TradeConfirmSummary = () => {
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
-  const networkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
-  const tradeQuoteFirstHop = useAppSelector(selectFirstHop) // FIXME: handle multi-hop
+  const totalNetworkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
@@ -174,12 +174,12 @@ export const TradeConfirmSummary = () => {
           <Row.Value>
             {
               // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-              !networkFeeFiatUserCurrency ? (
+              !totalNetworkFeeFiatUserCurrency ? (
                 <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                   <Text translation={'trade.unknownGas'} />
                 </Tooltip>
               ) : (
-                <Amount.Fiat value={networkFeeFiatUserCurrency} />
+                <Amount.Fiat value={totalNetworkFeeFiatUserCurrency} />
               )
             }
           </Row.Value>

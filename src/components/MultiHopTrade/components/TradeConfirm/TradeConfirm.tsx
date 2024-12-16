@@ -25,7 +25,7 @@ export const TradeConfirm = () => {
   const activeQuote = useAppSelector(selectActiveQuote)
   const activeTradeId = activeQuote?.id
   const currentHopIndex = useCurrentHopIndex()
-  const tradeQuoteFirstHop = useAppSelector(selectFirstHop) // FIXME: handle multi-hop
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
   const tradeQuoteStep = useMemo(() => {
     return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop

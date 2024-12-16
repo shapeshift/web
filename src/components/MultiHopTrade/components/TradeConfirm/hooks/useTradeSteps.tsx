@@ -4,10 +4,10 @@ import {
   selectActiveQuote,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { countTradeSteps, getCurrentStep, getTradeSteps } from '../helpers'
+import { countTradeSteps, getCurrentTradeStep, getCurrentTradeStepIndex, getTradeSteps } from '../helpers'
+import { useCurrentHopIndex } from './useCurrentHopIndex'
 
 export const useTradeSteps = () => {
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
@@ -66,23 +66,25 @@ export const useTradeSteps = () => {
 
   const tradeSteps = useMemo(() => getTradeSteps(params), [params])
   const totalSteps = useMemo(() => countTradeSteps(params), [params])
-  const currentStep = useMemo(
+  const currentHopIndex = useCurrentHopIndex()
+  const currentHopExecutionState = useMemo(() => {
+    return currentHopIndex === 0 ? firstHopExecutionState : lastHopExecutionState
+  }, [currentHopIndex, firstHopExecutionState, lastHopExecutionState])
+  const currentTradeStep = useMemo(() => getCurrentTradeStep(currentHopIndex, currentHopExecutionState), [currentHopIndex, currentHopExecutionState])
+  const currentTradeStepIndex = useMemo(
     () =>
-      getCurrentStep({
+      getCurrentTradeStepIndex({
         ...params,
-        currentHopIndex:
-          isMultiHopTrade && firstHopExecutionState === HopExecutionState.Complete ? 1 : 0,
-        hopExecutionState:
-          isMultiHopTrade && firstHopExecutionState === HopExecutionState.Complete
-            ? lastHopExecutionState
-            : firstHopExecutionState,
+        currentHopIndex,
+        hopExecutionState: currentHopExecutionState,
       }),
-    [params, firstHopExecutionState, lastHopExecutionState, isMultiHopTrade],
+    [params, currentHopIndex, currentHopExecutionState],
   )
 
   return {
     totalSteps,
-    currentStep,
+    currentTradeStepIndex,
     tradeSteps,
+    currentTradeStep,
   }
 }

@@ -54,7 +54,7 @@ export const ExpandableTradeSteps = () => {
     }
   }, [confirmedTradeExecutionState])
 
-  const { totalSteps, currentStep } = useTradeSteps()
+  const { totalSteps, currentTradeStepIndex: currentStep } = useTradeSteps()
   const progressValue = (currentStep / (totalSteps - 1)) * 100
 
   const titleElement = useMemo(() => {

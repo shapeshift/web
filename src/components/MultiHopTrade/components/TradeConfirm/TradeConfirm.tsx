@@ -5,6 +5,8 @@ import type { TextPropTypes } from 'components/Text/Text'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
+  selectFirstHop,
+  selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
@@ -12,6 +14,7 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useIsApprovalInitiallyNeeded } from '../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
+import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { TradeConfirmBody } from './TradeConfirmBody'
 import { TradeConfirmFooter } from './TradeConfirmFooter'
 
@@ -20,6 +23,13 @@ export const TradeConfirm = () => {
   const history = useHistory()
   const dispatch = useAppDispatch()
   const activeQuote = useAppSelector(selectActiveQuote)
+  const activeTradeId = activeQuote?.id
+  const currentHopIndex = useCurrentHopIndex()
+  const tradeQuoteFirstHop = useAppSelector(selectFirstHop) // FIXME: handle multi-hop
+  const tradeQuoteLastHop = useAppSelector(selectLastHop)
+  const tradeQuoteStep = useMemo(() => {
+    return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
+  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
 
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
 
@@ -53,10 +63,13 @@ export const TradeConfirm = () => {
     dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
   }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
 
-  const Footer = useMemo(() => <TradeConfirmFooter />, [])
+  const Footer = useMemo(() => {
+    if (!tradeQuoteStep || !activeTradeId) return null
+    return <TradeConfirmFooter tradeQuoteStep={tradeQuoteStep} activeTradeId={activeTradeId} />
+  }, [tradeQuoteStep, activeTradeId])
   const Body = useMemo(() => <TradeConfirmBody />, [])
 
-  if (!headerTranslation) return null
+  if (!headerTranslation || !Footer) return null
 
   // TODO: Add WarningAcknowledgement (might need to be inside TradeSlideTransition in the SharedConfirm child below)
   return (

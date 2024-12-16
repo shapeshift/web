@@ -109,7 +109,7 @@ export const ExpandedTradeSteps = () => {
     swap: lastHopSwap,
   } = useSelectorWithArgs(selectHopExecutionMetadata, lastHopExecutionMetadataFilter)
 
-  const { currentStep } = useTradeSteps()
+  const { currentTradeStepIndex: currentStep } = useTradeSteps()
 
   const stepIndicator = useMemo(
     () => (

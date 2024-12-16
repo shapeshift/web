@@ -111,40 +111,32 @@ const isInApprovalState = (state: HopExecutionState): boolean => {
   )
 }
 
-export const getCurrentStep = (
-  params: TradeStepParams & {
-    currentHopIndex: number
-    hopExecutionState: HopExecutionState
-  },
-): number => {
+export const getCurrentTradeStep = (
+  currentHopIndex: number,
+  hopExecutionState: HopExecutionState,
+): TradeStep | undefined => {
+  if (hopExecutionState === HopExecutionState.Complete) return TradeStep.TradeComplete
+  if (hopExecutionState === HopExecutionState.Pending) return undefined
+
+  if (currentHopIndex === 0) {
+    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset) return TradeStep.FirstHopReset
+    if (isInApprovalState(hopExecutionState)) return TradeStep.FirstHopApproval
+    if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.FirstHopSwap
+  } else if (currentHopIndex === 1) {
+    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset) return TradeStep.LastHopReset
+    if (isInApprovalState(hopExecutionState)) return TradeStep.LastHopApproval
+    if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.LastHopSwap
+  }
+}
+
+export const getCurrentTradeStepIndex = (params: TradeStepParams & {
+  currentHopIndex: number
+  hopExecutionState: HopExecutionState
+}): number => {
   const steps = getTradeSteps(params)
   const activeSteps = Object.entries(steps).filter(([_, isActive]) => isActive)
+  const currentStep = getCurrentTradeStep(params.currentHopIndex, params.hopExecutionState)
 
-  if (params.hopExecutionState === HopExecutionState.Pending) return 0
-  if (params.hopExecutionState === HopExecutionState.Complete) {
-    return activeSteps.findIndex(([step]) => step === TradeStep.TradeComplete)
-  }
-
-  let currentStep: TradeStep | undefined
-
-  if (params.currentHopIndex === 0) {
-    if (params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset) {
-      currentStep = TradeStep.FirstHopReset
-    } else if (isInApprovalState(params.hopExecutionState)) {
-      currentStep = TradeStep.FirstHopApproval
-    } else if (params.hopExecutionState === HopExecutionState.AwaitingSwap) {
-      currentStep = TradeStep.FirstHopSwap
-    }
-  } else if (params.currentHopIndex === 1) {
-    if (params.hopExecutionState === HopExecutionState.AwaitingAllowanceReset) {
-      currentStep = TradeStep.LastHopReset
-    } else if (isInApprovalState(params.hopExecutionState)) {
-      currentStep = TradeStep.LastHopApproval
-    } else if (params.hopExecutionState === HopExecutionState.AwaitingSwap) {
-      currentStep = TradeStep.LastHopSwap
-    }
-  }
-
-  if (!currentStep) return activeSteps.length - 1
+  if (!currentStep) return params.hopExecutionState === HopExecutionState.Pending ? 0 : activeSteps.length - 1
   return activeSteps.findIndex(([step]) => step === currentStep)
 }

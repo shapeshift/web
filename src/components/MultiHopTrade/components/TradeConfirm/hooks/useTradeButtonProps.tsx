@@ -56,8 +56,7 @@ export const useTradeButtonProps = ({
   } = useSignAllowanceApproval({
     tradeQuoteStep,
     isExactAllowance: true,
-    currentHopIndex,
-    activeTradeId: activeTradeId ?? '', // FIXME: handle undefined
+    activeTradeId,
   }) // FIXME: handle allowance selection
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return

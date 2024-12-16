@@ -10,23 +10,24 @@ import { isPermit2Hop } from '../../MultiHopTradeConfirm/hooks/helpers'
 import { useAllowanceApproval } from '../../MultiHopTradeConfirm/hooks/useAllowanceApproval'
 import { useAllowanceReset } from '../../MultiHopTradeConfirm/hooks/useAllowanceReset'
 import { useSignPermit2 } from '../../MultiHopTradeConfirm/hooks/useSignPermit2'
+import { useCurrentHopIndex } from './useCurrentHopIndex'
 
 type UseSignAllowanceApprovalProps = {
   tradeQuoteStep: TradeQuoteStep
   isExactAllowance: boolean | undefined
-  currentHopIndex: number
   activeTradeId: string
 }
 
 export const useSignAllowanceApproval = ({
   tradeQuoteStep,
   isExactAllowance,
-  currentHopIndex,
   activeTradeId,
 }: UseSignAllowanceApprovalProps) => {
   // TODO: confirm this is actually needed in the new flow
   // DO NOT REMOVE ME. Fetches and upserts permit2 quotes at pre-permit2-signing time
   useGetTradeQuotes()
+
+  const currentHopIndex = useCurrentHopIndex()
 
   const isPermit2 = useMemo(() => {
     return isPermit2Hop(tradeQuoteStep)

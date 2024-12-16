@@ -20,6 +20,7 @@ import * as unchained from '@shapeshiftoss/unchained-client'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import {
   createAssociatedTokenAccountInstruction,
+  createTransferCheckedInstruction,
   createTransferInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
@@ -69,6 +70,7 @@ import {
   SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
   SOLANA_MINIMUM_INSTRUCTION_COUNT,
 } from './constants'
+import { isToken2022AccountInfo } from './types'
 import { microLamportsToLamports } from './utils'
 
 export const svmChainIds = [KnownChainIds.SolanaMainnet] as const
@@ -555,14 +557,39 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       instructions.push(instruction)
     }
 
-    instructions.push(
-      createTransferInstruction(
-        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
-        destinationTokenAccount,
-        new PublicKey(from),
-        Number(value),
-      ),
-    )
+    const accountInfo = await this.connection.getParsedAccountInfo(new PublicKey(tokenId))
+
+    const isToken2022 = accountInfo?.value?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+
+    if (isToken2022 && isToken2022AccountInfo(accountInfo.value?.data)) {
+      instructions.push(
+        createTransferCheckedInstruction(
+          getAssociatedTokenAddressSync(
+            new PublicKey(tokenId),
+            new PublicKey(from),
+            true,
+            TOKEN_2022_PROGRAM_ID,
+          ),
+          new PublicKey(tokenId),
+          destinationTokenAccount,
+          new PublicKey(from),
+          Number(value),
+          accountInfo.value?.data.parsed?.info?.decimals ?? 0,
+          [],
+          TOKEN_2022_PROGRAM_ID,
+        ),
+      )
+    } else {
+      instructions.push(
+        createTransferInstruction(
+          getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
+          destinationTokenAccount,
+          new PublicKey(from),
+          Number(value),
+          undefined,
+        ),
+      )
+    }
 
     return instructions
   }

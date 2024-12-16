@@ -137,8 +137,8 @@ export const SharedTradeInputBody = ({
     if (isSwitchAssetsDisabled) return true
     if (!hasWallet) return false
 
-    return !walletSupportsBuyAssetChain || isLoading
-  }, [hasWallet, isSwitchAssetsDisabled, walletSupportsBuyAssetChain, isLoading])
+    return !walletSupportsBuyAssetChain
+  }, [hasWallet, isSwitchAssetsDisabled, walletSupportsBuyAssetChain])
 
   return (
     <Stack spacing={0}>

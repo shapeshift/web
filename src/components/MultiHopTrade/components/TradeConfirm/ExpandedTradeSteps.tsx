@@ -19,9 +19,9 @@ import {
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
+import { TradeStep } from './helpers'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TxLabel } from './TxLabel'
-import { TradeStep } from './helpers'
 
 const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />

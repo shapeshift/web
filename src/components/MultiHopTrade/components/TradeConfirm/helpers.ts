@@ -119,24 +119,29 @@ export const getCurrentTradeStep = (
   if (hopExecutionState === HopExecutionState.Pending) return undefined
 
   if (currentHopIndex === 0) {
-    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset) return TradeStep.FirstHopReset
+    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
+      return TradeStep.FirstHopReset
     if (isInApprovalState(hopExecutionState)) return TradeStep.FirstHopApproval
     if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.FirstHopSwap
   } else if (currentHopIndex === 1) {
-    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset) return TradeStep.LastHopReset
+    if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
+      return TradeStep.LastHopReset
     if (isInApprovalState(hopExecutionState)) return TradeStep.LastHopApproval
     if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.LastHopSwap
   }
 }
 
-export const getCurrentTradeStepIndex = (params: TradeStepParams & {
-  currentHopIndex: number
-  hopExecutionState: HopExecutionState
-}): number => {
+export const getCurrentTradeStepIndex = (
+  params: TradeStepParams & {
+    currentHopIndex: number
+    hopExecutionState: HopExecutionState
+  },
+): number => {
   const steps = getTradeSteps(params)
   const activeSteps = Object.entries(steps).filter(([_, isActive]) => isActive)
   const currentStep = getCurrentTradeStep(params.currentHopIndex, params.hopExecutionState)
 
-  if (!currentStep) return params.hopExecutionState === HopExecutionState.Pending ? 0 : activeSteps.length - 1
+  if (!currentStep)
+    return params.hopExecutionState === HopExecutionState.Pending ? 0 : activeSteps.length - 1
   return activeSteps.findIndex(([step]) => step === currentStep)
 }

@@ -6,7 +6,12 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-import { countTradeSteps, getCurrentTradeStep, getCurrentTradeStepIndex, getTradeSteps } from '../helpers'
+import {
+  countTradeSteps,
+  getCurrentTradeStep,
+  getCurrentTradeStepIndex,
+  getTradeSteps,
+} from '../helpers'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
 
 export const useTradeSteps = () => {
@@ -70,7 +75,10 @@ export const useTradeSteps = () => {
   const currentHopExecutionState = useMemo(() => {
     return currentHopIndex === 0 ? firstHopExecutionState : lastHopExecutionState
   }, [currentHopIndex, firstHopExecutionState, lastHopExecutionState])
-  const currentTradeStep = useMemo(() => getCurrentTradeStep(currentHopIndex, currentHopExecutionState), [currentHopIndex, currentHopExecutionState])
+  const currentTradeStep = useMemo(
+    () => getCurrentTradeStep(currentHopIndex, currentHopExecutionState),
+    [currentHopIndex, currentHopExecutionState],
+  )
   const currentTradeStepIndex = useMemo(
     () =>
       getCurrentTradeStepIndex({

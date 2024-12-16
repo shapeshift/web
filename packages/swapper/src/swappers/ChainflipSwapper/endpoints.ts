@@ -97,7 +97,6 @@ export const chainflipApi: SwapperApi = {
   },
   getUnsignedUtxoTransaction: ({
     tradeQuote,
-    senderAddress,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
@@ -125,7 +124,6 @@ export const chainflipApi: SwapperApi = {
       skipToAddressValidation: true,
       chainSpecific: {
         accountType,
-        from: senderAddress,
         satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
       },
     })

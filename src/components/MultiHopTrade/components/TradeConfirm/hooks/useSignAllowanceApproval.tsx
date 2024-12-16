@@ -18,7 +18,7 @@ type UseSignAllowanceApprovalProps = {
   activeTradeId: string
 }
 
-export const useSignAllowanceApproval = ({
+export const useActiveTradeAllowance = ({
   tradeQuoteStep,
   isExactAllowance,
   activeTradeId,

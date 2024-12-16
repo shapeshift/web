@@ -19,7 +19,7 @@ import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store
 
 import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
 import { getHopExecutionStateButtonTranslation } from '../helpers'
-import { useSignAllowanceApproval } from './useSignAllowanceApproval'
+import { useActiveTradeAllowance } from './useSignAllowanceApproval'
 
 type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -55,7 +55,7 @@ export const useTradeButtonProps = ({
     isAllowanceResetLoading,
     isAllowanceResetPending,
     handleSignPermit2,
-  } = useSignAllowanceApproval({
+  } = useActiveTradeAllowance({
     tradeQuoteStep,
     isExactAllowance,
     activeTradeId,

@@ -11,7 +11,7 @@ import {
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
@@ -37,6 +37,8 @@ type TradeFooterButtonProps = {
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
   isExactAllowance: boolean
+  hasClickedButton: boolean
+  setHasClickedButton: (hasClickedButton: boolean) => void
 }
 
 export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
@@ -44,8 +46,9 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   currentHopIndex,
   activeTradeId,
   isExactAllowance,
+  hasClickedButton,
+  setHasClickedButton,
 }) => {
-  const [hasClickedButton, setHasClickedButton] = useState(false)
   const tradeButtonProps = useTradeButtonProps({
     tradeQuoteStep,
     currentHopIndex,
@@ -96,12 +99,12 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   // Reset the button state when the trade execution state changes
   useEffect(() => {
     setHasClickedButton(false)
-  }, [firstHopMetadata.state, secondHopMetadata.state])
+  }, [firstHopMetadata.state, secondHopMetadata.state, setHasClickedButton])
 
   const handleClick = useCallback(() => {
     setHasClickedButton(true)
     tradeButtonProps?.handleSubmit()
-  }, [tradeButtonProps])
+  }, [tradeButtonProps, setHasClickedButton])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {

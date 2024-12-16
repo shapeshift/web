@@ -1,7 +1,7 @@
 import { Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
@@ -20,7 +20,7 @@ import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeStep } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useSignAllowanceApproval } from './hooks/useSignAllowanceApproval'
+import { useActiveTradeAllowance } from './hooks/useSignAllowanceApproval'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TradeConfirmSummary } from './TradeConfirmFooterContent/TradeConfirmSummary'
 import { TradeFooterButton } from './TradeFooterButton'
@@ -35,6 +35,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   activeTradeId,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
+  const [hasClickedButton, setHasClickedButton] = useState(false)
   const currentHopIndex = useCurrentHopIndex()
   const tradeNetworkFeeFiatUserCurrency = useSelectorWithArgs(selectHopNetworkFeeUserCurrency, {
     hopIndex: currentHopIndex,
@@ -55,7 +56,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     approvalNetworkFeeCryptoBaseUnit,
     isAllowanceResetLoading,
     isAllowanceApprovalLoading,
-  } = useSignAllowanceApproval({
+  } = useActiveTradeAllowance({
     tradeQuoteStep,
     isExactAllowance,
     activeTradeId,
@@ -102,10 +103,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     return isPermit2Hop(tradeQuoteStep)
   }, [tradeQuoteStep])
 
-  // FIXME: immediately disable toggle when button pressed
   const isApprovalButtonDisabled = useMemo(() => {
-    return isAllowanceApprovalLoading
-  }, [isAllowanceApprovalLoading])
+    return isAllowanceApprovalLoading || hasClickedButton
+  }, [isAllowanceApprovalLoading, hasClickedButton])
 
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
@@ -204,9 +204,18 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         currentHopIndex={currentHopIndex}
         activeTradeId={activeTradeId}
         isExactAllowance={isExactAllowance}
+        hasClickedButton={hasClickedButton}
+        setHasClickedButton={setHasClickedButton}
       />
     )
-  }, [tradeQuoteStep, currentHopIndex, activeTradeId, isExactAllowance])
+  }, [
+    tradeQuoteStep,
+    currentHopIndex,
+    activeTradeId,
+    isExactAllowance,
+    hasClickedButton,
+    setHasClickedButton,
+  ])
 
   return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

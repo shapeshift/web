@@ -36,15 +36,22 @@ type TradeFooterButtonProps = {
   tradeQuoteStep: TradeQuoteStep
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
+  isExactAllowance: boolean
 }
 
 export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   tradeQuoteStep,
   currentHopIndex,
   activeTradeId,
+  isExactAllowance,
 }) => {
   const [hasClickedButton, setHasClickedButton] = useState(false)
-  const tradeButtonProps = useTradeButtonProps({ tradeQuoteStep, currentHopIndex, activeTradeId })
+  const tradeButtonProps = useTradeButtonProps({
+    tradeQuoteStep,
+    currentHopIndex,
+    activeTradeId,
+    isExactAllowance,
+  })
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)

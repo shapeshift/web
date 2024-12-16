@@ -25,6 +25,7 @@ type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
+  isExactAllowance: boolean
 }
 
 type TradeButtonProps = {
@@ -38,6 +39,7 @@ export const useTradeButtonProps = ({
   tradeQuoteStep,
   currentHopIndex,
   activeTradeId,
+  isExactAllowance,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
   const [isSignTxLoading, setIsSignTxLoading] = useState(false)
   const dispatch = useAppDispatch()
@@ -55,9 +57,9 @@ export const useTradeButtonProps = ({
     handleSignPermit2,
   } = useSignAllowanceApproval({
     tradeQuoteStep,
-    isExactAllowance: true,
+    isExactAllowance,
     activeTradeId,
-  }) // FIXME: handle allowance selection
+  })
   const handleTradeConfirm = useCallback(() => {
     if (!activeQuote) return
     dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))

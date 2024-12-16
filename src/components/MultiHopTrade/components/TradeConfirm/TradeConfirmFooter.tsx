@@ -1,10 +1,11 @@
-import { Skeleton, Stack } from '@chakra-ui/react'
+import { Skeleton, Stack, Switch } from '@chakra-ui/react'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { Amount } from 'components/Amount/Amount'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text/Text'
+import { useToggle } from 'hooks/useToggle/useToggle'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
@@ -15,6 +16,7 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
+import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeStep } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
@@ -32,6 +34,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
 }) => {
+  const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const currentHopIndex = useCurrentHopIndex()
   const tradeNetworkFeeFiatUserCurrency = useSelectorWithArgs(selectHopNetworkFeeUserCurrency, {
     hopIndex: currentHopIndex,
@@ -54,9 +57,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isAllowanceApprovalLoading,
   } = useSignAllowanceApproval({
     tradeQuoteStep,
-    isExactAllowance: true,
+    isExactAllowance,
     activeTradeId,
-  }) // FIXME: handle allowance selection
+  })
 
   const allowanceResetNetworkFeeCryptoHuman = fromBaseUnit(
     allowanceResetNetworkFeeCryptoBaseUnit,
@@ -95,6 +98,15 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     )
   }, [allowanceResetNetworkFeeUserCurrency, isAllowanceResetLoading])
 
+  const isPermit2 = useMemo(() => {
+    return isPermit2Hop(tradeQuoteStep)
+  }, [tradeQuoteStep])
+
+  // FIXME: immediately disable toggle when button pressed
+  const isApprovalButtonDisabled = useMemo(() => {
+    return isAllowanceApprovalLoading
+  }, [isAllowanceApprovalLoading])
+
   const tradeAllowanceStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} width='full'>
@@ -108,9 +120,40 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
+        {/* Permit2 should always have unlimited allowance without ability to toggle */}
+        {!isPermit2 && (
+          <Row>
+            <Row.Value textAlign='right' display='flex' alignItems='center'>
+              <Text
+                color={isExactAllowance ? 'text.subtle' : 'white'}
+                translation='trade.unlimited'
+                fontWeight='bold'
+              />
+              <Switch
+                size='sm'
+                mx={2}
+                isChecked={isExactAllowance}
+                disabled={isApprovalButtonDisabled}
+                onChange={toggleIsExactAllowance}
+              />
+              <Text
+                color={isExactAllowance ? 'white' : 'text.subtle'}
+                translation='trade.exact'
+                fontWeight='bold'
+              />
+            </Row.Value>
+          </Row>
+        )}
       </Stack>
     )
-  }, [approvalNetworkFeeUserCurrency, isAllowanceApprovalLoading])
+  }, [
+    isAllowanceApprovalLoading,
+    approvalNetworkFeeUserCurrency,
+    isPermit2,
+    isExactAllowance,
+    isApprovalButtonDisabled,
+    toggleIsExactAllowance,
+  ])
 
   const tradeExecutionStepSummary = useMemo(() => {
     return (
@@ -160,9 +203,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         tradeQuoteStep={tradeQuoteStep}
         currentHopIndex={currentHopIndex}
         activeTradeId={activeTradeId}
+        isExactAllowance={isExactAllowance}
       />
     )
-  }, [tradeQuoteStep, currentHopIndex, activeTradeId])
+  }, [tradeQuoteStep, currentHopIndex, activeTradeId, isExactAllowance])
 
   return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
 }

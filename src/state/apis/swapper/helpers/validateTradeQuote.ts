@@ -299,7 +299,10 @@ export const validateTradeQuote = (
         },
       walletId &&
         !firstHopHasSufficientBalanceForGas && {
-          error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
+          error:
+            firstHopSellFeeAsset?.assetId === firstHop.sellAsset.assetId
+              ? TradeQuoteValidationError.InsufficientFirstHopAssetBalance
+              : TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
             assetSymbol: firstHopSellFeeAsset?.symbol,
             chainSymbol: firstHopSellFeeAsset

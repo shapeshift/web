@@ -40,6 +40,7 @@
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientFundsForTrade": "Insufficient funds for trade",
     "insufficientAllowance": "Insufficient Allowance",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
@@ -1078,7 +1079,13 @@
     },
     "orders": "Orders",
     "viewOrders": "View Orders",
-    "loadingOrderList": "Loading your limit orders..."
+    "loadingOrderList": "Loading your limit orders...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Your wallet currently has insufficient %{symbol} balance on %{chainName} to execute this order. The order is still open and will become executable when you top up your %{symbol} balance on %{chainName}.",
+        "insufficientAllowance": "This order requires a additional allowance of %{symbol} on %{chainName} to be approved for CoW Swap to execute this order. The order is still open and will become executable when you complete the allowance approval."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

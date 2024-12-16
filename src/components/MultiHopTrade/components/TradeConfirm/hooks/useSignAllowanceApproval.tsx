@@ -6,7 +6,6 @@ import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selecto
 import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
-import { isPermit2Hop } from '../../MultiHopTradeConfirm/hooks/helpers'
 import { useAllowanceApproval } from '../../MultiHopTradeConfirm/hooks/useAllowanceApproval'
 import { useAllowanceReset } from '../../MultiHopTradeConfirm/hooks/useAllowanceReset'
 import { useSignPermit2 } from '../../MultiHopTradeConfirm/hooks/useSignPermit2'
@@ -29,10 +28,6 @@ export const useActiveTradeAllowance = ({
 
   const currentHopIndex = useCurrentHopIndex()
 
-  const isPermit2 = useMemo(() => {
-    return isPermit2Hop(tradeQuoteStep)
-  }, [tradeQuoteStep])
-
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId,
@@ -44,7 +39,7 @@ export const useActiveTradeAllowance = ({
     state: hopExecutionState,
     allowanceApproval,
     allowanceReset,
-    // permit2,
+    permit2,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
   const { signPermit2 } = useSignPermit2(tradeQuoteStep, currentHopIndex, activeTradeId)
@@ -68,7 +63,7 @@ export const useActiveTradeAllowance = ({
     tradeQuoteStep,
     currentHopIndex,
     // Permit2 should always have unlimited allowance
-    isExactAllowance && !isPermit2 ? AllowanceType.Exact : AllowanceType.Unlimited,
+    isExactAllowance && !permit2.isRequired ? AllowanceType.Exact : AllowanceType.Unlimited,
     isAllowanceApprovalEnabled,
     activeTradeId,
     allowanceApproval.isInitiallyRequired,

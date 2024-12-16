@@ -77,6 +77,7 @@ export const useTradeButtonProps = ({
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const handleTradeConfirmSubmit = useCallback(() => {
+    // TODO: Implement me
     // if (isModeratePriceImpact) {
     //   setShouldShowWarningAcknowledgement(true)
     // } else {

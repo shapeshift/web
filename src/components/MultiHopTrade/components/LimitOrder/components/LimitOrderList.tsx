@@ -131,10 +131,11 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
                 )}
                 {openLimitOrders !== undefined &&
                   openLimitOrders.length > 0 &&
-                  openLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
+                  openLimitOrders.map(({ accountId, sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
                       uid={order.uid}
+                      accountId={accountId}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}
@@ -158,10 +159,11 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
             <TabPanel px={0} py={0}>
               <CardBody px={0} overflowY='auto' flex='1 1 auto'>
                 {historicalLimitOrders !== undefined && historicalLimitOrders.length > 0 ? (
-                  historicalLimitOrders.map(({ sellAssetId, buyAssetId, order }) => (
+                  historicalLimitOrders.map(({ accountId, sellAssetId, buyAssetId, order }) => (
                     <LimitOrderCard
                       key={order.uid}
                       uid={order.uid}
+                      accountId={accountId}
                       sellAmountCryptoBaseUnit={order.sellAmount}
                       buyAmountCryptoBaseUnit={order.buyAmount}
                       buyAssetId={buyAssetId}

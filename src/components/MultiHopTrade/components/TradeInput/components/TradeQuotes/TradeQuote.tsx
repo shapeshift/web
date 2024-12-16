@@ -7,7 +7,7 @@ import {
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { memo, useCallback, useMemo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -73,6 +73,30 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     } = useDisclosure()
     const dispatch = useAppDispatch()
     const translate = useTranslate()
+
+    const handleToolTipOpen = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        onTooltipOpen()
+      },
+      [onTooltipOpen],
+    )
+
+    const handleTooltipToggle = useCallback(
+      (e: React.TouchEvent) => {
+        e.preventDefault()
+        onTooltipToggle()
+      },
+      [onTooltipToggle],
+    )
+
+    const handleTooltipClose = useCallback(
+      (e: React.MouseEvent) => {
+        e.preventDefault()
+        onTooltipClose()
+      },
+      [onTooltipClose],
+    )
 
     const {
       number: { toPercent },
@@ -194,9 +218,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
           const translationParams = getQuoteErrorTranslation(error ?? defaultError)
           return (
             <Box
-              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
-              onMouseLeave={!isMobile ? onTooltipClose : undefined}
-              onTouchEnd={onTooltipToggle}
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
             >
               <Tooltip
                 label={translate(
@@ -213,9 +237,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         case !hasAmountWithPositiveReceive && isAmountEntered:
           return (
             <Box
-              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
-              onMouseLeave={!isMobile ? onTooltipClose : undefined}
-              onTouchEnd={onTooltipToggle}
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
             >
               <Tooltip label={translate('trade.rates.tags.negativeRatio')} isOpen={isTooltipOpen}>
                 <Circle size={6}>
@@ -233,9 +257,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
         default:
           return quoteOverallDifferenceDecimalPercentage !== undefined ? (
             <Box
-              onMouseEnter={!isMobile ? onTooltipOpen : undefined}
-              onMouseLeave={!isMobile ? onTooltipClose : undefined}
-              onTouchEnd={onTooltipToggle}
+              onMouseEnter={!isMobile ? handleToolTipOpen : undefined}
+              onMouseLeave={!isMobile ? handleTooltipClose : undefined}
+              onTouchEnd={handleTooltipToggle}
             >
               <Tooltip
                 label={translate('trade.tooltip.overallPercentageDifference')}
@@ -259,9 +283,9 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       isAmountEntered,
       isBest,
       quoteOverallDifferenceDecimalPercentage,
-      onTooltipOpen,
-      onTooltipClose,
-      onTooltipToggle,
+      handleToolTipOpen,
+      handleTooltipClose,
+      handleTooltipToggle,
       isTooltipOpen,
     ])
 

@@ -40,6 +40,7 @@
     "noResultsFound": "Nenhum resultado encontrado.",
     "noResultsBody": "Não há resultados para %{searchQuery}. Tente novamente.",
     "insufficientFunds": "Saldo insuficiente",
+    "insufficientAllowance": "Permissão insuficiente",
     "estimatedGas": "Taxa de gás estimada",
     "relayerGasFee": "Taxa de gás",
     "insufficientAmountForGas": "Você não tem o suficiente %{assetSymbol}.%{chainSymbol} para pagar as taxas",
@@ -973,6 +974,7 @@
     "or": "ou",
     "onChainName": "na %{chainName}",
     "unknownGas": "(desconhecido)",
+    "unknownProtocolFee": "(desconhecido)",
     "numHops": "Esta negociação inclui %{numHops} Hops",
     "receiveAddress": "Endereço de recebimento",
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "Tx da permissão de aprovação:",
     "tradeComplete": "Agora você tem %{cryptoAmountFormatted} em sua carteira na %{chainName}.",
     "doAnotherTrade": "Faça outra negociação",
-    "showDetails": "Mostrar detalhes",
+    "summary": "Resumo de Trades",
     "transactionSuccessful": "Transação bem-sucedida, aguardando confirmações",
     "temp": {
       "tradeSuccess": "Negociação concluída",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Sucesso!",
     "placeOrderFailed": "Algo deu errado",
     "placeOrder": "Colocar ordem",
+    "cancel": {
+      "cancelOrder": "Cancelar Ordem Limite",
+      "requestCancellation": "Sim, pedir cancelamento",
+      "areYouSureYouWantToCancelOrder": "Tem certeza de que deseja cancelar esta ordem?",
+      "cancellationFailed": "Falha ao cancelar a ordem"
+    },
     "viewOrder": "Ver Ordem",
     "viewOnChain": "Ver transação on-chain",
     "yourOrderHasBeenPlaced": "Sua ordem foi enviada.",
+    "yourCancellationHasBeenSubmitted": "Seu cancelamento foi enviado.",
     "limitPrice": "Preço Limite",
     "provider": "Provedor",
     "expiration": "Expiração",
@@ -1039,6 +1048,8 @@
     "youGet": "Você obtém",
     "whenPriceReaches": "Quando o preço atinge",
     "expiry": "Expiração",
+    "noOpenOrders": "Ainda não há ordens abertas.",
+    "noHistoricalOrders": "Nenhum histórico de ordens ainda.",
     "expiryOption": {
       "oneHour": "1 hora",
       "oneDay": "1 dia",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 dias",
       "twentyEightDays": "28 dias",
       "custom": "Customizar"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Ativo de venda nativo não suportado",
+      "insufficientValidTo": "A ordem expirou muito cedo",
+      "excessiveValidTo": "A ordem expirou muito tarde",
+      "insufficientLiquidity": "Liquidez insuficiente"
+    },
+    "expiresIn": "Expira em",
+    "openOrders": "Ordens abertas",
+    "orderHistory": "Histórico de ordens",
+    "status": {
+      "open": "Abrir",
+      "fulfilled": "Preenchida",
+      "cancelled": "Cancelado",
+      "expired": "Expirado"
+    },
+    "orders": "Ordens",
+    "viewOrders": "Ver Ordens",
+    "loadingOrderList": "Carregando suas ordens limite..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Nenhuma proposta ativa disponível",
       "noClosedProposals": "Nenhuma proposta fechada disponível"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Ordens Limite",
-    "limitPrice": "Preço Limite",
-    "expiresIn": "Expira em",
-    "filled": "Preenchido",
-    "openOrders": "Ordens abertas",
-    "orderHistory": "Histórico de Ordens",
-    "status": {
-      "open": "Aberto",
-      "filled": "Preenchido",
-      "cancelled": "Cancelado",
-      "expired": "Expirado"
-    },
-    "orders": "Ordens"
   },
   "thorFees": {
     "title": "Veio pela THORSwap?",

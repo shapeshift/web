@@ -40,6 +40,7 @@
     "noResultsFound": "Aucun résultat trouvé.",
     "noResultsBody": "Il n'y a pas de résultat pour %{searchQuery}. Essayez une nouvelle recherche.",
     "insufficientFunds": "Fonds insuffisants",
+    "insufficientAllowance": "Allocation insuffisante",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
     "insufficientAmountForGas": "Solde %{assetSymbol}.%{chainSymbol} insuffisant pour couvrir le carburant",
@@ -973,6 +974,7 @@
     "or": "ou",
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
+    "unknownProtocolFee": "(inconnu)",
     "numHops": "Cet échange comprend %{numHops} sauts",
     "receiveAddress": "Adresse de réception",
     "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Succès !",
     "placeOrderFailed": "Quelque chose s'est mal déroulé",
     "placeOrder": "Placer l'ordre",
+    "cancel": {
+      "cancelOrder": "Annuler l'ordre à cours limité",
+      "requestCancellation": "Oui, demander l'annulation",
+      "areYouSureYouWantToCancelOrder": "Êtes-vous sûr de vouloir annuler cet ordre ?",
+      "cancellationFailed": "Impossible d'annuler l'ordre"
+    },
     "viewOrder": "Voir l'ordre",
     "viewOnChain": "Voir la transaction sur la chaîne",
     "yourOrderHasBeenPlaced": "Votre ordre a été placé.",
+    "yourCancellationHasBeenSubmitted": "Votre annulation a été envoyée.",
     "limitPrice": "Prix limite",
     "provider": "Fournisseur",
     "expiration": "Expiration",
@@ -1039,6 +1048,8 @@
     "youGet": "Vous recevez",
     "whenPriceReaches": "Lorsque le prix atteint",
     "expiry": "Expiration",
+    "noOpenOrders": "Aucun ordre ouvert pour le moment.",
+    "noHistoricalOrders": "Aucun ordre dans l'historique pour le moment.",
     "expiryOption": {
       "oneHour": "1 heure",
       "oneDay": "1 jour",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 jours",
       "twentyEightDays": "28 jours",
       "custom": "Personnalisée"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "L'actif natif de vente n'est pas pris en charge",
+      "insufficientValidTo": "Échéance de l'ordre trop rapprochée",
+      "excessiveValidTo": "Échéance de l'ordre trop lointaine",
+      "insufficientLiquidity": "Liquidité insuffisante"
+    },
+    "expiresIn": "Expire dans",
+    "openOrders": "Ordres ouverts",
+    "orderHistory": "Historique des ordres",
+    "status": {
+      "open": "Ouvert",
+      "fulfilled": "Rempli",
+      "cancelled": "Annulé",
+      "expired": "Expiré"
+    },
+    "orders": "Ordres",
+    "viewOrders": "Voir les ordres",
+    "loadingOrderList": "Chargement de vos ordres à cours limité..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Aucune proposition active disponible",
       "noClosedProposals": "Aucune proposition fermée disponible"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Ordres à cours limité",
-    "limitPrice": "Prix limite",
-    "expiresIn": "Expire dans",
-    "filled": "Rempli",
-    "openOrders": "Commandes ouvertes",
-    "orderHistory": "Historique des ordres",
-    "status": {
-      "open": "Ouvert",
-      "filled": "Rempli",
-      "cancelled": "Annulé",
-      "expired": "Expiré"
-    },
-    "orders": "Ordres"
   },
   "thorFees": {
     "title": "Vous venez de THORSwap ?",

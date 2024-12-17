@@ -3,8 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from 'lib/bignumber/bignumber'
-import { selectUsdRateByAssetId } from 'state/slices/marketDataSlice/selectors'
-import { store } from 'state/store'
 
 export interface TradeInputBaseState {
   buyAsset: Asset

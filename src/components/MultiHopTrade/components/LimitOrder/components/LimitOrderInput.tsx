@@ -1,8 +1,9 @@
 import { Button, Divider, HStack, Stack, useMediaQuery } from '@chakra-ui/react'
 import { skipToken } from '@reduxjs/toolkit/query'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import {
+  COW_SWAP_VAULT_RELAYER_ADDRESS,
   getCowNetwork,
   getDefaultSlippageDecimalPercentageForSwapper,
   SwapperName,
@@ -21,7 +22,9 @@ import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
+import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getErc20Allowance } from 'lib/utils/evm'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
 import { selectCalculatedFees, selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import { LimitPriceMode } from 'state/slices/limitOrderInputSlice/constants'
@@ -89,6 +92,7 @@ export const LimitOrderInput = ({
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
+  const { showErrorToast } = useErrorHandler()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)
@@ -150,6 +154,7 @@ export const LimitOrderInput = ({
     })
 
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
+  const [isCheckingAllowance, setIsCheckingAllowance] = useState(false)
 
   const isAnyAccountMetadataLoadedForChainIdFilter = useMemo(
     () => ({ chainId: sellAsset.chainId }),
@@ -251,7 +256,7 @@ export const LimitOrderInput = ({
     }
   }, [limitPriceMode, marketPriceBuyAsset, setLimitPrice])
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = useCallback(async () => {
     // No preview happening if wallet isn't connected i.e is using the demo wallet
     if (!isConnected || isDemoWallet) {
       return handleConnect()
@@ -278,18 +283,46 @@ export const LimitOrderInput = ({
       response: quoteResponse,
     })
 
-    history.push(LimitOrderRoutePaths.Confirm)
+    const { assetReference, chainId } = fromAssetId(limitOrderQuoteParams.sellAssetId)
+
+    // Trigger loading state while we check the allowance
+    setIsCheckingAllowance(true)
+
+    try {
+      // Check the ERC20 token allowance
+      const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({
+        address: assetReference,
+        spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+        from: limitOrderQuoteParams.sellAccountAddress as Address,
+        chainId,
+      })
+
+      // If approval is required, route there
+      if (bn(allowanceOnChainCryptoBaseUnit).lt(limitOrderQuoteParams.sellAmountCryptoBaseUnit)) {
+        history.push(LimitOrderRoutePaths.AllowanceApproval)
+        return
+      }
+
+      // Otherwise, proceed with confirmation
+      history.push(LimitOrderRoutePaths.Confirm)
+      return
+    } catch (e) {
+      showErrorToast(e)
+    } finally {
+      setIsCheckingAllowance(false)
+    }
   }, [
-    buyAmountCryptoBaseUnit,
-    expiry,
-    handleConnect,
-    history,
     isConnected,
     isDemoWallet,
-    limitOrderQuoteParams,
     quoteResponse,
-    setActiveQuote,
+    limitOrderQuoteParams,
     sellAccountId,
+    setActiveQuote,
+    expiry,
+    buyAmountCryptoBaseUnit,
+    handleConnect,
+    history,
+    showErrorToast,
   ])
 
   const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
@@ -312,6 +345,7 @@ export const LimitOrderInput = ({
 
   const isLoading = useMemo(() => {
     return (
+      isCheckingAllowance ||
       isLimitOrderQuoteFetching ||
       // No account meta loaded for that chain
       !isAnyAccountMetadataLoadedForChainId ||
@@ -322,6 +356,7 @@ export const LimitOrderInput = ({
       isVotingPowerLoading
     )
   }, [
+    isCheckingAllowance,
     isAnyAccountMetadataLoadedForChainId,
     isLimitOrderQuoteFetching,
     isTradeQuoteRequestAborted,

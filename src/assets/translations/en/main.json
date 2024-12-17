@@ -1067,7 +1067,8 @@
       "insufficientValidTo": "Order expiry too soon",
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity",
-      "zeroFunds": "Non-zero sell asset balance needed"
+      "zeroFunds": "Non-zero sell asset balance needed",
+      "insufficientFundsForGas": "Insufficient funds for gas"
     },
     "openOrders": "Open Orders",
     "orderHistory": "Order History",

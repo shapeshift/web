@@ -146,7 +146,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
   const firstHopAllowanceResetTitle = useMemo(() => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
-        <Text translation='trade.awaitingAllowanceReset' />
+        <Text translation='trade.resetTitle' />
         {firstHopAllowanceReset.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
           <TxLabel
             txHash={firstHopAllowanceReset.txHash}
@@ -163,10 +163,10 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {firstHopPermit2.isRequired === true ? (
           // TODO: Add permit2 tooltip
-          <Text translation='trade.awaitingPermit2Approval' />
+          <Text translation='trade.permit2.title' />
         ) : (
           <>
-            <Text translation='trade.awaitingApproval' />
+            <Text translation='trade.approvalTitle' />
             {firstHopAllowanceApproval.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
               <TxLabel
                 txHash={firstHopAllowanceApproval.txHash}
@@ -228,7 +228,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
   const lastHopAllowanceResetTitle = useMemo(() => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
-        <Text translation='trade.awaitingAllowanceReset' />
+        <Text translation='trade.resetTitle' />
         {lastHopAllowanceReset.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
           <TxLabel
             txHash={lastHopAllowanceReset.txHash}
@@ -245,10 +245,10 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {lastHopPermit2.isRequired === true ? (
           // TODO: Add permit2 tooltip
-          <Text translation='trade.awaitingPermit2Approval' />
+          <Text translation='trade.permit2.title' />
         ) : (
           <>
-            <Text translation='trade.awaitingApproval' />
+            <Text translation='trade.approvalTitle' />
             {lastHopAllowanceApproval.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
               <TxLabel
                 txHash={lastHopAllowanceApproval.txHash}

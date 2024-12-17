@@ -117,7 +117,7 @@ export const chainflipApi: SwapperApi = {
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
 
     return adapter.buildSendApiTransaction({
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      value: '1871',
       xpub: xpub!,
       to: step.chainflipSpecific.chainflipDepositAddress,
       accountNumber: step.accountNumber,

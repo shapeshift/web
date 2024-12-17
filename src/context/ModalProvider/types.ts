@@ -6,6 +6,7 @@ import type { LedgerOpenAppModalProps } from 'components/Modals/LedgerOpenApp/Le
 import type { NftModalProps } from 'components/Modals/Nfts/NftModal'
 import type { PopupWindowModalProps } from 'components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from 'components/Modals/QrCode/QrCode'
+import type { RateChangedModalProps } from 'components/Modals/RateChanged/RateChanged'
 import type { ReceivePropsType } from 'components/Modals/Receive/Receive'
 import type { SendModalProps } from 'components/Modals/Send/Send'
 import type { SnapsModalProps } from 'components/Modals/Snaps/Snaps'
@@ -35,7 +36,7 @@ export type Modals = {
   snaps: FC<SnapsModalProps>
   manageAccounts: FC
   ledgerOpenApp: FC<LedgerOpenAppModalProps>
-  rateChanged: FC
+  rateChanged: FC<RateChangedModalProps>
 }
 
 export type ModalActions<T extends keyof Modals> = OpenModalType<T> | CloseModalType

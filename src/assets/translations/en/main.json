@@ -926,9 +926,9 @@
         "negativeRatio": "Insufficient sell amount"
       },
       "rateExpired": {
-        "title": "Rate expired",
+        "title": "New Rate",
         "body": "Your previous swap rate has expired. We've fetched a new rate and updated your quote amounts. Please review the latest details before confirming your swap.",
-        "cta": "Ok, got it"
+        "cta": "Accept"
       }
     },
     "permit2": {

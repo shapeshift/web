@@ -75,7 +75,7 @@ export const AssetSummaryStep = ({
       return
     if (amountCryptoBaseUnit === prevAmountCryptoBaseUnit) return
 
-    rateChanged.open({})
+    rateChanged.open({ prevAmountCryptoBaseUnit })
   }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])
 
   const assetIcon = useMemo(() => {

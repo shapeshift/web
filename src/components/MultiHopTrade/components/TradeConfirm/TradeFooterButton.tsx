@@ -22,6 +22,7 @@ import { bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import {
   selectActiveQuote,
+  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
@@ -32,6 +33,7 @@ import {
 import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
+import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
 import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
 type TradeFooterButtonProps = {
@@ -193,6 +195,9 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     gasFeeExceedsTradeAmountThresholdTranslation,
   ])
 
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
+
   if (!confirmedTradeExecutionState || !translation || !tradeButtonProps) return null
 
   return (
@@ -209,8 +214,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
           confirmedTradeExecutionState,
         ) && tradeWarnings}
+        {activeQuoteError && (
+          <Alert status='warning' size='sm'>
+            <AlertIcon />
+            <AlertDescription>
+              <Text translation={getQuoteErrorTranslation(activeQuoteError)} />
+            </AlertDescription>
+          </Alert>
+        )}
         <Button
-          colorScheme={'blue'}
+          colorScheme={!!activeQuoteError ? 'red' : 'blue'}
           size='lg'
           width='full'
           onClick={handleClick}
@@ -219,7 +232,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
             hasClickedButton ||
             tradeButtonProps.isLoading
           }
-          isDisabled={tradeButtonProps.isDisabled}
+          isDisabled={tradeButtonProps.isDisabled || !!activeQuoteError}
         >
           <Text translation={translation} />
         </Button>

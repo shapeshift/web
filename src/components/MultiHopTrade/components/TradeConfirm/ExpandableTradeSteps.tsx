@@ -1,10 +1,11 @@
-import { ArrowUpDownIcon } from '@chakra-ui/icons'
+import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
 import { Box, Collapse, Flex, HStack, Progress, Spinner } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
 import { Text } from 'components/Text'
 import {
   selectActiveQuote,
+  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
@@ -34,6 +35,8 @@ export const ExpandableTradeSteps = () => {
   )
   const currentHopIndex = useCurrentHopIndex()
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
       tradeId: activeTradeId ?? '',
@@ -49,10 +52,12 @@ export const ExpandableTradeSteps = () => {
   const summaryStepIndicator = useMemo(() => {
     if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
       return <AnimatedCheck />
+    } else if (activeQuoteError) {
+      return <WarningIcon color='red.500' />
     } else {
       return <Spinner thickness='3px' size='md' />
     }
-  }, [confirmedTradeExecutionState])
+  }, [confirmedTradeExecutionState, activeQuoteError])
 
   const { totalSteps, currentTradeStepIndex: currentStep } = useTradeSteps()
   const progressValue = (currentStep / (totalSteps - 1)) * 100

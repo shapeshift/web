@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
 import { CircularProgress, Flex, Stepper, StepStatus, VStack } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -11,6 +11,7 @@ import {
 } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
+  selectActiveQuoteErrors,
   selectActiveSwapperName,
   selectFirstHop,
   selectHopExecutionMetadata,
@@ -24,6 +25,7 @@ import { useTradeSteps } from './hooks/useTradeSteps'
 import { TxLabel } from './TxLabel'
 
 const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
+const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
 export const ExpandedTradeSteps = () => {
@@ -46,6 +48,8 @@ export const ExpandedTradeSteps = () => {
     [tradeQuoteLastHop?.buyAsset.chainId, tradeQuoteLastHop?.sellAsset.chainId],
   )
   const chainAdapterManager = getChainAdapterManager()
+  const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
+  const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
   const firstHopActionTitleText = useMemo(() => {
     const sellAssetChainId = tradeQuoteFirstHop?.sellAsset.chainId
     const buyAssetChainId = tradeQuoteFirstHop?.buyAsset.chainId
@@ -116,10 +120,10 @@ export const ExpandedTradeSteps = () => {
       <StepStatus
         complete={completedStepIndicator}
         incomplete={pendingStepIndicator}
-        active={pendingStepIndicator}
+        active={activeQuoteError ? erroredStepIndicator : pendingStepIndicator}
       />
     ),
-    [],
+    [activeQuoteError],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {

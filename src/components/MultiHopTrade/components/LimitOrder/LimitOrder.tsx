@@ -47,8 +47,8 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   }, [])
 
   const renderPlaceOrder = useCallback(() => {
-    return <PlaceLimitOrder />
-  }, [])
+    return <PlaceLimitOrder isCompact={isCompact} />
+  }, [isCompact])
 
   return (
     <MemoryRouter initialEntries={LimitOrderRouteEntries} initialIndex={0}>

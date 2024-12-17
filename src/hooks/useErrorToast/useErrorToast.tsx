@@ -8,7 +8,7 @@ import { RawText } from 'components/Text'
 
 const defaultErrorMsgTranslation = 'common.generalError'
 
-export const useErrorHandler = () => {
+export const useErrorToast = () => {
   const toast = useToast()
   const translate = useTranslate()
 
@@ -29,7 +29,7 @@ export const useErrorHandler = () => {
           return [errorMsgTranslation, errorMsgTranslationOptions]
         }
 
-        return defaultErrorMsgTranslation
+        return [defaultErrorMsgTranslation]
       })()
 
       const description = translate(...translationArgs)

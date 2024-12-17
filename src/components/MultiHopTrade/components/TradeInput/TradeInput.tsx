@@ -21,7 +21,7 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -89,7 +89,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const history = useHistory()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')

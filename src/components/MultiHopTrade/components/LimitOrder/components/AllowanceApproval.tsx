@@ -11,7 +11,7 @@ import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { getTxLink } from 'lib/getTxLink'
 import { selectActiveQuote } from 'state/slices/limitOrderSlice/selectors'
 import type { LimitOrderActiveQuote } from 'state/slices/limitOrderSlice/types'
@@ -32,7 +32,7 @@ const cardBorderRadius = { base: '2xl' }
 const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActiveQuote }) => {
   const history = useHistory()
   const translate = useTranslate()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const [txStatus, setTxStatus] = useState(TxStatus.Unknown)
   const [txHash, setTxHash] = useState('')
 

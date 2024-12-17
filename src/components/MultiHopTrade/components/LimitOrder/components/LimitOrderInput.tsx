@@ -22,7 +22,7 @@ import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { WalletActions } from 'context/WalletProvider/actions'
 import { useActions } from 'hooks/useActions'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getErc20Allowance } from 'lib/utils/evm'
 import { useQuoteLimitOrderQuery } from 'state/apis/limit-orders/limitOrderApi'
@@ -92,7 +92,7 @@ export const LimitOrderInput = ({
 
   const history = useHistory()
   const { handleSubmit } = useFormContext()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const userSlippagePercentageDecimal = useAppSelector(selectUserSlippagePercentageDecimal)

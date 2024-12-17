@@ -7,11 +7,12 @@ import { useAppSelector } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 
+const etaStepProps = { alignItems: 'center', py: 2 }
+
 export const EtaStep = () => {
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
-  const etaStepProps = useMemo(() => ({ alignItems: 'center', py: 2 }), [])
   const totalEstimatedExecutionTimeMs = useMemo(() => {
     if (!tradeQuoteFirstHop || !tradeQuoteLastHop) return undefined
     if (!tradeQuoteFirstHop.estimatedExecutionTimeMs || !tradeQuoteLastHop.estimatedExecutionTimeMs)

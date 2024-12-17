@@ -63,19 +63,19 @@ export const TradeConfirm = () => {
     dispatch(tradeQuoteSlice.actions.setTradeInitialized(activeQuote.id))
   }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
 
-  const Footer = useMemo(() => {
+  const footer = useMemo(() => {
     if (!tradeQuoteStep || !activeTradeId) return null
     return <TradeConfirmFooter tradeQuoteStep={tradeQuoteStep} activeTradeId={activeTradeId} />
   }, [tradeQuoteStep, activeTradeId])
-  const Body = useMemo(() => <TradeConfirmBody />, [])
+  const body = useMemo(() => <TradeConfirmBody />, [])
 
-  if (!headerTranslation || !Footer) return null
+  if (!headerTranslation || !footer) return null
 
   // TODO: Add WarningAcknowledgement (might need to be inside TradeSlideTransition in the SharedConfirm child below)
   return (
     <SharedConfirm
-      Body={Body}
-      Footer={Footer}
+      bodyContent={body}
+      footerContent={footer}
       isLoading={isLoading}
       onBack={handleBack}
       headerTranslation={headerTranslation}

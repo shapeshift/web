@@ -19,8 +19,8 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
 import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeStep } from './helpers'
+import { useActiveTradeAllowance } from './hooks/useActiveTradeAllowance'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useActiveTradeAllowance } from './hooks/useSignAllowanceApproval'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TradeConfirmSummary } from './TradeConfirmFooterContent/TradeConfirmSummary'
 import { TradeFooterButton } from './TradeFooterButton'
@@ -69,7 +69,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const allowanceResetNetworkFeeUserCurrency = bnOrZero(allowanceResetNetworkFeeCryptoHuman)
     .times(sellChainFeeAssetUserCurrencyRate.price)
-    .toString()
+    .toFixed()
 
   const approvalNetworkFeeCryptoHuman = fromBaseUnit(
     approvalNetworkFeeCryptoBaseUnit,
@@ -78,7 +78,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoHuman)
     .times(sellChainFeeAssetUserCurrencyRate.price)
-    .toString()
+    .toFixed()
 
   const { currentTradeStep } = useTradeSteps()
 
@@ -172,7 +172,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     )
   }, [tradeNetworkFeeFiatUserCurrency, isActiveSwapperQuoteLoading])
 
-  const TradeDetail = useMemo(() => {
+  const tradeDetail = useMemo(() => {
     switch (currentTradeStep) {
       // No trade step is active, quote is still to be confirmed
       case undefined:
@@ -196,7 +196,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     tradeExecutionStepSummary,
   ])
 
-  const FooterButton = useMemo(() => {
+  const footerButton = useMemo(() => {
     if (!tradeQuoteStep || currentHopIndex === undefined || !activeTradeId) return null
     return (
       <TradeFooterButton
@@ -217,5 +217,5 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     setHasClickedButton,
   ])
 
-  return <SharedConfirmFooter detail={TradeDetail} button={FooterButton} />
+  return <SharedConfirmFooter detail={tradeDetail} button={footerButton} />
 }

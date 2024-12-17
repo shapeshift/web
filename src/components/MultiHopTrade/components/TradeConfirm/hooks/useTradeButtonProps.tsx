@@ -19,7 +19,7 @@ import { useAppDispatch, useAppSelector, useSelectorWithArgs } from 'state/store
 
 import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
 import { getHopExecutionStateButtonTranslation } from '../helpers'
-import { useActiveTradeAllowance } from './useSignAllowanceApproval'
+import { useActiveTradeAllowance } from './useActiveTradeAllowance'
 
 type UseTradeButtonPropsProps = {
   tradeQuoteStep: TradeQuoteStep
@@ -29,7 +29,7 @@ type UseTradeButtonPropsProps = {
 }
 
 type TradeButtonProps = {
-  handleSubmit: () => void
+  onSubmit: () => void
   buttonText: string
   isLoading: boolean
   isDisabled: boolean
@@ -54,7 +54,7 @@ export const useTradeButtonProps = ({
     handleSignAllowanceReset,
     isAllowanceResetLoading,
     isAllowanceResetPending,
-    handleSignPermit2,
+    signPermit2,
   } = useActiveTradeAllowance({
     tradeQuoteStep,
     isExactAllowance,
@@ -108,52 +108,50 @@ export const useTradeButtonProps = ({
 
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
 
-  return ((): TradeButtonProps | undefined => {
-    switch (hopExecutionState) {
-      case HopExecutionState.Pending:
-        return {
-          handleSubmit: handleTradeConfirmSubmit,
-          buttonText,
-          isLoading: false, // Instant
-          isDisabled: false, // TODO: validate balance etc
-        }
-      case HopExecutionState.AwaitingAllowanceReset:
-        return {
-          handleSubmit: handleSignAllowanceReset,
-          buttonText,
-          isLoading: isAllowanceResetPending,
-          isDisabled: isAllowanceResetLoading,
-        }
-      case HopExecutionState.AwaitingAllowanceApproval:
-        return {
-          handleSubmit: handleSignAllowanceApproval,
-          buttonText,
-          isLoading: isAllowanceApprovalPending,
-          isDisabled: isAllowanceApprovalLoading,
-        }
-      case HopExecutionState.AwaitingPermit2:
-        return {
-          handleSubmit: handleSignPermit2,
-          buttonText,
-          isLoading: false, // Instant
-          isDisabled: false,
-        }
-      case HopExecutionState.AwaitingSwap:
-        return {
-          handleSubmit: handleSignTx,
-          buttonText,
-          isLoading: isSignTxLoading || isFetching,
-          isDisabled: !tradeQuoteQueryData,
-        }
-      case HopExecutionState.Complete:
-        return {
-          handleSubmit: handleBack,
-          buttonText,
-          isLoading: false,
-          isDisabled: false,
-        }
-      default:
-        assertUnreachable(hopExecutionState)
-    }
-  })()
+  switch (hopExecutionState) {
+    case HopExecutionState.Pending:
+      return {
+        onSubmit: handleTradeConfirmSubmit,
+        buttonText,
+        isLoading: false, // Instant
+        isDisabled: false, // TODO: validate balance etc
+      }
+    case HopExecutionState.AwaitingAllowanceReset:
+      return {
+        onSubmit: handleSignAllowanceReset,
+        buttonText,
+        isLoading: isAllowanceResetPending,
+        isDisabled: isAllowanceResetLoading,
+      }
+    case HopExecutionState.AwaitingAllowanceApproval:
+      return {
+        onSubmit: handleSignAllowanceApproval,
+        buttonText,
+        isLoading: isAllowanceApprovalPending,
+        isDisabled: isAllowanceApprovalLoading,
+      }
+    case HopExecutionState.AwaitingPermit2:
+      return {
+        onSubmit: signPermit2,
+        buttonText,
+        isLoading: false, // Instant
+        isDisabled: false,
+      }
+    case HopExecutionState.AwaitingSwap:
+      return {
+        onSubmit: handleSignTx,
+        buttonText,
+        isLoading: isSignTxLoading || isFetching,
+        isDisabled: !tradeQuoteQueryData,
+      }
+    case HopExecutionState.Complete:
+      return {
+        onSubmit: handleBack,
+        buttonText,
+        isLoading: false,
+        isDisabled: false,
+      }
+    default:
+      assertUnreachable(hopExecutionState)
+  }
 }

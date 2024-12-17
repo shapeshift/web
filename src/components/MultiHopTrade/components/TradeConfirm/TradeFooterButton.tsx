@@ -103,7 +103,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
 
   const handleClick = useCallback(() => {
     setHasClickedButton(true)
-    tradeButtonProps?.handleSubmit()
+    tradeButtonProps?.onSubmit()
   }, [tradeButtonProps, setHasClickedButton])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage

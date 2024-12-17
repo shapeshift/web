@@ -193,7 +193,7 @@ export const TradeConfirmSummary = () => {
             <Row.Value color='text.base'>
               {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
                 <Amount.Crypto
-                  key={`${amountCryptoPrecision}`}
+                  key={`${symbol}-${amountCryptoPrecision}`}
                   color={redColor}
                   value={amountCryptoPrecision}
                   symbol={symbol}

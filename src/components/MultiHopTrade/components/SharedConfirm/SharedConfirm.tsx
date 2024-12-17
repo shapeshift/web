@@ -8,17 +8,17 @@ import { WithBackButton } from '../WithBackButton'
 const cardBorderRadius = { base: 'xl' }
 
 type SharedConfirmProps = {
-  Body: JSX.Element
-  Footer: JSX.Element
+  bodyContent: JSX.Element
+  footerContent: JSX.Element
   isLoading: boolean
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
 }
 
 export const SharedConfirm = ({
-  Body,
-  Footer,
-  onBack: handleBack,
+  bodyContent,
+  footerContent,
+  onBack,
   headerTranslation,
 }: SharedConfirmProps) => {
   return (
@@ -31,17 +31,17 @@ export const SharedConfirm = ({
         maxWidth='500px'
       >
         <CardHeader px={6} pt={4}>
-          <WithBackButton onBack={handleBack}>
+          <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>
               <Text translation={headerTranslation} />
             </Heading>
           </WithBackButton>
         </CardHeader>
         <CardBody py={0} px={0}>
-          {Body}
+          {bodyContent}
         </CardBody>
         <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
-          {Footer}
+          {footerContent}
         </CardFooter>
       </Card>
     </TradeSlideTransition>

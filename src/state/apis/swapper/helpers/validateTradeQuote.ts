@@ -321,6 +321,8 @@ export const validateTradeQuote = (
           },
         },
       feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
+      invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
+
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),
     warnings: [isUnsafeQuote && { error: TradeQuoteWarning.UnsafeQuote }].filter(isTruthy),

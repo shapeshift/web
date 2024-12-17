@@ -187,7 +187,6 @@ export const HopTransactionStep = ({
   )
 
   const hasEnoughNativeAssetBalance = useMemo(() => {
-    return true
     // No quote, no error
     if (!tradeQuoteStep) return true
 

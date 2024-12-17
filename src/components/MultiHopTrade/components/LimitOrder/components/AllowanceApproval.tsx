@@ -200,9 +200,8 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       <Card
         flex={1}
         borderRadius={cardBorderRadius}
-        width='full'
         variant='dashboard'
-        maxWidth='500px'
+        width='500px'
         borderColor='border.base'
         bg='background.surface.raised.base'
       >

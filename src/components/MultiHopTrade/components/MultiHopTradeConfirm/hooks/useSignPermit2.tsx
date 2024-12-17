@@ -2,7 +2,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -17,7 +17,7 @@ export const useSignPermit2 = (
   confirmedTradeId: TradeQuote['id'],
 ) => {
   const dispatch = useAppDispatch()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
   const hopSellAccountIdFilter = useMemo(() => {

@@ -22,7 +22,7 @@ import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDate'
 import { useActions } from 'hooks/useActions'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -55,7 +55,7 @@ export const LimitOrderConfirm = () => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
 

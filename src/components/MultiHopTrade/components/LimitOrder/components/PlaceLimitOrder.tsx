@@ -71,9 +71,8 @@ export const PlaceLimitOrder = () => {
       <Card
         flex={1}
         borderRadius={cardBorderRadius}
-        width='full'
+        width='500px'
         variant='dashboard'
-        maxWidth='500px'
         borderColor='border.base'
         bg='background.surface.raised.base'
       >

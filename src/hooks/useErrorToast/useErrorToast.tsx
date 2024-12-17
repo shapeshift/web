@@ -29,7 +29,7 @@ export const useErrorToast = () => {
           return [errorMsgTranslation, errorMsgTranslationOptions]
         }
 
-        return defaultErrorMsgTranslation
+        return [defaultErrorMsgTranslation]
       })()
 
       const description = translate(...translationArgs)

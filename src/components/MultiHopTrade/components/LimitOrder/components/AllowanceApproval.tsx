@@ -1,4 +1,5 @@
 import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@chakra-ui/react'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -8,6 +9,7 @@ import { Amount } from 'components/Amount/Amount'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
+import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { getTxLink } from 'lib/getTxLink'
@@ -62,7 +64,11 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     history.push(LimitOrderRoutePaths.Confirm)
   }, [history])
 
-  const { isLoading, approveMutation, approvalNetworkFeeCryptoBaseUnit } = useAllowanceApproval({
+  const {
+    approveMutation,
+    approvalNetworkFeeCryptoBaseUnit,
+    isLoading: isAllowanceApprovalLoading,
+  } = useAllowanceApproval({
     activeQuote,
     setTxHash,
     feeQueryEnabled: true,
@@ -71,6 +77,20 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     onError,
     onSuccess,
   })
+
+  const { isAllowanceResetRequired, isLoading: isAllowanceResetRequiredLoading } =
+    useIsAllowanceResetRequired({
+      assetId: activeQuote.params.sellAssetId,
+      amountCryptoBaseUnit: activeQuote.params.sellAmountCryptoBaseUnit,
+      from: activeQuote.params.sellAccountAddress,
+      spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+    })
+
+  const isLoading = useMemo(() => {
+    return (
+      txStatus === TxStatus.Pending || isAllowanceApprovalLoading || isAllowanceResetRequiredLoading
+    )
+  }, [isAllowanceApprovalLoading, isAllowanceResetRequiredLoading, txStatus])
 
   const handleSignAndBroadcast = useCallback(async () => {
     await approveMutation.mutateAsync()
@@ -112,13 +132,13 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     ] as TextPropTypes['translation']
   }, [sellAsset])
 
-  const buttonTranslation = useMemo(() => {
+  const { buttonTranslation, isError } = useMemo(() => {
     if (!hasSufficientBalanceForGas) {
-      return 'limitOrder.errors.insufficientFundsForGas'
+      return { buttonTranslation: 'limitOrder.errors.insufficientFundsForGas', isError: true }
     }
 
-    return approveAssetTranslation
-  }, [approveAssetTranslation, hasSufficientBalanceForGas])
+    return { buttonTranslation: approveAssetTranslation, isError: isAllowanceResetRequired }
+  }, [approveAssetTranslation, hasSufficientBalanceForGas, isAllowanceResetRequired])
 
   const statusBody = useMemo(() => {
     const statusTranslation = (() => {
@@ -133,11 +153,20 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       }
     })()
 
+    const defaultTitleTranslation = isAllowanceResetRequired
+      ? 'limitOrder.usdtAllowanceReset.title'
+      : approveAssetTranslation
+
     return (
-      <StatusBody txStatus={txStatus} defaultTitleTranslation={approveAssetTranslation}>
+      <StatusBody txStatus={txStatus} defaultTitleTranslation={defaultTitleTranslation}>
         <>
           <Text translation={statusTranslation} color='text.subtle' />
-          {txStatus === TxStatus.Unknown && (
+          {Boolean(isAllowanceResetRequired) && (
+            <>
+              <Text translation='limitOrder.usdtAllowanceReset.description' color='text.subtle' />
+            </>
+          )}
+          {!isAllowanceResetRequired && txStatus === TxStatus.Unknown && (
             <>
               <Text translation='common.approvalFee' color='text.subtle' />
               {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
@@ -157,6 +186,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       </StatusBody>
     )
   }, [
+    isAllowanceResetRequired,
     approvalNetworkFeeCryptoBaseUnit,
     approveAssetTranslation,
     feeAsset,
@@ -186,12 +216,12 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
         <CardBody py={32}>{statusBody}</CardBody>
         <CardFooter flexDir='row' gap={4} px={4} borderTopWidth={0}>
           <Button
-            colorScheme={hasSufficientBalanceForGas ? 'blue' : 'red'}
+            colorScheme={isError ? 'red' : 'blue'}
             size='lg'
             width='full'
             onClick={handleSignAndBroadcast}
-            isLoading={txStatus === TxStatus.Pending || isLoading}
-            isDisabled={txStatus === TxStatus.Pending || isLoading || !hasSufficientBalanceForGas}
+            isLoading={isLoading}
+            isDisabled={isLoading || isError}
           >
             <Text translation={buttonTranslation} />
           </Button>

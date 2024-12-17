@@ -71,7 +71,6 @@ export const TradeConfirm = () => {
 
   if (!headerTranslation || !footer) return null
 
-  // TODO: Add WarningAcknowledgement (might need to be inside TradeSlideTransition in the SharedConfirm child below)
   return (
     <SharedConfirm
       bodyContent={body}

@@ -11,8 +11,10 @@ import {
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
@@ -49,6 +51,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   hasClickedButton,
   setHasClickedButton,
 }) => {
+  const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const tradeButtonProps = useTradeButtonProps({
     tradeQuoteStep,
     currentHopIndex,
@@ -60,6 +63,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const lastHopBuyAsset = useAppSelector(selectLastHopBuyAsset)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const activeQuote = useAppSelector(selectActiveQuote)
+  const { isModeratePriceImpact, priceImpactPercentage } = usePriceImpact(activeQuote)
   const firstHopMetadata = useSelectorWithArgs(selectHopExecutionMetadata, {
     tradeId: activeQuote?.id ?? '',
     hopIndex: 0,
@@ -101,10 +105,18 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     setHasClickedButton(false)
   }, [firstHopMetadata.state, secondHopMetadata.state, setHasClickedButton])
 
-  const handleClick = useCallback(() => {
+  const handleSubmit = useCallback(() => {
     setHasClickedButton(true)
     tradeButtonProps?.onSubmit()
   }, [tradeButtonProps, setHasClickedButton])
+
+  const handleClick = useCallback(() => {
+    if (isModeratePriceImpact) {
+      setShouldShowWarningAcknowledgement(true)
+    } else {
+      handleSubmit()
+    }
+  }, [isModeratePriceImpact, handleSubmit])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {
@@ -184,24 +196,34 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   if (!confirmedTradeExecutionState || !translation || !tradeButtonProps) return null
 
   return (
-    <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
-      {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
-        confirmedTradeExecutionState,
-      ) && tradeWarnings}
-      <Button
-        colorScheme={'blue'}
-        size='lg'
-        width='full'
-        onClick={handleClick}
-        isLoading={
-          confirmedTradeExecutionState === TradeExecutionState.Initializing ||
-          hasClickedButton ||
-          tradeButtonProps.isLoading
-        }
-        isDisabled={tradeButtonProps.isDisabled}
-      >
-        <Text translation={translation} />
-      </Button>
-    </CardFooter>
+    <>
+      <WarningAcknowledgement
+        message={translate('warningAcknowledgement.highSlippageTrade', {
+          slippagePercentage: bnOrZero(priceImpactPercentage).toFixed(2).toString(),
+        })}
+        onAcknowledge={handleSubmit}
+        shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
+        setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
+      />
+      <CardFooter flexDir='column' gap={2} px={0} pb={0} borderTop='none'>
+        {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
+          confirmedTradeExecutionState,
+        ) && tradeWarnings}
+        <Button
+          colorScheme={'blue'}
+          size='lg'
+          width='full'
+          onClick={handleClick}
+          isLoading={
+            confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+            hasClickedButton ||
+            tradeButtonProps.isLoading
+          }
+          isDisabled={tradeButtonProps.isDisabled}
+        >
+          <Text translation={translation} />
+        </Button>
+      </CardFooter>
+    </>
   )
 }

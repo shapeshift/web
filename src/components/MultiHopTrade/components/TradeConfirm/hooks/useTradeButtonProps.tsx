@@ -76,16 +76,6 @@ export const useTradeButtonProps = ({
     swap: { state: swapTxState },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
-  const handleTradeConfirmSubmit = useCallback(() => {
-    // TODO: Implement me
-    // if (isModeratePriceImpact) {
-    //   setShouldShowWarningAcknowledgement(true)
-    // } else {
-    //   handleTradeConfirm()
-    // }
-    handleTradeConfirm()
-  }, [handleTradeConfirm])
-
   const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
   const handleSignTx = useCallback(() => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
@@ -111,7 +101,7 @@ export const useTradeButtonProps = ({
   switch (hopExecutionState) {
     case HopExecutionState.Pending:
       return {
-        onSubmit: handleTradeConfirmSubmit,
+        onSubmit: handleTradeConfirm,
         buttonText,
         isLoading: false, // Instant
         isDisabled: false, // TODO: validate balance etc

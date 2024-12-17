@@ -36,7 +36,7 @@ import { fromHex, isHex } from 'viem'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { FoxIcon } from 'components/Icons/FoxIcon'
 import { Text } from 'components/Text'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetByChainId } from 'state/slices/selectors'
@@ -58,7 +58,7 @@ export const EIP155TransactionConfirmation: FC<
 
   const { isLoading, feeAsset, fees, feeAssetPrice } = useCallRequestEvmFees(state)
 
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.850')
   const {

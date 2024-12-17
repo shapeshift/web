@@ -7,7 +7,7 @@ import { reactQueries } from 'react-queries'
 import type { Hash } from 'viem'
 import { AllowanceType, useApprovalFees } from 'hooks/queries/useApprovalFees'
 import { useIsAllowanceResetRequired } from 'hooks/queries/useIsAllowanceResetRequired'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -23,7 +23,7 @@ export const useAllowanceReset = (
   isInitiallyRequired: boolean,
 ) => {
   const dispatch = useAppDispatch()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
   const hopSellAccountIdFilter = useMemo(() => ({ hopIndex }), [hopIndex])

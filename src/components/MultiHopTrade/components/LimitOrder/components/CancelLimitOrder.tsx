@@ -25,7 +25,7 @@ import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
@@ -46,7 +46,7 @@ type CancelLimitOrderProps = {
 
 export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLimitOrderProps) => {
   const wallet = useWallet().state.wallet
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
   const mixpanel = getMixPanel()
 

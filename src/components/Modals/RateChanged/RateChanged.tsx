@@ -97,7 +97,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
               <Flex alignItems='center'>
                 <AssetIcon size='sm' assetId={buyAsset.assetId} />
                 <Box ml={3}>
-                  <CText color='gray.400'>
+                  <CText color='gray.400' fontWeight='bold'>
                     <Amount.Crypto value={prevAmountCryptoPrecision} symbol={buyAsset.symbol} />
                   </CText>
                   <Flex color='gray.500' as={CText}>
@@ -113,7 +113,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
                 <Flex alignItems='center'>
                   <AssetIcon size='sm' assetId={buyAsset.assetId} />
                   <Box ml={3}>
-                    <CText color='gray.200'>
+                    <CText color='gray.200' fontWeight='bold'>
                       <Amount.Crypto value={amountCryptoPrecision} symbol={buyAsset.symbol} />
                     </CText>
                     <Flex color='gray.500' as={CText}>

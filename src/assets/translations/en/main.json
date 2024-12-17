@@ -1067,7 +1067,12 @@
       "insufficientValidTo": "Order expiry too soon",
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity",
-      "zeroFunds": "Non-zero sell asset balance needed"
+      "zeroFunds": "Non-zero sell asset balance needed",
+      "insufficientFundsForGas": "Insufficient funds for gas"
+    },
+    "usdtAllowanceReset": {
+      "title": "Unable to approve allowance for USDT",
+      "description": "Your current USDT allowance on Ethereum needs to be reset to 0 before it can be set to a sufficient value. Please revoke the current USDT token allowance and try again."
     },
     "openOrders": "Open Orders",
     "orderHistory": "Order History",

@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
 
 import { SlideTransitionRoute } from '../SlideTransitionRoute'
+import { AllowanceApproval } from './components/AllowanceApproval'
 import { LimitOrderConfirm } from './components/LimitOrderConfirm'
 import { LimitOrderInput } from './components/LimitOrderInput'
 import { LimitOrderList } from './components/LimitOrderList'
@@ -42,8 +43,7 @@ export const LimitOrder = ({ isCompact, tradeInputRef, onChangeTab }: LimitOrder
   }, [])
 
   const renderAllowanceApproval = useCallback(() => {
-    // TODO: Implement me!
-    return null
+    return <AllowanceApproval />
   }, [])
 
   const renderPlaceOrder = useCallback(() => {

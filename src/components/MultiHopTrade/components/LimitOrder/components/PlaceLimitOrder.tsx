@@ -1,7 +1,6 @@
-import { Button, Card, CardBody, CardFooter, Link } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ethereum } from 'test/mocks/assets'
 import { SlideTransition } from 'components/SlideTransition'
@@ -16,12 +15,12 @@ const asset = ethereum
 
 export const PlaceLimitOrder = () => {
   const history = useHistory()
-  const translate = useTranslate()
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)
 
-  // emulate tx executing
+  // Emulate tx executing for the vibes - does nothing other than spin for a sec and then show a
+  // lovely green check
   useEffect(() => {
-    setTimeout(() => setTxStatus(TxStatus.Confirmed), 3000)
+    setTimeout(() => setTxStatus(TxStatus.Confirmed), 1000)
   }, [setTxStatus])
 
   const handleSignAndBroadcast = useCallback(() => {
@@ -60,22 +59,12 @@ export const PlaceLimitOrder = () => {
       }
     })()
 
-    // TODO: get the actual tx link
-    const txLink = 'todo'
-
     return (
       <StatusBody txStatus={txStatus}>
-        <>
-          <Text translation={statusTranslation} color='text.subtle' />
-          {Boolean(txLink) && (
-            <Button as={Link} href={txLink} size='sm' variant='link' colorScheme='blue' isExternal>
-              {translate('limitOrder.viewOnChain')}
-            </Button>
-          )}
-        </>
+        <Text translation={statusTranslation} color='text.subtle' />
       </StatusBody>
     )
-  }, [translate, txStatus])
+  }, [txStatus])
 
   return (
     <SlideTransition>

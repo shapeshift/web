@@ -34,7 +34,8 @@ export const ExpandableTradeSteps = () => {
     [isExpanded],
   )
   const currentHopIndex = useCurrentHopIndex()
-  const activeTradeId = useAppSelector(selectActiveQuote)?.id
+  const activeTradeQuote = useAppSelector(selectActiveQuote)
+  const activeTradeId = activeTradeQuote?.id
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
   const hopExecutionMetadataFilter = useMemo(() => {
@@ -100,7 +101,7 @@ export const ExpandableTradeSteps = () => {
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box py={4} pl={0}>
-          <ExpandedTradeSteps />
+          {activeTradeQuote && <ExpandedTradeSteps activeTradeQuote={activeTradeQuote} />}
         </Box>
       </Collapse>
     </>

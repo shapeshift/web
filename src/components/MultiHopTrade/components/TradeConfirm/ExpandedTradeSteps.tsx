@@ -1,5 +1,6 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { CircularProgress, Flex, Stepper, StepStatus, VStack } from '@chakra-ui/react'
+import { CircularProgress, Flex, HStack, Stepper, StepStatus, Tag, VStack } from '@chakra-ui/react'
+import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
@@ -10,17 +11,15 @@ import {
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
-  selectActiveQuote,
   selectActiveQuoteErrors,
   selectActiveSwapperName,
-  selectFirstHop,
   selectHopExecutionMetadata,
-  selectLastHop,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 import { TradeStep } from './helpers'
+import { useStreamingProgress } from './hooks/useStreamingProgress'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TxLabel } from './TxLabel'
 
@@ -28,17 +27,35 @@ const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
-export const ExpandedTradeSteps = () => {
+type ExpandedTradeStepsProps = {
+  activeTradeQuote: TradeQuote | TradeRate
+}
+
+export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps) => {
   const translate = useTranslate()
   const stepProps = useMemo(() => ({ alignItems: 'center', py: 2, pr: 2 }), [])
-  const activeTradeId = useAppSelector(selectActiveQuote)?.id
   const swapperName = useAppSelector(selectActiveSwapperName)
-  const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
-  const tradeQuoteLastHop = useAppSelector(selectLastHop)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
+  const tradeQuoteFirstHop = activeTradeQuote.steps[0]
+  const tradeQuoteLastHop = activeTradeQuote.steps[1]
+  const activeTradeId = activeTradeQuote.id
+
+  const firstHopStreamingProgress = useStreamingProgress({
+    hopIndex: 0,
+    activeTradeQuote,
+    tradeQuoteStep: tradeQuoteFirstHop,
+  })
+  const secondHopStreamingProgress = useStreamingProgress({
+    hopIndex: 1,
+    activeTradeQuote,
+    // If we don't have a second hop this hook will return undefined anyway. Satisfy the rules of hooks with tradeQuoteFirstHop, which
+    // will always be defined.
+    tradeQuoteStep: tradeQuoteLastHop ?? tradeQuoteFirstHop,
+  })
+
   const isFirstHopBridge = useMemo(
     () => tradeQuoteFirstHop?.buyAsset.chainId !== tradeQuoteFirstHop?.sellAsset.chainId,
     [tradeQuoteFirstHop?.buyAsset.chainId, tradeQuoteFirstHop?.sellAsset.chainId],
@@ -171,7 +188,14 @@ export const ExpandedTradeSteps = () => {
   const firstHopActionTitle = useMemo(() => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
-        <RawText>{firstHopActionTitleText}</RawText>
+        <HStack>
+          <RawText>{firstHopActionTitleText}</RawText>
+          {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
+            <Tag colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}>
+              {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
+            </Tag>
+          )}
+        </HStack>
         {tradeQuoteFirstHop && firstHopSellAccountId && (
           <VStack>
             {firstHopSwap.sellTxHash && (
@@ -195,6 +219,7 @@ export const ExpandedTradeSteps = () => {
   }, [
     firstHopActionTitleText,
     firstHopSellAccountId,
+    firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
     firstHopSwap.sellTxHash,
     tradeQuoteFirstHop,
@@ -245,7 +270,14 @@ export const ExpandedTradeSteps = () => {
   const lastHopActionTitle = useMemo(() => {
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
-        <RawText>{lastHopActionTitleText}</RawText>
+        <HStack>
+          <RawText>{lastHopActionTitleText}</RawText>
+          {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
+            <Tag colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}>
+              {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
+            </Tag>
+          )}
+        </HStack>
         {tradeQuoteLastHop && lastHopSellAccountId && (
           <VStack>
             {lastHopSwap.sellTxHash && (
@@ -271,6 +303,7 @@ export const ExpandedTradeSteps = () => {
     lastHopSellAccountId,
     lastHopSwap.buyTxHash,
     lastHopSwap.sellTxHash,
+    secondHopStreamingProgress,
     tradeQuoteLastHop,
   ])
 

@@ -23,23 +23,9 @@ export const PlaceLimitOrder = () => {
     setTimeout(() => setTxStatus(TxStatus.Confirmed), 1000)
   }, [setTxStatus])
 
-  const handleSignAndBroadcast = useCallback(() => {
-    switch (txStatus) {
-      case TxStatus.Pending:
-        setTxStatus(TxStatus.Confirmed)
-        return
-      case TxStatus.Confirmed:
-        setTxStatus(TxStatus.Failed)
-        return
-      case TxStatus.Failed:
-        setTxStatus(TxStatus.Unknown)
-        return
-      case TxStatus.Unknown:
-      default:
-        history.push(LimitOrderRoutePaths.Input)
-        return
-    }
-  }, [history, txStatus])
+  const handleViewOrdersList = useCallback(() => {
+    history.push(LimitOrderRoutePaths.Orders)
+  }, [history])
 
   const handleGoBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
@@ -93,7 +79,7 @@ export const PlaceLimitOrder = () => {
             colorScheme={'blue'}
             size='lg'
             width='full'
-            onClick={handleSignAndBroadcast}
+            onClick={handleViewOrdersList}
             isLoading={false}
             isDisabled={txStatus === TxStatus.Pending}
           >

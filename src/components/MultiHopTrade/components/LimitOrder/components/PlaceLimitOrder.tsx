@@ -18,7 +18,7 @@ export const PlaceLimitOrder = () => {
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)
 
   // Emulate tx executing for the vibes - does nothing other than spin for a sec and then show a
-  // lovely green check
+  // lovely green check (placing orders is instant with cow because off-chain)
   useEffect(() => {
     setTimeout(() => setTxStatus(TxStatus.Confirmed), 1000)
   }, [setTxStatus])

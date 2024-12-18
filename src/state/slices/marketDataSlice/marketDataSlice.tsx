@@ -66,7 +66,10 @@ export const marketData = createSlice({
       state.isMarketDataLoaded = true
     },
     setCryptoMarketData: {
-      reducer: (state, { payload }: { payload: MarketDataById<AssetId> }) => {
+      reducer: function setCryptoMarketData(
+        state,
+        { payload }: { payload: MarketDataById<AssetId> },
+      ) {
         state.crypto.byId = Object.assign(state.crypto.byId, payload) // upsert
         state.crypto.ids = Object.keys(state.crypto.byId).sort((assetIdA, assetIdB) => {
           const marketDataA = state.crypto.byId[assetIdA]
@@ -150,16 +153,23 @@ export const marketData = createSlice({
   },
 })
 
+let countMs = 0
+
+setTimeout(() => console.log('top 1000 assets fetch took', countMs / 1000, 'seconds'), 10000)
+
 export const marketApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'marketApi',
   endpoints: build => ({
     findAll: build.query<MarketCapResult, void>({
       // top 1000 assets
-      queryFn: async (_, { dispatch }) => {
+      // named function for profiling+debugging purposes
+      queryFn: async function findAll(_, { dispatch }) {
+        const start = Date.now()
         try {
           const data = await getMarketServiceManager().findAll({ count: 1000 })
           dispatch(marketData.actions.setCryptoMarketData(data))
+          countMs += Date.now() - start
           return { data }
         } catch (e) {
           const error = { data: `findAll: could not find marketData for all assets`, status: 404 }

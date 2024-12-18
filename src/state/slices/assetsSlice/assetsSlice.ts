@@ -91,7 +91,7 @@ export const assetApi = createApi({
   reducerPath: 'assetApi',
   endpoints: build => ({
     getAssetDescription: build.query<
-      UpsertAssetsPayload,
+      string,
       { assetId: AssetId | undefined; selectedLocale: string }
     >({
       queryFn: async ({ assetId, selectedLocale }, { getState, dispatch }) => {
@@ -101,16 +101,17 @@ export const assetApi = createApi({
 
         // limitation of redux tookit https://redux-toolkit.js.org/rtk-query/api/createApi#queryfn
         const { byId: byIdOriginal } = (getState() as any).assets as AssetsState
+        const originalAsset = byIdOriginal[assetId]
+
         try {
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
-          const originalAsset = byIdOriginal[assetId]
           const byId = {
             [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),
           }
-          const data = { byId, ids: [assetId] }
 
-          if (data) dispatch(assets.actions.upsertAssets(data))
-          return { data }
+          dispatch(assets.actions.upsertAssets({ byId, ids: [assetId] }))
+
+          return { data: description }
         } catch (e) {
           const data = `getAssetDescription: error fetching description for ${assetId}`
           const status = 400

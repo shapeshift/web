@@ -26,13 +26,14 @@ import { TxLabel } from './TxLabel'
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
+const stepProps = { alignItems: 'center', py: 2, pr: 2, pl: 1.5 }
+
 type ExpandedTradeStepsProps = {
   activeTradeQuote: TradeQuote | TradeRate
 }
 
 export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps) => {
   const translate = useTranslate()
-  const stepProps = useMemo(() => ({ alignItems: 'center', py: 2, pr: 2 }), [])
   const swapperName = useAppSelector(selectActiveSwapperName)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
@@ -307,7 +308,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
   const { tradeSteps, currentTradeStep } = useTradeSteps()
 
   return (
-    <Stepper orientation='vertical' index={currentStep} gap='0'>
+    <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
       {tradeSteps[TradeStep.FirstHopReset] ? (
         <StepperStep
           title={firstHopAllowanceResetTitle}
@@ -315,7 +316,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           stepProps={stepProps}
           useSpacer={false}
           isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopReset}
-          isPending={currentTradeStep === TradeStep.FirstHopReset}
+          stepIndicatorVariant='innerSteps'
         />
       ) : null}
       {tradeSteps[TradeStep.FirstHopApproval] ? (
@@ -325,7 +326,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           stepProps={stepProps}
           useSpacer={false}
           isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopApproval}
-          isPending={currentTradeStep === TradeStep.FirstHopApproval}
+          stepIndicatorVariant='innerSteps'
         />
       ) : null}
       <StepperStep
@@ -334,7 +335,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
         stepProps={stepProps}
         useSpacer={false}
         isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopSwap}
-        isPending={currentTradeStep === TradeStep.FirstHopSwap}
+        stepIndicatorVariant='innerSteps'
       />
       {isMultiHopTrade && (
         <>
@@ -345,7 +346,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
               stepProps={stepProps}
               useSpacer={false}
               isError={activeQuoteError && currentTradeStep === TradeStep.LastHopReset}
-              isPending={currentTradeStep === TradeStep.LastHopReset}
+              stepIndicatorVariant='innerSteps'
             />
           ) : null}
           {tradeSteps[TradeStep.LastHopApproval] ? (
@@ -355,7 +356,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
               stepProps={stepProps}
               useSpacer={false}
               isError={activeQuoteError && currentTradeStep === TradeStep.LastHopApproval}
-              isPending={currentTradeStep === TradeStep.LastHopApproval}
+              stepIndicatorVariant='innerSteps'
             />
           ) : null}
           <StepperStep
@@ -364,7 +365,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
             stepProps={stepProps}
             useSpacer={false}
             isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
-            isPending={currentTradeStep === TradeStep.LastHopSwap}
+            stepIndicatorVariant='innerSteps'
           />
         </>
       )}

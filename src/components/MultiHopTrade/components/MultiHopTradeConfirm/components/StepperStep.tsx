@@ -32,6 +32,7 @@ export type StepperStepProps = {
   button?: JSX.Element
   stepProps?: StepProps
   useSpacer?: boolean
+  stepIndicatorVariant?: string
 }
 
 const LastStepTag = () => {
@@ -63,14 +64,15 @@ export const StepperStep = ({
   button,
   stepProps,
   useSpacer = true,
+  stepIndicatorVariant = 'default',
 }: StepperStepProps) => {
-  const { indicator: styles } = useStyleConfig('Stepper', {
-    variant: isError ? 'error' : 'default',
+  const { indicator: indicatorStyles } = useStyleConfig('Stepper', {
+    variant: isError ? 'error' : stepIndicatorVariant,
   }) as { indicator: SystemStyleObject }
 
   return (
     <Step width='100%' {...stepProps}>
-      <StepIndicator className={isPending ? 'step-pending' : undefined} sx={styles}>
+      <StepIndicator className={isPending ? 'step-pending' : undefined} sx={indicatorStyles}>
         {isLoading ? <SkeletonCircle /> : stepIndicator}
       </StepIndicator>
 

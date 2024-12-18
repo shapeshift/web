@@ -35,7 +35,7 @@ export const useApprovalFees = ({
   }, [assetId])
 
   const approveContractData = useMemo(() => {
-    if (!amountCryptoBaseUnit || !spender) return
+    if (!amountCryptoBaseUnit || !spender || !enabled) return
 
     return getApproveContractData({
       approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
@@ -46,7 +46,7 @@ export const useApprovalFees = ({
       spender,
       to,
     })
-  }, [allowanceType, amountCryptoBaseUnit, chainId, spender, to])
+  }, [allowanceType, amountCryptoBaseUnit, chainId, enabled, spender, to])
 
   const evmFeesResult = useEvmFees({
     to,

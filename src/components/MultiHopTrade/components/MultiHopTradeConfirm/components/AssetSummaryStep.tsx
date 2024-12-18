@@ -1,3 +1,4 @@
+import type { StepProps } from '@chakra-ui/react'
 import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useEffect, useMemo } from 'react'
@@ -21,6 +22,7 @@ export type AssetSummaryStepProps = {
   amountCryptoBaseUnit: string
   isLastStep?: boolean
   button?: JSX.Element
+  stepProps?: StepProps
 }
 
 export const AssetSummaryStep = ({
@@ -28,6 +30,7 @@ export const AssetSummaryStep = ({
   amountCryptoBaseUnit,
   isLastStep,
   button,
+  stepProps,
 }: AssetSummaryStepProps) => {
   const rateChanged = useModal('rateChanged')
   const translate = useTranslate()
@@ -92,6 +95,7 @@ export const AssetSummaryStep = ({
       stepIndicator={assetIcon}
       isLastStep={isLastStep}
       button={button}
+      stepProps={stepProps}
     />
   )
 }

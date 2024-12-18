@@ -331,14 +331,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       await Promise.all(uniqueAddresses.map(assertAddressNotSanctioned))
 
+      const bip44Params = this.getBip44Params({
+        accountNumber,
+        accountType,
+        isChange: true,
+        addressIndex: account.chainSpecific.nextChangeAddressIndex,
+      })
+
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        if (!input.path) throw new Error('invalid input')
-
         const data = await this.providers.http.getTransaction({ txid: input.txid })
 
         signTxInputs.push({
-          addressNList: bip32ToAddressNList(input.path),
+          // UTXO inputs are not guaranteed to have paths.
+          // They will in the case of an /api/v1/account/<xpub>/utxos account
+          // However, if we got utxos from an /api/v1/account/<address>/utxos account (i.e UTXOs for a single address), these will *not* contain a path, which is fine,
+          // as the path will be the same for *all* UTXOs i.e can be derived from BIP44Params (we're dealing with a single address)
+          addressNList: input.path
+            ? bip32ToAddressNList(input.path)
+            : toAddressNList({ ...bip44Params }),
           scriptType: accountTypeToScriptType[accountType],
           amount: String(input.value),
           vout: input.vout,
@@ -346,13 +357,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           hex: data.hex,
         })
       }
-
-      const bip44Params = this.getBip44Params({
-        accountNumber,
-        accountType,
-        isChange: true,
-        addressIndex: account.chainSpecific.nextChangeAddressIndex,
-      })
 
       const addressNList = toAddressNList(bip44Params)
 

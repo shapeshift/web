@@ -675,6 +675,14 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   },
 )
 
+export const selectIsActiveSwapperQuoteLoading = createSelector(
+  selectIsTradeQuoteApiQueryPending,
+  selectActiveSwapperName,
+  (isTradeQuoteApiQueryPending, activeSwapperName) => {
+    return activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName]
+  },
+)
+
 export const selectShouldShowTradeQuoteOrAwaitInput = createSelector(
   selectHasUserEnteredAmount,
   selectIsAnyTradeQuoteLoading,

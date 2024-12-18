@@ -9,13 +9,11 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
 import { useModal } from 'hooks/useModal/useModal'
-import { useWallet } from 'hooks/useWallet/useWallet'
-import { useWalletSupportsChain } from 'hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { isToken } from 'lib/utils'
 import {
   selectHighestMarketCapFeeAsset,
@@ -48,7 +46,6 @@ type SharedTradeInputBodyProps = {
 }
 
 export const SharedTradeInputBody = ({
-  buyAsset,
   children,
   isInputtingFiatSellAmount,
   isLoading,
@@ -66,11 +63,6 @@ export const SharedTradeInputBody = ({
   setSellAccountId,
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
-  const {
-    state: { walletInfo, wallet },
-  } = useWallet()
-
-  const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo])
 
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const defaultSellAsset = useAppSelector(selectHighestMarketCapFeeAsset)
@@ -78,8 +70,6 @@ export const SharedTradeInputBody = ({
   const isAccountMetadataLoadingByAccountId = useAppSelector(
     selectIsAccountMetadataLoadingByAccountId,
   )
-
-  const walletSupportsBuyAssetChain = useWalletSupportsChain(buyAsset.chainId, wallet)
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
 
@@ -90,8 +80,17 @@ export const SharedTradeInputBody = ({
     return [1]
   }, [sellAsset.assetId])
 
+  const hasJustSwitchedAssetsRef = useRef(false)
+  const handleSwitchAssets = useCallback(() => {
+    // Note we never set this back to false. This is intentional, as from the moment the user switches assets, we don't want any default pair logic to kick in anymore.
+    hasJustSwitchedAssetsRef.current = true
+    onSwitchAssets()
+  }, [onSwitchAssets])
+
   // If the user disconnects the chain for the currently selected sell asset, switch to the default asset
   useEffect(() => {
+    if (hasJustSwitchedAssetsRef.current) return
+
     // Don't do any default asset business as some accounts meta is still loading, or a wrong default asset may be set,
     // which takes over the "default default" sellAsset - double default intended:
     // https://github.com/shapeshift/web/blob/ba43c41527156f8c7e0f1170472ff362e091b450/src/state/slices/tradeInputSlice/tradeInputSlice.ts#L27
@@ -132,14 +131,6 @@ export const SharedTradeInputBody = ({
     [handleSellAssetClick, sellAsset.assetId, setSellAsset, chainIdFilterPredicate],
   )
 
-  // disable switching assets if the buy asset isn't supported
-  const shouldDisableSwitchAssets = useMemo(() => {
-    if (isSwitchAssetsDisabled) return true
-    if (!hasWallet) return false
-
-    return !walletSupportsBuyAssetChain
-  }, [hasWallet, isSwitchAssetsDisabled, walletSupportsBuyAssetChain])
-
   return (
     <Stack spacing={0}>
       <SellAssetInput
@@ -173,7 +164,7 @@ export const SharedTradeInputBody = ({
             justifyContent='center'
           >
             <IconButton
-              onClick={onSwitchAssets}
+              onClick={handleSwitchAssets}
               isRound
               size='sm'
               position='relative'
@@ -182,7 +173,7 @@ export const SharedTradeInputBody = ({
               zIndex={1}
               aria-label={translate('lending.switchAssets')}
               icon={arrowDownIcon}
-              isDisabled={shouldDisableSwitchAssets}
+              isDisabled={isSwitchAssetsDisabled}
             />
           </CircularProgressLabel>
         </CircularProgress>

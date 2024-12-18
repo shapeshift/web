@@ -55,7 +55,33 @@ const variants = {
       },
     },
   },
-  // other variants if needed
+  innerSteps: {
+    step: {
+      '&[data-status=active]': {
+        bg: 'background.surface.raised.base',
+        borderRadius: '8px',
+      },
+    },
+    indicator: {
+      width: '20px',
+      height: '20px',
+      minWidth: '20px',
+      borderWidth: '3px',
+      // Override the throbbing animation
+      '&[data-status=active]:not(.step-pending)': {
+        animation: 'none',
+      },
+      '&[data-status=active]': {
+        borderWidth: '3px',
+      },
+      '&[data-status=incomplete]': {
+        borderWidth: '3px',
+      },
+      '&[data-status=complete]': {
+        borderWidth: '3px',
+      },
+    },
+  },
 }
 
 export const stepperTheme = {

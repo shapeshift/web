@@ -133,11 +133,14 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
   }, [sellAsset])
 
   const { buttonTranslation, isError } = useMemo(() => {
+    if (isAllowanceResetRequired) {
+      return { buttonTranslation: 'limitOrder.errors.allowanceResetRequired', isError: true }
+    }
     if (!hasSufficientBalanceForGas) {
       return { buttonTranslation: 'limitOrder.errors.insufficientFundsForGas', isError: true }
     }
 
-    return { buttonTranslation: approveAssetTranslation, isError: isAllowanceResetRequired }
+    return { buttonTranslation: approveAssetTranslation, isError: false }
   }, [approveAssetTranslation, hasSufficientBalanceForGas, isAllowanceResetRequired])
 
   const statusBody = useMemo(() => {
@@ -219,8 +222,11 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
             size='lg'
             width='full'
             onClick={handleSignAndBroadcast}
-            isLoading={isLoading}
-            isDisabled={isLoading || isError}
+            // As soon as we detect that allowance reset is required, we go directly into a disabled state, and disregard loading states
+            // That is because we don't currently have allowance reset implemented, and Tx simulation will deterministically fail when trying to simulate a Tx with the intended amount
+            // So there's no point to display a loading state for something users cannot action
+            isLoading={isLoading && !isAllowanceResetRequired}
+            isDisabled={isLoading || isAllowanceResetRequired || isError}
           >
             <Text translation={buttonTranslation} />
           </Button>

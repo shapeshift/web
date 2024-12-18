@@ -1,4 +1,4 @@
-import type { BoxProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
+import type { BoxProps, StepProps, StepTitleProps, SystemStyleObject } from '@chakra-ui/react'
 import {
   Box,
   Flex,
@@ -18,10 +18,8 @@ import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { selectActiveQuote } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-const width = { width: '100%' }
-
 export type StepperStepProps = {
-  title: string
+  title: string | JSX.Element
   description?: string | JSX.Element
   stepIndicator: JSX.Element
   content?: JSX.Element
@@ -32,6 +30,9 @@ export type StepperStepProps = {
   descriptionProps?: BoxProps
   isPending?: boolean
   button?: JSX.Element
+  stepProps?: StepProps
+  useSpacer?: boolean
+  stepIndicatorVariant?: string
 }
 
 const LastStepTag = () => {
@@ -61,14 +62,17 @@ export const StepperStep = ({
   descriptionProps,
   isPending,
   button,
+  stepProps,
+  useSpacer = true,
+  stepIndicatorVariant = 'default',
 }: StepperStepProps) => {
-  const { indicator: styles } = useStyleConfig('Stepper', {
-    variant: isError ? 'error' : 'default',
+  const { indicator: indicatorStyles } = useStyleConfig('Stepper', {
+    variant: isError ? 'error' : stepIndicatorVariant,
   }) as { indicator: SystemStyleObject }
 
   return (
-    <Step style={width}>
-      <StepIndicator className={isPending ? 'step-pending' : undefined} sx={styles}>
+    <Step width='100%' {...stepProps}>
+      <StepIndicator className={isPending ? 'step-pending' : undefined} sx={indicatorStyles}>
         {isLoading ? <SkeletonCircle /> : stepIndicator}
       </StepIndicator>
 
@@ -92,7 +96,7 @@ export const StepperStep = ({
             </>
           )}
           {content !== undefined && <Box mt={2}>{content}</Box>}
-          {!isLastStep && <Spacer height={6} />}
+          {!isLastStep && useSpacer && <Spacer height={6} />}
         </Box>
         {button}
       </Flex>

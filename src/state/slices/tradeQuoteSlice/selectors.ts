@@ -566,6 +566,8 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   selectActiveQuoteAffiliateBps,
   (calculatedFees, affiliateBps) => {
     if (!affiliateBps) return
+    if (affiliateBps === '0') return bn(0)
+
     return calculatedFees.feeUsd
   },
 )
@@ -672,6 +674,14 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   selectHasUserEnteredAmount,
   (loadingSwappers, hasUserEnteredAmount) => {
     return hasUserEnteredAmount && loadingSwappers.length > 0
+  },
+)
+
+export const selectIsActiveSwapperQuoteLoading = createSelector(
+  selectIsTradeQuoteApiQueryPending,
+  selectActiveSwapperName,
+  (isTradeQuoteApiQueryPending, activeSwapperName) => {
+    return activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName]
   },
 )
 

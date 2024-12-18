@@ -122,6 +122,8 @@ export const getTradeQuote = async (
       if (!swapResponse.id) throw Error('Missing Swap Id')
       if (!swapResponse.address) throw Error('Missing Deposit Channel')
 
+      const depositAddress = swapResponse.address
+
       const getFeeData = async () => {
         const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
@@ -130,7 +132,7 @@ export const getTradeQuote = async (
           case CHAIN_NAMESPACE.Solana: {
             const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
             const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-              to: input.receiveAddress,
+              to: depositAddress,
               value: sellAmount,
               chainSpecific: {
                 from: input.sendAddress!,
@@ -155,7 +157,7 @@ export const getTradeQuote = async (
       if (!step.chainflipSpecific)
         step.chainflipSpecific = {
           chainflipSwapId: swapResponse.id,
-          chainflipDepositAddress: swapResponse.address,
+          chainflipDepositAddress: depositAddress,
         }
 
       step.chainflipSpecific.chainflipSwapId = swapResponse.id

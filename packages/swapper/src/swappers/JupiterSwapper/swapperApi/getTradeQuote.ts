@@ -40,15 +40,13 @@ export const getTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
-    // affiliateBps: _affiliateBps,
+    affiliateBps: _affiliateBps,
     receiveAddress,
     accountNumber,
     sendAddress,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
-
-  const _affiliateBps = '50'
 
   const { assetsById } = deps
 

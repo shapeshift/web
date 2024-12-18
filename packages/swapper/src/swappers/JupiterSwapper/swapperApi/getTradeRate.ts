@@ -41,12 +41,11 @@ export const getTradeRate = async (
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    // affiliateBps: _affiliateBps,
+    affiliateBps: _affiliateBps,
     receiveAddress,
     accountNumber,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
-  const _affiliateBps = '50'
 
   const { assetsById } = deps
 
@@ -112,15 +111,6 @@ export const getTradeRate = async (
   const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
 
   const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : _affiliateBps
-
-  console.log({
-    affiliateBps,
-    isSellTokenToken2022,
-    isBuyTokenToken2022,
-    buy: buyTokenInfo,
-    buyOwner: buyTokenInfo?.owner.toString(),
-    token2022: TOKEN_2022_PROGRAM_ID.toString(),
-  })
 
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,

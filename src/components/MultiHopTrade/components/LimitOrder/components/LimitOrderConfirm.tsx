@@ -24,6 +24,8 @@ import { TransactionDate } from 'components/TransactionHistoryRows/TransactionDa
 import { useActions } from 'hooks/useActions'
 import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { usePlaceLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import {
@@ -43,6 +45,7 @@ import { useAppSelector } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { WithBackButton } from '../../WithBackButton'
+import { getMixpanelLimitOrderEventData } from '../helpers'
 import { LimitOrderRoutePaths } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
@@ -54,6 +57,7 @@ export const LimitOrderConfirm = () => {
   const { confirmSubmit, setLimitOrderInitialized } = useActions(limitOrderSlice.actions)
   const { showErrorToast } = useErrorHandler()
   const queryClient = useQueryClient()
+  const mixpanel = getMixPanel()
 
   const activeQuote = useAppSelector(selectActiveQuote)
   const sellAsset = useAppSelector(selectActiveQuoteSellAsset)
@@ -99,18 +103,38 @@ export const LimitOrderConfirm = () => {
     // TEMP: Bypass allowance approvals and jump straight to placing the order
     setLimitOrderInitialized(quoteId)
     confirmSubmit(quoteId)
-    await placeLimitOrder({ quoteId, wallet })
+    const result = await placeLimitOrder({ quoteId, wallet })
+
+    // Exit if the request failed.
+    if ((result as { error: unknown }).error) return
+
     // refetch the orders list for this account
     queryClient.invalidateQueries({
       queryKey: ['getLimitOrdersForAccount', accountId],
       refetchType: 'all',
     })
+
+    // Track event in mixpanel
+    const eventData = getMixpanelLimitOrderEventData({
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoPrecision,
+      buyAmountCryptoPrecision,
+    })
+    if (mixpanel && eventData) {
+      mixpanel.track(MixPanelEvent.LimitOrderPlaced, eventData)
+    }
   }, [
     activeQuote?.params.accountId,
     activeQuote?.response.id,
+    buyAmountCryptoPrecision,
+    buyAsset,
     confirmSubmit,
+    mixpanel,
     placeLimitOrder,
     queryClient,
+    sellAmountCryptoPrecision,
+    sellAsset,
     setLimitOrderInitialized,
     wallet,
   ])

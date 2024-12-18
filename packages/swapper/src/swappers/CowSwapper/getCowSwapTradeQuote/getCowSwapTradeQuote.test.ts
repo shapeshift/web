@@ -8,7 +8,7 @@ import {
   COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
   DEFAULT_ADDRESS,
 } from '../../../cowswap-utils/constants'
-import type { GetTradeQuoteInput, SwapperConfig, TradeQuote } from '../../../types'
+import type { GetTradeQuoteInput, SwapperConfig, TradeQuote, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import {
   ETH,
@@ -138,6 +138,7 @@ const expectedApiInputUsdcToEthArbitrum: CowSwapSellQuoteApiInput = {
 }
 
 const expectedTradeQuoteWethToFox: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -183,6 +184,7 @@ const expectedTradeQuoteWethToFox: TradeQuote = {
 }
 
 const expectedTradeQuoteFoxToEth: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -228,6 +230,7 @@ const expectedTradeQuoteFoxToEth: TradeQuote = {
 }
 
 const expectedTradeQuoteUsdcToXdai: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -273,6 +276,7 @@ const expectedTradeQuoteUsdcToXdai: TradeQuote = {
 }
 
 const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -318,6 +322,7 @@ const expectedTradeQuoteUsdcToEthArbitrum: TradeQuote = {
 }
 
 const expectedTradeQuoteSmallAmountWethToFox: TradeQuote = {
+  quoteOrRate: 'quote',
   id: '123',
   receiveAddress: '0x0000000000000000000000000000000000000000',
   affiliateBps: '0',
@@ -377,6 +382,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     const maybeTradeQuote = await getCowSwapTradeQuote(input, MOCK_COWSWAP_CONFIG)
@@ -404,6 +410,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -449,6 +456,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -494,6 +502,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -539,6 +548,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(
@@ -584,6 +594,7 @@ describe('getCowSwapTradeQuote', () => {
       allowMultiHop: false,
       slippageTolerancePercentageDecimal: '0.005', // 0.5%
       quoteOrRate: 'quote',
+      originalRate: {} as TradeRate,
     }
 
     mockedCowService.post.mockReturnValue(

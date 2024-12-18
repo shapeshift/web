@@ -1,19 +1,28 @@
-import { Box, Button, Center, Flex, Progress, Tag } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { WarningTwoIcon } from '@chakra-ui/icons'
+import { Box, Button, Center, Flex, Progress, Tag, TagLabel, Tooltip } from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { formatDistanceToNow } from 'date-fns'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useAllowance } from 'react-queries/hooks/useAllowance'
 import { Amount } from 'components/Amount/Amount'
 import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { SwapBoldIcon } from 'components/Icons/SwapBold'
 import { RawText, Text } from 'components/Text'
-import { selectAssetById } from 'state/slices/selectors'
-import { useAppSelector } from 'state/store'
+import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { assertGetChainAdapter } from 'lib/utils'
+import {
+  selectAssetById,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
+} from 'state/slices/selectors'
+import { useSelectorWithArgs } from 'state/store'
 
-export interface LimitOrderCardProps {
+export type LimitOrderCardProps = {
   uid: string
   buyAmountCryptoBaseUnit: string
   sellAmountCryptoBaseUnit: string
@@ -22,6 +31,7 @@ export interface LimitOrderCardProps {
   validTo?: number
   filledDecimalPercentage: number
   status: OrderStatus
+  accountId: AccountId
   onCancelClick?: (uid: string) => void
 }
 
@@ -38,12 +48,52 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   validTo,
   filledDecimalPercentage,
   status,
+  accountId,
   onCancelClick,
 }) => {
   const translate = useTranslate()
+  const {
+    number: { toCrypto },
+  } = useLocaleFormatter()
 
-  const buyAsset = useAppSelector(state => selectAssetById(state, buyAssetId))
-  const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId))
+  const buyAsset = useSelectorWithArgs(selectAssetById, buyAssetId)
+  const sellAsset = useSelectorWithArgs(selectAssetById, sellAssetId)
+
+  const filter = useMemo(() => {
+    return {
+      accountId,
+      assetId: sellAssetId,
+    }
+  }, [accountId, sellAssetId])
+
+  const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
+    selectPortfolioCryptoBalanceBaseUnitByFilter,
+    filter,
+  )
+
+  const hasSufficientBalance = useMemo(() => {
+    return bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(sellAmountCryptoBaseUnit)
+  }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
+
+  const from = useMemo(() => {
+    return fromAccountId(accountId).account
+  }, [accountId])
+
+  const { data: allowanceOnChainCryptoBaseUnit } = useAllowance({
+    assetId: sellAssetId,
+    spender: COW_SWAP_VAULT_RELAYER_ADDRESS,
+    from,
+    // Don't fetch allowance if there is insufficient balance, because we wont display the allowance
+    // warning in this case.
+    isDisabled: !hasSufficientBalance || status !== OrderStatus.OPEN,
+  })
+
+  const hasSufficientAllowance = useMemo(() => {
+    // If the request failed, default to true since this is just a helper and not safety critical.
+    if (!allowanceOnChainCryptoBaseUnit) return true
+
+    return bn(sellAmountCryptoBaseUnit).lte(allowanceOnChainCryptoBaseUnit)
+  }, [allowanceOnChainCryptoBaseUnit, sellAmountCryptoBaseUnit])
 
   const handleCancel = useCallback(() => {
     onCancelClick?.(uid)
@@ -104,6 +154,40 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [status, validTo],
   )
 
+  const sellAmountCryptoFormatted = useMemo(
+    () => toCrypto(sellAmountCryptoPrecision, sellAsset?.symbol ?? ''),
+    [sellAmountCryptoPrecision, toCrypto, sellAsset],
+  )
+
+  const buyAmountCryptoFormatted = useMemo(
+    () => toCrypto(buyAmountCryptoPrecision, buyAsset?.symbol ?? ''),
+    [buyAmountCryptoPrecision, toCrypto, buyAsset],
+  )
+
+  const warningText = useMemo(() => {
+    if (status !== OrderStatus.OPEN) return
+
+    const translationProps = {
+      symbol: sellAsset?.symbol ?? '',
+      chainName: assertGetChainAdapter(sellAsset?.chainId ?? '')?.getDisplayName() ?? '',
+    }
+
+    if (!hasSufficientBalance) {
+      return translate('limitOrder.orderCard.warning.insufficientBalance', translationProps)
+    }
+
+    if (!hasSufficientAllowance) {
+      return translate('limitOrder.orderCard.warning.insufficientAllowance', translationProps)
+    }
+  }, [
+    hasSufficientAllowance,
+    hasSufficientBalance,
+    sellAsset?.chainId,
+    sellAsset?.symbol,
+    status,
+    translate,
+  ])
+
   if (!buyAsset || !sellAsset) return null
 
   return (
@@ -117,28 +201,57 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     >
       <Flex direction='column' gap={4}>
         {/* Asset amounts row */}
-        <Flex justify='space-between' align='flex-start'>
-          <Flex>
+        <Flex justifyContent='space-between' alignItems='flex-start'>
+          {/* Left group - icon and amounts */}
+          <Flex alignItems='flex-start' gap={4} flex={1} minWidth={0}>
             <AssetIconWithBadge size='lg' assetId={buyAssetId} secondaryAssetId={sellAssetId}>
               <Center borderRadius='full' boxSize='100%' bg='purple.500'>
                 <SwapBoldIcon boxSize='100%' />
               </Center>
             </AssetIconWithBadge>
-            <Flex direction='column' align='flex-start' ml={4}>
-              <Amount.Crypto
-                value={sellAmountCryptoPrecision}
-                symbol={sellAsset.symbol}
-                color='gray.500'
-                fontSize='xl'
-              />
-              <Amount.Crypto
-                value={buyAmountCryptoPrecision}
-                symbol={buyAsset.symbol}
-                fontSize='xl'
-              />
+            <Flex gap={2} alignItems='flex-start' width='100%' minWidth={0}>
+              <Flex direction='column' align='flex-start' width='100%' minWidth={0}>
+                <Tooltip label={sellAmountCryptoFormatted}>
+                  <Box width='100%' overflow='hidden'>
+                    <Amount.Crypto
+                      value={sellAmountCryptoPrecision}
+                      symbol={sellAsset.symbol}
+                      color='gray.500'
+                      fontSize='lg'
+                      whiteSpace='nowrap'
+                      overflow='hidden'
+                      textOverflow='ellipsis'
+                      display='block'
+                    />
+                  </Box>
+                </Tooltip>
+                <Tooltip label={buyAmountCryptoFormatted}>
+                  <Box width='100%' overflow='hidden'>
+                    <Amount.Crypto
+                      value={buyAmountCryptoPrecision}
+                      symbol={buyAsset.symbol}
+                      fontSize='lg'
+                      whiteSpace='nowrap'
+                      overflow='hidden'
+                      textOverflow='ellipsis'
+                      display='block'
+                    />
+                  </Box>
+                </Tooltip>
+              </Flex>
             </Flex>
           </Flex>
-          <Tag colorScheme={tagColorScheme}>{translate(`limitOrder.status.${status}`)}</Tag>
+          {/* Right group - status tag */}
+          <Flex direction='column' gap={1} align='flex-end' minWidth={0}>
+            <Tag flexShrink={0} colorScheme={tagColorScheme}>
+              <TagLabel>{translate(`limitOrder.status.${status}`)}</TagLabel>
+            </Tag>
+            {Boolean(warningText) && (
+              <Tooltip label={warningText}>
+                <WarningTwoIcon color='text.warning' boxSize={6} />
+              </Tooltip>
+            )}
+          </Flex>
         </Flex>
 
         {/* Price row */}

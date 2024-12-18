@@ -81,6 +81,6 @@ export const selectBuyAmountCryptoBaseUnit = createSelector(
       value: buyAmountSellAssetBaseUnit,
       inputExponent: sellAsset.precision,
       outputExponent: buyAsset.precision,
-    }).toFixed()
+    }).toFixed(0)
   },
 )

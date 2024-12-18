@@ -1,6 +1,6 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
-import type { SwapperName, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { orderBy, uniqBy } from 'lodash'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { ApiQuote } from 'state/apis/swapper/types'
@@ -52,7 +52,7 @@ export const tradeQuoteSlice = createSlice({
         }
       }
     },
-    setConfirmedQuote: (state, action: PayloadAction<TradeQuote>) => {
+    setConfirmedQuote: (state, action: PayloadAction<TradeQuote | TradeRate>) => {
       state.confirmedQuote = action.payload
     },
     clearQuoteExecutionState: (state, action: PayloadAction<TradeQuote['id']>) => {

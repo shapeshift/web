@@ -15,7 +15,7 @@ export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = as
     if (chainId !== solanaChainId) continue
 
     const adapter = assertGetSolanaChainAdapter(chainId)
-    const bip44Params = adapter.getBIP44Params({ accountNumber })
+    const bip44Params = adapter.getBip44Params({ accountNumber })
 
     const address = await adapter.getAddress({ accountNumber, wallet })
 

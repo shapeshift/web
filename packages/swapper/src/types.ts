@@ -29,7 +29,6 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type { LifiTools } from './swappers/LifiSwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -158,7 +157,6 @@ type CommonTradeInputBase = {
   potentialAffiliateBps: string
   affiliateBps: string
   allowMultiHop: boolean
-  lifiAllowedTools?: LifiTools
   slippageTolerancePercentageDecimal?: string
 }
 
@@ -167,16 +165,17 @@ export type CommonTradeQuoteInput = CommonTradeInputBase & {
   receiveAddress: string
   accountNumber: number
   quoteOrRate: 'quote'
+  originalRate: TradeRate
 }
 
 type CommonTradeRateInput = CommonTradeInputBase & {
   sendAddress?: undefined
-  receiveAddress: undefined
+  receiveAddress: string | undefined
   accountNumber: undefined
   quoteOrRate: 'rate'
 }
 
-type CommonTradeInput = CommonTradeQuoteInput | CommonTradeRateInput
+type CommonTradeInput = CommonTradeQuoteInput
 
 export type GetEvmTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: EvmChainId
@@ -186,7 +185,7 @@ export type GetEvmTradeRateInput = CommonTradeRateInput & {
   chainId: EvmChainId
   supportsEIP1559: false
 }
-export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase | GetEvmTradeRateInput
+export type GetEvmTradeQuoteInput = GetEvmTradeQuoteInputBase
 
 export type GetCosmosSdkTradeQuoteInputBase = CommonTradeQuoteInput & {
   chainId: CosmosSdkChainId
@@ -207,16 +206,16 @@ type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   xpub: string
 }
 
-type GetUtxoTradeRateInput = CommonTradeRateInput & {
+export type GetUtxoTradeRateInput = CommonTradeRateInput & {
   chainId: UtxoChainId
-  // We need a dummy script type when getting a quote without a wallet
-  // so we always use SegWit (which works across all UTXO chains)
-  accountType: UtxoAccountType.P2pkh
-  accountNumber: undefined
-  xpub: undefined
+  accountType: UtxoAccountType
+  // accountNumber and accountType may be undefined if no wallet is connected
+  // accountType will default to UtxoAccountType.P2pkh without a wallet connected
+  accountNumber: number | undefined
+  xpub: string | undefined
 }
 
-export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet | GetUtxoTradeRateInput
+export type GetUtxoTradeQuoteInput = GetUtxoTradeQuoteWithWallet
 
 export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
@@ -291,6 +290,13 @@ export type TradeQuoteStep = {
     instructions?: TransactionInstruction[]
   }
   cowswapQuoteResponse?: OrderQuoteResponse
+  chainflipSpecific?: {
+    chainflipSwapId?: number
+    chainflipDepositAddress?: string
+    chainflipNumberOfChunks?: number
+    chainflipChunkIntervalBlocks?: number
+    chainflipMaxBoostFee?: number
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
@@ -299,15 +305,14 @@ export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { acco
 type TradeQuoteBase = {
   id: string
   rate: string // top-level rate for all steps (i.e. output amount / input amount)
-  receiveAddress: string | undefined // if receiveAddress is undefined, this is not a trade quote but a trade rate
+  receiveAddress: string | undefined // receiveAddress may be undefined without a wallet connected
   potentialAffiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   affiliateBps: string // even if the swapper does not support affiliateBps, we need to zero-them out or view-layer will be borked
   isStreaming?: boolean
   slippageTolerancePercentageDecimal: string | undefined // undefined if slippage limit is not provided or specified by the swapper
   isLongtail?: boolean
+  quoteOrRate: 'quote' | 'rate'
 }
-
-type TradeRateBase = Omit<TradeQuoteBase, 'receiveAddress'> & { receiveAddress: undefined }
 
 // https://github.com/microsoft/TypeScript/pull/40002
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
@@ -333,26 +338,28 @@ export type SupportedTradeQuoteStepIndex = 0 | 1
 export type SingleHopTradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps
 }
-export type MultiHopTradeQuote = TradeQuoteBase & {
-  steps: MultiHopTradeQuoteSteps
-}
-
 // Note: don't try to do TradeQuote = SingleHopTradeQuote | MultiHopTradeQuote here, which would be cleaner but you'll have type errors such as
 // "An interface can only extend an object type or intersection of object types with statically known members."
 export type TradeQuote = TradeQuoteBase & {
   steps: SingleHopTradeQuoteSteps | MultiHopTradeQuoteSteps
+} & {
+  quoteOrRate: 'quote'
+  receiveAddress: string
 }
 
-export type TradeRate = TradeRateBase & {
+export type MultiHopTradeQuote = TradeQuote & {
+  steps: MultiHopTradeQuoteSteps
+}
+
+export type MultiHopTradeRate = TradeRate & {
+  steps: MultiHopTradeRateSteps
+}
+
+export type TradeRate = TradeQuoteBase & {
   steps: SingleHopTradeRateSteps | MultiHopTradeRateSteps
 } & {
-  receiveAddress: undefined
-  accountNumber: undefined
+  quoteOrRate: 'rate'
 }
-
-export type TradeQuoteOrRate = TradeQuote | TradeRate
-
-export type ExecutableTradeQuote = TradeQuote & { receiveAddress: string }
 
 export type FromOrXpub = { from: string; xpub?: never } | { from?: never; xpub: string }
 
@@ -452,7 +459,7 @@ export type CheckTradeStatusInput = {
 
 // a result containing all routes that were successfully generated, or an error in the case where
 // no routes could be generated
-type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
+export type TradeQuoteResult = Result<TradeQuote[], SwapErrorRight>
 export type TradeRateResult = Result<TradeRate[], SwapErrorRight>
 
 export type EvmTransactionRequest = {

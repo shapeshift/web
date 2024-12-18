@@ -162,6 +162,7 @@ export const limitOrderApi = createApi({
             `${baseUrl}/${network}/api/v1/orders/`,
             limitOrder,
           )
+
           const orderId = result.data
           return { data: orderId }
         } catch (e) {

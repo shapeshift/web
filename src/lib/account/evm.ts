@@ -55,7 +55,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     }
 
     const adapter = assertGetEvmChainAdapter(chainId)
-    const bip44Params = adapter.getBIP44Params({ accountNumber })
+    const bip44Params = adapter.getBip44Params({ accountNumber })
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     address = address || (await adapter.getAddress({ accountNumber, wallet }))

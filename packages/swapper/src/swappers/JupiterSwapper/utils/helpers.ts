@@ -19,6 +19,7 @@ import {
   jupiterSupportedChainIds,
   PDA_ACCOUNT_CREATION_COST,
   SHAPESHIFT_JUPITER_REFERRAL_KEY,
+  TOKEN_2022_PROGRAM_ID,
 } from './constants'
 import { jupiterService } from './jupiterService'
 
@@ -127,6 +128,7 @@ export const getFeeTokenAccountAndInstruction = async ({
 
   const buyTokenInfo = await connection.getAccountInfo(new PublicKey(buyTokenId))
   const sellTokenInfo = await connection.getAccountInfo(new PublicKey(sellTokenId))
+  const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
 
   if (
     buyTokenInfo?.owner.toString() !== TOKEN_PROGRAM_ID.toString() &&
@@ -137,8 +139,10 @@ export const getFeeTokenAccountAndInstruction = async ({
 
   const project = new PublicKey(JUPITER_REFERALL_FEE_PROJECT_ACCOUNT)
 
+  const referralPubkey = isSellTokenToken2022 ? buyAssetReferralPubKey : sellAssetReferralPubKey
+
   return {
-    tokenAccount: sellAssetReferralPubKey,
+    tokenAccount: referralPubkey,
     instruction: new TransactionInstruction({
       keys: [
         {
@@ -157,12 +161,12 @@ export const getFeeTokenAccountAndInstruction = async ({
           isWritable: false,
         },
         {
-          pubkey: sellAssetReferralPubKey,
+          pubkey: referralPubkey,
           isSigner: false,
           isWritable: true,
         },
         {
-          pubkey: new PublicKey(buyTokenId),
+          pubkey: new PublicKey(isSellTokenToken2022 ? buyTokenId : sellTokenId),
           isSigner: false,
           isWritable: false,
         },
@@ -270,8 +274,11 @@ export const createSwapInstructions = async ({
     fromAddress: sendAddress,
     toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
     rawQuote: priceResponse,
-    useSharedAccounts: priceResponse.routePlan.length > 1 && isCrossAccountTrade ? true : false,
-    feeAccount: affiliateBps !== '0' ? tokenAccount?.toString() : undefined,
+    // It would be better to use this only if routes number are > 1 and for cross account trades,
+    // but Jupiter has a bug under the hood when swapping SPL to Token2022 and taking referral fees
+    // Also it reduce sol numbers and compute units in the end, so TXs fees are smaller
+    useSharedAccounts: true,
+    feeAccount: affiliateBps !== '0' && tokenAccount ? tokenAccount.toString() : undefined,
   })
 
   if (maybeSwapResponse.isErr()) {

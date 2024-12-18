@@ -2,12 +2,15 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 
 import type { PartialRecord } from './utility'
 
-export type BIP44Params = {
+export type RootBip44Params = {
   purpose: number
   coinType: number
   accountNumber: number
-  isChange?: boolean
-  index?: number
+}
+
+export type Bip44Params = RootBip44Params & {
+  isChange: boolean | undefined
+  addressIndex: number | undefined
 }
 
 export enum KnownChainIds {
@@ -85,7 +88,7 @@ export type AssetsById = Record<AssetId, Asset>
 export type AssetsByIdPartial = PartialRecord<AssetId, Asset>
 
 export type AccountMetadata = {
-  bip44Params: BIP44Params
+  bip44Params: Bip44Params
   accountType?: UtxoAccountType
 }
 

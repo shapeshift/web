@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, cosmosAssetId } from '@shapeshiftoss/caip'
 import type { CosmosSignTx, CosmosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -43,7 +43,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.cosmos.
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainnet> {
-  static readonly defaultBIP44Params: BIP44Params = {
+  static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Cosmos),
     accountNumber: 0,
@@ -55,7 +55,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
     super({
       assetId: cosmosAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       denom: 'uatom',
       parser: new unchained.cosmos.TransactionParser({
         assetId: cosmosAssetId,
@@ -104,7 +104,7 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.CosmosMainn
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBIP44Params({ accountNumber })
+      const bip44Params = this.getBip44Params({ accountNumber })
       const address = await wallet.cosmosGetAddress({
         addressNList: toAddressNList(bip44Params),
         showDisplay: showOnDevice,

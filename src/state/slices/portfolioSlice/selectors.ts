@@ -4,7 +4,7 @@ import { FEE_ASSET_IDS, foxyAssetId, fromAccountId, fromAssetId } from '@shapesh
 import type {
   AccountMetadata,
   AccountMetadataById,
-  BIP44Params,
+  Bip44Params,
   PartialRecord,
 } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
@@ -132,15 +132,15 @@ export const selectPortfolioAccountMetadataByAccountId = createCachedSelector(
     accountId && accountMetadata[accountId],
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
-export const selectBIP44ParamsByAccountId = createCachedSelector(
+export const selectBip44ParamsByAccountId = createCachedSelector(
   selectPortfolioAccountMetadata,
   selectAccountIdParamFromFilter,
-  (accountMetadata, accountId): BIP44Params | undefined =>
+  (accountMetadata, accountId): Bip44Params | undefined =>
     accountId && accountMetadata[accountId]?.bip44Params,
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 
 export const selectAccountNumberByAccountId = createCachedSelector(
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   (bip44Params): number | undefined => bip44Params?.accountNumber,
 )((_s: ReduxState, filter) => filter?.accountId ?? 'accountId')
 

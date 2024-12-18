@@ -1,11 +1,10 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { GetTradeQuoteInput } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInput, GetTradeRateInput, TradeRate } from '@shapeshiftoss/swapper'
 import type { LifiTradeQuote } from '@shapeshiftoss/swapper/src/swappers/LifiSwapper/utils/types'
 import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
-import type { TradeQuoteInputCommonArgs } from 'components/MultiHopTrade/types'
 import { toBaseUnit } from 'lib/math'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
@@ -13,13 +12,14 @@ import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { assertGetSolanaChainAdapter } from 'lib/utils/solana'
 import { assertGetUtxoChainAdapter } from 'lib/utils/utxo'
 
-export type GetTradeQuoteInputArgs = {
+export type GetTradeQuoteOrRateInputArgs = {
   sellAsset: Asset
   buyAsset: Asset
   sellAccountType: UtxoAccountType | undefined
   slippageTolerancePercentageDecimal?: string
   sellAmountBeforeFeesCryptoPrecision: string
   allowMultiHop: boolean
+  originalRate?: TradeRate
   lifiAllowedTools?: LifiTradeQuote['lifiTools'] | undefined
   // Potential affiliate bps - may be waved out either entirely or partially with FOX discounts
   potentialAffiliateBps: string
@@ -34,7 +34,7 @@ export type GetTradeQuoteInputArgs = {
   wallet: HDWallet | undefined
 }
 
-export const getTradeQuoteInput = async ({
+export const getTradeQuoteOrRateInput = async ({
   sellAsset,
   buyAsset,
   sellAccountNumber,
@@ -44,28 +44,46 @@ export const getTradeQuoteInput = async ({
   receiveAddress,
   sellAmountBeforeFeesCryptoPrecision,
   allowMultiHop,
-  lifiAllowedTools,
+  originalRate,
   affiliateBps,
   potentialAffiliateBps,
   slippageTolerancePercentageDecimal,
   pubKey,
-}: GetTradeQuoteInputArgs): Promise<GetTradeQuoteInput> => {
-  const tradeQuoteInputCommonArgs: TradeQuoteInputCommonArgs = {
-    sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-      sellAmountBeforeFeesCryptoPrecision,
-      sellAsset.precision,
-    ),
-    sellAsset,
-    buyAsset,
-    receiveAddress,
-    accountNumber: sellAccountNumber,
-    affiliateBps: affiliateBps ?? '0',
-    potentialAffiliateBps: potentialAffiliateBps ?? '0',
-    allowMultiHop,
-    lifiAllowedTools,
-    slippageTolerancePercentageDecimal,
-    quoteOrRate,
-  }
+}: GetTradeQuoteOrRateInputArgs): Promise<GetTradeQuoteInput | GetTradeRateInput> => {
+  const tradeQuoteInputCommonArgs =
+    quoteOrRate === 'quote' && receiveAddress && sellAccountNumber !== undefined
+      ? {
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
+            sellAmountBeforeFeesCryptoPrecision,
+            sellAsset.precision,
+          ),
+          sellAsset,
+          buyAsset,
+          receiveAddress,
+          accountNumber: sellAccountNumber,
+          affiliateBps: affiliateBps ?? '0',
+          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          allowMultiHop,
+          slippageTolerancePercentageDecimal,
+          quoteOrRate: 'quote',
+          originalRate,
+        }
+      : {
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
+            sellAmountBeforeFeesCryptoPrecision,
+            sellAsset.precision,
+          ),
+          sellAsset,
+          buyAsset,
+          receiveAddress,
+          originalRate,
+          accountNumber: sellAccountNumber,
+          affiliateBps: affiliateBps ?? '0',
+          potentialAffiliateBps: potentialAffiliateBps ?? '0',
+          allowMultiHop,
+          slippageTolerancePercentageDecimal,
+          quoteOrRate: 'rate',
+        }
 
   const { chainNamespace } = fromChainId(sellAsset.chainId)
 

@@ -31,8 +31,8 @@ const JUPITER_TRANSACTION_MAX_ACCOUNTS = 54
 
 type GetJupiterQuoteArgs = {
   apiUrl: string
-  sourceAsset: string
-  destinationAsset: string
+  sourceAssetAddress: string
+  destinationAssetAddress: string
   commissionBps: string
   amount: string
   slippageBps: string | undefined
@@ -60,16 +60,16 @@ type CreateInstructionsParams = {
 
 export const getJupiterPrice = ({
   apiUrl,
-  sourceAsset,
-  destinationAsset,
+  sourceAssetAddress,
+  destinationAssetAddress,
   commissionBps,
   amount,
   slippageBps,
 }: GetJupiterQuoteArgs): Promise<Result<AxiosResponse<QuoteResponse, any>, SwapErrorRight>> =>
   jupiterService.get<QuoteResponse>(
     `${apiUrl}/quote` +
-      `?inputMint=${fromAssetId(sourceAsset).assetReference}` +
-      `&outputMint=${fromAssetId(destinationAsset).assetReference}` +
+      `?inputMint=${sourceAssetAddress}` +
+      `&outputMint=${destinationAssetAddress}` +
       `&amount=${amount}` +
       (slippageBps ? `&slippageBps=${slippageBps}` : `&autoSlippage=true`) +
       `&maxAccounts=${JUPITER_TRANSACTION_MAX_ACCOUNTS}` +

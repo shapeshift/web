@@ -1,5 +1,5 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { CircularProgress, Flex, HStack, Stepper, StepStatus, Tag, VStack } from '@chakra-ui/react'
+import { Flex, HStack, Stepper, StepStatus, Tag, VStack } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -23,7 +23,6 @@ import { useStreamingProgress } from './hooks/useStreamingProgress'
 import { useTradeSteps } from './hooks/useTradeSteps'
 import { TxLabel } from './TxLabel'
 
-const pendingStepIndicator = <CircularProgress size={5} trackColor='blue.500' />
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
@@ -134,8 +133,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     () => (
       <StepStatus
         complete={completedStepIndicator}
-        incomplete={pendingStepIndicator}
-        active={activeQuoteError ? erroredStepIndicator : pendingStepIndicator}
+        incomplete={undefined}
+        active={activeQuoteError ? erroredStepIndicator : undefined}
       />
     ),
     [activeQuoteError],
@@ -305,7 +304,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     tradeQuoteLastHop,
   ])
 
-  const { tradeSteps } = useTradeSteps()
+  const { tradeSteps, currentTradeStep } = useTradeSteps()
 
   return (
     <Stepper orientation='vertical' index={currentStep} gap='0'>
@@ -315,6 +314,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopReset}
+          isPending={currentTradeStep === TradeStep.FirstHopReset}
         />
       ) : null}
       {tradeSteps[TradeStep.FirstHopApproval] ? (
@@ -323,6 +324,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopApproval}
+          isPending={currentTradeStep === TradeStep.FirstHopApproval}
         />
       ) : null}
       <StepperStep
@@ -330,6 +333,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
         stepIndicator={stepIndicator}
         stepProps={stepProps}
         useSpacer={false}
+        isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopSwap}
+        isPending={currentTradeStep === TradeStep.FirstHopSwap}
       />
       {isMultiHopTrade && (
         <>
@@ -339,6 +344,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
               stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
+              isError={activeQuoteError && currentTradeStep === TradeStep.LastHopReset}
+              isPending={currentTradeStep === TradeStep.LastHopReset}
             />
           ) : null}
           {tradeSteps[TradeStep.LastHopApproval] ? (
@@ -347,6 +354,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
               stepIndicator={stepIndicator}
               stepProps={stepProps}
               useSpacer={false}
+              isError={activeQuoteError && currentTradeStep === TradeStep.LastHopApproval}
+              isPending={currentTradeStep === TradeStep.LastHopApproval}
             />
           ) : null}
           <StepperStep
@@ -354,6 +363,8 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
             stepIndicator={stepIndicator}
             stepProps={stepProps}
             useSpacer={false}
+            isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
+            isPending={currentTradeStep === TradeStep.LastHopSwap}
           />
         </>
       )}

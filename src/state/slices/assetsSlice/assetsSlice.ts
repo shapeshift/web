@@ -27,8 +27,9 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
+// This looks weird because it is - we want to hydrate the initial state synchronously with as
+// little overhead as possible.
 const config = getConfig()
-
 const byId = Object.entries(service.assetsById).reduce<AssetsByIdPartial>(
   (prev, [assetId, asset]) => {
     if (!config.REACT_APP_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return prev
@@ -75,15 +76,12 @@ export const assets = createSlice({
     clear: () => initialState,
     upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids))) // TODO: Preserve sorting here
     },
     upsertAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      state.ids = Array.from(new Set(state.ids.concat(assetId)))
-    },
-    setRelatedAssetIndex: (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
-      state.relatedAssetIndex = action.payload
+      state.ids = Array.from(new Set(state.ids.concat(assetId))) // TODO: Preserve sorting here
     },
   },
 })

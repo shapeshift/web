@@ -103,7 +103,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
                   <Flex color='gray.500' as={CText}>
                     <Amount.Fiat value={prevAmountUserCurrency} />
                     <Box as='span' ml={1}>
-                      on {chainDisplayName}
+                      <Text translation='trade.on' /> {chainDisplayName}
                     </Box>
                   </Flex>
                 </Box>
@@ -119,7 +119,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
                     <Flex color='gray.500' as={CText}>
                       <Amount.Fiat value={amountUserCurrency} />
                       <Box as='span' ml={1}>
-                        on {chainDisplayName}
+                        <Text translation='trade.on' /> {chainDisplayName}
                       </Box>
                     </Flex>
                   </Box>

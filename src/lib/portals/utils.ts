@@ -1,14 +1,14 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import { getConfig } from 'config'
 import qs from 'qs'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
+import { localAssetData } from 'lib/asset-service'
 
-import generatedAssetData from '../../lib/asset-service/service/generatedAssetData.json'
 import { CHAIN_ID_TO_PORTALS_NETWORK } from './constants'
 import type {
   GetBalancesResponse,
@@ -124,8 +124,6 @@ export const fetchPortalsTokens = async ({
   }
 }
 
-const assets = generatedAssetData as unknown as AssetsByIdPartial
-
 export const portalTokenToAsset = ({
   token,
   portalsPlatforms,
@@ -142,7 +140,7 @@ export const portalTokenToAsset = ({
     assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
     assetReference: token.address,
   })
-  const asset = assets[assetId]
+  const asset = localAssetData[assetId]
 
   const explorerData = {
     explorer: nativeAsset.explorer,
@@ -175,7 +173,7 @@ export const portalTokenToAsset = ({
             assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
             assetReference: token.tokens[i],
           })
-          const underlyingAsset = assets[underlyingAssetId]
+          const underlyingAsset = localAssetData[underlyingAssetId]
           // Prioritise our own flavour of icons for that asset if available, else use upstream if present
           return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
         }),
@@ -199,7 +197,7 @@ export const portalTokenToAsset = ({
           assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
           assetReference: underlyingToken,
         })
-        const underlyingAsset = assets[assetId]
+        const underlyingAsset = localAssetData[assetId]
         if (!underlyingAsset) return undefined
 
         // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
@@ -229,7 +227,7 @@ export const portalTokenToAsset = ({
 
   return {
     ...explorerData,
-    color: assets[assetId]?.color ?? '#FFFFFF',
+    color: localAssetData[assetId]?.color ?? '#FFFFFF',
     // This looks weird but we need this - l.165 check above nulls the type safety of this object, so we cast it back
     ...(iconOrIcons as { icon: string } | { icons: string[]; icon: undefined }),
     name,

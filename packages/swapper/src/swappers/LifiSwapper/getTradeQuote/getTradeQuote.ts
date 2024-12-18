@@ -17,11 +17,13 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type {
   GetEvmTradeQuoteInput,
   GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
   MultiHopTradeQuoteSteps,
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
   SwapSource,
+  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -32,13 +34,17 @@ import { getLifiEvmAssetAddress } from '../utils/getLifiEvmAssetAddress/getLifiE
 import { getNetworkFeeCryptoBaseUnit } from '../utils/getNetworkFeeCryptoBaseUnit/getNetworkFeeCryptoBaseUnit'
 import { lifiTokenToAsset } from '../utils/lifiTokenToAsset/lifiTokenToAsset'
 import { transformLifiStepFeeData } from '../utils/transformLifiFeeData/transformLifiFeeData'
-import type { LifiTradeQuote } from '../utils/types'
+import type { LifiTradeQuote, LifiTradeRate } from '../utils/types'
 
-export async function getTrade(
-  input: GetEvmTradeQuoteInput,
-  deps: SwapperDeps,
-  lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> {
+export async function getTrade({
+  input,
+  deps,
+  lifiChainMap,
+}: {
+  input: GetEvmTradeQuoteInput | GetEvmTradeRateInput
+  deps: SwapperDeps
+  lifiChainMap: Map<ChainId, ChainKey>
+}): Promise<Result<LifiTradeQuote[] | LifiTradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
     buyAsset,
@@ -49,7 +55,7 @@ export async function getTrade(
     supportsEIP1559,
     affiliateBps,
     potentialAffiliateBps,
-    lifiAllowedTools,
+    quoteOrRate,
   } = input
 
   const slippageTolerancePercentageDecimal =
@@ -78,6 +84,11 @@ export async function getTrade(
 
   configureLiFi()
 
+  const lifiAllowedBridges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.bridges : undefined
+  const lifiAllowedExchanges =
+    quoteOrRate === 'quote' ? (input.originalRate as LifiTradeRate).lifiTools?.exchanges : undefined
+
   const affiliateBpsDecimalPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
   const routesRequest: RoutesRequest = {
     fromChainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -99,11 +110,13 @@ export async function getTrade(
       // these bridges are disabled.
       bridges: {
         deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
-        ...(lifiAllowedTools?.bridges ? { allow: lifiAllowedTools.bridges } : {}),
+        ...(lifiAllowedBridges ? { allow: lifiAllowedBridges } : {}),
       },
-      ...(lifiAllowedTools?.exchanges && {
-        exchanges: { allow: lifiAllowedTools.exchanges },
-      }),
+      ...(lifiAllowedExchanges
+        ? {
+            exchanges: { allow: lifiAllowedExchanges },
+          }
+        : {}),
       allowSwitchChain: true,
       fee: affiliateBpsDecimalPercentage.isZero()
         ? undefined
@@ -144,6 +157,13 @@ export async function getTrade(
   const { routes } = routesResponse.unwrap()
 
   if (routes.length === 0) {
+    if (quoteOrRate === 'quote')
+      return Ok([
+        {
+          ...input.originalRate,
+          quoteOrRate: 'quote',
+        } as LifiTradeQuote,
+      ])
     return Err(
       makeSwapErrorRight({
         message: 'no route found',
@@ -264,10 +284,8 @@ export async function getTrade(
 
       return {
         id: selectedLifiRoute.id,
-        // TODO(gomes): when https://github.com/shapeshift/web/pull/8309 goes in, this goes out
-        // We do need receiveAddress in *input* to send it as fromAddress for routes req for more reliable rates, but with receiveAddress currently being the quotes/rates discriminator,
-        // we need to exclude it from method in *output*
-        receiveAddress: input.quoteOrRate === 'quote' ? receiveAddress : undefined,
+        receiveAddress,
+        quoteOrRate,
         lifiTools: {
           bridges: lifiBridgeTools.length ? lifiBridgeTools : undefined,
           exchanges: lifiExchangeTools.length ? lifiExchangeTools : undefined,
@@ -311,13 +329,25 @@ export async function getTrade(
     )
   }
 
-  return Ok(promises.filter(isFulfilled).map(({ value }) => value))
+  return Ok(promises.filter(isFulfilled).map(({ value }) => value)) as Result<
+    LifiTradeQuote[] | LifiTradeRate[],
+    SwapErrorRight
+  >
 }
 
-// This isn't a mistake - With Li.Fi, we get the exact same thing back whether quote or rate, however, the input *is* different
-
-export const getTradeQuote = (
+export const getTradeQuote = async (
   input: GetEvmTradeQuoteInputBase,
   deps: SwapperDeps,
   lifiChainMap: Map<ChainId, ChainKey>,
-): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => getTrade(input, deps, lifiChainMap)
+): Promise<Result<LifiTradeQuote[], SwapErrorRight>> => {
+  const quotesResult = await getTrade({ input, deps, lifiChainMap })
+
+  return quotesResult.map(quotes =>
+    quotes.map(quote => ({
+      ...quote,
+      quoteOrRate: 'quote' as const,
+      receiveAddress: quote.receiveAddress!,
+      steps: quote.steps.map(step => step) as [TradeQuoteStep] | [TradeQuoteStep, TradeQuoteStep],
+    })),
+  )
+}

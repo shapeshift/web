@@ -4,7 +4,6 @@ import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { AxiosError } from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type {
@@ -16,18 +15,12 @@ import type {
   UtxoFeeData,
 } from '../../types'
 import { isExecutableTradeQuote, isExecutableTradeStep, isToken } from '../../utils'
-import { CHAINFLIP_BAAS_COMMISSION, CHAINFLIP_BOOST_SWAP_SOURCE } from './constants'
-import type { ChainflipBaasSwapDepositAddress } from './models/ChainflipBaasSwapDepositAddress'
+import type { ChainflipBaasSwapDepositAddress } from './models'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import type { ChainFlipStatus } from './types'
 import { chainflipService } from './utils/chainflipService'
 import { getLatestChainflipStatusMessage } from './utils/getLatestChainflipStatusMessage'
-import {
-  calculateChainflipMinPrice,
-  getChainFlipIdFromAssetId,
-  getChainFlipSwap,
-} from './utils/helpers'
 
 // Persists the ID so we can look it up later when checking the status
 const tradeQuoteMetadata: Map<string, ChainflipBaasSwapDepositAddress> = new Map()
@@ -40,70 +33,26 @@ export const chainflipApi: SwapperApi = {
     from,
     tradeQuote,
     assertGetEvmChainAdapter,
-    config,
     supportsEIP1559,
   }: GetUnsignedEvmTransactionArgs): Promise<EvmTransactionRequest> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
 
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
-
     const step = tradeQuote.steps[0]
 
-    const isTokenSend = isToken(step.sellAsset.assetId)
-    const sourceAsset = await getChainFlipIdFromAssetId({
-      assetId: step.sellAsset.assetId,
-      brokerUrl,
-    })
-    const destinationAsset = await getChainFlipIdFromAssetId({
-      assetId: step.buyAsset.assetId,
-      brokerUrl,
-    })
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    const minimumPrice = calculateChainflipMinPrice({
-      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
-      sellAsset: step.sellAsset,
-      buyAsset: step.buyAsset,
-      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit:
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    tradeQuoteMetadata.set(tradeQuote.id, {
+      id: step.chainflipSpecific.chainflipSwapId,
+      address: step.chainflipSpecific?.chainflipDepositAddress,
     })
 
-    // Subtract the BaaS fee to end up at the final displayed commissionBps
-    let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
-    if (serviceCommission < 0) serviceCommission = 0
-
-    const maybeSwapResponse = await getChainFlipSwap({
-      brokerUrl,
-      apiKey,
-      sourceAsset,
-      destinationAsset,
-      destinationAddress: tradeQuote.receiveAddress,
-      minimumPrice,
-      refundAddress: from,
-      commissionBps: serviceCommission,
-      boostFee: 0,
-    })
-
-    if (maybeSwapResponse.isErr()) {
-      const error = maybeSwapResponse.unwrapErr()
-      const cause = error.cause as AxiosError<any, any>
-      throw Error(cause.response!.data.detail)
-    }
-
-    const { data: swapResponse } = maybeSwapResponse.unwrap()
-
-    if (!swapResponse.id) throw Error('missing swap ID')
-
-    tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
-
-    const depositAddress = swapResponse.address!
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
-
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
-
+    const isTokenSend = isToken(step.sellAsset.assetId)
     const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-      to: depositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,
@@ -115,10 +64,8 @@ export const chainflipApi: SwapperApi = {
     const feeData = await adapter.getFeeData(getFeeDataInput)
     const fees = feeData[FeeDataKey.Average]
 
-    if (!isExecutableTradeStep(step)) throw Error('Unable to execute trade step')
-
     const unsignedTxInput = await adapter.buildSendApiTransaction({
-      to: depositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber: step.accountNumber,
@@ -148,75 +95,31 @@ export const chainflipApi: SwapperApi = {
       gasPrice: unsignedTxInput.gasPrice,
     }
   },
-  getUnsignedUtxoTransaction: async ({
+  getUnsignedUtxoTransaction: ({
     tradeQuote,
-    senderAddress,
     xpub,
     accountType,
     assertGetUtxoChainAdapter,
-    config,
   }: GetUnsignedUtxoTransactionArgs): Promise<BTCSignTx> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
     const step = tradeQuote.steps[0]
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    const sourceAsset = await getChainFlipIdFromAssetId({
-      assetId: step.sellAsset.assetId,
-      brokerUrl,
-    })
-    const destinationAsset = await getChainFlipIdFromAssetId({
-      assetId: step.buyAsset.assetId,
-      brokerUrl,
-    })
-
-    // Subtract the BaaS fee to end up at the final displayed commissionBps
-    let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
-    if (serviceCommission < 0) serviceCommission = 0
-
-    const minimumPrice = calculateChainflipMinPrice({
-      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
-      sellAsset: step.sellAsset,
-      buyAsset: step.buyAsset,
-      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit:
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    tradeQuoteMetadata.set(tradeQuote.id, {
+      id: step.chainflipSpecific.chainflipSwapId,
+      address: step.chainflipSpecific.chainflipDepositAddress,
     })
 
     const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
 
-    const maybeSwapResponse = await getChainFlipSwap({
-      brokerUrl,
-      apiKey,
-      sourceAsset,
-      destinationAsset,
-      destinationAddress: tradeQuote.receiveAddress,
-      minimumPrice,
-      refundAddress: senderAddress,
-      commissionBps: serviceCommission,
-      boostFee: step.source === CHAINFLIP_BOOST_SWAP_SOURCE ? 10 : 0,
-    })
-
-    if (maybeSwapResponse.isErr()) {
-      const error = maybeSwapResponse.unwrapErr()
-      const cause = error.cause as AxiosError<any, any>
-      throw Error(cause.response!.data.detail)
-    }
-
-    const { data: swapResponse } = maybeSwapResponse.unwrap()
-
-    tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
-
-    const depositAddress = swapResponse.address!
-
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub: xpub!,
-      to: depositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {
@@ -229,60 +132,19 @@ export const chainflipApi: SwapperApi = {
     tradeQuote,
     from,
     assertGetSolanaChainAdapter,
-    config,
   }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
     if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
-
-    const brokerUrl = config.REACT_APP_CHAINFLIP_API_URL
-    const apiKey = config.REACT_APP_CHAINFLIP_API_KEY
 
     const step = tradeQuote.steps[0]
 
     if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    const sourceAsset = await getChainFlipIdFromAssetId({
-      assetId: step.sellAsset.assetId,
-      brokerUrl,
+    tradeQuoteMetadata.set(tradeQuote.id, {
+      id: step.chainflipSpecific.chainflipSwapId,
+      address: step.chainflipSpecific.chainflipDepositAddress,
     })
-    const destinationAsset = await getChainFlipIdFromAssetId({
-      assetId: step.buyAsset.assetId,
-      brokerUrl,
-    })
-
-    // Subtract the BaaS fee to end up at the final displayed commissionBps
-    let serviceCommission = parseInt(tradeQuote.affiliateBps) - CHAINFLIP_BAAS_COMMISSION
-    if (serviceCommission < 0) serviceCommission = 0
-
-    const minimumPrice = calculateChainflipMinPrice({
-      slippageTolerancePercentageDecimal: tradeQuote.slippageTolerancePercentageDecimal,
-      sellAsset: step.sellAsset,
-      buyAsset: step.buyAsset,
-      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit:
-        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    })
-
-    const maybeSwapResponse = await getChainFlipSwap({
-      brokerUrl,
-      apiKey,
-      sourceAsset,
-      destinationAsset,
-      destinationAddress: tradeQuote.receiveAddress,
-      minimumPrice,
-      refundAddress: from,
-      commissionBps: serviceCommission,
-      boostFee: 0,
-    })
-
-    if (maybeSwapResponse.isErr()) {
-      const error = maybeSwapResponse.unwrapErr()
-      const cause = error.cause as AxiosError<any, any>
-      throw Error(cause.response!.data.detail)
-    }
-
-    const { data: swapResponse } = maybeSwapResponse.unwrap()
-
-    tradeQuoteMetadata.set(tradeQuote.id, swapResponse)
 
     const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
 
@@ -291,10 +153,8 @@ export const chainflipApi: SwapperApi = {
         ? undefined
         : fromAssetId(step.sellAsset.assetId).assetReference
 
-    const depositAddress = swapResponse.address!
-
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-      to: depositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,
@@ -304,7 +164,7 @@ export const chainflipApi: SwapperApi = {
     const { fast } = await adapter.getFeeData(getFeeDataInput)
 
     const buildSendTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
-      to: depositAddress,
+      to: step.chainflipSpecific.chainflipDepositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber: step.accountNumber,
@@ -327,7 +187,7 @@ export const chainflipApi: SwapperApi = {
     message: string | [string, InterpolationOptions] | undefined
   }> => {
     const swap = tradeQuoteMetadata.get(quoteId)
-    if (!swap) throw Error(`missing trade quote metadata for quoteId ${quoteId}`)
+    if (!swap) throw Error(`Missing trade quote metadata for quoteId ${quoteId}`)
     // Note, the swapId isn't the quoteId - we set the swapId at pre-execution time, when getting the receive addy and instantiating a flip swap
     const swapId = swap.id
 

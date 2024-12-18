@@ -34,7 +34,7 @@ import {
 } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
 } from 'state/slices/selectors'
@@ -89,7 +89,7 @@ export const ClaimConfirm = ({
   const toast = useToast()
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const cryptoHumanBalance = useMemo(
     () => bnOrZero(claimAmount).div(`1e+${stakingAsset.precision}`),

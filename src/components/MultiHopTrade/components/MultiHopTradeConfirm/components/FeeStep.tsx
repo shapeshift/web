@@ -9,9 +9,12 @@ import { RawText } from 'components/Text'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
-import { selectCalculatedFees, selectThorVotingPower } from 'state/apis/snapshot/selectors'
+import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectInputSellAmountUsd } from 'state/slices/tradeInputSlice/selectors'
-import { selectActiveQuoteAffiliateBps } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveQuoteAffiliateBps,
+  selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
 import { StepperStep } from './StepperStep'
@@ -41,13 +44,8 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)
 
-  const feeModel = 'SWAPPER'
-  const calculatedFeesFilter = useMemo(
-    () => ({ feeModel, inputAmountUsd }),
-    [feeModel, inputAmountUsd],
-  )
-  const { feeUsd: amountAfterDiscountUsd } = useAppSelector(state =>
-    selectCalculatedFees(state, calculatedFeesFilter),
+  const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
+    selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
 
   const handleOpenFeeModal = useCallback(() => setShowFeeModal(true), [])
@@ -62,10 +60,10 @@ export const FeeStep = ({ isLastStep }: FeeStepProps) => {
   }, [])
 
   const { title, titleProps } = useMemo(() => {
-    return bnOrZero(amountAfterDiscountUsd).gt(0)
-      ? { title: toFiat(amountAfterDiscountUsd.toFixed()) }
+    return bnOrZero(affiliateFeeAfterDiscountUserCurrency).gt(0)
+      ? { title: toFiat(bnOrZero(affiliateFeeAfterDiscountUserCurrency).toFixed()) }
       : { title: translate('trade.free'), titleProps: { color: 'text.success' } }
-  }, [amountAfterDiscountUsd, toFiat, translate])
+  }, [affiliateFeeAfterDiscountUserCurrency, toFiat, translate])
 
   const description = useMemo(() => {
     return (

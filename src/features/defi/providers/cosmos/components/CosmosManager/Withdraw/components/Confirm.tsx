@@ -35,7 +35,7 @@ import { toValidatorId } from 'state/slices/opportunitiesSlice/utils'
 import {
   selectAssetById,
   selectAssets,
-  selectBIP44ParamsByAccountId,
+  selectBip44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectStakingOpportunityByFilter,
@@ -118,7 +118,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const handleConfirm = useCallback(async () => {
     if (

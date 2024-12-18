@@ -4,6 +4,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 export const lifiQuote: TradeQuote = {
   id: '0x5ba393814e096f79f4316615b82462eaaee2cf4e1c935d35624a6390bc932b83',
   rate: '51.34579860391078801712',
+  quoteOrRate: 'quote',
   affiliateBps: '0',
   potentialAffiliateBps: '0',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
@@ -54,6 +55,7 @@ export const lifiQuote: TradeQuote = {
 
 export const thorQuote: TradeQuote = {
   id: 'f4636745-bf07-4799-9efb-c056691b652f',
+  quoteOrRate: 'quote',
   rate: '39.23942597524024759752',
   receiveAddress: '0x31b5c4ab7d020de87901c736535aeb4769806947',
   affiliateBps: '30',
@@ -138,6 +140,7 @@ export const thorQuote: TradeQuote = {
 
 export const cowQuote: TradeQuote = {
   id: '220858750',
+  quoteOrRate: 'quote',
   rate: '51.86127422365727736757',
   affiliateBps: '0',
   potentialAffiliateBps: '0',
@@ -206,6 +209,7 @@ export const cowQuote: TradeQuote = {
 
 export const zrxQuote: TradeQuote = {
   id: 'dfb5f2e6-9cb9-4865-9ef5-6b54d203affa',
+  quoteOrRate: 'quote',
   rate: '51.603817692372651273',
   affiliateBps: '0',
   potentialAffiliateBps: '0',

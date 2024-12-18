@@ -3,7 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import type { SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { arbitrumBridgeApi } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/endpoints'
 import { getTradeQuoteWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { GetEvmTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/types'
@@ -145,6 +145,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       accountNumber: sellAssetAccountNumber,
       hasWallet: Boolean(walletInfo?.deviceId),
       quoteOrRate: 'quote' as const,
+      originalRate: {} as TradeRate,
     }),
     [
       buyAsset,

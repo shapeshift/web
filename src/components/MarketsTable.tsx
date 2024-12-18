@@ -14,6 +14,7 @@ import { AssetCell } from 'components/StakingVaults/Cells'
 import { Text } from 'components/Text'
 import { useInfiniteScroll } from 'hooks/useInfiniteScroll/useInfiniteScroll'
 import { SparkLine } from 'pages/Buy/components/Sparkline'
+import { useFetchFiatAssetMarketData } from 'state/apis/fiatRamps/hooks'
 import { selectIsMarketDataLoaded, selectMarketDataUserCurrency } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
@@ -36,6 +37,10 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(({ rows, onRowClic
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const marketDataUserCurrencyById = useAppSelector(selectMarketDataUserCurrency)
   const isMarketDataLoaded = useAppSelector(selectIsMarketDataLoaded)
+
+  const assetIds = useMemo(() => rows.map(row => row.assetId), [rows])
+
+  useFetchFiatAssetMarketData(assetIds)
 
   const { hasMore, next, data } = useInfiniteScroll({
     array: rows,

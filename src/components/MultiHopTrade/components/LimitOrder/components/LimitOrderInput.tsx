@@ -426,8 +426,8 @@ export const LimitOrderInput = ({
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
-      case bnOrZero(sellAssetBalanceCryptoBaseUnit).lt(sellAmountCryptoBaseUnit):
-        return { quoteStatusTranslation: 'common.insufficientFunds', isError: true }
+      case bnOrZero(sellAssetBalanceCryptoBaseUnit).isZero():
+        return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
       case sellAsset.chainId !== buyAsset.chainId:
         return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
       case isNativeEvmAsset(sellAsset.assetId):
@@ -461,7 +461,6 @@ export const LimitOrderInput = ({
     quoteResponseError,
     recipientAddress,
     sellAccountId,
-    sellAmountCryptoBaseUnit,
     sellAsset.assetId,
     sellAsset.chainId,
     sellAssetBalanceCryptoBaseUnit,

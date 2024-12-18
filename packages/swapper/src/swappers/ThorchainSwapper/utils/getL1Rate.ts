@@ -17,9 +17,10 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
-  GetEvmTradeQuoteInput,
+  GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
   ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
@@ -100,7 +101,7 @@ export const getL1Rate = async (
           sellAsset,
           buyAssetId: buyAsset.assetId,
           sellAmountCryptoBaseUnit,
-          receiveAddress: undefined,
+          receiveAddress,
           streaming: true,
           affiliateBps: requestedAffiliateBps,
           streamingInterval,
@@ -216,7 +217,7 @@ export const getL1Rate = async (
       const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const { networkFeeCryptoBaseUnit } = await getEvmTxFees({
         adapter: sellAdapter,
-        supportsEIP1559: Boolean((input as GetEvmTradeQuoteInput).supportsEIP1559),
+        supportsEIP1559: Boolean((input as GetEvmTradeRateInput).supportsEIP1559),
       })
 
       const maybeRoutes = await Promise.allSettled(
@@ -252,9 +253,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -327,7 +328,7 @@ export const getL1Rate = async (
 
             const feeData = await (async () => {
               // This is a rate without a wallet connected, so we can't get fees
-              if (!(input as GetUtxoTradeQuoteInput).xpub)
+              if (!(input as GetUtxoTradeRateInput).xpub)
                 return {
                   networkFeeCryptoBaseUnit: undefined,
                   protocolFees: getProtocolFees(quote),
@@ -340,7 +341,7 @@ export const getL1Rate = async (
 
               const { vault, opReturnData, pubkey } = await getUtxoThorTxInfo({
                 sellAsset,
-                xpub: (input as GetUtxoTradeQuoteInput).xpub!,
+                xpub: (input as unknown as GetUtxoTradeQuoteInput).xpub!,
                 memo,
                 config: deps.config,
               })
@@ -364,9 +365,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,
@@ -444,9 +445,9 @@ export const getL1Rate = async (
 
             return {
               id: uuid(),
-              accountNumber: undefined,
+              quoteOrRate: 'rate',
               memo,
-              receiveAddress: undefined,
+              receiveAddress,
               affiliateBps,
               potentialAffiliateBps,
               isStreaming,

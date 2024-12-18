@@ -230,6 +230,7 @@ export async function getPortalsTradeQuote(
 
     const tradeQuote: TradeQuote = {
       id: orderId,
+      quoteOrRate: 'quote' as const,
       receiveAddress: input.receiveAddress,
       affiliateBps,
       potentialAffiliateBps,

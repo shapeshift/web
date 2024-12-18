@@ -15,7 +15,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { selectBIP44ParamsByAccountId } from 'state/slices/selectors'
+import { selectBip44ParamsByAccountId } from 'state/slices/selectors'
 import { useAppSelector } from 'state/store'
 
 import type { ClaimDetails } from './useArbitrumClaimsByStatus'
@@ -37,7 +37,7 @@ export const useArbitrumClaimTx = (
     return { accountId: destinationAccountId }
   }, [destinationAccountId])
 
-  const bip44Params = useAppSelector(state => selectBIP44ParamsByAccountId(state, accountIdFilter))
+  const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountIdFilter))
 
   const executeTransactionDataResult = useQuery({
     queryKey: ['executeTransactionData', { txid: claim.tx.txid }],

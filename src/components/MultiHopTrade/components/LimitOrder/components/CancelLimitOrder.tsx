@@ -25,13 +25,16 @@ import { AssetIconWithBadge } from 'components/AssetIconWithBadge'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
 import { TransactionTypeIcon } from 'components/TransactionHistory/TransactionTypeIcon'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
+import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from 'lib/mixpanel/types'
 import { useCancelLimitOrderMutation } from 'state/apis/limit-orders/limitOrderApi'
 import { selectAssetById, selectFeeAssetById } from 'state/slices/selectors'
 import { useSelectorWithArgs } from 'state/store'
 
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
+import { getMixpanelLimitOrderEventData } from '../helpers'
 import type { OrderToCancel } from '../types'
 
 const cardBorderRadius = { base: '2xl' }
@@ -43,16 +46,31 @@ type CancelLimitOrderProps = {
 
 export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLimitOrderProps) => {
   const wallet = useWallet().state.wallet
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const queryClient = useQueryClient()
+  const mixpanel = getMixPanel()
 
-  const [cancelLimitOrders, { error, isLoading, reset }] = useCancelLimitOrderMutation()
+  const [cancelLimitOrder, { error, isLoading, reset }] = useCancelLimitOrderMutation()
+
+  const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
+  const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')
+  const feeAsset = useSelectorWithArgs(selectFeeAssetById, orderToCancel?.sellAssetId ?? '')
 
   useEffect(() => {
     if (!error) return
 
     showErrorToast(error, 'limitOrder.cancel.cancellationFailed')
   }, [error, showErrorToast])
+
+  const buyAmountCryptoPrecision = useMemo(() => {
+    if (!orderToCancel || !buyAsset) return '0'
+    return fromBaseUnit(orderToCancel.order.buyAmount, buyAsset.precision)
+  }, [buyAsset, orderToCancel])
+
+  const sellAmountCryptoPrecision = useMemo(() => {
+    if (!orderToCancel || !sellAsset) return '0'
+    return fromBaseUnit(orderToCancel.order.sellAmount, sellAsset.precision)
+  }, [orderToCancel, sellAsset])
 
   const handleClose = useCallback(() => {
     reset()
@@ -64,7 +82,10 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
       return
     }
 
-    await cancelLimitOrders({ wallet, ...orderToCancel })
+    const result = await cancelLimitOrder({ wallet, ...orderToCancel })
+
+    // Exit if the request failed.
+    if ((result as { error: unknown }).error) return
 
     // refetch the orders list for this account
     queryClient.invalidateQueries({
@@ -72,21 +93,35 @@ export const CancelLimitOrder = ({ orderToCancel, resetOrderToCancel }: CancelLi
     })
 
     resetOrderToCancel()
-  }, [orderToCancel, wallet, cancelLimitOrders, queryClient, resetOrderToCancel])
 
-  const sellAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.sellAssetId ?? '')
-  const buyAsset = useSelectorWithArgs(selectAssetById, orderToCancel?.buyAssetId ?? '')
-  const feeAsset = useSelectorWithArgs(selectFeeAssetById, orderToCancel?.sellAssetId ?? '')
+    // Track event in mixpanel
+    const eventData = getMixpanelLimitOrderEventData({
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoPrecision,
+      buyAmountCryptoPrecision,
+    })
+    if (mixpanel && eventData) {
+      mixpanel.track(MixPanelEvent.LimitOrderCanceled, eventData)
+    }
+  }, [
+    orderToCancel,
+    wallet,
+    cancelLimitOrder,
+    queryClient,
+    resetOrderToCancel,
+    sellAsset,
+    buyAsset,
+    sellAmountCryptoPrecision,
+    buyAmountCryptoPrecision,
+    mixpanel,
+  ])
 
   const limitPrice = useMemo(() => {
-    if (!orderToCancel || !sellAsset || !buyAsset) return
-    const buyAmountCryptoPrecision = fromBaseUnit(orderToCancel.order.buyAmount, buyAsset.precision)
-    const sellAmountCryptoPrecision = fromBaseUnit(
-      orderToCancel.order.sellAmount,
-      sellAsset.precision,
-    )
+    if (bnOrZero(sellAmountCryptoPrecision).isZero() || bnOrZero(buyAmountCryptoPrecision).isZero())
+      return
     return bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed()
-  }, [buyAsset, orderToCancel, sellAsset])
+  }, [buyAmountCryptoPrecision, sellAmountCryptoPrecision])
 
   const expiryText = useMemo(() => {
     if (!orderToCancel) return

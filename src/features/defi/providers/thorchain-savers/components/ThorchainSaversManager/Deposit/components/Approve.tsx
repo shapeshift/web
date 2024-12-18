@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { usePoll } from 'hooks/usePoll/usePoll'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { bnOrZero } from 'lib/bignumber/bignumber'
@@ -55,7 +55,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
   const { state, dispatch } = useContext(DepositContext)
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const history = useHistory()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const {
     state: { wallet },
   } = useWallet()

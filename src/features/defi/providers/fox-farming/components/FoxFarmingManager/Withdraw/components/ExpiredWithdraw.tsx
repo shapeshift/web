@@ -18,7 +18,7 @@ import type { StepComponentProps } from 'components/DeFi/components/Steps'
 import { Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useBrowserRouter } from 'hooks/useBrowserRouter/useBrowserRouter'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { trackOpportunityEvent } from 'lib/mixpanel/helpers'
@@ -72,7 +72,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   const { getUnstakeFees } = useFoxFarming(contractAddress)
 
   const methods = useForm<WithdrawValues>({ mode: 'onChange' })
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
 
   const asset = useAppSelector(state =>
     selectAssetById(state, opportunity?.underlyingAssetId ?? ''),

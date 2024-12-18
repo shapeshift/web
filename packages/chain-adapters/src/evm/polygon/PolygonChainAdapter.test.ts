@@ -2,7 +2,7 @@ import { ASSET_REFERENCE, fromChainId, polygonAssetId, polygonChainId } from '@s
 import type { ETHSignMessage, ETHSignTx, ETHWallet } from '@shapeshiftoss/hdwallet-core'
 import type { NativeAdapterArgs } from '@shapeshiftoss/hdwallet-native'
 import { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import type { BIP44Params, EvmChainId } from '@shapeshiftoss/types'
+import type { Bip44Params, EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { merge } from 'lodash'
@@ -265,7 +265,7 @@ describe('PolygonChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0xf0',
           to: EOA_ADDRESS,
           chainId: Number(fromChainId(polygonChainId).chainReference),
@@ -294,7 +294,7 @@ describe('PolygonChainAdapter', () => {
       const tx = {
         wallet: await getWallet(),
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           value: '0x0',
           to: EOA_ADDRESS,
           chainId: Number(fromChainId(polygonChainId).chainReference),
@@ -357,7 +357,7 @@ describe('PolygonChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
@@ -376,7 +376,7 @@ describe('PolygonChainAdapter', () => {
         wallet,
         messageToSign: {
           message: 'Hello world 111',
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
         },
       }
 
@@ -459,7 +459,7 @@ describe('PolygonChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(polygonChainId).chainReference),
           data: '0x',
           gasLimit: toHex(BigInt(gasLimit)),
@@ -495,7 +495,7 @@ describe('PolygonChainAdapter', () => {
 
       await expect(adapter.buildSendTransaction(tx)).resolves.toStrictEqual({
         txToSign: {
-          addressNList: toAddressNList(adapter.getBIP44Params({ accountNumber: 0 })),
+          addressNList: toAddressNList(adapter.getBip44Params({ accountNumber: 0 })),
           chainId: Number(fromChainId(polygonChainId).chainReference),
           data: '0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000190',
           gasLimit: toHex(BigInt(gasLimit)),
@@ -510,30 +510,48 @@ describe('PolygonChainAdapter', () => {
     })
   })
 
-  describe('getBIP44Params', () => {
+  describe('getBip44Params', () => {
     const adapter = new polygon.ChainAdapter(makeChainAdapterArgs())
 
     it('should return the correct coinType', () => {
-      const result = adapter.getBIP44Params({ accountNumber: 0 })
+      const result = adapter.getBip44Params({ accountNumber: 0 })
       expect(result.coinType).toStrictEqual(Number(ASSET_REFERENCE.Polygon))
     })
 
     it('should respect accountNumber', () => {
-      const testCases: BIP44Params[] = [
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 0 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 1 },
-        { purpose: 44, coinType: Number(ASSET_REFERENCE.Polygon), accountNumber: 2 },
+      const testCases: Bip44Params[] = [
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Polygon),
+          accountNumber: 0,
+          isChange: false,
+          addressIndex: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Polygon),
+          accountNumber: 1,
+          isChange: false,
+          addressIndex: 0,
+        },
+        {
+          purpose: 44,
+          coinType: Number(ASSET_REFERENCE.Polygon),
+          accountNumber: 2,
+          isChange: false,
+          addressIndex: 0,
+        },
       ]
 
       testCases.forEach(expected => {
-        const result = adapter.getBIP44Params({ accountNumber: expected.accountNumber })
+        const result = adapter.getBip44Params({ accountNumber: expected.accountNumber })
         expect(result).toStrictEqual(expected)
       })
     })
 
     it('should throw for negative accountNumber', () => {
       expect(() => {
-        adapter.getBIP44Params({ accountNumber: -1 })
+        adapter.getBip44Params({ accountNumber: -1 })
       }).toThrow('accountNumber must be >= 0')
     })
   })

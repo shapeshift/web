@@ -1,6 +1,11 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
+import type {
+  ProtocolFee,
+  SupportedTradeQuoteStepIndex,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
   getHopByIndex,
@@ -195,7 +200,7 @@ export const selectActiveStepOrDefault: Selector<ReduxState, number> = createSel
   tradeQuote => tradeQuote.activeStep ?? 0,
 )
 
-const selectConfirmedQuote: Selector<ReduxState, TradeQuote | undefined> =
+const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(selectTradeQuoteSlice, tradeQuoteState => {
     return tradeQuoteState.confirmedQuote
   })
@@ -232,7 +237,7 @@ export const selectActiveSwapperApiResponse: Selector<ReduxState, ApiQuote | und
     },
   )
 
-export const selectActiveQuote: Selector<ReduxState, TradeQuote | undefined> =
+export const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | undefined> =
   createDeepEqualOutputSelector(
     selectActiveSwapperApiResponse,
     selectConfirmedQuote,
@@ -561,6 +566,8 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
   selectActiveQuoteAffiliateBps,
   (calculatedFees, affiliateBps) => {
     if (!affiliateBps) return
+    if (affiliateBps === '0') return bn(0)
+
     return calculatedFees.feeUsd
   },
 )
@@ -667,6 +674,14 @@ export const selectIsAnyTradeQuoteLoading = createSelector(
   selectHasUserEnteredAmount,
   (loadingSwappers, hasUserEnteredAmount) => {
     return hasUserEnteredAmount && loadingSwappers.length > 0
+  },
+)
+
+export const selectIsActiveSwapperQuoteLoading = createSelector(
+  selectIsTradeQuoteApiQueryPending,
+  selectActiveSwapperName,
+  (isTradeQuoteApiQueryPending, activeSwapperName) => {
+    return activeSwapperName && isTradeQuoteApiQueryPending[activeSwapperName]
   },
 )
 

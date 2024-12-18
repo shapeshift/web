@@ -27,7 +27,7 @@ export const deriveCosmosSdkAccountIdsAndMetadata: DeriveAccountIdsAndMetadata =
         continue
       }
 
-      const bip44Params = adapter.getBIP44Params({ accountNumber })
+      const bip44Params = adapter.getBip44Params({ accountNumber })
       const pubkey = await adapter.getAddress({ accountNumber, wallet })
       if (!pubkey) continue
       const accountId = toAccountId({ chainId, account: pubkey })

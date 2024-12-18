@@ -1,6 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -21,7 +21,7 @@ import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
 import { TradeInputTab, TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { WalletActions } from 'context/WalletProvider/actions'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from 'hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
@@ -89,7 +89,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const history = useHistory()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const { sellAssetAccountId, buyAssetAccountId, setSellAssetAccountId, setBuyAssetAccountId } =
     useAccountIds()
   const buyAssetSearch = useModal('buyTradeAssetSearch')
@@ -284,7 +284,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
   const handleWarningAcknowledgementSubmit = useCallback(() => {
     if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
       return setShouldShowStreamingAcknowledgement(true)
-    if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
+    if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
   }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
@@ -295,7 +295,7 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
       if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
       if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
         return setShouldShowStreamingAcknowledgement(true)
-      if (isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal')
+      if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
         return setShouldShowArbitrumBridgeAcknowledgement(true)
 
       handleFormSubmit()

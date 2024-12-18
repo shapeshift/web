@@ -1,14 +1,15 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { ProtocolFee, SwapErrorRight, TradeQuote } from '@shapeshiftoss/swapper'
+import type { ProtocolFee, SwapErrorRight, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
+  isExecutableTradeQuote,
   SwapperName,
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/types'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from 'components/MultiHopTrade/components/MultiHopTradeConfirm/utils/getChainShortName'
-import { isMultiHopTradeQuote } from 'components/MultiHopTrade/utils'
+import { isMultiHopTradeQuote, isMultiHopTradeRate } from 'components/MultiHopTrade/utils'
 import { bn, bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit } from 'lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from 'lib/utils'
@@ -47,7 +48,7 @@ export const validateTradeQuote = (
     quoteOrRate,
   }: {
     swapperName: SwapperName
-    quote: TradeQuote | undefined
+    quote: TradeQuote | TradeRate | undefined
     error: SwapErrorRight | undefined
     isTradingActiveOnSellPool: boolean
     isTradingActiveOnBuyPool: boolean
@@ -133,7 +134,9 @@ export const validateTradeQuote = (
   const firstHop = getHopByIndex(quote, 0)!
   const secondHop = getHopByIndex(quote, 1)
 
-  const isMultiHopTrade = isMultiHopTradeQuote(quote)
+  const isMultiHopTrade = isExecutableTradeQuote(quote)
+    ? isMultiHopTradeQuote(quote)
+    : isMultiHopTradeRate(quote)
 
   const lastHop = (isMultiHopTrade ? secondHop : firstHop)!
   const walletConnectedChainIds = selectWalletConnectedChainIds(state)
@@ -296,7 +299,10 @@ export const validateTradeQuote = (
         },
       walletId &&
         !firstHopHasSufficientBalanceForGas && {
-          error: TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
+          error:
+            firstHopSellFeeAsset?.assetId === firstHop.sellAsset.assetId
+              ? TradeQuoteValidationError.InsufficientFirstHopAssetBalance
+              : TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
           meta: {
             assetSymbol: firstHopSellFeeAsset?.symbol,
             chainSymbol: firstHopSellFeeAsset

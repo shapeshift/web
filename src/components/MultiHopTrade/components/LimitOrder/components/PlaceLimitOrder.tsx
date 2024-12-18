@@ -1,11 +1,11 @@
-import { Button, Card, CardBody, CardFooter, Link } from '@chakra-ui/react'
+import { Button, Card, CardBody, CardFooter, useMediaQuery } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { ethereum } from 'test/mocks/assets'
 import { SlideTransition } from 'components/SlideTransition'
 import { Text } from 'components/Text'
+import { breakpoints } from 'theme/theme'
 
 import { StatusBody } from '../../StatusBody'
 import { LimitOrderRoutePaths } from '../types'
@@ -14,33 +14,26 @@ const cardBorderRadius = { base: '2xl' }
 
 const asset = ethereum
 
-export const PlaceLimitOrder = () => {
+export const PlaceLimitOrder = ({ isCompact }: { isCompact?: boolean }) => {
   const history = useHistory()
-  const translate = useTranslate()
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const [txStatus, setTxStatus] = useState(TxStatus.Pending)
 
-  // emulate tx executing
+  // Emulate tx executing for the vibes - does nothing other than spin for a sec and then show a
+  // lovely green check (placing orders is instant with cow because off-chain)
   useEffect(() => {
-    setTimeout(() => setTxStatus(TxStatus.Confirmed), 3000)
+    setTimeout(() => setTxStatus(TxStatus.Confirmed), 1000)
   }, [setTxStatus])
 
-  const handleSignAndBroadcast = useCallback(() => {
-    switch (txStatus) {
-      case TxStatus.Pending:
-        setTxStatus(TxStatus.Confirmed)
-        return
-      case TxStatus.Confirmed:
-        setTxStatus(TxStatus.Failed)
-        return
-      case TxStatus.Failed:
-        setTxStatus(TxStatus.Unknown)
-        return
-      case TxStatus.Unknown:
-      default:
-        history.push(LimitOrderRoutePaths.Input)
-        return
+  const handleViewOrdersList = useCallback(() => {
+    // Route to order list explicitly on compact views, otherwise go back to input since it's got
+    // the order list anyway
+    if (isCompact || isSmallerThanXl) {
+      history.push(LimitOrderRoutePaths.Orders)
+    } else {
+      history.push(LimitOrderRoutePaths.Input)
     }
-  }, [history, txStatus])
+  }, [history, isCompact, isSmallerThanXl])
 
   const handleGoBack = useCallback(() => {
     history.push(LimitOrderRoutePaths.Input)
@@ -60,31 +53,20 @@ export const PlaceLimitOrder = () => {
       }
     })()
 
-    // TODO: get the actual tx link
-    const txLink = 'todo'
-
     return (
       <StatusBody txStatus={txStatus}>
-        <>
-          <Text translation={statusTranslation} color='text.subtle' />
-          {Boolean(txLink) && (
-            <Button as={Link} href={txLink} size='sm' variant='link' colorScheme='blue' isExternal>
-              {translate('limitOrder.viewOnChain')}
-            </Button>
-          )}
-        </>
+        <Text translation={statusTranslation} color='text.subtle' />
       </StatusBody>
     )
-  }, [translate, txStatus])
+  }, [txStatus])
 
   return (
     <SlideTransition>
       <Card
         flex={1}
         borderRadius={cardBorderRadius}
-        width='full'
+        width='500px'
         variant='dashboard'
-        maxWidth='500px'
         borderColor='border.base'
         bg='background.surface.raised.base'
       >
@@ -105,7 +87,7 @@ export const PlaceLimitOrder = () => {
             colorScheme={'blue'}
             size='lg'
             width='full'
-            onClick={handleSignAndBroadcast}
+            onClick={handleViewOrdersList}
             isLoading={false}
             isDisabled={txStatus === TxStatus.Pending}
           >

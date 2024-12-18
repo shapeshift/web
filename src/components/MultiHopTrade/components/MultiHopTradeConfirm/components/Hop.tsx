@@ -17,7 +17,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
-import { isArbitrumBridgeTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useMemo } from 'react'
 import { FaGasPump } from 'react-icons/fa'
@@ -94,7 +94,7 @@ export const Hop = ({
   const activeQuote = useAppSelector(selectActiveQuote)
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
-    return isArbitrumBridgeTradeQuote(activeQuote) && activeQuote.direction === 'withdrawal'
+    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
   }, [activeQuote])
 
   const hopExecutionMetadataFilter = useMemo(() => {

@@ -8,7 +8,7 @@ import type { Hash } from 'viem'
 import type { AllowanceType } from 'hooks/queries/useApprovalFees'
 import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from 'hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from 'hooks/queries/useIsAllowanceApprovalRequired'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { selectHopSellAccountId } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -24,7 +24,7 @@ export const useAllowanceApproval = (
   isInitiallyRequired: boolean,
 ) => {
   const dispatch = useAppDispatch()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
   const hopSellAccountIdFilter = useMemo(() => ({ hopIndex }), [hopIndex])

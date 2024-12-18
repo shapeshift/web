@@ -2,7 +2,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import assert from 'assert'
 import { useCallback, useMemo } from 'react'
-import { useErrorHandler } from 'hooks/useErrorToast/useErrorToast'
+import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
 import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selectors'
@@ -17,7 +17,7 @@ export const useSignPermit2 = (
   confirmedTradeId: TradeQuote['id'],
 ) => {
   const dispatch = useAppDispatch()
-  const { showErrorToast } = useErrorHandler()
+  const { showErrorToast } = useErrorToast()
   const wallet = useWallet().state.wallet ?? undefined
 
   const hopSellAccountIdFilter = useMemo(() => {
@@ -50,12 +50,14 @@ export const useSignPermit2 = (
 
     try {
       assert(tradeQuoteStep.permit2Eip712, 'Trade quote is missing permit2 eip712 metadata')
+
+      const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
+
       const typedDataToSign = {
-        addressNList: toAddressNList(accountMetadata.bip44Params),
+        addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
         typedData: tradeQuoteStep?.permit2Eip712,
       }
 
-      const adapter = assertGetEvmChainAdapter(tradeQuoteStep.sellAsset.chainId)
       const permit2Signature = await adapter.signTypedData({ typedDataToSign, wallet })
 
       dispatch(

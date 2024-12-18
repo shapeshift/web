@@ -66,7 +66,7 @@ export const signCowMessage = async (
 ) => {
   const { bip44Params } = accountMetadata
   const typedDataToSign: ETHSignTypedData = {
-    addressNList: toAddressNList(bip44Params),
+    addressNList: toAddressNList(chainAdapter.getBip44Params(bip44Params)),
     typedData,
   }
 

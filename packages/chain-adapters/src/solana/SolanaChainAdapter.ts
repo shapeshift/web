@@ -14,12 +14,13 @@ import type {
   SolanaWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { BigNumber, bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import {
   createAssociatedTokenAccountInstruction,
+  createTransferCheckedInstruction,
   createTransferInstruction,
   getAccount,
   getAssociatedTokenAddressSync,
@@ -50,7 +51,7 @@ import type {
   BuildSendTxInput,
   FeeDataEstimate,
   GetAddressInput,
-  GetBIP44ParamsInput,
+  GetBip44ParamsInput,
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTx,
@@ -65,6 +66,11 @@ import type {
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList, toRootDerivationPath } from '../utils'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
+import {
+  SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER,
+  SOLANA_MINIMUM_INSTRUCTION_COUNT,
+} from './constants'
+import { isToken2022AccountInfo } from './types'
 import { microLamportsToLamports } from './utils'
 
 export const svmChainIds = [KnownChainIds.SolanaMainnet] as const
@@ -81,7 +87,7 @@ export interface ChainAdapterArgs {
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> {
-  static readonly defaultBIP44Params: BIP44Params = {
+  static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Solana),
     accountNumber: 0,
@@ -144,9 +150,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     return this.connection
   }
 
-  getBIP44Params({ accountNumber }: GetBIP44ParamsInput): BIP44Params {
+  getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...ChainAdapter.defaultBIP44Params, accountNumber }
+    return {
+      ...ChainAdapter.rootBip44Params,
+      accountNumber,
+      isChange: false,
+      addressIndex: undefined,
+    }
   }
 
   async getAddress(input: GetAddressInput): Promise<string> {
@@ -158,7 +169,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       this.assertSupportsChain(wallet)
 
       const address = await wallet.solanaGetAddress({
-        addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         showDisplay: showOnDevice,
       })
 
@@ -267,7 +278,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       )
 
       const txToSign: SignTx<KnownChainIds.SolanaMainnet> = {
-        addressNList: toAddressNList(this.getBIP44Params({ accountNumber })),
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         blockHash: blockhash,
         computeUnitLimit,
         computeUnitPrice,
@@ -380,32 +391,40 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<FeeDataEstimate<KnownChainIds.SolanaMainnet>> {
     try {
       const { baseFee, fast, average, slow } = await this.providers.http.getPriorityFees()
+      const { sendMax, chainSpecific } = input
+      const { instructions } = chainSpecific
 
       const serializedTx = await this.buildEstimationSerializedTx(input)
-      const computeUnits = await this.providers.http.estimateFees({
+      const baseComputeUnits = await this.providers.http.estimateFees({
         estimateFeesBody: { serializedTx },
       })
+
+      const computeUnits = sendMax
+        ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
+        : baseComputeUnits
+
+      const instructionCount = Math.max(instructions?.length ?? 0, SOLANA_MINIMUM_INSTRUCTION_COUNT)
 
       return {
         fast: {
           txFee: bn(microLamportsToLamports(fast))
             .times(computeUnits)
-            .plus(baseFee)
-            .toFixed(0, BigNumber.ROUND_HALF_UP),
+            .plus(bnOrZero(baseFee).times(instructionCount))
+            .toFixed(),
           chainSpecific: { computeUnits, priorityFee: fast },
         },
         average: {
           txFee: bn(microLamportsToLamports(average))
             .times(computeUnits)
-            .plus(baseFee)
-            .toFixed(0, BigNumber.ROUND_HALF_UP),
+            .plus(bnOrZero(baseFee).times(instructionCount))
+            .toFixed(),
           chainSpecific: { computeUnits, priorityFee: average },
         },
         slow: {
           txFee: bn(microLamportsToLamports(slow))
             .times(computeUnits)
-            .plus(baseFee)
-            .toFixed(0, BigNumber.ROUND_HALF_UP),
+            .plus(bnOrZero(baseFee).times(instructionCount))
+            .toFixed(),
           chainSpecific: { computeUnits, priorityFee: slow },
         },
       }
@@ -433,7 +452,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
   ): Promise<void> {
     const { pubKey, accountNumber, wallet } = input
 
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const address = await this.getAddress({ accountNumber, wallet, pubKey })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
@@ -449,7 +468,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     if (!input) return this.providers.ws.unsubscribeTxs()
 
     const { accountNumber } = input
-    const bip44Params = this.getBIP44Params({ accountNumber })
+    const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
     this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
@@ -538,14 +557,39 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       instructions.push(instruction)
     }
 
-    instructions.push(
-      createTransferInstruction(
-        getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
-        destinationTokenAccount,
-        new PublicKey(from),
-        Number(value),
-      ),
-    )
+    const accountInfo = await this.connection.getParsedAccountInfo(new PublicKey(tokenId))
+
+    const isToken2022 = accountInfo?.value?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+
+    if (isToken2022 && isToken2022AccountInfo(accountInfo.value?.data)) {
+      instructions.push(
+        createTransferCheckedInstruction(
+          getAssociatedTokenAddressSync(
+            new PublicKey(tokenId),
+            new PublicKey(from),
+            true,
+            TOKEN_2022_PROGRAM_ID,
+          ),
+          new PublicKey(tokenId),
+          destinationTokenAccount,
+          new PublicKey(from),
+          Number(value),
+          accountInfo.value?.data.parsed?.info?.decimals ?? 0,
+          [],
+          TOKEN_2022_PROGRAM_ID,
+        ),
+      )
+    } else {
+      instructions.push(
+        createTransferInstruction(
+          getAssociatedTokenAddressSync(new PublicKey(tokenId), new PublicKey(from), true),
+          destinationTokenAccount,
+          new PublicKey(from),
+          Number(value),
+          undefined,
+        ),
+      )
+    }
 
     return instructions
   }
@@ -578,7 +622,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
     // check if destination token account exists and add creation instruction if it doesn't
     try {
-      await getAccount(this.connection, destinationTokenAccount)
+      await getAccount(this.connection, destinationTokenAccount, 'confirmed', TOKEN_PROGRAM)
     } catch (err) {
       if (
         err instanceof TokenAccountNotFoundError ||

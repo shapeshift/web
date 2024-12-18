@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, gnosisAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -12,7 +12,7 @@ const SUPPORTED_CHAIN_IDS = [KnownChainIds.GnosisMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.GnosisMainnet
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.Gnosis),
     accountNumber: 0,
@@ -23,7 +23,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.GnosisMainnet> {
       assetId: gnosisAssetId,
       chainId: DEFAULT_CHAIN_ID,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       parser: new unchained.gnosis.TransactionParser({
         assetId: gnosisAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,

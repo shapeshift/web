@@ -24,6 +24,7 @@ export const getQuoteErrorTranslation = (
       case SwapperTradeQuoteError.SellAmountBelowTradeFee:
         return 'trade.errors.sellAmountDoesNotCoverFee'
       case TradeQuoteValidationError.InsufficientFirstHopAssetBalance:
+        return 'common.insufficientFundsForTrade'
       case TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
       case TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance:

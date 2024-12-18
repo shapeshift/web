@@ -123,6 +123,7 @@ export async function getZrxTradeQuote(
 
     return Ok({
       id: uuid(),
+      quoteOrRate: 'quote' as const,
       receiveAddress,
       potentialAffiliateBps,
       affiliateBps,

@@ -3,6 +3,7 @@ import {
   ASSET_NAMESPACE,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
+  fromAssetId,
   solAssetId,
   toAssetId,
   wrappedSolAssetId,
@@ -12,6 +13,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { PublicKey } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import type {
@@ -23,7 +25,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../utils/constants'
+import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
   createSwapInstructions,
@@ -38,7 +40,7 @@ export const getTradeQuote = async (
   const {
     sellAsset,
     buyAsset,
-    affiliateBps,
+    affiliateBps: _affiliateBps,
     receiveAddress,
     accountNumber,
     sendAddress,
@@ -99,10 +101,31 @@ export const getTradeQuote = async (
     )
   }
 
+  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+  const buyAssetAddress =
+    buyAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(buyAsset.assetId).assetReference
+
+  const sellAssetAddress =
+    sellAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(sellAsset.assetId).assetReference
+
+  const sellTokenInfo = await adapter
+    .getConnection()
+    .getAccountInfo(new PublicKey(sellAssetAddress))
+  const buyTokenInfo = await adapter.getConnection().getAccountInfo(new PublicKey(buyAssetAddress))
+  const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+  const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+
+  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : _affiliateBps
+
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,
-    sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
-    destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
+    sourceAssetAddress: sellAssetAddress,
+    destinationAssetAddress: buyAssetAddress,
     commissionBps: affiliateBps,
     amount: sellAmount,
     slippageBps: _slippageTolerancePercentageDecimal
@@ -125,8 +148,6 @@ export const getTradeQuote = async (
     // Divide by 100 to get actual decimal percentage from bps
     // e.g for 0.5% bps, Jupiter represents this as 50. 50/100 = 0.5, then we div by 100 again to honour our decimal format e.g 0.5/100 = 0.005
     bn(priceResponse.slippageBps).div(100).div(100).toString()
-
-  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
   const { instructions, addressLookupTableAddresses } = await createSwapInstructions({
     priceResponse,
@@ -212,6 +233,7 @@ export const getTradeQuote = async (
 
   const tradeQuote: TradeQuote = {
     id: uuid(),
+    quoteOrRate: 'quote',
     rate,
     potentialAffiliateBps: affiliateBps,
     affiliateBps,

@@ -40,6 +40,7 @@
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
     "insufficientFunds": "Insufficient Funds",
+    "insufficientFundsForTrade": "Insufficient funds for trade",
     "insufficientAllowance": "Insufficient Allowance",
     "estimatedGas": "Estimated Gas Fee",
     "relayerGasFee": "Relayer Gas Fee",
@@ -129,6 +130,7 @@
     "best": "Best",
     "gasFee": "Gas Fee",
     "approvalFee": "Approval Fee",
+    "allowanceResetFee": "Allowance Reset Fee",
     "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
     "alternative": "Alternative",
@@ -147,6 +149,7 @@
     "learnMore": "Learn more",
     "showAll": "Show All",
     "showLess": "Show Less",
+    "showMore": "Show More",
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "active": "Active",
@@ -865,6 +868,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Gas fee exceeds %{percentage}% of trade amount",
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
+    "signAndSwap": "Sign & Swap",
     "tradeAnyway": "Trade Anyway",
     "pending": "Trade Pending",
     "complete": "Trade Complete",
@@ -886,6 +890,8 @@
     "beforeFees": "Before Fees",
     "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
     "free": "Free",
+    "shapeShiftFee": "ShapeShift Fee",
+    "transactionFee": "Transaction Fee",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
@@ -925,7 +931,7 @@
         "negativeRatio": "Insufficient sell amount"
       },
       "rateExpired": {
-        "title": "Rate expired",
+        "title": "New Rate",
         "body": "Your previous swap rate has expired. We've fetched a new rate and updated your quote amounts. Please review the latest details before confirming your swap.",
         "cta": "Ok, got it"
       }
@@ -1021,7 +1027,12 @@
     "quote": {
       "cantSetSlippage": "We are unable to set a custom slippage (%{userSlippageFormatted}) for %{swapperName}",
       "slippage": "Slippage: %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "Awaiting token transfer",
+    "awaitingSwap": "Awaiting swap via %{swapperName}",
+    "awaitingBridge": "Awaiting bridge via %{bridgeName}",
+    "awaitingApproval": "Awaiting approval",
+    "awaitingAllowanceReset": "Awaiting allowance reset"
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1065,19 +1076,32 @@
       "nativeSellAssetNotSupported": "Native sell asset not supported",
       "insufficientValidTo": "Order expiry too soon",
       "excessiveValidTo": "Order expiry too far into the future",
-      "insufficientLiquidity": "Insufficient liquidity"
+      "insufficientLiquidity": "Insufficient liquidity",
+      "zeroFunds": "Non-zero sell asset balance needed",
+      "insufficientFundsForGas": "Insufficient funds for gas",
+      "allowanceResetRequired": "Allowance Reset Required"
+    },
+    "usdtAllowanceReset": {
+      "title": "Unable to approve allowance for USDT",
+      "description": "Your current USDT allowance on Ethereum needs to be reset to 0 before it can be set to a sufficient value. Please revoke the current USDT token allowance and try again."
     },
     "openOrders": "Open Orders",
     "orderHistory": "Order History",
     "status": {
       "open": "Open",
       "fulfilled": "Fulfilled",
-      "cancelled": "Cancelled",
+      "cancelled": "Canceled",
       "expired": "Expired"
     },
     "orders": "Orders",
     "viewOrders": "View Orders",
-    "loadingOrderList": "Loading your limit orders..."
+    "loadingOrderList": "Loading your limit orders...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Your wallet currently has insufficient %{symbol} balance on %{chainName} to execute this order. The order is still open and will become executable when you top up your %{symbol} balance on %{chainName}.",
+        "insufficientAllowance": "This order requires a additional allowance of %{symbol} on %{chainName} to be approved for CoW Swap to execute this order. The order is still open and will become executable when you complete the allowance approval."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

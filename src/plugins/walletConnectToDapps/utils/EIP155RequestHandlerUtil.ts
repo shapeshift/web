@@ -50,7 +50,7 @@ export const approveEIP155Request = async ({
   const { request } = params
   const bip44Params = accountMetadata?.bip44Params
   const accountNumber = bip44Params?.accountNumber
-  const addressNList = bip44Params ? toAddressNList(bip44Params) : []
+  const addressNList = bip44Params ? toAddressNList(chainAdapter.getBip44Params(bip44Params)) : []
 
   switch (request.method) {
     case EIP155_SigningMethod.PERSONAL_SIGN:

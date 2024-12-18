@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, avalancheAssetId } from '@shapeshiftoss/caip'
-import type { BIP44Params } from '@shapeshiftoss/types'
+import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -16,7 +16,7 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.avalanc
 }
 
 export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet> {
-  public static readonly defaultBIP44Params: BIP44Params = {
+  public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
     coinType: Number(ASSET_REFERENCE.AvalancheC),
     accountNumber: 0,
@@ -26,7 +26,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.AvalancheMainnet>
     super({
       assetId: avalancheAssetId,
       chainId: DEFAULT_CHAIN_ID,
-      defaultBIP44Params: ChainAdapter.defaultBIP44Params,
+      rootBip44Params: ChainAdapter.rootBip44Params,
       parser: new unchained.avalanche.TransactionParser({
         assetId: avalancheAssetId,
         chainId: args.chainId ?? DEFAULT_CHAIN_ID,

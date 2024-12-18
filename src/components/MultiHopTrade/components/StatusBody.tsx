@@ -1,6 +1,7 @@
 import { CheckCircleIcon, WarningTwoIcon } from '@chakra-ui/icons'
 import { Center, Heading, Stack } from '@chakra-ui/react'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { CircularProgress } from 'components/CircularProgress/CircularProgress'
@@ -9,13 +10,20 @@ import { SlideTransitionY } from 'components/SlideTransitionY'
 type StatusBodyProps = {
   txStatus: TxStatus
   children?: JSX.Element | null
+  defaultTitleTranslation?: string | [string, number | InterpolationOptions] | null
+  defaultIcon?: JSX.Element
 }
 
 const pendingIcon = <CircularProgress size='24' />
 const confirmedIcon = <CheckCircleIcon color='text.success' boxSize='24' />
 const failedIcon = <WarningTwoIcon color='red.500' boxSize='24' />
 
-export const StatusBody = ({ txStatus, children }: StatusBodyProps) => {
+export const StatusBody = ({
+  txStatus,
+  children,
+  defaultTitleTranslation = '',
+  defaultIcon,
+}: StatusBodyProps) => {
   const translate = useTranslate()
 
   const { title, icon } = useMemo(() => {
@@ -28,13 +36,16 @@ export const StatusBody = ({ txStatus, children }: StatusBodyProps) => {
         return { title: translate('common.somethingWentWrong'), icon: failedIcon }
       case TxStatus.Unknown:
       default:
-        return { title: '', icon: null }
+        return {
+          title: translate(
+            ...(Array.isArray(defaultTitleTranslation)
+              ? defaultTitleTranslation
+              : [defaultTitleTranslation]),
+          ),
+          icon: defaultIcon ?? null,
+        }
     }
-  }, [txStatus, translate])
-
-  if (txStatus === TxStatus.Unknown) {
-    return null
-  }
+  }, [txStatus, translate, defaultTitleTranslation, defaultIcon])
 
   return (
     <SlideTransitionY key={txStatus}>

@@ -1,8 +1,19 @@
 import type { SerializedError } from '@reduxjs/toolkit'
-import type { CowSwapError } from '@shapeshiftoss/types'
+import type { Asset, CowSwapError } from '@shapeshiftoss/types'
 import { OrderError } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
+import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import { assertUnreachable } from 'lib/utils'
+import { selectCalculatedFees } from 'state/apis/snapshot/selectors'
+import type { ReduxState } from 'state/reducer'
+import {
+  selectAssets,
+  selectFeeAssetById,
+  selectMarketDataUsd,
+  selectUserCurrencyToUsdRate,
+} from 'state/slices/selectors'
+import { store } from 'state/store'
 
 export const isCowSwapError = (
   maybeCowSwapError: CowSwapError | SerializedError | undefined,
@@ -64,5 +75,56 @@ export const getCowSwapErrorTranslation = (
       return 'trade.errors.quoteError'
     default:
       assertUnreachable(errorType)
+  }
+}
+
+export const getMixpanelLimitOrderEventData = ({
+  sellAsset,
+  buyAsset,
+  sellAmountCryptoPrecision,
+  buyAmountCryptoPrecision,
+}: {
+  sellAsset: Asset | undefined
+  buyAsset: Asset | undefined
+  sellAmountCryptoPrecision: string
+  buyAmountCryptoPrecision: string
+}) => {
+  // mixpanel paranoia seeing impossibly high values
+  if (!sellAsset?.precision) return
+  if (!buyAsset?.precision) return
+
+  const state = store.getState() as ReduxState
+
+  const buyAssetFeeAsset = selectFeeAssetById(state, buyAsset.assetId)
+  const sellAssetFeeAsset = selectFeeAssetById(state, sellAsset.assetId)
+  const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(state)
+  const marketDataUsd = selectMarketDataUsd(state)
+  const assets = selectAssets(state)
+
+  const sellAmountBeforeFeesUsd = bn(sellAmountCryptoPrecision)
+    .times(marketDataUsd[sellAsset.assetId]?.price ?? 0)
+    .toString()
+  const sellAmountBeforeFeesUserCurrency = bn(sellAmountBeforeFeesUsd)
+    .times(userCurrencyToUsdRate)
+    .toString()
+
+  const feeParams = { feeModel: 'SWAPPER' as const, inputAmountUsd: sellAmountBeforeFeesUsd }
+  const { feeUsd: shapeshiftFeeUsd } = selectCalculatedFees(state, feeParams)
+  const shapeShiftFeeUserCurrency = shapeshiftFeeUsd.times(userCurrencyToUsdRate).toString()
+
+  const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
+  const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
+
+  return {
+    buyAsset: compositeBuyAsset,
+    sellAsset: compositeSellAsset,
+    buyAssetChain: buyAssetFeeAsset?.networkName,
+    sellAssetChain: sellAssetFeeAsset?.networkName,
+    amountUsd: sellAmountBeforeFeesUsd,
+    amountUserCurrency: sellAmountBeforeFeesUserCurrency,
+    shapeShiftFeeUserCurrency,
+    shapeshiftFeeUsd: shapeshiftFeeUsd.toString(),
+    [compositeBuyAsset]: buyAmountCryptoPrecision,
+    [compositeSellAsset]: sellAmountCryptoPrecision,
   }
 }

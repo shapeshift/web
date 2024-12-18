@@ -40,9 +40,34 @@ export type FeeData = {
   priorityFee: string
 }
 
-export type PriorityFeeData = {
-  baseFee: string
-  [types.FeeDataKey.Fast]: string
-  [types.FeeDataKey.Average]: string
-  [types.FeeDataKey.Slow]: string
+export interface Token2022MintInfo {
+  decimals: number
+  freezeAuthority: string
+  isInitialized: boolean
+  mintAuthority: string
+  supply: string
+}
+
+export interface Token2022ParsedData {
+  program: string
+  parsed: {
+    info: Token2022MintInfo
+    type: string
+  }
+  space: number
+}
+
+export const isToken2022AccountInfo = (
+  data: Token2022ParsedData | undefined | Buffer,
+): data is Token2022ParsedData => {
+  if (!data || Buffer.isBuffer(data)) return false
+
+  return (
+    'program' in data &&
+    typeof data.program === 'string' &&
+    data.program === 'spl-token-2022' &&
+    'parsed' in data &&
+    'type' in data.parsed &&
+    data.parsed.type === 'mint'
+  )
 }

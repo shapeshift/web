@@ -1078,7 +1078,8 @@
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity",
       "zeroFunds": "Non-zero sell asset balance needed",
-      "insufficientFundsForGas": "Insufficient funds for gas"
+      "insufficientFundsForGas": "Insufficient funds for gas",
+      "allowanceResetRequired": "Allowance Reset Required"
     },
     "usdtAllowanceReset": {
       "title": "Unable to approve allowance for USDT",

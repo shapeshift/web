@@ -16,7 +16,7 @@ import { useTranslate } from 'react-polyglot'
 import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
-import { Text } from 'components/Text'
+import { RawText, Text } from 'components/Text'
 import type { TextPropTypes } from 'components/Text/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
@@ -34,6 +34,7 @@ import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { getQuoteErrorTranslation } from '../TradeInput/getQuoteErrorTranslation'
+import { useStreamingProgress } from './hooks/useStreamingProgress'
 import { useTradeButtonProps } from './hooks/useTradeButtonProps'
 
 type TradeFooterButtonProps = {
@@ -77,6 +78,10 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   })
   const networkFeeUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const sellAmountBeforeFeesUserCurrency = useAppSelector(selectQuoteSellAmountUserCurrency)
+  const streamingProgress = useStreamingProgress({
+    tradeQuoteStep,
+    hopIndex: currentHopIndex,
+  })
 
   const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined
@@ -219,6 +224,18 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
             <AlertIcon />
             <AlertDescription>
               <Text translation={getQuoteErrorTranslation(activeQuoteError)} />
+            </AlertDescription>
+          </Alert>
+        )}
+        {streamingProgress && streamingProgress.failedSwaps.length > 0 && (
+          <Alert status='warning' size='sm'>
+            <AlertIcon />
+            <AlertDescription>
+              <RawText>
+                {translate('trade.swapsFailed', {
+                  failedSwaps: streamingProgress.failedSwaps.length,
+                })}
+              </RawText>
             </AlertDescription>
           </Alert>
         )}

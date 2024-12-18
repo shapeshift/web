@@ -45,12 +45,10 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
 
   const firstHopStreamingProgress = useStreamingProgress({
     hopIndex: 0,
-    activeTradeQuote,
     tradeQuoteStep: tradeQuoteFirstHop,
   })
   const secondHopStreamingProgress = useStreamingProgress({
     hopIndex: 1,
-    activeTradeQuote,
     // If we don't have a second hop this hook will return undefined anyway. Satisfy the rules of hooks with tradeQuoteFirstHop, which
     // will always be defined.
     tradeQuoteStep: tradeQuoteLastHop ?? tradeQuoteFirstHop,

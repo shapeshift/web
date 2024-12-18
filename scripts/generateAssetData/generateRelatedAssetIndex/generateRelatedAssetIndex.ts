@@ -12,7 +12,7 @@ import {
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
-import { isEvmChainId } from '@shapeshiftoss/utils'
+import { createThrottle, isEvmChainId } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
@@ -23,7 +23,6 @@ import type { CoingeckoAssetDetails } from 'lib/coingecko/types'
 import type { PartialFields } from 'lib/types'
 import { isToken } from 'lib/utils'
 
-import { createThrottle } from '../utils'
 import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,

@@ -40,6 +40,7 @@
     "noResultsFound": "結果が見つかりません。",
     "noResultsBody": "%{searchQuery} の検索結果はありませんでした。もう一度試してください。",
     "insufficientFunds": "残高不足",
+    "insufficientAllowance": "手当不足",
     "estimatedGas": "ガス代の目安",
     "relayerGasFee": "リレイヤーのガス代",
     "insufficientAmountForGas": "ガス代をカバーするための%{assetSymbol}.%{chainSymbol}が不足しています。",
@@ -973,6 +974,7 @@
     "or": "または",
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
+    "unknownProtocolFee": "（未知）",
     "numHops": "このトレードには %{numHops} ホップが含まれます",
     "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "手当承認トランザクション:",
     "tradeComplete": "%{chainName} のウォレットに %{cryptoAmountFormatted} が追加されました。",
     "doAnotherTrade": "別の取引をする",
-    "showDetails": "詳細",
+    "summary": "取引概要",
     "transactionSuccessful": "トランザクションが成功しました。確認を待っています",
     "temp": {
       "tradeSuccess": "取引完了",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "成功しました！",
     "placeOrderFailed": "問題が発生しました",
     "placeOrder": "注文する",
+    "cancel": {
+      "cancelOrder": "指値注文をキャンセル",
+      "requestCancellation": "はい、キャンセルをリクエストします",
+      "areYouSureYouWantToCancelOrder": "この注文をキャンセルしてもよろしいですか?",
+      "cancellationFailed": "注文のキャンセルに失敗しました"
+    },
     "viewOrder": "注文を表示",
     "viewOnChain": "オンチェーントランザクションを表示",
     "yourOrderHasBeenPlaced": "ご注文が完了しました。",
+    "yourCancellationHasBeenSubmitted": "キャンセルが送信されました。",
     "limitPrice": "制限価格",
     "provider": "プロバイダー",
     "expiration": "有効期限",
@@ -1039,6 +1048,8 @@
     "youGet": "獲得したもの",
     "whenPriceReaches": "価格が達したとき",
     "expiry": "有効期限",
+    "noOpenOrders": "まだオープン注文はありません。",
+    "noHistoricalOrders": "履歴注文はまだありません。",
     "expiryOption": {
       "oneHour": "1時間",
       "oneDay": "1日",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7日間",
       "twentyEightDays": "28日",
       "custom": "カスタム"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "ネイティブ販売資産はサポートされていません",
+      "insufficientValidTo": "注文の有効期限が早すぎます",
+      "excessiveValidTo": "注文の有効期限が長すぎる",
+      "insufficientLiquidity": "流動性不足"
+    },
+    "expiresIn": "有効期限",
+    "openOrders": "オープン注文",
+    "orderHistory": "注文履歴",
+    "status": {
+      "open": "開ける",
+      "fulfilled": "達成",
+      "cancelled": "キャンセル",
+      "expired": "期限切れ"
+    },
+    "orders": "注文",
+    "viewOrders": "注文を表示",
+    "loadingOrderList": "指値注文を読み込んでいます..."
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"
     }
-  },
-  "limitOrders": {
-    "listTitle": "指値注文",
-    "limitPrice": "制限価格",
-    "expiresIn": "有効期限",
-    "filled": "満たされた",
-    "openOrders": "オープン注文",
-    "orderHistory": "注文履歴",
-    "status": {
-      "open": "開ける",
-      "filled": "満たされた",
-      "cancelled": "キャンセルされました",
-      "expired": "期限切れ"
-    },
-    "orders": "注文"
   },
   "thorFees": {
     "title": "THORSwapから来ましたか?",

@@ -73,6 +73,7 @@ export const calculateFees: CalculateFeeBps = ({
 
   // the fox discount before any other logic is applied
   const foxBaseDiscountPercent = (() => {
+    return bn(0)
     if (isFree) return bn(100)
     // THOR holder before TIP014 are trade free until 2025
     if (isThorFree) return bn(100)

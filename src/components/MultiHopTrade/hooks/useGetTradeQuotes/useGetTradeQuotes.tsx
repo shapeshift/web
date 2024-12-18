@@ -4,13 +4,13 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
+  SwapperName,
   TradeQuote,
   TradeRate,
 } from '@shapeshiftoss/swapper'
 import {
   DEFAULT_GET_TRADE_QUOTE_POLLING_INTERVAL,
   isExecutableTradeQuote,
-  SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
@@ -56,7 +56,7 @@ import {
   selectSortedTradeQuotes,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from 'state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { store, useAppDispatch, useAppSelector } from 'state/store'
 
 import type { UseGetSwapperTradeQuoteOrRateArgs } from './hooks/useGetSwapperTradeQuoteOrRate'
@@ -223,17 +223,17 @@ export const useGetTradeQuotes = () => {
   // Is the step we're in a step which requires final quote fetching?
   const isFetchStep = useMemo(() => {
     if (!swapperName) return
-    const permit2 = hopExecutionMetadata?.permit2
+    // const permit2 = hopExecutionMetadata?.permit2
     // ZRX is the odd one - we either want to fetch the final quote at pre-permit, or pre-swap input, depending on whether permit2 is required or not
-    if (swapperName === SwapperName.Zrx)
-      return (
-        (permit2?.isRequired &&
-          permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
-        (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
-      )
+    // if (swapperName === SwapperName.Zrx)
+    //   return (
+    //     (permit2?.isRequired &&
+    //       permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
+    //     (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
+    //   )
 
     return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
-  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state, swapperName])
+  }, [hopExecutionMetadata?.state, swapperName])
 
   const shouldFetchTradeQuotes = useMemo(() => {
     return Boolean(

@@ -565,7 +565,7 @@ export const selectTradeQuoteAffiliateFeeAfterDiscountUsd = createSelector(
     }),
   selectActiveQuoteAffiliateBps,
   (calculatedFees, affiliateBps) => {
-    if (!affiliateBps) return
+    if (!affiliateBps || affiliateBps === '0') return '0'
     return calculatedFees.feeUsd
   },
 )

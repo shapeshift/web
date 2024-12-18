@@ -13,6 +13,7 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { PublicKey } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import type {
@@ -24,7 +25,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { SOLANA_RANDOM_ADDRESS } from '../utils/constants'
+import { SOLANA_RANDOM_ADDRESS, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
   createSwapInstructions,
@@ -40,11 +41,12 @@ export const getTradeRate = async (
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
-    affiliateBps,
+    // affiliateBps: _affiliateBps,
     receiveAddress,
     accountNumber,
     slippageTolerancePercentageDecimal: _slippageTolerancePercentageDecimal,
   } = input
+  const _affiliateBps = '50'
 
   const { assetsById } = deps
 
@@ -90,10 +92,40 @@ export const getTradeRate = async (
     )
   }
 
+  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+  const buyAssetAddress =
+    buyAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(buyAsset.assetId).assetReference
+
+  const sellAssetAddress =
+    sellAsset.assetId === solAssetId
+      ? fromAssetId(wrappedSolAssetId).assetReference
+      : fromAssetId(sellAsset.assetId).assetReference
+
+  const sellTokenInfo = await adapter
+    .getConnection()
+    .getAccountInfo(new PublicKey(sellAssetAddress))
+  const buyTokenInfo = await adapter.getConnection().getAccountInfo(new PublicKey(buyAssetAddress))
+  const isSellTokenToken2022 = sellTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+  const isBuyTokenToken2022 = buyTokenInfo?.owner.toString() === TOKEN_2022_PROGRAM_ID.toString()
+
+  const affiliateBps = isSellTokenToken2022 && isBuyTokenToken2022 ? '0' : _affiliateBps
+
+  console.log({
+    affiliateBps,
+    isSellTokenToken2022,
+    isBuyTokenToken2022,
+    buy: buyTokenInfo,
+    buyOwner: buyTokenInfo?.owner.toString(),
+    token2022: TOKEN_2022_PROGRAM_ID.toString(),
+  })
+
   const maybePriceResponse = await getJupiterPrice({
     apiUrl: jupiterUrl,
-    sourceAsset: sellAsset.assetId === solAssetId ? wrappedSolAssetId : sellAsset.assetId,
-    destinationAsset: buyAsset.assetId === solAssetId ? wrappedSolAssetId : buyAsset.assetId,
+    sourceAssetAddress: sellAssetAddress,
+    destinationAssetAddress: buyAssetAddress,
     commissionBps: affiliateBps,
     amount: sellAmount,
     slippageBps: _slippageTolerancePercentageDecimal
@@ -129,8 +161,6 @@ export const getTradeRate = async (
     const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
     return { networkFeeCryptoBaseUnit: fast.txFee }
   }
-
-  const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
   const protocolFees: Record<AssetId, ProtocolFee> = priceResponse.routePlan.reduce(
     (acc, route) => {

@@ -30,12 +30,12 @@ export const PriceImpact: FC<PriceImpactProps> = ({
   )
 
   return (
-    <Row fontSize='sm' flex={1} Tooltipbody={tooltipBody}>
+    <Row flex={1} Tooltipbody={tooltipBody}>
       <Row.Label display='flex' alignItems='center' gap={1}>
         <Text translation='trade.priceImpact' />
       </Row.Label>
       <Row.Value>
-        <RawText color={priceImpactColor}>{priceImpactPercentage} %</RawText>
+        <RawText color={priceImpactColor}>{priceImpactPercentage}%</RawText>
       </Row.Value>
     </Row>
   )

@@ -40,6 +40,7 @@
     "noResultsFound": "Keine Ergebnisse gefunden.",
     "noResultsBody": "Keine Ergebnisse für %{searchQuery}. Versuchen Sie neue Suche.",
     "insufficientFunds": "Unzureichende Mittel",
+    "insufficientAllowance": "Unzureichende Zulage",
     "estimatedGas": "Geschätzte Gasgebühr",
     "relayerGasFee": "Relayer-Gasgebühr",
     "insufficientAmountForGas": "Nicht genug %{assetSymbol}.%{chainSymbol}, um Gasspesen abzudecken",
@@ -973,6 +974,7 @@
     "or": "oder",
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
+    "unknownProtocolFee": "(unbekannt)",
     "numHops": "Dieser Handel umfasst %{numHops} Handelsstufen",
     "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
@@ -993,7 +995,7 @@
     "allowanceApprovalTxName": "Genehmigung der Zulage tx:",
     "tradeComplete": "Sie haben jetzt %{cryptoAmountFormatted} in Ihrer Wallet auf %{chainName}.",
     "doAnotherTrade": "Einen weiteren Handel tätigen",
-    "showDetails": "Zeige Details",
+    "summary": "Handelszusammenfassung",
     "transactionSuccessful": "Transaktion erfolgreich, Warte auf Bestätigungen",
     "temp": {
       "tradeSuccess": "Handel abgeschlossen",
@@ -1026,9 +1028,16 @@
     "placeOrderSuccess": "Erfolg!",
     "placeOrderFailed": "Leider ist etwas schiefgegangen.",
     "placeOrder": "Bestellung aufgeben",
+    "cancel": {
+      "cancelOrder": "Limit Bestellung stornieren",
+      "requestCancellation": "Ja, Stornierung anfordern",
+      "areYouSureYouWantToCancelOrder": "Möchten Sie diese Bestellung wirklich stornieren?",
+      "cancellationFailed": "Stornierung der Bestellung fehlgeschlagen"
+    },
     "viewOrder": "Bestellung anzeigen",
     "viewOnChain": "Transaktion in der Kette anzeigen",
     "yourOrderHasBeenPlaced": "Ihre Bestellung wurde aufgegeben.",
+    "yourCancellationHasBeenSubmitted": "Ihre Stornierung wurde übermittelt.",
     "limitPrice": "Limitpreis",
     "provider": "Anbieter",
     "expiration": "Ablauf",
@@ -1039,6 +1048,8 @@
     "youGet": "Sie erhalten",
     "whenPriceReaches": "Wenn der Preis erreicht",
     "expiry": "Ablauf",
+    "noOpenOrders": "Noch keine offenen Bestellungen.",
+    "noHistoricalOrders": "Noch keine vorherigen  Bestellungen.",
     "expiryOption": {
       "oneHour": "1 Stunde",
       "oneDay": "1 Tag",
@@ -1046,7 +1057,25 @@
       "sevenDays": "7 Tage",
       "twentyEightDays": "28 Tage",
       "custom": "Benutzerdefiniert"
-    }
+    },
+    "errors": {
+      "nativeSellAssetNotSupported": "Natives Verkaufs Asset wird nicht unterstützt",
+      "insufficientValidTo": "Ablauf der Bestellung zu früh",
+      "excessiveValidTo": "Ablauf der Bestellung zu weit in der Zukunft",
+      "insufficientLiquidity": "Unzureichende Liquidität"
+    },
+    "expiresIn": "Läuft ab in",
+    "openOrders": "Offene Bestellungen",
+    "orderHistory": "Bestellverlauf",
+    "status": {
+      "open": "Offen",
+      "fulfilled": "Erfüllt",
+      "cancelled": "Abgesagt",
+      "expired": "Abgelaufen"
+    },
+    "orders": "Bestellungen",
+    "viewOrders": "Bestellungen anzeigen",
+    "loadingOrderList": "Ihre Limit Bestellungen werden geladen …"
   },
   "modals": {
     "assetSearch": {
@@ -2715,21 +2744,6 @@
       "noActiveProposals": "Keine aktiven Vorschläge verfügbar",
       "noClosedProposals": "Keine abgeschlossenen Vorschläge verfügbar"
     }
-  },
-  "limitOrders": {
-    "listTitle": "Limit-Aufträge",
-    "limitPrice": "Limitpreis",
-    "expiresIn": "Läuft ab in",
-    "filled": "Erfüllt",
-    "openOrders": "Offene Bestellungen",
-    "orderHistory": "Bestellverlauf",
-    "status": {
-      "open": "Offen",
-      "filled": "Erfüllt",
-      "cancelled": "Abgesagt",
-      "expired": "Abgelaufen"
-    },
-    "orders": "Bestellungen"
   },
   "thorFees": {
     "title": "Hier von THORSwap?",

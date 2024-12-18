@@ -931,7 +931,7 @@
         "negativeRatio": "Insufficient sell amount"
       },
       "rateExpired": {
-        "title": "Rate expired",
+        "title": "New Rate",
         "body": "Your previous swap rate has expired. We've fetched a new rate and updated your quote amounts. Please review the latest details before confirming your swap.",
         "cta": "Ok, got it"
       }
@@ -1078,7 +1078,8 @@
       "excessiveValidTo": "Order expiry too far into the future",
       "insufficientLiquidity": "Insufficient liquidity",
       "zeroFunds": "Non-zero sell asset balance needed",
-      "insufficientFundsForGas": "Insufficient funds for gas"
+      "insufficientFundsForGas": "Insufficient funds for gas",
+      "allowanceResetRequired": "Allowance Reset Required"
     },
     "usdtAllowanceReset": {
       "title": "Unable to approve allowance for USDT",

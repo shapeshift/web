@@ -339,7 +339,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           title={lastHopAllowanceResetTitle}
           stepIndicator={stepIndicator}
           stepProps={stepProps}
-          // useSpacer={false}
+          useSpacer={false}
           isError={activeQuoteError && currentTradeStep === TradeStep.LastHopReset}
           stepIndicatorVariant='innerSteps'
         />
@@ -349,19 +349,21 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
           title={lastHopAllowanceApprovalTitle}
           stepIndicator={stepIndicator}
           stepProps={stepProps}
-          // useSpacer={false}
+          useSpacer={false}
           isError={activeQuoteError && currentTradeStep === TradeStep.LastHopApproval}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
-      <StepperStep
-        title={lastHopActionTitle}
-        stepIndicator={stepIndicator}
-        stepProps={stepProps}
-        // useSpacer={false}
-        isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
-        stepIndicatorVariant='innerSteps'
-      />
+      {tradeSteps[TradeStep.LastHopSwap] ? (
+        <StepperStep
+          title={lastHopActionTitle}
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
+          stepIndicatorVariant='innerSteps'
+        />
+      ) : null}
     </Stepper>
   )
 }

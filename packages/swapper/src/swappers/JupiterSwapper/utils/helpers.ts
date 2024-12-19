@@ -71,7 +71,7 @@ export const getJupiterPrice = ({
       `?inputMint=${sourceAssetAddress}` +
       `&outputMint=${destinationAssetAddress}` +
       `&amount=${amount}` +
-      (slippageBps ? `&slippageBps=${slippageBps}` : `&autoSlippage=true`) +
+      (slippageBps ? `&slippageBps=${slippageBps}` : `&dynamicSlippage=true`) +
       `&maxAccounts=${JUPITER_TRANSACTION_MAX_ACCOUNTS}` +
       `&platformFeeBps=${commissionBps}`,
   )

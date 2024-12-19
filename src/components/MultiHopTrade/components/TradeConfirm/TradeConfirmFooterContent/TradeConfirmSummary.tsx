@@ -217,9 +217,9 @@ export const TradeConfirmSummary = () => {
             <Row.Label>
               <Text translation='trade.protocolFee' />
             </Row.Label>
-            <Row.Value color='text.base' textAlign='right'>
+            <Row.Value color='text.base'>
               {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
-                <HStack key={`${assetId}-${amountCryptoPrecision}`}>
+                <HStack key={`${assetId}-${amountCryptoPrecision}`} justifyContent='flex-end'>
                   <Amount.Crypto
                     key={`${assetId}-${amountCryptoPrecision}`}
                     value={amountCryptoPrecision}

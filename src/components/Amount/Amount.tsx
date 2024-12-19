@@ -80,9 +80,9 @@ const Crypto = ({
 
   return (
     <RawText {...props}>
-      {prefix && `${prefix} `}
+      {prefix && `${prefix}${noSpace ? '' : ' '}`}
       {crypto}
-      {suffix && ` ${suffix}`}
+      {suffix && `${noSpace ? '' : ' '}${suffix}`}
     </RawText>
   )
 }

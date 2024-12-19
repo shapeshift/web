@@ -26,7 +26,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
 import { useActions } from 'hooks/useActions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
-import { bn } from 'lib/bignumber/bignumber'
+import { BigNumber, bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import {
   ExpiryOption,
@@ -209,7 +209,10 @@ export const LimitOrderConfig = ({
   )
 
   const renderDelta = useMemo(() => {
-    const prefix = delta.gt(0) ? '+' : ''
+    const prefix = (() => {
+      if (delta.gte('999')) return '>'
+      return delta.gt(0) ? '+' : ''
+    })()
 
     if (
       bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
@@ -219,10 +222,12 @@ export const LimitOrderConfig = ({
     if (isLoading) return null
     if (delta.isZero()) return null
 
+    const deltaOrDefault = BigNumber.minimum(999, delta).toFixed(2)
+
     return (
       <CText color={delta.gt(0) ? 'text.success' : 'text.error'}>
         ({prefix}
-        {delta.toFixed(2)}%)
+        {deltaOrDefault}%)
       </CText>
     )
   }, [delta, isLoading, limitPrice, marketPriceBuyAsset])

@@ -1018,7 +1018,7 @@
       "swap": "A problem occurred executing the swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge from %{sellChainName} to %{buyChainName} via %{swapperName}",
+      "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",

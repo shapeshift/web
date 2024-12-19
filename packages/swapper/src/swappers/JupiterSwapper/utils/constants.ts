@@ -16,8 +16,9 @@ export const SOLANA_RANDOM_ADDRESS = '2zHKF6tqam3tnNFPK2E9nBDkV7GMXnvdJautmzqQdn
 
 export const TOKEN_2022_PROGRAM_ID = 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb'
 
-// Jupiter use 40% as a compute unit margin while calculating them, some TX reverts without this
-export const JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.4
+// Jupiter use 40% as a compute unit margin while calculating them, some TX reverts without this, as we add some compute units
+// for account creations and referral, for stability purposes we add 60% margin
+export const COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.6
 
 export const SHAPESHIFT_JUPITER_REFERRAL_KEY = 'Ajgmo453yGmcHDPoJBrMUj3GFwLVL7HaaZGNLkB8vREG'
 

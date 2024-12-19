@@ -1,7 +1,18 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Flex, HStack, Stepper, StepStatus, Tag, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  Stepper,
+  StepStatus,
+  Tag,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
@@ -157,8 +168,14 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {firstHopPermit2.isRequired === true ? (
-          // TODO: Add permit2 tooltip
-          <Text translation='trade.permit2.title' />
+          <>
+            <Text translation='trade.permit2Title' />
+            <Tooltip label={translate('trade.permit2.tooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+              </Box>
+            </Tooltip>
+          </>
         ) : (
           <>
             <Text translation='trade.approvalTitle' />
@@ -178,6 +195,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     firstHopPermit2.isRequired,
     firstHopSellAccountId,
     tradeQuoteFirstHop,
+    translate,
   ])
 
   const firstHopActionTitle = useMemo(() => {
@@ -239,8 +257,14 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {lastHopPermit2.isRequired === true ? (
-          // TODO: Add permit2 tooltip
-          <Text translation='trade.permit2.title' />
+          <>
+            <Text translation='trade.permit2Title' />
+            <Tooltip label={translate('trade.permit2.tooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+              </Box>
+            </Tooltip>
+          </>
         ) : (
           <>
             <Text translation='trade.approvalTitle' />
@@ -260,6 +284,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     lastHopPermit2.isRequired,
     lastHopSellAccountId,
     tradeQuoteLastHop,
+    translate,
   ])
 
   const lastHopActionTitle = useMemo(() => {

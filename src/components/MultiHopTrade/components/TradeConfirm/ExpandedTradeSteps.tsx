@@ -172,7 +172,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
             <Text translation='trade.permit2Title' />
             <Tooltip label={translate('trade.permit2.tooltip')}>
               <Box ml={1}>
-                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
               </Box>
             </Tooltip>
           </>
@@ -261,7 +261,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
             <Text translation='trade.permit2Title' />
             <Tooltip label={translate('trade.permit2.tooltip')}>
               <Box ml={1}>
-                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
               </Box>
             </Tooltip>
           </>

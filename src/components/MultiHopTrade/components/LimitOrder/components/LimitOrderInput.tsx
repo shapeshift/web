@@ -436,25 +436,25 @@ export const LimitOrderInput = ({
       </SharedTradeInputBody>
     )
   }, [
-    buyAccountId,
     buyAsset,
-    inputSellAmountUserCurrency,
     isInputtingFiatSellAmount,
     isLoading,
-    marketPriceBuyAsset,
-    sellAccountId,
     sellAmountCryptoPrecision,
+    inputSellAmountUserCurrency,
     sellAsset,
-    buyAssetFilterPredicate,
-    chainIdFilterPredicate,
-    sellAssetFilterPredicate,
-    setBuyAccountId,
-    setBuyAsset,
+    sellAccountId,
+    handleSwitchAssets,
     setIsInputtingFiatSellAmount,
-    setSellAccountId,
     setSellAmountCryptoPrecision,
     setSellAsset,
-    switchAssets,
+    setSellAccountId,
+    sellAssetFilterPredicate,
+    chainIdFilterPredicate,
+    buyAccountId,
+    setBuyAccountId,
+    setBuyAsset,
+    buyAssetFilterPredicate,
+    marketPriceBuyAsset,
   ])
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {

@@ -8,10 +8,10 @@ import { FIELDS } from './constants'
 import { getBaseAsset } from './getBaseAsset'
 import type { EncodedAssetData, FieldToType } from './types'
 
-export const decodeAssetData = (encodedAssetData: EncodedAssetData): Record<AssetId, Asset> => {
+export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
   const { sortedAssetIds, encodedAssets } = encodedAssetData
 
-  return encodedAssets.reduce<Record<AssetId, Asset>>((acc, encodedAsset, idx) => {
+  const assetData = encodedAssets.reduce<Record<AssetId, Asset>>((acc, encodedAsset, idx) => {
     const assetId = sortedAssetIds[idx]
     const { chainId } = fromAssetId(assetId)
 
@@ -81,4 +81,9 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData): Record<Asse
     acc[assetId] = asset
     return acc
   }, {})
+
+  return {
+    assetData,
+    sortedAssetIds,
+  }
 }

@@ -102,9 +102,8 @@ const mockSortedAssetIds = [
 describe('assetData', () => {
   it('can encode and decode asset data as a complete round trip', () => {
     const encodedAssetData = encodeAssetData(mockSortedAssetIds, mockGeneratedAssetData)
-    console.log(encodedAssetData)
-    const decodedAssetData = decodeAssetData(encodedAssetData)
-    console.log(decodedAssetData)
-    expect(decodedAssetData).toEqual(mockGeneratedAssetData)
+    const { assetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
+    expect(assetData).toEqual(mockGeneratedAssetData)
+    expect(sortedAssetIds).toEqual(mockSortedAssetIds)
   })
 })

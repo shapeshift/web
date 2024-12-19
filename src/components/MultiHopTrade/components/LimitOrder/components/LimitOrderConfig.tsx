@@ -10,6 +10,7 @@ import {
   MenuOptionGroup,
   Skeleton,
   Stack,
+  Text as CText,
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -21,6 +22,7 @@ import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
 import { useActions } from 'hooks/useActions'
 import { useLocaleFormatter } from 'hooks/useLocaleFormatter/useLocaleFormatter'
+import { bn } from 'lib/bignumber/bignumber'
 import { assertUnreachable } from 'lib/utils'
 import {
   ExpiryOption,
@@ -30,6 +32,7 @@ import {
 import { limitOrderInput } from 'state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   selectExpiry,
+  selectLimitPrice,
   selectLimitPriceDirection,
   selectLimitPriceForSelectedPriceDirection,
   selectLimitPriceMode,
@@ -90,6 +93,7 @@ export const LimitOrderConfig = ({
   const limitPriceForSelectedPriceDirection = useAppSelector(
     selectLimitPriceForSelectedPriceDirection,
   )
+  const limitPrice = useAppSelector(selectLimitPrice)
   const priceDirection = useAppSelector(selectLimitPriceDirection)
   const expiry = useAppSelector(selectExpiry)
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
@@ -194,10 +198,29 @@ export const LimitOrderConfig = ({
     [setExpiry],
   )
 
+  const renderDelta = useMemo(() => {
+    const delta = bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100)
+    const prefix = delta.gt(0) ? '+' : ''
+
+    if (limitPrice.buyAssetDenomination === '') return null
+    if (isLoading) return null
+    if (delta.isZero()) return null
+
+    return (
+      <CText color={delta.gt(0) ? 'text.success' : 'text.error'}>
+        ({prefix}
+        {delta.toFixed(2)}%)
+      </CText>
+    )
+  }, [isLoading, limitPrice.buyAssetDenomination, marketPriceBuyAsset])
+
   return (
     <Stack spacing={4} px={6} py={4}>
       <Flex justifyContent='space-between' alignItems='center'>
-        <Text translation='limitOrder.whenPriceReaches' />
+        <HStack>
+          <Text translation='limitOrder.whenPriceReaches' />
+          {renderDelta}
+        </HStack>
         <Flex justifyContent='space-between' alignItems='center'>
           <Text translation='limitOrder.expiry' mr={4} />
           <Menu isLazy>

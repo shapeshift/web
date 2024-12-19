@@ -1023,6 +1023,7 @@
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {

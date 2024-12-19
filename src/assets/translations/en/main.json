@@ -1011,7 +1011,8 @@
     },
     "hopTitle": {
       "bridge": "Bridge via %{swapperName}",
-      "swap": "Swap via %{swapperName}"
+      "swap": "Swap via %{swapperName}",
+      "swapEta": "Swap via %{swapperName} in ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "A problem occurred executing the bridge",

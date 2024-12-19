@@ -5,6 +5,19 @@ import { decodeAssetData } from './decodeAssetData'
 import { encodeAssetData } from './encodeAssetData'
 
 const mockGeneratedAssetData: AssetsById = {
+  'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c': {
+    assetId: 'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c',
+    chainId: 'eip155:1',
+    name: 'Inception Restaked ETH on Ethereum',
+    precision: 18,
+    color: '#D6D1E4',
+    icon: 'https://assets.coingecko.com/coins/images/34127/large/inETH.png?1715036464',
+    symbol: 'INETH',
+    explorer: 'https://etherscan.io',
+    explorerAddressLink: 'https://etherscan.io/address/',
+    explorerTxLink: 'https://etherscan.io/tx/',
+    relatedAssetKey: 'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c',
+  },
   'eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd': {
     assetId: 'eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd',
     chainId: 'eip155:1',
@@ -81,6 +94,7 @@ const mockSortedAssetIds = [
   'eip155:1/erc20:0xeeecd285f60e802ecb6d8d8d37790c887f9a4b33', // big tom
   'eip155:1/erc20:0xeeee2a2e650697d2a8e8bc990c2f3d04203be06f', // forgotten playland
   'eip155:1/erc20:0xeed3ae7b0f8b5b9bb8c035a9941382b1822671cd', // everycoin
+  'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c', // Inception Restaked ETH on Ethereum
   'eip155:1/erc20:0xeee0fe52299f2de8e2ed5111cd521ab67dcf0faf', // the qwan
   'eip155:1/erc20:0xeeda34a377dd0ca676b9511ee1324974fa8d980d', // Curve PUFETH/WSTETH Pool
 ]

@@ -1064,6 +1064,7 @@
     "expiry": "Expiry",
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
+    "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1080,6 +1081,9 @@
       "zeroFunds": "Non-zero sell asset balance needed",
       "insufficientFundsForGas": "Insufficient funds for gas",
       "allowanceResetRequired": "Allowance Reset Required"
+    },
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Price is %{percent}% below market.\n\nWhile CoW always aims to get you the best available price, this could result in selling your %{sellAssetSymbol} at a loss. Consider clicking 'Market' instead."
     },
     "usdtAllowanceReset": {
       "title": "Unable to approve allowance for USDT",

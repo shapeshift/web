@@ -2,6 +2,14 @@ import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import {
+  atom,
+  bitcoin,
+  bitcoincash,
+  dogecoin,
+  litecoin,
+  thorchain,
+} from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 
@@ -9,7 +17,6 @@ import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'

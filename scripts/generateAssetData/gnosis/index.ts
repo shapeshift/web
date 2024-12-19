@@ -1,10 +1,10 @@
 import { gnosisChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { gnosis } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'
 
-import { gnosis } from '../baseAssets'
 import * as coingecko from '../coingecko'
 
 export const getAssets = async (): Promise<Asset[]> => {

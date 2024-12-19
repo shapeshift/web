@@ -10,7 +10,17 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { encodeAssetData } from '@shapeshiftoss/utils'
+import {
+  atom,
+  bitcoin,
+  bitcoincash,
+  dogecoin,
+  litecoin,
+  thorchain,
+} from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import fs from 'fs'
+import difference from 'lodash/difference'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 import path from 'path'
@@ -19,7 +29,6 @@ import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
@@ -29,7 +38,7 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
-import { filterOutBlacklistedAssets } from './utils'
+import { filterOutBlacklistedAssets, getAssetIdsSortedByMarketCap } from './utils'
 
 const generatedAssetsPath = path.join(
   __dirname,
@@ -206,11 +215,20 @@ const generateAssetData = async () => {
   }
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(assetsWithOverridesApplied, null, 2),
-  )
+  // Create an array of assetIds sorted by market cap, followed by the remaining ones with no market cap ranking sorted by name
+  const assetIdsSortedByMarketCap = await getAssetIdsSortedByMarketCap()
+  const assetIdsSortedByName = orderBy(
+    Object.entries(assetsWithOverridesApplied),
+    ([_assetId, asset]) => asset.name,
+    'asc',
+  ).map(([assetId, _asset]) => assetId)
+  const nonMarketDataAssetIds = difference(assetIdsSortedByName, assetIdsSortedByMarketCap)
+  const sortedAssetIds = assetIdsSortedByMarketCap.concat(nonMarketDataAssetIds)
+
+  // Encode the assets for minimal size while preserving ordering
+  const encodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
+
+  await fs.promises.writeFile(generatedAssetsPath, JSON.stringify(encodedAssetData))
 }
 
 const main = async () => {

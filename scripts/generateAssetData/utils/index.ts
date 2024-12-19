@@ -1,5 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
+import type { CoingeckoAsset } from 'lib/coingecko/types'
+import { getCoingeckoMarkets } from 'lib/coingecko/utils'
 
 import blacklist from '../blacklist.json'
 
@@ -8,3 +11,29 @@ export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>
   filter(unfilteredAssetData, asset => {
     return !(blacklist.includes(asset.assetId) || asset.name.toLowerCase().includes('wormhole'))
   })
+
+export const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
+  let page = 1
+
+  const results2d: CoingeckoAsset[][] = []
+
+  while (true) {
+    const coingeckoAssets = await getCoingeckoMarkets('market_cap_desc', page)
+
+    results2d.push(coingeckoAssets)
+
+    // Iterate until the market cap ranking is not known
+    if (!coingeckoAssets[coingeckoAssets.length - 1]?.details.market_cap_rank) {
+      break
+    }
+
+    page++
+  }
+
+  return Array<CoingeckoAsset>()
+    .concat(...results2d)
+    .filter(coingeckoAsset => coingeckoAsset.details.market_cap_rank !== null)
+    .map(coingeckoAsset => {
+      return coingeckoAsset.assetId
+    })
+}

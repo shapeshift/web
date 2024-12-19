@@ -236,7 +236,7 @@ export const base: Readonly<Asset> = Object.freeze({
   explorer: 'https://basescan.org',
   explorerAddressLink: 'https://basescan.org/address/',
   explorerTxLink: 'https://basescan.org/tx/',
-  relatedAssetKey: null,
+  relatedAssetKey: 'eip155:1/slip44:60',
 })
 
 export const solana: Readonly<Asset> = Object.freeze({

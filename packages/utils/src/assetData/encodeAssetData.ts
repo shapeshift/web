@@ -3,7 +3,6 @@ import type { Asset, AssetsById } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'
-import { getBaseAsset } from './getBaseAsset'
 import type { EncodedAsset, EncodedAssetData, Field, FieldToType } from './types'
 
 const encodeField = <F extends Field>(
@@ -48,15 +47,6 @@ export const encodeAssetData = (
   for (let i = 0; i < sortedAssetIds.length; i++) {
     const assetId = sortedAssetIds[i]
     const asset = assetsById[assetId]
-
-    // If this is a base asset, don't encode it - native assets have additional fields we don't want
-    // to encode. Instead, we can use the hardcoded base asset data we already have in the codebase.
-    const baseAsset = getBaseAsset(asset.chainId)
-    if (baseAsset?.assetId === assetId) {
-      encodedAssets.push(null)
-      continue
-    }
-
     const record = FIELDS.map(field => encodeField(field, assetIdToAssetIdx, asset)) as EncodedAsset
     encodedAssets.push(record)
   }

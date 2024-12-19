@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { clone, pick } from 'lodash'
+import { pick } from 'lodash'
 
 import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'
@@ -16,11 +16,6 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
     const { chainId } = fromAssetId(assetId)
 
     const baseAsset = getBaseAsset(chainId)
-
-    if (encodedAsset === null) {
-      acc[assetId] = clone(baseAsset)
-      return acc
-    }
 
     // Initialize with default values for the chain
     const asset: Asset = Object.assign(
@@ -40,6 +35,12 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
       pick(baseAsset, ['explorer', 'explorerAddressLink', 'explorerTxLink']),
     )
 
+    if (assetId === baseAsset.assetId) {
+      asset.networkName = baseAsset.networkName
+      asset.networkIcon = baseAsset.networkIcon
+      asset.networkColor = baseAsset.networkColor
+    }
+
     // Apply each field's decoded value to the asset
     FIELDS.forEach((field, fieldIdx) => {
       const value = encodedAsset[fieldIdx]
@@ -56,7 +57,9 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
         }
         case 'relatedAssetKey': {
           const typedValue = value as FieldToType[typeof field]
-          asset.relatedAssetKey = typedValue === null ? null : sortedAssetIds[typedValue]
+          const relatedAssetId = typedValue === null ? null : sortedAssetIds[typedValue]
+          // if (relatedAssetId === undefined) throw Error()
+          asset.relatedAssetKey = relatedAssetId
           break
         }
         case 'name':

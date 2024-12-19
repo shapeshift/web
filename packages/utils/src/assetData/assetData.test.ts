@@ -1,4 +1,6 @@
 import type { AssetsById } from '@shapeshiftoss/types'
+import fs from 'fs'
+import path from 'path'
 import { describe, expect, it } from 'vitest'
 
 import { decodeAssetData } from './decodeAssetData'
@@ -121,5 +123,34 @@ describe('assetData', () => {
     const { assetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
     expect(assetData).toEqual(mockGeneratedAssetData)
     expect(sortedAssetIds).toEqual(mockSortedAssetIds)
+  })
+
+  it('reconciles against full dataset', () => {
+    const generatedAssetsPath = path.join(
+      __dirname,
+      '../../../../src/lib/asset-service/service/generatedAssetData.json',
+    )
+
+    const removeUndefined = (obj: object) => JSON.parse(JSON.stringify(obj))
+
+    const generatedAssetData = JSON.parse(fs.readFileSync(generatedAssetsPath, 'utf8'))
+    const assetIds = Object.keys(generatedAssetData).sort()
+    const encodedAssetData = encodeAssetData(assetIds, generatedAssetData)
+
+    fs.writeFileSync(
+      path.join(
+        __dirname,
+        '../../../../src/lib/asset-service/service/generatedAssetData_smol.json',
+      ),
+      JSON.stringify(encodedAssetData),
+    )
+    console.time('decodeAssetData')
+    const { assetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
+    console.timeEnd('decodeAssetData')
+    Object.entries(generatedAssetData).forEach(([assetId, expectedAsset]) => {
+      const actualAsset = assetData[assetId]
+      expect(removeUndefined(actualAsset)).toEqual(expectedAsset)
+    })
+    expect(sortedAssetIds).toEqual(assetIds)
   })
 })

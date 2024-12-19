@@ -71,12 +71,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     .times(sellChainFeeAssetUserCurrencyRate.price)
     .toFixed()
 
-  const approvalNetworkFeeCryptoHuman = fromBaseUnit(
+  const approvalNetworkFeeCryptoPrecision = fromBaseUnit(
     approvalNetworkFeeCryptoBaseUnit,
     buyChainFeeAsset?.precision ?? 0,
   )
 
-  const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoHuman)
+  const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoPrecision)
     .times(sellChainFeeAssetUserCurrencyRate.price)
     .toFixed()
 

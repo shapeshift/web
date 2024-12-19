@@ -49,7 +49,13 @@ import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
 
-const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
+type ProtocolFee = {
+  symbol: string
+  chainName: string | undefined
+  amountCryptoPrecision: string
+}
+
+const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFee[] => {
   return items
     .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
     .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
@@ -126,7 +132,24 @@ export const TradeConfirmSummary = () => {
   const hasIntermediaryTransactionOutputs =
     intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
   const protocolFeesParsed = totalProtocolFees
-    ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
+    ? Object.values(
+        parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome)).reduce(
+          (acc, fee) => {
+            const key = `${fee.symbol}-${fee.chainName}`
+            if (acc[key]) {
+              // If we already have this symbol+chain combination, add the amounts
+              acc[key].amountCryptoPrecision = bnOrZero(acc[key].amountCryptoPrecision)
+                .plus(fee.amountCryptoPrecision)
+                .toString()
+            } else {
+              // First time seeing this symbol+chain combination
+              acc[key] = { ...fee }
+            }
+            return acc
+          },
+          {} as Record<string, ProtocolFee>,
+        ),
+      )
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
 
@@ -190,7 +213,7 @@ export const TradeConfirmSummary = () => {
             <Row.Label>
               <Text translation='trade.protocolFee' />
             </Row.Label>
-            <Row.Value color='text.base'>
+            <Row.Value color='text.base' textAlign='right'>
               {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
                 <Amount.Crypto
                   key={`${symbol}-${amountCryptoPrecision}`}

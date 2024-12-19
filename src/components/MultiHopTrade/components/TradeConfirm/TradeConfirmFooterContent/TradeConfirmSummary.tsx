@@ -12,6 +12,7 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -26,6 +27,7 @@ import { useToggle } from 'hooks/useToggle/useToggle'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { middleEllipsis } from 'lib/utils'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
+import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
@@ -50,18 +52,20 @@ import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon
 import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
 
 type ProtocolFee = {
-  symbol: string
+  assetId: AssetId | undefined
   chainName: string | undefined
   amountCryptoPrecision: string
+  symbol: string
 }
 
 const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFee[] => {
   return items
     .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
     .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-      symbol: asset.symbol,
+      assetId: asset.assetId,
       chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
       amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+      symbol: asset.symbol,
     }))
 }
 
@@ -110,12 +114,12 @@ export const TradeConfirmSummary = () => {
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const totalNetworkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
-  const redColor = useColorModeValue('red.500', 'red.300')
   const greenColor = useColorModeValue('green.600', 'green.200')
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const [showFeeModal, setShowFeeModal] = useState(false)
@@ -135,7 +139,7 @@ export const TradeConfirmSummary = () => {
     ? Object.values(
         parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome)).reduce(
           (acc, fee) => {
-            const key = `${fee.symbol}-${fee.chainName}`
+            const key = `${fee.assetId}-${fee.chainName}`
             if (acc[key]) {
               // If we already have this symbol+chain combination, add the amounts
               acc[key].amountCryptoPrecision = bnOrZero(acc[key].amountCryptoPrecision)
@@ -214,13 +218,25 @@ export const TradeConfirmSummary = () => {
               <Text translation='trade.protocolFee' />
             </Row.Label>
             <Row.Value color='text.base' textAlign='right'>
-              {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
-                <Amount.Crypto
-                  key={`${symbol}-${amountCryptoPrecision}`}
-                  color={redColor}
-                  value={amountCryptoPrecision}
-                  symbol={symbol}
-                />
+              {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
+                <HStack key={`${assetId}-${amountCryptoPrecision}`}>
+                  <Amount.Crypto
+                    key={`${assetId}-${amountCryptoPrecision}`}
+                    value={amountCryptoPrecision}
+                    symbol={symbol}
+                  />
+                  {assetId && (
+                    <Amount.Fiat
+                      color={'text.subtle'}
+                      prefix='('
+                      suffix=')'
+                      noSpace
+                      value={bnOrZero(marketDataUserCurrency[assetId]?.price ?? 0)
+                        .times(amountCryptoPrecision)
+                        .toNumber()}
+                    />
+                  )}
+                </HStack>
               ))}
             </Row.Value>
           </Row>

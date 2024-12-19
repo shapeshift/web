@@ -15,16 +15,18 @@ export type FieldToType = {
   isPool: 0 | 1 // stored as 0|1 to minimize JSON storage size
 }
 
-export type EncodedAsset = [
-  FieldToType['assetIdx'],
-  FieldToType['name'],
-  FieldToType['precision'],
-  FieldToType['color'],
-  FieldToType['icon'],
-  FieldToType['symbol'],
-  FieldToType['relatedAssetKey'],
-  FieldToType['isPool'],
-]
+export type EncodedAsset =
+  | [
+      FieldToType['assetIdx'],
+      FieldToType['name'],
+      FieldToType['precision'],
+      FieldToType['color'],
+      FieldToType['icon'],
+      FieldToType['symbol'],
+      FieldToType['relatedAssetKey'],
+      FieldToType['isPool'],
+    ]
+  | null // Base assets aren't encoded because we have them hardcoded already
 
 export type EncodedAssetData = {
   sortedAssetIds: AssetId[]

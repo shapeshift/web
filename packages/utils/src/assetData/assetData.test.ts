@@ -5,6 +5,20 @@ import { decodeAssetData } from './decodeAssetData'
 import { encodeAssetData } from './encodeAssetData'
 
 const mockGeneratedAssetData: AssetsById = {
+  'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+    assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+    chainId: 'bip122:000000000019d6689c085ae165831e93',
+    symbol: 'BTC',
+    name: 'Bitcoin',
+    networkName: 'Bitcoin',
+    precision: 8,
+    color: '#FF9800',
+    icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/bitcoin/info/logo.png',
+    explorer: 'https://live.blockcypher.com',
+    explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
+    explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+    relatedAssetKey: null,
+  },
   'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c': {
     assetId: 'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c',
     chainId: 'eip155:1',
@@ -90,6 +104,7 @@ const mockGeneratedAssetData: AssetsById = {
   },
 }
 
+// Order of these is deliberately shuffled to test sorting is preserved
 const mockSortedAssetIds = [
   'eip155:1/erc20:0xeeecd285f60e802ecb6d8d8d37790c887f9a4b33', // big tom
   'eip155:1/erc20:0xeeee2a2e650697d2a8e8bc990c2f3d04203be06f', // forgotten playland
@@ -97,6 +112,7 @@ const mockSortedAssetIds = [
   'eip155:1/erc20:0xf073bac22dab7faf4a3dd6c6189a70d54110525c', // Inception Restaked ETH on Ethereum
   'eip155:1/erc20:0xeee0fe52299f2de8e2ed5111cd521ab67dcf0faf', // the qwan
   'eip155:1/erc20:0xeeda34a377dd0ca676b9511ee1324974fa8d980d', // Curve PUFETH/WSTETH Pool
+  'bip122:000000000019d6689c085ae165831e93/slip44:0', // BTC
 ]
 
 describe('assetData', () => {

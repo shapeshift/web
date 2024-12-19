@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { pick } from 'lodash'
+import { clone, pick } from 'lodash'
 
 import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'
@@ -16,6 +16,12 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
     const { chainId } = fromAssetId(assetId)
 
     const baseAsset = getBaseAsset(chainId)
+
+    if (encodedAsset === null) {
+      acc[assetId] = clone(baseAsset)
+      return acc
+    }
+
     // Initialize with default values for the chain
     const asset: Asset = Object.assign(
       {

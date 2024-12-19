@@ -1,5 +1,8 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
   Button,
   Flex,
   HStack,
@@ -17,6 +20,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useRef } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
+import { useTranslate } from 'react-polyglot'
 import { StyledAssetMenuButton } from 'components/AssetSelection/components/AssetMenuButton'
 import { SwapIcon } from 'components/Icons/SwapIcon'
 import { Text } from 'components/Text'
@@ -88,6 +92,7 @@ export const LimitOrderConfig = ({
   isLoading,
   marketPriceBuyAsset,
 }: LimitOrderConfigProps) => {
+  const translate = useTranslate()
   const priceAmountRef = useRef<string | null>(null)
 
   const limitPriceForSelectedPriceDirection = useAppSelector(
@@ -198,11 +203,19 @@ export const LimitOrderConfig = ({
     [setExpiry],
   )
 
+  const delta = useMemo(
+    () => bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100),
+    [limitPrice.buyAssetDenomination, marketPriceBuyAsset],
+  )
+
   const renderDelta = useMemo(() => {
-    const delta = bn(limitPrice.buyAssetDenomination).div(marketPriceBuyAsset).minus(1).times(100)
     const prefix = delta.gt(0) ? '+' : ''
 
-    if (limitPrice.buyAssetDenomination === '') return null
+    if (
+      bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
+      bnOrZero(marketPriceBuyAsset).isZero()
+    )
+      return null
     if (isLoading) return null
     if (delta.isZero()) return null
 
@@ -212,7 +225,50 @@ export const LimitOrderConfig = ({
         {delta.toFixed(2)}%)
       </CText>
     )
-  }, [isLoading, limitPrice.buyAssetDenomination, marketPriceBuyAsset])
+  }, [delta, isLoading, limitPrice, marketPriceBuyAsset])
+
+  const maybePriceWarning = useMemo(() => {
+    if (
+      bnOrZero(limitPrice.buyAssetDenomination).isZero() ||
+      bnOrZero(marketPriceBuyAsset).isZero()
+    )
+      return null
+    if (isLoading) return null
+    if (delta.gte(0)) return null
+
+    return (
+      <Alert status='warning'>
+        <Flex direction='column' gap={2}>
+          <Flex alignItems='center'>
+            <AlertIcon boxSize='20px' />
+            <AlertTitle>
+              {translate('limitOrder.limitPriceIsPercentLowerThanMarket', {
+                percent: delta.abs().toFixed(2),
+              })}
+            </AlertTitle>
+          </Flex>
+          <Text
+            pl={7}
+            // eslint-disable-next-line react-memo/require-usememo
+            translation={[
+              'limitOrder.warnings.limitPriceIsPercentLowerThanMarket',
+              {
+                percent: delta.abs().toFixed(2),
+                sellAssetSymbol: sellAsset.symbol,
+              },
+            ]}
+          />
+        </Flex>
+      </Alert>
+    )
+  }, [
+    delta,
+    isLoading,
+    limitPrice.buyAssetDenomination,
+    marketPriceBuyAsset,
+    sellAsset.symbol,
+    translate,
+  ])
 
   return (
     <Stack spacing={4} px={6} py={4}>
@@ -305,6 +361,7 @@ export const LimitOrderConfig = ({
           10% {arrow}
         </Button>
       </Flex>
+      {maybePriceWarning}
     </Stack>
   )
 }

@@ -11,7 +11,6 @@ import {
 } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteErrors,
-  selectActiveSwapperName,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
@@ -33,13 +32,13 @@ type ExpandedTradeStepsProps = {
 
 export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps) => {
   const translate = useTranslate()
-  const swapperName = useAppSelector(selectActiveSwapperName)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
   const tradeQuoteFirstHop = activeTradeQuote.steps[0]
   const tradeQuoteLastHop = activeTradeQuote.steps[1]
   const activeTradeId = activeTradeQuote.id
+  const swapperName = tradeQuoteFirstHop?.source
 
   const firstHopStreamingProgress = useStreamingProgress({
     hopIndex: 0,

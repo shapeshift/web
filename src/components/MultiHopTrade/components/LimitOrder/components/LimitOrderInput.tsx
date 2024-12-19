@@ -410,6 +410,7 @@ export const LimitOrderInput = ({
       >
         <Stack>
           <LimitOrderBuyAsset
+            isLoading={isLoading}
             asset={buyAsset}
             accountId={buyAccountId}
             isInputtingFiatSellAmount={isInputtingFiatSellAmount}

@@ -1,3 +1,4 @@
+import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -11,6 +12,7 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxPrice } from '../utils/fetchFromZrx'
 import {
   assertValidTrade,
@@ -79,6 +81,7 @@ export async function getZrxTradeRate(
     steps: [
       {
         estimatedExecutionTimeMs: undefined,
+        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : PERMIT2_CONTRACT,
         buyAsset,
         sellAsset,
         accountNumber,

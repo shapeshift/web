@@ -6,7 +6,6 @@ import { Text } from 'components/Text'
 import {
   selectActiveQuote,
   selectActiveQuoteErrors,
-  selectActiveSwapperName,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -44,7 +43,7 @@ export const ExpandableTradeSteps = () => {
       hopIndex: currentHopIndex ?? 0,
     }
   }, [activeTradeId, currentHopIndex])
-  const swapperName = useAppSelector(selectActiveSwapperName)
+  const swapperName = activeTradeQuote?.steps[0].source
   const { state: hopExecutionState } = useSelectorWithArgs(
     selectHopExecutionMetadata,
     hopExecutionMetadataFilter,

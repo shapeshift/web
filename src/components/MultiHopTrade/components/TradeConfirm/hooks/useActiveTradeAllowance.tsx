@@ -1,5 +1,5 @@
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { AllowanceType } from 'hooks/queries/useApprovalFees'
 import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
@@ -22,7 +22,6 @@ export const useActiveTradeAllowance = ({
   isExactAllowance,
   activeTradeId,
 }: UseSignAllowanceApprovalProps) => {
-  // TODO: confirm this is actually needed in the new flow
   // DO NOT REMOVE ME. Fetches and upserts permit2 quotes at pre-permit2-signing time
   useGetTradeQuotes()
 
@@ -91,25 +90,9 @@ export const useActiveTradeAllowance = ({
     allowanceReset.isInitiallyRequired,
   )
 
-  const handleSignAllowanceApproval = useCallback(async () => {
-    try {
-      await approveMutation.mutateAsync()
-    } catch (error) {
-      console.error(error)
-    }
-  }, [approveMutation])
-
-  const handleSignAllowanceReset = useCallback(async () => {
-    try {
-      await allowanceResetMutation.mutateAsync()
-    } catch (error) {
-      console.error(error)
-    }
-  }, [allowanceResetMutation])
-
   return {
-    handleSignAllowanceApproval,
-    handleSignAllowanceReset,
+    handleSignAllowanceApproval: approveMutation.mutate,
+    handleSignAllowanceReset: allowanceResetMutation.mutate,
     isAllowanceApprovalLoading,
     isAllowanceApprovalPending: approveMutation.isPending,
     isAllowanceResetLoading,

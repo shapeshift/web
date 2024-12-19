@@ -1,18 +1,27 @@
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
-import { Flex, HStack, Stepper, StepStatus, Tag, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  HStack,
+  Icon,
+  Stepper,
+  StepStatus,
+  Tag,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
+import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import {
   selectFirstHopSellAccountId,
-  selectIsActiveQuoteMultiHop,
   selectSecondHopSellAccountId,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuoteErrors,
-  selectActiveSwapperName,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
@@ -34,14 +43,13 @@ type ExpandedTradeStepsProps = {
 
 export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps) => {
   const translate = useTranslate()
-  const swapperName = useAppSelector(selectActiveSwapperName)
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
-  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const tradeQuoteFirstHop = activeTradeQuote.steps[0]
   const tradeQuoteLastHop = activeTradeQuote.steps[1]
   const activeTradeId = activeTradeQuote.id
+  const swapperName = tradeQuoteFirstHop?.source
 
   const firstHopStreamingProgress = useStreamingProgress({
     hopIndex: 0,
@@ -160,8 +168,14 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {firstHopPermit2.isRequired === true ? (
-          // TODO: Add permit2 tooltip
-          <Text translation='trade.permit2.title' />
+          <>
+            <Text translation='trade.permit2Title' />
+            <Tooltip label={translate('trade.permit2.tooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
+              </Box>
+            </Tooltip>
+          </>
         ) : (
           <>
             <Text translation='trade.approvalTitle' />
@@ -181,6 +195,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     firstHopPermit2.isRequired,
     firstHopSellAccountId,
     tradeQuoteFirstHop,
+    translate,
   ])
 
   const firstHopActionTitle = useMemo(() => {
@@ -242,8 +257,14 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {lastHopPermit2.isRequired === true ? (
-          // TODO: Add permit2 tooltip
-          <Text translation='trade.permit2.title' />
+          <>
+            <Text translation='trade.permit2Title' />
+            <Tooltip label={translate('trade.permit2.tooltip')}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
+              </Box>
+            </Tooltip>
+          </>
         ) : (
           <>
             <Text translation='trade.approvalTitle' />
@@ -263,6 +284,7 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
     lastHopPermit2.isRequired,
     lastHopSellAccountId,
     tradeQuoteLastHop,
+    translate,
   ])
 
   const lastHopActionTitle = useMemo(() => {
@@ -337,38 +359,36 @@ export const ExpandedTradeSteps = ({ activeTradeQuote }: ExpandedTradeStepsProps
         isError={activeQuoteError && currentTradeStep === TradeStep.FirstHopSwap}
         stepIndicatorVariant='innerSteps'
       />
-      {isMultiHopTrade && (
-        <>
-          {tradeSteps[TradeStep.LastHopReset] ? (
-            <StepperStep
-              title={lastHopAllowanceResetTitle}
-              stepIndicator={stepIndicator}
-              stepProps={stepProps}
-              useSpacer={false}
-              isError={activeQuoteError && currentTradeStep === TradeStep.LastHopReset}
-              stepIndicatorVariant='innerSteps'
-            />
-          ) : null}
-          {tradeSteps[TradeStep.LastHopApproval] ? (
-            <StepperStep
-              title={lastHopAllowanceApprovalTitle}
-              stepIndicator={stepIndicator}
-              stepProps={stepProps}
-              useSpacer={false}
-              isError={activeQuoteError && currentTradeStep === TradeStep.LastHopApproval}
-              stepIndicatorVariant='innerSteps'
-            />
-          ) : null}
-          <StepperStep
-            title={lastHopActionTitle}
-            stepIndicator={stepIndicator}
-            stepProps={stepProps}
-            useSpacer={false}
-            isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
-            stepIndicatorVariant='innerSteps'
-          />
-        </>
-      )}
+      {tradeSteps[TradeStep.LastHopReset] ? (
+        <StepperStep
+          title={lastHopAllowanceResetTitle}
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.LastHopReset}
+          stepIndicatorVariant='innerSteps'
+        />
+      ) : null}
+      {tradeSteps[TradeStep.LastHopApproval] ? (
+        <StepperStep
+          title={lastHopAllowanceApprovalTitle}
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.LastHopApproval}
+          stepIndicatorVariant='innerSteps'
+        />
+      ) : null}
+      {tradeSteps[TradeStep.LastHopSwap] ? (
+        <StepperStep
+          title={lastHopActionTitle}
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+          isError={activeQuoteError && currentTradeStep === TradeStep.LastHopSwap}
+          stepIndicatorVariant='innerSteps'
+        />
+      ) : null}
     </Stepper>
   )
 }

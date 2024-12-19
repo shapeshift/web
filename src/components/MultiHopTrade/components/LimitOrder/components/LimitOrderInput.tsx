@@ -521,7 +521,11 @@ export const LimitOrderInput = ({
         sellAccountId={sellAccountId}
         shouldDisableGasRateRowClick
         shouldDisablePreviewButton={
-          !hasUserEnteredAmount || isError || isRecipientAddressEntryActive
+          !hasUserEnteredAmount ||
+          isError ||
+          isRecipientAddressEntryActive ||
+          bnOrZero(marketPriceBuyAsset).isZero() ||
+          bnOrZero(limitPrice.buyAssetDenomination).isZero()
         }
         swapperName={SwapperName.CowSwap}
         swapSource={SwapperName.CowSwap}
@@ -539,13 +543,14 @@ export const LimitOrderInput = ({
     inputSellAmountUsd,
     isError,
     isLoading,
-    limitPrice,
+    quoteStatusTranslation,
+    limitPrice.buyAssetDenomination,
     sellAccountId,
     isRecipientAddressEntryActive,
+    marketPriceBuyAsset,
+    networkFeeUserCurrency,
     sellAsset,
     renderedRecipientAddress,
-    networkFeeUserCurrency,
-    quoteStatusTranslation,
   ])
 
   return (

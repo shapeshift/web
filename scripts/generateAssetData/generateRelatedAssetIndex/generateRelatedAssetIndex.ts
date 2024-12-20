@@ -123,27 +123,19 @@ const getZerionRelatedAssetIds = async (
   if (firstEntry === undefined) return
 
   const implementations = firstEntry.attributes.implementations
-  const primaryImplementationId = firstEntry.id
 
-  const primaryImplementation = implementations?.find(
-    implementation => implementation.address === primaryImplementationId,
-  )
-
-  const relatedAssetKey = primaryImplementation
-    ? zerionImplementationToMaybeAssetId(primaryImplementation)
-    : undefined
-
-  const relatedAssetIds = implementations
+  // Use all assetIds actually present in the dataset
+  const allRelatedAssetIds = implementations
     ?.map(zerionImplementationToMaybeAssetId)
     .filter(isSome)
-    .filter(
-      relatedAssetId =>
-        relatedAssetId !== relatedAssetKey && assetData[relatedAssetId] !== undefined,
-    )
+    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
 
-  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
+  if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
     return
   }
+
+  const relatedAssetKey = allRelatedAssetIds[0]
+  const relatedAssetIds = allRelatedAssetIds.filter(assetId => assetId !== relatedAssetKey)
 
   return { relatedAssetIds, relatedAssetKey }
 }
@@ -161,23 +153,19 @@ const getCoingeckoRelatedAssetIds = async (
   const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
 
   const platforms = data.platforms
-  const primaryPlatform = Object.entries(data.platforms)[0]
 
-  const relatedAssetKey = primaryPlatform
-    ? coingeckoPlatformDetailsToMaybeAssetId(primaryPlatform)
-    : undefined
-
-  const relatedAssetIds = Object.entries(platforms)
+  // Use all assetIds actually present in the dataset
+  const allRelatedAssetIds = Object.entries(platforms)
     ?.map(coingeckoPlatformDetailsToMaybeAssetId)
     .filter(isSome)
-    .filter(
-      relatedAssetId =>
-        relatedAssetId !== relatedAssetKey && assetData[relatedAssetId] !== undefined,
-    )
+    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
 
-  if (!relatedAssetKey || !relatedAssetIds || relatedAssetIds.length === 0) {
+  if (allRelatedAssetIds.length <= 1) {
     return
   }
+
+  const relatedAssetKey = allRelatedAssetIds[0]
+  const relatedAssetIds = allRelatedAssetIds.filter(assetId => assetId !== relatedAssetKey)
 
   return { relatedAssetIds, relatedAssetKey }
 }

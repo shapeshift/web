@@ -46,10 +46,12 @@ import {
 import { useAppSelector } from 'state/store'
 
 import { useIsApprovalInitiallyNeeded } from '../../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
+import { useTradeExecution } from '../../MultiHopTradeConfirm/hooks/useTradeExecution'
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
+import { useCurrentHopIndex } from '../hooks/useCurrentHopIndex'
 
 type ProtocolFee = {
   assetId: AssetId | undefined

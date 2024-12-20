@@ -515,6 +515,7 @@ export type SwapperApi = {
   getUnsignedEvmTransaction?: (
     input: GetUnsignedEvmTransactionArgs,
   ) => Promise<EvmTransactionRequest>
+  getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getUnsignedEvmMessage?: (input: GetUnsignedEvmMessageArgs) => Promise<EvmMessageToSign>
   getUnsignedUtxoTransaction?: (input: GetUnsignedUtxoTransactionArgs) => Promise<BTCSignTx>
   getUnsignedCosmosSdkTransaction?: (

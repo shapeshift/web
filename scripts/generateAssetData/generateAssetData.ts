@@ -8,7 +8,7 @@ import {
   gnosisAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import type { Asset, AssetsById, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import fs from 'fs'
 import merge from 'lodash/merge'
@@ -98,7 +98,17 @@ const generateAssetData = async () => {
       .includes(asset.name)
   }
 
+  const currentGeneratedAssetData: AssetsByIdPartial = JSON.parse(
+    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
+  )
+
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
+    const currentGeneratedAssetId = currentGeneratedAssetData[asset.assetId]
+    // Ensures we don't overwrite existing relatedAssetIndex with the generated one, triggering a refetch
+    if (currentGeneratedAssetId?.relatedAssetKey !== undefined) {
+      asset.relatedAssetKey = currentGeneratedAssetId.relatedAssetKey
+    }
+
     const { chainId } = fromAssetId(asset.assetId)
 
     // mark any ethereum assets that also exist on other chains (EVM chains and Solana)

@@ -1011,17 +1011,19 @@
     },
     "hopTitle": {
       "bridge": "Bridge via %{swapperName}",
-      "swap": "Swap via %{swapperName}"
+      "swap": "Swap via %{swapperName}",
+      "swapEta": "Swap via %{swapperName} in ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "A problem occurred executing the bridge",
       "swap": "A problem occurred executing the swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge from %{sellChainName} to %{buyChainName} via %{swapperName}",
+      "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {
@@ -1059,11 +1061,12 @@
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
     "previewOrder": "Preview Order",
-    "youGet": "You Get",
+    "youGet": "You get at least",
     "whenPriceReaches": "When price reaches",
     "expiry": "Expiry",
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
+    "limitPriceIsPercentLowerThanMarket": "Limit price is %{percent}% lower than market price",
     "expiryOption": {
       "oneHour": "1 hour",
       "oneDay": "1 day",
@@ -1080,6 +1083,9 @@
       "zeroFunds": "Non-zero sell asset balance needed",
       "insufficientFundsForGas": "Insufficient funds for gas",
       "allowanceResetRequired": "Allowance Reset Required"
+    },
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Price is %{percent}% below market.\n\nWhile CoW always aims to get you the best available price, this could result in selling your %{sellAssetSymbol} at a loss. Consider clicking 'Market' instead."
     },
     "usdtAllowanceReset": {
       "title": "Unable to approve allowance for USDT",

@@ -25,7 +25,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
+import { COMPUTE_UNIT_MARGIN_MULTIPLIER, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
   createSwapInstructions,
@@ -176,7 +176,7 @@ export const getTradeQuote = async (
       txFee: feeData.fast.txFee,
       chainSpecific: {
         computeUnits: bnOrZero(feeData.fast.chainSpecific.computeUnits)
-          .times(JUPITER_COMPUTE_UNIT_MARGIN_MULTIPLIER)
+          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
           .toFixed(0),
         priorityFee: feeData.fast.chainSpecific.priorityFee,
       },

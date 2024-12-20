@@ -1,8 +1,10 @@
 import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent } from 'react'
+import { useMemo } from 'react'
 import type { TradeInputTab } from 'components/MultiHopTrade/types'
 import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanner'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD } from 'lib/fees/model'
 import { breakpoints } from 'theme/theme'
 
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
@@ -46,6 +48,11 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const totalHeight = useSharedHeight(tradeInputRef)
 
+  const shouldDisplayThorFreeFeeBanner = useMemo(
+    () => new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [],
+  )
+
   return (
     <Flex
       id='test-flex'
@@ -55,7 +62,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
     >
       <Center width='inherit' alignItems='flex-end'>
         <Box width='full' maxWidth='500px'>
-          <ThorFreeFeeBanner />
+          {shouldDisplayThorFreeFeeBanner ? <ThorFreeFeeBanner /> : null}
           <Card
             flex={1}
             width='full'

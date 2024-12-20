@@ -133,23 +133,29 @@ export const useTradeExecution = (
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
 
       const onFail = (e: unknown) => {
-        const { message, translationKey } = (() => {
+        const { message, translationKey, error } = (() => {
           if (e instanceof ChainAdapterError) {
             const swapperError = swapperErrors.find(error => e.message.includes(error.value))
 
             if (swapperError) {
-              return { message: translate(swapperError.key), translationKey: swapperError.key }
+              return {
+                message: translate(swapperError.key),
+                translationKey: swapperError.key,
+                error: undefined,
+              }
             }
 
             return {
               message: translate(e.metadata.translation, e.metadata.options),
               translationKey: e.metadata.translation,
+              error: e,
             }
           }
 
           return {
             message: (e as Error).message ?? undefined,
             translationKey: undefined,
+            error: e,
           }
         })()
 
@@ -157,7 +163,7 @@ export const useTradeExecution = (
           tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
         )
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex, id: confirmedTradeId }))
-        showErrorToast(e, translationKey)
+        showErrorToast(error, translationKey)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeFailed)

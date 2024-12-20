@@ -11,8 +11,9 @@ import { fromBaseUnit } from 'lib/math'
 import { selectFeeAssetById } from 'state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from 'state/slices/marketDataSlice/selectors'
 import {
-  selectHopNetworkFeeUserCurrency,
+  selectFirstHopNetworkFeeUserCurrency,
   selectIsActiveSwapperQuoteLoading,
+  selectSecondHopNetworkFeeUserCurrency,
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
@@ -37,9 +38,15 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const [hasClickedButton, setHasClickedButton] = useState(false)
   const currentHopIndex = useCurrentHopIndex()
-  const tradeNetworkFeeFiatUserCurrency = useSelectorWithArgs(selectHopNetworkFeeUserCurrency, {
+  const firstHopNetworkFeeUserCurrency = useSelectorWithArgs(selectFirstHopNetworkFeeUserCurrency, {
     hopIndex: currentHopIndex,
   })
+  const secondHopNetworkFeeUserCurrency = useSelectorWithArgs(
+    selectSecondHopNetworkFeeUserCurrency,
+    {
+      hopIndex: currentHopIndex,
+    },
+  )
   const isActiveSwapperQuoteLoading = useAppSelector(selectIsActiveSwapperQuoteLoading)
   const sellChainFeeAsset = useSelectorWithArgs(
     selectFeeAssetById,
@@ -164,13 +171,24 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           </Row.Label>
           <Row.Value>
             <Skeleton isLoaded={!isActiveSwapperQuoteLoading}>
-              <Amount.Fiat value={tradeNetworkFeeFiatUserCurrency} />
+              <Amount.Fiat
+                value={
+                  currentHopIndex === 0
+                    ? firstHopNetworkFeeUserCurrency
+                    : secondHopNetworkFeeUserCurrency
+                }
+              />
             </Skeleton>
           </Row.Value>
         </Row>
       </Stack>
     )
-  }, [tradeNetworkFeeFiatUserCurrency, isActiveSwapperQuoteLoading])
+  }, [
+    firstHopNetworkFeeUserCurrency,
+    secondHopNetworkFeeUserCurrency,
+    isActiveSwapperQuoteLoading,
+    currentHopIndex,
+  ])
 
   const tradeDetail = useMemo(() => {
     switch (currentTradeStep) {

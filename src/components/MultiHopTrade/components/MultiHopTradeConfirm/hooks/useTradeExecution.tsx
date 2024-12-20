@@ -17,6 +17,7 @@ import type {
 import {
   getHopByIndex,
   isExecutableTradeQuote,
+  swapperErrors,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
@@ -132,18 +133,31 @@ export const useTradeExecution = (
       dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
 
       const onFail = (e: unknown) => {
-        const message = (() => {
+        const { message, translationKey } = (() => {
           if (e instanceof ChainAdapterError) {
-            return translate(e.metadata.translation, e.metadata.options)
+            const swapperError = swapperErrors.find(error => e.message.includes(error.value))
+
+            if (swapperError) {
+              return { message: translate(swapperError.key), translationKey: swapperError.key }
+            }
+
+            return {
+              message: translate(e.metadata.translation, e.metadata.options),
+              translationKey: e.metadata.translation,
+            }
           }
-          return (e as Error).message ?? undefined
+
+          return {
+            message: (e as Error).message ?? undefined,
+            translationKey: undefined,
+          }
         })()
 
         dispatch(
           tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
         )
         dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex, id: confirmedTradeId }))
-        showErrorToast(e)
+        showErrorToast(e, translationKey)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeFailed)

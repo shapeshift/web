@@ -222,9 +222,11 @@ const processRelatedAssetIds = async (
     })
 
   const zerionRelatedAssetsResult = await getZerionRelatedAssetIds(
-    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have all related assetIds for a given asset, and Zerion may not have
-    // any at all the same asset. e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not present at all under the USDC.SOL umbrella in Zerion.
-    // Using the primary implementation ensures we use a reliable identifier for the related assets, not a more obscure one.
+    // DO NOT REMOVE ME - reuse the relatedAssetKey if found with coingecko fetch. cg may not have
+    // all related assetIds for a given asset, and Zerion may not have any at all the same asset.
+    // e.g USDC.SOL is found on Coingecko but with only USDC.ETH as a relatedAssetId, and is not
+    // present at all under the USDC.SOL umbrella in Zerion. Using the primary implementation
+    // ensures we use a reliable identifier for the related assets, not a more obscure one.
     coingeckoRelatedAssetsResult?.relatedAssetKey ?? assetId,
     assetData,
   )
@@ -299,14 +301,31 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
     await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
   )
-  const assetDataWithRelatedAssetKeys: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>> = {
-    ...generatedAssetData,
-  }
 
-  if (rebuildAll) {
+  // Remove stale related asset data from the assetData where:
+  // a) rebuildAll is set
+  // b) the primary related asset no longer exists in the dataset
+  Object.values(generatedAssetData).forEach(asset => {
+    const relatedAssetKey = asset.relatedAssetKey
+
+    if (!relatedAssetKey) return
+
+    const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
+
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    Object.values(assetDataWithRelatedAssetKeys).forEach(asset => delete asset.relatedAssetKey)
-  }
+    if (rebuildAll || primaryRelatedAsset === undefined) {
+      delete relatedAssetIndex[relatedAssetKey]
+      delete asset.relatedAssetKey
+    }
+  })
+
+  // Remove stale related asset data from the relatedAssetIndex where:
+  // a) a related assetId no longer exists in the dataset
+  Object.entries(relatedAssetIndex).forEach(([relatedAssetKey, relatedAssetIds]) => {
+    relatedAssetIndex[relatedAssetKey] = relatedAssetIds.filter(
+      assetId => generatedAssetData[assetId] !== undefined,
+    )
+  })
 
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
@@ -319,12 +338,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(
-          assetId,
-          assetDataWithRelatedAssetKeys,
-          relatedAssetIndex,
-          throttle,
-        )
+        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
         return
       }),
     )
@@ -335,7 +349,7 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   await fs.promises.writeFile(
     generatedAssetsPath,
     // beautify the file for github diff.
-    JSON.stringify(assetDataWithRelatedAssetKeys, null, 2),
+    JSON.stringify(generatedAssetData, null, 2),
   )
 
   await fs.promises.writeFile(

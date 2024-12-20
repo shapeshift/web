@@ -1011,17 +1011,19 @@
     },
     "hopTitle": {
       "bridge": "Bridge via %{swapperName}",
-      "swap": "Swap via %{swapperName}"
+      "swap": "Swap via %{swapperName}",
+      "swapEta": "Swap via %{swapperName} in ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "A problem occurred executing the bridge",
       "swap": "A problem occurred executing the swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge from %{sellChainName} to %{buyChainName} via %{swapperName}",
+      "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {

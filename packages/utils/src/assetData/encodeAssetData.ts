@@ -5,6 +5,35 @@ import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'
 import type { EncodedAsset, EncodedAssetData, Field, FieldToType } from './types'
 
+const encodeAssetIds = (sortedAssetIds: AssetId[]) => {
+  const assetIdPrefixes: string[] = []
+  const encodedAssetIds = []
+  for (const assetId of sortedAssetIds) {
+    // `indexOf` + `substring` faster than `split`
+    const colonIndex = assetId.lastIndexOf(':')
+    const prefix = assetId.substring(0, colonIndex)
+    const assetReference = assetId.substring(colonIndex + 1)
+
+    const prefixIdx = (() => {
+      const prefixIdx = assetIdPrefixes.indexOf(prefix)
+
+      if (prefixIdx !== -1) {
+        return prefixIdx
+      } else {
+        assetIdPrefixes.push(prefix)
+        return assetIdPrefixes.length - 1
+      }
+    })()
+
+    encodedAssetIds.push(`${prefixIdx}:${assetReference}`)
+  }
+
+  return {
+    assetIdPrefixes,
+    encodedAssetIds,
+  }
+}
+
 const encodeField = <F extends Field>(
   field: F,
   assetIdToAssetIdx: Record<AssetId, number>,
@@ -38,13 +67,15 @@ export const encodeAssetData = (
   sortedAssetIds: AssetId[],
   assetsById: AssetsById,
 ): EncodedAssetData => {
+  const { assetIdPrefixes, encodedAssetIds } = encodeAssetIds(sortedAssetIds)
+
   const assetIdToAssetIdx = sortedAssetIds.reduce<Record<AssetId, number>>((acc, val, idx) => {
     acc[val] = idx
     return acc
   }, {})
 
   const encodedAssets: EncodedAsset[] = []
-  for (let i = 0; i < sortedAssetIds.length; i++) {
+  for (let i = 0; i < encodedAssetIds.length; i++) {
     const assetId = sortedAssetIds[i]
     const asset = assetsById[assetId]
     const record = FIELDS.map(field => encodeField(field, assetIdToAssetIdx, asset)) as EncodedAsset
@@ -52,7 +83,8 @@ export const encodeAssetData = (
   }
 
   return {
-    sortedAssetIds,
+    assetIdPrefixes,
+    encodedAssetIds,
     encodedAssets,
   }
 }

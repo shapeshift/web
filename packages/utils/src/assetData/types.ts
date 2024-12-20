@@ -27,6 +27,7 @@ export type EncodedAsset = [
 ]
 
 export type EncodedAssetData = {
-  sortedAssetIds: AssetId[]
+  assetIdPrefixes: string[]
+  encodedAssetIds: string[]
   encodedAssets: EncodedAsset[]
 }

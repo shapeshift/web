@@ -8,8 +8,22 @@ import { FIELDS } from './constants'
 import { getBaseAsset } from './getBaseAsset'
 import type { EncodedAssetData, FieldToType } from './types'
 
+const decodeAssetId = (encodedAssetId: string, assetIdPrefixes: string[]) => {
+  // Performance sensitive. `lastIndexOf` + `substring` faster than `split`
+  const colonIndex = encodedAssetId.lastIndexOf(':')
+  const prefixIdx = Number(encodedAssetId.substring(0, colonIndex))
+  const assetReference = encodedAssetId.substring(colonIndex + 1)
+
+  // Performance sensitive. String concatenation faster than template literal
+  return assetIdPrefixes[prefixIdx] + ':' + assetReference
+}
+
 export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
-  const { sortedAssetIds, encodedAssets } = encodedAssetData
+  const { assetIdPrefixes, encodedAssetIds, encodedAssets } = encodedAssetData
+
+  const sortedAssetIds = encodedAssetIds.map(encodedAssetId =>
+    decodeAssetId(encodedAssetId, assetIdPrefixes),
+  )
 
   const assetData = encodedAssets.reduce<Record<AssetId, Asset>>((acc, encodedAsset, idx) => {
     const assetId = sortedAssetIds[idx]

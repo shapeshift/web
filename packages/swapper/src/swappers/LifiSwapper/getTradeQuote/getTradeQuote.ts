@@ -133,6 +133,12 @@ export async function getTrade({
   const routesResponse = await getRoutes(routesRequest)
     .then(response => Ok(response))
     .catch((e: SDKError) => {
+      // This shouldn't happen, but if it does (`/routes`) endpoint errors), Li.Fi probably went "down" for that specific request
+      // We should use the stale rate quote, though if it's a proper limit, `/stepTransaction` would fail too, meaning things will still fail at Tx execution time
+      // Which is much better than a blank screen
+      if (quoteOrRate === 'quote') return Ok({ routes: [] })
+
+      // This is a rate. All errors re: validation or internal server errors etc should be handled gracefully
       const code = (() => {
         switch (e.code) {
           case LiFiErrorCode.ValidationError:

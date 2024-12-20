@@ -50,8 +50,11 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     selectFeeAssetById,
     tradeQuoteStep.sellAsset.assetId,
   )
-  const { isLoading: isNetworkFeeCryptoBaseUnitLoading, data: networkFeeCryptoBaseUnit } =
-    useTradeNetworkFeeCryptoBaseUnit(0)
+  const {
+    isLoading: isNetworkFeeCryptoBaseUnitLoading,
+    isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
+    data: networkFeeCryptoBaseUnit,
+  } = useTradeNetworkFeeCryptoBaseUnit(0)
 
   const networkFeeCryptoPrecison = useMemo(() => {
     if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
@@ -206,7 +209,13 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             <Text translation='trade.transactionFee' />
           </Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={!isActiveSwapperQuoteLoading && !isNetworkFeeCryptoBaseUnitLoading}>
+            <Skeleton
+              isLoaded={
+                !isActiveSwapperQuoteLoading &&
+                !isNetworkFeeCryptoBaseUnitLoading &&
+                !isNetworkFeeCryptoBaseUnitRefetching
+              }
+            >
               <HStack justifyContent='flex-end'>
                 <Amount.Crypto symbol={feeAsset?.symbol ?? ''} value={networkFeeCryptoPrecison} />
                 <Amount.Fiat
@@ -226,6 +235,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     feeAsset?.symbol,
     isActiveSwapperQuoteLoading,
     isNetworkFeeCryptoBaseUnitLoading,
+    isNetworkFeeCryptoBaseUnitRefetching,
     networkFeeCryptoPrecison,
     networkFeeUserCurrency,
   ])

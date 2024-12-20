@@ -70,6 +70,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteSt
 
   const quoteNetworkFeesCryptoBaseUnitQuery = useQuery({
     queryKey: ['quoteNetworkFeesCryptoBaseUnit', tradeQuote],
+    refetchInterval: 5000,
     queryFn:
       wallet &&
       accountMetadata &&

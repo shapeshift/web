@@ -107,10 +107,7 @@ export const ConfirmSummary = ({
   )
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
-  const { quoteNetworkFeesCryptoBaseUnitQuery } = useTradeNetworkFeeCryptoBaseUnit(
-    0,
-    activeQuote?.id ?? '',
-  )
+  const quoteNetworkFeesCryptoBaseUnitQuery = useTradeNetworkFeeCryptoBaseUnit(0)
 
   console.log({ quoteNetworkFeesCryptoBaseUnitQuery })
 

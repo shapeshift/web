@@ -237,5 +237,5 @@ export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteSt
         : skipToken,
   })
 
-  return { quoteNetworkFeesCryptoBaseUnitQuery }
+  return quoteNetworkFeesCryptoBaseUnitQuery
 }

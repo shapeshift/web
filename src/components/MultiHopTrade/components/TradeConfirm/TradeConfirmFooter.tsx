@@ -14,6 +14,7 @@ import { selectIsActiveSwapperQuoteLoading } from 'state/slices/tradeQuoteSlice/
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
+import { useTradeNetworkFeeCryptoBaseUnit } from '../MultiHopTradeConfirm/hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
 import { TradeStep } from './helpers'
 import { useActiveTradeAllowance } from './hooks/useActiveTradeAllowance'
@@ -34,21 +35,33 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const [hasClickedButton, setHasClickedButton] = useState(false)
   const currentHopIndex = useCurrentHopIndex()
-  const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
+  const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
-  const networkFeeCryptoPrecision = fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
+  const quoteNetworkFeeCryptoPrecision = fromBaseUnit(
+    quoteNetworkFeeCryptoBaseUnit,
+    feeAsset?.precision ?? 0,
+  )
   const feeAssetUserCurrencyRate = useSelectorWithArgs(
     selectMarketDataByAssetIdUserCurrency,
     feeAsset?.assetId ?? '',
   )
-  const networkFeeUserCurrency = bnOrZero(networkFeeCryptoPrecision)
-    .times(feeAssetUserCurrencyRate.price)
-    .toFixed()
   const isActiveSwapperQuoteLoading = useAppSelector(selectIsActiveSwapperQuoteLoading)
   const sellChainFeeAsset = useSelectorWithArgs(
     selectFeeAssetById,
     tradeQuoteStep.sellAsset.assetId,
   )
+  const { isLoading: isNetworkFeeCryptoBaseUnitLoading, data: networkFeeCryptoBaseUnit } =
+    useTradeNetworkFeeCryptoBaseUnit(0)
+
+  const networkFeeCryptoPrecison = useMemo(() => {
+    if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
+
+    return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
+  }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
+
+  const networkFeeUserCurrency = useMemo(() => {
+    return bnOrZero(networkFeeCryptoPrecison).times(feeAssetUserCurrencyRate.price).toFixed()
+  }, [networkFeeCryptoPrecison, feeAssetUserCurrencyRate.price])
 
   const {
     allowanceResetNetworkFeeCryptoBaseUnit,
@@ -193,9 +206,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             <Text translation='trade.transactionFee' />
           </Row.Label>
           <Row.Value>
-            <Skeleton isLoaded={!isActiveSwapperQuoteLoading}>
+            <Skeleton isLoaded={!isActiveSwapperQuoteLoading && !isNetworkFeeCryptoBaseUnitLoading}>
               <HStack justifyContent='flex-end'>
-                <Amount.Crypto symbol={feeAsset?.symbol ?? ''} value={networkFeeCryptoPrecision} />
+                <Amount.Crypto symbol={feeAsset?.symbol ?? ''} value={networkFeeCryptoPrecison} />
                 <Amount.Fiat
                   color={'text.subtle'}
                   prefix='('
@@ -212,7 +225,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   }, [
     feeAsset?.symbol,
     isActiveSwapperQuoteLoading,
-    networkFeeCryptoPrecision,
+    isNetworkFeeCryptoBaseUnitLoading,
+    networkFeeCryptoPrecison,
     networkFeeUserCurrency,
   ])
 

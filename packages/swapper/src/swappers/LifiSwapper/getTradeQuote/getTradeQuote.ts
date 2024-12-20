@@ -133,6 +133,10 @@ export async function getTrade({
   const routesResponse = await getRoutes(routesRequest)
     .then(response => Ok(response))
     .catch((e: SDKError) => {
+      // This shouldn't happen, but if it does, Li.Fi probably went "down" (e.g 429s) between rate and quote, don't block users from executing
+      if (quoteOrRate === 'quote') return Ok({ routes: [] })
+
+      // This is a rate. All errors re: validation or internal server errors etc should be handled gracefully
       const code = (() => {
         switch (e.code) {
           case LiFiErrorCode.ValidationError:

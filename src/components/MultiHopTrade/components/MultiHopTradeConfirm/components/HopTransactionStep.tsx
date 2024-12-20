@@ -87,7 +87,7 @@ export const HopTransactionStep = ({
   const isError = useMemo(() => swapTxState === TransactionExecutionState.Failed, [swapTxState])
   const isQuoteError = useMemo(() => !!activeQuoteError, [activeQuoteError])
 
-  const { executeTrade } = useTradeExecution(hopIndex, activeTradeId)
+  const executeTrade = useTradeExecution(hopIndex, activeTradeId)
 
   const handleSignTx = useCallback(() => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {

@@ -76,7 +76,7 @@ export const useTradeButtonProps = ({
     swap: { state: swapTxState },
   } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
-  const { executeTrade } = useTradeExecution(currentHopIndex, activeTradeId)
+  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
   const handleSignTx = useCallback(() => {
     if (swapTxState !== TransactionExecutionState.AwaitingConfirmation) {
       console.error('attempted to execute in-progress swap')

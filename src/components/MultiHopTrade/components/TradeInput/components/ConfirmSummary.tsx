@@ -50,6 +50,7 @@ import {
 import { useAppSelector } from 'state/store'
 import { breakpoints } from 'theme/theme'
 
+import { useTradeNetworkFeeCryptoBaseUnit } from '../../MultiHopTradeConfirm/hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { PriceImpact } from '../../PriceImpact'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { getQuoteErrorTranslation } from '../getQuoteErrorTranslation'
@@ -105,6 +106,13 @@ export const ConfirmSummary = ({
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
+
+  const { quoteNetworkFeesCryptoBaseUnitQuery } = useTradeNetworkFeeCryptoBaseUnit(
+    0,
+    activeQuote?.id ?? '',
+  )
+
+  console.log({ quoteNetworkFeesCryptoBaseUnitQuery })
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation

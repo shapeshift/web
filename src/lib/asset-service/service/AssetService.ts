@@ -23,7 +23,7 @@ export class AssetService {
   }
 
   get assets(): Asset[] {
-    return Object.values(this.assetsById)
+    return Object.values(this.assetsById) as Asset[]
   }
 
   getRelatedAssetIds(assetId: AssetId): AssetId[] {
@@ -38,7 +38,7 @@ export class AssetService {
       const polyglot = new Polyglot({
         phrases: localeDescriptions,
         allowMissing: true,
-        onMissingKey: key => descriptions.en[key], // fallback to English overriden description, which should always be added as a base translation
+        onMissingKey: key => descriptions.en[key], // fallback to English overridden description, which should always be added as a base translation
       })
       const overriddenDescription = polyglot.t(assetId)
 

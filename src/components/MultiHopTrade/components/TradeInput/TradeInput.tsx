@@ -30,7 +30,11 @@ import { getMixPanel } from 'lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from 'lib/mixpanel/types'
 import { selectIsVotingPowerLoading } from 'state/apis/snapshot/selectors'
 import type { ApiQuote } from 'state/apis/swapper/types'
-import { selectIsAnyAccountMetadataLoadedForChainId, selectWalletId } from 'state/slices/selectors'
+import {
+  selectIsAnyAccountMetadataLoadedForChainId,
+  selectUsdRateByAssetId,
+  selectWalletId,
+} from 'state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -123,6 +127,9 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     selectIsAnyAccountMetadataLoadedForChainId(state, isAnyAccountMetadataLoadedForChainIdFilter),
   )
   const walletId = useAppSelector(selectWalletId)
+
+  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
+  const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
 
   const inputOutputDifferenceDecimalPercentage =
     useInputOutputDifferenceDecimalPercentage(activeQuote)
@@ -217,8 +224,8 @@ export const TradeInput = ({ isCompact, tradeInputRef, onChangeTab }: TradeInput
     [dispatch],
   )
   const handleSwitchAssets = useCallback(
-    () => dispatch(tradeInput.actions.switchAssets()),
-    [dispatch],
+    () => dispatch(tradeInput.actions.switchAssets({ sellAssetUsdRate, buyAssetUsdRate })),
+    [buyAssetUsdRate, dispatch, sellAssetUsdRate],
   )
 
   const handleConnect = useCallback(() => {

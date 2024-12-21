@@ -1,6 +1,13 @@
 import type { SwapperErrorMapping } from '../baseErrors'
 import { SWAPPER_ERRORS } from '../baseErrors'
 
+export class SolanaLogsError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'SolanaLogsError'
+  }
+}
+
 export const JUPITER_ERROR_VALUES = {
   SLIPPAGE_EXCEEDED: 'SlippageToleranceExceeded',
   UNDER_MINIMUM_AMOUNT: 'RequireGteViolated',

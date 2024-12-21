@@ -15,8 +15,6 @@ import {
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import axios from 'axios'
-
 import {
   arbitrum,
   arbitrumNova,
@@ -28,7 +26,9 @@ import {
   optimism,
   polygon,
   solana,
-} from './baseAssets'
+} from '@shapeshiftoss/utils'
+import axios from 'axios'
+
 import colormap from './color-map.json'
 
 export const colorMap: Record<string, string> = colormap

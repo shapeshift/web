@@ -1,5 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import filter from 'lodash/filter'
+import type { CoingeckoAsset } from 'lib/coingecko/types'
+import { getCoingeckoMarkets } from 'lib/coingecko/utils'
 
 import blacklist from '../blacklist.json'
 
@@ -9,50 +12,28 @@ export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>
     return !(blacklist.includes(asset.assetId) || asset.name.toLowerCase().includes('wormhole'))
   })
 
-export const createThrottle = ({
-  capacity,
-  costPerReq,
-  drainPerInterval,
-  intervalMs,
-}: {
-  capacity: number
-  costPerReq: number
-  drainPerInterval: number
-  intervalMs: number
-}) => {
-  let currentLevel = 0
-  let pendingResolves: ((value?: unknown) => void)[] = []
+export const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
+  let page = 1
 
-  const drain = () => {
-    const drainAmount = Math.min(currentLevel, drainPerInterval)
-    currentLevel -= drainAmount
+  const results2d: CoingeckoAsset[][] = []
 
-    // Resolve pending promises if there's enough capacity
-    while (pendingResolves.length > 0 && currentLevel + costPerReq <= capacity) {
-      const resolve = pendingResolves.shift()
-      if (resolve) {
-        currentLevel += costPerReq
-        resolve()
-      }
+  while (true) {
+    const coingeckoAssets = await getCoingeckoMarkets('market_cap_desc', page)
+
+    results2d.push(coingeckoAssets)
+
+    // Iterate until the market cap ranking is not known
+    if (!coingeckoAssets[coingeckoAssets.length - 1]?.details.market_cap_rank) {
+      break
     }
+
+    page++
   }
 
-  // Start the interval to drain the capacity
-  const intervalId = setInterval(drain, intervalMs)
-
-  const throttle = async () => {
-    if (currentLevel + costPerReq <= capacity) {
-      // If adding another request doesn't exceed capacity, proceed immediately
-      currentLevel += costPerReq
-    } else {
-      // Otherwise, wait until there's enough capacity
-      await new Promise(resolve => {
-        pendingResolves.push(resolve)
-      })
-    }
-  }
-
-  const clear = () => clearInterval(intervalId)
-
-  return { throttle, clear }
+  return Array<CoingeckoAsset>()
+    .concat(...results2d)
+    .filter(coingeckoAsset => coingeckoAsset.details.market_cap_rank !== null)
+    .map(coingeckoAsset => {
+      return coingeckoAsset.assetId
+    })
 }

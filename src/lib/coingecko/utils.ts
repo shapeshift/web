@@ -17,6 +17,7 @@ import {
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
+import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
@@ -121,16 +122,12 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
 }
 
 export const getCoingeckoMarkets = async (
-  order:
-    | 'market_cap_asc'
-    | 'market_cap_desc'
-    | 'volume_desc'
-    | 'volume_asc'
-    | 'price_change_percentage_24h_desc'
-    | 'price_change_percentage_24h_asc',
+  order: CoinGeckoSortKey,
+  page = 1,
+  pageSize = 100,
 ): Promise<CoingeckoAsset[]> => {
   const { data } = await axios.get<CoinGeckoMarketCap[]>(
-    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}`,
+    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
   )
 
   const all: CoingeckoAsset[] = []

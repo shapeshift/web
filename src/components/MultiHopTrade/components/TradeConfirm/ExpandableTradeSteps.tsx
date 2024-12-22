@@ -9,7 +9,7 @@ import {
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -44,20 +44,22 @@ export const ExpandableTradeSteps = () => {
     }
   }, [activeTradeId, currentHopIndex])
   const swapperName = activeTradeQuote?.steps[0].source
-  const { state: hopExecutionState } = useSelectorWithArgs(
-    selectHopExecutionMetadata,
-    hopExecutionMetadataFilter,
-  )
+  const {
+    state: hopExecutionState,
+    swap: { state: swapTxState },
+  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const summaryStepIndicator = useMemo(() => {
-    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
-      return <AnimatedCheck />
-    } else if (activeQuoteError) {
-      return <WarningIcon color='red.500' />
-    } else {
-      return <Spinner thickness='3px' size='md' />
+    switch (true) {
+      case confirmedTradeExecutionState === TradeExecutionState.TradeComplete:
+        return <AnimatedCheck />
+      case !!activeQuoteError:
+      case swapTxState === TransactionExecutionState.Failed:
+        return <WarningIcon color='red.500' />
+      default:
+        return <Spinner thickness='3px' size='md' />
     }
-  }, [confirmedTradeExecutionState, activeQuoteError])
+  }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
   const { totalSteps, currentTradeStepIndex: currentStep } = useTradeSteps()
   const progressValue = (currentStep / (totalSteps - 1)) * 100

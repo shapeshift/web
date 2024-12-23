@@ -23,6 +23,7 @@ import {
 } from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
+import { jupiterErrorNamesToTranslationKeys } from 'constants/errorMapping'
 import type { TypedData } from 'eip-712'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -135,7 +136,7 @@ export const useTradeExecution = (
       const onFail = (e: unknown) => {
         const message = (() => {
           if (e instanceof SolanaLogsError) {
-            return translate(e.message)
+            return translate(jupiterErrorNamesToTranslationKeys[e.name])
           }
 
           if (e instanceof ChainAdapterError) {

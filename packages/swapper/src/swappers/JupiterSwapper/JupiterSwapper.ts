@@ -14,7 +14,7 @@ export const jupiterSwapper: Swapper = {
     } catch (e) {
       if (e instanceof Error) {
         const errorMessage = e.message
-        const swapperError = Object.keys(JUPITER_ERRORS).reduce(
+        const swapperErrorType = Object.keys(JUPITER_ERRORS).reduce(
           (acc, errorPattern) => {
             if (errorMessage.includes(errorPattern)) {
               acc = JUPITER_ERRORS[errorPattern]
@@ -25,7 +25,7 @@ export const jupiterSwapper: Swapper = {
           undefined as undefined | string,
         )
 
-        if (swapperError) throw new SolanaLogsError(swapperError)
+        if (swapperErrorType) throw new SolanaLogsError(swapperErrorType)
       }
 
       throw e

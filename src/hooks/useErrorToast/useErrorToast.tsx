@@ -1,6 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { SolanaLogsError } from '@shapeshiftoss/swapper'
+import { jupiterErrorNamesToTranslationKeys } from 'constants/errorMapping'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +22,7 @@ export const useErrorToast = () => {
     ) => {
       const translationArgs = (() => {
         if (error instanceof SolanaLogsError) {
-          return [error.message]
+          return [jupiterErrorNamesToTranslationKeys[error.name]]
         }
 
         // Chain adapter errors take priority

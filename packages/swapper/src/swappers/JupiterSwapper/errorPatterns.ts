@@ -1,7 +1,7 @@
 export class SolanaLogsError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'SolanaLogsError'
+  constructor(name: string) {
+    super(name)
+    this.name = name
   }
 }
 
@@ -11,8 +11,15 @@ export enum JUPITER_ERROR_PATTERNS {
   CONSUMED_MORE_FEES = 'exceeded CUs meter',
 }
 
+export enum JUPITER_ERROR_NAMES {
+  SLIPPAGE_TOLERANCE_EXCEEDED = 'SlippageToleranceExceeded',
+  UNDER_MINIMUM_AMOUNT = 'UnderMinimumAmount',
+  CONSUMED_MORE_FEES = 'ConsumedMoreFees',
+}
+
 export const JUPITER_ERRORS: Record<JUPITER_ERROR_PATTERNS | string, string> = {
-  [JUPITER_ERROR_PATTERNS.SLIPPAGE_TOLERANCE_EXCEEDED]: 'trade.errors.slippageExceeded',
-  [JUPITER_ERROR_PATTERNS.UNDER_MINIMUM_AMOUNT]: 'trade.errors.underMinimumAmount',
-  [JUPITER_ERROR_PATTERNS.CONSUMED_MORE_FEES]: 'trade.errors.consumedMoreFees',
+  [JUPITER_ERROR_PATTERNS.SLIPPAGE_TOLERANCE_EXCEEDED]:
+    JUPITER_ERROR_NAMES.SLIPPAGE_TOLERANCE_EXCEEDED,
+  [JUPITER_ERROR_PATTERNS.UNDER_MINIMUM_AMOUNT]: JUPITER_ERROR_NAMES.UNDER_MINIMUM_AMOUNT,
+  [JUPITER_ERROR_PATTERNS.CONSUMED_MORE_FEES]: JUPITER_ERROR_NAMES.CONSUMED_MORE_FEES,
 }

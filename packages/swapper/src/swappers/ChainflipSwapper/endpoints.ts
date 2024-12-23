@@ -235,6 +235,43 @@ export const chainflipApi: SwapperApi = {
 
     return (await adapter.buildSendApiTransaction(buildSendTxInput)).txToSign
   },
+  getSolanaTransactionFees: async ({
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+  }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const step = tradeQuote.steps[0]
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
+
+    tradeQuoteMetadata.set(tradeQuote.id, {
+      id: step.chainflipSpecific.chainflipSwapId,
+      address: step.chainflipSpecific?.chainflipDepositAddress,
+    })
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    const contractAddress =
+      step.sellAsset.assetId === solAssetId
+        ? undefined
+        : fromAssetId(step.sellAsset.assetId).assetReference
+
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: step.chainflipSpecific.chainflipDepositAddress,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        from,
+        tokenId: contractAddress,
+      },
+    }
+
+    const { fast } = await adapter.getFeeData(getFeeDataInput)
+
+    return fast.txFee
+  },
 
   checkTradeStatus: async ({
     config,

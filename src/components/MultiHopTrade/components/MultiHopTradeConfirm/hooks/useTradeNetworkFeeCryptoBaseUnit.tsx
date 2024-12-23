@@ -62,7 +62,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
 
   const quoteNetworkFeesCryptoBaseUnitQuery = useQuery({
     queryKey: ['quoteNetworkFeesCryptoBaseUnit', tradeQuote],
-    refetchInterval: 5000,
+    refetchInterval: 15_000,
     queryFn:
       enabled &&
       wallet &&

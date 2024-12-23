@@ -1,2 +1,2 @@
 export * from './utils/constants'
-export * from './errors'
+export * from './errorPatterns'

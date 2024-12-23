@@ -3,7 +3,7 @@ import type { Asset } from '@shapeshiftoss/types'
 
 import { executeSolanaTransaction } from '../..'
 import type { BuyAssetBySellIdInput, Swapper } from '../../types'
-import { JUPITER_ERRORS, SolanaLogsError } from './errors'
+import { JUPITER_ERRORS, SolanaLogsError } from './errorPatterns'
 import { jupiterSupportedChainIds } from './utils/constants'
 
 export const jupiterSwapper: Swapper = {
@@ -14,9 +14,18 @@ export const jupiterSwapper: Swapper = {
     } catch (e) {
       if (e instanceof Error) {
         const errorMessage = e.message
-        const swapperError = JUPITER_ERRORS.find(error => errorMessage.includes(error.value))
+        const swapperError = Object.keys(JUPITER_ERRORS).reduce(
+          (acc, errorPattern) => {
+            if (errorMessage.includes(errorPattern)) {
+              acc = JUPITER_ERRORS[errorPattern]
+            }
 
-        if (swapperError) throw new SolanaLogsError(swapperError.key)
+            return acc
+          },
+          undefined as undefined | string,
+        )
+
+        if (swapperError) throw new SolanaLogsError(swapperError)
       }
 
       throw e

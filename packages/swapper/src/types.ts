@@ -524,10 +524,7 @@ export type SwapperApi = {
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
-  getCosmosSdkTransactionFees?: (
-    input: GetUnsignedCosmosSdkTransactionArgs,
-    deps: SwapperDeps,
-  ) => Promise<string>
+  getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {

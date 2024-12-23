@@ -1,5 +1,4 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { BTCSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
@@ -12,7 +11,6 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
 import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
-import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
 import { assertGetCosmosSdkChainAdapter } from 'lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from 'lib/utils/evm'
@@ -77,13 +75,10 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
       hop &&
       isExecutableTradeQuote(tradeQuote)
         ? async () => {
-            const execution = new TradeExecution()
-
             const { accountType, bip44Params } = accountMetadata
             const accountNumber = bip44Params.accountNumber
             const stepSellAssetChainId = hop.sellAsset.chainId
             const stepSellAssetAssetId = hop.sellAsset.assetId
-            const stepBuyAssetAssetId = hop.buyAsset.assetId
 
             if (swapperName === SwapperName.CowSwap) {
               // No network fees for CowSwap as this is a message signing
@@ -92,11 +87,6 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
 
             const { chainNamespace: stepSellAssetChainNamespace } =
               fromChainId(stepSellAssetChainId)
-
-            const receiverAddress =
-              stepBuyAssetAssetId === bchAssetId
-                ? tradeQuote.receiveAddress.replace('bitcoincash:', '')
-                : tradeQuote.receiveAddress
 
             switch (stepSellAssetChainNamespace) {
               case CHAIN_NAMESPACE.Evm: {
@@ -120,6 +110,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 return output
               }
               case CHAIN_NAMESPACE.Utxo: {
+                if (!swapper.getUtxoTransactionFees) throw Error('missing getUtxoTransactionFees')
                 if (accountType === undefined) throw Error('Missing UTXO account type')
 
                 const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
@@ -134,30 +125,18 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                     ? _senderAddress.replace('bitcoincash:', '')
                     : _senderAddress
 
-                const output = await execution.execUtxoTransaction({
-                  swapperName,
+                const output = await swapper.getUtxoTransactionFees({
                   tradeQuote,
+                  xpub,
+                  accountType,
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,
-                  xpub,
-                  senderAddress: _senderAddress,
-                  accountType,
-                  signAndBroadcastTransaction: async (txToSign: BTCSignTx) => {
-                    const signedTx = await adapter.signTransaction({
-                      txToSign,
-                      wallet,
-                    })
-
-                    const output = await adapter.broadcastTransaction({
-                      senderAddress,
-                      receiverAddress,
-                      hex: signedTx,
-                    })
-
-                    return output
-                  },
+                  chainId: hop.sellAsset.chainId,
+                  senderAddress,
+                  config: getConfig(),
+                  assertGetUtxoChainAdapter,
                 })
-                return
+                return output
               }
               case CHAIN_NAMESPACE.CosmosSdk: {
                 if (!swapper.getCosmosSdkTransactionFees)
@@ -167,11 +146,13 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({ accountNumber, wallet })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
+                  stepIndex: hopIndex,
                   tradeQuote,
                   chainId: hop.sellAsset.chainId,
                   from,
-                  assertGetCosmosSdkChainAdapter,
                   config: getConfig(),
+                  slippageTolerancePercentageDecimal,
+                  assertGetCosmosSdkChainAdapter,
                 })
                 return output
               }
@@ -182,17 +163,15 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({ accountNumber, wallet })
 
-                const output = await swapper.getSolanaTransactionFees(
-                  {
-                    tradeQuote,
-                    from,
-                    stepIndex: hopIndex,
-                    slippageTolerancePercentageDecimal,
-                    chainId: hop.sellAsset.chainId,
-                    config: getConfig(),
-                  },
-                  { assertGetSolanaChainAdapter },
-                )
+                const output = await swapper.getSolanaTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetSolanaChainAdapter,
+                })
                 return output
               }
               default:

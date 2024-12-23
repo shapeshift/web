@@ -522,6 +522,7 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<StdSignDoc>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {

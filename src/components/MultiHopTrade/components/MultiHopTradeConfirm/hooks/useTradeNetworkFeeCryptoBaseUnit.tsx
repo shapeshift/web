@@ -2,7 +2,7 @@ import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx, SolanaSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
@@ -216,30 +216,22 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 return
               }
               case CHAIN_NAMESPACE.Solana: {
+                if (!swapper.getSolanaTransactionFees)
+                  throw Error('missing getSolanaTransactionFees')
+
                 const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({ accountNumber, wallet })
-                const output = await execution.execSolanaTransaction({
-                  swapperName,
+
+                const output = await swapper.getSolanaTransactionFees({
                   tradeQuote,
+                  from,
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,
-                  from,
-                  signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
-                    const signedTx = await adapter.signTransaction({
-                      txToSign,
-                      wallet,
-                    })
-                    const output = await adapter.broadcastTransaction({
-                      senderAddress: from,
-                      receiverAddress: tradeQuote.receiveAddress,
-                      hex: signedTx,
-                    })
-
-                    return output
-                  },
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetSolanaChainAdapter,
                 })
-                cancelPollingRef.current = output?.cancelPolling
-                return
+                return output
               }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)

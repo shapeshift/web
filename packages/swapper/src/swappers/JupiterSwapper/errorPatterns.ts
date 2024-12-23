@@ -1,0 +1,25 @@
+export class SolanaLogsError extends Error {
+  constructor(name: string) {
+    super(name)
+    this.name = name
+  }
+}
+
+export enum JUPITER_ERROR_PATTERNS {
+  SLIPPAGE_TOLERANCE_EXCEEDED = 'SlippageToleranceExceeded',
+  UNDER_MINIMUM_AMOUNT = 'RequireGteViolated',
+  CONSUMED_MORE_FEES = 'exceeded CUs meter',
+}
+
+export enum JUPITER_ERROR_NAMES {
+  SLIPPAGE_TOLERANCE_EXCEEDED = 'SlippageToleranceExceeded',
+  UNDER_MINIMUM_AMOUNT = 'UnderMinimumAmount',
+  CONSUMED_MORE_FEES = 'ConsumedMoreFees',
+}
+
+export const JUPITER_ERRORS: Record<JUPITER_ERROR_PATTERNS | string, string> = {
+  [JUPITER_ERROR_PATTERNS.SLIPPAGE_TOLERANCE_EXCEEDED]:
+    JUPITER_ERROR_NAMES.SLIPPAGE_TOLERANCE_EXCEEDED,
+  [JUPITER_ERROR_PATTERNS.UNDER_MINIMUM_AMOUNT]: JUPITER_ERROR_NAMES.UNDER_MINIMUM_AMOUNT,
+  [JUPITER_ERROR_PATTERNS.CONSUMED_MORE_FEES]: JUPITER_ERROR_NAMES.CONSUMED_MORE_FEES,
+}

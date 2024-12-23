@@ -2,7 +2,7 @@ import { fromAssetId, fromChainId, solAssetId } from '@shapeshiftoss/caip'
 import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
-import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
+import type { EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { InterpolationOptions } from 'node-polyglot'
 
@@ -108,11 +108,6 @@ export const chainflipApi: SwapperApi = {
     if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
     if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
-    tradeQuoteMetadata.set(tradeQuote.id, {
-      id: step.chainflipSpecific.chainflipSwapId,
-      address: step.chainflipSpecific?.chainflipDepositAddress,
-    })
-
     const { assetReference } = fromAssetId(step.sellAsset.assetId)
     const adapter = assertGetEvmChainAdapter(step.sellAsset.chainId)
     const isTokenSend = isToken(step.sellAsset.assetId)
@@ -164,6 +159,33 @@ export const chainflipApi: SwapperApi = {
       },
     })
   },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+    const step = tradeQuote.steps[0]
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+    if (!step.chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!step.chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
+
+    const adapter = assertGetUtxoChainAdapter(step.sellAsset.chainId)
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to: step.chainflipSpecific.chainflipDepositAddress,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub!,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
+  },
+
   getUnsignedSolanaTransaction: async ({
     tradeQuote,
     from,

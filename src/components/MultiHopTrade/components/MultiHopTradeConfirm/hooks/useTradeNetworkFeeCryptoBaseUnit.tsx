@@ -43,7 +43,6 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
   }, [hopIndex])
 
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
-  console.log({ confirmedTradeExecution })
   const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )

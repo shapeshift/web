@@ -109,8 +109,6 @@ export const ConfirmSummary = ({
 
   const quoteNetworkFeesCryptoBaseUnitQuery = useTradeNetworkFeeCryptoBaseUnit({ hopIndex: 0 })
 
-  console.log({ quoteNetworkFeesCryptoBaseUnitQuery })
-
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
   // use the fee data from the actual quote in case it varies from the theoretical calculation
   const affiliateBps = useAppSelector(selectActiveQuoteAffiliateBps)

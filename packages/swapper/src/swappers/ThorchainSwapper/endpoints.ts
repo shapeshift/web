@@ -1,8 +1,10 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
 import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { UtxoChainId } from '@shapeshiftoss/types'
 import { cosmossdk, TxStatus } from '@shapeshiftoss/unchained-client'
 import { assertUnreachable, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads/build'
@@ -383,6 +385,44 @@ export const thorchainApi: SwapperApi = {
         satoshiPerByte: (feeData.chainSpecific as UtxoFeeData).satsPerByte,
       },
     })
+  },
+  getUtxoTransactionFees: async ({
+    tradeQuote,
+    xpub,
+    assertGetUtxoChainAdapter,
+    config,
+  }: GetUnsignedUtxoTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const { steps, memo } = tradeQuote as ThorEvmTradeQuote
+    const firstStep = steps[0]
+
+    if (!isExecutableTradeStep(firstStep)) throw new Error('Unable to execute step')
+
+    const { sellAsset } = firstStep
+
+    const adapter = assertGetUtxoChainAdapter(firstStep.sellAsset.chainId)
+
+    const { vault, opReturnData } = await getUtxoThorTxInfo({
+      sellAsset,
+      xpub,
+      memo,
+      config,
+    })
+
+    const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
+      to: vault,
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: {
+        pubkey: xpub!,
+        opReturnData,
+      },
+      sendMax: false,
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
   },
 
   getUnsignedCosmosSdkTransaction: async ({

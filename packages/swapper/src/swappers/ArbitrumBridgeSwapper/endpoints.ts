@@ -137,8 +137,7 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const { receiveAddress } = tradeQuote
 
-    const assertion = await assertValidTrade({ buyAsset, sellAsset })
-    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
+    await assertValidTrade({ buyAsset, sellAsset })
 
     const swap = await fetchArbitrumBridgeQuote({
       chainId,
@@ -176,6 +175,56 @@ export const arbitrumBridgeApi: SwapperApi = {
       value: value.toString(),
       ...feeData,
     }
+  },
+  getEvmTransactionFees: async ({
+    chainId,
+    from,
+    stepIndex,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    const step = getHopByIndex(tradeQuote, stepIndex)
+    if (!step) throw new Error(`No hop found for stepIndex ${stepIndex}`)
+
+    const { buyAsset, sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = step
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Cannot execute a trade rate')
+
+    const { receiveAddress } = tradeQuote
+
+    const assertion = await assertValidTrade({ buyAsset, sellAsset })
+    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
+
+    const swap = await fetchArbitrumBridgeQuote({
+      chainId,
+      supportsEIP1559,
+      buyAsset,
+      receiveAddress,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset,
+      sendAddress: from,
+      assertGetEvmChainAdapter,
+    })
+
+    const { request } = swap
+
+    if (!request) throw new Error('No request data found')
+
+    const {
+      txRequest: { data, value, to },
+    } = request
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      value: value.toString(),
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
   },
 
   checkTradeStatus: async ({

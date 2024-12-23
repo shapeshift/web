@@ -174,6 +174,57 @@ export const lifiApi: SwapperApi = {
       ...{ ...feeData, gasLimit: gasLimit.toString() },
     }
   },
+  getEvmTransactionFees: async ({
+    chainId,
+    from,
+    stepIndex,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    configureLiFi()
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const lifiRoute = tradeQuoteMetadata.get(tradeQuote.id)
+
+    if (!lifiRoute) throw Error(`missing trade quote metadata for quoteId ${tradeQuote.id}`)
+
+    const lifiStep = lifiRoute.steps[stepIndex]
+
+    const { transactionRequest } = await getStepTransaction(lifiStep)
+
+    if (!transactionRequest) {
+      throw Error('undefined transactionRequest')
+    }
+
+    const { to, value, data, gasLimit } = transactionRequest
+
+    // checking values individually to keep type checker happy
+    if (to === undefined || value === undefined || data === undefined || gasLimit === undefined) {
+      const undefinedRequiredValues = [to, value, data, gasLimit].filter(
+        value => value === undefined,
+      )
+
+      throw Error('undefined required values in transactionRequest', {
+        cause: {
+          undefinedRequiredValues,
+        },
+      })
+    }
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data: data.toString(),
+      to,
+      // This looks odd but we need this, else unchained estimate calls will fail with:
+      // "invalid decimal value (argument=\"value\", value=\"0x0\", code=INVALID_ARGUMENT, version=bignumber/5.7.0)"
+      value: bn(value.toString()).toString(),
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
+  },
 
   checkTradeStatus: async ({
     quoteId,

@@ -95,7 +95,11 @@ export const useAllowanceApproval = ({
   })
 
   return {
-    isLoading: allowanceCryptoBaseUnitResult.isLoading || evmFeesResult.isLoading,
+    isLoading:
+      allowanceCryptoBaseUnitResult.isLoading ||
+      evmFeesResult.isLoading ||
+      allowanceCryptoBaseUnitResult.isRefetching ||
+      evmFeesResult.isRefetching,
     approveMutation,
     approvalNetworkFeeCryptoBaseUnit: evmFeesResult.data?.networkFeeCryptoBaseUnit,
   }

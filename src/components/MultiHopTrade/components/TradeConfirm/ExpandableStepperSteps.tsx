@@ -13,14 +13,14 @@ import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tra
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
-import { ExpandedTradeSteps } from './ExpandedTradeSteps'
+import { ExpandedStepperSteps } from './ExpandedStepperSteps'
 import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useTradeSteps } from './hooks/useTradeSteps'
+import { useStepperSteps } from './hooks/useStepperSteps'
 
 const collapseStyle = { width: '100%' }
 
-export const ExpandableTradeSteps = () => {
+export const ExpandableStepperSteps = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
@@ -61,7 +61,7 @@ export const ExpandableTradeSteps = () => {
     }
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
-  const { totalSteps, currentTradeStepIndex: currentStep } = useTradeSteps()
+  const { totalSteps, currentTradeStepIndex: currentStep } = useStepperSteps()
   const progressValue = (currentStep / (totalSteps - 1)) * 100
 
   const titleElement = useMemo(() => {
@@ -102,7 +102,7 @@ export const ExpandableTradeSteps = () => {
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box py={4} pl={0}>
-          {activeTradeQuote && <ExpandedTradeSteps activeTradeQuote={activeTradeQuote} />}
+          {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
         </Box>
       </Collapse>
     </>

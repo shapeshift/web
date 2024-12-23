@@ -32,7 +32,13 @@ import {
 } from 'state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from 'state/store'
 
-export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteStepIndex) => {
+export const useTradeNetworkFeeCryptoBaseUnit = ({
+  hopIndex,
+  enabled = true,
+}: {
+  hopIndex: SupportedTradeQuoteStepIndex
+  enabled?: boolean
+}) => {
   const wallet = useWallet().state.wallet
   const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
 
@@ -75,6 +81,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteSt
     queryKey: ['quoteNetworkFeesCryptoBaseUnit', tradeQuote],
     refetchInterval: 5000,
     queryFn:
+      enabled &&
       wallet &&
       accountMetadata &&
       tradeQuote &&

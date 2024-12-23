@@ -32,6 +32,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
 }) => {
+  const { currentTradeStep } = useTradeSteps()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const [hasClickedButton, setHasClickedButton] = useState(false)
   const currentHopIndex = useCurrentHopIndex()
@@ -50,21 +51,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     selectFeeAssetById,
     tradeQuoteStep.sellAsset.assetId,
   )
-  const {
-    isLoading: isNetworkFeeCryptoBaseUnitLoading,
-    isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
-    data: networkFeeCryptoBaseUnit,
-  } = useTradeNetworkFeeCryptoBaseUnit(0)
-
-  const networkFeeCryptoPrecison = useMemo(() => {
-    if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
-
-    return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
-  }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
-
-  const networkFeeUserCurrency = useMemo(() => {
-    return bnOrZero(networkFeeCryptoPrecison).times(feeAssetUserCurrencyRate.price).toFixed()
-  }, [networkFeeCryptoPrecison, feeAssetUserCurrencyRate.price])
 
   const {
     allowanceResetNetworkFeeCryptoBaseUnit,
@@ -76,6 +62,26 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isExactAllowance,
     activeTradeId,
   })
+
+  const {
+    isLoading: isNetworkFeeCryptoBaseUnitLoading,
+    isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
+    data: networkFeeCryptoBaseUnit,
+  } = useTradeNetworkFeeCryptoBaseUnit({
+    hopIndex: 0,
+    enabled:
+      currentTradeStep === TradeStep.FirstHopSwap || currentTradeStep === TradeStep.LastHopSwap,
+  })
+
+  const networkFeeCryptoPrecison = useMemo(() => {
+    if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
+
+    return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
+  }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
+
+  const networkFeeUserCurrency = useMemo(() => {
+    return bnOrZero(networkFeeCryptoPrecison).times(feeAssetUserCurrencyRate.price).toFixed()
+  }, [networkFeeCryptoPrecison, feeAssetUserCurrencyRate.price])
 
   const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
     allowanceResetNetworkFeeCryptoBaseUnit,
@@ -94,8 +100,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoPrecision)
     .times(feeAssetUserCurrencyRate.price)
     .toFixed()
-
-  const { currentTradeStep } = useTradeSteps()
 
   const tradeResetStepSummary = useMemo(() => {
     return (

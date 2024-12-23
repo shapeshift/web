@@ -137,8 +137,7 @@ export const arbitrumBridgeApi: SwapperApi = {
 
     const { receiveAddress } = tradeQuote
 
-    const assertion = await assertValidTrade({ buyAsset, sellAsset })
-    if (assertion.isErr()) throw new Error(assertion.unwrapErr().message)
+    await assertValidTrade({ buyAsset, sellAsset })
 
     const swap = await fetchArbitrumBridgeQuote({
       chainId,

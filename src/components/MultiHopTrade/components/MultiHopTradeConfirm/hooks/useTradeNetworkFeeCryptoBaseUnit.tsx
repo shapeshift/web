@@ -26,6 +26,7 @@ import { selectPortfolioAccountMetadataByAccountId } from 'state/slices/selector
 import {
   selectActiveQuote,
   selectActiveSwapperName,
+  selectConfirmedTradeExecution,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
@@ -41,6 +42,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteSt
     }
   }, [hopIndex])
 
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  console.log({ confirmedTradeExecution })
   const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
@@ -109,13 +112,13 @@ export const useTradeNetworkFeeCryptoBaseUnit = (hopIndex: SupportedTradeQuoteSt
                 const from = await adapter.getAddress({ accountNumber, wallet })
                 const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
-                debugger
-                // TODO(gomes): fix types
                 const output = await swapper.getEvmTransactionFees({
                   chainId: hop.sellAsset.chainId,
                   tradeQuote,
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,
+                  // permit2Signature is zrx-specific and always on the first hop
+                  permit2Signature: confirmedTradeExecution?.firstHop.permit2?.permit2Signature,
                   from,
                   supportsEIP1559,
                   config: getConfig(),

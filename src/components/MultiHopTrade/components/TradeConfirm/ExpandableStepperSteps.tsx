@@ -9,18 +9,18 @@ import {
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { TradeExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { TradeExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
-import { ExpandedTradeSteps } from './ExpandedTradeSteps'
+import { ExpandedStepperSteps } from './ExpandedStepperSteps'
 import { getHopExecutionStateSummaryStepTranslation } from './helpers'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useTradeSteps } from './hooks/useTradeSteps'
+import { useStepperSteps } from './hooks/useStepperSteps'
 
 const collapseStyle = { width: '100%' }
 
-export const ExpandableTradeSteps = () => {
+export const ExpandableStepperSteps = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
@@ -44,22 +44,24 @@ export const ExpandableTradeSteps = () => {
     }
   }, [activeTradeId, currentHopIndex])
   const swapperName = activeTradeQuote?.steps[0].source
-  const { state: hopExecutionState } = useSelectorWithArgs(
-    selectHopExecutionMetadata,
-    hopExecutionMetadataFilter,
-  )
+  const {
+    state: hopExecutionState,
+    swap: { state: swapTxState },
+  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
 
   const summaryStepIndicator = useMemo(() => {
-    if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
-      return <AnimatedCheck />
-    } else if (activeQuoteError) {
-      return <WarningIcon color='red.500' />
-    } else {
-      return <Spinner thickness='3px' size='md' />
+    switch (true) {
+      case confirmedTradeExecutionState === TradeExecutionState.TradeComplete:
+        return <AnimatedCheck />
+      case !!activeQuoteError:
+      case swapTxState === TransactionExecutionState.Failed:
+        return <WarningIcon color='red.500' />
+      default:
+        return <Spinner thickness='3px' size='md' />
     }
-  }, [confirmedTradeExecutionState, activeQuoteError])
+  }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
-  const { totalSteps, currentTradeStepIndex: currentStep } = useTradeSteps()
+  const { totalSteps, currentTradeStepIndex: currentStep } = useStepperSteps()
   const progressValue = (currentStep / (totalSteps - 1)) * 100
 
   const titleElement = useMemo(() => {
@@ -100,7 +102,7 @@ export const ExpandableTradeSteps = () => {
       />
       <Collapse in={isExpanded} style={collapseStyle}>
         <Box py={4} pl={0}>
-          {activeTradeQuote && <ExpandedTradeSteps activeTradeQuote={activeTradeQuote} />}
+          {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
         </Box>
       </Collapse>
     </>

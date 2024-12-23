@@ -37,24 +37,6 @@ const baseStyle = {
       bg: 'border.base',
     },
   },
-}
-
-const variants = {
-  error: {
-    indicator: {
-      '&[data-status=active]': {
-        bg: 'background.surface.raised.base',
-        borderColor: 'red.500',
-      },
-      '&[data-status=incomplete]': {
-        bg: 'background.surface.raised.base',
-        borderColor: 'border.base',
-      },
-      '&[data-status=complete]': {
-        bg: 'background.error',
-      },
-    },
-  },
   innerSteps: {
     step: {
       '&[data-status=active]': {
@@ -79,6 +61,43 @@ const variants = {
       },
       '&[data-status=complete]': {
         borderWidth: '3px',
+      },
+    },
+  },
+}
+
+const variants = {
+  error: {
+    indicator: {
+      '&[data-status=active]': {
+        bg: 'background.surface.raised.base',
+        borderColor: 'red.500',
+      },
+      '&[data-status=incomplete]': {
+        bg: 'background.surface.raised.base',
+        borderColor: 'border.base',
+      },
+      '&[data-status=complete]': {
+        bg: 'background.error',
+      },
+    },
+  },
+  innerStepsError: {
+    ...baseStyle.innerSteps,
+    indicator: {
+      ...baseStyle.innerSteps.indicator,
+      '&[data-status=active]:not(.step-pending)': {
+        animation: 'none',
+        borderWidth: '0',
+      },
+      '&[data-status=active]': {
+        borderWidth: '0',
+      },
+      '&[data-status=incomplete]': {
+        borderWidth: '0',
+      },
+      '&[data-status=complete]': {
+        borderWidth: '0',
       },
     },
   },

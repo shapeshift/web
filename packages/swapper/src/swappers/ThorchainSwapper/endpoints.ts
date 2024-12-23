@@ -479,6 +479,20 @@ export const thorchainApi: SwapperApi = {
       memo,
     }
   },
+  getCosmosSdkTransactionFees: async (
+    input: GetUnsignedCosmosSdkTransactionArgs,
+    deps: SwapperDeps,
+  ): Promise<string> => {
+    const { tradeQuote, chainId } = input
+
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const adapter = deps.assertGetCosmosSdkChainAdapter(chainId)
+
+    const feeData = await adapter.getFeeData({})
+
+    return feeData.fast.txFee
+  },
 
   checkTradeStatus: async ({
     txHash,

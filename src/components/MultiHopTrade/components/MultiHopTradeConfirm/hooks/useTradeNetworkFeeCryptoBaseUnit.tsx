@@ -1,7 +1,4 @@
-import type { StdSignDoc } from '@keplr-wallet/types'
 import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTx } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx, ThorchainSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
@@ -11,10 +8,9 @@ import {
   SwapperName,
   swappers,
 } from '@shapeshiftoss/swapper'
-import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { getConfig } from 'config'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { TradeExecution } from 'lib/tradeExecution'
 import { assertUnreachable } from 'lib/utils'
@@ -63,16 +59,6 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
   )
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
-
-  // This is ugly, but we need to use refs to get around the fact that the
-  // poll fn effectively creates a closure and will hold stale variables forever
-  // Unless we use refs or another way to get around the closure (e.g hijacking `this`, we are doomed)
-  const cancelPollingRef = useRef<() => void | undefined>()
-
-  // cancel on component unmount so polling doesn't cause chaos after the component has unmounted
-  useEffect(() => {
-    return cancelPollingRef.current
-  }, [])
 
   const hop = useMemo(() => getHopByIndex(tradeQuote, hopIndex), [tradeQuote, hopIndex])
   const swapper = useMemo(() => (swapperName ? swappers[swapperName] : undefined), [swapperName])
@@ -171,49 +157,23 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                     return output
                   },
                 })
-                cancelPollingRef.current = output?.cancelPolling
                 return
               }
               case CHAIN_NAMESPACE.CosmosSdk: {
+                if (!swapper.getCosmosSdkTransactionFees)
+                  throw Error('missing getCosmosSdkTransactionFees')
+
                 const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({ accountNumber, wallet })
-                const output = await execution.execCosmosSdkTransaction({
-                  swapperName,
-                  tradeQuote,
-                  stepIndex: hopIndex,
-                  slippageTolerancePercentageDecimal,
-                  from,
-                  signAndBroadcastTransaction: async (transactionRequest: StdSignDoc) => {
-                    const txToSign: SignTx<CosmosSdkChainId> = {
-                      addressNList: toAddressNList(adapter.getBip44Params(bip44Params)),
-                      tx: {
-                        fee: {
-                          amount: [...transactionRequest.fee.amount],
-                          gas: transactionRequest.fee.gas,
-                        },
-                        memo: transactionRequest.memo,
-                        msg: [...transactionRequest.msgs],
-                        signatures: [],
-                      },
-                      sequence: transactionRequest.sequence,
-                      account_number: transactionRequest.account_number,
-                      chain_id: transactionRequest.chain_id,
-                    }
-                    const signedTx = await adapter.signTransaction({
-                      txToSign: txToSign as ThorchainSignTx, // TODO: fix cosmos sdk types in hdwallet-core as they misalign and require casting,
-                      wallet,
-                    })
-                    const output = await adapter.broadcastTransaction({
-                      senderAddress: from,
-                      receiverAddress: tradeQuote.receiveAddress,
-                      hex: signedTx,
-                    })
 
-                    return output
-                  },
+                const output = await swapper.getCosmosSdkTransactionFees({
+                  tradeQuote,
+                  chainId: hop.sellAsset.chainId,
+                  from,
+                  assertGetCosmosSdkChainAdapter,
+                  config: getConfig(),
                 })
-                cancelPollingRef.current = output?.cancelPolling
-                return
+                return output
               }
               case CHAIN_NAMESPACE.Solana: {
                 if (!swapper.getSolanaTransactionFees)
@@ -222,15 +182,17 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({ accountNumber, wallet })
 
-                const output = await swapper.getSolanaTransactionFees({
-                  tradeQuote,
-                  from,
-                  stepIndex: hopIndex,
-                  slippageTolerancePercentageDecimal,
-                  chainId: hop.sellAsset.chainId,
-                  config: getConfig(),
-                  assertGetSolanaChainAdapter,
-                })
+                const output = await swapper.getSolanaTransactionFees(
+                  {
+                    tradeQuote,
+                    from,
+                    stepIndex: hopIndex,
+                    slippageTolerancePercentageDecimal,
+                    chainId: hop.sellAsset.chainId,
+                    config: getConfig(),
+                  },
+                  { assertGetSolanaChainAdapter },
+                )
                 return output
               }
               default:

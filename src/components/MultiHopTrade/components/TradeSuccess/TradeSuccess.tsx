@@ -105,7 +105,7 @@ export const TradeSuccess = ({
             </Button>
             <TwirlyToggle isOpen={isOpen} onToggle={handleToggle} />
           </HStack>
-          <Box mx={-4}>
+          <Box>
             <Collapse in={isOpen}>{children}</Collapse>
           </Box>
         </SlideTransition>

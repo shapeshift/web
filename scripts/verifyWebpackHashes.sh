@@ -7,7 +7,7 @@
 # the hash in the filename.
 #
 # Checking that the files are named with their hashes confirms that the names are deterministic
-# and reproducable.
+# and reproducible.
 
 # Find all files named [chunkId].[hash].[ext], but not their .map or .LICENSE.txt versions
 find ./build/static -type f -regextype posix-extended -regex '.*\.[0-9a-f]{8}\.[^.]+' | {

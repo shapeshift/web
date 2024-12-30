@@ -20,7 +20,11 @@ import { useStepperSteps } from './hooks/useStepperSteps'
 
 const collapseStyle = { width: '100%' }
 
-export const ExpandableStepperSteps = () => {
+type ExpandableStepperStepsProps = {
+  isExpanded?: boolean
+}
+
+export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
@@ -100,7 +104,7 @@ export const ExpandableStepperSteps = () => {
         stepProps={summaryStepProps}
         useSpacer={false}
       />
-      <Collapse in={isExpanded} style={collapseStyle}>
+      <Collapse in={props.isExpanded ?? isExpanded} style={collapseStyle}>
         <Box py={4} pl={0}>
           {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
         </Box>

@@ -1,20 +1,19 @@
-import { Flex, FormLabel, Stack } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import React, { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { AccountDropdownProps } from 'components/AccountDropdown/AccountDropdown'
-import { AccountDropdown } from 'components/AccountDropdown/AccountDropdown'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
-import { Balance } from 'components/DeFi/components/Balance'
-import { Text } from 'components/Text'
 import { useModal } from 'hooks/useModal/useModal'
+import { positiveOrZero } from 'lib/bignumber/bignumber'
 import {
-  selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from 'state/slices/selectors'
+  selectBuyAmountCryptoPrecision,
+  selectBuyAmountUserCurrency,
+  selectManualReceiveAddress,
+} from 'state/slices/limitOrderInputSlice/selectors'
 import { useAppSelector } from 'state/store'
+
+import { TradeAssetInput } from '../../TradeAssetInput'
 
 export type TradeAmountInputFormValues = {
   amountFieldInput: string
@@ -22,14 +21,12 @@ export type TradeAmountInputFormValues = {
   amountUserCurrency: string
 }
 
-const buttonProps = {
-  variant: 'unstyled',
-  display: 'flex',
-  height: 'auto',
-  lineHeight: '1',
-  width: '100%',
+const emptyPercentOptions: number[] = []
+const formControlProps = {
+  borderRadius: 0,
+  background: 'transparent',
+  borderWidth: 0,
 }
-const boxProps = { px: 0, m: 0, maxWidth: '220px' }
 
 export type LimitOrderBuyAssetProps = {
   asset: Asset
@@ -39,13 +36,14 @@ export type LimitOrderBuyAssetProps = {
   chainIdFilterPredicate: (chainId: ChainId) => boolean
   onAccountIdChange: AccountDropdownProps['onChange']
   onSetBuyAsset: (asset: Asset) => void
+  isLoading: boolean
 }
 
 export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
   ({
     asset,
+    isLoading,
     accountId,
-    isInputtingFiatSellAmount,
     assetFilterPredicate,
     chainIdFilterPredicate,
     onAccountIdChange,
@@ -54,36 +52,10 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
     const translate = useTranslate()
     const buyAssetSearch = useModal('buyTradeAssetSearch')
 
-    const marketData = useAppSelector(state =>
-      selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
-    )
+    const buyAmountCryptoPrecision = useAppSelector(selectBuyAmountCryptoPrecision)
+    const buyAmountUserCurrency = useAppSelector(selectBuyAmountUserCurrency)
 
-    const filter = useMemo(
-      () => ({
-        accountId: accountId ?? '',
-        assetId: asset.assetId,
-      }),
-      [accountId, asset],
-    )
-    const balance = useAppSelector(state =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
-    )
-
-    const fiatBalance = bnOrZero(balance).times(marketData.price).toString()
-
-    const accountDropdownLabel = useMemo(
-      () => (
-        <Balance
-          cryptoBalance={balance ?? ''}
-          fiatBalance={fiatBalance ?? ''}
-          symbol={asset.symbol}
-          isFiat={isInputtingFiatSellAmount}
-          label={`${translate('common.balance')}:`}
-          textAlign='right'
-        />
-      ),
-      [asset, balance, fiatBalance, isInputtingFiatSellAmount, translate],
-    )
+    const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
     const handleAssetClick = useCallback(() => {
       buyAssetSearch.open({
@@ -94,35 +66,37 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
       })
     }, [assetFilterPredicate, buyAssetSearch, chainIdFilterPredicate, onSetBuyAsset])
 
-    return (
-      <Stack mt={4}>
-        <Flex justifyContent='space-between' alignItems='center' px={6} width='full' mb={2}>
-          <Flex alignItems='center'>
-            <FormLabel mb={0} fontSize='sm'>
-              <Text translation='limitOrder.youGet' />
-            </FormLabel>
-          </Flex>
-          {balance && (
-            <AccountDropdown
-              defaultAccountId={accountId}
-              assetId={asset.assetId}
-              onChange={onAccountIdChange}
-              disabled={false}
-              autoSelectHighestBalance={false}
-              buttonProps={buttonProps}
-              boxProps={boxProps}
-              showLabel={false}
-              label={accountDropdownLabel}
-            />
-          )}
-        </Flex>
+    const tradeAssetSelect = useMemo(
+      () => (
         <TradeAssetSelect
           assetId={asset.assetId}
           onAssetClick={handleAssetClick}
           onAssetChange={onSetBuyAsset}
           onlyConnectedChains={false}
         />
-      </Stack>
+      ),
+      [asset.assetId, handleAssetClick, onSetBuyAsset],
+    )
+
+    return (
+      <TradeAssetInput
+        // Disable account selection when user set a manual receive address
+        isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+        isReadOnly={true}
+        accountId={accountId}
+        onAccountIdChange={onAccountIdChange}
+        assetId={asset.assetId}
+        assetSymbol={asset.symbol}
+        assetIcon={asset.icon}
+        cryptoAmount={positiveOrZero(buyAmountCryptoPrecision).toFixed()}
+        fiatAmount={positiveOrZero(buyAmountUserCurrency).toFixed()}
+        percentOptions={emptyPercentOptions}
+        showInputSkeleton={isLoading}
+        showFiatSkeleton={isLoading}
+        label={translate('limitOrder.youGet')}
+        formControlProps={formControlProps}
+        labelPostFix={tradeAssetSelect}
+      />
     )
   },
 )

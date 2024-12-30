@@ -7,14 +7,14 @@ import {
 import { useAppSelector } from 'state/store'
 
 import {
-  countTradeSteps,
-  getCurrentTradeStep,
-  getCurrentTradeStepIndex,
-  getTradeSteps,
+  countStepperSteps,
+  getCurrentStepperStep,
+  getCurrentStepperStepIndex,
+  getStepperSteps,
 } from '../helpers'
 import { useCurrentHopIndex } from './useCurrentHopIndex'
 
-export const useTradeSteps = () => {
+export const useStepperSteps = () => {
   const activeTradeId = useAppSelector(selectActiveQuote)?.id
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
 
@@ -69,19 +69,19 @@ export const useTradeSteps = () => {
     ],
   )
 
-  const tradeSteps = useMemo(() => getTradeSteps(params), [params])
-  const totalSteps = useMemo(() => countTradeSteps(params), [params])
+  const tradeSteps = useMemo(() => getStepperSteps(params), [params])
+  const totalSteps = useMemo(() => countStepperSteps(params), [params])
   const currentHopIndex = useCurrentHopIndex()
   const currentHopExecutionState = useMemo(() => {
     return currentHopIndex === 0 ? firstHopExecutionState : lastHopExecutionState
   }, [currentHopIndex, firstHopExecutionState, lastHopExecutionState])
   const currentTradeStep = useMemo(
-    () => getCurrentTradeStep(currentHopIndex, currentHopExecutionState),
+    () => getCurrentStepperStep(currentHopIndex, currentHopExecutionState),
     [currentHopIndex, currentHopExecutionState],
   )
   const currentTradeStepIndex = useMemo(
     () =>
-      getCurrentTradeStepIndex({
+      getCurrentStepperStepIndex({
         ...params,
         currentHopIndex,
         hopExecutionState: currentHopExecutionState,

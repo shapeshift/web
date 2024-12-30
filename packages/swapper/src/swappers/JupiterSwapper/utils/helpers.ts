@@ -43,7 +43,7 @@ type GetJupiterSwapArgs = {
   fromAddress: string
   rawQuote: unknown
   toAddress?: string
-  useSharedAccounts: boolean
+  useSharedAccounts: boolean | undefined
   feeAccount: string | undefined
 }
 
@@ -277,7 +277,7 @@ export const createSwapInstructions = async ({
     // It would be better to use this only if routes number are > 1 and for cross account trades,
     // but Jupiter has a bug under the hood when swapping SPL to Token2022 and taking referral fees
     // Also it reduce sol numbers and compute units in the end, so TXs fees are smaller
-    useSharedAccounts: true,
+    useSharedAccounts: isCrossAccountTrade ? true : undefined,
     feeAccount: affiliateBps !== '0' && tokenAccount ? tokenAccount.toString() : undefined,
   })
 

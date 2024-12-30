@@ -22,13 +22,7 @@ const Yat = makeSuspenseful(
 const NotFound = makeSuspenseful(
   lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
-const ConnectWallet = makeSuspenseful(
-  lazy(() =>
-    import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
-      default: ConnectWallet,
-    })),
-  ),
-)
+
 const TermsOfService = makeSuspenseful(
   lazy(() =>
     import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
@@ -141,9 +135,6 @@ export const Routes = memo(() => {
       <Route path='/demo'>{renderRedirect}</Route>
       <Route path='/yat/:eid'>
         <Yat />
-      </Route>
-      <Route path='/connect-wallet'>
-        <ConnectWallet />
       </Route>
       <Route path={'/legal/terms-of-service'}>
         <Layout>

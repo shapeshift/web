@@ -974,7 +974,10 @@
       "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
       "rateLimitExceeded": "Rate limit exceeded, try again later",
       "maxSlippageExceededWithExpectedSlippage": "The maximum allowed slippage tolerance for this trade has been exceeded during simulation. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
-      "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance."
+      "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
+      "slippageToleranceExceeded": "Slippage tolerance exceeded.",
+      "underMinimumAmount": "One or more of the assets in this trade are below the minimum amount required for this trade.",
+      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",
@@ -1011,17 +1014,19 @@
     },
     "hopTitle": {
       "bridge": "Bridge via %{swapperName}",
-      "swap": "Swap via %{swapperName}"
+      "swap": "Swap via %{swapperName}",
+      "swapEta": "Swap via %{swapperName} in ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "A problem occurred executing the bridge",
       "swap": "A problem occurred executing the swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge from %{sellChainName} to %{buyChainName} via %{swapperName}",
+      "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
       "swap": "Swap on %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Token allowance approval",
+    "permit2Title": "Permit token transfer",
     "resetTitle": "Token allowance reset",
     "fiatAmountOnChain": "%{amountFiatFormatted} on %{chainName}",
     "quote": {

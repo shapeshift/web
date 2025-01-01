@@ -9,7 +9,7 @@ const cardBorderRadius = { base: 'xl' }
 
 type SharedConfirmProps = {
   bodyContent: JSX.Element
-  footerContent: JSX.Element
+  footerContent: JSX.Element | null
   isLoading: boolean
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
@@ -40,9 +40,11 @@ export const SharedConfirm = ({
         <CardBody py={0} px={0}>
           {bodyContent}
         </CardBody>
-        <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
-          {footerContent}
-        </CardFooter>
+        {footerContent && (
+          <CardFooter bg='background.surface.overlay.base' borderBottomRadius='xl'>
+            {footerContent}
+          </CardFooter>
+        )}
       </Card>
     </TradeSlideTransition>
   )

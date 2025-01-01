@@ -8,9 +8,9 @@ import {
   gnosisAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { encodeAssetData } from '@shapeshiftoss/utils'
+import { decodeAssetData, encodeAssetData } from '@shapeshiftoss/utils'
 import {
   atom,
   bitcoin,
@@ -107,9 +107,8 @@ const generateAssetData = async () => {
       .includes(asset.name)
   }
 
-  const currentGeneratedAssetData: AssetsByIdPartial = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
-  )
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(generatedAssetsPath, 'utf8'))
+  const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
     const currentGeneratedAssetId = currentGeneratedAssetData[asset.assetId]
@@ -226,9 +225,8 @@ const generateAssetData = async () => {
   const sortedAssetIds = assetIdsSortedByMarketCap.concat(nonMarketDataAssetIds)
 
   // Encode the assets for minimal size while preserving ordering
-  const encodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
-
-  await fs.promises.writeFile(generatedAssetsPath, JSON.stringify(encodedAssetData))
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
+  await fs.promises.writeFile(generatedAssetsPath, JSON.stringify(reEncodedAssetData))
 }
 
 const main = async () => {

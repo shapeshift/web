@@ -41,7 +41,8 @@ describe('relatedAssetIndex', () => {
     expect(decodedRelatedAssetIndex).toEqual(mockRelatedAssetIndex)
   })
 
-  it('reconciles against full dataset', () => {
+  // Used to check correctness of encode/decode before we migrated to storing encoded asset data
+  it.skip('reconciles against full dataset', () => {
     const relatedAssetIndexPath = path.join(
       __dirname,
       '../../../../src/lib/asset-service/service/relatedAssetIndex.json',

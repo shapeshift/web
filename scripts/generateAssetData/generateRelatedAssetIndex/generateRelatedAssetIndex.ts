@@ -11,8 +11,15 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
-import { createThrottle, isEvmChainId } from '@shapeshiftoss/utils'
+import type { Asset } from '@shapeshiftoss/types'
+import {
+  createThrottle,
+  decodeAssetData,
+  encodeAssetData,
+  isEvmChainId,
+} from '@shapeshiftoss/utils'
+import { decodeRelatedAssetIndex } from '@shapeshiftoss/utils/src/assetData/decodeRelatedAssetIndex'
+import { encodeRelatedAssetIndex } from '@shapeshiftoss/utils/src/assetData/encodeRelatedAssetIndex'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
@@ -273,21 +280,22 @@ const processRelatedAssetIds = async (
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
-  const generatedAssetsPath = path.join(
+  const encodedAssetDataPath = path.join(
     __dirname,
     '../../../src/lib/asset-service/service/generatedAssetData.json',
   )
-  const relatedAssetIndexPath = path.join(
+  const encodedRelatedAssetIndexPath = path.join(
     __dirname,
     '../../../src/lib/asset-service/service/relatedAssetIndex.json',
   )
 
-  const generatedAssetData: AssetsById = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(encodedAssetDataPath, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(
+    await fs.promises.readFile(encodedRelatedAssetIndexPath, 'utf8'),
   )
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
-    await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
-  )
+
+  const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
   // Remove stale related asset data from the assetData where:
   // a) rebuildAll is set
@@ -333,17 +341,11 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
 
   clearThrottleInterval()
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(generatedAssetData, null, 2),
-  )
+  const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, generatedAssetData)
 
-  await fs.promises.writeFile(
-    relatedAssetIndexPath,
-    // beautify the file for github diff.
-    JSON.stringify(relatedAssetIndex, null, 2),
-  )
+  await fs.promises.writeFile(encodedAssetDataPath, JSON.stringify(reEncodedRelatedAssetIndex))
+  await fs.promises.writeFile(encodedRelatedAssetIndexPath, JSON.stringify(reEncodedAssetData))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

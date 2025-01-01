@@ -54,6 +54,7 @@ import { limitOrderSlice } from 'state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from 'state/slices/limitOrderSlice/selectors'
 import {
   selectIsAnyAccountMetadataLoadedForChainId,
+  selectUsdRateByAssetId,
   selectUserCurrencyToUsdRate,
 } from 'state/slices/selectors'
 import {
@@ -117,6 +118,8 @@ export const LimitOrderInput = ({
   const expiry = useAppSelector(selectExpiry)
   const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
+  const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
+  const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
 
   const {
     switchAssets,
@@ -343,6 +346,10 @@ export const LimitOrderInput = ({
     history.push(LimitOrderRoutePaths.Orders)
   }, [history])
 
+  const handleSwitchAssets = useCallback(() => {
+    switchAssets({ sellAssetUsdRate, buyAssetUsdRate })
+  }, [buyAssetUsdRate, sellAssetUsdRate, switchAssets])
+
   const isLoading = useMemo(() => {
     return (
       isCheckingAllowance ||
@@ -399,7 +406,7 @@ export const LimitOrderInput = ({
         sellAmountUserCurrency={inputSellAmountUserCurrency}
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
-        onSwitchAssets={switchAssets}
+        onSwitchAssets={handleSwitchAssets}
         isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
@@ -430,25 +437,25 @@ export const LimitOrderInput = ({
       </SharedTradeInputBody>
     )
   }, [
-    buyAccountId,
     buyAsset,
-    inputSellAmountUserCurrency,
     isInputtingFiatSellAmount,
     isLoading,
-    marketPriceBuyAsset,
-    sellAccountId,
     sellAmountCryptoPrecision,
+    inputSellAmountUserCurrency,
     sellAsset,
-    buyAssetFilterPredicate,
-    chainIdFilterPredicate,
-    sellAssetFilterPredicate,
-    setBuyAccountId,
-    setBuyAsset,
+    sellAccountId,
+    handleSwitchAssets,
     setIsInputtingFiatSellAmount,
-    setSellAccountId,
     setSellAmountCryptoPrecision,
     setSellAsset,
-    switchAssets,
+    setSellAccountId,
+    sellAssetFilterPredicate,
+    chainIdFilterPredicate,
+    buyAccountId,
+    setBuyAccountId,
+    setBuyAsset,
+    buyAssetFilterPredicate,
+    marketPriceBuyAsset,
   ])
 
   const affiliateFeeAfterDiscountUserCurrency = useMemo(() => {

@@ -116,8 +116,14 @@ export const limitOrderInput = createTradeInputBaseSlice({
       baseReducers.setSellAsset(state, action)
       resetLimitOrderConfig(state)
     },
-    switchAssets: (state: LimitOrderInputState) => {
-      baseReducers.switchAssets(state)
+    switchAssets: (
+      state: LimitOrderInputState,
+      action: PayloadAction<{
+        sellAssetUsdRate: string | undefined
+        buyAssetUsdRate: string | undefined
+      }>,
+    ) => {
+      baseReducers.switchAssets(state, action)
       resetLimitOrderConfig(state)
     },
   }),

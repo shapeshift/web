@@ -31,3 +31,5 @@ export type EncodedAssetData = {
   encodedAssetIds: string[]
   encodedAssets: EncodedAsset[]
 }
+
+export type EncodedRelatedAssetIndex = Record<number, number[]>

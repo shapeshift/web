@@ -57,10 +57,6 @@ describe('relatedAssetIndex', () => {
     const sortedAssetIds = Object.keys(generatedAssetData).sort()
     const encodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
 
-    fs.writeFileSync(
-      path.join(__dirname, '../../../../src/lib/asset-service/service/relatedAssetIndex_smol.json'),
-      JSON.stringify(encodedRelatedAssetIndex),
-    )
     console.time('decodeRelatedAssetIndex')
     const decodedRelatedAssetIndex = decodeRelatedAssetIndex(
       encodedRelatedAssetIndex,

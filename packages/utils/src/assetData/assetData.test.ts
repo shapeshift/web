@@ -137,13 +137,6 @@ describe('assetData', () => {
     const assetIds = Object.keys(generatedAssetData).sort()
     const encodedAssetData = encodeAssetData(assetIds, generatedAssetData)
 
-    fs.writeFileSync(
-      path.join(
-        __dirname,
-        '../../../../src/lib/asset-service/service/generatedAssetData_smol.json',
-      ),
-      JSON.stringify(encodedAssetData),
-    )
     console.time('decodeAssetData')
     const { assetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
     console.timeEnd('decodeAssetData')

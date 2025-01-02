@@ -2,6 +2,7 @@ import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/reac
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxAssetId,
+  foxEthLpArbitrumAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
@@ -84,7 +85,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const assetIds = useMemo(() => [stakingAssetId, l1AssetId], [l1AssetId, stakingAssetId])
+  const assetIds = useMemo(
+    () => [stakingAssetId, l1AssetId, foxEthLpArbitrumAssetId],
+    [l1AssetId, stakingAssetId],
+  )
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
 

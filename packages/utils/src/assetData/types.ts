@@ -1,5 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-
 import type { FIELDS } from './constants'
 
 export type Field = (typeof FIELDS)[number]

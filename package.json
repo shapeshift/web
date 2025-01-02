@@ -27,6 +27,7 @@
     "generate:caip-adapters": "yarn workspace @shapeshiftoss/caip generate",
     "generate:asset-data": "yarn tsx ./scripts/generateAssetData/generateAssetData.ts && yarn run codemod:clear-assets-migration",
     "generate:related-asset-index": "yarn tsx ./scripts/generateAssetData/generateRelatedAssetIndex.ts && yarn run codemod:clear-assets-migration",
+    "generate:encode-asset-data": "yarn tsx ./scripts/encodeAssetData.ts",
     "generate:color-map": "yarn tsx ./scripts/generateAssetData/generateColorMap.ts",
     "generate:thor-asset-map": "yarn tsx ./scripts/generateTradableThorAssetMap/generateTradableThorAssetMap.ts",
     "generate:thor-longtail-tokens": "yarn tsx ./scripts/generateThorLongtailTokens/generateThorLongtailTokens.ts",

@@ -61,6 +61,9 @@ const encodeField = <F extends Field>(
     default:
       assertUnreachable(field)
   }
+
+  // Should never happen, stfu typescript.
+  throw Error('unhandled field type')
 }
 
 export const encodeAssetData = (

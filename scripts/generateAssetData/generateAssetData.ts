@@ -20,16 +20,15 @@ import {
   thorchain,
 } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import fs from 'fs'
-import difference from 'lodash/difference'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
-import path from 'path'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import { ASSET_DATA_PATH } from './constants'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -38,12 +37,7 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
-import { filterOutBlacklistedAssets, getAssetIdsSortedByMarketCap } from './utils'
-
-const generatedAssetsPath = path.join(
-  __dirname,
-  '../../src/lib/asset-service/service/generatedAssetData.json',
-)
+import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -107,7 +101,7 @@ const generateAssetData = async () => {
       .includes(asset.name)
   }
 
-  const encodedAssetData = JSON.parse(await fs.promises.readFile(generatedAssetsPath, 'utf8'))
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
@@ -214,19 +208,11 @@ const generateAssetData = async () => {
   }
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
-  // Create an array of assetIds sorted by market cap, followed by the remaining ones with no market cap ranking sorted by name
-  const assetIdsSortedByMarketCap = await getAssetIdsSortedByMarketCap()
-  const assetIdsSortedByName = orderBy(
-    Object.entries(assetsWithOverridesApplied),
-    ([_assetId, asset]) => asset.name,
-    'asc',
-  ).map(([assetId, _asset]) => assetId)
-  const nonMarketDataAssetIds = difference(assetIdsSortedByName, assetIdsSortedByMarketCap)
-  const sortedAssetIds = assetIdsSortedByMarketCap.concat(nonMarketDataAssetIds)
+  const sortedAssetIds = await getSortedAssetIds(assetsWithOverridesApplied)
 
   // Encode the assets for minimal size while preserving ordering
   const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
-  await fs.promises.writeFile(generatedAssetsPath, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
 }
 
 const main = async () => {

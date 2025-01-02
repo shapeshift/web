@@ -49,7 +49,7 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
       pick(baseAsset, ['explorer', 'explorerAddressLink', 'explorerTxLink']),
     )
 
-    if (assetId === baseAsset.assetId) {
+    if (assetId === baseAsset?.assetId) {
       asset.networkName = baseAsset.networkName
       asset.networkIcon = baseAsset.networkIcon
       asset.networkColor = baseAsset.networkColor

@@ -1,6 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import difference from 'lodash/difference'
 import filter from 'lodash/filter'
+import orderBy from 'lodash/orderBy'
 import type { CoingeckoAsset } from 'lib/coingecko/types'
 import { getCoingeckoMarkets } from 'lib/coingecko/utils'
 
@@ -12,7 +14,7 @@ export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>
     return !(blacklist.includes(asset.assetId) || asset.name.toLowerCase().includes('wormhole'))
   })
 
-export const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
+const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   let page = 1
 
   const results2d: CoingeckoAsset[][] = []
@@ -36,4 +38,18 @@ export const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
     .map(coingeckoAsset => {
       return coingeckoAsset.assetId
     })
+}
+
+export const getSortedAssetIds = async (assetsById: AssetsById) => {
+  // Create an array of assetIds sorted by market cap, followed by the remaining ones with no market cap ranking sorted by name
+  const assetIdsSortedByMarketCap = await getAssetIdsSortedByMarketCap()
+  const assetIdsSortedByName = orderBy(
+    Object.entries(assetsById),
+    ([_assetId, asset]) => asset.name,
+    'asc',
+  ).map(([assetId, _asset]) => assetId)
+  const nonMarketDataAssetIds = difference(assetIdsSortedByName, assetIdsSortedByMarketCap)
+  const sortedAssetIds = assetIdsSortedByMarketCap.concat(nonMarketDataAssetIds)
+
+  return sortedAssetIds
 }

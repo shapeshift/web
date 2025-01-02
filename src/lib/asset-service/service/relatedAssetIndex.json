@@ -2661,11 +2661,7 @@
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:BU4eP1vCR99amXKsMXhctX8YpqUa7wbULQ26XaQbazkS"
   ],
   "eip155:1/erc20:0x3e57ee60c37296f83cf5a05159dd60565d3437ff": [],
-  "eip155:1/erc20:0x3dbb00c9be5a327e25caf4f650844c5dba81e34b": [
-    "eip155:56/bep20:0x117eefdde5e5aed6626ffedbb5d2ac955f64dbf3",
-    "eip155:137/erc20:0x9f28e2455f9ffcfac9ebd6084853417362bc5dbb",
-    "eip155:1/erc20:0x3dbb00c9be5a327e25caf4f650844c5dba81e34b"
-  ],
+  "eip155:1/erc20:0x3dbb00c9be5a327e25caf4f650844c5dba81e34b": [],
   "eip155:1/erc20:0x3d1c949a761c11e4cc50c3ae6bdb0f24fd7a39da": [],
   "eip155:1/erc20:0x3f57c35633cb29834bb7577ba8052eab90f52a02": [],
   "eip155:1/erc20:0x40e64405f18e4fb01c6fc39f4f0c78df5ef9d0e0": [],
@@ -28027,5 +28023,27 @@
     "eip155:1/erc20:0x675bbc7514013e2073db7a919f6e4cbef576de37",
     "eip155:56/bep20:0x668048e70284107a6afab1711f28d88df3e72948",
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:JCRiQKaujJjAjfVH8CNo4htGFMuTTnZtwvasVwneT7MA"
+  ],
+  "eip155:56/bep20:0x3c1b057cb7aceb4f2c4d889a29febec30a6a3146": [
+    "eip155:1/erc20:0x298d492e8c1d909d3f63bc4a36c66c64acb3d695",
+    "eip155:137/erc20:0x0d6ae2a429df13e44a07cd2969e085e4833f64a0",
+    "eip155:56/bep20:0x3c1b057cb7aceb4f2c4d889a29febec30a6a3146"
+  ],
+  "eip155:56/bep20:0x9bfa177621119e64cecbeabe184ab9993e2ef727": [
+    "eip155:1/erc20:0x2f913c820ed3beb3a67391a6eff64e70c4b20b19",
+    "eip155:56/bep20:0x9bfa177621119e64cecbeabe184ab9993e2ef727"
+  ],
+  "eip155:8453/erc20:0x570b1533f6daa82814b25b62b5c7c4c55eb83947": [
+    "eip155:1/erc20:0xb90b2a35c65dbc466b04240097ca756ad2005295",
+    "eip155:8453/erc20:0x570b1533f6daa82814b25b62b5c7c4c55eb83947"
+  ],
+  "eip155:42161/erc20:0x8697841b82c71fcbd9e58c15f6de68cd1c63fd02": [
+    "eip155:8453/erc20:0x6a9431b9ecce9dde3f7a32391d5b61c5ad11e4a0",
+    "eip155:1/erc20:0x473f4068073cd5b2ab0e4cc8e146f9edc6fb52cc",
+    "eip155:42161/erc20:0x8697841b82c71fcbd9e58c15f6de68cd1c63fd02"
+  ],
+  "eip155:8453/erc20:0x8cecc2360906c812cd7353cd6b10b1dc13bbc777": [
+    "eip155:1/erc20:0x8c15ef5b4b21951d50e53e4fbda8298ffad25057",
+    "eip155:8453/erc20:0x8cecc2360906c812cd7353cd6b10b1dc13bbc777"
   ]
 }

@@ -33,7 +33,7 @@ import colormap from './color-map.json'
 
 export const colorMap: Record<string, string> = colormap
 
-type Token = {
+export type Token = {
   chainId: number
   address: string
   name: string
@@ -42,7 +42,7 @@ type Token = {
   logoURI: string
 }
 
-type TokenList = {
+export type TokenList = {
   name: string
   logoURI: string
   keywords: string[]

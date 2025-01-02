@@ -14,6 +14,7 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import axios from 'axios'
 import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
@@ -63,15 +64,42 @@ const getCoinDetails = async (
       )
       if (!chainId) return
 
+      const assetNamespace = (() => {
+        switch (chainId) {
+          case KnownChainIds.BnbSmartChainMainnet:
+            return ASSET_NAMESPACE.bep20
+          case KnownChainIds.SolanaMainnet:
+            return ASSET_NAMESPACE.splToken
+          case KnownChainIds.EthereumMainnet:
+          case KnownChainIds.AvalancheMainnet:
+          case KnownChainIds.OptimismMainnet:
+          case KnownChainIds.PolygonMainnet:
+          case KnownChainIds.GnosisMainnet:
+          case KnownChainIds.ArbitrumMainnet:
+          case KnownChainIds.ArbitrumNovaMainnet:
+          case KnownChainIds.BaseMainnet:
+            return ASSET_NAMESPACE.erc20
+          case KnownChainIds.CosmosMainnet:
+          case KnownChainIds.ThorchainMainnet:
+            return ASSET_NAMESPACE.ibc
+          case KnownChainIds.BitcoinMainnet:
+          case KnownChainIds.BitcoinCashMainnet:
+          case KnownChainIds.DogecoinMainnet:
+          case KnownChainIds.LitecoinMainnet:
+          default:
+            throw Error(`Unhandled case '${chainId}'`)
+        }
+      })()
+
       const assetId = toAssetId({
         chainId,
-        assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+        assetNamespace,
         assetReference: address,
       })
       return assetId
     })()
 
-    if (!assetId) return marketCap
+    if (!assetId) return
 
     all[i] = {
       assetId,
@@ -121,15 +149,24 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
   return all.filter(mover => Boolean(mover.assetId))
 }
 
+export const getCoingeckoMarketsRaw = async (
+  order: CoinGeckoSortKey,
+  page = 1,
+  pageSize = 100,
+): Promise<CoinGeckoMarketCap[]> => {
+  const { data } = await axios.get<CoinGeckoMarketCap[]>(
+    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
+  )
+
+  return data
+}
+
 export const getCoingeckoMarkets = async (
   order: CoinGeckoSortKey,
   page = 1,
   pageSize = 100,
 ): Promise<CoingeckoAsset[]> => {
-  const { data } = await axios.get<CoinGeckoMarketCap[]>(
-    `${coingeckoBaseUrl}/coins/markets?vs_currency=usd&order=${order}&per_page=${pageSize}&page=${page}&sparkline=false`,
-  )
-
+  const data = await getCoingeckoMarketsRaw(order, page, pageSize)
   const all: CoingeckoAsset[] = []
 
   await Promise.allSettled(data.map((marketData, i) => getCoinDetails(marketData, i, all)))

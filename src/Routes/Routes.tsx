@@ -36,6 +36,14 @@ const PrivacyPolicy = makeSuspenseful(
   ),
 )
 
+const MobileConnect = makeSuspenseful(
+  lazy(() =>
+    import('pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
+      default: MobileConnect,
+    })),
+  ),
+)
+
 export const Routes = memo(() => {
   const dispatch = useDispatch()
   const location = useLocation<{ background: Location }>()
@@ -99,7 +107,7 @@ export const Routes = memo(() => {
 
         if (isMobile && !state.isConnected) {
           const to = {
-            pathname: '/connect-wallet',
+            pathname: '/connect-mobile-wallet',
             search: `returnUrl=${location?.pathname ?? '/trade'}`,
           }
 
@@ -135,6 +143,9 @@ export const Routes = memo(() => {
       <Route path='/demo'>{renderRedirect}</Route>
       <Route path='/yat/:eid'>
         <Yat />
+      </Route>
+      <Route path='/connect-mobile-wallet'>
+        <MobileConnect />
       </Route>
       <Route path={'/legal/terms-of-service'}>
         <Layout>

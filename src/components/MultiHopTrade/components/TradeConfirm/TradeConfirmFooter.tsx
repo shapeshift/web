@@ -16,10 +16,10 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
 import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
 import { useTradeNetworkFeeCryptoBaseUnit } from '../MultiHopTradeConfirm/hooks/useTradeNetworkFeeCryptoBaseUnit'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { TradeStep } from './helpers'
+import { StepperStep } from './helpers'
 import { useActiveTradeAllowance } from './hooks/useActiveTradeAllowance'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useTradeSteps } from './hooks/useTradeSteps'
+import { useStepperSteps } from './hooks/useStepperSteps'
 import { TradeConfirmSummary } from './TradeConfirmFooterContent/TradeConfirmSummary'
 import { TradeFooterButton } from './TradeFooterButton'
 
@@ -32,9 +32,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
 }) => {
-  const { currentTradeStep } = useTradeSteps()
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const [hasClickedButton, setHasClickedButton] = useState(false)
+  const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
@@ -70,18 +70,18 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   } = useTradeNetworkFeeCryptoBaseUnit({
     hopIndex: 0,
     enabled:
-      currentTradeStep === TradeStep.FirstHopSwap || currentTradeStep === TradeStep.LastHopSwap,
+      currentTradeStep === StepperStep.FirstHopSwap || currentTradeStep === StepperStep.LastHopSwap,
   })
 
-  const networkFeeCryptoPrecison = useMemo(() => {
+  const networkFeeCryptoPrecision = useMemo(() => {
     if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
 
     return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
   }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
 
   const networkFeeUserCurrency = useMemo(() => {
-    return bnOrZero(networkFeeCryptoPrecison).times(feeAssetUserCurrencyRate.price).toFixed()
-  }, [networkFeeCryptoPrecison, feeAssetUserCurrencyRate.price])
+    return bnOrZero(networkFeeCryptoPrecision).times(feeAssetUserCurrencyRate.price).toFixed()
+  }, [networkFeeCryptoPrecision, feeAssetUserCurrencyRate.price])
 
   const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
     allowanceResetNetworkFeeCryptoBaseUnit,
@@ -221,7 +221,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
               }
             >
               <HStack justifyContent='flex-end'>
-                <Amount.Crypto symbol={feeAsset?.symbol ?? ''} value={networkFeeCryptoPrecison} />
+                <Amount.Crypto symbol={feeAsset?.symbol ?? ''} value={networkFeeCryptoPrecision} />
                 <Amount.Fiat
                   color={'text.subtle'}
                   prefix='('
@@ -240,7 +240,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isActiveSwapperQuoteLoading,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
-    networkFeeCryptoPrecison,
+    networkFeeCryptoPrecision,
     networkFeeUserCurrency,
   ])
 
@@ -249,14 +249,14 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       // No trade step is active, quote is still to be confirmed
       case undefined:
         return <TradeConfirmSummary />
-      case TradeStep.FirstHopReset:
-      case TradeStep.LastHopReset:
+      case StepperStep.FirstHopReset:
+      case StepperStep.LastHopReset:
         return tradeResetStepSummary
-      case TradeStep.FirstHopApproval:
-      case TradeStep.LastHopApproval:
+      case StepperStep.FirstHopApproval:
+      case StepperStep.LastHopApproval:
         return tradeAllowanceStepSummary
-      case TradeStep.FirstHopSwap:
-      case TradeStep.LastHopSwap:
+      case StepperStep.FirstHopSwap:
+      case StepperStep.LastHopSwap:
         return tradeExecutionStepSummary
       default:
         return null

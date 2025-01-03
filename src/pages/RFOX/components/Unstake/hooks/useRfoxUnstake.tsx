@@ -1,7 +1,7 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -17,7 +17,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -109,7 +109,7 @@ export const useRfoxUnstake = ({
 
   const unstakeFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT,
+      to: getRfoxProxyContract(stakingAssetId),
       from: stakingAssetAccountAddress,
       accountNumber: stakingAssetAccountNumber,
       data: callData,
@@ -138,7 +138,7 @@ export const useRfoxUnstake = ({
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT,
+        to: getRfoxProxyContract(stakingAssetId),
         wallet,
       })
 
@@ -189,12 +189,13 @@ export const useRfoxUnstake = ({
 
   const userStakingBalanceOfQuery = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId,
     select: selectStakingBalance,
   })
   const { data: userStakingBalanceOfCryptoBaseUnit } = userStakingBalanceOfQuery
 
   const newContractBalanceOfQuery = useStakingBalanceOfQuery({
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT,
+    stakingAssetAccountAddress: getRfoxProxyContract(stakingAssetId),
     stakingAssetId,
     select: data => data.toString(),
   })

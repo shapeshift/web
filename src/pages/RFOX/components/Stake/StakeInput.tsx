@@ -92,15 +92,23 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
 
+  const stakingAssetIdOrLpAssetId = useMemo(() => {
+    if (selectedAssetId === foxEthLpArbitrumAssetId) return foxEthLpArbitrumAssetId
+
+    return selectedAssetId
+  }, [selectedAssetId])
+
   const { data: currentRuneAddress } = useStakingInfoQuery({
     stakingAssetAccountAddress: stakingAssetAccountId
       ? fromAccountId(stakingAssetAccountId).account
       : undefined,
+    stakingAssetId: stakingAssetIdOrLpAssetId,
     select: selectRuneAddress,
   })
 
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
-  const isBridgeRequired = stakingAssetId !== selectedAssetId
+  const isBridgeRequired =
+    stakingAssetId !== selectedAssetId && foxEthLpArbitrumAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
@@ -126,13 +134,16 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = methods
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetIdOrLpAssetId))
   const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
+  const foxEthLpArbitrumAsset = useAppSelector(state =>
+    selectAssetById(state, foxEthLpArbitrumAssetId),
+  )
   const selectedAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(selectedAssetId).chainId),
   )
   const stakingAssetFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
+    selectFeeAssetByChainId(state, fromAssetId(stakingAssetIdOrLpAssetId).chainId),
   )
 
   const selectedAssetMarketData = useAppSelector(state =>
@@ -165,8 +176,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   useEffect(() => {
     // hydrate FOX.ARB market data in case the user doesn't hold it
-    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
-  }, [dispatch, selectedAssetId, stakingAssetId])
+    dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetIdOrLpAssetId))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(foxEthLpArbitrumAssetId))
+  }, [dispatch, selectedAssetId, stakingAssetIdOrLpAssetId])
   useEffect(() => {
     // Only set this once, never collapse out
     if (collapseIn) return
@@ -222,7 +234,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = useRfoxStake({
     amountCryptoBaseUnit,
     runeAddress: currentRuneAddress || runeAddress,
-    stakingAssetId,
+    stakingAssetId: stakingAssetIdOrLpAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,
     // Not required at this stage just yet, we're only estimating fees
@@ -263,7 +275,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
     const _confirmedQuote = {
       stakingAssetAccountId,
-      stakingAssetId,
+      stakingAssetId: stakingAssetIdOrLpAssetId,
       stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
       // typescript is borked, one of them is defined because of the early return
       runeAddress: currentRuneAddress || runeAddress || '',
@@ -274,7 +286,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     if (isBridgeRequired) {
       const bridgeQuote: RfoxBridgeQuote = {
         sellAssetId: selectedAssetId,
-        buyAssetId: stakingAssetId,
+        buyAssetId: stakingAssetIdOrLpAssetId,
         bridgeAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedAsset.precision ?? 0),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
@@ -290,7 +302,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     selectedAsset,
     stakingAsset,
     isValidStakingAmount,
-    stakingAssetId,
+    stakingAssetIdOrLpAssetId,
     amountCryptoPrecision,
     setConfirmedQuote,
     isBridgeRequired,
@@ -301,14 +313,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const buyAssetSearch = useModal('buyAssetSearch')
 
   const handleStakingAssetClick = useCallback(() => {
-    if (!(stakingAsset && l1Asset)) return
+    if (!(stakingAsset && l1Asset && foxEthLpArbitrumAsset)) return
 
     buyAssetSearch.open({
       onAssetClick: asset => setSelectedAssetId(asset.assetId),
       title: 'common.selectAsset',
-      assets: [stakingAsset, l1Asset],
+      assets: [stakingAsset, l1Asset, foxEthLpArbitrumAsset],
     })
-  }, [stakingAsset, l1Asset, buyAssetSearch, setSelectedAssetId])
+  }, [stakingAsset, l1Asset, foxEthLpArbitrumAsset, buyAssetSearch, setSelectedAssetId])
 
   const handleAssetChange = useCallback(
     (asset: Asset) => setSelectedAssetId(asset.assetId),
@@ -414,7 +426,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   ])
 
   const { price: assetUserCurrencyRate } = useAppSelector(state =>
-    selectMarketDataByFilter(state, { assetId: stakingAssetId }),
+    selectMarketDataByFilter(state, { assetId: stakingAssetIdOrLpAssetId }),
   )
 
   // Consumed by onMaxClick
@@ -520,7 +532,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
           <Collapse in={collapseIn}>
             {stakingAssetAccountId && (
               <StakeSummary
-                stakingAssetId={stakingAssetId}
+                stakingAssetId={stakingAssetIdOrLpAssetId}
                 stakingAssetAccountId={stakingAssetAccountId}
                 stakingAmountCryptoPrecision={amountCryptoPrecision}
               />

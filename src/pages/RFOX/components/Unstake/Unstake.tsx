@@ -1,10 +1,10 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
 import { MemoryRouter, Route, Switch, useLocation } from 'react-router'
 import { makeSuspenseful } from 'utils/makeSuspenseful'
+import { getRfoxProxyContract } from 'pages/RFOX/helpers'
 import { useGetUnstakingRequestCountQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestCountQuery'
 import { useGetUnstakingRequestsQuery } from 'pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -75,7 +75,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
     stakingAssetId: confirmedQuote ? confirmedQuote.stakingAssetId : undefined,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT,
+    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote?.stakingAssetId),
   })
 
   const { queryKey: unstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({

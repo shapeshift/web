@@ -1,6 +1,9 @@
-import { RFOX_ABI, RFOX_PROXY_CONTRACT, viemClientByNetworkId } from '@shapeshiftoss/contracts'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
+
+import { getRfoxProxyContract } from './helpers'
 
 export const setRuneAddressEvent = getAbiItem({ abi: RFOX_ABI, name: 'SetRuneAddress' })
 export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
@@ -13,8 +16,9 @@ export const CURRENT_EPOCH_IPFS_HASH = 'QmP3sZFYZzdUMyR7kQUdCm3vypMBGarFYkHG9CvP
 
 const client = viemClientByNetworkId[arbitrum.id]
 
-export const contract = getContract({
-  address: RFOX_PROXY_CONTRACT,
-  abi: RFOX_ABI,
-  client,
-})
+export const getRfoxContract = (stakingAssetId?: AssetId) =>
+  getContract({
+    address: getRfoxProxyContract(stakingAssetId),
+    abi: RFOX_ABI,
+    client,
+  })

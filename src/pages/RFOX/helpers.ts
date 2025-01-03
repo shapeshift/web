@@ -1,3 +1,7 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { foxEthLpArbitrumAssetId } from '@shapeshiftoss/caip'
+import { RFOX_LP_PROXY_CONTRACT, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+
 import { parseAbiStakingInfo } from './hooks/helpers'
 import type { EpochWithIpfsHash } from './hooks/useEpochHistoryQuery'
 import type { AbiStakingInfo, StakingInfo } from './types'
@@ -18,4 +22,12 @@ export const selectLastEpoch = (data: EpochWithIpfsHash[]): EpochWithIpfsHash | 
   const lastEpoch = data[data.length - 1]
 
   return lastEpoch
+}
+
+export const getRfoxProxyContract = (stakingAssetId?: AssetId) => {
+  if (stakingAssetId === foxEthLpArbitrumAssetId) {
+    return RFOX_LP_PROXY_CONTRACT
+  }
+
+  return RFOX_PROXY_CONTRACT
 }

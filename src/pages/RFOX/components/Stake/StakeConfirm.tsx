@@ -11,7 +11,6 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
@@ -29,7 +28,7 @@ import { Timeline, TimelineItem } from 'components/Timeline/Timeline'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from 'lib/math'
 import { middleEllipsis } from 'lib/utils'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
 import {
@@ -143,6 +142,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId: confirmedQuote.stakingAssetId,
     select: selectStakingBalance,
   })
 
@@ -151,7 +151,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery<string>({
     stakingAssetId: confirmedQuote.stakingAssetId,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT,
+    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote.stakingAssetId),
     select: data =>
       bnOrZero(data.toString()).plus(confirmedQuote.stakingAmountCryptoBaseUnit).toFixed(),
   })
@@ -225,7 +225,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
       await queryClient.invalidateQueries(
         reactQueries.common.allowanceCryptoBaseUnit(
           stakingAsset?.assetId,
-          RFOX_PROXY_CONTRACT,
+          getRfoxProxyContract(confirmedQuote.stakingAssetId),
           stakingAssetAccountAddress,
         ),
       )
@@ -236,7 +236,13 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     isApprovalTxPending,
     stakingAssetAccountAddress,
     queryClient,
+    confirmedQuote.stakingAssetId,
   ])
+
+  console.log({
+    getRfoxProxyContract: getRfoxProxyContract(confirmedQuote.stakingAssetId),
+    stakingAssetId: confirmedQuote.stakingAssetId,
+  })
 
   const serializedStakeTxIndex = useMemo(() => {
     if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))

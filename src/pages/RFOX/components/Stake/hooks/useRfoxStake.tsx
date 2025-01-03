@@ -3,7 +3,7 @@ import { Link, Text, useToast } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
@@ -25,6 +25,7 @@ import {
   createBuildCustomTxInput,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from 'lib/utils/evm'
+import { getRfoxProxyContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -129,13 +130,13 @@ export const useRfoxStake = ({
     return encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [RFOX_PROXY_CONTRACT, BigInt(amountCryptoBaseUnit)],
+      args: [getRfoxProxyContract(stakingAssetId), BigInt(amountCryptoBaseUnit)],
     })
-  }, [amountCryptoBaseUnit, stakingAsset])
+  }, [amountCryptoBaseUnit, stakingAssetId, stakingAsset])
 
   const allowanceQuery = useAllowance({
     assetId: stakingAsset?.assetId,
-    spender: RFOX_PROXY_CONTRACT,
+    spender: getRfoxProxyContract(stakingAssetId),
     from: stakingAssetAccountAddress,
   })
 
@@ -218,7 +219,7 @@ export const useRfoxStake = ({
         adapter,
         data: stakeCallData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT,
+        to: getRfoxProxyContract(stakingAssetId),
         wallet,
       })
 
@@ -239,7 +240,7 @@ export const useRfoxStake = ({
 
   const stakeFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT,
+      to: getRfoxProxyContract(stakingAssetId),
       accountNumber: stakingAssetAccountNumber,
       from: stakingAssetAccountAddress,
       data: stakeCallData,
@@ -328,7 +329,7 @@ export const useRfoxStake = ({
   const approvalMutation = useMutation({
     ...reactQueries.mutations.approve({
       assetId: stakingAssetId,
-      spender: RFOX_PROXY_CONTRACT,
+      spender: getRfoxProxyContract(stakingAssetId),
       amountCryptoBaseUnit,
       wallet: wallet ?? undefined,
       from: stakingAssetAccountAddress,

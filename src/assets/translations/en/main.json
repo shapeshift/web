@@ -2659,13 +2659,15 @@
     "confirmAndBridge": "Confirm & Bridge",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of FOX you have staked",
-    "pendingRewardsBalance": "Current Estimated Rewards Balance",
+    "pendingRewardsBalance": "Pending Rewards Balance",
     "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
     "lifetimeRewards": "Lifetime Rewards",
     "lifetimeRewardsHelper": "Lifetime rewards is the cumulative rewards from staking your FOX",
     "timeInPool": "Time in Pool",
     "timeInPoolHelper": "Time in pool is the longest living deposit into rFOX",
     "myPosition": "My Position",
+    "positionDetails": "Position details",
+    "mySymbolPosition": "My %{symbol} Position",
     "faq": {
       "title": "FAQ",
       "what": {

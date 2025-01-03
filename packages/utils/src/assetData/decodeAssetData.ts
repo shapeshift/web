@@ -21,7 +21,7 @@ const decodeAssetId = (encodedAssetId: string, assetIdPrefixes: string[]) => {
 export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
   const { assetIdPrefixes, encodedAssetIds, encodedAssets } = encodedAssetData
 
-  const sortedAssetIds = encodedAssetIds.map(encodedAssetId =>
+  const sortedAssetIds: AssetId[] = encodedAssetIds.map(encodedAssetId =>
     decodeAssetId(encodedAssetId, assetIdPrefixes),
   )
 

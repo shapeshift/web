@@ -1,8 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { AssetsById } from '@shapeshiftoss/types'
+import { decodeAssetData, decodeRelatedAssetIndex } from '@shapeshiftoss/utils'
+import type { EncodedAssetData } from '@shapeshiftoss/utils/src/assetData/types'
 
-import generatedAssetData from './generatedAssetData.json'
-import generatedRelatedAssetIndex from './relatedAssetIndex.json'
+import encodedAssetData from './encodedAssetData.json'
+import encodedRelatedAssetIndex from './encodedRelatedAssetIndex.json'
 
-export const localAssetData = generatedAssetData as unknown as AssetsById
-export const relatedAssetIndex = generatedRelatedAssetIndex as Record<AssetId, AssetId[]>
+export const { assetData: localAssetData, sortedAssetIds } = decodeAssetData(
+  encodedAssetData as unknown as EncodedAssetData,
+)
+export const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)

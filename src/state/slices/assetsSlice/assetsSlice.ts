@@ -3,12 +3,12 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/dist/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
-import { AssetService } from 'lib/asset-service'
+import { getAssetService } from 'lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from 'state/apis/const'
 
 // do not export this, views get data from selectors
 // or directly from the store outside react components
-const service = new AssetService()
+const service = getAssetService()
 
 export type AssetsState = {
   byId: AssetsByIdPartial

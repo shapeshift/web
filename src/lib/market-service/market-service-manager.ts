@@ -9,7 +9,8 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import type { ethers } from 'ethers'
-import { AssetService } from 'lib/asset-service'
+import type { AssetService } from 'lib/asset-service'
+import { getAssetService } from 'lib/asset-service'
 
 import generatedAssetData from '../asset-service/service/generatedAssetData.json'
 // import { Yearn } from '@yfi/sdk'
@@ -61,7 +62,7 @@ export class MarketServiceManager {
       // TODO: Debank market provider
     ]
 
-    this.assetService = new AssetService()
+    this.assetService = getAssetService()
   }
 
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {

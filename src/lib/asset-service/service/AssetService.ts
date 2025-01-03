@@ -20,7 +20,8 @@ import { localAssetData, relatedAssetIndex, sortedAssetIds } from './localAssetD
 
 type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 
-export class AssetService {
+// Don't export me, access me through the getter because instantiation is extremely expensive
+class _AssetService {
   readonly assetsById: AssetsById
   readonly relatedAssetIndex: Record<AssetId, AssetId[]>
   readonly assetIds: AssetId[]
@@ -92,4 +93,17 @@ export class AssetService {
       throw new Error(errorMessage)
     }
   }
+}
+
+// Export the public interface of the AssetService class while keeping the implementation private
+export type AssetService = _AssetService
+
+// Don't export me, access me through the getter
+let _assetService: AssetService | undefined = undefined
+
+export const getAssetService = (): AssetService => {
+  if (!_assetService) {
+    _assetService = new _AssetService()
+  }
+  return _assetService
 }

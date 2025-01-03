@@ -144,6 +144,10 @@ export const cowApi: SwapperApi = {
 
     return { chainId, orderToSign }
   },
+  getEvmTransactionFees: (_args: GetUnsignedEvmMessageArgs): Promise<string> => {
+    // No transaction fees for CoW
+    return Promise.resolve('0')
+  },
 
   checkTradeStatus: async ({
     txHash, // TODO: this is not a tx hash, its an ID

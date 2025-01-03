@@ -255,7 +255,6 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressValidating: false,
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
-    slippagePreferencePercentage: undefined,
     limitPrice: {
       [PriceDirection.BuyAssetDenomination]: '0',
       [PriceDirection.SellAssetDenomination]: '0',

@@ -15,7 +15,6 @@ export interface TradeInputBaseState {
   isManualReceiveAddressValidating: boolean
   isManualReceiveAddressEditing: boolean
   isManualReceiveAddressValid: boolean | undefined
-  slippagePreferencePercentage: string | undefined
 }
 
 const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
@@ -62,11 +61,21 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   setSellAmountCryptoPrecision: (state: Draft<T>, action: PayloadAction<string>) => {
     state.sellAmountCryptoPrecision = bnOrZero(action.payload).toString()
   },
-  switchAssets: (state: Draft<T>) => {
+  switchAssets: (
+    state: Draft<T>,
+    action: PayloadAction<{
+      sellAssetUsdRate: string | undefined
+      buyAssetUsdRate: string | undefined
+    }>,
+  ) => {
+    const { sellAssetUsdRate, buyAssetUsdRate } = action.payload
+    const sellAmountUsd = bnOrZero(state.sellAmountCryptoPrecision).times(sellAssetUsdRate ?? '0')
+
+    state.sellAmountCryptoPrecision = sellAmountUsd.div(buyAssetUsdRate ?? '0').toFixed()
+
     const buyAsset = state.sellAsset
     state.sellAsset = state.buyAsset
     state.buyAsset = buyAsset
-    state.sellAmountCryptoPrecision = '0'
 
     const sellAssetAccountId = state.sellAccountId
     state.sellAccountId = state.buyAccountId
@@ -88,9 +97,6 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   },
   setIsInputtingFiatSellAmount: (state: Draft<T>, action: PayloadAction<boolean>) => {
     state.isInputtingFiatSellAmount = action.payload
-  },
-  setSlippagePreferencePercentage: (state: Draft<T>, action: PayloadAction<string | undefined>) => {
-    state.slippagePreferencePercentage = action.payload
   },
 })
 

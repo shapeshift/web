@@ -32,7 +32,6 @@ const initialState: LimitOrderInputState = {
   isManualReceiveAddressValidating: false,
   isManualReceiveAddressValid: undefined,
   isManualReceiveAddressEditing: false,
-  slippagePreferencePercentage: undefined,
   limitPriceDirection: PriceDirection.BuyAssetDenomination,
   limitPrice: {
     [PriceDirection.BuyAssetDenomination]: '0',
@@ -52,6 +51,7 @@ const resetLimitOrderConfig = (state: LimitOrderInputState) => {
 export const limitOrderInput = createTradeInputBaseSlice({
   name: 'limitOrderInput',
   initialState,
+  // Add any reducers specific to limitOrderInput slice here that aren't shared with other slices
   extraReducers: (baseReducers: BaseReducers<LimitOrderInputState>) => ({
     setLimitPrice: (
       state: LimitOrderInputState,
@@ -116,8 +116,14 @@ export const limitOrderInput = createTradeInputBaseSlice({
       baseReducers.setSellAsset(state, action)
       resetLimitOrderConfig(state)
     },
-    switchAssets: (state: LimitOrderInputState) => {
-      baseReducers.switchAssets(state)
+    switchAssets: (
+      state: LimitOrderInputState,
+      action: PayloadAction<{
+        sellAssetUsdRate: string | undefined
+        buyAssetUsdRate: string | undefined
+      }>,
+    ) => {
+      baseReducers.switchAssets(state, action)
       resetLimitOrderConfig(state)
     },
   }),

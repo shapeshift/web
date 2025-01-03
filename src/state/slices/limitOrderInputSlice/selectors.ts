@@ -14,8 +14,6 @@ export const {
   selectInputBuyAssetUsdRate,
   selectInputSellAssetUserCurrencyRate,
   selectInputBuyAssetUserCurrencyRate,
-  selectUserSlippagePercentage,
-  selectUserSlippagePercentageDecimal,
   selectSellAccountId,
   selectBuyAccountId,
   selectInputSellAmountCryptoBaseUnit,

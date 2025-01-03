@@ -181,7 +181,7 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
   }, [])
 
   return (
-    <>
+    <FormControl isInvalid={Boolean(errors.keystorePassword)}>
       <ModalHeader>
         <Text translation={'walletProvider.shapeShift.import.header'} />
       </ModalHeader>
@@ -197,15 +197,13 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
 
           {keystoreFile && (
             <>
-              <FormControl isInvalid={Boolean(errors.keystorePassword)}>
-                <Input
-                  type='password'
-                  placeholder='Keystore Password'
-                  size='lg'
-                  data-test='wallet-native-keystore-password'
-                />
-                <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
-              </FormControl>
+              <Input
+                type='password'
+                placeholder='Keystore Password'
+                size='lg'
+                data-test='wallet-native-keystore-password'
+              />
+              <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
 
               <Button
                 colorScheme='blue'
@@ -222,6 +220,6 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
           )}
         </VStack>
       </ModalBody>
-    </>
+    </FormControl>
   )
 }

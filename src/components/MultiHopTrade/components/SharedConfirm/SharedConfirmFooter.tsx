@@ -1,8 +1,8 @@
 import { Stack } from '@chakra-ui/react'
 
 type SharedConfirmFooterProps = {
-  detail: React.ReactNode | null
-  button: React.ReactNode
+  detail: JSX.Element | null
+  button: JSX.Element | null
 }
 
 export const SharedConfirmFooter = ({ detail, button }: SharedConfirmFooterProps) => {

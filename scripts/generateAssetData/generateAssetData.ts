@@ -8,19 +8,27 @@ import {
   gnosisAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById, AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { decodeAssetData, encodeAssetData } from '@shapeshiftoss/utils'
+import {
+  atom,
+  bitcoin,
+  bitcoincash,
+  dogecoin,
+  litecoin,
+  thorchain,
+} from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
-import path from 'path'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import { atom, bitcoin, bitcoincash, dogecoin, litecoin, thorchain } from './baseAssets'
 import * as bnbsmartchain from './bnbsmartchain'
+import { ASSET_DATA_PATH } from './constants'
 import * as cosmos from './cosmos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -29,12 +37,7 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
-import { filterOutBlacklistedAssets } from './utils'
-
-const generatedAssetsPath = path.join(
-  __dirname,
-  '../../src/lib/asset-service/service/generatedAssetData.json',
-)
+import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
@@ -98,9 +101,8 @@ const generateAssetData = async () => {
       .includes(asset.name)
   }
 
-  const currentGeneratedAssetData: AssetsByIdPartial = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
-  )
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+  const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
     const currentGeneratedAssetId = currentGeneratedAssetData[asset.assetId]
@@ -206,11 +208,11 @@ const generateAssetData = async () => {
   }
   assetsWithOverridesApplied[foxOnArbitrumOneAssetId] = foxOnArbitrumOne
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(assetsWithOverridesApplied, null, 2),
-  )
+  const sortedAssetIds = await getSortedAssetIds(assetsWithOverridesApplied)
+
+  // Encode the assets for minimal size while preserving ordering
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetsWithOverridesApplied)
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
 }
 
 const main = async () => {

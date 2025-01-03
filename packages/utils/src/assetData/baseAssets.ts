@@ -1,9 +1,7 @@
 import * as caip from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
-type AssetWithNetworkName = Asset & { networkName: string }
-
-export const ethereum: AssetWithNetworkName = {
+export const ethereum: Readonly<Asset> = Object.freeze({
   assetId: caip.ethAssetId,
   chainId: caip.ethChainId,
   symbol: 'ETH',
@@ -16,9 +14,9 @@ export const ethereum: AssetWithNetworkName = {
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
-}
+})
 
-export const bitcoin: AssetWithNetworkName = {
+export const bitcoin: Readonly<Asset> = Object.freeze({
   assetId: caip.btcAssetId,
   chainId: caip.btcChainId,
   symbol: 'BTC',
@@ -31,9 +29,9 @@ export const bitcoin: AssetWithNetworkName = {
   explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
   explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const bitcoincash: AssetWithNetworkName = {
+export const bitcoincash: Readonly<Asset> = Object.freeze({
   assetId: caip.bchAssetId,
   chainId: caip.bchChainId,
   symbol: 'BCH',
@@ -46,9 +44,9 @@ export const bitcoincash: AssetWithNetworkName = {
   explorerAddressLink: 'https://blockchair.com/bitcoin-cash/address/',
   explorerTxLink: 'https://blockchair.com/bitcoin-cash/transaction/',
   relatedAssetKey: null,
-}
+})
 
-export const dogecoin: AssetWithNetworkName = {
+export const dogecoin: Readonly<Asset> = Object.freeze({
   assetId: caip.dogeAssetId,
   chainId: caip.dogeChainId,
   symbol: 'DOGE',
@@ -61,9 +59,9 @@ export const dogecoin: AssetWithNetworkName = {
   explorerAddressLink: 'https://live.blockcypher.com/doge/address/',
   explorerTxLink: 'https://live.blockcypher.com/doge/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const litecoin: AssetWithNetworkName = {
+export const litecoin: Readonly<Asset> = Object.freeze({
   assetId: caip.ltcAssetId,
   chainId: caip.ltcChainId,
   symbol: 'LTC',
@@ -76,9 +74,9 @@ export const litecoin: AssetWithNetworkName = {
   explorerAddressLink: 'https://live.blockcypher.com/ltc/address/',
   explorerTxLink: 'https://live.blockcypher.com/ltc/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const atom: AssetWithNetworkName = {
+export const atom: Readonly<Asset> = Object.freeze({
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,
   symbol: 'ATOM',
@@ -91,9 +89,9 @@ export const atom: AssetWithNetworkName = {
   explorerAddressLink: 'https://www.mintscan.io/cosmos/account/',
   explorerTxLink: 'https://www.mintscan.io/cosmos/txs/',
   relatedAssetKey: null,
-}
+})
 
-export const avax: AssetWithNetworkName = {
+export const avax: Readonly<Asset> = Object.freeze({
   assetId: caip.avalancheAssetId,
   chainId: caip.avalancheChainId,
   name: 'Avalanche',
@@ -106,9 +104,9 @@ export const avax: AssetWithNetworkName = {
   explorerAddressLink: 'https://snowtrace.dev/address/',
   explorerTxLink: 'https://snowtrace.dev/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const thorchain: AssetWithNetworkName = {
+export const thorchain: Readonly<Asset> = Object.freeze({
   assetId: caip.thorchainAssetId,
   chainId: caip.thorchainChainId,
   name: 'THORChain',
@@ -121,9 +119,9 @@ export const thorchain: AssetWithNetworkName = {
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const optimism: AssetWithNetworkName = {
+export const optimism: Readonly<Asset> = Object.freeze({
   assetId: caip.optimismAssetId,
   chainId: caip.optimismChainId,
   name: 'Ethereum',
@@ -138,9 +136,9 @@ export const optimism: AssetWithNetworkName = {
   explorerAddressLink: 'https://optimistic.etherscan.io/address/',
   explorerTxLink: 'https://optimistic.etherscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
-}
+})
 
-export const bnbsmartchain: AssetWithNetworkName = {
+export const bnbsmartchain: Readonly<Asset> = Object.freeze({
   assetId: caip.bscAssetId,
   chainId: caip.bscChainId,
   name: 'BNB',
@@ -153,9 +151,9 @@ export const bnbsmartchain: AssetWithNetworkName = {
   explorerAddressLink: 'https://bscscan.com/address/',
   explorerTxLink: 'https://bscscan.com/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const polygon: AssetWithNetworkName = {
+export const polygon: Readonly<Asset> = Object.freeze({
   assetId: caip.polygonAssetId,
   chainId: caip.polygonChainId,
   name: 'Polygon Ecosystem Token',
@@ -168,9 +166,9 @@ export const polygon: AssetWithNetworkName = {
   explorerAddressLink: 'https://polygonscan.com/address/',
   explorerTxLink: 'https://polygonscan.com/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const gnosis: AssetWithNetworkName = {
+export const gnosis: Readonly<Asset> = Object.freeze({
   assetId: caip.gnosisAssetId,
   chainId: caip.gnosisChainId,
   name: 'xDAI',
@@ -185,9 +183,9 @@ export const gnosis: AssetWithNetworkName = {
   explorerAddressLink: 'https://gnosis.blockscout.com/address/',
   explorerTxLink: 'https://gnosis.blockscout.com/tx/',
   relatedAssetKey: null,
-}
+})
 
-export const arbitrum: AssetWithNetworkName = {
+export const arbitrum: Readonly<Asset> = Object.freeze({
   assetId: caip.arbitrumAssetId,
   chainId: caip.arbitrumChainId,
   name: 'Ethereum',
@@ -203,9 +201,9 @@ export const arbitrum: AssetWithNetworkName = {
   explorerAddressLink: 'https://arbiscan.io/address/',
   explorerTxLink: 'https://arbiscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
-}
+})
 
-export const arbitrumNova: AssetWithNetworkName = {
+export const arbitrumNova: Readonly<Asset> = Object.freeze({
   assetId: caip.arbitrumNovaAssetId,
   chainId: caip.arbitrumNovaChainId,
   name: 'Ethereum',
@@ -221,9 +219,9 @@ export const arbitrumNova: AssetWithNetworkName = {
   explorerAddressLink: 'https://nova.arbiscan.io/address/',
   explorerTxLink: 'https://nova.arbiscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
-}
+})
 
-export const base: AssetWithNetworkName = {
+export const base: Readonly<Asset> = Object.freeze({
   assetId: caip.baseAssetId,
   chainId: caip.baseChainId,
   name: 'Ethereum',
@@ -238,10 +236,10 @@ export const base: AssetWithNetworkName = {
   explorer: 'https://basescan.org',
   explorerAddressLink: 'https://basescan.org/address/',
   explorerTxLink: 'https://basescan.org/tx/',
-  relatedAssetKey: null,
-}
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
 
-export const solana: AssetWithNetworkName = {
+export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,
   name: 'Solana',
@@ -255,4 +253,4 @@ export const solana: AssetWithNetworkName = {
   explorerAddressLink: 'https://explorer.solana.com/address/',
   explorerTxLink: 'https://explorer.solana.com/tx/',
   relatedAssetKey: null,
-}
+})

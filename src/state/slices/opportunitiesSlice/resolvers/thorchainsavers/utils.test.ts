@@ -1,6 +1,6 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it, vi } from 'vitest'
-import { AssetService } from 'lib/asset-service'
+import { getAssetService } from 'lib/asset-service'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
 
@@ -56,17 +56,6 @@ const thorchainSaversDepositQuote = Object.assign({}, btcQuoteResponse, { memo: 
 
 const thorchainErrorResponse = {
   error: 'Invalid pool',
-}
-
-let service: AssetService | undefined = undefined
-// do not export this, views get data from selectors
-// or directly from the store outside react components
-const getAssetService = () => {
-  if (!service) {
-    service = new AssetService()
-  }
-
-  return service
 }
 
 describe('resolvers/thorchainSavers/utils', () => {

@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { SwapperName, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { isExecutableTradeStep } from '@shapeshiftoss/swapper'
+import { bn } from '@shapeshiftoss/utils'
 import type { Selector } from 'react-redux'
 import type { ApiQuote } from 'state/apis/swapper/types'
 import type { ReduxState } from 'state/reducer'
@@ -10,6 +11,7 @@ import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTr
 import { selectAccountIdByAccountNumberAndChainId } from '../portfolioSlice/selectors'
 import { getActiveQuoteMetaOrDefault, sortTradeQuotes } from '../tradeQuoteSlice/helpers'
 import type { ActiveQuoteMeta } from '../tradeQuoteSlice/types'
+import type { TradeInputState } from './tradeInputSlice'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
 // assets, rates, and slippage preferences
@@ -20,8 +22,6 @@ export const {
   selectInputBuyAssetUsdRate,
   selectInputSellAssetUserCurrencyRate,
   selectInputBuyAssetUserCurrencyRate,
-  selectUserSlippagePercentage,
-  selectUserSlippagePercentageDecimal,
   selectInputSellAmountCryptoBaseUnit,
   selectManualReceiveAddress,
   selectIsManualReceiveAddressValidating,
@@ -35,9 +35,9 @@ export const {
   selectInputSellAmountCryptoPrecision,
   // We don't want to export some of the selectors so we can give them more specific names
   ...privateSelectors
-} = createTradeInputBaseSelectors('tradeInput')
+} = createTradeInputBaseSelectors<TradeInputState>('tradeInput')
 
-const { selectSellAccountId, selectBuyAccountId } = privateSelectors
+const { selectBaseSlice, selectSellAccountId, selectBuyAccountId } = privateSelectors
 
 // We rename this to include the specific hop to avoid confusion in multi-hop contexts
 // Selects the account ID we're selling from for the first hop
@@ -102,6 +102,20 @@ const selectSecondHop: Selector<ReduxState, TradeQuote['steps'][number] | undefi
 
 export const selectIsActiveQuoteMultiHop: Selector<ReduxState, boolean | undefined> =
   createSelector(selectActiveQuote, quote => (quote ? quote?.steps.length > 1 : undefined))
+
+export const selectUserSlippagePercentage = createSelector(
+  selectBaseSlice,
+  tradeInput => tradeInput.slippagePreferencePercentage,
+)
+
+// User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
+export const selectUserSlippagePercentageDecimal = createSelector(
+  selectUserSlippagePercentage,
+  slippagePercentage => {
+    if (!slippagePercentage) return
+    return bn(slippagePercentage).div(100).toString()
+  },
+)
 
 // if multi-hop, selects the account ID we're selling from for fee asset of the last hop and its account number
 // else, selects none because there's obviously no AccountId if there's no hop

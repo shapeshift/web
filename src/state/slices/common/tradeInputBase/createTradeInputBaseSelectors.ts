@@ -33,7 +33,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
   sliceName: keyof ReduxState,
 ) => {
   // Base selector to get the slice
-  const selectBaseSlice = (state: ReduxState) => state[sliceName] as T
+  const selectBaseSlice = (state: ReduxState) => state[sliceName] as unknown as T
 
   // Create reusable selectors
   const selectInputBuyAsset = createDeepEqualOutputSelector(
@@ -79,20 +79,6 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     (buyAssetUsdRate, userCurrencyToUsdRate) => {
       if (buyAssetUsdRate === undefined) return
       return bn(buyAssetUsdRate).times(userCurrencyToUsdRate).toString()
-    },
-  )
-
-  const selectUserSlippagePercentage = createSelector(
-    selectBaseSlice,
-    tradeInput => tradeInput.slippagePreferencePercentage,
-  )
-
-  // User input comes in as an actual percentage e.g 1 for 1%, so we need to convert it to a decimal e.g 0.01 for 1%
-  const selectUserSlippagePercentageDecimal = createSelector(
-    selectUserSlippagePercentage,
-    slippagePercentage => {
-      if (!slippagePercentage) return
-      return bn(slippagePercentage).div(100).toString()
     },
   )
 
@@ -235,8 +221,6 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputBuyAssetUsdRate,
     selectInputSellAssetUserCurrencyRate,
     selectInputBuyAssetUserCurrencyRate,
-    selectUserSlippagePercentage,
-    selectUserSlippagePercentageDecimal,
     selectSellAccountId,
     selectBuyAccountId,
     selectInputSellAmountCryptoBaseUnit,

@@ -1763,7 +1763,8 @@
         "dragAndDrop": "Drag & Drop or Choose File",
         "keystoreImportBody": "Upload file by clicking browse or by dragging and dropping below.",
         "importKeystore": "Import Keystore",
-        "invalidKeystorePassword": "Invalid keystore password"
+        "invalidKeystorePassword": "Invalid keystore password",
+        "invalidKeystore": "Invalid keystore"
       },
       "password": {
         "header": "Create a New Password",

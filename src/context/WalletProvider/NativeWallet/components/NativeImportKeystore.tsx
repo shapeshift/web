@@ -163,7 +163,7 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
       } catch (e) {
         setError('mnemonic', {
           type: 'manual',
-          message: 'walletProvider.shapeShift.import.keystoreHeader',
+          message: 'walletProvider.shapeShift.import.invalidKeystore',
         })
       }
     },
@@ -183,7 +183,7 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
   return (
     <FormControl isInvalid={Boolean(errors.keystorePassword)}>
       <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.import.header'} />
+        <Text translation={'walletProvider.shapeShift.import.keystoreHeader'} />
       </ModalHeader>
       <ModalBody>
         <Text

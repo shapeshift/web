@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { isNft } from '@shapeshiftoss/caip'
 import type {
-  AssetsByIdPartial,
   FindAllMarketArgs,
   HistoryData,
   MarketCapResult,
@@ -12,7 +11,6 @@ import type { ethers } from 'ethers'
 import type { AssetService } from 'lib/asset-service'
 import { getAssetService } from 'lib/asset-service'
 
-import generatedAssetData from '../asset-service/service/generatedAssetData.json'
 // import { Yearn } from '@yfi/sdk'
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
@@ -82,7 +80,7 @@ export class MarketServiceManager {
   }
 
   async findByAssetId({ assetId }: MarketDataArgs) {
-    const assets = generatedAssetData as unknown as AssetsByIdPartial
+    const assets = this.assetService.assetsById
 
     if (isNft(assetId)) {
       return {

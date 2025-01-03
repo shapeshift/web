@@ -1,6 +1,7 @@
-import type { BuildSendApiTxInput } from '@shapeshiftoss/chain-adapters'
+import type { BuildSendApiTxInput, GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { TransactionInstruction } from '@solana/web3.js'
 
 import type { GetUnsignedSolanaTransactionArgs, SwapperApi } from '../../types'
 import { isSolanaFeeData } from '../../types'
@@ -44,6 +45,54 @@ export const jupiterApi: SwapperApi = {
     }
 
     return (await adapter.buildSendApiTransaction(buildSwapTxInput)).txToSign
+  },
+  getSolanaTransactionFees: async ({
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+  }: GetUnsignedSolanaTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw Error('Unable to execute trade')
+
+    const step = tradeQuote.steps[0]
+
+    const adapter = assertGetSolanaChainAdapter(step.sellAsset.chainId)
+
+    if (!isExecutableTradeStep(step)) throw Error('Unable to execute step')
+
+    const solanaInstructions = step.jupiterTransactionMetadata?.instructions?.map(instruction =>
+      adapter.convertInstruction(instruction),
+    )
+
+    if (!isSolanaFeeData(step.feeData.chainSpecific)) throw Error('Unable to execute step')
+
+    const buildSwapTxInput: BuildSendApiTxInput<KnownChainIds.SolanaMainnet> = {
+      to: '',
+      from,
+      value: '0',
+      accountNumber: step.accountNumber,
+      chainSpecific: {
+        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        instructions: solanaInstructions,
+        computeUnitLimit: step.feeData.chainSpecific?.computeUnits,
+        computeUnitPrice: step.feeData.chainSpecific?.priorityFee,
+      },
+    }
+
+    const { txToSign } = await adapter.buildSendApiTransaction(buildSwapTxInput)
+
+    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
+      to: txToSign.to,
+      value: txToSign.value,
+      chainSpecific: {
+        from,
+        addressLookupTableAccounts: step.jupiterTransactionMetadata?.addressLookupTableAddresses,
+        instructions: txToSign.instructions as TransactionInstruction[] | undefined,
+      },
+    }
+
+    const feeData = await adapter.getFeeData(getFeeDataInput)
+
+    return feeData.fast.txFee
   },
 
   checkTradeStatus: checkSolanaSwapStatus,

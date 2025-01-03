@@ -34,7 +34,10 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
 
   const handleLoad = useCallback(() => history.push(NativeWalletRoutes.Load), [history])
   const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
-  const handleImport = useCallback(() => history.push(NativeWalletRoutes.ImportSeed), [history])
+  const handleImportClick = useCallback(
+    () => history.push(NativeWalletRoutes.ImportSelect),
+    [history],
+  )
   const handleLogin = useCallback(() => history.push(NativeWalletRoutes.LegacyLogin), [history])
 
   return (
@@ -78,7 +81,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
             py={4}
             justifyContent='space-between'
             rightIcon={arrowForwardIcon}
-            onClick={handleImport}
+            onClick={handleImportClick}
             data-test='wallet-native-import-button'
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />

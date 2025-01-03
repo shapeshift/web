@@ -15,7 +15,6 @@ export interface TradeInputBaseState {
   isManualReceiveAddressValidating: boolean
   isManualReceiveAddressEditing: boolean
   isManualReceiveAddressValid: boolean | undefined
-  slippagePreferencePercentage: string | undefined
 }
 
 const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
@@ -98,9 +97,6 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
   },
   setIsInputtingFiatSellAmount: (state: Draft<T>, action: PayloadAction<boolean>) => {
     state.isInputtingFiatSellAmount = action.payload
-  },
-  setSlippagePreferencePercentage: (state: Draft<T>, action: PayloadAction<string | undefined>) => {
-    state.slippagePreferencePercentage = action.payload
   },
 })
 

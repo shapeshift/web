@@ -1,17 +1,20 @@
 import { Link } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
+import type { SwapSource } from '@shapeshiftoss/swapper'
 import { MiddleEllipsis } from 'components/MiddleEllipsis/MiddleEllipsis'
 import { useSafeTxQuery } from 'hooks/queries/useSafeTx'
 import { getTxLink } from 'lib/getTxLink'
 
 export const TxLabel = ({
   txHash,
-  explorerTxLink,
+  explorerBaseUrl,
   accountId,
+  swapperName,
 }: {
   txHash: string
-  explorerTxLink: string
+  explorerBaseUrl: string
   accountId: AccountId
+  swapperName: SwapSource | undefined
 }) => {
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
@@ -19,10 +22,11 @@ export const TxLabel = ({
   })
 
   const txLink = getTxLink({
-    defaultExplorerBaseUrl: explorerTxLink,
+    defaultExplorerBaseUrl: explorerBaseUrl,
     maybeSafeTx,
     tradeId: txHash,
     accountId,
+    name: swapperName,
   })
 
   return txLink ? (

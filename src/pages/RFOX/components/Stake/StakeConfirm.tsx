@@ -239,11 +239,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     confirmedQuote.stakingAssetId,
   ])
 
-  console.log({
-    getRfoxProxyContract: getRfoxProxyContract(confirmedQuote.stakingAssetId),
-    stakingAssetId: confirmedQuote.stakingAssetId,
-  })
-
   const serializedStakeTxIndex = useMemo(() => {
     if (!(stakeTxid && stakingAssetAccountAddress && confirmedQuote.stakingAssetAccountId))
       return ''

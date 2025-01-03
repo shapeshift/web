@@ -57,8 +57,10 @@ export const TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET =
 // RFOX on Arbitrum ERC1967Proxy contract address
 // Uncomment me if you want to test RFOX with a shorter cooldown period
 // export const RFOX_PROXY_CONTRACT: Address = '0x1094c4a99fce60e69ffe75849309408f1262d304'
+export const RFOX_LP_PROXY_CONTRACT: Address = '0x4843373F380aDf80C779cD4dEDC6452E414f7634'
+
 export const RFOX_PROXY_CONTRACT: Address = '0xac2a4fd70bcd8bab0662960455c363735f0e2b56'
-export const RFOX_LP_PROXY_CONTRACT: Address = '0x83B51B7605d2E277E03A7D6451B1efc0e5253A2F'
+// export const RFOX_LP_PROXY_CONTRACT: Address = '0x83B51B7605d2E277E03A7D6451B1efc0e5253A2F'
 export const RFOX_REWARD_RATE = 1n * 10n ** 27n
 export const RFOX_WAD = 1n * 10n ** 18n
 

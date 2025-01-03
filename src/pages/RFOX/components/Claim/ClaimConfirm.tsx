@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
-import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -35,6 +35,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { getRfoxProxyContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -132,7 +133,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT,
+        to: getRfoxProxyContract(stakingAsset.assetId),
         wallet,
       })
 
@@ -155,7 +156,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const claimFeesQueryInput = useMemo(
     () => ({
-      to: RFOX_PROXY_CONTRACT,
+      to: getRfoxProxyContract(claimQuote.stakingAssetId),
       from: stakingAssetAccountAddress,
       chainId: fromAssetId(claimQuote.stakingAssetId).chainId,
       accountNumber: stakingAssetAccountNumber,

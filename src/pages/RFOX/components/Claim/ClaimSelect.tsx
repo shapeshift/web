@@ -1,5 +1,6 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { foxAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -70,6 +71,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const lpStakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpArbitrumAssetId))
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -100,10 +102,13 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
     if (isUnstakingRequestError || !unstakingRequestResponse.length)
       return <NoClaimsAvailable isError={isUnstakingRequestError} setStepIndex={setStepIndex} />
 
-    return unstakingRequestResponse.map((unstakingRequest, index) => {
+    return unstakingRequestResponse.map(unstakingRequest => {
+      const selectedAsset =
+        unstakingRequest.contractAddress === RFOX_PROXY_CONTRACT ? stakingAsset : lpStakingAsset
+
       const amountCryptoPrecision = fromBaseUnit(
         unstakingRequest.unstakingBalance.toString() ?? '',
-        stakingAsset?.precision ?? 0,
+        selectedAsset?.precision ?? 0,
       )
       const currentTimestampMs: number = Date.now()
       const unstakingTimestampMs: number = Number(unstakingRequest.cooldownExpiry) * 1000
@@ -113,13 +118,13 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
       const status = isAvailable ? ClaimStatus.Available : ClaimStatus.Pending
       return (
         <ClaimRow
-          stakingAssetId={stakingAssetId}
+          stakingAssetId={selectedAsset?.assetId ?? stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
           amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
           status={status}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
-          index={index}
+          index={unstakingRequest.index}
           onClaimClick={handleClaimClick}
         />
       )
@@ -127,14 +132,14 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   }, [
     isConnected,
     stakingAssetAccountAddress,
-    stakingAsset?.chainId,
-    stakingAsset?.precision,
     isUnstakingRequestLoading,
     isUnstakingRequestPending,
     isUnstakingRequestPaused,
     isUnstakingRequestRefetching,
     isUnstakingRequestError,
     unstakingRequestResponse,
+    lpStakingAsset,
+    stakingAsset,
     setStepIndex,
     stakingAssetId,
     setConfirmedQuote,

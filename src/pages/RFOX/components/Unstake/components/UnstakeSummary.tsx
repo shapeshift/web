@@ -1,7 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
@@ -9,7 +8,7 @@ import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { bnOrZero } from 'lib/bignumber/bignumber'
 import { toBaseUnit } from 'lib/math'
-import { selectStakingBalance } from 'pages/RFOX/helpers'
+import { getRfoxProxyContract, selectStakingBalance } from 'pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from 'pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from 'pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from 'pages/RFOX/hooks/useStakingInfoQuery'
@@ -59,6 +58,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isUserStakingBalanceOfCryptoBaseUnitSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId,
     select: selectStakingBalance,
   })
 
@@ -67,7 +67,7 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
     isSuccess: isNewContractBalanceOfCryptoBaseUnitSuccess,
   } = useStakingBalanceOfQuery({
     stakingAssetId,
-    stakingAssetAccountAddress: RFOX_PROXY_CONTRACT,
+    stakingAssetAccountAddress: getRfoxProxyContract(stakingAssetId),
     select: data => data.toString(),
   })
 

@@ -21,12 +21,14 @@ type UnstakingRequestCount = ReadContractReturnType<
 >
 type UseGetUnstakingRequestCountQueryProps<SelectData = UnstakingRequestCount> = {
   stakingAssetAccountAddress: string | undefined
+  contractAddress?: Address
   select?: (unstakingRequestCount: UnstakingRequestCount) => SelectData
 }
 const client = viemClientByNetworkId[arbitrum.id]
 
 export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCount>({
   stakingAssetAccountAddress,
+  contractAddress = RFOX_PROXY_CONTRACT,
   select,
 }: UseGetUnstakingRequestCountQueryProps<SelectData>) => {
   // wagmi doesn't expose queryFn, so we reconstruct the queryKey and queryFn ourselves to leverage skipToken type safety
@@ -34,7 +36,7 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
     () => [
       'readContract',
       {
-        address: RFOX_PROXY_CONTRACT,
+        address: contractAddress,
         functionName: 'getUnstakingRequestCount',
         args: [
           stakingAssetAccountAddress ? getAddress(stakingAssetAccountAddress) : ('' as Address),
@@ -42,7 +44,7 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
         chainId: arbitrum.id,
       },
     ],
-    [stakingAssetAccountAddress],
+    [stakingAssetAccountAddress, contractAddress],
   )
 
   const getUnstakingRequestCountQueryFn = useMemo(
@@ -51,12 +53,12 @@ export const useGetUnstakingRequestCountQuery = <SelectData = UnstakingRequestCo
         ? () =>
             readContract(client, {
               abi: RFOX_ABI,
-              address: RFOX_PROXY_CONTRACT,
+              address: contractAddress,
               functionName: 'getUnstakingRequestCount',
               args: [getAddress(stakingAssetAccountAddress)],
             })
         : skipToken,
-    [stakingAssetAccountAddress],
+    [stakingAssetAccountAddress, contractAddress],
   )
 
   const unstakingRequestCountQuery = useQuery({

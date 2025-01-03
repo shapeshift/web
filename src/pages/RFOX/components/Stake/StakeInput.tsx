@@ -134,7 +134,11 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   } = methods
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetIdOrLpAssetId))
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const stakingAssetOrLpAsset = useAppSelector(state =>
+    selectAssetById(state, stakingAssetIdOrLpAssetId),
+  )
+
   const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
   const foxEthLpArbitrumAsset = useAppSelector(state =>
     selectAssetById(state, foxEthLpArbitrumAssetId),
@@ -163,8 +167,8 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
-    [amountCryptoPrecision, stakingAsset?.precision],
+    () => toBaseUnit(amountCryptoPrecision, stakingAssetOrLpAsset?.precision ?? 0),
+    [amountCryptoPrecision, stakingAssetOrLpAsset?.precision],
   )
 
   const [isFiat, handleToggleIsFiat] = useToggle(false)
@@ -267,7 +271,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         stakingAssetAccountId &&
         (runeAddress || currentRuneAddress) &&
         selectedAsset &&
-        stakingAsset &&
+        stakingAssetOrLpAsset &&
         isValidStakingAmount
       )
     )
@@ -276,7 +280,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     const _confirmedQuote = {
       stakingAssetAccountId,
       stakingAssetId: stakingAssetIdOrLpAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
+      stakingAmountCryptoBaseUnit: toBaseUnit(
+        amountCryptoPrecision,
+        stakingAssetOrLpAsset.precision,
+      ),
       // typescript is borked, one of them is defined because of the early return
       runeAddress: currentRuneAddress || runeAddress || '',
     }
@@ -300,7 +307,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     stakingAssetAccountId,
     runeAddress,
     selectedAsset,
-    stakingAsset,
+    stakingAssetOrLpAsset,
     isValidStakingAmount,
     stakingAssetIdOrLpAssetId,
     amountCryptoPrecision,

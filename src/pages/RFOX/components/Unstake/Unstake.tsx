@@ -1,4 +1,5 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_LP_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
@@ -73,8 +74,20 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
       : undefined,
   })
 
+  const { queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
+    stakingAssetId: foxEthLpArbitrumAssetId,
+  })
+
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
     stakingAssetId: confirmedQuote ? confirmedQuote.stakingAssetId : undefined,
+    stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote?.stakingAssetId),
+  })
+
+  const { queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
+    stakingAssetId: foxEthLpArbitrumAssetId,
     stakingAssetAccountAddress: getRfoxProxyContract(confirmedQuote?.stakingAssetId),
   })
 
@@ -82,6 +95,13 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
+  })
+
+  const { queryKey: lpUnstakingRequestCountQueryKey } = useGetUnstakingRequestCountQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
+    contractAddress: RFOX_LP_PROXY_CONTRACT,
   })
 
   const { queryKey: unstakingRequestQueryKey } = useGetUnstakingRequestsQuery({
@@ -92,15 +112,21 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
 
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestCountQueryKey })
+    await queryClient.invalidateQueries({ queryKey: lpUnstakingRequestCountQueryKey })
     await queryClient.invalidateQueries({ queryKey: unstakingRequestQueryKey })
   }, [
+    lpNewContractBalanceOfCryptoBaseUnitQueryKey,
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
     unstakingRequestCountQueryKey,
     unstakingRequestQueryKey,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
+    lpUserStakingBalanceOfCryptoBaseUnitQueryKey,
+    lpUnstakingRequestCountQueryKey,
   ])
 
   const renderUnstakeInput = useCallback(() => {

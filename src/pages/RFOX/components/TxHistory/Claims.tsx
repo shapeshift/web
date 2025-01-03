@@ -1,5 +1,6 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 import { ClaimStatus } from 'components/ClaimRow/types'
@@ -21,6 +22,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
   const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const lpStakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpArbitrumAssetId))
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
@@ -30,7 +32,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
   const unstakingRequestsResult = useGetUnstakingRequestsQuery({ stakingAssetAccountAddress })
 
   const claims = useMemo(() => {
-    if (!stakingAsset || !stakingAssetAccountId) return null
+    if (!stakingAsset || !stakingAssetAccountId || !lpStakingAsset) return null
 
     if (!unstakingRequestsResult.isSuccess) {
       return <Text color='text.subtle' translation='RFOX.errorFetchingClaims' />
@@ -40,10 +42,13 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
       return <Text color='text.subtle' translation='RFOX.noClaimsAvailable' />
     }
 
-    return unstakingRequestsResult.data.map((unstakingRequest, index) => {
+    return unstakingRequestsResult.data.map(unstakingRequest => {
+      const selectedAsset =
+        unstakingRequest.contractAddress === RFOX_PROXY_CONTRACT ? stakingAsset : lpStakingAsset
+
       const amountCryptoPrecision = fromBaseUnit(
         unstakingRequest.unstakingBalance.toString(),
-        stakingAsset?.precision ?? 0,
+        selectedAsset?.precision ?? 0,
       )
 
       const currentTimestampMs = Date.now()
@@ -55,13 +60,13 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
 
       return (
         <ClaimRow
-          stakingAssetId={stakingAssetId}
+          stakingAssetId={selectedAsset?.assetId ?? stakingAssetId}
           key={unstakingRequest.cooldownExpiry.toString()}
           amountCryptoPrecision={amountCryptoPrecision?.toString() ?? ''}
           status={status}
           setConfirmedQuote={setConfirmedQuote}
           cooldownPeriodHuman={cooldownPeriodHuman}
-          index={index}
+          index={unstakingRequest.index}
         />
       )
     })
@@ -72,6 +77,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
     stakingAssetId,
     unstakingRequestsResult.data,
     unstakingRequestsResult.isSuccess,
+    lpStakingAsset,
   ])
 
   if (!stakingAsset) return null

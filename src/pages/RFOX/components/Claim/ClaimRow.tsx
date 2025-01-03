@@ -1,6 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -53,14 +52,21 @@ export const ClaimRow: FC<ClaimRowProps> = ({
     return () => {
       const claimQuote: RfoxClaimQuote = {
         stakingAssetAccountId,
-        stakingAssetId: foxOnArbitrumOneAssetId,
+        stakingAssetId,
         stakingAmountCryptoBaseUnit,
         index,
       }
       setConfirmedQuote(claimQuote)
       onClaimClick()
     }
-  }, [index, onClaimClick, setConfirmedQuote, stakingAmountCryptoBaseUnit, stakingAssetAccountId])
+  }, [
+    index,
+    onClaimClick,
+    setConfirmedQuote,
+    stakingAmountCryptoBaseUnit,
+    stakingAssetAccountId,
+    stakingAssetId,
+  ])
 
   const statusText = useMemo(() => {
     if (!isLargerThanMd) return cooldownPeriodHuman

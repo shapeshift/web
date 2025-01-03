@@ -1,4 +1,8 @@
-import { foxOnArbitrumOneAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import {
+  foxEthLpArbitrumAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAccountId,
+} from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import React, { lazy, Suspense, useCallback, useState } from 'react'
@@ -91,19 +95,38 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       : undefined,
   })
 
+  const { queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey } = useStakingInfoQuery({
+    stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
+    stakingAssetId: foxEthLpArbitrumAssetId,
+  })
+
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
     stakingAssetId,
   })
+
+  const { queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
+    stakingAssetAccountAddress: confirmedQuote
+      ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+      : undefined,
+    stakingAssetId: foxEthLpArbitrumAssetId,
+  })
+
   const handleTxConfirmed = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: userStakingBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: lpUserStakingBalanceOfCryptoBaseUnitQueryKey })
     await queryClient.invalidateQueries({ queryKey: newContractBalanceOfCryptoBaseUnitQueryKey })
+    await queryClient.invalidateQueries({ queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey })
   }, [
+    lpNewContractBalanceOfCryptoBaseUnitQueryKey,
     newContractBalanceOfCryptoBaseUnitQueryKey,
     queryClient,
     userStakingBalanceOfCryptoBaseUnitQueryKey,
+    lpUserStakingBalanceOfCryptoBaseUnitQueryKey,
   ])
 
   const renderStakeInput = useCallback(() => {

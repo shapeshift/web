@@ -45,12 +45,14 @@ export const assets = createSlice({
     clear: () => initialState,
     upsertAssets: (state, action: PayloadAction<UpsertAssetsPayload>) => {
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
-      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids))) // TODO: Preserve sorting here
+      // Note this preserves the original sorting while removing duplicates.
+      state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     },
     upsertAsset: (state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
       state.byId[assetId] = Object.assign({}, state.byId[assetId], action.payload)
-      state.ids = Array.from(new Set(state.ids.concat(assetId))) // TODO: Preserve sorting here
+      // Note this preserves the original sorting while removing duplicates.
+      state.ids = Array.from(new Set(state.ids.concat(assetId)))
     },
   },
 })

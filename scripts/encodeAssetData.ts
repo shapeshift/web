@@ -20,8 +20,8 @@ const main = async () => {
   const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
   const reEncodedAssetData = encodeAssetData(sortedAssetIds, assetData)
 
-  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
 }
 
 main()

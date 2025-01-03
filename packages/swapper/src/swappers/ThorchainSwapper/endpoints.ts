@@ -1,6 +1,6 @@
 import type { StdSignDoc } from '@cosmjs/amino'
 import type { StdFee } from '@keplr-wallet/types'
-import { cosmosAssetId, fromAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { cosmosAssetId, fromChainId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { cosmossdk as cosmossdkChainAdapter, evm } from '@shapeshiftoss/chain-adapters'
 import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -12,7 +12,6 @@ import assert from 'assert'
 import axios from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address } from 'viem'
-import { encodeFunctionData, parseAbiItem } from 'viem'
 
 import { getInboundAddressDataForChain } from '../../thorchain-utils'
 import type {
@@ -41,6 +40,7 @@ import { getThorTxInfo as getEvmThorTxInfo } from './evm/utils/getThorTxData'
 import { getThorTradeQuote } from './getThorTradeQuote/getTradeQuote'
 import { getThorTradeRate } from './getThorTradeRate/getTradeRate'
 import type { ThorEvmTradeQuote, ThornodeStatusResponse, ThornodeTxResponse } from './types'
+import { getCallDataFromQuote } from './utils/getCallDataFromQuote'
 import { getLatestThorTxStatusMessage } from './utils/getLatestThorTxStatusMessage'
 import { TradeType } from './utils/longTailHelpers'
 import { parseThorBuyTxHash } from './utils/parseThorBuyTxHash'
@@ -97,7 +97,7 @@ export const thorchainApi: SwapperApi = {
       router,
       vault,
       aggregator,
-      data,
+      data: _data,
       steps,
       memo: tcMemo,
       tradeType,
@@ -115,6 +115,20 @@ export const thorchainApi: SwapperApi = {
 
     switch (tradeType) {
       case TradeType.L1ToL1: {
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
         const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data,
@@ -136,10 +150,6 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToL1: {
         assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
 
-        const swapInAbiItem = parseAbiItem(
-          'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
-        )
-
         const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
@@ -153,24 +163,25 @@ export const thorchainApi: SwapperApi = {
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const tcRouter = router as Address
         const tcVault = vault as Address
-        const token = fromAssetId(sellAsset.assetId).assetReference as Address
-        const amount = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
-        const tenMinutes = BigInt(600)
-        const deadline = currentTimestamp + tenMinutes
-        const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
 
-        const swapInData = encodeFunctionData({
-          abi: [swapInAbiItem],
-          functionName: 'swapIn',
-          args: params,
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router: aggregator,
+          vault: tcVault,
         })
 
         const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: swapInData,
+          data,
           to: aggregator,
           value,
           from,
@@ -179,7 +190,7 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data: swapInData,
+          data,
           from,
           to: aggregator,
           value,
@@ -191,7 +202,7 @@ export const thorchainApi: SwapperApi = {
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const { data: dataWithAmountOut, router: updatedRouter } = await getEvmThorTxInfo({
+        const { router: updatedRouter } = await getEvmThorTxInfo({
           sellAsset,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo: tcMemo,
@@ -201,9 +212,23 @@ export const thorchainApi: SwapperApi = {
 
         assert(router, 'router required for l1 to thorchain longtail swaps')
 
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
         const feeData = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: dataWithAmountOut,
+          data,
           to: updatedRouter,
           value,
           from,
@@ -212,7 +237,7 @@ export const thorchainApi: SwapperApi = {
 
         return {
           chainId: Number(fromChainId(chainId).chainReference),
-          data: dataWithAmountOut,
+          data,
           from,
           to: updatedRouter,
           value,
@@ -238,7 +263,7 @@ export const thorchainApi: SwapperApi = {
       router,
       vault,
       aggregator,
-      data,
+      data: _data,
       steps,
       memo: tcMemo,
       tradeType,
@@ -256,6 +281,19 @@ export const thorchainApi: SwapperApi = {
 
     switch (tradeType) {
       case TradeType.L1ToL1: {
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
         const { networkFeeCryptoBaseUnit } = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
           data,
@@ -270,10 +308,6 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToL1: {
         assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
 
-        const swapInAbiItem = parseAbiItem(
-          'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',
-        )
-
         const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
@@ -287,24 +321,25 @@ export const thorchainApi: SwapperApi = {
         // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.
         assert(amountOutMin > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const tcRouter = router as Address
         const tcVault = vault as Address
-        const token = fromAssetId(sellAsset.assetId).assetReference as Address
-        const amount = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-        const currentTimestamp = BigInt(Math.floor(Date.now() / 1000))
-        const tenMinutes = BigInt(600)
-        const deadline = currentTimestamp + tenMinutes
-        const params = [tcRouter, tcVault, tcMemo, token, amount, amountOutMin, deadline] as const
 
-        const swapInData = encodeFunctionData({
-          abi: [swapInAbiItem],
-          functionName: 'swapIn',
-          args: params,
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router: aggregator,
+          vault: tcVault,
         })
 
         const { networkFeeCryptoBaseUnit } = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: swapInData,
+          data,
           to: aggregator,
           value,
           from,
@@ -318,7 +353,7 @@ export const thorchainApi: SwapperApi = {
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
         assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
 
-        const { data: dataWithAmountOut, router: updatedRouter } = await getEvmThorTxInfo({
+        const { router: updatedRouter } = await getEvmThorTxInfo({
           sellAsset,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           memo: tcMemo,
@@ -328,9 +363,23 @@ export const thorchainApi: SwapperApi = {
 
         assert(router, 'router required for l1 to thorchain longtail swaps')
 
+        const data = await getCallDataFromQuote({
+          data: _data,
+          tradeType,
+          sellAsset,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          memo: tcMemo,
+          expiry,
+          config,
+          longtailData,
+          slippageTolerancePercentageDecimal,
+          router,
+          vault,
+        })
+
         const { networkFeeCryptoBaseUnit } = await evm.getFees({
           adapter: assertGetEvmChainAdapter(chainId),
-          data: dataWithAmountOut,
+          data,
           to: updatedRouter,
           value,
           from,

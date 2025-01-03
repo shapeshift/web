@@ -44,7 +44,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
   }
 }
 
-type TradeStepParams = {
+type StepperStepParams = {
   firstHopAllowanceApproval: ApprovalExecutionMetadata
   firstHopPermit2: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
     permit2Signature?: string | undefined
@@ -58,7 +58,7 @@ type TradeStepParams = {
   isMultiHopTrade?: boolean
 }
 
-export enum TradeStep {
+export enum StepperStep {
   FirstHopReset = 'firstHopReset',
   FirstHopApproval = 'firstHopApproval',
   FirstHopSwap = 'firstHopSwap',
@@ -68,7 +68,7 @@ export enum TradeStep {
   TradeComplete = 'tradeComplete',
 }
 
-export const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolean> => {
+export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, boolean> => {
   const {
     firstHopAllowanceReset,
     firstHopAllowanceApproval,
@@ -79,30 +79,30 @@ export const getTradeSteps = (params: TradeStepParams): Record<TradeStep, boolea
     isMultiHopTrade,
   } = params
   return {
-    [TradeStep.FirstHopReset]:
+    [StepperStep.FirstHopReset]:
       firstHopAllowanceReset.isRequired === true || firstHopAllowanceReset.txHash !== undefined,
-    [TradeStep.FirstHopApproval]:
+    [StepperStep.FirstHopApproval]:
       firstHopAllowanceApproval.isInitiallyRequired === true ||
       firstHopPermit2.isRequired === true ||
       firstHopAllowanceApproval.txHash !== undefined ||
       firstHopPermit2.permit2Signature !== undefined,
-    [TradeStep.FirstHopSwap]: true,
-    [TradeStep.LastHopReset]:
+    [StepperStep.FirstHopSwap]: true,
+    [StepperStep.LastHopReset]:
       isMultiHopTrade === true &&
       (lastHopAllowanceReset.isRequired === true || lastHopAllowanceReset.txHash !== undefined),
-    [TradeStep.LastHopApproval]:
+    [StepperStep.LastHopApproval]:
       isMultiHopTrade === true &&
       (lastHopAllowanceApproval.isInitiallyRequired === true ||
         lastHopPermit2.isRequired === true ||
         lastHopAllowanceApproval.txHash !== undefined ||
         lastHopPermit2.permit2Signature !== undefined),
-    [TradeStep.LastHopSwap]: isMultiHopTrade === true,
-    [TradeStep.TradeComplete]: true,
+    [StepperStep.LastHopSwap]: isMultiHopTrade === true,
+    [StepperStep.TradeComplete]: true,
   }
 }
 
-export const countTradeSteps = (params: TradeStepParams): number => {
-  return Object.values(getTradeSteps(params)).filter(Boolean).length
+export const countStepperSteps = (params: StepperStepParams): number => {
+  return Object.values(getStepperSteps(params)).filter(Boolean).length
 }
 
 const isInApprovalState = (state: HopExecutionState): boolean => {
@@ -111,35 +111,35 @@ const isInApprovalState = (state: HopExecutionState): boolean => {
   )
 }
 
-export const getCurrentTradeStep = (
+export const getCurrentStepperStep = (
   currentHopIndex: number,
   hopExecutionState: HopExecutionState,
-): TradeStep | undefined => {
-  if (hopExecutionState === HopExecutionState.Complete) return TradeStep.TradeComplete
+): StepperStep | undefined => {
+  if (hopExecutionState === HopExecutionState.Complete) return StepperStep.TradeComplete
   if (hopExecutionState === HopExecutionState.Pending) return undefined
 
   if (currentHopIndex === 0) {
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
-      return TradeStep.FirstHopReset
-    if (isInApprovalState(hopExecutionState)) return TradeStep.FirstHopApproval
-    if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.FirstHopSwap
+      return StepperStep.FirstHopReset
+    if (isInApprovalState(hopExecutionState)) return StepperStep.FirstHopApproval
+    if (hopExecutionState === HopExecutionState.AwaitingSwap) return StepperStep.FirstHopSwap
   } else if (currentHopIndex === 1) {
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
-      return TradeStep.LastHopReset
-    if (isInApprovalState(hopExecutionState)) return TradeStep.LastHopApproval
-    if (hopExecutionState === HopExecutionState.AwaitingSwap) return TradeStep.LastHopSwap
+      return StepperStep.LastHopReset
+    if (isInApprovalState(hopExecutionState)) return StepperStep.LastHopApproval
+    if (hopExecutionState === HopExecutionState.AwaitingSwap) return StepperStep.LastHopSwap
   }
 }
 
-export const getCurrentTradeStepIndex = (
-  params: TradeStepParams & {
+export const getCurrentStepperStepIndex = (
+  params: StepperStepParams & {
     currentHopIndex: number
     hopExecutionState: HopExecutionState
   },
 ): number => {
-  const steps = getTradeSteps(params)
+  const steps = getStepperSteps(params)
   const activeSteps = Object.entries(steps).filter(([_, isActive]) => isActive)
-  const currentStep = getCurrentTradeStep(params.currentHopIndex, params.hopExecutionState)
+  const currentStep = getCurrentStepperStep(params.currentHopIndex, params.hopExecutionState)
 
   if (!currentStep)
     return params.hopExecutionState === HopExecutionState.Pending ? 0 : activeSteps.length - 1

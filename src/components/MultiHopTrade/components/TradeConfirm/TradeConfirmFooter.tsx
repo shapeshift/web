@@ -15,10 +15,10 @@ import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { isPermit2Hop } from '../MultiHopTradeConfirm/hooks/helpers'
 import { SharedConfirmFooter } from '../SharedConfirm/SharedConfirmFooter'
-import { TradeStep } from './helpers'
+import { StepperStep } from './helpers'
 import { useActiveTradeAllowance } from './hooks/useActiveTradeAllowance'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
-import { useTradeSteps } from './hooks/useTradeSteps'
+import { useStepperSteps } from './hooks/useStepperSteps'
 import { TradeConfirmSummary } from './TradeConfirmFooterContent/TradeConfirmSummary'
 import { TradeFooterButton } from './TradeFooterButton'
 
@@ -79,7 +79,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     .times(feeAssetUserCurrencyRate.price)
     .toFixed()
 
-  const { currentTradeStep } = useTradeSteps()
+  const { currentTradeStep } = useStepperSteps()
 
   const tradeResetStepSummary = useMemo(() => {
     return (
@@ -221,14 +221,14 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       // No trade step is active, quote is still to be confirmed
       case undefined:
         return <TradeConfirmSummary />
-      case TradeStep.FirstHopReset:
-      case TradeStep.LastHopReset:
+      case StepperStep.FirstHopReset:
+      case StepperStep.LastHopReset:
         return tradeResetStepSummary
-      case TradeStep.FirstHopApproval:
-      case TradeStep.LastHopApproval:
+      case StepperStep.FirstHopApproval:
+      case StepperStep.LastHopApproval:
         return tradeAllowanceStepSummary
-      case TradeStep.FirstHopSwap:
-      case TradeStep.LastHopSwap:
+      case StepperStep.FirstHopSwap:
+      case StepperStep.LastHopSwap:
         return tradeExecutionStepSummary
       default:
         return null

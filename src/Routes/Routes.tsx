@@ -22,13 +22,7 @@ const Yat = makeSuspenseful(
 const NotFound = makeSuspenseful(
   lazy(() => import('pages/NotFound/NotFound').then(({ NotFound }) => ({ default: NotFound }))),
 )
-const ConnectWallet = makeSuspenseful(
-  lazy(() =>
-    import('pages/ConnectWallet/ConnectWallet').then(({ ConnectWallet }) => ({
-      default: ConnectWallet,
-    })),
-  ),
-)
+
 const TermsOfService = makeSuspenseful(
   lazy(() =>
     import('pages/Legal/TermsOfService').then(({ TermsOfService }) => ({
@@ -39,6 +33,14 @@ const TermsOfService = makeSuspenseful(
 const PrivacyPolicy = makeSuspenseful(
   lazy(() =>
     import('pages/Legal/PrivacyPolicy').then(({ PrivacyPolicy }) => ({ default: PrivacyPolicy })),
+  ),
+)
+
+const MobileConnect = makeSuspenseful(
+  lazy(() =>
+    import('pages/ConnectWallet/MobileConnect').then(({ MobileConnect }) => ({
+      default: MobileConnect,
+    })),
   ),
 )
 
@@ -105,7 +107,7 @@ export const Routes = memo(() => {
 
         if (isMobile && !state.isConnected) {
           const to = {
-            pathname: '/connect-wallet',
+            pathname: '/connect-mobile-wallet',
             search: `returnUrl=${location?.pathname ?? '/trade'}`,
           }
 
@@ -142,8 +144,8 @@ export const Routes = memo(() => {
       <Route path='/yat/:eid'>
         <Yat />
       </Route>
-      <Route path='/connect-wallet'>
-        <ConnectWallet />
+      <Route path='/connect-mobile-wallet'>
+        <MobileConnect />
       </Route>
       <Route path={'/legal/terms-of-service'}>
         <Layout>

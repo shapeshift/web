@@ -1,5 +1,7 @@
 import { useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
+import { SolanaLogsError } from '@shapeshiftoss/swapper'
+import camelCase from 'lodash/camelCase'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,6 +21,10 @@ export const useErrorToast = () => {
       errorMsgTranslationOptions?: InterpolationOptions,
     ) => {
       const translationArgs = (() => {
+        if (error instanceof SolanaLogsError) {
+          return [`trade.errors.${camelCase(error.name)}`]
+        }
+
         // Chain adapter errors take priority
         if (error instanceof ChainAdapterError) {
           return [error.metadata.translation, error.metadata.options]

@@ -301,21 +301,8 @@
     "notSupported": "%{asset} is not supported by %{wallet}"
   },
   "connectWalletPage": {
-    "title": "The Original Multichain Exchange",
-    "primaryTitle": "Welcome to Multichain DeFi.",
-    "secondaryTitle": "Private. Decentralized. Non-custodial.",
-    "primaryDescription": "Trade, bridge, and earn rewards effortlessly. Experience Native Bitcoin, Dogecoin, and more. Manage Liquidity and DeFi Positions in One-Click.",
-    "snapDescription": "Download the ShapeShift Multichain Snap and Unlock Bitcoin, Dogecoin, and more for your MetaMask.",
     "shapeshift": "ShapeShift",
-    "exploreThe": "Explore the",
-    "defiUniverse": "DeFi Universe",
-    "body": "Trade, bridge & earn. Private. Community owned. Non-custodial. Decentralized.",
-    "header": "Please connect a wallet to get started",
-    "cta": "Connect or Create Wallet",
-    "viewADemo": "View a Demo",
-    "dontHaveWallet": "Don't have a wallet?",
     "welcomeBack": "Welcome back!",
-    "welcomeBody": "Connecting your wallet is like “logging in”. Select your wallet from the options to get started.",
     "welcomeToShapeShift": "Welcome to ShapeShift",
     "mobileWelcomeBody": "Create a brand new wallet or add an existing one to get started easily.",
     "mobileSelectBody": "Select from any of your saved wallets below, or create or import a new wallet.",
@@ -974,7 +961,10 @@
       "unsafeQuote": "This amount is below the recommended minimum for this pair (%{recommendedMin} %{symbol}). This could cause your trade to fail or loss of funds.",
       "rateLimitExceeded": "Rate limit exceeded, try again later",
       "maxSlippageExceededWithExpectedSlippage": "The maximum allowed slippage tolerance for this trade has been exceeded during simulation. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
-      "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance."
+      "executionRevertedWithExpectedSlippage": "Execution reverted during execution. This may be due to insufficient slippage tolerance. Expected slippage: %{expectedSlippage}%. Try again with a higher slipppage tolerance.",
+      "slippageToleranceExceeded": "Slippage tolerance exceeded.",
+      "underMinimumAmount": "One or more of the assets in this trade are below the minimum amount required for this trade.",
+      "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected."
     },
     "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
     "recentTrades": "Recent Trades",

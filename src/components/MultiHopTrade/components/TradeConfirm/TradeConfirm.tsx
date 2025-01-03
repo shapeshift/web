@@ -1,7 +1,10 @@
+import { Stepper } from '@chakra-ui/react'
+import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/swappers/ArbitrumBridgeSwapper/getTradeQuote/getTradeQuote'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import type { TextPropTypes } from 'components/Text/Text'
+import { fromBaseUnit } from 'lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -14,6 +17,8 @@ import { useAppDispatch, useAppSelector } from 'state/store'
 
 import { useIsApprovalInitiallyNeeded } from '../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { SharedConfirm } from '../SharedConfirm/SharedConfirm'
+import { TradeSuccess } from '../TradeSuccess/TradeSuccess'
+import { ExpandableStepperSteps } from './ExpandableStepperSteps'
 import { useCurrentHopIndex } from './hooks/useCurrentHopIndex'
 import { TradeConfirmBody } from './TradeConfirmBody'
 import { TradeConfirmFooter } from './TradeConfirmFooter'
@@ -64,12 +69,44 @@ export const TradeConfirm = () => {
   }, [dispatch, isLoading, activeQuote, confirmedTradeExecutionState])
 
   const footer = useMemo(() => {
+    if (isTradeComplete && activeQuote && tradeQuoteLastHop) return null
     if (!tradeQuoteStep || !activeTradeId) return null
     return <TradeConfirmFooter tradeQuoteStep={tradeQuoteStep} activeTradeId={activeTradeId} />
-  }, [tradeQuoteStep, activeTradeId])
-  const body = useMemo(() => <TradeConfirmBody />, [])
+  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId])
 
-  if (!headerTranslation || !footer) return null
+  const isArbitrumBridgeWithdraw = useMemo(() => {
+    return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
+  }, [activeQuote])
+
+  const body = useMemo(() => {
+    if (isTradeComplete && activeQuote && tradeQuoteLastHop)
+      return (
+        <TradeSuccess
+          handleBack={handleBack}
+          titleTranslation={
+            isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
+          }
+          sellAsset={activeQuote?.steps[0].sellAsset}
+          buyAsset={activeQuote?.steps[0].buyAsset}
+          sellAmountCryptoPrecision={fromBaseUnit(
+            activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            activeQuote.steps[0].sellAsset.precision,
+          )}
+          buyAmountCryptoPrecision={fromBaseUnit(
+            tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
+            tradeQuoteLastHop.buyAsset.precision,
+          )}
+        >
+          <Stepper index={-1} orientation='vertical' gap='0' my={6}>
+            <ExpandableStepperSteps isExpanded />
+          </Stepper>
+        </TradeSuccess>
+      )
+
+    return <TradeConfirmBody />
+  }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])
+
+  if (!headerTranslation) return null
 
   return (
     <SharedConfirm

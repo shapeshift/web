@@ -67,7 +67,11 @@ export const StepperStep = ({
   stepIndicatorVariant = 'default',
 }: StepperStepProps) => {
   const { indicator: indicatorStyles } = useStyleConfig('Stepper', {
-    variant: isError ? 'error' : stepIndicatorVariant,
+    variant: isError
+      ? stepIndicatorVariant === 'innerSteps'
+        ? 'innerStepsError'
+        : 'error'
+      : stepIndicatorVariant,
   }) as { indicator: SystemStyleObject }
 
   return (

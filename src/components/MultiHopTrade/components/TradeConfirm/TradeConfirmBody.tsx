@@ -8,7 +8,7 @@ import { useAppSelector } from 'state/store'
 
 import { SharedConfirmBody } from '../SharedConfirm/SharedConfirmBody'
 import { EtaStep } from './EtaStep'
-import { ExpandableTradeSteps } from './ExpandableTradeSteps'
+import { ExpandableStepperSteps } from './ExpandableStepperSteps'
 
 const InnerSteps = () => {
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
@@ -20,7 +20,7 @@ const InnerSteps = () => {
     case TradeExecutionState.FirstHop:
     case TradeExecutionState.SecondHop:
     case TradeExecutionState.TradeComplete:
-      return <ExpandableTradeSteps />
+      return <ExpandableStepperSteps />
     default:
       return null
   }

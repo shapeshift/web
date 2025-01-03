@@ -6,6 +6,7 @@ import { useHistory } from 'react-router'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'
 import type { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { ThorFreeFeeBanner } from 'components/ThorFreeFeeBanner/ThorFreeFeeBanner'
+import { THORSWAP_MAXIMUM_YEAR_TRESHOLD } from 'lib/fees/model'
 import { breakpoints } from 'theme/theme'
 
 import type { LimitOrderRoutePaths } from './LimitOrder/types'
@@ -46,10 +47,15 @@ export const SlideTransitionRoute = ({
     [width, height],
   )
 
+  const shouldDisplayThorFreeFeeBanner = useMemo(
+    () => new Date().getUTCFullYear() < THORSWAP_MAXIMUM_YEAR_TRESHOLD,
+    [],
+  )
+
   return (
     <Center width='inherit' alignItems='flex-end'>
       <Box width='full' maxWidth='500px'>
-        <ThorFreeFeeBanner />
+        {shouldDisplayThorFreeFeeBanner ? <ThorFreeFeeBanner /> : null}
         <TradeSlideTransition>
           <Flex
             width='full'

@@ -17,12 +17,14 @@ import type {
 import {
   getHopByIndex,
   isExecutableTradeQuote,
+  SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { LIFI_TRADE_POLL_INTERVAL_MILLISECONDS } from '@shapeshiftoss/swapper/dist/swappers/LifiSwapper/LifiSwapper'
 import type { CosmosSdkChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
+import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useErrorToast } from 'hooks/useErrorToast/useErrorToast'
@@ -133,6 +135,10 @@ export const useTradeExecution = (
 
       const onFail = (e: unknown) => {
         const message = (() => {
+          if (e instanceof SolanaLogsError) {
+            return translate(`trade.errors.${camelCase(e.name)}`)
+          }
+
           if (e instanceof ChainAdapterError) {
             return translate(e.metadata.translation, e.metadata.options)
           }

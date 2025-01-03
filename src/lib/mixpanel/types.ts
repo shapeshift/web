@@ -42,7 +42,7 @@ export enum MixPanelEvent {
   SwitchWallet = 'Switch Wallet',
   DisconnectWallet = 'Disconnect Wallet',
   FiatRamp = 'Fiat Ramp',
-  NativeImport = 'Native Import',
+  NativeImportSeed = 'Native Import Seed',
   NativeCreate = 'Native Create',
   Click = 'Click',
   ClickdApp = 'Click dApp',

@@ -28,7 +28,7 @@ export enum NativeWalletRoutes {
   Load = '/native/load',
   Password = '/native/password',
   Rename = '/native/rename',
-  Import = '/native/import',
+  ImportSeed = '/native/import-seed',
   Create = '/native/create',
   CreateTest = '/native/create-test',
   Success = '/native/success',

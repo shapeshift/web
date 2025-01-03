@@ -77,9 +77,9 @@ const NativeCreate = lazy(() =>
     default: NativeCreate,
   })),
 )
-const NativeImport = lazy(() =>
-  import('./NativeWallet/components/NativeImport').then(({ NativeImport }) => ({
-    default: NativeImport,
+const NativeImportSeed = lazy(() =>
+  import('./NativeWallet/components/NativeImportSeed').then(({ NativeImportSeed }) => ({
+    default: NativeImportSeed,
   })),
 )
 const NativeLegacyLogin = lazy(() =>
@@ -360,7 +360,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: NativeWalletRoutes.Load, component: NativeLoad },
       { path: NativeWalletRoutes.Password, component: NativePassword },
       { path: NativeWalletRoutes.Rename, component: NativeRename },
-      { path: NativeWalletRoutes.Import, component: NativeImport },
+      { path: NativeWalletRoutes.ImportSeed, component: NativeImportSeed },
       { path: NativeWalletRoutes.Create, component: NativeCreate },
       { path: NativeWalletRoutes.CreateTest, component: NativeTestPhrase },
       { path: NativeWalletRoutes.Success, component: NativeSuccess },

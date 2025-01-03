@@ -34,7 +34,7 @@ export const NativeStart = ({ history }: RouteComponentProps) => {
 
   const handleLoad = useCallback(() => history.push(NativeWalletRoutes.Load), [history])
   const handleCreate = useCallback(() => history.push(NativeWalletRoutes.Create), [history])
-  const handleImport = useCallback(() => history.push(NativeWalletRoutes.Import), [history])
+  const handleImport = useCallback(() => history.push(NativeWalletRoutes.ImportSeed), [history])
   const handleLogin = useCallback(() => history.push(NativeWalletRoutes.LegacyLogin), [history])
 
   return (

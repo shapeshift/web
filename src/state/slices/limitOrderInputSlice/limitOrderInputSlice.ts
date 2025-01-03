@@ -51,7 +51,7 @@ const resetLimitOrderConfig = (state: LimitOrderInputState) => {
 export const limitOrderInput = createTradeInputBaseSlice({
   name: 'limitOrderInput',
   initialState,
-  // Add any reducers specific to tradeInput slice here that aren't shared with other slices
+  // Add any reducers specific to limitOrderInput slice here that aren't shared with other slices
   extraReducers: (baseReducers: BaseReducers<LimitOrderInputState>) => ({
     setLimitPrice: (
       state: LimitOrderInputState,

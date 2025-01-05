@@ -1,13 +1,13 @@
-import { Alert, AlertIcon, Divider, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import { Alert, AlertIcon, Divider, HStack, useMediaQuery } from '@chakra-ui/react'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
-import { bnOrZero, fromBaseUnit, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
+import { bnOrZero, isSome, isUtxoChainId } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { Amount } from 'components/Amount/Amount'
+import { parseAmountDisplayMeta } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { useAccountIds } from 'components/MultiHopTrade/hooks/useAccountIds'
 import { useIsManualReceiveAddressRequired } from 'components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
@@ -15,12 +15,11 @@ import { TradeRoutePaths } from 'components/MultiHopTrade/types'
 import { Row } from 'components/Row/Row'
 import { Text } from 'components/Text'
 import { useAccountsFetchQuery } from 'context/AppProvider/hooks/useAccountsFetchQuery'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useIsSmartContractAddress } from 'hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { isToken } from 'lib/utils'
 import { selectIsTradeQuoteApiQueryPending } from 'state/apis/swapper/selectors'
-import { selectFeeAssetById } from 'state/slices/selectors'
+import { selectFeeAssetById, selectMarketDataUserCurrency } from 'state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
   selectInputBuyAsset,
@@ -75,7 +74,6 @@ export const ConfirmSummary = ({
 }: ConfirmSummaryProps) => {
   const history = useHistory()
   const translate = useTranslate()
-  const redColor = useColorModeValue('red.500', 'red.300')
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
   const {
     state: { isConnected, isDemoWallet },
@@ -104,6 +102,7 @@ export const ConfirmSummary = ({
   const buyAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, buyAsset?.assetId ?? ''),
   )
+  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
 
   const inputAmountUsd = useAppSelector(selectInputSellAmountUsd)
@@ -305,16 +304,6 @@ export const ConfirmSummary = ({
   }, [isReceiveAddressByteCodeLoading, isParentLoading])
 
   const receiveSummaryDetails = useMemo(() => {
-    const parseAmountDisplayMeta = (items: AmountDisplayMeta[]) => {
-      return items
-        .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-        .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-          symbol: asset.symbol,
-          chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-        }))
-    }
-
     const protocolFeesParsed = totalProtocolFees
       ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
       : undefined
@@ -351,13 +340,25 @@ export const ConfirmSummary = ({
               <Text translation='trade.protocolFee' />
             </Row.Label>
             <Row.Value color='text.base'>
-              {protocolFeesParsed?.map(({ amountCryptoPrecision, symbol }) => (
-                <Amount.Crypto
-                  key={`${amountCryptoPrecision}`}
-                  color={redColor}
-                  value={amountCryptoPrecision}
-                  symbol={symbol}
-                />
+              {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
+                <HStack key={`${assetId}-${amountCryptoPrecision}`} justifyContent='flex-end'>
+                  <Amount.Crypto
+                    key={`${assetId}-${amountCryptoPrecision}`}
+                    value={amountCryptoPrecision}
+                    symbol={symbol}
+                  />
+                  {assetId && (
+                    <Amount.Fiat
+                      color={'text.subtle'}
+                      prefix='('
+                      suffix=')'
+                      noSpace
+                      value={bnOrZero(marketDataUserCurrency[assetId]?.price ?? 0)
+                        .times(amountCryptoPrecision)
+                        .toNumber()}
+                    />
+                  )}
+                </HStack>
               ))}
             </Row.Value>
           </Row>
@@ -368,8 +369,8 @@ export const ConfirmSummary = ({
     buyAmountAfterFeesCryptoPrecision,
     buyAsset.symbol,
     isLoading,
+    marketDataUserCurrency,
     priceImpactPercentage,
-    redColor,
     slippagePercentageDecimal,
     totalProtocolFees,
     tradeQuoteStep?.intermediaryTransactionOutputs,

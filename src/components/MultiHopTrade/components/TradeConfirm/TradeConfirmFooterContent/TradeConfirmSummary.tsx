@@ -12,17 +12,15 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
-import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
+import { bnOrZero, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { FeeModal } from 'components/FeeModal/FeeModal'
+import { parseAmountDisplayMeta } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { middleEllipsis } from 'lib/utils'
@@ -50,24 +48,6 @@ import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
-
-type ProtocolFee = {
-  assetId: AssetId | undefined
-  chainName: string | undefined
-  amountCryptoPrecision: string
-  symbol: string
-}
-
-const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFee[] => {
-  return items
-    .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-    .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-      assetId: asset.assetId,
-      chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-      amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-      symbol: asset.symbol,
-    }))
-}
 
 const ProtocolFeeToolTip = () => {
   return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
@@ -136,24 +116,7 @@ export const TradeConfirmSummary = () => {
   const hasIntermediaryTransactionOutputs =
     intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
   const protocolFeesParsed = totalProtocolFees
-    ? Object.values(
-        parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome)).reduce(
-          (acc, fee) => {
-            const key = `${fee.assetId}-${fee.chainName}`
-            if (acc[key]) {
-              // If we already have this symbol+chain combination, add the amounts
-              acc[key].amountCryptoPrecision = bnOrZero(acc[key].amountCryptoPrecision)
-                .plus(fee.amountCryptoPrecision)
-                .toString()
-            } else {
-              // First time seeing this symbol+chain combination
-              acc[key] = { ...fee }
-            }
-            return acc
-          },
-          {} as Record<string, ProtocolFee>,
-        ),
-      )
+    ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
 

@@ -1,6 +1,10 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote } from '@shapeshiftoss/swapper'
 import { isThorTradeQuote } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeQuote/getTradeQuote'
 import { isThorTradeRate } from '@shapeshiftoss/swapper/dist/swappers/ThorchainSwapper/getThorTradeRate/getTradeRate'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { getMaybeCompositeAssetSymbol } from 'lib/mixpanel/helpers'
 import type { ReduxState } from 'state/reducer'
 import { selectAssets, selectFeeAssetById } from 'state/slices/selectors'
@@ -66,4 +70,39 @@ export const getMixpanelEventData = () => {
     isLongtail: activeQuote?.isLongtail ?? false,
     tradeType,
   }
+}
+
+type ProtocolFeeDisplay = {
+  assetId: AssetId | undefined
+  chainName: string | undefined
+  amountCryptoPrecision: string
+  symbol: string
+}
+
+export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeDisplay[] => {
+  const feeMap: Record<string, ProtocolFeeDisplay> = {}
+
+  items
+    .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
+    .forEach(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => {
+      const key = `${asset.assetId}-${getChainAdapterManager()
+        .get(asset.chainId)
+        ?.getDisplayName()}`
+      if (feeMap[key]) {
+        // If we already have this asset+chain combination, add the amounts
+        feeMap[key].amountCryptoPrecision = bnOrZero(feeMap[key].amountCryptoPrecision)
+          .plus(fromBaseUnit(amountCryptoBaseUnit, asset.precision))
+          .toString()
+      } else {
+        // First time seeing this asset+chain combination
+        feeMap[key] = {
+          assetId: asset.assetId,
+          chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
+          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+          symbol: asset.symbol,
+        }
+      }
+    })
+
+  return Object.values(feeMap)
 }

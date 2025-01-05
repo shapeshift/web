@@ -1,8 +1,8 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { atom } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import axios from 'axios'
 
-import { atom } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import colormap from '../color-map.json'
 
 export const colorMap: Record<string, string> = colormap

@@ -2,6 +2,7 @@ import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { cloneAsMutable } from '@shapeshiftoss/utils'
 import {
   atom,
   bitcoin,
@@ -42,12 +43,12 @@ const generateColorMap = async () => {
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
-    bitcoin,
-    bitcoincash,
-    dogecoin,
-    litecoin,
-    atom,
-    thorchain,
+    cloneAsMutable(bitcoin),
+    cloneAsMutable(bitcoincash),
+    cloneAsMutable(dogecoin),
+    cloneAsMutable(litecoin),
+    cloneAsMutable(atom),
+    cloneAsMutable(thorchain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,

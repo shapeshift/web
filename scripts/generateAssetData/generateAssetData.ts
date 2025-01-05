@@ -10,7 +10,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { decodeAssetData, encodeAssetData } from '@shapeshiftoss/utils'
+import { cloneAsMutable, decodeAssetData, encodeAssetData } from '@shapeshiftoss/utils'
 import {
   atom,
   bitcoin,
@@ -54,12 +54,12 @@ const generateAssetData = async () => {
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
-    bitcoin,
-    bitcoincash,
-    dogecoin,
-    litecoin,
-    atom,
-    thorchain,
+    cloneAsMutable(bitcoin),
+    cloneAsMutable(bitcoincash),
+    cloneAsMutable(dogecoin),
+    cloneAsMutable(litecoin),
+    cloneAsMutable(atom),
+    cloneAsMutable(thorchain),
     ...ethAssets,
     ...cosmosAssets,
     ...avalancheAssets,

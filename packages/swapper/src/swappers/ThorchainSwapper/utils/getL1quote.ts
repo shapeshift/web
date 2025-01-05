@@ -521,6 +521,6 @@ export const getL1Quote = async (
     }
 
     default:
-      assertUnreachable(chainNamespace)
+      return assertUnreachable(chainNamespace)
   }
 }

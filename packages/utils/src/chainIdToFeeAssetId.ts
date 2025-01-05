@@ -57,8 +57,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
     case KnownChainIds.SolanaMainnet:
       return solAssetId
     default:
-      assertUnreachable(chainId)
+      return assertUnreachable(chainId)
   }
-
-  throw Error(`Unsupported chainId: ${chainId}`)
 }

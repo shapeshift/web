@@ -314,6 +314,7 @@ export enum CowNetwork {
   Mainnet = 'mainnet',
   Xdai = 'xdai',
   ArbitrumOne = 'arbitrum_one',
+  Base = 'base',
 }
 
 export type CowChainId =

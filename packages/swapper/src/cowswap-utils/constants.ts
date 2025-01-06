@@ -27,6 +27,7 @@ export const SUPPORTED_CHAIN_IDS: ChainId[] = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
+  KnownChainIds.BaseMainnet,
 ]
 
 export const COW_SWAP_SUPPORTED_CHAIN_IDS: SupportedChainIds = {

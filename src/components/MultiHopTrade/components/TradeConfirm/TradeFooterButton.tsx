@@ -118,12 +118,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   }, [tradeButtonProps, setHasClickedButton])
 
   const handleClick = useCallback(() => {
-    if (isModeratePriceImpact) {
+    const isInitializingOrPreviewing =
+      confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+      confirmedTradeExecutionState === TradeExecutionState.Previewing
+    // Only show the warning acknowledgement if the user is previewing the trade
+    if (isModeratePriceImpact && isInitializingOrPreviewing) {
       setShouldShowWarningAcknowledgement(true)
     } else {
       handleSubmit()
     }
-  }, [isModeratePriceImpact, handleSubmit])
+  }, [isModeratePriceImpact, handleSubmit, confirmedTradeExecutionState])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {

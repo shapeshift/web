@@ -156,8 +156,9 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         {firstHopAllowanceReset.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
           <TxLabel
             txHash={firstHopAllowanceReset.txHash}
-            explorerTxLink={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+            explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
             accountId={firstHopSellAccountId}
+            swapperName={undefined} // no swapper base URL here, this is an allowance Tx
           />
         )}
       </Flex>
@@ -182,8 +183,9 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             {firstHopAllowanceApproval.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
               <TxLabel
                 txHash={firstHopAllowanceApproval.txHash}
-                explorerTxLink={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
                 accountId={firstHopSellAccountId}
+                swapperName={undefined} // no swapper base URL here, this is an allowance Tx
               />
             )}
           </>
@@ -214,15 +216,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             {firstHopSwap.sellTxHash && (
               <TxLabel
                 txHash={firstHopSwap.sellTxHash}
-                explorerTxLink={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
                 accountId={firstHopSellAccountId}
+                swapperName={swapperName}
               />
             )}
             {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
               <TxLabel
                 txHash={firstHopSwap.buyTxHash}
-                explorerTxLink={tradeQuoteFirstHop.buyAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
                 accountId={firstHopSellAccountId}
+                swapperName={swapperName}
               />
             )}
           </VStack>
@@ -235,6 +239,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopStreamingProgress,
     firstHopSwap.buyTxHash,
     firstHopSwap.sellTxHash,
+    swapperName,
     tradeQuoteFirstHop,
   ])
 
@@ -245,8 +250,9 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         {lastHopAllowanceReset.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
           <TxLabel
             txHash={lastHopAllowanceReset.txHash}
-            explorerTxLink={tradeQuoteLastHop.sellAsset.explorerTxLink}
+            explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
             accountId={lastHopSellAccountId}
+            swapperName={undefined} // no swapper base URL here, this is an allowance Tx
           />
         )}
       </Flex>
@@ -271,8 +277,9 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             {lastHopAllowanceApproval.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
               <TxLabel
                 txHash={lastHopAllowanceApproval.txHash}
-                explorerTxLink={tradeQuoteLastHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
+                swapperName={undefined} // no swapper base URL here, this is an allowance Tx
               />
             )}
           </>
@@ -303,15 +310,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             {lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.sellTxHash}
-                explorerTxLink={tradeQuoteLastHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
+                swapperName={swapperName}
               />
             )}
             {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.buyTxHash}
-                explorerTxLink={tradeQuoteLastHop.buyAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteLastHop.buyAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
+                swapperName={swapperName}
               />
             )}
           </VStack>
@@ -324,6 +333,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopSwap.buyTxHash,
     lastHopSwap.sellTxHash,
     secondHopStreamingProgress,
+    swapperName,
     tradeQuoteLastHop,
   ])
 

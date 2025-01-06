@@ -59,11 +59,8 @@ const encodeField = <F extends Field>(
     case 'isPool':
       return (asset.isPool ? 1 : 0) as FieldToType[F]
     default:
-      assertUnreachable(field)
+      return assertUnreachable(field)
   }
-
-  // Should never happen, stfu typescript.
-  throw Error('unhandled field type')
 }
 
 export const encodeAssetData = (

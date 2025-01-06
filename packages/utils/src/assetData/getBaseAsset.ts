@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from '../assertUnreachable'
@@ -21,7 +22,7 @@ import {
   thorchain,
 } from './baseAssets'
 
-export const getBaseAsset = (chainId: ChainId) => {
+export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
   const knownChainId = chainId as KnownChainIds
   switch (knownChainId) {
     case KnownChainIds.EthereumMainnet:
@@ -57,6 +58,6 @@ export const getBaseAsset = (chainId: ChainId) => {
     case KnownChainIds.ThorchainMainnet:
       return thorchain
     default:
-      assertUnreachable(knownChainId)
+      return assertUnreachable(knownChainId)
   }
 }

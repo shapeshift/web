@@ -1,5 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { unfreeze } from '@shapeshiftoss/utils'
 import { solana } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import uniqBy from 'lodash/uniqBy'
 
@@ -16,5 +17,5 @@ export const getAssets = async (): Promise<Asset[]> => {
 
   const allAssets = uniqBy(assets, 'assetId')
 
-  return [solana, ...allAssets]
+  return [unfreeze(solana), ...allAssets]
 }

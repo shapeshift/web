@@ -1,5 +1,6 @@
 import { avalancheChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { unfreeze } from '@shapeshiftoss/utils'
 import { avax } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
@@ -25,7 +26,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([avax]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(avax)]),
     'assetId',
   )
 

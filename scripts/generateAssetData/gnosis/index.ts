@@ -1,5 +1,6 @@
 import { gnosisChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { unfreeze } from '@shapeshiftoss/utils'
 import { gnosis } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
@@ -19,7 +20,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([gnosis]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(gnosis)]),
     'assetId',
   )
 

@@ -1,5 +1,6 @@
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { unfreeze } from '@shapeshiftoss/utils'
 import { ethereum } from '@shapeshiftoss/utils/src/assetData/baseAssets'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -71,5 +72,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     modifiedAssets = modifiedAssets.concat(newModifiedTokens)
   }
 
-  return [ethereum, ...modifiedAssets]
+  return [unfreeze(ethereum), ...modifiedAssets]
 }

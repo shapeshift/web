@@ -244,12 +244,8 @@ export const TradeConfirmSummary = () => {
             </Row.Label>
             <Row.Value color='text.base'>
               {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
-                <HStack key={`${assetId}-${amountCryptoPrecision}`} justifyContent='flex-end'>
-                  <Amount.Crypto
-                    key={`${assetId}-${amountCryptoPrecision}`}
-                    value={amountCryptoPrecision}
-                    symbol={symbol}
-                  />
+                <HStack key={assetId} justifyContent='flex-end'>
+                  <Amount.Crypto value={amountCryptoPrecision} symbol={symbol} />
                   {assetId && (
                     <Amount.Fiat
                       color={'text.subtle'}

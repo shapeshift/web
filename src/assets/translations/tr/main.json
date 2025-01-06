@@ -925,7 +925,6 @@
         "negativeRatio": "Yetersiz satış tutarı"
       },
       "rateExpired": {
-        "title": "Oran süresi doldu",
         "body": "Önceki takas oranınız sona erdi. Yeni bir oran aldık ve teklif tutarlarınızı güncelledik. Lütfen takasınızı onaylamadan önce en son ayrıntıları inceleyin.",
         "cta": "Tamam, anladım"
       }
@@ -1010,7 +1009,6 @@
       "swap": "Takas yürütülürken bir sorun oluştu"
     },
     "transactionTitle": {
-      "bridge": "%{swapperName} aracılığıyla %{sellChainName} ile %{buyChainName} arasında köprü kurun",
       "swap": "%{sellChainName} üzerinde %{swapperName} aracılığıyla takas yapın"
     },
     "approvalTitle": "Token ödeneği onayı",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "Limit emri, zincir üstü fiyatlar limit fiyatına ulaştığında tam olarak doldurulamayabilir.",
     "learnMore": "Daha fazla bilgi edin",
     "previewOrder": "Siparişi Önizleme ",
-    "youGet": "Alırsın",
     "whenPriceReaches": "Fiyat ulaştığında",
     "expiry": "Sona erme",
     "noOpenOrders": "Henüz açık emir yok.",

@@ -925,7 +925,6 @@
         "negativeRatio": "Unzureichender Verkaufsbetrag"
       },
       "rateExpired": {
-        "title": "Kursbewertung abgelaufen",
         "body": "Ihr bisheriger Swap-Kurs ist abgelaufen. Wir haben einen neuen Kurs abgerufen und Ihre Angebotsbeträge aktualisiert. Bitte überprüfen Sie die neuesten Details, bevor Sie Ihren Swap bestätigen.",
         "cta": "Okay, verstanden"
       }
@@ -1010,7 +1009,6 @@
       "swap": "Beim Ausführen des Tausches ist ein Problem aufgetreten"
     },
     "transactionTitle": {
-      "bridge": "Bridge von %{sellChainName} zu %{buyChainName} über %{swapperName}",
       "swap": "Tauschen Sie %{sellChainName} über %{swapperName}"
     },
     "approvalTitle": "Genehmigung der Token-Zulage",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "Die Limit-Order wird möglicherweise nicht genau dann ausgeführt, wenn die On-Chain-Preise den Limit-Preis erreichen.",
     "learnMore": "Mehr erfahren",
     "previewOrder": "Bestellvorschau",
-    "youGet": "Sie erhalten",
     "whenPriceReaches": "Wenn der Preis erreicht",
     "expiry": "Ablauf",
     "noOpenOrders": "Noch keine offenen Bestellungen.",

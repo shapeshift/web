@@ -925,7 +925,6 @@
         "negativeRatio": "Monto de venta insuficiente"
       },
       "rateExpired": {
-        "title": "Tarifa vencida",
         "body": "Su tasa de intercambio ha expirado. Hemos obtenido nueva tasa y actualizado montos de cotización. Revise los detalles más recientes antes de confirmar su intercambio.",
         "cta": "Ok, lo entiendo"
       }
@@ -1010,7 +1009,6 @@
       "swap": "Ocurrió un problema al ejecutar el intercambio."
     },
     "transactionTitle": {
-      "bridge": "Bridge de %{sellChainName} a %{buyChainName} a través de %{swapperName}",
       "swap": "Intercambie en %{sellChainName} utilizando %{swapperName}"
     },
     "approvalTitle": "Aprobar asignación de Token",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "Es posible que la orden límite no se complete exactamente cuando los precios alcancen el precio límite.",
     "learnMore": "Más información",
     "previewOrder": "Vista previa del pedido",
-    "youGet": "Tú Obtienes",
     "whenPriceReaches": "Cuando el precio alcance",
     "expiry": "Expiración",
     "noOpenOrders": "No hay órdenes abiertas todavía",

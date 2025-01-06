@@ -925,7 +925,6 @@
         "negativeRatio": "売却額が足りません"
       },
       "rateExpired": {
-        "title": "レートの有効期限が切れました",
         "body": "以前のスワップ レートは期限切れです。新しいレートを取得し、見積額を更新しました。スワップを確認する前に、最新の詳細を確認してください。",
         "cta": "分かりました"
       }
@@ -1010,7 +1009,6 @@
       "swap": "スワップ中に問題が発生しました"
     },
     "transactionTitle": {
-      "bridge": "%{swapperName} を介して %{sellChainName} から %{buyChainName} にブリッジします",
       "swap": "%{swapperName} 経由で %{sellChainName} でスワップします"
     },
     "approvalTitle": "トークン割り当ての承認",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "オンチェーン価格が制限価格に達したときに、指値注文が正確に約定されない場合があります。",
     "learnMore": "もっと詳しく知る",
     "previewOrder": "注文のプレビュー",
-    "youGet": "獲得したもの",
     "whenPriceReaches": "価格が達したとき",
     "expiry": "有効期限",
     "noOpenOrders": "まだオープン注文はありません。",

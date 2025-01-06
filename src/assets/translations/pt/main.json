@@ -925,7 +925,6 @@
         "negativeRatio": "Quantia indisponível para vender"
       },
       "rateExpired": {
-        "title": "Taxa expirada",
         "body": "Sua taxa de swap anterior expirou. Buscamos uma nova taxa e atualizamos seus valores de cotação. Revise os detalhes mais recentes antes de confirmar seu swap.",
         "cta": "Ok, entendi"
       }
@@ -1010,7 +1009,6 @@
       "swap": "Ocorreu um problema ao executar o swap"
     },
     "transactionTitle": {
-      "bridge": "Bridge da %{sellChainName} para %{buyChainName} via %{swapperName}",
       "swap": "Swap na %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Aprovação de permissão de token",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "A ordem limite pode não ser preenchida exatamente quando os preços on-chain atingem o preço limite.",
     "learnMore": "Saber mais",
     "previewOrder": "Pré-visualizar pedido",
-    "youGet": "Você obtém",
     "whenPriceReaches": "Quando o preço atinge",
     "expiry": "Expiração",
     "noOpenOrders": "Ainda não há ordens abertas.",

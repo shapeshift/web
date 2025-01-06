@@ -925,7 +925,6 @@
         "negativeRatio": "Montant de vente insuffisant"
       },
       "rateExpired": {
-        "title": "Taux expiré",
         "body": "Votre taux d'échange précédent a expiré. Nous avons récupéré un nouveau taux et mis à jour les montants de vos devis. Veuillez consulter les derniers détails avant de confirmer votre échange.",
         "cta": "Ok, j'ai compris"
       }
@@ -1010,7 +1009,6 @@
       "swap": "Un problème est survenu lors de l'exécution de l'échange"
     },
     "transactionTitle": {
-      "bridge": "Transfert en %{sellChainName} vers %{buyChainName} via %{swapperName}",
       "swap": "Échange sur %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Autorisation d'allocation de jetons",
@@ -1045,7 +1043,6 @@
     "confirmInfo": "L'ordre à cours limité peut ne pas rempli exactement lorsque les prix sur la chaîne atteignent le prix limite.",
     "learnMore": "En savoir plus",
     "previewOrder": "Prévisualiser l'ordre",
-    "youGet": "Vous recevez",
     "whenPriceReaches": "Lorsque le prix atteint",
     "expiry": "Expiration",
     "noOpenOrders": "Aucun ordre ouvert pour le moment.",

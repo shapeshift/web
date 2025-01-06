@@ -68,7 +68,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
     data: networkFeeCryptoBaseUnit,
   } = useTradeNetworkFeeCryptoBaseUnit({
-    hopIndex: 0,
+    hopIndex: currentHopIndex,
     enabled:
       currentTradeStep === StepperStep.FirstHopSwap || currentTradeStep === StepperStep.LastHopSwap,
   })

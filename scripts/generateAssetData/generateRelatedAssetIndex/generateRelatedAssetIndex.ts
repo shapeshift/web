@@ -335,8 +335,8 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
   const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
   const reEncodedAssetData = encodeAssetData(sortedAssetIds, generatedAssetData)
 
-  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

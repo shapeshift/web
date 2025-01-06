@@ -218,6 +218,8 @@ export const LimitOrderInput = ({
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
   const marketPriceBuyAsset = useMemo(() => {
+    // Ensure we zero out the price if there is an error, and when we are fetching, as `quoteResponse` will be stale data in both cases
+    if (isLimitOrderQuoteFetching || quoteResponseError) return '0'
     // RTK query returns stale data when `skipToken` is used, so we need to handle that case here.
     if (!quoteResponse || limitOrderQuoteParams === skipToken) return '0'
 
@@ -227,7 +229,14 @@ export const LimitOrderInput = ({
       sellAsset,
       buyAsset,
     })
-  }, [quoteResponse, limitOrderQuoteParams, sellAsset, buyAsset])
+  }, [
+    isLimitOrderQuoteFetching,
+    quoteResponseError,
+    quoteResponse,
+    limitOrderQuoteParams,
+    sellAsset,
+    buyAsset,
+  ])
 
   // Update the limit price when the market price changes.
   useEffect(() => {

@@ -98,7 +98,7 @@ export const getChainFlipSwap = ({
   maxBoostFee = 0,
   minimumPrice,
   refundAddress,
-  retryDurationInBlocks = 10,
+  retryDurationInBlocks = 150,
   commissionBps,
   numberOfChunks,
   chunkIntervalBlocks = 2,

@@ -168,7 +168,6 @@ export const FeeSliders: React.FC<FeeSlidersProps> = ({
               decimalScale={2}
               customInput={Input}
               isNumericString={true}
-              suffix={localeParts.postfix}
               prefix='$'
               decimalSeparator={localeParts.decimal}
               thousandSeparator={localeParts.group}

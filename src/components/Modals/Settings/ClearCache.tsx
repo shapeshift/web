@@ -72,9 +72,7 @@ export const ClearCache = ({ appHistory }: ClearCacheProps) => {
       await persistor.purge()
       // send them back to the connect wallet route in case the bug was something to do with the current page
       // and so they can reconnect their native wallet to avoid the app looking broken in an infinite loading state
-      if (isMobileApp) {
-        appHistory.replace('/connect-mobile-wallet')
-      }
+      appHistory.replace('/connect-wallet')
       // reload the page
       isMobileApp ? reloadWebview() : window.location.reload()
     } catch (e) {}

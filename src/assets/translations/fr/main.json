@@ -40,6 +40,7 @@
     "noResultsFound": "Aucun résultat trouvé.",
     "noResultsBody": "Il n'y a pas de résultat pour %{searchQuery}. Essayez une nouvelle recherche.",
     "insufficientFunds": "Fonds insuffisants",
+    "insufficientFundsForTrade": "Fonds insuffisants pour l'échange",
     "insufficientAllowance": "Allocation insuffisante",
     "estimatedGas": "Frais de carburant estimés",
     "relayerGasFee": "Frais de carburant du relayeur",
@@ -129,6 +130,7 @@
     "best": "Meilleur",
     "gasFee": "Frais de carburant",
     "approvalFee": "Frais d'autorisation",
+    "allowanceResetFee": "Frais de réinitialisation d'allocation",
     "consolidationFee": "Frais de consolidation",
     "fees": "Frais",
     "alternative": "Alternatif",
@@ -147,6 +149,7 @@
     "learnMore": "En savoir plus",
     "showAll": "Montrer tout",
     "showLess": "Montrer moins",
+    "showMore": "Montrer plus",
     "yourBalance": "Votre solde",
     "signTransaction": "Signer la transaction",
     "active": "Actif",
@@ -865,6 +868,7 @@
     "gasFeeExceedsTradeAmountThreshold": "Les frais de carburant dépassent %{percentage}% du montant de l'échange",
     "confirmDetails": "Confirmer les détails",
     "confirmAndTrade": "Confirmer et échanger",
+    "signAndSwap": "Signer et échanger",
     "tradeAnyway": "Échanger quand même",
     "pending": "Échange en attente",
     "complete": "Échange terminé",
@@ -886,6 +890,8 @@
     "beforeFees": "Avant frais",
     "minAmountAfterSlippage": "Min. attendu après glissement/slippage (%{slippage}%)",
     "free": "Gratuit",
+    "shapeShiftFee": "Frais ShapeShift",
+    "transactionFee": "Frais de transaction",
     "slowSwapTitle": "Échange %{protocol}",
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
     "thorSmartContractWalletUnsupported": "Le réseau THORChain ne prend actuellement pas en charge les porte-monnaie pour contrats intelligents.",
@@ -925,6 +931,7 @@
         "negativeRatio": "Montant de vente insuffisant"
       },
       "rateExpired": {
+        "title": "Nouveau taux",
         "body": "Votre taux d'échange précédent a expiré. Nous avons récupéré un nouveau taux et mis à jour les montants de vos devis. Veuillez consulter les derniers détails avant de confirmer votre échange.",
         "cta": "Ok, j'ai compris"
       }
@@ -965,7 +972,12 @@
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
       "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds.",
-      "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard"
+      "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard",
+      "maxSlippageExceededWithExpectedSlippage": "La tolérance de glissement/slippage maximale autorisée pour cette transaction a été dépassée durant la simulation. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
+      "executionRevertedWithExpectedSlippage": "L'exécution a été annulée durant l'exécution. Cela peut être dû à une tolérance de glissement/slippage insuffisante. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
+      "slippageToleranceExceeded": "Tolérance de glissement/slippage dépassée.",
+      "underMinimumAmount": "Un ou plusieurs des actifs de cet échange sont inférieurs au montant minimum requis pour cet échange.",
+      "consumedMoreFees": "La transaction a été annulée car les frais consommés par cette transaction étaient plus élevés que prévu."
     },
     "swappingComingSoonForWallet": "Échanger avec %{walletName} sera bientôt possible",
     "recentTrades": "Échanges récents",
@@ -988,8 +1000,8 @@
     "approvalGasFeeLoading": "Chargement des frais de carburant pour l'autorisation d'allocation...",
     "approvalResetGasFee": "Frais de carburant pour la réinitialisation d'allocation %{fee}",
     "approvalResetGasFeeLoading": "Chargement des frais de carburant pour la réinitialisation d'allocation...",
-    "approvalFailed": "Un problème est survenu lors de l'autorisation de l'allocation",
-    "approvalResetFailed": "Un problème est survenu lors de la réinitialisation de l'allocation",
+    "approvalFailed": "Un problème est survenu lors de l'autorisation d'allocation",
+    "approvalResetFailed": "Un problème est survenu lors de la réinitialisation d'allocation",
     "allowanceResetTxName": "Tx. de réinitialisation d'allocation :",
     "allowanceApprovalTxName": "Tx. d'autorisation d'allocation :",
     "tradeComplete": "Vous disposez maintenant de %{cryptoAmountFormatted} dans votre porte-monnaie sur %{chainName}.",
@@ -1002,22 +1014,30 @@
     },
     "hopTitle": {
       "bridge": "Transfert via %{swapperName}",
-      "swap": "Échange via %{swapperName}"
+      "swap": "Échange via %{swapperName}",
+      "swapEta": "Échange via %{swapperName} dans ~%{eta}"
     },
     "transactionFailed": {
       "bridge": "Un problème est survenu lors de l'exécution du transfert",
       "swap": "Un problème est survenu lors de l'exécution de l'échange"
     },
     "transactionTitle": {
+      "bridge": "Échange de %{sellChainName} à %{buyChainName} via %{swapperName}",
       "swap": "Échange sur %{sellChainName} via %{swapperName}"
     },
     "approvalTitle": "Autorisation d'allocation de jetons",
-    "resetTitle": "Réinitialisation de l'allocation de jetons",
+    "permit2Title": "Autoriser le transfert de jetons",
+    "resetTitle": "Réinitialisation d'allocation de jetons",
     "fiatAmountOnChain": "%{amountFiatFormatted} sur %{chainName}",
     "quote": {
       "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userslippageFormatted}) pour %{swapperName}",
       "slippage": "Glissement/Slippage : %{slippageFormatted}"
-    }
+    },
+    "awaitingPermit2Approval": "En attente de transfert de jetons",
+    "awaitingSwap": "En attente d'échange via %{swapperName}",
+    "awaitingBridge": "En attente de transfert via %{bridgeName}",
+    "awaitingApproval": "En attente d'autorisation",
+    "awaitingAllowanceReset": "En attente de réinitialisation d'allocation"
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1037,16 +1057,19 @@
     "yourOrderHasBeenPlaced": "Votre ordre a été placé.",
     "yourCancellationHasBeenSubmitted": "Votre annulation a été envoyée.",
     "limitPrice": "Prix limite",
+    "executionPrice": "Prix d'exécution",
     "provider": "Fournisseur",
     "expiration": "Expiration",
     "networkFee": "Frais de réseau",
     "confirmInfo": "L'ordre à cours limité peut ne pas rempli exactement lorsque les prix sur la chaîne atteignent le prix limite.",
     "learnMore": "En savoir plus",
     "previewOrder": "Prévisualiser l'ordre",
+    "youGet": "Vous recevez au moins",
     "whenPriceReaches": "Lorsque le prix atteint",
     "expiry": "Expiration",
     "noOpenOrders": "Aucun ordre ouvert pour le moment.",
     "noHistoricalOrders": "Aucun ordre dans l'historique pour le moment.",
+    "limitPriceIsPercentLowerThanMarket": "Le prix limite est %{percent}% inférieur au prix du marché",
     "expiryOption": {
       "oneHour": "1 heure",
       "oneDay": "1 jour",
@@ -1059,9 +1082,18 @@
       "nativeSellAssetNotSupported": "L'actif natif de vente n'est pas pris en charge",
       "insufficientValidTo": "Échéance de l'ordre trop rapprochée",
       "excessiveValidTo": "Échéance de l'ordre trop lointaine",
-      "insufficientLiquidity": "Liquidité insuffisante"
+      "insufficientLiquidity": "Liquidité insuffisante",
+      "zeroFunds": "Solde d'actif de vente non nul requis",
+      "insufficientFundsForGas": "Fonds insuffisants pour le carburant",
+      "allowanceResetRequired": "Réinitialisation d'allocation requise"
     },
-    "expiresIn": "Expire dans",
+    "warnings": {
+      "limitPriceIsPercentLowerThanMarket": "Le prix est inférieur de %{percent}% au prix du marché.\n\nBien que CoW s'efforce toujours de vous proposer le meilleur prix disponible, cela pourrait vous faire vendre vos %{sellAssetSymbol} à perte. Envisagez plutôt de cliquer sur \"Marché\"."
+    },
+    "usdtAllowanceReset": {
+      "title": "Impossible d'approuver l'allocation d'USDT",
+      "description": "Votre allocation actuelle d'USDT sur Ethereum doit être réinitialisée à 0 avant de pouvoir être définie à valeur suffisante. Veuillez révoquer l'allocation actuelle d'USDT et réessayer, s'il vous plaît."
+    },
     "openOrders": "Ordres ouverts",
     "orderHistory": "Historique des ordres",
     "status": {
@@ -1072,7 +1104,13 @@
     },
     "orders": "Ordres",
     "viewOrders": "Voir les ordres",
-    "loadingOrderList": "Chargement de vos ordres à cours limité..."
+    "loadingOrderList": "Chargement de vos ordres à cours limité...",
+    "orderCard": {
+      "warning": {
+        "insufficientBalance": "Votre porte-monnaie ne dispose actuellement pas d'un solde en %{symbol} suffisant sur %{chainName} pour exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable lorsque vous approvisionnerez votre solde en %{symbol} sur %{chainName}.",
+        "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'approbation d'allocation terminée."
+      }
+    }
   },
   "modals": {
     "assetSearch": {

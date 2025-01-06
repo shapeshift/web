@@ -104,6 +104,6 @@ export const getThorTradeRate = async (
     case TradeType.LongTailToLongTail:
       return Err(makeSwapErrorRight({ message: 'Not implemented yet' }))
     default:
-      assertUnreachable(tradeType)
+      return assertUnreachable(tradeType)
   }
 }

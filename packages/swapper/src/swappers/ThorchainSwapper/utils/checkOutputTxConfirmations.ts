@@ -45,7 +45,7 @@ export const checkOutputTxConfirmations = async (
       case ThorchainChain.BSC:
         throw Error(`${latestOutTx.chain} not supported`)
       default:
-        assertUnreachable(latestOutTx.chain)
+        return assertUnreachable(latestOutTx.chain)
     }
   })()
 

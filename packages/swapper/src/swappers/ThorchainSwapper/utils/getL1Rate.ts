@@ -486,6 +486,6 @@ export const getL1Rate = async (
     }
 
     default:
-      assertUnreachable(chainNamespace)
+      return assertUnreachable(chainNamespace)
   }
 }

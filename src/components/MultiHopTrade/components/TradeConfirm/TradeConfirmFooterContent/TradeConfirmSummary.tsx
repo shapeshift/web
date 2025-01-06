@@ -12,62 +12,48 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
+import { getHopByIndex } from '@shapeshiftoss/swapper'
 import { bnOrZero, fromBaseUnit, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Amount } from 'components/Amount/Amount'
 import { FeeModal } from 'components/FeeModal/FeeModal'
+import { parseAmountDisplayMeta } from 'components/MultiHopTrade/helpers'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { Row } from 'components/Row/Row'
 import { RawText, Text } from 'components/Text'
-import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
 import { useToggle } from 'hooks/useToggle/useToggle'
 import { THORSWAP_MAXIMUM_YEAR_TRESHOLD, THORSWAP_UNIT_THRESHOLD } from 'lib/fees/model'
 import { middleEllipsis } from 'lib/utils'
 import { selectThorVotingPower } from 'state/apis/snapshot/selectors'
 import { selectMarketDataUserCurrency } from 'state/slices/marketDataSlice/selectors'
+import { selectFeeAssetById } from 'state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAmountUsd,
   selectInputSellAsset,
+  selectIsActiveQuoteMultiHop,
 } from 'state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectBuyAmountAfterFeesCryptoPrecision,
   selectFirstHop,
-  selectTotalNetworkFeeUserCurrency,
+  selectFirstHopNetworkFeeCryptoBaseUnit,
+  selectFirstHopNetworkFeeUserCurrency,
+  selectSecondHopNetworkFeeCryptoBaseUnit,
+  selectSecondHopNetworkFeeUserCurrency,
   selectTotalProtocolFeeByAsset,
   selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   selectTradeSlippagePercentageDecimal,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { useAppSelector } from 'state/store'
+import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { useIsApprovalInitiallyNeeded } from '../../MultiHopTradeConfirm/hooks/useIsApprovalInitiallyNeeded'
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
 import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
-
-type ProtocolFee = {
-  assetId: AssetId | undefined
-  chainName: string | undefined
-  amountCryptoPrecision: string
-  symbol: string
-}
-
-const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFee[] => {
-  return items
-    .filter(({ amountCryptoBaseUnit }) => bnOrZero(amountCryptoBaseUnit).gt(0))
-    .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
-      assetId: asset.assetId,
-      chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-      amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
-      symbol: asset.symbol,
-    }))
-}
 
 const ProtocolFeeToolTip = () => {
   return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
@@ -110,12 +96,22 @@ export const TradeConfirmSummary = () => {
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
   const totalProtocolFees = useAppSelector(selectTotalProtocolFeeByAsset)
+  const firstHopFeeAsset = useSelectorWithArgs(selectFeeAssetById, sellAsset.assetId)
+  const secondHop = getHopByIndex(activeQuote, 1)
+  const secondHopFeeAsset = useSelectorWithArgs(
+    selectFeeAssetById,
+    secondHop?.sellAsset.assetId ?? '',
+  )
+  const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const sellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const affiliateFeeAfterDiscountUserCurrency = useAppSelector(
     selectTradeQuoteAffiliateFeeAfterDiscountUserCurrency,
   )
   const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
-  const totalNetworkFeeFiatUserCurrency = useAppSelector(selectTotalNetworkFeeUserCurrency)
+  const firstHopNetworkFeeUserCurrency = useAppSelector(selectFirstHopNetworkFeeUserCurrency)
+  const secondHopNetworkFeeUserCurrency = useAppSelector(selectSecondHopNetworkFeeUserCurrency)
+  const firstHopNetworkFeeCryptoBaseUnit = useAppSelector(selectFirstHopNetworkFeeCryptoBaseUnit)
+  const secondHopNetworkFeeCryptoBaseUnit = useAppSelector(selectSecondHopNetworkFeeCryptoBaseUnit)
   const tradeQuoteFirstHop = useAppSelector(selectFirstHop)
   const translate = useTranslate()
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
@@ -136,26 +132,19 @@ export const TradeConfirmSummary = () => {
   const hasIntermediaryTransactionOutputs =
     intermediaryTransactionOutputsParsed && intermediaryTransactionOutputsParsed.length > 0
   const protocolFeesParsed = totalProtocolFees
-    ? Object.values(
-        parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome)).reduce(
-          (acc, fee) => {
-            const key = `${fee.assetId}-${fee.chainName}`
-            if (acc[key]) {
-              // If we already have this symbol+chain combination, add the amounts
-              acc[key].amountCryptoPrecision = bnOrZero(acc[key].amountCryptoPrecision)
-                .plus(fee.amountCryptoPrecision)
-                .toString()
-            } else {
-              // First time seeing this symbol+chain combination
-              acc[key] = { ...fee }
-            }
-            return acc
-          },
-          {} as Record<string, ProtocolFee>,
-        ),
-      )
+    ? parseAmountDisplayMeta(Object.values(totalProtocolFees).filter(isSome))
     : undefined
   const hasProtocolFees = protocolFeesParsed && protocolFeesParsed.length > 0
+
+  const firstHopNetworkFeeCryptoPrecision = useMemo(() => {
+    if (!firstHopNetworkFeeCryptoBaseUnit) return undefined
+    return fromBaseUnit(firstHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
+  }, [firstHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
+
+  const secondHopNetworkFeeCryptoPrecision = useMemo(() => {
+    if (!secondHopNetworkFeeCryptoBaseUnit) return undefined
+    return fromBaseUnit(secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
+  }, [secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
 
   const isThorFreeTrade = useMemo(
     () =>
@@ -201,12 +190,48 @@ export const TradeConfirmSummary = () => {
           <Row.Value>
             {
               // We cannot infer gas fees in specific scenarios, so if the fee is undefined we must render is as such
-              !totalNetworkFeeFiatUserCurrency ? (
+              !firstHopNetworkFeeUserCurrency ||
+              (isMultiHopTrade && !secondHopNetworkFeeUserCurrency) ? (
                 <Tooltip label={translate('trade.tooltip.continueSwapping')}>
                   <Text translation={'trade.unknownGas'} />
                 </Tooltip>
               ) : (
-                <Amount.Fiat value={totalNetworkFeeFiatUserCurrency} />
+                <>
+                  {firstHopNetworkFeeUserCurrency &&
+                    firstHopNetworkFeeCryptoPrecision &&
+                    firstHopFeeAsset && (
+                      <HStack justifyContent='flex-end'>
+                        <Amount.Crypto
+                          symbol={firstHopFeeAsset.symbol}
+                          value={firstHopNetworkFeeCryptoPrecision}
+                        />
+                        <Amount.Fiat
+                          color={'text.subtle'}
+                          prefix='('
+                          suffix=')'
+                          noSpace
+                          value={firstHopNetworkFeeUserCurrency}
+                        />
+                      </HStack>
+                    )}
+                  {secondHopNetworkFeeUserCurrency &&
+                    secondHopNetworkFeeCryptoPrecision &&
+                    secondHopFeeAsset && (
+                      <HStack justifyContent='flex-end'>
+                        <Amount.Crypto
+                          symbol={secondHopFeeAsset.symbol}
+                          value={secondHopNetworkFeeCryptoPrecision}
+                        />
+                        <Amount.Fiat
+                          color={'text.subtle'}
+                          prefix='('
+                          suffix=')'
+                          noSpace
+                          value={secondHopNetworkFeeUserCurrency}
+                        />
+                      </HStack>
+                    )}
+                </>
               )
             }
           </Row.Value>
@@ -219,12 +244,8 @@ export const TradeConfirmSummary = () => {
             </Row.Label>
             <Row.Value color='text.base'>
               {protocolFeesParsed?.map(({ amountCryptoPrecision, assetId, symbol }) => (
-                <HStack key={`${assetId}-${amountCryptoPrecision}`} justifyContent='flex-end'>
-                  <Amount.Crypto
-                    key={`${assetId}-${amountCryptoPrecision}`}
-                    value={amountCryptoPrecision}
-                    symbol={symbol}
-                  />
+                <HStack key={assetId} justifyContent='flex-end'>
+                  <Amount.Crypto value={amountCryptoPrecision} symbol={symbol} />
                   {assetId && (
                     <Amount.Fiat
                       color={'text.subtle'}

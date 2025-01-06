@@ -71,7 +71,7 @@ export const getLatestThorTxStatusMessage = (
           : 'Outbound transaction scheduled, waiting on destination chain...'
       }
       default:
-        assertUnreachable(key)
+        return assertUnreachable(key)
     }
   }
 }

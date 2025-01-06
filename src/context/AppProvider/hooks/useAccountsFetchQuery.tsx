@@ -203,7 +203,7 @@ export const useAccountsFetchQuery = () => {
         isSnapInstalled,
       },
     ],
-    queryFn: deviceId && !hasManagedAccounts ? queryFn : skipToken,
+    queryFn: wallet && deviceId && !hasManagedAccounts ? queryFn : skipToken,
   })
 
   return query

@@ -11,11 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
-import {
-  ArbitrumBridgeAcknowledgement,
-  StreamingAcknowledgement,
-  WarningAcknowledgement,
-} from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { getMixpanelEventData } from 'components/MultiHopTrade/helpers'
 import { useInputOutputDifferenceDecimalPercentage } from 'components/MultiHopTrade/hooks/useInputOutputDifference'
@@ -62,8 +58,10 @@ import { useAccountIds } from '../../hooks/useAccountIds'
 import { SharedTradeInput } from '../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../SharedTradeInput/SharedTradeInputBody'
 import { TradeAssetInput } from '../TradeAssetInput'
+import { ArbitrumBridgeAcknowledgement } from './components/ArbitrumBridgeAcknowledgement'
 import { CollapsibleQuoteList } from './components/CollapsibleQuoteList'
 import { ConfirmSummary } from './components/ConfirmSummary'
+import { StreamingAcknowledgement } from './components/StreamingAcknowledgement'
 import { TradeSettingsMenu } from './components/TradeSettingsMenu'
 import { useTradeReceiveAddress } from './hooks/useTradeReceiveAddress'
 

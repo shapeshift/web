@@ -102,14 +102,22 @@ export async function getTrade({
       // used for analytics and affiliate fee - do not change this without considering impact
       integrator: LIFI_INTEGRATOR_ID,
       slippage: Number(slippageTolerancePercentageDecimal),
-      // Routes via Stargate or Amarok can always be executed in one step, as LiFi can make those
-      // bridges swap into any requested token on the destination chain. Other bridges my require
-      // two steps. As such, additional balance checks on the destination chain are required which
-      // are currently incompatible with our fee calculations, leading to incorrect fee display,
-      // reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc. For now,
-      // these bridges are disabled.
+      /*
+         For now, these bridges are disabled for diff. reasons:
+
+         - Routes via Stargate or Amarok can always be executed in one step, as LiFi can make those
+         bridges swap into any requested token on the destination chain.
+         - Other bridges may require two steps. As such, additional balance checks on the destination chain are required which
+         are currently incompatible with our fee calculations, leading to incorrect fee display,
+         reverts, partial swaps, wrong received tokens (due to out-of-gas mid-trade), etc.
+         - Allbridge bridges are detected as having two steps, however the second one is a receive Tx automagically sent from the router to the user, see  e.g
+         https://core.allbridge.io/explorer/transfer/0x0602229b16c96d83bcbfb4fcae7094675c6efe46de21e8f44ce9ab119d4cfea0
+         https://scan.li.fi/tx/0x3f5aa1a3f3715d040022bb85c71eb6229f7a030e4fcd866204be3b80b13ef08c
+         Until we have the notion of non/executable steps, and can properly flag Allbridge as non-executable step, we have to disable it.
+      */
+
       bridges: {
-        deny: ['stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
+        deny: ['allbridge', 'stargate', 'stargateV2', 'stargateV2Bus', 'amarok', 'arbitrum'],
         ...(lifiAllowedBridges ? { allow: lifiAllowedBridges } : {}),
       },
       ...(lifiAllowedExchanges

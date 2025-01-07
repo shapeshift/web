@@ -17,14 +17,9 @@ export const encodeRelatedAssetIndex = (
     if (!relatedAssets.length) continue
     const assetIdx = assetIdToAssetIdx[assetId]
     result[assetIdx] = relatedAssets.map(assetId => {
-      // if (!assetIdToAssetIdx[assetId]) console.log(assetId)
       return assetIdToAssetIdx[assetId]
     })
   }
-
-  // if (1 == 1) {
-  //   throw Error()
-  // }
 
   return result
 }

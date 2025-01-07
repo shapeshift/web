@@ -42,9 +42,9 @@ export const getCallDataFromQuote = async ({
       return data
     }
     case TradeType.LongTailToL1: {
-      const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
+      const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? '0'
       const amountOutMin = BigInt(
-        bnOrZero(expectedAmountOut.toString())
+        bnOrZero(expectedAmountOut)
           .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
           .toFixed(0, BigNumber.ROUND_UP),
       )

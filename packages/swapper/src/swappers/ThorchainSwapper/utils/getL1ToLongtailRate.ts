@@ -142,7 +142,7 @@ export const getL1ToLongtailRate = async (
         })) as MultiHopTradeRateSteps, // assuming multi-hop rate steps here since we're mapping over quote steps,
         isLongtail: true,
         longtailData: {
-          L1ToLongtailExpectedAmountOut: quotedAmountOut,
+          L1ToLongtailExpectedAmountOut: quotedAmountOut.toString(),
         },
       })
     }),

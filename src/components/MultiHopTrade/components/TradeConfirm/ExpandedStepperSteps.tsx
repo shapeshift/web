@@ -24,6 +24,7 @@ import {
   selectActiveQuoteErrors,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep as StepperStepComponent } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -47,7 +48,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
   const tradeQuoteFirstHop = activeTradeQuote.steps[0]
-  const tradeQuoteLastHop = activeTradeQuote.steps[1]
+  const tradeQuoteSecondHop = activeTradeQuote.steps[1]
   const activeTradeId = activeTradeQuote.id
   const swapperName = tradeQuoteFirstHop?.source
 
@@ -59,7 +60,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     hopIndex: 1,
     // If we don't have a second hop this hook will return undefined anyway. Satisfy the rules of hooks with tradeQuoteFirstHop, which
     // will always be defined.
-    tradeQuoteStep: tradeQuoteLastHop ?? tradeQuoteFirstHop,
+    tradeQuoteStep: tradeQuoteSecondHop ?? tradeQuoteFirstHop,
   })
 
   const isFirstHopBridge = useMemo(
@@ -67,8 +68,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     [tradeQuoteFirstHop?.buyAsset.chainId, tradeQuoteFirstHop?.sellAsset.chainId],
   )
   const isLastHopBridge = useMemo(
-    () => tradeQuoteLastHop?.buyAsset.chainId !== tradeQuoteLastHop?.sellAsset.chainId,
-    [tradeQuoteLastHop?.buyAsset.chainId, tradeQuoteLastHop?.sellAsset.chainId],
+    () => tradeQuoteSecondHop?.buyAsset.chainId !== tradeQuoteSecondHop?.sellAsset.chainId,
+    [tradeQuoteSecondHop?.buyAsset.chainId, tradeQuoteSecondHop?.sellAsset.chainId],
   )
   const chainAdapterManager = getChainAdapterManager()
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
@@ -92,8 +93,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     translate,
   ])
   const lastHopActionTitleText = useMemo(() => {
-    const sellAssetChainId = tradeQuoteLastHop?.sellAsset.chainId
-    const buyAssetChainId = tradeQuoteLastHop?.buyAsset.chainId
+    const sellAssetChainId = tradeQuoteSecondHop?.sellAsset.chainId
+    const buyAssetChainId = tradeQuoteSecondHop?.buyAsset.chainId
     if (!sellAssetChainId || !buyAssetChainId) return undefined
     const sellChainName = chainAdapterManager.get(sellAssetChainId)?.getDisplayName()
     const buyChainName = chainAdapterManager.get(buyAssetChainId)?.getDisplayName()
@@ -104,8 +105,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     chainAdapterManager,
     isLastHopBridge,
     swapperName,
-    tradeQuoteLastHop?.buyAsset.chainId,
-    tradeQuoteLastHop?.sellAsset.chainId,
+    tradeQuoteSecondHop?.buyAsset.chainId,
+    tradeQuoteSecondHop?.sellAsset.chainId,
     translate,
   ])
   const firstHopExecutionMetadataFilter = useMemo(() => {
@@ -136,6 +137,28 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     swap: lastHopSwap,
   } = useSelectorWithArgs(selectHopExecutionMetadata, lastHopExecutionMetadataFilter)
 
+  const transactionExecutionStateError = useMemo(() => {
+    return [
+      firstHopAllowanceApproval.state,
+      lastHopAllowanceApproval.state,
+      firstHopPermit2.state,
+      lastHopPermit2.state,
+      firstHopSwap.state,
+      lastHopSwap.state,
+      firstHopAllowanceReset.state,
+      lastHopAllowanceReset.state,
+    ].includes(TransactionExecutionState.Failed)
+  }, [
+    firstHopAllowanceApproval.state,
+    firstHopAllowanceReset.state,
+    firstHopPermit2.state,
+    firstHopSwap.state,
+    lastHopAllowanceApproval.state,
+    lastHopAllowanceReset.state,
+    lastHopPermit2.state,
+    lastHopSwap.state,
+  ])
+
   const { currentTradeStepIndex: currentStep } = useStepperSteps()
 
   const stepIndicator = useMemo(
@@ -143,10 +166,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       <StepStatus
         complete={completedStepIndicator}
         incomplete={undefined}
-        active={activeQuoteError ? erroredStepIndicator : undefined}
+        active={
+          activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
+        }
       />
     ),
-    [activeQuoteError],
+    [activeQuoteError, transactionExecutionStateError],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {
@@ -247,17 +272,17 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     return (
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         <Text translation='trade.resetTitle' />
-        {lastHopAllowanceReset.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
+        {lastHopAllowanceReset.txHash && tradeQuoteSecondHop && lastHopSellAccountId && (
           <TxLabel
             txHash={lastHopAllowanceReset.txHash}
-            explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
+            explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
             accountId={lastHopSellAccountId}
             swapperName={undefined} // no swapper base URL here, this is an allowance Tx
           />
         )}
       </Flex>
     )
-  }, [lastHopAllowanceReset.txHash, lastHopSellAccountId, tradeQuoteLastHop])
+  }, [lastHopAllowanceReset.txHash, lastHopSellAccountId, tradeQuoteSecondHop])
 
   const lastHopAllowanceApprovalTitle = useMemo(() => {
     return (
@@ -274,10 +299,10 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         ) : (
           <>
             <Text translation='trade.approvalTitle' />
-            {lastHopAllowanceApproval.txHash && tradeQuoteLastHop && lastHopSellAccountId && (
+            {lastHopAllowanceApproval.txHash && tradeQuoteSecondHop && lastHopSellAccountId && (
               <TxLabel
                 txHash={lastHopAllowanceApproval.txHash}
-                explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
                 swapperName={undefined} // no swapper base URL here, this is an allowance Tx
               />
@@ -290,7 +315,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopAllowanceApproval.txHash,
     lastHopPermit2.isRequired,
     lastHopSellAccountId,
-    tradeQuoteLastHop,
+    tradeQuoteSecondHop,
     translate,
   ])
 
@@ -305,12 +330,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </Tag>
           )}
         </HStack>
-        {tradeQuoteLastHop && lastHopSellAccountId && (
+        {tradeQuoteSecondHop && lastHopSellAccountId && (
           <VStack>
             {lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.sellTxHash}
-                explorerBaseUrl={tradeQuoteLastHop.sellAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteSecondHop.sellAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
                 swapperName={swapperName}
               />
@@ -318,7 +343,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             {lastHopSwap.buyTxHash && lastHopSwap.buyTxHash !== lastHopSwap.sellTxHash && (
               <TxLabel
                 txHash={lastHopSwap.buyTxHash}
-                explorerBaseUrl={tradeQuoteLastHop.buyAsset.explorerTxLink}
+                explorerBaseUrl={tradeQuoteSecondHop.buyAsset.explorerTxLink}
                 accountId={lastHopSellAccountId}
                 swapperName={swapperName}
               />
@@ -334,10 +359,11 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     lastHopSwap.sellTxHash,
     secondHopStreamingProgress,
     swapperName,
-    tradeQuoteLastHop,
+    tradeQuoteSecondHop,
   ])
 
   const { tradeSteps, currentTradeStep } = useStepperSteps()
+  const isError = activeQuoteError || transactionExecutionStateError
 
   return (
     <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
@@ -347,7 +373,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopReset}
+          isError={isError && currentTradeStep === StepperStep.FirstHopReset}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -357,7 +383,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopApproval}
+          isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -366,7 +392,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         stepIndicator={stepIndicator}
         stepProps={stepProps}
         useSpacer={false}
-        isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopSwap}
+        isError={isError && currentTradeStep === StepperStep.FirstHopSwap}
         stepIndicatorVariant='innerSteps'
       />
       {tradeSteps[StepperStep.LastHopReset] ? (
@@ -375,7 +401,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopReset}
+          isError={isError && currentTradeStep === StepperStep.LastHopReset}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -385,7 +411,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopApproval}
+          isError={isError && currentTradeStep === StepperStep.LastHopApproval}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -395,7 +421,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopSwap}
+          isError={isError && currentTradeStep === StepperStep.LastHopSwap}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}

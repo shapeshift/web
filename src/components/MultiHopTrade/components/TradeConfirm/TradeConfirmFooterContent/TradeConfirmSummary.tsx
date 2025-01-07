@@ -53,7 +53,6 @@ import { useIsApprovalInitiallyNeeded } from '../../MultiHopTradeConfirm/hooks/u
 import { PriceImpact } from '../../PriceImpact'
 import { MaxSlippage } from '../../TradeInput/components/MaxSlippage'
 import { SwapperIcon } from '../../TradeInput/components/SwapperIcon/SwapperIcon'
-import { useTradeReceiveAddress } from '../../TradeInput/hooks/useTradeReceiveAddress'
 
 const ProtocolFeeToolTip = () => {
   return <Text color='text.subtle' translation={'trade.tooltip.protocolFee'} />
@@ -117,10 +116,9 @@ export const TradeConfirmSummary = () => {
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const greenColor = useColorModeValue('green.600', 'green.200')
-  const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const [showFeeModal, setShowFeeModal] = useState(false)
   const thorVotingPower = useAppSelector(selectThorVotingPower)
-  const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
+  const receiveAddress = activeQuote?.receiveAddress
   const swapSource = tradeQuoteFirstHop?.source
   const rate = tradeQuoteFirstHop?.rate
   const sellAssetSymbol = sellAsset.symbol

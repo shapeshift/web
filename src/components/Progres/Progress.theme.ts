@@ -9,6 +9,8 @@ export const ProgressStyle = {
     },
     filledTrack: {
       borderRadius: 'full',
+      transitionProperty: 'width',
+      transitionDuration: '1s',
     },
   }),
   // Styles for the size variations

@@ -1,7 +1,8 @@
 import { ArrowUpDownIcon, WarningIcon } from '@chakra-ui/icons'
-import { Box, Collapse, Flex, HStack, Progress, Spinner } from '@chakra-ui/react'
+import { Box, Center, Collapse, Flex, HStack, Progress } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { AnimatedCheck } from 'components/AnimatedCheck'
+import { CircularProgress } from 'components/CircularProgress/CircularProgress'
 import { Text } from 'components/Text'
 import {
   selectActiveQuote,
@@ -29,10 +30,10 @@ export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
     () => ({
-      alignItems: 'center',
-      py: 2,
+      py: 0,
       onClick: () => setIsExpanded(!isExpanded),
       cursor: 'pointer',
+      'data-expanded': isExpanded,
     }),
     [isExpanded],
   )
@@ -56,12 +57,24 @@ export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
   const summaryStepIndicator = useMemo(() => {
     switch (true) {
       case confirmedTradeExecutionState === TradeExecutionState.TradeComplete:
-        return <AnimatedCheck />
+        return (
+          <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
+            <AnimatedCheck />
+          </Center>
+        )
       case !!activeQuoteError:
       case swapTxState === TransactionExecutionState.Failed:
-        return <WarningIcon color='red.500' />
+        return (
+          <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
+            <WarningIcon color='red.500' />
+          </Center>
+        )
       default:
-        return <Spinner thickness='3px' size='md' />
+        return (
+          <Center boxSize='32px' borderWidth='2px' borderColor='border.base' borderRadius='full'>
+            <CircularProgress size='20px' isIndeterminate />
+          </Center>
+        )
     }
   }, [confirmedTradeExecutionState, activeQuoteError, swapTxState])
 
@@ -105,7 +118,7 @@ export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
         useSpacer={false}
       />
       <Collapse in={props.isExpanded ?? isExpanded} style={collapseStyle}>
-        <Box py={4} pl={0}>
+        <Box pb={2} px={3}>
           {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
         </Box>
       </Collapse>

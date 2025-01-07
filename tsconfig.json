@@ -43,8 +43,6 @@
     "**/*.js",
     "src/lib/asset-service/service/encodedAssetData.json",
     "src/lib/asset-service/service/encodedRelatedAssetIndex.json",
-    "src/lib/asset-service/service/generatedAssetData.json",
-    "src/lib/asset-service/service/relatedAssetIndex.json",
   ],
   "references": [
     { "path": "./packages/caip" },

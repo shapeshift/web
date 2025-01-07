@@ -7,7 +7,7 @@ import { useAppSelector } from 'state/store'
 
 import { StepperStep } from '../MultiHopTradeConfirm/components/StepperStep'
 
-const etaStepProps = { alignItems: 'center', py: 2 }
+const etaStepProps = { py: 0 }
 
 export const EtaStep = () => {
   const translate = useTranslate()

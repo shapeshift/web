@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   FormControl,
@@ -111,6 +113,11 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
             </InputGroup>
             <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>
           </FormControl>
+          <Alert status='warning'>
+            <AlertDescription>
+              {translate('plugins.walletConnectToDapps.modal.connect.disclaimerBody')}
+            </AlertDescription>
+          </Alert>
           <Button
             isDisabled={!isValidUri}
             colorScheme='blue'

@@ -70,8 +70,8 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
           break
         }
         case 'relatedAssetKey': {
-          const typedValue = value as FieldToType[typeof field]
-          const relatedAssetId = typedValue === null ? null : sortedAssetIds[typedValue]
+          const assetIdx = value as FieldToType[typeof field]
+          const relatedAssetId = assetIdx === null ? null : sortedAssetIds[assetIdx]
           // if (relatedAssetId === undefined) throw Error()
           asset.relatedAssetKey = relatedAssetId
           break

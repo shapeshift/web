@@ -133,33 +133,26 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
 
   const onSubmit = useCallback(
     async (values: FieldValues) => {
-      try {
-        const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
-        const vault = await Vault.create()
-        vault.meta.set('createdAt', Date.now())
+      const { Vault } = await import('@shapeshiftoss/hdwallet-native-vault')
+      const vault = await Vault.create()
+      vault.meta.set('createdAt', Date.now())
 
-        if (!keystoreFile) {
-          throw new Error('No keystore uploaded')
-        }
-
-        try {
-          await vault.loadFromKeystore(keystoreFile, values.keystorePassword)
-        } catch (e) {
-          setError('keystorePassword', {
-            type: 'manual',
-            message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),
-          })
-          return
-        }
-
-        history.push(NativeWalletRoutes.Password, { vault })
-        mixpanel?.track(MixPanelEvent.NativeImportKeystore)
-      } catch (e) {
-        setError('mnemonic', {
-          type: 'manual',
-          message: 'walletProvider.shapeShift.import.invalidKeystore',
-        })
+      if (!keystoreFile) {
+        throw new Error('No keystore uploaded')
       }
+
+      try {
+        await vault.loadFromKeystore(keystoreFile, values.keystorePassword)
+      } catch (e) {
+        setError('keystorePassword', {
+          type: 'manual',
+          message: translate('walletProvider.shapeShift.import.invalidKeystorePassword'),
+        })
+        return
+      }
+
+      history.push(NativeWalletRoutes.Password, { vault })
+      mixpanel?.track(MixPanelEvent.NativeImportKeystore)
     },
     [history, keystoreFile, mixpanel, setError, translate],
   )

@@ -11,19 +11,25 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import type { Asset, AssetsById } from '@shapeshiftoss/types'
-import { isEvmChainId } from '@shapeshiftoss/utils'
+import type { Asset } from '@shapeshiftoss/types'
+import {
+  createThrottle,
+  decodeAssetData,
+  decodeRelatedAssetIndex,
+  encodeAssetData,
+  encodeRelatedAssetIndex,
+  isEvmChainId,
+} from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
-import path from 'path'
 import type { CoingeckoAssetDetails } from 'lib/coingecko/types'
 import type { PartialFields } from 'lib/types'
 import { isToken } from 'lib/utils'
 
-import { createThrottle } from '../utils'
+import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
 import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
@@ -274,21 +280,13 @@ const processRelatedAssetIds = async (
 export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => {
   console.log(`generateRelatedAssetIndex() starting (rebuildAll: ${rebuildAll})`)
 
-  const generatedAssetsPath = path.join(
-    __dirname,
-    '../../../src/lib/asset-service/service/generatedAssetData.json',
-  )
-  const relatedAssetIndexPath = path.join(
-    __dirname,
-    '../../../src/lib/asset-service/service/relatedAssetIndex.json',
+  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+  const encodedRelatedAssetIndex = JSON.parse(
+    await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'),
   )
 
-  const generatedAssetData: AssetsById = JSON.parse(
-    await fs.promises.readFile(generatedAssetsPath, 'utf8'),
-  )
-  const relatedAssetIndex: Record<AssetId, AssetId[]> = JSON.parse(
-    await fs.promises.readFile(relatedAssetIndexPath, 'utf8'),
-  )
+  const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
+  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
   // Remove stale related asset data from the assetData where:
   // a) rebuildAll is set
@@ -334,17 +332,11 @@ export const generateRelatedAssetIndex = async (rebuildAll: boolean = false) => 
 
   clearThrottleInterval()
 
-  await fs.promises.writeFile(
-    generatedAssetsPath,
-    // beautify the file for github diff.
-    JSON.stringify(generatedAssetData, null, 2),
-  )
+  const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
+  const reEncodedAssetData = encodeAssetData(sortedAssetIds, generatedAssetData)
 
-  await fs.promises.writeFile(
-    relatedAssetIndexPath,
-    // beautify the file for github diff.
-    JSON.stringify(relatedAssetIndex, null, 2),
-  )
+  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

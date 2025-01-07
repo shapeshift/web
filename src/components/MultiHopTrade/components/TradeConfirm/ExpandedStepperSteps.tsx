@@ -363,6 +363,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const { tradeSteps, currentTradeStep } = useStepperSteps()
+  const isError = activeQuoteError || transactionExecutionStateError
 
   return (
     <Stepper variant='innerSteps' orientation='vertical' index={currentStep} gap={0}>
@@ -372,7 +373,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopReset}
+          isError={isError && currentTradeStep === StepperStep.FirstHopReset}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -382,7 +383,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopApproval}
+          isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -391,7 +392,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
         stepIndicator={stepIndicator}
         stepProps={stepProps}
         useSpacer={false}
-        isError={activeQuoteError && currentTradeStep === StepperStep.FirstHopSwap}
+        isError={isError && currentTradeStep === StepperStep.FirstHopSwap}
         stepIndicatorVariant='innerSteps'
       />
       {tradeSteps[StepperStep.LastHopReset] ? (
@@ -400,7 +401,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopReset}
+          isError={isError && currentTradeStep === StepperStep.LastHopReset}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -410,7 +411,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopApproval}
+          isError={isError && currentTradeStep === StepperStep.LastHopApproval}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}
@@ -420,7 +421,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}
-          isError={activeQuoteError && currentTradeStep === StepperStep.LastHopSwap}
+          isError={isError && currentTradeStep === StepperStep.LastHopSwap}
           stepIndicatorVariant='innerSteps'
         />
       ) : null}

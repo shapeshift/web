@@ -24,6 +24,7 @@ import {
   selectActiveQuoteErrors,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
+import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep as StepperStepComponent } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -136,6 +137,28 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     swap: lastHopSwap,
   } = useSelectorWithArgs(selectHopExecutionMetadata, lastHopExecutionMetadataFilter)
 
+  const transactionExecutionStateError = useMemo(() => {
+    return [
+      firstHopAllowanceApproval.state,
+      lastHopAllowanceApproval.state,
+      firstHopPermit2.state,
+      lastHopPermit2.state,
+      firstHopSwap.state,
+      lastHopSwap.state,
+      firstHopAllowanceReset.state,
+      lastHopAllowanceReset.state,
+    ].includes(TransactionExecutionState.Failed)
+  }, [
+    firstHopAllowanceApproval.state,
+    firstHopAllowanceReset.state,
+    firstHopPermit2.state,
+    firstHopSwap.state,
+    lastHopAllowanceApproval.state,
+    lastHopAllowanceReset.state,
+    lastHopPermit2.state,
+    lastHopSwap.state,
+  ])
+
   const { currentTradeStepIndex: currentStep } = useStepperSteps()
 
   const stepIndicator = useMemo(
@@ -143,10 +166,12 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       <StepStatus
         complete={completedStepIndicator}
         incomplete={undefined}
-        active={activeQuoteError ? erroredStepIndicator : undefined}
+        active={
+          activeQuoteError || transactionExecutionStateError ? erroredStepIndicator : undefined
+        }
       />
     ),
-    [activeQuoteError],
+    [activeQuoteError, transactionExecutionStateError],
   )
 
   const firstHopAllowanceResetTitle = useMemo(() => {

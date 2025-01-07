@@ -133,7 +133,6 @@ export const StepperStep = ({
         </Box>
         {button}
       </Flex>
-      {/* {!isLastStep && <StepSeparator />} */}
     </Step>
   )
 }

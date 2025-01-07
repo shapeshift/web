@@ -1,6 +1,3 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import fs from 'fs'
-import path from 'path'
 import { describe, expect, it } from 'vitest'
 
 import { decodeRelatedAssetIndex } from './decodeRelatedAssetIndex'
@@ -39,40 +36,5 @@ describe('relatedAssetIndex', () => {
       mockSortedAssetIds,
     )
     expect(decodedRelatedAssetIndex).toEqual(mockRelatedAssetIndex)
-  })
-
-  // Used to check correctness of encode/decode before we migrated to storing encoded asset data
-  it.skip('reconciles against full dataset', () => {
-    const relatedAssetIndexPath = path.join(
-      __dirname,
-      '../../../../src/lib/asset-service/service/relatedAssetIndex.json',
-    )
-    const generatedAssetsPath = path.join(
-      __dirname,
-      '../../../../src/lib/asset-service/service/generatedAssetData.json',
-    )
-
-    const relatedAssetIndex = JSON.parse(fs.readFileSync(relatedAssetIndexPath, 'utf8'))
-    const generatedAssetData = JSON.parse(fs.readFileSync(generatedAssetsPath, 'utf8'))
-    // Mock sorting of asset IDs
-    const sortedAssetIds = Object.keys(generatedAssetData).sort()
-    const encodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
-
-    console.time('decodeRelatedAssetIndex')
-    const decodedRelatedAssetIndex = decodeRelatedAssetIndex(
-      encodedRelatedAssetIndex,
-      sortedAssetIds,
-    )
-    console.timeEnd('decodeRelatedAssetIndex')
-
-    for (const [assetId, relatedAssetIds] of Object.entries(relatedAssetIndex)) {
-      // Skip empty entries, because we no longer encode them
-      if ((relatedAssetIds as AssetId[]).length === 0) continue
-
-      // Skip missing assets, because this is a bug in the original implementation
-      if (!generatedAssetData[assetId]) continue
-
-      expect(decodedRelatedAssetIndex[assetId]).toEqual(relatedAssetIds)
-    }
   })
 })

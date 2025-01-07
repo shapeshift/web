@@ -8,14 +8,16 @@ import {
   StepStatus,
   Tag,
   Tooltip,
+  usePrevious,
   VStack,
 } from '@chakra-ui/react'
 import type { TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { RawText, Text } from 'components/Text'
 import { getChainAdapterManager } from 'context/PluginProvider/chainAdapterSingleton'
+import { useModal } from 'hooks/useModal/useModal'
 import {
   selectFirstHopSellAccountId,
   selectSecondHopSellAccountId,
@@ -44,6 +46,7 @@ type ExpandedStepperStepsProps = {
 
 export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsProps) => {
   const translate = useTranslate()
+  const rateChanged = useModal('rateChanged')
   // this is the account we're selling from - assume this is the AccountId of the approval Tx
   const firstHopSellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const lastHopSellAccountId = useAppSelector(selectSecondHopSellAccountId)
@@ -363,6 +366,35 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   ])
 
   const { tradeSteps, currentTradeStep } = useStepperSteps()
+
+  const firstHopAmountCryptoBaseUnit = useMemo(
+    () => tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit,
+    [tradeQuoteFirstHop.buyAmountAfterFeesCryptoBaseUnit],
+  )
+  const prevFirstHopAmountCryptoBaseUnit = usePrevious(firstHopAmountCryptoBaseUnit)
+
+  useEffect(() => {
+    if (currentTradeStep !== StepperStep.FirstHopSwap) return
+
+    if (
+      !(
+        firstHopAmountCryptoBaseUnit &&
+        prevFirstHopAmountCryptoBaseUnit &&
+        firstHopAmountCryptoBaseUnit !== '0' &&
+        prevFirstHopAmountCryptoBaseUnit !== '0'
+      )
+    )
+      return
+    if (firstHopAmountCryptoBaseUnit === prevFirstHopAmountCryptoBaseUnit) return
+
+    rateChanged.open({ prevAmountCryptoBaseUnit: prevFirstHopAmountCryptoBaseUnit })
+  }, [
+    currentTradeStep,
+    firstHopAmountCryptoBaseUnit,
+    prevFirstHopAmountCryptoBaseUnit,
+    rateChanged,
+  ])
+
   const isError = activeQuoteError || transactionExecutionStateError
 
   return (

@@ -36,7 +36,7 @@ import { TxLabel } from './TxLabel'
 const erroredStepIndicator = <WarningIcon color='red.500' />
 const completedStepIndicator = <CheckCircleIcon color='text.success' />
 
-const stepProps = { alignItems: 'center', py: 2, pr: 2, pl: 1.5 }
+const stepProps = { py: 0, pr: 2, pl: 0 }
 
 type ExpandedStepperStepsProps = {
   activeTradeQuote: TradeQuote | TradeRate

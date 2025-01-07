@@ -1,4 +1,6 @@
 import {
+  Alert,
+  AlertDescription,
   Box,
   Button,
   FormControl,
@@ -19,6 +21,7 @@ import { QRCodeIcon } from 'components/Icons/QRCode'
 import { WalletConnectIcon } from 'components/Icons/WalletConnectIcon'
 import { QrCodeScanner } from 'components/QrCodeScanner/QrCodeScanner'
 import { Text } from 'components/Text'
+import { AlertStyle } from 'components/Alert/Alert.theme'
 
 type FormValues = {
   uri: string
@@ -111,6 +114,11 @@ export const ConnectContent: React.FC<ConnectContentProps> = ({
             </InputGroup>
             <FormErrorMessage>{formState.errors?.uri?.message}</FormErrorMessage>
           </FormControl>
+          <Alert status='warning'>
+            <AlertDescription>
+              {translate('plugins.walletConnectToDapps.modal.connect.disclaimerBody')}
+            </AlertDescription>
+          </Alert> 
           <Button
             isDisabled={!isValidUri}
             colorScheme='blue'

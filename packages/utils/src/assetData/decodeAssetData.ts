@@ -88,11 +88,13 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
         case 'symbol':
           asset.symbol = value as FieldToType[typeof field]
           break
-        case 'isPool':
-          if ((value as FieldToType[typeof field]) === 1) {
+        case 'isPool': {
+          const isPool = value as FieldToType[typeof field]
+          if (isPool) {
             asset.isPool = true
           }
           break
+        }
         case 'assetIdx':
           // Skip assetIdx as we already have assetId
           break

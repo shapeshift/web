@@ -38,6 +38,8 @@ export const getCowNetwork = (chainId: ChainId): CowNetwork | undefined => {
       return CowNetwork.Xdai
     case KnownChainIds.ArbitrumMainnet:
       return CowNetwork.ArbitrumOne
+    case KnownChainIds.BaseMainnet:
+      return CowNetwork.Base
     default:
       return
   }

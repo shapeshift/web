@@ -3,7 +3,7 @@ import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper/dist/sw
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router-dom'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { WithBackButton } from 'components/MultiHopTrade/components/WithBackButton'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { TradeSlideTransition } from 'components/MultiHopTrade/TradeSlideTransition'

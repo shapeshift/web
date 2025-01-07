@@ -20,6 +20,7 @@ import { getConfig } from 'config'
 import { queryClient } from 'context/QueryClientProvider/queryClient'
 import type { CoinGeckoSortKey } from 'lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from 'lib/market-service/coingecko/coingecko-types'
+import { assertUnreachable } from 'lib/utils'
 
 import { COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID } from './constants'
 import type {
@@ -65,7 +66,8 @@ const getCoinDetails = async (
       if (!chainId) return
 
       const assetNamespace = (() => {
-        switch (chainId) {
+        const knownChainId = chainId as KnownChainIds
+        switch (knownChainId) {
           case KnownChainIds.BnbSmartChainMainnet:
             return ASSET_NAMESPACE.bep20
           case KnownChainIds.SolanaMainnet:
@@ -86,8 +88,9 @@ const getCoinDetails = async (
           case KnownChainIds.BitcoinCashMainnet:
           case KnownChainIds.DogecoinMainnet:
           case KnownChainIds.LitecoinMainnet:
-          default:
             throw Error(`Unhandled case '${chainId}'`)
+          default:
+            return assertUnreachable(knownChainId)
         }
       })()
 

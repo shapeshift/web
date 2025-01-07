@@ -150,12 +150,15 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToL1: {
         assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
 
-        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
+        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? '0'
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
 
         const amountOutMin = BigInt(
-          bnOrZero(expectedAmountOut.toString())
+          bnOrZero(expectedAmountOut)
             .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
             .toFixed(0, BigNumber.ROUND_UP),
         )
@@ -198,9 +201,12 @@ export const thorchainApi: SwapperApi = {
         }
       }
       case TradeType.L1ToLongTail:
-        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
+        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? '0'
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
 
         const { router: updatedRouter } = await getEvmThorTxInfo({
           sellAsset,
@@ -308,12 +314,15 @@ export const thorchainApi: SwapperApi = {
       case TradeType.LongTailToL1: {
         assert(aggregator, 'aggregator required for thorchain longtail to l1 swaps')
 
-        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? 0n
+        const expectedAmountOut = longtailData?.longtailToL1ExpectedAmountOut ?? '0'
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
 
         const amountOutMin = BigInt(
-          bnOrZero(expectedAmountOut.toString())
+          bnOrZero(expectedAmountOut)
             .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
             .toFixed(0, BigNumber.ROUND_UP),
         )
@@ -349,9 +358,12 @@ export const thorchainApi: SwapperApi = {
         return networkFeeCryptoBaseUnit
       }
       case TradeType.L1ToLongTail:
-        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut ?? 0n
+        const expectedAmountOut = longtailData?.L1ToLongtailExpectedAmountOut
         // Paranoia assertion - expectedAmountOut should never be 0 as it would likely lead to a loss of funds.
-        assert(expectedAmountOut > 0n, 'expected expectedAmountOut to be a positive amount')
+        assert(
+          bnOrZero(expectedAmountOut).gt(0),
+          'expected expectedAmountOut to be a positive amount',
+        )
 
         const { router: updatedRouter } = await getEvmThorTxInfo({
           sellAsset,

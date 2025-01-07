@@ -25,8 +25,10 @@ type ExpandableStepperStepsProps = {
   isExpanded?: boolean
 }
 
-export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
-  const [isExpanded, setIsExpanded] = useState(false)
+export const ExpandableStepperSteps = ({
+  isExpanded: initialIsExpanded = false,
+}: ExpandableStepperStepsProps) => {
+  const [isExpanded, setIsExpanded] = useState(initialIsExpanded)
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const summaryStepProps = useMemo(
     () => ({
@@ -117,7 +119,7 @@ export const ExpandableStepperSteps = (props: ExpandableStepperStepsProps) => {
         stepProps={summaryStepProps}
         useSpacer={false}
       />
-      <Collapse in={props.isExpanded ?? isExpanded} style={collapseStyle}>
+      <Collapse in={isExpanded} style={collapseStyle}>
         <Box pb={2} px={3}>
           {activeTradeQuote && <ExpandedStepperSteps activeTradeQuote={activeTradeQuote} />}
         </Box>

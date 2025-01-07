@@ -84,14 +84,7 @@ const FileUpload = ({ onFileSelect }: { onFileSelect: (file: File) => void }) =>
 
   return (
     <FormControl>
-      <Input
-        type='file'
-        accept='.txt'
-        onChange={handleFileInput}
-        id='file-upload'
-        display='none'
-        data-test='wallet-native-keystore-upload'
-      />
+      <Input type='file' accept='.txt' onChange={handleFileInput} id='file-upload' display='none' />
       <Box
         as='label'
         htmlFor='file-upload'

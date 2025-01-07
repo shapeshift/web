@@ -251,6 +251,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             )}
             {firstHopSwap.buyTxHash && firstHopSwap.buyTxHash !== firstHopSwap.sellTxHash && (
               <TxLabel
+                isBuyTxHash
                 txHash={firstHopSwap.buyTxHash}
                 explorerBaseUrl={tradeQuoteFirstHop.buyAsset.explorerTxLink}
                 accountId={firstHopSellAccountId}

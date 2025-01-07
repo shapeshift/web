@@ -73,9 +73,10 @@ export const LimitOrderBuyAsset: React.FC<LimitOrderBuyAssetProps> = memo(
           onAssetClick={handleAssetClick}
           onAssetChange={onSetBuyAsset}
           onlyConnectedChains={false}
+          chainIdFilterPredicate={chainIdFilterPredicate}
         />
       ),
-      [asset.assetId, handleAssetClick, onSetBuyAsset],
+      [asset.assetId, handleAssetClick, onSetBuyAsset, chainIdFilterPredicate],
     )
 
     return (

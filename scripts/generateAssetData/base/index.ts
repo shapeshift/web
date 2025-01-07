@@ -1,7 +1,6 @@
 import { baseChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { base } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { base, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'

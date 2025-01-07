@@ -1,7 +1,6 @@
 import { ethChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { ethereum } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { ethereum, unfreeze } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
 import orderBy from 'lodash/orderBy'

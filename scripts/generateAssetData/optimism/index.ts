@@ -1,7 +1,6 @@
 import { optimismChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { optimism } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { optimism, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'

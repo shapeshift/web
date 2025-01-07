@@ -1,7 +1,6 @@
 import { avalancheChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { avax } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { avax, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'

@@ -10,15 +10,17 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { decodeAssetData, encodeAssetData, unfreeze } from '@shapeshiftoss/utils'
 import {
   atom,
   bitcoin,
   bitcoincash,
+  decodeAssetData,
   dogecoin,
+  encodeAssetData,
   litecoin,
   thorchain,
-} from '@shapeshiftoss/utils/src/assetData/baseAssets'
+  unfreeze,
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'

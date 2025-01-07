@@ -2,7 +2,6 @@ import 'dotenv/config'
 
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
 import {
   atom,
   bitcoin,
@@ -10,7 +9,8 @@ import {
   dogecoin,
   litecoin,
   thorchain,
-} from '@shapeshiftoss/utils/src/assetData/baseAssets'
+  unfreeze,
+} from '@shapeshiftoss/utils'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
 

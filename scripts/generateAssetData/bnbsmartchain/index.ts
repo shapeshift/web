@@ -1,7 +1,6 @@
 import { bscChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { bnbsmartchain } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { bnbsmartchain, unfreeze } from '@shapeshiftoss/utils'
 import { partition } from 'lodash'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'

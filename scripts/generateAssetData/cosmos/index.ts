@@ -1,6 +1,6 @@
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { atom } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { atom } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import colormap from '../color-map.json'

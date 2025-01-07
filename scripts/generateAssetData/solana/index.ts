@@ -1,7 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { unfreeze } from '@shapeshiftoss/utils'
-import { solana } from '@shapeshiftoss/utils/src/assetData/baseAssets'
+import { solana, unfreeze } from '@shapeshiftoss/utils'
 import uniqBy from 'lodash/uniqBy'
 
 import * as coingecko from '../coingecko'

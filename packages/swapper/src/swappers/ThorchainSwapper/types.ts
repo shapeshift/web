@@ -276,8 +276,8 @@ type ThorTradeQuoteSpecificMetadata = {
   tradeType: TradeType
   expiry: number
   longtailData?: {
-    longtailToL1ExpectedAmountOut?: bigint
-    L1ToLongtailExpectedAmountOut?: bigint
+    longtailToL1ExpectedAmountOut?: string
+    L1ToLongtailExpectedAmountOut?: string
   }
 }
 

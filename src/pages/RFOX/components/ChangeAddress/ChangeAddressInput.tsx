@@ -9,8 +9,9 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxEthLpArbitrumAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -18,11 +19,13 @@ import { useTranslate } from 'react-polyglot'
 import { useHistory } from 'react-router'
 import { encodeFunctionData } from 'viem'
 import { Amount } from 'components/Amount/Amount'
+import { TradeAssetSelect } from 'components/AssetSelection/AssetSelection'
 import { InlineCopyButton } from 'components/InlineCopyButton'
 import { Row } from 'components/Row/Row'
 import { SlideTransition } from 'components/SlideTransition'
 import { RawText, Text } from 'components/Text'
 import { useEvmFees } from 'hooks/queries/useEvmFees'
+import { useModal } from 'hooks/useModal/useModal'
 import { useWallet } from 'hooks/useWallet/useWallet'
 import { middleEllipsis } from 'lib/utils'
 import type {
@@ -58,11 +61,20 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   headerComponent,
   setConfirmedQuote,
 }) => {
-  const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
+  const { stakingAssetId, stakingAssetAccountId, setSelectedAssetId, selectedAssetId } =
+    useRFOXContext()
   const { wallet, isConnected } = useWallet().state
   const translate = useTranslate()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+
+  const foxEthLpArbitrumAsset = useAppSelector(state =>
+    selectAssetById(state, foxEthLpArbitrumAssetId),
+  )
+
+  const buyAssetSearch = useModal('buyAssetSearch')
+
+  const assetIds = useMemo(() => [stakingAssetId, foxEthLpArbitrumAssetId], [stakingAssetId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),
@@ -117,6 +129,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     isSuccess: isCurrentRuneAddressSuccess,
   } = useStakingInfoQuery({
     stakingAssetAccountAddress,
+    stakingAssetId: selectedAssetId,
     select: selectRuneAddress,
   })
 
@@ -181,7 +194,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
 
     setConfirmedQuote({
       stakingAssetAccountId,
-      stakingAssetId,
+      stakingAssetId: selectedAssetId,
       currentRuneAddress,
       newRuneAddress,
     })
@@ -191,7 +204,7 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     newRuneAddress,
     stakingAssetAccountId,
     setConfirmedQuote,
-    stakingAssetId,
+    selectedAssetId,
     currentRuneAddress,
     history,
   ])
@@ -219,6 +232,25 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
     trigger('newRuneAddress')
   }, [trigger, currentRuneAddress])
 
+  const handleAssetChange = useCallback(
+    (asset: Asset) => {
+      setSelectedAssetId(asset.assetId)
+      // Reset address field when changing assets
+      setValue('newRuneAddress', '', { shouldValidate: true })
+    },
+    [setValue, setSelectedAssetId],
+  )
+
+  const handleStakingAssetClick = useCallback(() => {
+    if (!(stakingAsset && foxEthLpArbitrumAsset)) return
+
+    buyAssetSearch.open({
+      onAssetClick: asset => setSelectedAssetId(asset.assetId),
+      title: 'common.selectAsset',
+      assets: [stakingAsset, foxEthLpArbitrumAsset],
+    })
+  }, [stakingAsset, foxEthLpArbitrumAsset, buyAssetSearch, setSelectedAssetId])
+
   if (!isConnected)
     return (
       <SlideTransition>
@@ -245,6 +277,16 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
       <FormProvider {...methods}>
         <Stack>
           {headerComponent}
+          <Stack spacing={4}>
+            <Text translation='common.selectAsset' fontWeight='bold' px={6} />
+            <TradeAssetSelect
+              assetId={selectedAssetId}
+              onAssetClick={handleStakingAssetClick}
+              onAssetChange={handleAssetChange}
+              assetIds={assetIds}
+              onlyConnectedChains={true}
+            />
+          </Stack>
           <Stack px={6} py={4}>
             <Flex justifyContent='space-between' mb={2} flexDir={'column'}>
               <Text translation={'RFOX.currentRewardAddress'} fontWeight={'bold'} mb={2} />

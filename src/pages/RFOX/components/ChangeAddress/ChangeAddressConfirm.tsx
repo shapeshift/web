@@ -31,6 +31,7 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from 'lib/utils/evm'
+import { getRfoxProxyContract } from 'pages/RFOX/helpers'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
@@ -153,7 +154,7 @@ export const ChangeAddressConfirm: React.FC<
         adapter,
         data: callData,
         value: '0',
-        to: RFOX_PROXY_CONTRACT,
+        to: getRfoxProxyContract(confirmedQuote.stakingAssetId),
         wallet,
       })
 

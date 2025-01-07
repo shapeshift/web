@@ -67,6 +67,7 @@ export const ChangeAddressRoutes: React.FC<ChangeAddressRouteProps> = ({ headerC
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
+    stakingAssetId: confirmedQuote?.stakingAssetId,
   })
 
   const handleTxConfirmed = useCallback(async () => {

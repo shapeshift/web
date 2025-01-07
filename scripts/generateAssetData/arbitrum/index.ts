@@ -1,13 +1,13 @@
 import { arbitrumChainId, foxEthLpArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { arbitrum, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import uniqBy from 'lodash/uniqBy'
 import { getPortalTokens } from 'lib/portals/utils'
 
-import { arbitrum } from '../baseAssets'
 import * as coingecko from '../coingecko'
 
-const foxEthLpArbitrumAsset: Asset = {
+const foxEthLpArbitrumAsset: Readonly<Asset> = Object.freeze({
   assetId: foxEthLpArbitrumAssetId,
   chainId: arbitrumChainId,
   name: 'UniswapV2 FOX/ETH Pool',
@@ -22,7 +22,7 @@ const foxEthLpArbitrumAsset: Asset = {
   explorerAddressLink: arbitrum.explorerAddressLink,
   explorerTxLink: arbitrum.explorerTxLink,
   relatedAssetKey: 'eip155:1/erc20:0x470e8de2ebaef52014a47cb5e6af86884947f08c',
-} as Asset
+}) as Readonly<Asset>
 
 export const getAssets = async (): Promise<Asset[]> => {
   const results = await Promise.allSettled([
@@ -40,7 +40,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   // Regular Portals assets however, should be last, as Coingecko is generally more reliable in terms of e.g names and images
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([arbitrum, foxEthLpArbitrumAsset]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(arbitrum), unfreeze(foxEthLpArbitrumAsset)]),
     'assetId',
   )
 

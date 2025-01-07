@@ -43,7 +43,6 @@ type GetJupiterSwapArgs = {
   fromAddress: string
   rawQuote: unknown
   toAddress?: string
-  useSharedAccounts: boolean
   feeAccount: string | undefined
 }
 
@@ -81,7 +80,6 @@ export const getJupiterSwapInstructions = ({
   fromAddress,
   toAddress,
   rawQuote,
-  useSharedAccounts,
   feeAccount,
 }: GetJupiterSwapArgs): Promise<
   Result<AxiosResponse<SwapInstructionsResponse, any>, SwapErrorRight>
@@ -89,7 +87,6 @@ export const getJupiterSwapInstructions = ({
   jupiterService.post<SwapInstructionsResponse>(`${apiUrl}/swap-instructions`, {
     userPublicKey: fromAddress,
     destinationTokenAccount: toAddress,
-    useSharedAccounts,
     quoteResponse: rawQuote,
     dynamicComputeUnitLimit: true,
     prioritizationFeeLamports: 'auto',
@@ -274,10 +271,6 @@ export const createSwapInstructions = async ({
     fromAddress: sendAddress,
     toAddress: isCrossAccountTrade ? destinationTokenAccount?.toString() : undefined,
     rawQuote: priceResponse,
-    // It would be better to use this only if routes number are > 1 and for cross account trades,
-    // but Jupiter has a bug under the hood when swapping SPL to Token2022 and taking referral fees
-    // Also it reduce sol numbers and compute units in the end, so TXs fees are smaller
-    useSharedAccounts: true,
     feeAccount: affiliateBps !== '0' && tokenAccount ? tokenAccount.toString() : undefined,
   })
 

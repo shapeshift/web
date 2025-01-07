@@ -49,6 +49,33 @@ export const portalsApi: SwapperApi = {
       return [tradeQuote]
     })
   },
+  getEvmTransactionFees: async ({
+    chainId,
+    from,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }: GetUnsignedEvmTransactionArgs): Promise<string> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
+
+    const { steps } = tradeQuote
+    const { portalsTransactionMetadata } = steps[0]
+
+    if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
+
+    const { value, to, data } = portalsTransactionMetadata
+
+    const { networkFeeCryptoBaseUnit } = await evm.getFees({
+      adapter: assertGetEvmChainAdapter(chainId),
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+
+    return networkFeeCryptoBaseUnit
+  },
   getUnsignedEvmTransaction: async ({
     chainId,
     from,

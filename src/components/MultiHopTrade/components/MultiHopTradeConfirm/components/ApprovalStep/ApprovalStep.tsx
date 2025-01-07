@@ -96,10 +96,8 @@ export const ApprovalStep = ({
         case HopExecutionState.Complete:
           return TransactionExecutionState.Complete
         default:
-          assertUnreachable(hopExecutionState)
+          return assertUnreachable(hopExecutionState)
       }
-
-      throw Error('Unhandled hopExecutionState')
     })()
 
     return <StatusIcon txStatus={txStatus} defaultIcon={defaultIcon} />
@@ -126,15 +124,15 @@ export const ApprovalStep = ({
         case HopExecutionState.Complete:
           return null
         default:
-          assertUnreachable(hopExecutionState)
+          return assertUnreachable(hopExecutionState)
       }
     })()
 
-    return inner ? (
+    return (
       <AnimatePresence mode='wait' initial={false}>
         <SlideTransitionX key={hopExecutionState}>{inner}</SlideTransitionX>
       </AnimatePresence>
-    ) : undefined
+    )
   }, [allowanceApprovalContent, allowanceResetContent, hopExecutionState, permit2Content])
 
   const txLines = useMemo(() => {
@@ -187,7 +185,7 @@ export const ApprovalStep = ({
           />
         )
       default:
-        assertUnreachable(hopExecutionState)
+        return assertUnreachable(hopExecutionState)
     }
   }, [
     allowanceApproval.isInitiallyRequired,

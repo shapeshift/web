@@ -212,7 +212,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
       return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
     }
     default:
-      assertUnreachable(bridgeType)
+      return assertUnreachable(bridgeType)
   }
 }
 

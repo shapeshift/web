@@ -13,7 +13,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { WarningAcknowledgement } from 'components/Acknowledgement/Acknowledgement'
+import { WarningAcknowledgement } from 'components/Acknowledgement/WarningAcknowledgement'
 import { usePriceImpact } from 'components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
 import { chainSupportsTxHistory } from 'components/MultiHopTrade/utils'
 import { RawText, Text } from 'components/Text'
@@ -118,12 +118,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   }, [tradeButtonProps, setHasClickedButton])
 
   const handleClick = useCallback(() => {
-    if (isModeratePriceImpact) {
+    const isInitializingOrPreviewing =
+      confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+      confirmedTradeExecutionState === TradeExecutionState.Previewing
+    // Only show the warning acknowledgement if the user is previewing the trade
+    if (isModeratePriceImpact && isInitializingOrPreviewing) {
       setShouldShowWarningAcknowledgement(true)
     } else {
       handleSubmit()
     }
-  }, [isModeratePriceImpact, handleSubmit])
+  }, [isModeratePriceImpact, handleSubmit, confirmedTradeExecutionState])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {

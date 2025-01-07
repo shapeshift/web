@@ -49,7 +49,6 @@ export type LimitOrderQuoteParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
   chainId: ChainId
-  slippageTolerancePercentageDecimal: string
   affiliateBps: string
   sellAccountAddress: Address | undefined
   sellAmountCryptoBaseUnit: string
@@ -69,7 +68,6 @@ export const limitOrderApi = createApi({
           sellAssetId,
           buyAssetId,
           chainId,
-          slippageTolerancePercentageDecimal,
           affiliateBps,
           sellAccountAddress,
           sellAmountCryptoBaseUnit,
@@ -78,6 +76,9 @@ export const limitOrderApi = createApi({
         const config = getConfig()
         const baseUrl = config.REACT_APP_COWSWAP_BASE_URL
         const network = assertGetCowNetwork(chainId)
+
+        // Limit orders request 0 slippage.
+        const slippageTolerancePercentageDecimal = '0'
 
         const affiliateAppDataFragment = getAffiliateAppDataFragmentByChainId({
           affiliateBps,

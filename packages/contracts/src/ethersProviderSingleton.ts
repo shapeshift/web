@@ -27,7 +27,7 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
       case KnownChainIds.BaseMainnet:
         return process.env.REACT_APP_BASE_NODE_URL
       default:
-        assertUnreachable(chainId)
+        return assertUnreachable(chainId)
     }
   })()
 

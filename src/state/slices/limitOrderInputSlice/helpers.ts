@@ -16,7 +16,7 @@ export const expiryOptionToUnixTimestamp = (expiry: ExpiryOption): number => {
     case ExpiryOption.TwentyEightDays:
       return dayjs().add(28, 'day').unix()
     default:
-      assertUnreachable(expiry)
+      return assertUnreachable(expiry)
   }
 }
 

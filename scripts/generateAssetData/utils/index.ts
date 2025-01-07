@@ -24,7 +24,7 @@ const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {
   const results2d: CoinGeckoMarketCap[][] = []
 
   while (true) {
-    const coingeckoAssets = await getCoingeckoMarketsRaw('market_cap_desc', page, 100)
+    const coingeckoAssets = await getCoingeckoMarketsRaw('market_cap_desc', page, 250)
 
     results2d.push(coingeckoAssets)
 

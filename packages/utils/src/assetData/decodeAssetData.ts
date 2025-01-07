@@ -61,11 +61,11 @@ export const decodeAssetData = (encodedAssetData: EncodedAssetData) => {
 
       switch (field) {
         case 'icon': {
-          const typedValue = value as FieldToType[typeof field]
-          if (typedValue.length === 1) {
-            asset.icon = typedValue[0]
-          } else if (typedValue.length > 1) {
-            asset.icons = typedValue
+          const iconOrIcons = value as FieldToType[typeof field]
+          if (iconOrIcons.length === 1) {
+            asset.icon = iconOrIcons[0]
+          } else if (iconOrIcons.length > 1) {
+            asset.icons = iconOrIcons
           }
           break
         }

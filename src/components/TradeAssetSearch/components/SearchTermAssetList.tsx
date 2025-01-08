@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, gnosisAssetId, isNft, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'

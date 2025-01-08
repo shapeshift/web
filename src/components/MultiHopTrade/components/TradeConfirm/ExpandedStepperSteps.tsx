@@ -230,11 +230,14 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
 
   const firstHopActionTitle = useMemo(() => {
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <HStack>
           <RawText>{firstHopActionTitleText}</RawText>
           {firstHopStreamingProgress && firstHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}>
+            <Tag
+              minWidth='auto'
+              colorScheme={firstHopStreamingProgress.isComplete ? 'green' : 'blue'}
+            >
               {`${firstHopStreamingProgress.attemptedSwapCount}/${firstHopStreamingProgress.totalSwapCount}`}
             </Tag>
           )}
@@ -325,11 +328,14 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
 
   const lastHopActionTitle = useMemo(() => {
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <HStack>
           <RawText>{lastHopActionTitleText}</RawText>
           {secondHopStreamingProgress && secondHopStreamingProgress.totalSwapCount > 0 && (
-            <Tag colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}>
+            <Tag
+              minWidth='auto'
+              colorScheme={secondHopStreamingProgress.isComplete ? 'green' : 'blue'}
+            >
               {`${secondHopStreamingProgress.attemptedSwapCount}/${secondHopStreamingProgress.totalSwapCount}`}
             </Tag>
           )}

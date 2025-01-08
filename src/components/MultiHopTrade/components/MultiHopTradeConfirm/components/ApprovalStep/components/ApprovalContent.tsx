@@ -48,7 +48,13 @@ export const ApprovalContent = ({
         <Row px={2}>
           <Row.Label display='flex' alignItems='center'>
             <Text color='text.subtle' translation={titleTranslation} fontWeight='bold' />
-            <Tooltip label={translate(tooltipTranslation)}>
+            <Tooltip
+              label={
+                typeof tooltipTranslation === 'string'
+                  ? translate(tooltipTranslation)
+                  : translate(...tooltipTranslation)
+              }
+            >
               <Box ml={1}>
                 <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.7em' />
               </Box>
@@ -63,7 +69,11 @@ export const ApprovalContent = ({
         {subHeadingTranslation && (
           <Row px={2}>
             <Row.Label textAlign='left' display='flex'>
-              <CText color='text.subtle'>{translate(subHeadingTranslation)}</CText>
+              <CText color='text.subtle'>
+                {typeof subHeadingTranslation === 'string'
+                  ? translate(subHeadingTranslation)
+                  : translate(...subHeadingTranslation)}
+              </CText>
             </Row.Label>
           </Row>
         )}

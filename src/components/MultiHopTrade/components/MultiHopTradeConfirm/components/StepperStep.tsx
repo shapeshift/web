@@ -20,7 +20,7 @@ const stepStyle = {
   height: 'auto',
   borderWidth: 0,
   backgroundColor: 'transparent',
-  '[role=group]:last-of-type &': {
+  '[role=group]:lastOfType &': {
     '.vertical-divider:last-of-type': { opacity: 0 },
   },
 }

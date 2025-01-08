@@ -19,7 +19,7 @@ import { MixPanelEvent } from 'lib/mixpanel/types'
 
 import type { NativeWalletValues } from '../types'
 
-export const NativeImport = ({ history }: RouteComponentProps) => {
+export const NativeImportSeed = ({ history }: RouteComponentProps) => {
   const mixpanel = getMixPanel()
 
   const {
@@ -37,7 +37,7 @@ export const NativeImport = ({ history }: RouteComponentProps) => {
         vault.meta.set('createdAt', Date.now())
         vault.set('#mnemonic', values.mnemonic.toLowerCase().trim())
         history.push(NativeWalletRoutes.Password, { vault })
-        mixpanel?.track(MixPanelEvent.NativeImport)
+        mixpanel?.track(MixPanelEvent.NativeImportSeed)
       } catch (e) {
         setError('mnemonic', { type: 'manual', message: 'walletProvider.shapeShift.import.header' })
       }

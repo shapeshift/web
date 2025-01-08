@@ -179,36 +179,37 @@ export const NativeImportKeystore = ({ history }: RouteComponentProps) => {
           translation='walletProvider.shapeShift.import.keystoreImportBody'
         />
 
-        <VStack spacing={6}>
-          <FileUpload onFileSelect={handleFileSelect} />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <VStack spacing={6}>
+            <FileUpload onFileSelect={handleFileSelect} />
 
-          {keystoreFile && (
-            <>
-              <FormControl isInvalid={Boolean(errors.keystorePassword)}>
-                <Input
-                  type='password'
-                  placeholder='Keystore Password'
+            {keystoreFile && (
+              <>
+                <FormControl isInvalid={Boolean(errors.keystorePassword)}>
+                  <Input
+                    type='password'
+                    placeholder='Keystore Password'
+                    size='lg'
+                    data-test='wallet-native-keystore-password'
+                    {...register('keystorePassword')}
+                  />
+                  <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
+                </FormControl>
+
+                <Button
+                  colorScheme='blue'
+                  width='full'
                   size='lg'
-                  data-test='wallet-native-keystore-password'
-                  {...register('keystorePassword')}
-                />
-                <FormErrorMessage>{errors.keystorePassword?.message}</FormErrorMessage>
-              </FormControl>
-
-              <Button
-                colorScheme='blue'
-                width='full'
-                size='lg'
-                type='submit'
-                isLoading={isSubmitting}
-                onClick={handleSubmit(onSubmit)}
-                data-test='wallet-native-keystore-submit'
-              >
-                <Text translation='walletProvider.shapeShift.import.importKeystore' />
-              </Button>
-            </>
-          )}
-        </VStack>
+                  type='submit'
+                  isLoading={isSubmitting}
+                  data-test='wallet-native-keystore-submit'
+                >
+                  <Text translation='walletProvider.shapeShift.import.importKeystore' />
+                </Button>
+              </>
+            )}
+          </VStack>
+        </form>
       </ModalBody>
     </>
   )

@@ -1,4 +1,13 @@
-import { Box, Button, Card, CircularProgress, Icon, Tooltip, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Icon,
+  Text as CText,
+  Tooltip,
+  VStack,
+} from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -54,7 +63,7 @@ export const ApprovalContent = ({
         {subHeadingTranslation && (
           <Row px={2}>
             <Row.Label textAlign='left' display='flex'>
-              <Text color='text.subtle' translation={subHeadingTranslation} />
+              <CText color='text.subtle'>{translate(subHeadingTranslation)}</CText>
             </Row.Label>
           </Row>
         )}

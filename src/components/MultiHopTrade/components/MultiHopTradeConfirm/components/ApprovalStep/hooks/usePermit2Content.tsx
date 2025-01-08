@@ -57,7 +57,7 @@ export const usePermit2Content = ({
   }, [hopExecutionState, permit2.state, isTradeQuotesLoading])
 
   const subHeadingTranslation: [string, InterpolationOptions] = useMemo(() => {
-    return ['trade.permit2Allowance.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
+    return ['trade.permit2Eip712.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
   }, [tradeQuoteStep])
 
   const tooltipTranslation: [string, InterpolationOptions] = useMemo(() => {

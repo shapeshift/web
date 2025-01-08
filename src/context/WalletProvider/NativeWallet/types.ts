@@ -8,6 +8,7 @@ export type NativeWalletValues = {
   password: string
   email: string
   twoFactorCode: string
+  keystorePassword: string
   mnemonic: string
   message: string
   confirmPassword: string

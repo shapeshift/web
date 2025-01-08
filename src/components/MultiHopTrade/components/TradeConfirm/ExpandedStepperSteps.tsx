@@ -197,7 +197,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const firstHopAllowanceApprovalTitle = useMemo(() => {
     const content = (() => {
       // Awaiting Permit2 contract allowance grant
-      if (hopExecutionState !== HopExecutionState.AwaitingPermit2Allowance)
+      if (hopExecutionState === HopExecutionState.AwaitingPermit2Allowance)
         return (
           <>
             <Text translation='trade.permit2Allowance.title' />

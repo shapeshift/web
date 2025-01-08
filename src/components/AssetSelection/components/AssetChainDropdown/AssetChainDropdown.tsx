@@ -31,6 +31,7 @@ type AssetChainDropdownProps = {
   isError?: boolean
   onlyConnectedChains: boolean
   isDisabled?: boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
@@ -48,6 +49,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     isLoading,
     onChangeAsset,
     onlyConnectedChains,
+    assetFilterPredicate,
     chainIdFilterPredicate,
   }) => {
     const {
@@ -68,11 +70,13 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const filteredRelatedAssetIds = useMemo(() => {
       const filteredRelatedAssetIds = relatedAssetIds.filter(assetId => {
         const { chainId } = fromAssetId(assetId)
-        return chainIdFilterPredicate?.(chainId) ?? true
+        const isChainAllowed = chainIdFilterPredicate?.(chainId) ?? true
+        const isAssetAllowed = assetFilterPredicate?.(assetId) ?? true
+        return isChainAllowed && isAssetAllowed
       })
       if (!assetIds?.length) return filteredRelatedAssetIds
       return filteredRelatedAssetIds.filter(relatedAssetId => assetIds.includes(relatedAssetId))
-    }, [assetIds, chainIdFilterPredicate, relatedAssetIds])
+    }, [assetFilterPredicate, assetIds, chainIdFilterPredicate, relatedAssetIds])
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null

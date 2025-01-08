@@ -197,7 +197,10 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   const firstHopAllowanceApprovalTitle = useMemo(() => {
     const content = (() => {
       // Awaiting Permit2 contract allowance grant
-      if (hopExecutionState === HopExecutionState.AwaitingPermit2Allowance)
+      if (
+        firstHopPermit2.isRequired &&
+        hopExecutionState === HopExecutionState.AwaitingAllowanceApproval
+      )
         return (
           <>
             <Text translation='trade.permit2Allowance.title' />
@@ -209,7 +212,10 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
           </>
         )
       // Allowance granted, but still waiting for the actual Permit2 signature granting temp 5mn allowance to the contract
-      if (firstHopPermit2.isRequired)
+      if (
+        firstHopPermit2.isRequired &&
+        hopExecutionState === HopExecutionState.AwaitingPermit2Eip712Sign
+      )
         return (
           <>
             <Text translation='trade.permit2Eip712.title' />

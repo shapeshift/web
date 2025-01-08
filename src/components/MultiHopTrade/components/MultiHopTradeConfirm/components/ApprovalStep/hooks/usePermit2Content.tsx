@@ -42,7 +42,7 @@ export const usePermit2Content = ({
   const { isLoading: isTradeQuotesLoading } = useGetTradeQuotes()
 
   const isButtonDisabled = useMemo(() => {
-    const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2Allowance
+    const isAwaitingPermit2 = hopExecutionState === HopExecutionState.AwaitingPermit2Eip712Sign
     const isError = permit2.state === TransactionExecutionState.Failed
     const isAwaitingConfirmation = permit2.state === TransactionExecutionState.AwaitingConfirmation
     const isDisabled =
@@ -56,7 +56,7 @@ export const usePermit2Content = ({
   }, [tradeQuoteStep])
 
   const content = useMemo(() => {
-    if (hopExecutionState !== HopExecutionState.AwaitingPermit2Allowance) return
+    if (hopExecutionState !== HopExecutionState.AwaitingPermit2Eip712Sign) return
     return (
       <ApprovalContent
         buttonTranslation='trade.permit2Eip712.signMessage'

@@ -11,7 +11,7 @@ export const getHopExecutionStateButtonTranslation = (hopExecutionState: HopExec
       return 'common.reset'
     case HopExecutionState.AwaitingAllowanceApproval:
       return 'common.approve'
-    case HopExecutionState.AwaitingPermit2Allowance:
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
       return 'trade.permit2Eip712.signMessage'
     case HopExecutionState.AwaitingSwap:
       return 'trade.signAndSwap'
@@ -33,7 +33,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
       return 'trade.awaitingAllowanceReset'
     case HopExecutionState.AwaitingAllowanceApproval:
       return 'trade.awaitingApproval'
-    case HopExecutionState.AwaitingPermit2Allowance:
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
       return 'trade.awaitingPermit2Approval'
     case HopExecutionState.AwaitingSwap:
       return ['trade.awaitingSwap', { swapperName }]
@@ -108,7 +108,7 @@ export const countStepperSteps = (params: StepperStepParams): number => {
 const isInApprovalState = (state: HopExecutionState): boolean => {
   return [
     HopExecutionState.AwaitingAllowanceApproval,
-    HopExecutionState.AwaitingPermit2Allowance,
+    HopExecutionState.AwaitingPermit2Eip712Sign,
   ].includes(state)
 }
 

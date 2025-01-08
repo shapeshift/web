@@ -187,7 +187,7 @@ export const Hop = ({
       // fallthrough
       case HopExecutionState.AwaitingAllowanceApproval:
       // fallthrough
-      case HopExecutionState.AwaitingPermit2Allowance:
+      case HopExecutionState.AwaitingPermit2Eip712Sign:
         return hopIndex === 0 ? 1 : 0
       case HopExecutionState.AwaitingSwap:
         return hopIndex === 0 ? 2 : 1
@@ -226,7 +226,7 @@ export const Hop = ({
         )
       case HopExecutionState.AwaitingAllowanceReset:
       case HopExecutionState.AwaitingAllowanceApproval:
-      case HopExecutionState.AwaitingPermit2Allowance:
+      case HopExecutionState.AwaitingPermit2Eip712Sign:
       case HopExecutionState.AwaitingSwap:
         return (
           <Circle size={8} bg='background.surface.raised.base'>

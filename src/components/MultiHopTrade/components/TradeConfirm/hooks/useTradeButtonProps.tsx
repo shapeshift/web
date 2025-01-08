@@ -117,7 +117,7 @@ export const useTradeButtonProps = ({
         isLoading: isAllowanceApprovalPending,
         isDisabled: isAllowanceApprovalLoading,
       }
-    case HopExecutionState.AwaitingPermit2Allowance:
+    case HopExecutionState.AwaitingPermit2Eip712Sign:
       return {
         onSubmit: signPermit2,
         buttonText,

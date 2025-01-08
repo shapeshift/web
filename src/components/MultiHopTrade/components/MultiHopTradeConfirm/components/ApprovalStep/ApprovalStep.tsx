@@ -90,7 +90,7 @@ export const ApprovalStep = ({
             allowanceApproval.state === TransactionExecutionState.Complete
             ? TransactionExecutionState.AwaitingConfirmation
             : allowanceApproval.state
-        case HopExecutionState.AwaitingPermit2Allowance:
+        case HopExecutionState.AwaitingPermit2Eip712Sign:
           return permit2.state
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
@@ -118,7 +118,7 @@ export const ApprovalStep = ({
           return allowanceResetContent
         case HopExecutionState.AwaitingAllowanceApproval:
           return allowanceApprovalContent
-        case HopExecutionState.AwaitingPermit2Allowance:
+        case HopExecutionState.AwaitingPermit2Eip712Sign:
           return permit2Content
         case HopExecutionState.AwaitingSwap:
         case HopExecutionState.Complete:
@@ -172,7 +172,7 @@ export const ApprovalStep = ({
         return allowanceResetDescription
       case HopExecutionState.AwaitingAllowanceApproval:
         return allowanceApprovalDescription
-      case HopExecutionState.AwaitingPermit2Allowance:
+      case HopExecutionState.AwaitingPermit2Eip712Sign:
         return permit2Description
       case HopExecutionState.AwaitingSwap:
       case HopExecutionState.Complete:
@@ -213,7 +213,7 @@ export const ApprovalStep = ({
           allowanceReset.state === TransactionExecutionState.AwaitingConfirmation) ||
         (hopExecutionState === HopExecutionState.AwaitingAllowanceApproval &&
           allowanceApproval.state === TransactionExecutionState.AwaitingConfirmation) ||
-        (hopExecutionState === HopExecutionState.AwaitingPermit2Allowance &&
+        (hopExecutionState === HopExecutionState.AwaitingPermit2Eip712Sign &&
           permit2.state === TransactionExecutionState.AwaitingConfirmation)
       }
     />

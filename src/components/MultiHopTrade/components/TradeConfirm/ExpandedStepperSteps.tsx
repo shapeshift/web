@@ -211,21 +211,6 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
             </Tooltip>
           </>
         )
-      // Allowance granted, but still waiting for the actual Permit2 signature granting temp 5mn allowance to the contract
-      if (
-        firstHopPermit2.isRequired &&
-        hopExecutionState === HopExecutionState.AwaitingPermit2Eip712Sign
-      )
-        return (
-          <>
-            <Text translation='trade.permit2Eip712.title' />
-            <Tooltip label={translate('trade.permit2Eip712.tooltip', { swapperName })}>
-              <Box ml={1}>
-                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
-              </Box>
-            </Tooltip>
-          </>
-        )
 
       // Good ol' allowances
       return (
@@ -252,10 +237,22 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
     firstHopPermit2.isRequired,
     firstHopSellAccountId,
     hopExecutionState,
-    swapperName,
     tradeQuoteFirstHop,
     translate,
   ])
+
+  const firstHopPermit2SignTitle = useMemo(() => {
+    return (
+      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+        <Text translation='trade.permit2Eip712.title' />
+        <Tooltip label={translate('trade.permit2Eip712.tooltip', { swapperName })}>
+          <Box ml={1}>
+            <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
+          </Box>
+        </Tooltip>
+      </Flex>
+    )
+  }, [swapperName, translate])
 
   const firstHopActionTitle = useMemo(() => {
     return (
@@ -448,6 +445,16 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       {tradeSteps[StepperStep.FirstHopApproval] ? (
         <StepperStepComponent
           title={firstHopAllowanceApprovalTitle}
+          stepIndicator={stepIndicator}
+          stepProps={stepProps}
+          useSpacer={false}
+          isError={isError && currentTradeStep === StepperStep.FirstHopApproval}
+          stepIndicatorVariant='innerSteps'
+        />
+      ) : null}
+      {tradeSteps[StepperStep.FirstHopPermit2Sign] ? (
+        <StepperStepComponent
+          title={firstHopPermit2SignTitle}
           stepIndicator={stepIndicator}
           stepProps={stepProps}
           useSpacer={false}

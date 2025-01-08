@@ -60,6 +60,7 @@ type StepperStepParams = {
 
 export enum StepperStep {
   FirstHopReset = 'firstHopReset',
+  FirstHopPermit2Sign = 'firstHopPermit2Sign',
   FirstHopApproval = 'firstHopApproval',
   FirstHopSwap = 'firstHopSwap',
   LastHopReset = 'lastHopReset',
@@ -83,9 +84,8 @@ export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, 
       firstHopAllowanceReset.isRequired === true || firstHopAllowanceReset.txHash !== undefined,
     [StepperStep.FirstHopApproval]:
       firstHopAllowanceApproval.isInitiallyRequired === true ||
-      firstHopPermit2.isRequired === true ||
-      firstHopAllowanceApproval.txHash !== undefined ||
-      firstHopPermit2.permit2Signature !== undefined,
+      firstHopAllowanceApproval.txHash !== undefined,
+    [StepperStep.FirstHopPermit2Sign]: firstHopPermit2.isRequired === true,
     [StepperStep.FirstHopSwap]: true,
     [StepperStep.LastHopReset]:
       isMultiHopTrade === true &&
@@ -106,10 +106,11 @@ export const countStepperSteps = (params: StepperStepParams): number => {
 }
 
 const isInApprovalState = (state: HopExecutionState): boolean => {
-  return [
-    HopExecutionState.AwaitingAllowanceApproval,
-    HopExecutionState.AwaitingPermit2Eip712Sign,
-  ].includes(state)
+  return state === HopExecutionState.AwaitingAllowanceApproval
+}
+
+const isInPermit2SignState = (state: HopExecutionState): boolean => {
+  return state === HopExecutionState.AwaitingPermit2Eip712Sign
 }
 
 export const getCurrentStepperStep = (
@@ -123,6 +124,7 @@ export const getCurrentStepperStep = (
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)
       return StepperStep.FirstHopReset
     if (isInApprovalState(hopExecutionState)) return StepperStep.FirstHopApproval
+    if (isInPermit2SignState(hopExecutionState)) return StepperStep.FirstHopPermit2Sign
     if (hopExecutionState === HopExecutionState.AwaitingSwap) return StepperStep.FirstHopSwap
   } else if (currentHopIndex === 1) {
     if (hopExecutionState === HopExecutionState.AwaitingAllowanceReset)

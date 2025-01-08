@@ -189,7 +189,6 @@ export const ConfirmSummary = ({
   })
 
   // Taproot sends are unsupported for KeepKey, and Chainflip uses Taproot address for BTC sells.
-  // Unless support is added at firmware-level for P2TR outputs
   const isUnsupportedKeepKeyP2TrTx = useMemo(() => {
     return (
       wallet &&

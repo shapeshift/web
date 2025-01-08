@@ -92,7 +92,7 @@ export const ExpandableStepperSteps = ({
     if (!stepSummaryTranslation) return null
 
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
         <Text translation={stepSummaryTranslation} />
         <HStack mr={2}>
           <Progress

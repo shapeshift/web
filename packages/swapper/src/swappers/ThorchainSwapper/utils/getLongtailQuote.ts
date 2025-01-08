@@ -87,21 +87,24 @@ export const getLongtailToL1Quote = async (
   )
 
   return thorchainQuotes.andThen(quotes => {
-    const updatedQuotes: ThorTradeQuote[] = quotes.map(q => ({
-      ...q,
-      aggregator: bestAggregator,
-      // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
-      steps: q.steps.map(s => ({
-        ...s,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        sellAsset,
-        allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
-      })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
-      isLongtail: true,
-      longtailData: {
-        longtailToL1ExpectedAmountOut: quotedAmountOut,
-      },
-    }))
+    const updatedQuotes = quotes.map(
+      q =>
+        ({
+          ...q,
+          aggregator: bestAggregator,
+          // This logic will need to be updated to support multi-hop, if that's ever implemented for THORChain
+          steps: q.steps.map(s => ({
+            ...s,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            sellAsset,
+            allowanceContract: TS_AGGREGATOR_TOKEN_TRANSFER_PROXY_CONTRACT_MAINNET,
+          })) as MultiHopTradeQuoteSteps, // assuming multi-hop quote steps here since we're mapping over quote steps
+          isLongtail: true,
+          longtailData: {
+            longtailToL1ExpectedAmountOut: quotedAmountOut.toString(),
+          },
+        }) satisfies ThorTradeQuote,
+    )
 
     return Ok(updatedQuotes)
   })

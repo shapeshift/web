@@ -46,7 +46,7 @@ export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
-  assetFilterPredicate?: (asset: Asset) => boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
@@ -110,9 +110,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
 
   const popularAssets = useMemo(() => {
     const unfilteredPopularAssets = popularAssetsByChainId?.[activeChainId] ?? []
-    const filteredPopularAssets = assetFilterPredicate
-      ? unfilteredPopularAssets.filter(assetFilterPredicate)
-      : unfilteredPopularAssets
+    const filteredPopularAssets = unfilteredPopularAssets.filter(
+      asset => assetFilterPredicate?.(asset.assetId) ?? true,
+    )
     if (allowWalletUnsupportedAssets || !hasWallet) return filteredPopularAssets
 
     // TODO: move `allowWalletUnsupportedAssets` into `assetFilterPredicate`
@@ -150,9 +150,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   }, [activeChainId, popularAssets])
 
   const portfolioAssetsSortedByBalanceForChain = useMemo(() => {
-    const filteredPortfolioAssetsSortedByBalance = assetFilterPredicate
-      ? portfolioAssetsSortedByBalance.filter(assetFilterPredicate)
-      : portfolioAssetsSortedByBalance
+    const filteredPortfolioAssetsSortedByBalance = portfolioAssetsSortedByBalance.filter(
+      asset => assetFilterPredicate?.(asset.assetId) ?? true,
+    )
 
     if (activeChainId === 'All') {
       return filteredPortfolioAssetsSortedByBalance

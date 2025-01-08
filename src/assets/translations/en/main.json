@@ -2231,7 +2231,8 @@
           "connectionError": "Can't connect to provided URI.",
           "invalidUri": "Invalid URI",
           "v1UriUnsupported": "WalletConnect V1 URI not enabled",
-          "v2UriUnsupported": "WalletConnect V2 URI not enabled"
+          "v2UriUnsupported": "WalletConnect V2 URI not enabled",
+          "disclaimerBody": "Shapeshift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
         },
         "sessionProposal": {
           "dAppInfo": "dApp Info",

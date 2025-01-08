@@ -10,11 +10,13 @@ export const TxLabel = ({
   explorerBaseUrl,
   accountId,
   swapperName,
+  isBuyTxHash,
 }: {
   txHash: string
   explorerBaseUrl: string
   accountId: AccountId
   swapperName: SwapSource | undefined
+  isBuyTxHash?: boolean
 }) => {
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txHash,
@@ -24,9 +26,9 @@ export const TxLabel = ({
   const txLink = getTxLink({
     defaultExplorerBaseUrl: explorerBaseUrl,
     maybeSafeTx,
-    tradeId: txHash,
     accountId,
     name: swapperName,
+    ...(isBuyTxHash ? { txId: txHash } : { tradeId: txHash }),
   })
 
   return txLink ? (

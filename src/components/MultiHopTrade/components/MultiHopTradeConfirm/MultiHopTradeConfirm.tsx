@@ -146,7 +146,7 @@ export const MultiHopTradeConfirm = memo(() => {
               isArbitrumBridgeWithdraw ? 'bridge.arbitrum.success.tradeSuccess' : undefined
             }
             sellAsset={activeQuote?.steps[0].sellAsset}
-            buyAsset={activeQuote?.steps[0].buyAsset}
+            buyAsset={lastHop.buyAsset}
             sellAmountCryptoPrecision={fromBaseUnit(
               activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
               activeQuote.steps[0].sellAsset.precision,

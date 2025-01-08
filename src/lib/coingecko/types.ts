@@ -7,6 +7,7 @@ import type {
 // Non-exhaustive types, refer to https://docs.coingecko.com/reference/coins-id and other endpoints for full response schema
 export type CoingeckoAssetDetails = {
   market_data: CoinGeckoMarketData
+  market_cap_rank: number | null
   asset_platform_id: string
   id: string
   image: Record<string, string>

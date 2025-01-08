@@ -3,7 +3,10 @@ import { isSome } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useMemo } from 'react'
 import { useGetTradeQuotes } from 'components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { selectHopExecutionMetadata } from 'state/slices/tradeQuoteSlice/selectors'
+import {
+  selectActiveSwapperName,
+  selectHopExecutionMetadata,
+} from 'state/slices/tradeQuoteSlice/selectors'
 import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector } from 'state/store'
 
@@ -37,6 +40,8 @@ export const usePermit2Content = ({
     allowanceApproval,
   } = useAppSelector(state => selectHopExecutionMetadata(state, hopExecutionMetadataFilter))
 
+  const swapperName = useAppSelector(selectActiveSwapperName)
+
   const { signPermit2 } = useSignPermit2(tradeQuoteStep, hopIndex, activeTradeId)
 
   const { isLoading: isTradeQuotesLoading } = useGetTradeQuotes()
@@ -55,6 +60,10 @@ export const usePermit2Content = ({
     return ['trade.permit2Allowance.description', { symbol: tradeQuoteStep.sellAsset.symbol }]
   }, [tradeQuoteStep])
 
+  const tooltipTranslation: [string, InterpolationOptions] = useMemo(() => {
+    return ['trade.permit2Eip712.tooltip', { swapperName }]
+  }, [swapperName])
+
   const content = useMemo(() => {
     if (hopExecutionState !== HopExecutionState.AwaitingPermit2Eip712Sign) return
     return (
@@ -66,8 +75,8 @@ export const usePermit2Content = ({
           isTradeQuotesLoading
         }
         subHeadingTranslation={subHeadingTranslation}
-        titleTranslation='trade.permit2Allowance.title'
-        tooltipTranslation='trade.permit2Allowance.tooltip'
+        titleTranslation='trade.permit2Eip712.title'
+        tooltipTranslation={tooltipTranslation}
         transactionExecutionState={permit2.state}
         onSubmit={signPermit2}
       />
@@ -79,6 +88,7 @@ export const usePermit2Content = ({
     permit2.state,
     signPermit2,
     subHeadingTranslation,
+    tooltipTranslation,
   ])
 
   const description = useMemo(() => {

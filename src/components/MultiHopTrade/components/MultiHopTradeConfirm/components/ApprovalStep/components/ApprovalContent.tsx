@@ -12,7 +12,7 @@ export type ApprovalContentProps = {
   isLoading: boolean
   subHeadingTranslation?: string | [string, InterpolationOptions]
   titleTranslation: string
-  tooltipTranslation: string
+  tooltipTranslation: string | [string, InterpolationOptions]
   topRightContent?: JSX.Element
   transactionExecutionState: TransactionExecutionState
   onSubmit: () => void

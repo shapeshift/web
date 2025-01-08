@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, isNft, toAssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bscChainId, gnosisAssetId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -25,7 +25,7 @@ export type SearchTermAssetListProps = {
   activeChainId: ChainId | 'All'
   searchString: string
   allowWalletUnsupportedAssets: boolean | undefined
-  assetFilterPredicate?: (asset: Asset) => boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
   onAssetClick: (asset: Asset) => void
   onImportClick: (asset: Asset) => void
 }
@@ -61,7 +61,7 @@ export const SearchTermAssetList = ({
   })
 
   const assetsForChain = useMemo(() => {
-    const _assets = assetFilterPredicate ? assets.filter(assetFilterPredicate) : assets
+    const _assets = assets.filter(asset => assetFilterPredicate?.(asset.assetId) ?? true)
     if (activeChainId === 'All') {
       if (allowWalletUnsupportedAssets) return _assets
       return _assets.filter(

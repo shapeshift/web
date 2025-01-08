@@ -17,6 +17,7 @@ type TradeAssetSelectBaseProps = {
   isLoading?: boolean
   buttonProps?: ButtonProps
   onlyConnectedChains: boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
 } & FlexProps
 
@@ -44,6 +45,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
     isLoading,
     onlyConnectedChains,
     buttonProps,
+    assetFilterPredicate,
     chainIdFilterPredicate,
     flexProps,
   } = useMemo(() => {
@@ -56,6 +58,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       isLoading,
       onlyConnectedChains,
       buttonProps,
+      assetFilterPredicate,
       chainIdFilterPredicate,
       ...flexProps
     } = props
@@ -68,6 +71,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
       isLoading,
       onlyConnectedChains,
       buttonProps,
+      assetFilterPredicate,
       chainIdFilterPredicate,
       flexProps,
     }
@@ -109,6 +113,7 @@ export const TradeAssetSelect: React.FC<TradeAssetSelectProps> = memo(props => {
         rightIcon={rightIcon}
         onlyConnectedChains={onlyConnectedChains}
         chainIdFilterPredicate={chainIdFilterPredicate}
+        assetFilterPredicate={assetFilterPredicate}
       />
     </Flex>
   )

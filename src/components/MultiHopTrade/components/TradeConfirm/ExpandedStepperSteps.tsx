@@ -26,7 +26,7 @@ import {
   selectActiveQuoteErrors,
   selectHopExecutionMetadata,
 } from 'state/slices/tradeQuoteSlice/selectors'
-import { TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
+import { HopExecutionState, TransactionExecutionState } from 'state/slices/tradeQuoteSlice/types'
 import { useAppSelector, useSelectorWithArgs } from 'state/store'
 
 import { StepperStep as StepperStepComponent } from '../MultiHopTradeConfirm/components/StepperStep'
@@ -120,6 +120,7 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [activeTradeId])
 
   const {
+    state: hopExecutionState,
     allowanceApproval: firstHopAllowanceApproval,
     permit2: firstHopPermit2,
     allowanceReset: firstHopAllowanceReset,
@@ -194,36 +195,58 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
   }, [firstHopAllowanceReset.txHash, firstHopSellAccountId, tradeQuoteFirstHop])
 
   const firstHopAllowanceApprovalTitle = useMemo(() => {
-    return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1}>
-        {firstHopPermit2.isRequired === true ? (
+    const content = (() => {
+      // Awaiting Permit2 contract allowance grant
+      if (hopExecutionState !== HopExecutionState.AwaitingPermit2Allowance)
+        return (
           <>
-            <Text translation='trade.permit2Title' />
-            <Tooltip label={translate('trade.permit2.tooltip')}>
+            <Text translation='trade.permit2Allowance.title' />
+            <Tooltip label={translate('trade.permit2Allowance.tooltip')}>
               <Box ml={1}>
                 <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
               </Box>
             </Tooltip>
           </>
-        ) : (
+        )
+      // Allowance granted, but still waiting for the actual Permit2 signature granting temp 5mn allowance to the contract
+      if (firstHopPermit2.isRequired)
+        return (
           <>
-            <Text translation='trade.approvalTitle' />
-            {firstHopAllowanceApproval.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
-              <TxLabel
-                txHash={firstHopAllowanceApproval.txHash}
-                explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
-                accountId={firstHopSellAccountId}
-                swapperName={undefined} // no swapper base URL here, this is an allowance Tx
-              />
-            )}
+            <Text translation='trade.permit2Eip712.title' />
+            <Tooltip label={translate('trade.permit2Eip712.tooltip', { swapperName })}>
+              <Box ml={1}>
+                <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
+              </Box>
+            </Tooltip>
           </>
-        )}
+        )
+
+      // Good ol' allowances
+      return (
+        <>
+          <Text translation='trade.approvalTitle' />
+          {firstHopAllowanceApproval.txHash && tradeQuoteFirstHop && firstHopSellAccountId && (
+            <TxLabel
+              txHash={firstHopAllowanceApproval.txHash}
+              explorerBaseUrl={tradeQuoteFirstHop.sellAsset.explorerTxLink}
+              accountId={firstHopSellAccountId}
+              swapperName={undefined} // no swapper base URL here, this is an allowance Tx
+            />
+          )}
+        </>
+      )
+    })()
+    return (
+      <Flex alignItems='center' justifyContent='space-between' flex={1}>
+        {content}
       </Flex>
     )
   }, [
     firstHopAllowanceApproval.txHash,
     firstHopPermit2.isRequired,
     firstHopSellAccountId,
+    hopExecutionState,
+    swapperName,
     tradeQuoteFirstHop,
     translate,
   ])
@@ -296,8 +319,8 @@ export const ExpandedStepperSteps = ({ activeTradeQuote }: ExpandedStepperStepsP
       <Flex alignItems='center' justifyContent='space-between' flex={1}>
         {lastHopPermit2.isRequired === true ? (
           <>
-            <Text translation='trade.permit2Title' />
-            <Tooltip label={translate('trade.permit2.tooltip')}>
+            <Text translation='trade.permit2Allowance.title' />
+            <Tooltip label={translate('trade.permit2Allowance.tooltip')}>
               <Box ml={1}>
                 <Icon as={FaInfoCircle} color='text.subtle' fontSize='0.8em' />
               </Box>

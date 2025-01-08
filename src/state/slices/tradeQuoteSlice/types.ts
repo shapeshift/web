@@ -26,7 +26,7 @@ export enum HopExecutionState {
   Pending = 'Pending',
   AwaitingAllowanceReset = 'AwaitingAllowanceReset',
   AwaitingAllowanceApproval = 'AwaitingAllowanceApproval',
-  AwaitingPermit2 = 'AwaitingPermit2',
+  AwaitingPermit2Allowance = 'AwaitingPermit2Allowance',
   AwaitingSwap = 'AwaitingSwap',
   Complete = 'Complete',
 }

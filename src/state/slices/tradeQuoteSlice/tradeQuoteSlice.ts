@@ -96,7 +96,8 @@ export const tradeQuoteSlice = createSlice({
             HopExecutionState.AwaitingAllowanceApproval
           break
         case permit2Required:
-          state.tradeExecution[tradeQuoteId].firstHop.state = HopExecutionState.AwaitingPermit2
+          state.tradeExecution[tradeQuoteId].firstHop.state =
+            HopExecutionState.AwaitingPermit2Allowance
           break
         default:
           state.tradeExecution[tradeQuoteId].firstHop.state = HopExecutionState.AwaitingSwap
@@ -219,7 +220,7 @@ export const tradeQuoteSlice = createSlice({
 
       const permit2Required = state.tradeExecution[id][key].permit2.isRequired
       state.tradeExecution[id][key].state = permit2Required
-        ? HopExecutionState.AwaitingPermit2
+        ? HopExecutionState.AwaitingPermit2Allowance
         : HopExecutionState.AwaitingSwap
     },
     setSwapTxPending: (

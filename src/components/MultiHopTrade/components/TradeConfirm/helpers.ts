@@ -106,11 +106,11 @@ export const countStepperSteps = (params: StepperStepParams): number => {
 }
 
 const isInApprovalState = (state: HopExecutionState): boolean => {
-  return [HopExecutionState.AwaitingAllowanceApproval].includes(state)
+  return state === HopExecutionState.AwaitingAllowanceApproval
 }
 
 const isInPermit2SignState = (state: HopExecutionState): boolean => {
-  return [HopExecutionState.AwaitingPermit2Eip712Sign].includes(state)
+  return state === HopExecutionState.AwaitingPermit2Eip712Sign
 }
 
 export const getCurrentStepperStep = (

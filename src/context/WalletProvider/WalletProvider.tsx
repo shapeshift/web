@@ -354,6 +354,7 @@ const getInitialState = () => {
      */
     return {
       ...initialState,
+      nativeWalletPendingDeviceId: localWalletDeviceId,
       isLoadingLocalWallet: true,
     }
   }

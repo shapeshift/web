@@ -46,7 +46,7 @@ export const getHopExecutionStateSummaryStepTranslation = (
 
 type StepperStepParams = {
   firstHopAllowanceApproval: ApprovalExecutionMetadata
-  firstHopPermit2: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
+  firstHopPermit2Eip712: Omit<ApprovalExecutionMetadata, 'txHash' | 'isInitiallyRequired'> & {
     permit2Signature?: string | undefined
   }
   firstHopAllowanceReset: ApprovalExecutionMetadata
@@ -73,7 +73,7 @@ export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, 
   const {
     firstHopAllowanceReset,
     firstHopAllowanceApproval,
-    firstHopPermit2,
+    firstHopPermit2Eip712,
     lastHopAllowanceReset,
     lastHopAllowanceApproval,
     lastHopPermit2,
@@ -85,7 +85,7 @@ export const getStepperSteps = (params: StepperStepParams): Record<StepperStep, 
     [StepperStep.FirstHopApproval]:
       firstHopAllowanceApproval.isInitiallyRequired === true ||
       firstHopAllowanceApproval.txHash !== undefined,
-    [StepperStep.FirstHopPermit2Eip712Sign]: firstHopPermit2.isRequired === true,
+    [StepperStep.FirstHopPermit2Eip712Sign]: firstHopPermit2Eip712.isRequired === true,
     [StepperStep.FirstHopSwap]: true,
     [StepperStep.LastHopReset]:
       isMultiHopTrade === true &&

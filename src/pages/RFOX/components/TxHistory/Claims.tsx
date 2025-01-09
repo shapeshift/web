@@ -1,5 +1,5 @@
 import { CardBody, Skeleton } from '@chakra-ui/react'
-import { foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
@@ -22,7 +22,7 @@ export const Claims = ({ headerComponent }: ClaimsProps) => {
   const setConfirmedQuote = useCallback(() => {}, [])
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const lpStakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpArbitrumAssetId))
+  const lpStakingAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

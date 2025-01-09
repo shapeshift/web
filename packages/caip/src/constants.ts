@@ -18,7 +18,7 @@ export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
-export const foxEthLpArbitrumAssetId: AssetId =
+export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
 export const foxatarAssetId: AssetId =

@@ -1,7 +1,7 @@
 import {
-  foxEthLpArbitrumAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import { RFOX_LP_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import { useQueryClient } from '@tanstack/react-query'
@@ -83,7 +83,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
-    stakingAssetId: foxEthLpArbitrumAssetId,
+    stakingAssetId: uniV2EthFoxArbitrumAssetId,
   })
 
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
@@ -94,7 +94,7 @@ export const UnstakeRoutes: React.FC<UnstakeRouteProps> = ({ headerComponent }) 
   })
 
   const { queryKey: lpNewContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
-    stakingAssetId: foxEthLpArbitrumAssetId,
+    stakingAssetId: uniV2EthFoxArbitrumAssetId,
     stakingAssetAccountAddress: confirmedQuote
       ? getStakingContract(confirmedQuote.stakingAssetId)
       : undefined,

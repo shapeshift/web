@@ -1,5 +1,5 @@
 import { Button, CardBody, Center, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { foxAssetId, foxEthLpArbitrumAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAccountId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import dayjs from 'dayjs'
 import type { FC } from 'react'
@@ -71,7 +71,7 @@ export const ClaimSelect: FC<ClaimSelectProps & ClaimRouteProps> = ({
   const { stakingAssetId, stakingAssetAccountId } = useRFOXContext()
   const history = useHistory()
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const lpStakingAsset = useAppSelector(state => selectAssetById(state, foxEthLpArbitrumAssetId))
+  const lpStakingAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
 
   const stakingAssetAccountAddress = useMemo(
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),

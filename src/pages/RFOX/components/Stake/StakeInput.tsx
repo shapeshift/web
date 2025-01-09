@@ -2,10 +2,10 @@ import { CardBody, CardFooter, Collapse, Skeleton, Stack } from '@chakra-ui/reac
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   foxAssetId,
-  foxEthLpArbitrumAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
@@ -86,14 +86,14 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setStepIndex,
 }) => {
   const assetIds = useMemo(
-    () => [stakingAssetId, l1AssetId, foxEthLpArbitrumAssetId],
+    () => [stakingAssetId, l1AssetId, uniV2EthFoxArbitrumAssetId],
     [l1AssetId, stakingAssetId],
   )
   const { selectedAssetId, setSelectedAssetId, selectedAssetAccountId, stakingAssetAccountId } =
     useRFOXContext()
 
   const stakingAssetIdOrLpAssetId = useMemo(() => {
-    if (selectedAssetId === foxEthLpArbitrumAssetId) return foxEthLpArbitrumAssetId
+    if (selectedAssetId === uniV2EthFoxArbitrumAssetId) return uniV2EthFoxArbitrumAssetId
 
     return selectedAssetId
   }, [selectedAssetId])
@@ -108,7 +108,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const { isFetching: isAccountsMetadataLoading } = useAccountsFetchQuery()
   const isBridgeRequired =
-    stakingAssetId !== selectedAssetId && foxEthLpArbitrumAssetId !== selectedAssetId
+    stakingAssetId !== selectedAssetId && uniV2EthFoxArbitrumAssetId !== selectedAssetId
   const dispatch = useAppDispatch()
   const translate = useTranslate()
   const history = useHistory()
@@ -141,7 +141,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const l1Asset = useAppSelector(state => selectAssetById(state, l1AssetId))
   const foxEthLpArbitrumAsset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpArbitrumAssetId),
+    selectAssetById(state, uniV2EthFoxArbitrumAssetId),
   )
   const selectedAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(selectedAssetId).chainId),
@@ -181,7 +181,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   useEffect(() => {
     // hydrate FOX.ARB market data in case the user doesn't hold it
     dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetIdOrLpAssetId))
-    dispatch(marketApi.endpoints.findByAssetId.initiate(foxEthLpArbitrumAssetId))
+    dispatch(marketApi.endpoints.findByAssetId.initiate(uniV2EthFoxArbitrumAssetId))
   }, [dispatch, selectedAssetId, stakingAssetIdOrLpAssetId])
   useEffect(() => {
     // Only set this once, never collapse out

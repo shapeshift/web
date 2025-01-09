@@ -1,5 +1,5 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { foxEthLpArbitrumAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -66,10 +66,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const history = useHistory()
   const { stakingAssetId, stakingAssetAccountId, setSelectedAssetId, selectedAssetId } =
     useRFOXContext()
-  const assetIds = useMemo(() => [stakingAssetId, foxEthLpArbitrumAssetId], [stakingAssetId])
+  const assetIds = useMemo(() => [stakingAssetId, uniV2EthFoxArbitrumAssetId], [stakingAssetId])
 
   const foxEthLpArbitrumAsset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpArbitrumAssetId),
+    selectAssetById(state, uniV2EthFoxArbitrumAssetId),
   )
 
   const selectedAsset = useAppSelector(state => selectAssetById(state, selectedAssetId))

@@ -1,7 +1,7 @@
 import {
-  foxEthLpArbitrumAssetId,
   foxOnArbitrumOneAssetId,
   fromAccountId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
@@ -100,7 +100,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     stakingAssetAccountAddress: confirmedQuote?.stakingAssetAccountId
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
-    stakingAssetId: foxEthLpArbitrumAssetId,
+    stakingAssetId: uniV2EthFoxArbitrumAssetId,
   })
 
   const { queryKey: newContractBalanceOfCryptoBaseUnitQueryKey } = useStakingBalanceOfQuery({
@@ -114,7 +114,7 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     stakingAssetAccountAddress: confirmedQuote
       ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
       : undefined,
-    stakingAssetId: foxEthLpArbitrumAssetId,
+    stakingAssetId: uniV2EthFoxArbitrumAssetId,
   })
 
   const handleTxConfirmed = useCallback(async () => {

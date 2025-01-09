@@ -9,7 +9,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
-import { foxEthLpArbitrumAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -69,12 +69,12 @@ export const ChangeAddressInput: FC<ChangeAddressRouteProps & ChangeAddressInput
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const foxEthLpArbitrumAsset = useAppSelector(state =>
-    selectAssetById(state, foxEthLpArbitrumAssetId),
+    selectAssetById(state, uniV2EthFoxArbitrumAssetId),
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
 
-  const assetIds = useMemo(() => [stakingAssetId, foxEthLpArbitrumAssetId], [stakingAssetId])
+  const assetIds = useMemo(() => [stakingAssetId, uniV2EthFoxArbitrumAssetId], [stakingAssetId])
 
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(stakingAssetId).chainId),

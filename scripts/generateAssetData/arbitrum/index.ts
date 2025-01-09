@@ -1,4 +1,4 @@
-import { arbitrumChainId, foxEthLpArbitrumAssetId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { arbitrum, unfreeze } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
@@ -7,16 +7,16 @@ import { getPortalTokens } from 'lib/portals/utils'
 
 import * as coingecko from '../coingecko'
 
-const foxEthLpArbitrumAsset: Readonly<Asset> = Object.freeze({
-  assetId: foxEthLpArbitrumAssetId,
+const uniV2EthFoxAsset: Readonly<Asset> = Object.freeze({
+  assetId: uniV2EthFoxArbitrumAssetId,
   chainId: arbitrumChainId,
-  name: 'UniswapV2 FOX/ETH Pool',
+  name: 'UniswapV2 ETH/FOX Pool',
   precision: 18,
   symbol: 'WETH/FOX',
   color: '#FFFFFF',
   icons: [
-    '/fox-token-logo.png',
     'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png',
+    '/fox-token-logo.png',
   ],
   explorer: arbitrum.explorer,
   explorerAddressLink: arbitrum.explorerAddressLink,
@@ -43,7 +43,7 @@ export const getAssets = async (): Promise<Asset[]> => {
     portalsPools
       .concat(assets)
       .concat(portalsAssets)
-      .concat([unfreeze(arbitrum), unfreeze(foxEthLpArbitrumAsset)]),
+      .concat([unfreeze(arbitrum), unfreeze(uniV2EthFoxAsset)]),
     'assetId',
   )
 

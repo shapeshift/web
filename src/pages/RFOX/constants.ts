@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { foxEthLpArbitrumAssetId, foxOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
 import { getAbiItem, getContract } from 'viem'
 import { arbitrum } from 'viem/chains'
@@ -14,7 +14,7 @@ export const withdrawEvent = getAbiItem({ abi: RFOX_ABI, name: 'Withdraw' })
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
 export const CURRENT_EPOCH_IPFS_HASH = 'QmX5kgfHFM99BfaP3So2CXRBnRzZepinfjHNyRzvuXYUP5'
-export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, foxEthLpArbitrumAssetId]
+export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 
 const client = viemClientByNetworkId[arbitrum.id]
 

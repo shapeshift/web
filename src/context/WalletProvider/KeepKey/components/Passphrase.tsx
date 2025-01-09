@@ -22,7 +22,7 @@ export const KeepKeyPassphrase = () => {
     state: { deviceId, keyring },
     dispatch,
   } = useWallet()
-  const wallet = keyring.get(deviceId)
+  const wallet = keyring.get(deviceId ?? '')
   const walletId = useAppSelector(selectWalletId)
   const appDispatch = useAppDispatch()
 

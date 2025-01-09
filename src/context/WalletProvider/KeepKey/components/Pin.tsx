@@ -38,7 +38,7 @@ export const KeepKeyPin = ({
     },
     dispatch,
   } = useWallet()
-  const wallet = keyring.get(deviceId)
+  const wallet = keyring.get(deviceId ?? '')
 
   const pinFieldRef = useRef<HTMLInputElement | null>(null)
 
@@ -138,10 +138,10 @@ export const KeepKeyPin = ({
       }
     }
 
-    keyring.on(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
+    keyring.on(['KeepKey', deviceId ?? '', String(MessageType.FAILURE)], handleError)
 
     return () => {
-      keyring.off(['KeepKey', deviceId, String(MessageType.FAILURE)], handleError)
+      keyring.off(['KeepKey', deviceId ?? '', String(MessageType.FAILURE)], handleError)
     }
   }, [deviceId, keyring])
 

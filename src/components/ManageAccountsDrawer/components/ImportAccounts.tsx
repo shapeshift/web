@@ -317,6 +317,11 @@ export const ImportAccounts = ({ chainId, onClose }: ImportAccountsProps) => {
       return
     }
 
+    if (!walletDeviceId) {
+      console.error('Missing walletDeviceId')
+      return
+    }
+
     setIsSubmitting(true)
 
     // For every new account that is active, fetch the account and upsert it into the redux state

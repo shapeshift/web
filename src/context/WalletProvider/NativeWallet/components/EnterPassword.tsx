@@ -47,9 +47,6 @@ export const EnterPassword = () => {
 
   const [showPw, setShowPw] = useState<boolean>(false)
 
-  // TODO: this is always null
-  console.log('EnterPassword', deviceId)
-
   const {
     setError,
     handleSubmit,
@@ -61,6 +58,7 @@ export const EnterPassword = () => {
   const onSubmit = useCallback(
     async (values: FieldValues) => {
       try {
+        if (!deviceId) return
         const wallet = keyring.get<NativeHDWallet>(deviceId)
         const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const vault = await Vault.open(deviceId, values.password)

@@ -24,11 +24,6 @@ export const useNativeEventHandler = (state: InitialState, dispatch: Dispatch<Ac
             break
           }
 
-          console.log({
-            nativeWalletPendingDeviceId: state.nativeWalletPendingDeviceId,
-            deviceId: state.deviceId,
-          })
-
           // If we're on the native mobile app we don't need to handle the MNEMONIC_REQUIRED event as we use the device's native authentication instead
           // Reacting to this event will incorrectly open the native password modal after authentication completes when on the mobile app
           if (isMobileApp) break

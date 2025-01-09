@@ -52,7 +52,8 @@ export const LedgerChains = () => {
 
   const handleConnectClick = useCallback(
     async (chainId: ChainId) => {
-      if (!walletState?.wallet) {
+      const { wallet, deviceId } = walletState ?? {}
+      if (!wallet || !deviceId) {
         console.error('No wallet found')
         return
       }
@@ -67,7 +68,7 @@ export const LedgerChains = () => {
         ]({
           accountNumber: 0,
           chainIds,
-          wallet: walletState.wallet,
+          wallet,
           isSnapInstalled: false,
         })
 
@@ -102,7 +103,7 @@ export const LedgerChains = () => {
           const accountMetadata = accountMetadataByAccountId[accountId]
           const payload = {
             accountMetadataByAccountId: { [accountId]: accountMetadata },
-            walletId: walletState.deviceId,
+            walletId: deviceId,
           }
 
           dispatch(portfolio.actions.upsertAccountMetadata(payload))
@@ -120,7 +121,7 @@ export const LedgerChains = () => {
         setLoadingChains(prevLoading => ({ ...prevLoading, [chainId]: false }))
       }
     },
-    [dispatch, walletState.deviceId, walletState.wallet],
+    [dispatch, walletState],
   )
 
   const chainsRows = useMemo(

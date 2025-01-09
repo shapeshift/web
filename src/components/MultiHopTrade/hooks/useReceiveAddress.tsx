@@ -66,7 +66,7 @@ export const useReceiveAddress = ({
       ? skipToken
       : async () => {
           // Already partially covered in isInitializing, but TypeScript lyfe mang.
-          if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
+          if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata || !deviceId) {
             return undefined
           }
 

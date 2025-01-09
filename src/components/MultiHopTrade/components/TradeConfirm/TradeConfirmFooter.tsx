@@ -278,6 +278,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         isExactAllowance={isExactAllowance}
         hasClickedButton={hasClickedButton}
         setHasClickedButton={setHasClickedButton}
+        isLoading={isNetworkFeeCryptoBaseUnitLoading || isNetworkFeeCryptoBaseUnitRefetching}
       />
     )
   }, [
@@ -286,7 +287,8 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     activeTradeId,
     isExactAllowance,
     hasClickedButton,
-    setHasClickedButton,
+    isNetworkFeeCryptoBaseUnitLoading,
+    isNetworkFeeCryptoBaseUnitRefetching,
   ])
 
   return <SharedConfirmFooter detail={tradeDetail} button={footerButton} />

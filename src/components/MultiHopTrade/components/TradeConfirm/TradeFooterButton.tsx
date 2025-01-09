@@ -52,10 +52,9 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   currentHopIndex,
   activeTradeId,
   isExactAllowance,
-  hasClickedButton,
-  setHasClickedButton,
   isLoading = false,
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
   const tradeButtonProps = useTradeButtonProps({
     tradeQuoteStep,
@@ -109,15 +108,19 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     [networkFeeUserCurrency, sellAmountBeforeFeesUserCurrency],
   )
 
-  // Reset the button state when the trade execution state changes
+  // Reset the button loading state when the trade execution state changes
   useEffect(() => {
-    setHasClickedButton(false)
-  }, [firstHopMetadata.state, secondHopMetadata.state, setHasClickedButton])
+    setIsSubmitting(false)
+  }, [firstHopMetadata.state, secondHopMetadata.state])
 
-  const handleSubmit = useCallback(() => {
-    setHasClickedButton(true)
-    tradeButtonProps?.onSubmit()
-  }, [tradeButtonProps, setHasClickedButton])
+  const handleSubmit = useCallback(async () => {
+    try {
+      setIsSubmitting(true)
+      await tradeButtonProps?.onSubmit()
+    } finally {
+      setIsSubmitting(false)
+    }
+  }, [tradeButtonProps])
 
   const handleClick = useCallback(() => {
     const isInitializingOrPreviewing =
@@ -251,8 +254,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           width='full'
           onClick={handleClick}
           isLoading={
+            isSubmitting ||
             confirmedTradeExecutionState === TradeExecutionState.Initializing ||
-            hasClickedButton ||
             tradeButtonProps.isLoading ||
             isLoading
           }

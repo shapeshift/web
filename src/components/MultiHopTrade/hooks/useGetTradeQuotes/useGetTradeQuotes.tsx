@@ -220,6 +220,8 @@ export const useGetTradeQuotes = () => {
   // Don't memo me, this is a ref and needs to re-evaluate every-render
   const swapperName = activeQuoteMetaRef.current?.swapperName
 
+  console.log({ hopExecutionMetadata })
+
   // Is the step we're in a step which requires final quote fetching?
   const isFetchStep = useMemo(() => {
     if (!swapperName) return
@@ -231,9 +233,16 @@ export const useGetTradeQuotes = () => {
           permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
-
-    return hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap
-  }, [hopExecutionMetadata?.permit2, hopExecutionMetadata?.state, swapperName])
+    return (
+      hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
+      hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
+    )
+  }, [
+    hopExecutionMetadata?.permit2,
+    hopExecutionMetadata?.state,
+    hopExecutionMetadata?.swap?.state,
+    swapperName,
+  ])
 
   const shouldFetchTradeQuotes = useMemo(() => {
     return Boolean(

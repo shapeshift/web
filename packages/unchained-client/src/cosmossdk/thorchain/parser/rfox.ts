@@ -1,3 +1,5 @@
+import { RFOX_PROXY_CONTRACT } from '@shapeshiftoss/contracts'
+
 import type { BaseTxMetadata, StandardTx } from '../../../types'
 import type { SubParser, Tx, TxSpecific } from '../../parser'
 
@@ -6,6 +8,7 @@ export interface TxMetadata extends BaseTxMetadata {
   type: 'thorchain'
   epoch: number
   stakingAddress: string
+  stakingContract: string
   ipfsHash: string
 }
 
@@ -18,12 +21,12 @@ export class Parser implements SubParser<Tx> {
     if (!tx.memo?.startsWith('rFOX reward')) return
 
     const match = tx.memo.match(
-      /Staking Address: (?<stakingAddress>\w+)\) - Epoch #(?<epoch>\d+) \(IPFS Hash: (?<ipfsHash>\w+)\)/,
+      /rFOX reward \(?(?:Staking Contract: (?<stakingContract>\w+), )?Staking Address: (?<stakingAddress>\w+)\) - Epoch #(?<epoch>\d+) \(IPFS Hash: (?<ipfsHash>\w+)\)/,
     )
 
     if (!match?.groups) return
 
-    const { epoch, stakingAddress, ipfsHash } = match.groups
+    const { epoch, stakingAddress, stakingContract, ipfsHash } = match.groups
 
     if (!epoch || !stakingAddress || !ipfsHash) return
 
@@ -34,6 +37,7 @@ export class Parser implements SubParser<Tx> {
         method: 'reward',
         epoch: parseInt(match.groups.epoch, 10),
         stakingAddress: match.groups.stakingAddress,
+        stakingContract: stakingContract || RFOX_PROXY_CONTRACT,
         ipfsHash: match.groups.ipfsHash,
       },
     })
